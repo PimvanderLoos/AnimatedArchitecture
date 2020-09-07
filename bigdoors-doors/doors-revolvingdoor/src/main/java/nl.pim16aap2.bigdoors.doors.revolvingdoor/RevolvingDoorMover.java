@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -41,9 +42,9 @@ public class RevolvingDoorMover extends BlockMover
     public RevolvingDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
                               final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                               final int quarterCircles, final @NotNull DoorActionCause cause,
-                              final @NotNull DoorActionType actionType)
+                              final @NotNull CuboidConst newCuboid, final @NotNull DoorActionType actionType)
     {
-        super(door, 30, false, RotateDirection.NONE, player, door.getMinimum(), door.getMaximum(), cause, actionType);
+        super(door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
 
         this.quarterCircles = quarterCircles;
 

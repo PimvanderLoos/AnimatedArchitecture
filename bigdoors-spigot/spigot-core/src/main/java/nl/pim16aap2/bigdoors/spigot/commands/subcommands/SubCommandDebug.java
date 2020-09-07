@@ -1,10 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,10 +35,14 @@ public class SubCommandDebug extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
+    @SneakyThrows
     public boolean execute(CommandSender sender)
     {
         if (!(sender instanceof Player))
             return false;
+
+        final @NotNull Player player = (Player) sender;
+        final @NotNull IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));
@@ -50,6 +57,7 @@ public class SubCommandDebug extends SubCommand
 
         return true;
     }
+
 
     @Override
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,

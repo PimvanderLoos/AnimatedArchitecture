@@ -29,8 +29,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
                          final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(time, door, rotateDirection, false, multiplier, player, door.getMinimum(),
-              door.getMaximum(), cause, actionType);
+        super(time, door, rotateDirection, false, multiplier, player, door.getCuboidCopy(), cause, actionType);
     }
 
     @Override

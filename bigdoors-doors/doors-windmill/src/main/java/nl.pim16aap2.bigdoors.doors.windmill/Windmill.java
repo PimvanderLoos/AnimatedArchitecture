@@ -9,8 +9,8 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,9 +66,8 @@ public class Windmill extends AbstractDoorBase
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
-                                      final @NotNull DoorActionType actionType)
+                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                      final @NotNull IPPlayer responsible, final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;

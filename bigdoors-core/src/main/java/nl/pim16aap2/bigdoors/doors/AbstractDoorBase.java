@@ -16,6 +16,8 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -27,7 +29,9 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -49,18 +53,20 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @NotNull
-    protected Vector3DiConst minimum, maximum, engine, powerBlock, dimensions;
+    protected Vector3DiConst engine, powerBlock;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
+    protected CuboidConst cuboid;
+    private final @NotNull Object cuboidMutex = new Object();
+
     private String name;
+    private final @NotNull Object nameMutex = new Object();
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     private boolean open;
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private RotateDirection openDir;
+
+    private @NotNull RotateDirection openDir;
+    private final @NotNull Object openDirMutex = new Object();
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
@@ -72,7 +78,6 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     // "cached" values that only get calculated when first retrieved.
     private Vector2Di engineChunk = null;
-    private Integer blockCount = null;
 
     private final Registerable registerable = new Registerable();
 
@@ -89,7 +94,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         doorUID = doorData.getUid();
 
-        PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
+        PLogger.get().logMessage(Level.FINER, "Instantiating door: " + doorUID);
         if (doorUID > 0 && !DoorRegistry.get().registerDoor(registerable))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
@@ -99,8 +104,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         }
 
         name = doorData.getName();
-        minimum = doorData.getMin();
-        maximum = doorData.getMax();
+        cuboid = new Cuboid(doorData.getMin(), doorData.getMax());
         engine = doorData.getEngine();
         powerBlock = doorData.getPowerBlock();
         world = doorData.getWorld();
@@ -108,10 +112,35 @@ public abstract class AbstractDoorBase implements IDoorBase
         openDir = doorData.getOpenDirection();
         doorOwner = doorData.getDoorOwner();
         isLocked = doorData.isLocked();
-        dimensions = calculateDimensions();
 
         doorOpeningUtility = DoorOpeningUtility.get();
-        onCoordsUpdate();
+    }
+
+    @Override
+    public @NotNull String getName()
+    {
+        synchronized (nameMutex)
+        {
+            return name;
+        }
+    }
+
+    @Override
+    public void setName(final @NotNull String name)
+    {
+        synchronized (nameMutex)
+        {
+            this.name = name;
+        }
+    }
+
+    @Override
+    public @NotNull RotateDirection getOpenDir()
+    {
+        synchronized (nameMutex)
+        {
+            return openDir;
+        }
     }
 
     /**
@@ -161,11 +190,10 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param actionType      The type of action.
      * @return The result of the attempt.
      */
-    final @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
-                                           final @NotNull IMessageable messageReceiver,
-                                           final @NotNull IPPlayer responsible, final double time,
-                                           boolean skipAnimation,
-                                           final @NotNull DoorActionType actionType)
+    final synchronized @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
+                                                        final @NotNull IMessageable messageReceiver,
+                                                        final @NotNull IPPlayer responsible, final double time,
+                                                        boolean skipAnimation, final @NotNull DoorActionType actionType)
     {
         if (openDir == RotateDirection.NONE)
         {
@@ -177,48 +205,49 @@ public abstract class AbstractDoorBase implements IDoorBase
         if (skipAnimation && !canSkipAnimation())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
+        final @NotNull DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
-        Vector3Di newMin = new Vector3Di(getMinimum());
-        Vector3Di newMax = new Vector3Di(getMaximum());
+        final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
-        if (!getPotentialNewCoordinates(newMin, newMax))
+        if (!newCuboid.isPresent())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                       .createPrepareEvent(this, cause, actionType, responsible, time,
-                                                                           skipAnimation, newMin, newMax);
+        final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                                      .createPrepareEvent(this, cause, actionType,
+                                                                                          responsible, time,
+                                                                                          skipAnimation,
+                                                                                          newCuboid.get());
         BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
 
-        if (!doorOpeningUtility.isLocationEmpty(newMin, newMax, minimum, maximum,
-                                                cause.equals(DoorActionCause.PLAYER) ? responsible : null, getWorld()))
+        final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
+        if (!doorOpeningUtility.isLocationEmpty(newCuboid.get(), cuboid, responsiblePlayer, getWorld()))
             return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
 
-        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newMin, newMax, responsible))
+        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
 
-        registerBlockMover(cause, time, skipAnimation, newMin, newMax, responsible, actionType);
+        registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType);
 
         BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                                  .createStartEvent(this, cause, actionType, responsible,
-                                                                                   time, skipAnimation, newMin,
-                                                                                   newMax));
-
+                                                                                   time, skipAnimation,
+                                                                                   newCuboid.get()));
         return DoorToggleResult.SUCCESS;
     }
 
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
-        IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getDoorOwner().getPlayer().getUUID(),
-                                                                                  getDoorOwner().getPlayer().getName());
+        final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
+                                                 .create(getDoorOwner().getPlayer().getUUID(),
+                                                         getDoorOwner().getPlayer().getName());
         if (newCurrent == 0 && isCloseable())
             DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
                                               BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
@@ -236,22 +265,20 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
      *                      is limited, so at a certain point lower values will not increase door speed.
      * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newMin        The new minimum position this door will have after the toggle.
-     * @param newMax        The new maximmum position this door will have after the toggle.
+     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
     protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                               final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                               final @NotNull Vector3DiConst newMax,
+                                               final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                final @NotNull IPPlayer responsible,
                                                final @NotNull DoorActionType actionType);
 
     @Override
     public @NotNull Vector2Di[] calculateCurrentChunkRange()
     {
-        Vector2Di minChunk = Util.getChunkCoords(minimum);
-        Vector2Di maxChunk = Util.getChunkCoords(maximum);
+        final @NotNull Vector2Di minChunk = Util.getChunkCoords(cuboid.getMin());
+        final @NotNull Vector2Di maxChunk = Util.getChunkCoords(cuboid.getMax());
 
         return new Vector2Di[]{new Vector2Di(minChunk.getX(), minChunk.getY()),
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
@@ -277,7 +304,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (maxChunkCoords == null || minChunkCoords == null)
         {
-            Vector2Di[] range = calculateChunkRange();
+            final @NotNull Vector2Di[] range = calculateChunkRange();
             minChunkCoords = range[0];
             maxChunkCoords = range[1];
         }
@@ -288,7 +315,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         if (doorOwner == null)
         {
-            NullPointerException npe = new NullPointerException(
+            final @NotNull NullPointerException npe = new NullPointerException(
                 "Door " + getDoorUID() + " did not have an owner! Please contact pim16aap2.");
             PLogger.get().logThrowable(npe);
             throw npe;
@@ -316,38 +343,58 @@ public abstract class AbstractDoorBase implements IDoorBase
         invalidateChunkRange();
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
     @Override
-    public final void setMinimum(final @NotNull Vector3DiConst pos)
+    public final void setCoordinates(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB)
     {
-        minimum = new Vector3Di(pos);
-        onCoordsUpdate();
+        synchronized (cuboidMutex)
+        {
+            cuboid = new Cuboid(posA, posB);
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
     @Override
-    public final void setMaximum(final @NotNull Vector3DiConst pos)
+    public final void setCoordinates(final @NotNull CuboidConst newCuboid)
     {
-        maximum = new Vector3Di(pos);
-        onCoordsUpdate();
+        synchronized (cuboidMutex)
+        {
+            cuboid = new Cuboid(newCuboid);
+        }
     }
 
-    /**
-     * Make sure variables that depend on the coordinates of the {@link AbstractDoorBase} are invalidated or
-     * recalculated when applicable.
-     */
-    private void onCoordsUpdate()
+    @Override
+    public @NotNull Vector3DiConst getMinimum()
     {
-        invalidateCoordsDependents();
-        dimensions = calculateDimensions();
+        synchronized (cuboidMutex)
+        {
+            return cuboid.getMin();
+        }
+    }
+
+    @Override
+    public @NotNull Vector3DiConst getMaximum()
+    {
+        synchronized (cuboidMutex)
+        {
+            return cuboid.getMax();
+        }
+    }
+
+    @Override
+    public @NotNull CuboidConst getCuboid()
+    {
+        synchronized (cuboidMutex)
+        {
+            return cuboid;
+        }
+    }
+
+    @Override
+    public @NotNull Cuboid getCuboidCopy()
+    {
+        synchronized (cuboidMutex)
+        {
+            return cuboid.clone();
+        }
     }
 
     /**
@@ -376,45 +423,30 @@ public abstract class AbstractDoorBase implements IDoorBase
      */
     private void invalidateCoordsDependents()
     {
-        engineChunk = null;
-        blockCount = null;
         invalidateChunkRange();
     }
 
-    /**
-     * Calculates the dimensions of the door based on its current min/max coordinates.
-     *
-     * @return The current dimensions.
-     */
-    protected @NotNull Vector3Di calculateDimensions()
+    @Override
+    public @NotNull Vector3DiConst getDimensions()
     {
-        return new Vector3Di(maximum.getX() - minimum.getX(),
-                             maximum.getY() - minimum.getY(),
-                             maximum.getZ() - minimum.getZ());
+        synchronized (cuboidMutex)
+        {
+            return cuboid.getDimensions();
+        }
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
     @Override
     public final void setEnginePosition(final @NotNull Vector3DiConst pos)
     {
         engine = new Vector3Di(pos);
-        onCoordsUpdate();
+        engineChunk = null;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
     @Override
     public final void setPowerBlockPosition(final @NotNull Vector3DiConst pos)
     {
         powerBlock = new Vector3Di(pos);
-        onCoordsUpdate();
+        invalidateChunkRange();
     }
 
     private @NotNull Vector2Di calculateEngineChunk()
@@ -428,25 +460,13 @@ public abstract class AbstractDoorBase implements IDoorBase
         return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }
 
-    /**
-     * Calculate the total number of blocks this {@link AbstractDoorBase} is made out of.
-     *
-     * @return Total number of blocks this {@link AbstractDoorBase} is made out of.
-     */
-    private int calculateBlockCount()
-    {
-        return (dimensions.getX() + 1) * (dimensions.getY() + 1) * (dimensions.getZ() + 1);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * It can be invalidated by {@link #invalidateCoordsDependents()}.
-     */
     @Override
     public final int getBlockCount()
     {
-        return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
+        synchronized (cuboidMutex)
+        {
+            return cuboid.getVolume();
+        }
     }
 
     @Override
@@ -471,7 +491,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         builder.append(doorUID).append(": ").append(name).append("\n");
         builder.append("Type: ").append(getDoorType().toString()).append(". Permission: ").append(getPermission())
                .append("\n");
-        builder.append("Min: ").append(minimum.toString()).append(", Max: ").append(maximum.toString())
+        builder.append("Cuboid: ").append(cuboid.toString())
                .append(", Engine: ")
                .append(engine.toString()).append("\n");
         builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
@@ -503,9 +523,9 @@ public abstract class AbstractDoorBase implements IDoorBase
             return false;
 
         AbstractDoorBase other = (AbstractDoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
-            maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
-            open == other.open && doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
+        return doorUID == other.doorUID && name.equals(other.name) && cuboid.equals(other.cuboid) &&
+            engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) && open == other.open &&
+            doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
             world.getUUID().equals(other.world.getUUID());
     }
 

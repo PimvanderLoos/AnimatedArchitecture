@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArch
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.Functional.TriFunction;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -17,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -49,11 +49,10 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      */
     public BridgeMover(final double time, final @NotNull T door,
                        final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
-                       final double multiplier, final @NotNull IPPlayer player, final @NotNull Vector3DiConst finalMin,
-                       final @NotNull Vector3DiConst finalMax, final @NotNull DoorActionCause cause,
-                       final @NotNull DoorActionType actionType)
+                       final double multiplier, final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
+                       final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         NS = door.isNorthSouthAligned();
         rotationCenter = new Vector3Dd(door.getEngine()).add(0.5, 0, 0.5);

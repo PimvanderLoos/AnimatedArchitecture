@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Represents a type of door that doesn't move. I.e. a clock.
@@ -14,16 +16,9 @@ import org.jetbrains.annotations.NotNull;
 public interface IStationaryDoorArchetype extends IDoorBase
 {
     @Override
-    default boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
+    default Optional<Cuboid> getPotentialNewCoordinates()
     {
-        newMin.setX(getMinimum().getX());
-        newMin.setY(getMinimum().getY());
-        newMin.setZ(getMinimum().getZ());
-
-        newMax.setX(getMaximum().getX());
-        newMax.setY(getMaximum().getY());
-        newMax.setZ(getMaximum().getZ());
-        return true;
+        return Optional.of(getCuboidCopy());
     }
 
     @Override

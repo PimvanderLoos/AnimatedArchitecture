@@ -1,14 +1,16 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -74,17 +76,26 @@ public interface IDoorBase
     @NotNull RotateDirection getCurrentToggleDir();
 
     /**
-     * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
-     * <p>
-     * Note that the variables themselves are changed.
+     * Gets the {@link CuboidConst} representing the area taken up by this door.
      *
-     * @param newMin Used to store the new minimum coordinates.
-     * @param newMax Used to store the new maximum coordinates.
-     * @return True if the new coordinates were found successfully. In case no valid coordinates could be found, False
-     * is returned instead.
+     * @return The {@link CuboidConst} representing the area taken up by this door.
      */
-    // TODO: Return Optional<Cuboid>
-    boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax);
+    @NotNull CuboidConst getCuboid();
+
+    /**
+     * Gets a copy of the {@link CuboidConst} representing the area taken up by this door.
+     *
+     * @return A copy of the {@link CuboidConst} representing the area taken up by this door.
+     */
+    @NotNull Cuboid getCuboidCopy();
+
+    /**
+     * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this door that would be the
+     * result of toggling it.
+     *
+     * @return The {@link Cuboid} that would represent the door if it was toggled right now.
+     */
+    @NotNull Optional<Cuboid> getPotentialNewCoordinates();
 
     /**
      * Cycle the {@link RotateDirection} direction this {@link IDoorBase} will open in. By default it'll set and return
@@ -228,11 +239,19 @@ public interface IDoorBase
     @NotNull Vector3DiConst getMinimum();
 
     /**
-     * Changes the 'minimum' position of this {@link IDoorBase}.
+     * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
      *
-     * @param pos The new minimum position.
+     * @param posA The first new position.
+     * @param posA The second new position.
      */
-    void setMinimum(final @NotNull Vector3DiConst pos);
+    void setCoordinates(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB);
+
+    /**
+     * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
+     *
+     * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
+     */
+    void setCoordinates(final @NotNull CuboidConst newCuboid);
 
     /**
      * Gets a copy of the maximum position of this door.
@@ -240,13 +259,6 @@ public interface IDoorBase
      * @return A copy of the maximum position of this door.
      */
     @NotNull Vector3DiConst getMaximum();
-
-    /**
-     * Changes the 'maximum' position of this {@link IDoorBase}.
-     *
-     * @param loc The new maximum position of this door.
-     */
-    void setMaximum(final @NotNull Vector3DiConst loc);
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.

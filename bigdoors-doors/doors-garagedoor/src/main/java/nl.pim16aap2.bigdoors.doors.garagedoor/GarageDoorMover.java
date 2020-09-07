@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
@@ -38,12 +39,11 @@ public class GarageDoorMover extends BlockMover
     private double step;
 
     public GarageDoorMover(final @NotNull GarageDoor door, final double time, final double multiplier,
-                           final boolean skipAnimation,
-                           final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
-                           final @NotNull Vector3DiConst finalMin, final @NotNull Vector3DiConst finalMax,
+                           final boolean skipAnimation, final @NotNull RotateDirection rotateDirection,
+                           final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, rotateDirection, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         resultHeight = door.getMaximum().getY() + 1;
 

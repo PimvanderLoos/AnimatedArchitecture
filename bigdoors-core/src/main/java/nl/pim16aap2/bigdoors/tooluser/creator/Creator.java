@@ -240,8 +240,9 @@ public abstract class Creator extends ToolUser
         final @NotNull OptionalInt sizeLimit = LimitsManager.getLimit(player, Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && cuboid.getVolume() > sizeLimit.getAsInt())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, cuboid.getVolume().toString(),
-                                                  Integer.toString(sizeLimit.getAsInt())));
+            player.sendMessage(
+                messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, Integer.toString(cuboid.getVolume()),
+                                   Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 

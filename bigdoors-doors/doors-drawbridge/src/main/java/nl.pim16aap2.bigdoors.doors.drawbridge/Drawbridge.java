@@ -10,13 +10,16 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a DrawBrige doorType.
@@ -69,11 +72,13 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        int xLen = dimensions.getX();
-        int yLen = dimensions.getY();
-        int zLen = dimensions.getZ();
+        final @NotNull Vector3DiConst dimensions = getDimensions();
 
-        int radius;
+        final int xLen = dimensions.getX();
+        final int yLen = dimensions.getY();
+        final int zLen = dimensions.getZ();
+
+        final int radius;
         if (dimensions.getY() != 1)
             radius = yLen / 16 + 1;
         else
@@ -90,7 +95,7 @@ public class Drawbridge extends AbstractDoorBase
     }
 
     @Override
-    public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle;
@@ -101,42 +106,23 @@ public class Drawbridge extends AbstractDoorBase
         else
         {
             PLogger.get().severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
-            return false;
+            return Optional.empty();
         }
-
-        final @NotNull Vector3DiConst newMinTmp;
-        final @NotNull Vector3DiConst newMaxTmp;
+        
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
-        {
-            newMinTmp = newMin.clone().rotateAroundXAxis(getEngine(), angle);
-            newMaxTmp = newMax.clone().rotateAroundXAxis(getEngine(), angle);
-        }
+            return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
         else
-        {
-            newMinTmp = newMin.clone().rotateAroundZAxis(getEngine(), angle);
-            newMaxTmp = newMax.clone().rotateAroundZAxis(getEngine(), angle);
-        }
-
-        newMin.setX(Math.min(newMinTmp.getX(), newMaxTmp.getX()));
-        newMin.setY(Math.min(newMinTmp.getY(), newMaxTmp.getY()));
-        newMin.setZ(Math.min(newMinTmp.getZ(), newMaxTmp.getZ()));
-
-        newMax.setX(Math.max(newMinTmp.getX(), newMaxTmp.getX()));
-        newMax.setY(Math.max(newMinTmp.getY(), newMaxTmp.getY()));
-        newMax.setZ(Math.max(newMinTmp.getZ(), newMaxTmp.getZ()));
-
-        return true;
+            return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundZAxis(getEngine(), angle)));
     }
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
-                                      final @NotNull DoorActionType actionType)
+                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                      final @NotNull IPPlayer responsible, final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(
-            new BridgeMover(time, this, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
-                .getMultiplier(this), responsible, newMin, newMax, cause, actionType));
+            new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation, doorOpeningUtility
+                .getMultiplier(this), responsible, newCuboid, cause, actionType));
     }
 
     @Override

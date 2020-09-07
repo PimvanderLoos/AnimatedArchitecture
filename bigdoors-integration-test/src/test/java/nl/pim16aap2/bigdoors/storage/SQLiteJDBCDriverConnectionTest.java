@@ -793,16 +793,14 @@ public class SQLiteJDBCDriverConnectionTest
             assertDoor3NotParity();
             // Move the coordinates of the object of door 3 so that it matches the database entry of door 3.
             // Then make sure both the object and the database entry of door 3 match.
-            door3.setMinimum(newMin);
-            door3.setMaximum(newMax);
+            door3.setCoordinates(newMin, newMax);
             assertDoor3Parity();
 
             // Reset the coordinates of both the database entry and the object of door 3 and verify they are the
             // same again.
             storage.updateDoorCoords(3L, false, oldMin.getX(), oldMin.getY(), oldMin.getZ(),
                                      oldMax.getX(), oldMax.getY(), oldMax.getZ());
-            door3.setMinimum(oldMin);
-            door3.setMaximum(oldMax);
+            door3.setCoordinates(oldMin, oldMax);
             assertDoor3Parity();
         }
     }

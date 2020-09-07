@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -415,6 +416,22 @@ public final class DatabaseManager extends Restartable
      *
      * @param doorUID   The UID of the {@link AbstractDoorBase}.
      * @param isOpen    Whether the {@link AbstractDoorBase} is now open or not.
+     * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
+     * @return The future result of the operation. If the operation was successful this will be true.
+     */
+    public @NotNull CompletableFuture<Boolean> updateDoorCoords(final long doorUID, final boolean isOpen,
+                                                                final @NotNull CuboidConst newCuboid)
+    {
+        return updateDoorCoords(doorUID, isOpen,
+                                newCuboid.getMin().getX(), newCuboid.getMin().getY(), newCuboid.getMin().getZ(),
+                                newCuboid.getMax().getX(), newCuboid.getMax().getY(), newCuboid.getMax().getZ());
+    }
+
+    /**
+     * Updates the coordinates of a {@link AbstractDoorBase} in the database.
+     *
+     * @param doorUID   The UID of the {@link AbstractDoorBase}.
+     * @param isOpen    Whether the {@link AbstractDoorBase} is now open or not.
      * @param blockXMin The lower bound x coordinates.
      * @param blockYMin The lower bound y coordinates.
      * @param blockZMin The lower bound z coordinates.
@@ -424,9 +441,8 @@ public final class DatabaseManager extends Restartable
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     public @NotNull CompletableFuture<Boolean> updateDoorCoords(final long doorUID, final boolean isOpen,
-                                                                final int blockXMin,
-                                                                final int blockYMin, final int blockZMin,
-                                                                final int blockXMax,
+                                                                final int blockXMin, final int blockYMin,
+                                                                final int blockZMin, final int blockXMax,
                                                                 final int blockYMax, final int blockZMax)
     {
         return CompletableFuture.supplyAsync(() -> db.updateDoorCoords(doorUID, isOpen,

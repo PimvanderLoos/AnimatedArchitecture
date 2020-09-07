@@ -19,11 +19,11 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,8 +59,6 @@ public abstract class BlockMover implements IRestartable
     @NotNull
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     @NotNull
-    private final Vector3DiConst finalMin, finalMax;
-    @NotNull
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     @NotNull
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
@@ -85,6 +83,8 @@ public abstract class BlockMover implements IRestartable
     @Nullable
     protected PSoundDescription soundFinish = null;
 
+    protected final @NotNull CuboidConst newCuboid;
+
     /**
      * Constructs a {@link BlockMover}.
      *
@@ -93,13 +93,12 @@ public abstract class BlockMover implements IRestartable
      * @param skipAnimation If the door should be opened instantly (i.e. skip animation) or not.
      * @param openDirection The direction the {@link AbstractDoorBase} will move.
      * @param player        The player who opened this door.
-     * @param finalMin      The resulting minimum coordinates.
-     * @param finalMax      The resulting maximum coordinates.
+     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
-                         final @NotNull Vector3DiConst finalMin, final @NotNull Vector3DiConst finalMax,
-                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
+                         final @NotNull DoorActionType actionType)
     {
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
@@ -110,8 +109,7 @@ public abstract class BlockMover implements IRestartable
         this.player = player;
         fallingBlockFactory = BigDoors.get().getPlatform().getFallingBlockFactory();
         savedBlocks = new ArrayList<>();
-        this.finalMin = finalMin;
-        this.finalMax = finalMax;
+        this.newCuboid = newCuboid;
         this.cause = cause;
         this.actionType = actionType;
 
@@ -219,7 +217,7 @@ public abstract class BlockMover implements IRestartable
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
      */
-    protected void startAnimation()
+    protected synchronized void startAnimation()
     {
         for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
             for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
@@ -257,7 +255,7 @@ public abstract class BlockMover implements IRestartable
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private void stopAnimation()
+    private synchronized void stopAnimation()
     {
         if (soundFinish != null)
             playSound(soundFinish);
@@ -282,7 +280,7 @@ public abstract class BlockMover implements IRestartable
     /**
      * Runs the animation of the animated blocks.
      */
-    private void animateEntities()
+    private synchronized void animateEntities()
     {
         prepareAnimation();
 
@@ -423,19 +421,15 @@ public abstract class BlockMover implements IRestartable
      *
      * @param door The {@link AbstractDoorBase}.
      */
-    private void updateCoords(final @NotNull AbstractDoorBase door)
+    private synchronized void updateCoords(final @NotNull AbstractDoorBase door)
     {
-        if (finalMin.equals(door.getMinimum()) && finalMax.equals(door.getMaximum()))
+        if (newCuboid.equals(door.getCuboid()))
             return;
 
-        door.setMinimum(finalMin);
-        door.setMaximum(finalMax);
+        door.setCoordinates(newCuboid);
 
-        toggleOpen(door);
-        BigDoors.get().getDatabaseManager()
-                .updateDoorCoords(door.getDoorUID(), door.isOpen(), finalMin.getX(), finalMin.getY(),
-                                  finalMin.getZ(),
-                                  finalMax.getX(), finalMax.getY(), finalMax.getZ());
+        door.setOpen(!door.isOpen());
+        BigDoors.get().getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), newCuboid);
     }
 
     /**
@@ -448,16 +442,6 @@ public abstract class BlockMover implements IRestartable
      * @return The new Location of the block.
      */
     protected abstract @NotNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
-
-    /**
-     * Toggles the open status of a {@link AbstractDoorBase}.
-     *
-     * @param door The {@link AbstractDoorBase}.
-     */
-    private void toggleOpen(AbstractDoorBase door)
-    {
-        door.setOpen(!door.isOpen());
-    }
 
     /**
      * Gets the UID of the {@link AbstractDoorBase} being moved.

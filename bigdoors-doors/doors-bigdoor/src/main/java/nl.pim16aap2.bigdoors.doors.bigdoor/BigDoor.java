@@ -9,13 +9,16 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Big Door doorType.
@@ -58,8 +61,10 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
+        final @NotNull Vector3DiConst dimensions = getDimensions();
+
         // Yeah, radius might be too big, but it doesn't really matter.
-        int radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
+        final int radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
         return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
                                new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
@@ -80,41 +85,29 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     }
 
     @Override
-    public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
+
         final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
         {
             PLogger.get().severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
-            return false;
+            return Optional.empty();
         }
 
-        final @NotNull Vector3DiConst newMinTmp = newMin.clone().rotateAroundYAxis(getEngine(), angle);
-        final @NotNull Vector3DiConst newMaxTmp = newMax.clone().rotateAroundYAxis(getEngine(), angle);
-
-        newMin.setX(Math.min(newMinTmp.getX(), newMaxTmp.getX()));
-        newMin.setY(Math.min(newMinTmp.getY(), newMaxTmp.getY()));
-        newMin.setZ(Math.min(newMinTmp.getZ(), newMaxTmp.getZ()));
-
-        newMax.setX(Math.max(newMinTmp.getX(), newMaxTmp.getX()));
-        newMax.setY(Math.max(newMinTmp.getY(), newMaxTmp.getY()));
-        newMax.setZ(Math.max(newMinTmp.getZ(), newMaxTmp.getZ()));
-
-        return true;
+        return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
     }
 
     @Override
     protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
-                                      final @NotNull DoorActionType actionType)
+                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                      final @NotNull IPPlayer responsible, final @NotNull DoorActionType actionType)
     {
         doorOpeningUtility.registerBlockMover(
-            new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
-                             doorOpeningUtility.getMultiplier(this),
-                             responsible, newMin, newMax, cause, actionType));
+            new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation, doorOpeningUtility.getMultiplier(this),
+                             responsible, newCuboid, cause, actionType));
     }
 
     @Override

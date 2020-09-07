@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,9 +73,9 @@ public class CreatorGarageDoor extends Creator
         if (!verifyWorldMatch(loc))
             return false;
 
-        final Vector3Di cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()))
-            .getDimensions();
+        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
+                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                            loc.getBlockZ())).getDimensions();
 
         // Check if there's exactly 1 dimension that is 1 block deep.
         if ((cuboidDims.getX() == 1) ^ (cuboidDims.getY() == 1) ^ (cuboidDims.getZ() == 1))

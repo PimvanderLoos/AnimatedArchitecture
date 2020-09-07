@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,16 +12,9 @@ import org.jetbrains.annotations.NotNull;
 public interface IDoorEventToggleStart extends IDoorEvent
 {
     /**
-     * Gets the new minimum coordinates of the door after the toggle.
+     * Gets the new coordinates of the door after the toggle.
      *
-     * @return The new minimum coordinates of the door after the toggle.
+     * @return The new coordinates of the door after the toggle.
      */
-    @NotNull Vector3DiConst getNewMinimum();
-
-    /**
-     * Gets the new maximum coordinates of the door after the toggle.
-     *
-     * @return The new maximum coordinates of the door after the toggle.
-     */
-    @NotNull Vector3DiConst getNewMaximum();
+    @NotNull CuboidConst getNewCuboid();
 }
