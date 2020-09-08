@@ -512,7 +512,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
 
         // Check if adding owners works correctly.
-        Assert.assertEquals(1, storage.getOwnersOfDoor(1L).size());
+        Assert.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
 
         // Try adding player2 as owner of door 2.
         Assert.assertTrue(storage.addOwner(2L, player2, 1));
@@ -524,14 +524,14 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertFalse(storage.addOwner(2L, player2, 0));
 
         // Try adding a player that is not in the database yet as owner.
-        Assert.assertEquals(1, storage.getOwnersOfDoor(1L).size());
+        Assert.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
         Assert.assertTrue(storage.addOwner(1L, player3, 1));
-        Assert.assertEquals(2, storage.getOwnersOfDoor(1L).size());
+        Assert.assertEquals(2, storage.getDoor(1L).get().getDoorOwners().size());
 
         // Verify the permission level of player 2 over door 2.
         Assert.assertEquals(1, storage.getPermission(player2UUID.toString(), 2L));
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
-        Assert.assertEquals(2, storage.getOwnersOfDoor(2L).size());
+        Assert.assertEquals(2, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 door.
         Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), 0).size());
@@ -551,11 +551,11 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Remove player 2 as owner of door 2.
         Assert.assertTrue(storage.removeOwner(2L, player2UUID.toString()));
-        Assert.assertEquals(1, storage.getOwnersOfDoor(2L).size());
+        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Try to remove player 1 (creator) of door 2. This is not allowed.
         Assert.assertFalse(storage.removeOwner(2L, player1UUID.toString()));
-        Assert.assertEquals(1, storage.getOwnersOfDoor(2L).size());
+        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, named "massive2" (door 3).

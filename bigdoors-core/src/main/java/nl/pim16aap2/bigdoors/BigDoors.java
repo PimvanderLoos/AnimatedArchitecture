@@ -475,6 +475,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: To speed up testing, use an in-memory database: https://www.sqlite.org/inmemorydb.html
+//       Then write it to disk once it's done (for potential manual inspection): https://www.sqlite.org/backup.html
 // TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.

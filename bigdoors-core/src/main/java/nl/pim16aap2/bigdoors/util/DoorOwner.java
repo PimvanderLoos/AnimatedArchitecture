@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -13,23 +13,25 @@ import java.util.UUID;
  *
  * @author Pim
  */
-@Value
 @AllArgsConstructor
 public class DoorOwner
 {
     /**
      * The UID of the door that is owned.
      */
+    @Getter
     long doorUID;
 
     /**
      * The permission level at which the player owns the door.
      */
+    @Getter
     int permission;
 
     /**
      * The {@link IPPlayer} object represented by this {@link DoorOwner}.
      */
+    @Getter
     @NotNull IPPlayer player;
 
     /**

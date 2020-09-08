@@ -334,12 +334,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public void addDoorOwner(final @NotNull DoorOwner doorOwner)
-    {
-        doorOwners.put(doorOwner.getPlayer().getUUID(), doorOwner);
-    }
-
-    @Override
     public @NotNull DoorOwner getPrimeOwner()
     {
         return primeOwner;

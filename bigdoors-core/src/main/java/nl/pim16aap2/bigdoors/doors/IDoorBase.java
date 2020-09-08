@@ -201,13 +201,6 @@ public interface IDoorBase
     @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID player);
 
     /**
-     * Adds a doorOwner of this door.
-     *
-     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
-     */
-    void addDoorOwner(final @NotNull DoorOwner doorOwner);
-
-    /**
      * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
      * <p>
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
