@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 /**
  * Manages all database interactions.
@@ -209,18 +210,6 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Gets the prime {@link DoorOwner}. I.e. the owner with permission level 0. In most cases, this will just be the
-     * original creator of the door. Every valid door has a prime owner.
-     *
-     * @param doorUID The UID of the door.
-     * @return The Owner of the door, is possible.
-     */
-    public @NotNull CompletableFuture<Optional<DoorOwner>> getPrimeOwner(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getPrimeOwner(doorUID), threadPool);
-    }
-
-    /**
      * Gets all {@link AbstractDoorBase} owned by a player.
      *
      * @param playerUUID The {@link UUID} of the payer.
@@ -322,11 +311,6 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool);
     }
 
-    public @NotNull CompletableFuture<Integer> countOwnersOfDoor(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getOwnerCountOfDoor(doorUID), threadPool);
-    }
-
     /**
      * The number of {@link AbstractDoorBase}s in the database with a specific name.
      *
@@ -369,6 +353,7 @@ public final class DatabaseManager extends Restartable
                                                                       final long doorUID,
                                                                       final @NotNull DoorAttribute atr)
     {
+        // TODO: Use the door itself for this.
         return CompletableFuture.supplyAsync(
             () ->
             {
@@ -446,11 +431,19 @@ public final class DatabaseManager extends Restartable
                                                         final @NotNull IPPlayer player,
                                                         final int permission)
     {
-        if (permission < 1 || permission > 2 || door.getPermission() != 0 ||
-            door.getPlayerUUID().equals(player.getUUID()))
+        if (permission < 1 || permission > 2)
             return CompletableFuture.completedFuture(false);
 
-        return CompletableFuture.supplyAsync(() -> db.addOwner(door.getDoorUID(), player, permission), threadPool);
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                final boolean result = db.addOwner(door.getDoorUID(), player, permission);
+                if (result)
+                    ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
+                                                                                         player.getUUID(),
+                                                                                         player.getName(), permission));
+                return result;
+            }, threadPool);
     }
 
     /**
@@ -463,36 +456,30 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Boolean> removeOwner(final @NotNull AbstractDoorBase door,
                                                            final @NotNull UUID playerUUID)
     {
-        return removeOwner(door.getDoorUID(), playerUUID);
-    }
+        final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
+        if (!doorOwner.isPresent())
+        {
+            PLogger.get().logMessage(Level.FINE,
+                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
+                                         ", but the player is not an owner!");
+            return CompletableFuture.completedFuture(false);
+        }
+        if (doorOwner.get().getPermission() == 0)
+        {
+            PLogger.get().logMessage(Level.FINE,
+                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
+                                         ", but the player is the prime owner! This is not allowed!");
+            return CompletableFuture.completedFuture(false);
+        }
 
-    /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
-     *
-     * @param doorUID    The UID of the {@link AbstractDoorBase}.
-     * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
-     * @return True if owner removal was successful.
-     */
-    public @NotNull CompletableFuture<Boolean> removeOwner(final long doorUID, final @NotNull UUID playerUUID)
-    {
         return CompletableFuture.supplyAsync(
             () ->
             {
-                if (db.getPermission(playerUUID.toString(), doorUID) == 0)
-                    return false;
-                return db.removeOwner(doorUID, playerUUID.toString());
+                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID.toString());
+                if (result)
+                    ((FriendDoorAccessor) door).removeOwner(playerUUID);
+                return result;
             }, threadPool);
-    }
-
-    /**
-     * Gets all owners of a {@link AbstractDoorBase}.
-     *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return All owners of a {@link AbstractDoorBase}.
-     */
-    public @NotNull CompletableFuture<List<DoorOwner>> getDoorOwners(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getOwnersOfDoor(doorUID), threadPool);
     }
 
     /**
@@ -580,5 +567,34 @@ public final class DatabaseManager extends Restartable
         threadPool = Executors.newSingleThreadExecutor();
         db = null;
         instance = this;
+    }
+
+    /**
+     * Provides private access to certain aspects of the {@link AbstractDoorBase} class. Kind of like an (inverted, more
+     * cumbersome, and less useful) friend in C++ terms.
+     */
+    // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
+    //       of this class? This has several advantages:
+    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these methods)
+    //       - All the commands that modify a door can be pooled in the AbstractDoorBase class, instead of being split
+    //         over several classes.
+    public static abstract class FriendDoorAccessor
+    {
+        /**
+         * Adds an owner to the map of Owners.
+         *
+         * @param uuid      The {@link UUID} of the owner.
+         * @param doorOwner The {@link DoorOwner} to add.
+         */
+        protected abstract void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner);
+
+        /**
+         * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
+         *
+         * @param uuid The {@link UUID} of the {@link DoorOwner} that is to be removed.
+         * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
+         * {@link UUID}.
+         */
+        protected abstract boolean removeOwner(final @NotNull UUID uuid);
     }
 }

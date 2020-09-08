@@ -142,7 +142,7 @@ public final class DoorOpeningUtility
             PROT ->
             {
                 PLogger.get()
-                       .warn("Player \"" + door.getPlayerUUID().toString() + "\" is not allowed to open door " +
+                       .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
                                  door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
                 return false;
             }).orElse(true);

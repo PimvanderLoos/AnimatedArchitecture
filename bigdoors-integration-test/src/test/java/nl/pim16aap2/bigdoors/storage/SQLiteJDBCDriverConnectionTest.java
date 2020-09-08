@@ -456,14 +456,14 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Assert.assertNotNull(storage);
         Assert.assertNotNull(door);
-        Assert.assertNotNull(door.getPlayerUUID().toString());
+        Assert.assertNotNull(door.getPrimeOwner().toString());
         Assert.assertNotNull(door.getName());
 
-        List<AbstractDoorBase> test = storage.getDoors(door.getPlayerUUID(), door.getName());
+        List<AbstractDoorBase> test = storage.getDoors(door.getPrimeOwner().getPlayer().getUUID(), door.getName());
         if (test.size() != 1)
             Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
 
-        if (!door.getDoorOwner().equals(test.get(0).getDoorOwner()))
+        if (!door.getPrimeOwner().equals(test.get(0).getPrimeOwner()))
             Assert.fail("DOOR OWNERS DO NOT MATCH!");
 
         if (!door.equals(test.get(0)))
@@ -497,11 +497,11 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertTrue(storage.getDoor(player1UUID, 1).isPresent());
         Assert.assertEquals(door1, storage.getDoor(player1UUID, 1).get());
         Assert.assertFalse(storage.getDoor(player1UUID, 3).isPresent());
-        Assert.assertTrue(storage.getDoor(1).isPresent());
-        Assert.assertEquals(door1, storage.getDoor(1).get());
+        final @NotNull Optional<AbstractDoorBase> testDoor1 = storage.getDoor(1L);
+        Assert.assertTrue(testDoor1.isPresent());
+        Assert.assertEquals(door1.getPrimeOwner(), testDoor1.get().getPrimeOwner());
+        Assert.assertEquals(door1, testDoor1.get());
         Assert.assertFalse(storage.getDoor(9999999).isPresent());
-        Assert.assertTrue(storage.getPrimeOwner(1L).isPresent());
-        Assert.assertEquals(door1.getDoorOwner(), storage.getPrimeOwner(1L).get());
         Assert.assertTrue(storage.isBigDoorsWorld(worldUUID));
         Assert.assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
 

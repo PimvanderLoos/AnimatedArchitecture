@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -9,6 +10,9 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -162,22 +166,46 @@ public interface IDoorBase
     boolean isOpen();
 
     /**
-     * Gets the UUID of the current owner of the {@link IDoorBase} if possible. Not that there can be multiple owners
-     * with varying permissions, so this method isn't guaranteed to return the owner.
-     * <p>
-     * Returns null if the owner of the {@link IDoorBase} wasn't set.
+     * Gets the prime owner (permission = 0) of this door. In most cases, this will be the original creator of the
+     * door.
      *
-     * @return The UUID of the current owner if available
+     * @return The prime owner of this door.
      */
-    @NotNull UUID getPlayerUUID();
+    @NotNull DoorOwner getPrimeOwner();
 
     /**
-     * Gets the permission level of the current owner of the door. If the owner wasn't set (as explained at {@link
-     * #getPlayerUUID()}, -1 is returned.
+     * Gets all {@link DoorOwner}s of this door, including the original creator.
+     * <p>
+     * Note that this collection is returned as an {@link Collections#unmodifiableCollection(Collection)}.
      *
-     * @return The permission of the current owner if available, -1 otherwise
+     * @return All {@link DoorOwner}s of this door, including the original creator.
      */
-    int getPermission();
+    @NotNull Collection<@NotNull DoorOwner> getDoorOwners();
+
+    /**
+     * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
+     *
+     * @param player The player that may or may not be an owner of this door.
+     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
+     * door.
+     */
+    @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull IPPlayer player);
+
+    /**
+     * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
+     *
+     * @param player The UUID of the player that may or may not be an owner of this door.
+     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
+     * door.
+     */
+    @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID player);
+
+    /**
+     * Adds a doorOwner of this door.
+     *
+     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
+     */
+    void addDoorOwner(final @NotNull DoorOwner doorOwner);
 
     /**
      * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
@@ -277,20 +305,6 @@ public interface IDoorBase
      * @param locked New lock status.
      */
     void setLocked(final boolean locked);
-
-    /**
-     * Changes the doorOwner of this door.
-     *
-     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
-     */
-    void setDoorOwner(final @NotNull DoorOwner doorOwner);
-
-    /**
-     * Gets the owner of this door.
-     *
-     * @return The owner of this door.
-     */
-    @NotNull DoorOwner getDoorOwner();
 
     /**
      * Retrieve the Vector2Di the power block of this {@link IDoorBase} resides in. If invalidated or not calculated

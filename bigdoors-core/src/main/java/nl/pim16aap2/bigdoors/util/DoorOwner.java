@@ -52,9 +52,25 @@ public class DoorOwner
     @Override
     public @NotNull String toString()
     {
-        return "doorUID: " + doorUID +
-            ". playerUUID: " + getPlayer().getUUID().toString() +
-            ". Permission: " + permission +
-            ". PlayerName: " + getPlayer().getName();
+        return "doorUID: " + doorUID + ". player: " + getPlayer().toString() + ". Permission: " + permission;
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return player.getUUID().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        DoorOwner other = (DoorOwner) o;
+        return player.equals(other.player) && doorUID == other.doorUID && permission == other.permission;
     }
 }
