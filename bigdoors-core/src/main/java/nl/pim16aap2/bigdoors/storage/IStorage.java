@@ -287,12 +287,29 @@ public interface IStorage
 
     /**
      * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
-     * DoorType#getTypeData(AbstractDoorBase)} ()}.
+     * DoorType#getTypeData(AbstractDoorBase)}.
      *
      * @param door The door whose type-specific data should be updated.
      * @return True if the update was successful.
      */
-    boolean updateTypeData(final @NotNull AbstractDoorBase door);
+    boolean syncTypeData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Updates the base data of an {@link AbstractDoorBase} in the database
+     *
+     * @param door The door whose base data should be updated.
+     * @return True if the update was successful.
+     */
+    boolean syncBaseData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Synchronizes an {@link AbstractDoorBase} door with the database. This will synchronize both the base and the
+     * type-specific data of the {@link AbstractDoorBase}.
+     *
+     * @param door The {@link AbstractDoorBase} to synchronize.
+     * @return True if the update was successful.
+     */
+    boolean syncAllData(final @NotNull AbstractDoorBase door);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.

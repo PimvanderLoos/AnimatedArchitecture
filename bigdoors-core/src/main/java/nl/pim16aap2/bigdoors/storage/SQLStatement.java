@@ -11,6 +11,28 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum SQLStatement
 {
+    UPDATE_DOOR_BASE(
+        "UPDATE DoorBase SET\n" +
+            "     name           = ?,\n" +
+            "     xMin           = ?,\n" +
+            "     yMin           = ?,\n" +
+            "     zMin           = ?,\n" +
+            "     xMax           = ?,\n" +
+            "     yMax           = ?,\n" +
+            "     zMax           = ?,\n" +
+            "     engineX        = ?,\n" +
+            "     engineY        = ?,\n" +
+            "     engineZ        = ?,\n" +
+            "     engineHash     = ?,\n" +
+            "     powerBlockX    = ?,\n" +
+            "     powerBlockY    = ?,\n" +
+            "     powerBlockZ    = ?,\n" +
+            "     powerBlockHash = ?,\n" +
+            "     openDirection  = ?,\n" +
+            "     bitflag        = ?\n" +
+            "WHERE id = ?;"
+    ),
+
     UPDATE_DOOR_POWER_BLOCK_LOC(
         "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, powerBlockHash = ? WHERE id = ?;"
     ),

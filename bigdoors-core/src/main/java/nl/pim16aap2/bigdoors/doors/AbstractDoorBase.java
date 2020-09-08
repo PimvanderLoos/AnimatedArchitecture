@@ -31,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -130,6 +131,22 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
+    }
+
+    /**
+     * Obtains a copy of the {@link DoorData} the describes this door.
+     * <p>
+     * Note that this creates a deep copy of the DoorData including its {@link DoorOwner}s, so use it sparingly.
+     *
+     * @return A copy of the {@link DoorData} the describes this door.
+     */
+    public @NotNull DoorData getDoorDataCopy()
+    {
+        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwnersCopy = new HashMap<>(doorOwners.size());
+        doorOwners.forEach((key, value) -> doorOwnersCopy.put(key, value.clone()));
+
+        return new DoorData(doorUID, name, minimum.clone(), maximum.clone(), engine.clone(), powerBlock.clone(),
+                            world.clone(), open, openDir, primeOwner.clone(), doorOwnersCopy, isLocked);
     }
 
     /**

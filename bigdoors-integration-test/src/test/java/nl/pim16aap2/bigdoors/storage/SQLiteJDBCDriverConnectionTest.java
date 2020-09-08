@@ -666,7 +666,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
             // Change the autoCloseTimer of the object of door 3.
-            storage.updateTypeData(door3);
+            storage.syncTypeData(door3);
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
 
             // Verify that door 3 in the database is no longer the same as the door 3 object.
@@ -679,7 +679,7 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset the autoclose timer of both the object of door 3 and the database entry of door 3 and
             // verify data parity.
             doorTimeToggle.setAutoCloseTime(0);
-            storage.updateTypeData(door3);
+            storage.syncTypeData(door3);
             assertDoor3Parity();
         }
 
@@ -690,7 +690,7 @@ public class SQLiteJDBCDriverConnectionTest
             final int testBlocksToMove = 20;
             // Change blocksToMove of the object of door 3.
             doorBTM.setBlocksToMove(testBlocksToMove);
-            storage.updateTypeData(door3);
+            storage.syncTypeData(door3);
             doorBTM.setBlocksToMove(door3BlocksToMove);
 
             // Verify that door 3 in the database is no longer the same as the door 3 object.
@@ -703,8 +703,8 @@ public class SQLiteJDBCDriverConnectionTest
 
             // Reset the blocksToMove value of both the object of door 3 and the database entry of door 3 and
             // verify data parity.
-            doorBTM.setBlocksToMove(0);
-            storage.updateTypeData(door3);
+            doorBTM.setBlocksToMove(8);
+            storage.syncTypeData(door3);
             assertDoor3Parity();
         }
 
@@ -726,6 +726,34 @@ public class SQLiteJDBCDriverConnectionTest
             storage.setLock(3L, false);
             door3.setLocked(false);
             assertDoor3Parity();
+        }
+
+        // Test syncing all data.
+        {
+            Portcullis pc = ((Portcullis) door3);
+            // update some general data.
+            door3.setLocked(true);
+
+            // Update some type-specific data
+            final int blocksToMove = pc.getBlocksToMove();
+            final int newBlocksToMove = blocksToMove * 2;
+            Assert.assertNotSame(0, blocksToMove);
+            pc.setBlocksToMove(newBlocksToMove);
+
+            Assert.assertTrue(storage.syncAllData(door3));
+
+            @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
+            Assert.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
+            Assert.assertTrue(retrieved.isLocked());
+
+            door3.setLocked(false);
+            pc.setBlocksToMove(blocksToMove);
+
+            storage.syncAllData(door3);
+
+            retrieved = (Portcullis) storage.getDoor(3L).get();
+            Assert.assertEquals(blocksToMove, retrieved.getBlocksToMove());
+            Assert.assertFalse(retrieved.isLocked());
         }
 
         // Test rotate direction change

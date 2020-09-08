@@ -502,9 +502,32 @@ public final class DatabaseManager extends Restartable
      * @param door The {@link AbstractDoorBase} whose type-specific data will be updated.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> updateDoorTypeData(final @NotNull AbstractDoorBase door)
+    public @NotNull CompletableFuture<Boolean> syncDoorTypeData(final @NotNull AbstractDoorBase door)
     {
-        return CompletableFuture.supplyAsync(() -> db.updateTypeData(door), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncTypeData(door), threadPool);
+    }
+
+    /**
+     * Updates the base data of an {@link AbstractDoorBase}.
+     *
+     * @param door The {@link AbstractDoorBase} whose base data will be updated.
+     * @return The future result of the operation. If the operation was successful this will be true.
+     */
+    public @NotNull CompletableFuture<Boolean> syncBaseData(final @NotNull AbstractDoorBase door)
+    {
+        return CompletableFuture.supplyAsync(() -> db.syncBaseData(door), threadPool);
+    }
+
+    /**
+     * Updates the all data of an {@link AbstractDoorBase}. This includes both the base data and the type-specific
+     * data.
+     *
+     * @param door The {@link AbstractDoorBase} whose data will be updated.
+     * @return The future result of the operation. If the operation was successful this will be true.
+     */
+    public @NotNull CompletableFuture<Boolean> syncAllData(final @NotNull AbstractDoorBase door)
+    {
+        return CompletableFuture.supplyAsync(() -> db.syncAllData(door), threadPool);
     }
 
     /**

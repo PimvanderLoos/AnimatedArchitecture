@@ -64,7 +64,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
         if (!(sender instanceof Player))
         {
             doorBTM.setBlocksToMove(blocksToMove);
-            BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
+            BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
             sendResultMessage(sender, blocksToMove);
             return true;
         }
@@ -81,7 +81,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
                 }
 
                 doorBTM.setBlocksToMove(blocksToMove);
-                BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
+                BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
                 sendResultMessage(sender, blocksToMove);
             });
         return true;

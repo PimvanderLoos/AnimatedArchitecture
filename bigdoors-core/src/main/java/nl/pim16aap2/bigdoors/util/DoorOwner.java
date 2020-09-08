@@ -75,4 +75,10 @@ public class DoorOwner
         DoorOwner other = (DoorOwner) o;
         return player.equals(other.player) && doorUID == other.doorUID && permission == other.permission;
     }
+
+    @Override
+    public @NotNull DoorOwner clone()
+    {
+        return new DoorOwner(doorUID, getPermission(), getPlayer());
+    }
 }
