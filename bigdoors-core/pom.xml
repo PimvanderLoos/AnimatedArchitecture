@@ -17,12 +17,25 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>guava</id>
+            <url>https://mvnrepository.com/artifact/com.google.guava/guava</url>
+        </repository>
 
         <repository>
             <id>SQLite</id>
             <url>https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc</url>
         </repository>
     </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>29.0-jre</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -53,6 +66,36 @@
                     <source>8</source>
                     <target>8</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.google.common</pattern>
+                            <shadedPattern>nl.pim16aap2.bigdoors.google.common</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.errorprone</pattern>
+                            <shadedPattern>nl.pim16aap2.bigdoors.google.errorprone</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.j2objc</pattern>
+                            <shadedPattern>nl.pim16aap2.bigdoors.google.j2objc</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -14,6 +13,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -60,31 +60,24 @@ public class SubCommandSetAutoCloseTime extends SubCommand
         if (!(sender instanceof Player))
         {
             doorWithTimer.setAutoCloseTime(time);
-            BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
+            BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
             BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(door.getDoorOwner().getPlayer(),
+                    .scheduleAutoClose(door.getPrimeOwner().getPlayer(),
                                        (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
             sendResultMessage(sender, time);
             return true;
         }
 
-        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
-        BigDoors.get().getDatabaseManager()
-                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.CHANGETIMER).whenComplete(
-            (isAllowed, throwable) ->
-            {
-                if (!isAllowed)
-                {
-                    commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                    return;
-                }
-                doorWithTimer.setAutoCloseTime(time);
-                BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
-                BigDoors.get().getAutoCloseScheduler()
-                        .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time,
-                                           false);
-                sendResultMessage(sender, time);
-            });
+        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.CHANGETIMER))
+        {
+            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+            return true;
+        }
+        doorWithTimer.setAutoCloseTime(time).syncTypeData();
+        BigDoors.get().getAutoCloseScheduler()
+                .scheduleAutoClose(SpigotAdapter.wrapPlayer((Player) sender),
+                                   (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
+        sendResultMessage(sender, time);
         return true;
     }
 

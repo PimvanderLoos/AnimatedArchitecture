@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -9,15 +8,14 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class SubCommandDelete extends SubCommand
@@ -54,21 +52,11 @@ public class SubCommandDelete extends SubCommand
             (optionalDoor, throwable) -> optionalDoor.ifPresent(
                 door ->
                 {
-                    try
-                    {
-                        if (sender instanceof Player &&
-                            !BigDoors.get().getDatabaseManager()
-                                     .hasPermissionForAction(SpigotAdapter.wrapPlayer((Player) sender),
-                                                             door.getDoorUID(),
-                                                             DoorAttribute.DELETE).get())
-                            throw new CommandActionNotAllowedException();
-                        else
-                            execute(sender, door);
-                    }
-                    catch (InterruptedException | ExecutionException | CommandActionNotAllowedException e)
-                    {
-                        commandManager.handleException(e, sender, cmd, args);
-                    }
+                    if (sender instanceof Player &&
+                        !Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.DELETE))
+                        commandManager.handleException(new CommandActionNotAllowedException(), sender, cmd, args);
+                    else
+                        execute(sender, door);
                 }));
         return true;
     }

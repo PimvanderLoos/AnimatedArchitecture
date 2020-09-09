@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -9,10 +10,13 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Represents a door.
+ * Represents a door. Every implementation of this interface should be an {@link AbstractDoorBase}.
  *
  * @author Pim
  */
@@ -50,14 +54,25 @@ public interface IDoorBase
     boolean isOpenable();
 
     /**
+     * Changes the open-status of this door. True if open, False if closed.
+     *
+     * @param bool The new open-status of the door.
+     */
+    @NotNull AbstractDoorBase setOpen(final boolean bool);
+
+    /**
+     * Changes the lock status of this door. Locked doors cannot be opened.
+     *
+     * @param locked New lock status.
+     */
+    @NotNull AbstractDoorBase setLocked(final boolean locked);
+
+    /**
      * Checks if this door can be closed right now.
      *
      * @return True if this door can be closed right now.
      */
     boolean isCloseable();
-
-    // TODO: implement this.
-    boolean isValidOpenDirection(final @NotNull RotateDirection openDir);
 
     /**
      * Handles a change in redstone current for this door's powerblock.
@@ -89,6 +104,8 @@ public interface IDoorBase
     /**
      * Cycle the {@link RotateDirection} direction this {@link IDoorBase} will open in. By default it'll set and return
      * the opposite direction of the current direction.
+     * <p>
+     * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
      * @return The new {@link RotateDirection} direction this {@link IDoorBase} will open in.
      */
@@ -131,7 +148,7 @@ public interface IDoorBase
      *
      * @param name The new name of this door.
      */
-    void setName(final @NotNull String name);
+    @NotNull AbstractDoorBase setName(final @NotNull String name);
 
     /**
      * Gets the IPWorld this {@link IDoorBase} exists in.
@@ -162,22 +179,39 @@ public interface IDoorBase
     boolean isOpen();
 
     /**
-     * Gets the UUID of the current owner of the {@link IDoorBase} if possible. Not that there can be multiple owners
-     * with varying permissions, so this method isn't guaranteed to return the owner.
-     * <p>
-     * Returns null if the owner of the {@link IDoorBase} wasn't set.
+     * Gets the prime owner (permission = 0) of this door. In most cases, this will be the original creator of the
+     * door.
      *
-     * @return The UUID of the current owner if available
+     * @return The prime owner of this door.
      */
-    @NotNull UUID getPlayerUUID();
+    @NotNull DoorOwner getPrimeOwner();
 
     /**
-     * Gets the permission level of the current owner of the door. If the owner wasn't set (as explained at {@link
-     * #getPlayerUUID()}, -1 is returned.
+     * Gets all {@link DoorOwner}s of this door, including the original creator.
+     * <p>
+     * Note that this collection is returned as an {@link Collections#unmodifiableCollection(Collection)}.
      *
-     * @return The permission of the current owner if available, -1 otherwise
+     * @return All {@link DoorOwner}s of this door, including the original creator.
      */
-    int getPermission();
+    @NotNull Collection<@NotNull DoorOwner> getDoorOwners();
+
+    /**
+     * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
+     *
+     * @param player The player that may or may not be an owner of this door.
+     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
+     * door.
+     */
+    @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull IPPlayer player);
+
+    /**
+     * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
+     *
+     * @param player The UUID of the player that may or may not be an owner of this door.
+     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
+     * door.
+     */
+    @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID player);
 
     /**
      * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
@@ -191,20 +225,6 @@ public interface IDoorBase
      * @return The {@link RotateDirection} this {@link IDoorBase} will open in.
      */
     @NotNull RotateDirection getOpenDir();
-
-    /**
-     * Changes the direction the {@link IDoorBase} will open in.
-     *
-     * @param newRotDir New {@link RotateDirection} direction the {@link IDoorBase} will open in.
-     */
-    void setOpenDir(final @NotNull RotateDirection newRotDir);
-
-    /**
-     * Changes the open-status of this door. True if open, False if closed.
-     *
-     * @param bool The new open-status of the door.
-     */
-    void setOpen(final boolean bool);
 
     /**
      * Gets the position of power block of this door.
@@ -228,25 +248,11 @@ public interface IDoorBase
     @NotNull Vector3DiConst getMinimum();
 
     /**
-     * Changes the 'minimum' position of this {@link IDoorBase}.
-     *
-     * @param pos The new minimum position.
-     */
-    void setMinimum(final @NotNull Vector3DiConst pos);
-
-    /**
      * Gets a copy of the maximum position of this door.
      *
      * @return A copy of the maximum position of this door.
      */
     @NotNull Vector3DiConst getMaximum();
-
-    /**
-     * Changes the 'maximum' position of this {@link IDoorBase}.
-     *
-     * @param loc The new maximum position of this door.
-     */
-    void setMaximum(final @NotNull Vector3DiConst loc);
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
@@ -256,41 +262,6 @@ public interface IDoorBase
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */
     @NotNull Vector2Di[] getChunkRange();
-
-    /**
-     * Changes the position of the engine.
-     *
-     * @param loc The new position of the engine.
-     */
-    void setEnginePosition(final @NotNull Vector3DiConst loc);
-
-    /**
-     * Changes the position of the power block.
-     *
-     * @param loc The new position of the power block.
-     */
-    void setPowerBlockPosition(final @NotNull Vector3DiConst loc);
-
-    /**
-     * Changes the lock status of this door. Locked doors cannot be opened.
-     *
-     * @param locked New lock status.
-     */
-    void setLocked(final boolean locked);
-
-    /**
-     * Changes the doorOwner of this door.
-     *
-     * @param doorOwner The new {@link DoorOwner} doorOwner of this door
-     */
-    void setDoorOwner(final @NotNull DoorOwner doorOwner);
-
-    /**
-     * Gets the owner of this door.
-     *
-     * @return The owner of this door.
-     */
-    @NotNull DoorOwner getDoorOwner();
 
     /**
      * Retrieve the Vector2Di the power block of this {@link IDoorBase} resides in. If invalidated or not calculated

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandInfo;
@@ -10,29 +9,21 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 public class GUIPageDoorInfo implements IGUIPage
 {
     protected final BigDoorsSpigot plugin;
     protected final GUI gui;
     protected final Messages messages;
-
-    /**
-     * Used to store whether or not a player has access to door removal for this door. It is stored in an intermediate
-     * step so it can be aborted on an update or something.
-     */
-    @Nullable
-    private CompletableFuture<Boolean> futurePermissionCheck = null;
 
     protected GUIPageDoorInfo(final BigDoorsSpigot plugin, final GUI gui)
     {
@@ -45,8 +36,6 @@ public class GUIPageDoorInfo implements IGUIPage
     @Override
     public void kill()
     {
-        if (futurePermissionCheck != null && !futurePermissionCheck.isDone())
-            futurePermissionCheck.cancel(true);
     }
 
     @Override
@@ -73,8 +62,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 switch (attr)
                 {
                     case LOCK:
-                        door.setLocked(!door.isLocked());
-                        BigDoors.get().getDatabaseManager().setLock(door.getDoorUID(), door.isLocked());
+                        door.setLocked(!door.isLocked()).syncBaseData();
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;
                     case TOGGLE:
@@ -133,22 +121,15 @@ public class GUIPageDoorInfo implements IGUIPage
         if (!guiItem.getDoorAttribute().isPresent())
             return;
 
-        futurePermissionCheck = DatabaseManager.get()
-                                               .hasPermissionForAction(gui.getGuiHolder(),
-                                                                       gui.getDoor().getDoorUID(),
-                                                                       guiItem.getDoorAttribute().get());
-        futurePermissionCheck.whenComplete(
-            (isAllowed, throwable) ->
-            {
-                if (!isAllowed)
-                {
-                    gui.update();
-                    return;
-                }
-                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
-                    () -> handleAllowedInput(gui.getDoor(), SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), guiItem,
-                                             interactionIDX));
-            });
+
+        if (!Util.hasPermissionForAction(gui.getGuiHolder(), gui.getDoor(), guiItem.getDoorAttribute().get()))
+        {
+            gui.update();
+            return;
+        }
+        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+            () -> handleAllowedInput(gui.getDoor(), SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), guiItem,
+                                     interactionIDX));
     }
 
     protected void fillHeader()

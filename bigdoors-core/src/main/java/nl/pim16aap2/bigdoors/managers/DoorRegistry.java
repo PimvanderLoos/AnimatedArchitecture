@@ -1,14 +1,15 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a registry of doors.
@@ -16,15 +17,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
-// TODO: ConcurrentHashMaps are pretty slow at resizing, so try to estimate the size (based on the config options)
-//       on init. Also, see the note at #getDoor(long) regarding the use of ConcurrentHashmaps in general.
+// TODO: Guava performs some cache cleanup on writes if possible, but it will resort to performing it on reads,
+//       if necessary. Because this cache is probably not written to too often, this can cause some read operations
+//       to get slowed down. Consider regularly calling Cache#cleanup from a separate thread.
 public final class DoorRegistry extends Restartable
 {
-    @NotNull
+    // TODO: Figure out how much space a door takes up in memory, roughly, and figure out what sane values to use.
+    // TODO: Make these configurable.
+    public static final int MAX_REGISTRY_SIZE = 1000;
+    public static final int CONCURRENCY_LEVEL = 4;
+    public static final int INITIAL_CAPACITY = 100;
+    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
+
     private static final DoorRegistry INSTANCE = new DoorRegistry();
 
-    @NotNull
-    private final Map<Long, Optional<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
+    private Cache<Long, AbstractDoorBase> doorCache;
 
     private DoorRegistry()
     {
@@ -35,6 +42,8 @@ public final class DoorRegistry extends Restartable
             PLogger.get().logThrowableSilently(e);
             throw e;
         }
+
+        init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     public static @NotNull DoorRegistry get()
@@ -50,7 +59,7 @@ public final class DoorRegistry extends Restartable
      */
     public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
-        return doors.getOrDefault(doorUID, Optional.empty());
+        return Optional.ofNullable(doorCache.getIfPresent(doorUID));
     }
 
     /**
@@ -60,21 +69,30 @@ public final class DoorRegistry extends Restartable
      */
     void deregisterDoor(final long doorUID)
     {
-        doors.computeIfPresent(doorUID, (key, val) -> Optional.empty());
+        doorCache.invalidate(doorUID);
     }
 
     /**
      * Checks if a {@link AbstractDoorBase} associated with a given UID has been registered.
-     * <p>
-     * Note that this does not mean that this {@link AbstractDoorBase} actually exists. Merely that a mapping to a
-     * potentially missing {@link AbstractDoorBase} exists.
      *
      * @param doorUID The UID of the door.
      * @return True if an entry exists for the {@link AbstractDoorBase} with the given UID.
      */
     public boolean isRegistered(final long doorUID)
     {
-        return doors.containsKey(doorUID);
+        return doorCache.getIfPresent(doorUID) != null;
+    }
+
+    /**
+     * Checks if the exact instance of the provided {@link AbstractDoorBase} has been registered. (i.e. it uses '==' to
+     * check if the cached entry is the same).
+     *
+     * @param doorBase The door.
+     * @return True if an entry exists for the exact instance of the provided {@link AbstractDoorBase}.
+     */
+    public boolean isRegistered(final @NotNull AbstractDoorBase doorBase)
+    {
+        return doorCache.getIfPresent(doorBase.getDoorUID()) == doorBase;
     }
 
     /**
@@ -84,21 +102,49 @@ public final class DoorRegistry extends Restartable
      *                     is to be registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
+    public synchronized boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return doors.putIfAbsent(doorBase.getDoorUID(), Optional.of(doorBase)) == null;
+        if (doorCache.getIfPresent(doorBase.getDoorUID()) != null)
+            return false;
+        doorCache.put(doorBase.getDoorUID(), doorBase);
+        return true;
     }
 
     @Override
     public void restart()
     {
-        doors.clear();
+        shutdown();
     }
 
     @Override
     public void shutdown()
     {
-        doors.clear();
+        doorCache.invalidateAll();
+    }
+
+    /**
+     * (Re)initializes the {@link #doorCache}.
+     *
+     * @param maxRegistrySize  The maximum number of entries in the cache.
+     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity  The initial size of the cache to reserve.
+     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @return This {@link DoorRegistry}.
+     */
+    public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                      final @NotNull Duration cacheExpiry)
+    {
+        if (doorCache != null)
+            doorCache.invalidateAll();
+
+        doorCache = CacheBuilder.newBuilder()
+                                .softValues()
+                                .maximumSize(maxRegistrySize)
+                                .expireAfterAccess(cacheExpiry)
+                                .initialCapacity(initialCapacity)
+                                .concurrencyLevel(concurrencyLevel)
+                                .build();
+        return this;
     }
 }

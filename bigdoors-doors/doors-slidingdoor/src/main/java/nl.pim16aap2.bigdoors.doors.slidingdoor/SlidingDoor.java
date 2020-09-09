@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
@@ -32,14 +33,17 @@ public class SlidingDoor extends AbstractDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     protected int blocksToMove;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     protected int autoCloseTime;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     protected int autoOpenTime;
 
     public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,

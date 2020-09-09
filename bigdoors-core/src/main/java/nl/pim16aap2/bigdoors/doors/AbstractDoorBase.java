@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -13,6 +14,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -28,6 +30,11 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -36,7 +43,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-public abstract class AbstractDoorBase implements IDoorBase
+public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccessor implements IDoorBase
 {
     @Getter(onMethod = @__({@Override}))
     private final long doorUID;
@@ -53,10 +60,12 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     private String name;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     private boolean open;
     @Getter(onMethod = @__({@Override}))
     @NotNull
@@ -64,23 +73,34 @@ public abstract class AbstractDoorBase implements IDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
-    private boolean isLocked;
+    @Accessors(chain = true)
+    private boolean locked;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    private DoorOwner doorOwner;
+    private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
+
+    private DoorOwner primeOwner;
 
     // "cached" values that only get calculated when first retrieved.
     private Vector2Di engineChunk = null;
     private Integer blockCount = null;
-
-    private final Registerable registerable = new Registerable();
 
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
      * with.
      */
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
+
+    @Override
+    protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
+    {
+        doorOwners.put(uuid, doorOwner);
+    }
+
+    @Override
+    protected final boolean removeOwner(final @NotNull UUID uuid)
+    {
+        return doorOwners.remove(uuid) != null;
+    }
 
     /**
      * Constructs a new {@link AbstractDoorBase}.
@@ -90,7 +110,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         doorUID = doorData.getUid();
 
         PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
-        if (doorUID > 0 && !DoorRegistry.get().registerDoor(registerable))
+        if (doorUID > 0 && !DoorRegistry.get().registerDoor(new Registerable()))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorUID + "\" while it is already registered!");
@@ -106,12 +126,72 @@ public abstract class AbstractDoorBase implements IDoorBase
         world = doorData.getWorld();
         open = doorData.isOpen();
         openDir = doorData.getOpenDirection();
-        doorOwner = doorData.getDoorOwner();
-        isLocked = doorData.isLocked();
+        primeOwner = doorData.getPrimeOwner();
+        doorOwners = doorData.getDoorOwners();
+        locked = doorData.isLocked();
         dimensions = calculateDimensions();
 
         doorOpeningUtility = DoorOpeningUtility.get();
         onCoordsUpdate();
+    }
+
+    /**
+     * Synchronizes all data of this door with the database.
+     * <p>
+     * Calling this method is faster than calling both {@link #syncBaseData()} and {@link #syncTypeData()}. However,
+     * because of the added overhead of type-specific data, you should try to use {@link #syncBaseData()} whenever
+     * possible (i.e. when no type-specific data was changed).
+     */
+    public final void syncAllData()
+    {
+        DatabaseManager.get().syncAllDataOfDoor(this);
+    }
+
+    /**
+     * Synchronizes the base data of this door with the database.
+     */
+    public final void syncBaseData()
+    {
+        DatabaseManager.get().syncDoorBaseData(this);
+    }
+
+    /**
+     * Synchronizes the type-specific data in this door with the database.
+     */
+    public final void syncTypeData()
+    {
+        DatabaseManager.get().syncDoorTypeData(this);
+    }
+
+    /**
+     * Obtains a copy of the {@link DoorData} the describes this door.
+     * <p>
+     * Note that this creates a deep copy of the DoorData <u><b>including its {@link DoorOwner}s</b></u>, so use it
+     * sparingly.
+     *
+     * @return A copy of the {@link DoorData} the describes this door.
+     */
+    public @NotNull DoorData getDoorDataCopy()
+    {
+        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwnersCopy = new HashMap<>(doorOwners.size());
+        doorOwners.forEach((key, value) -> doorOwnersCopy.put(key, value.clone()));
+
+        return new DoorData(doorUID, name, minimum.clone(), maximum.clone(), engine.clone(), powerBlock.clone(),
+                            world.clone(), open, openDir, primeOwner.clone(), doorOwnersCopy, locked);
+    }
+
+    /**
+     * Obtains a simple copy of the {@link DoorData} the describes this door.
+     * <p>
+     * Note that this creates a deep copy of the DoorData <u><b>excluding its {@link DoorOwner}s</b></u>, so use it
+     * sparingly.
+     *
+     * @return A copy of the {@link DoorData} the describes this door.
+     */
+    public @NotNull DoorData getSimpleDoorDataCopy()
+    {
+        return new DoorData(doorUID, name, minimum.clone(), maximum.clone(), engine.clone(), powerBlock.clone(),
+                            world.clone(), open, openDir, primeOwner.clone(), locked);
     }
 
     /**
@@ -140,12 +220,6 @@ public abstract class AbstractDoorBase implements IDoorBase
                        .isBlockPowered(getWorld(), getPowerBlock());
     }
 
-    @Override
-    public boolean isValidOpenDirection(final @NotNull RotateDirection openDir)
-    {
-        return false;
-    }
-
     /**
      * Attempts to toggle a door. Think twice before using this method. Instead, please look at {@link
      * DoorOpener#animateDoorAsync(AbstractDoorBase, DoorActionCause, IMessageable, IPPlayer, double, boolean,
@@ -154,7 +228,7 @@ public abstract class AbstractDoorBase implements IDoorBase
      * @param cause           What caused this action.
      * @param messageReceiver Who will receive any messages that have to be sent.
      * @param responsible     Who is responsible for this door. Either the player who directly toggled it (via a command
-     *                        or the GUI), or the original creator when this data is not available.
+     *                        or the GUI), or the prime owner when this data is not available.
      * @param time            The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum
      *                        speed is limited, so at a certain point lower values will not increase door speed.
      * @param skipAnimation   If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
@@ -174,25 +248,31 @@ public abstract class AbstractDoorBase implements IDoorBase
             throw e;
         }
 
+        if (!DoorRegistry.get().isRegistered(this))
+            return doorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
+
         if (skipAnimation && !canSkipAnimation())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
+        final @NotNull DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
-        Vector3Di newMin = new Vector3Di(getMinimum());
-        Vector3Di newMax = new Vector3Di(getMaximum());
+        final @NotNull Vector3Di newMin = new Vector3Di(getMinimum());
+        final @NotNull Vector3Di newMax = new Vector3Di(getMaximum());
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                       .createPrepareEvent(this, cause, actionType, responsible, time,
-                                                                           skipAnimation, newMin, newMax);
+        final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                                      .createPrepareEvent(this, cause, actionType,
+                                                                                          responsible, time,
+                                                                                          skipAnimation, newMin,
+                                                                                          newMax);
+
         BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
@@ -217,8 +297,10 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
-        IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getDoorOwner().getPlayer().getUUID(),
-                                                                                  getDoorOwner().getPlayer().getName());
+        final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
+                                                 .create(getPrimeOwner().getPlayer().getUUID(),
+                                                         getPrimeOwner().getPlayer().getName());
+
         if (newCurrent == 0 && isCloseable())
             DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
                                               BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
@@ -227,6 +309,18 @@ public abstract class AbstractDoorBase implements IDoorBase
             DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
                                               BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
                                               false, DoorActionType.OPEN);
+    }
+
+    @Override
+    public boolean isOpenable()
+    {
+        return !open;
+    }
+
+    @Override
+    public boolean isCloseable()
+    {
+        return open;
     }
 
     /**
@@ -284,60 +378,125 @@ public abstract class AbstractDoorBase implements IDoorBase
     }
 
     @Override
-    public final @NotNull UUID getPlayerUUID()
+    public @NotNull Collection<@NotNull DoorOwner> getDoorOwners()
     {
-        if (doorOwner == null)
-        {
-            NullPointerException npe = new NullPointerException(
-                "Door " + getDoorUID() + " did not have an owner! Please contact pim16aap2.");
-            PLogger.get().logThrowable(npe);
-            throw npe;
-        }
-        return doorOwner.getPlayer().getUUID();
+        return Collections.unmodifiableCollection(doorOwners.values());
     }
 
     @Override
-    public final int getPermission()
+    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull IPPlayer player)
     {
-        return doorOwner == null ? -1 : doorOwner.getPermission();
+        return getDoorOwner(player.getUUID());
     }
 
     @Override
-    public final void setOpenDir(final @NotNull RotateDirection newRotDir)
+    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
-        if (newRotDir.equals(RotateDirection.NONE))
-        {
-            PLogger.get()
-                   .logMessage(Level.WARNING,
-                               "\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
-            return;
-        }
-        openDir = newRotDir;
-        invalidateChunkRange();
+        return Optional.ofNullable(doorOwners.get(uuid));
+    }
+
+    @Override
+    public @NotNull DoorOwner getPrimeOwner()
+    {
+        return primeOwner;
     }
 
     /**
-     * {@inheritDoc}
+     * Changes the 'minimum' position of this {@link IDoorBase}.
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new minimum position.
+     * @return This object.
      */
-    @Override
-    public final void setMinimum(final @NotNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setMinimum(final @NotNull Vector3DiConst pos)
     {
         minimum = new Vector3Di(pos);
         onCoordsUpdate();
+        return this;
     }
 
     /**
-     * {@inheritDoc}
+     * Changes the 'maximum' position of this {@link IDoorBase}.
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new maximum position.
+     * @return This object.
      */
-    @Override
-    public final void setMaximum(final @NotNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setMaximum(final @NotNull Vector3DiConst pos)
     {
         maximum = new Vector3Di(pos);
         onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the coordinates of this {@link IDoorBase}.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param min The new minimum position.
+     * @param max The new maximum position.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst min,
+                                                          final @NotNull Vector3DiConst max)
+    {
+        minimum = new Vector3Di(min);
+        maximum = new Vector3Di(max);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the position of the power block.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new position of the power block.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos)
+    {
+        powerBlock = new Vector3Di(pos);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the position of the engine.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new position of the engine.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setEnginePosition(final @NotNull Vector3DiConst pos)
+    {
+        engine = new Vector3Di(pos);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the direction the {@link IDoorBase} will open in.
+     *
+     * @param newRotDir New {@link RotateDirection} direction the {@link IDoorBase} will open in.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setOpenDir(final @NotNull RotateDirection newRotDir)
+    {
+        if (newRotDir.equals(RotateDirection.NONE))
+            PLogger.get()
+                   .logMessage(Level.WARNING,
+                               "\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
+        else
+        {
+            openDir = newRotDir;
+            invalidateChunkRange();
+        }
+        return this;
     }
 
     /**
@@ -393,30 +552,6 @@ public abstract class AbstractDoorBase implements IDoorBase
                              maximum.getZ() - minimum.getZ());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
-    @Override
-    public final void setEnginePosition(final @NotNull Vector3DiConst pos)
-    {
-        engine = new Vector3Di(pos);
-        onCoordsUpdate();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
-    @Override
-    public final void setPowerBlockPosition(final @NotNull Vector3DiConst pos)
-    {
-        powerBlock = new Vector3Di(pos);
-        onCoordsUpdate();
-    }
-
     private @NotNull Vector2Di calculateEngineChunk()
     {
         return Util.getChunkCoords(engine);
@@ -458,7 +593,7 @@ public abstract class AbstractDoorBase implements IDoorBase
     @Override
     public final @NotNull String getBasicInfo()
     {
-        return doorUID + " (" + getPermission() + ") - " + getDoorType().getSimpleName() + ": " + name;
+        return doorUID + " (" + getPrimeOwner().toString() + ") - " + getDoorType().getSimpleName() + ": " + name;
     }
 
     /**
@@ -469,15 +604,14 @@ public abstract class AbstractDoorBase implements IDoorBase
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
-        builder.append("Type: ").append(getDoorType().toString()).append(". Permission: ").append(getPermission())
-               .append("\n");
+        builder.append("Type: ").append(getDoorType().toString()).append("\n");
         builder.append("Min: ").append(minimum.toString()).append(", Max: ").append(maximum.toString())
                .append(", Engine: ")
                .append(engine.toString()).append("\n");
         builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("World: ").append(getWorld().getUUID().toString()).append("\n");
-        builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
+        builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
         getDoorType().getTypeData(this).ifPresent(
@@ -505,7 +639,7 @@ public abstract class AbstractDoorBase implements IDoorBase
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
             maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
-            open == other.open && doorOwner.equals(other.doorOwner) && isLocked == other.isLocked &&
+            open == other.open && doorOwners.equals(other.doorOwners) && locked == other.locked &&
             world.getUUID().equals(other.world.getUUID());
     }
 
@@ -526,38 +660,33 @@ public abstract class AbstractDoorBase implements IDoorBase
         /**
          * The name of this door.
          */
-        @NotNull
-        String name;
+        @NotNull String name;
 
         /**
          * The location with the coordinates closest to the origin.
          */
-        @NotNull
-        Vector3DiConst min;
+        @NotNull Vector3DiConst min;
 
         /**
          * The location with the coordinates furthest away from the origin.
          */
-        @NotNull
-        Vector3DiConst max;
+        @NotNull Vector3DiConst max;
 
         /**
          * The location of the engine.
          */
-        @NotNull
-        Vector3DiConst engine;
+        @NotNull Vector3DiConst engine;
 
         /**
          * The location of the powerblock.
          */
-        @NotNull
-        Vector3DiConst powerBlock;
+
+        @NotNull Vector3DiConst powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.
          */
-        @NotNull
-        IPWorld world;
+        @NotNull IPWorld world;
 
         /**
          * Whether or not this door is currently open.
@@ -567,19 +696,34 @@ public abstract class AbstractDoorBase implements IDoorBase
         /**
          * The open direction of this door.
          */
-        @NotNull
-        RotateDirection openDirection;
+
+        @NotNull RotateDirection openDirection;
 
         /**
-         * The {@link DoorOwner} of this door.
+         * The {@link DoorOwner} that originally created this door.
          */
-        @NotNull
-        DoorOwner doorOwner;
+        @NotNull DoorOwner primeOwner;
+
+        /**
+         * The list of {@link DoorOwner}s of this door.
+         */
+
+        @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
         /**
          * Whether or not this door is currently locked.
          */
         boolean isLocked;
+
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
+                        final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
+                        final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
+                        final boolean isLocked)
+        {
+            this(uid, name, min, max, engine, powerBlock, world, isOpen, openDirection, primeOwner,
+                 Collections.singletonMap(primeOwner.getPlayer().getUUID(), primeOwner), isLocked);
+        }
     }
 
     public class Registerable

@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -57,31 +57,17 @@ public class SubCommandAddOwner extends SubCommand
             return true;
         }
 
-        BigDoors.get().getDatabaseManager().hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.ADDOWNER)
-                .whenComplete(
-                    (isAllowed, throwable) ->
-                    {
-                        if (!isAllowed)
-                        {
-                            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                            return;
-                        }
-                        boolean success = false;
-                        try
-                        {
-                            success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission).get();
-                            plugin.getPLogger()
-                                  .sendMessageToTarget(sender, Level.INFO, success ?
-                                                                           messages.getString(
-                                                                               Message.COMMAND_ADDOWNER_SUCCESS) :
-                                                                           messages.getString(
-                                                                               Message.COMMAND_ADDOWNER_FAIL));
-                        }
-                        catch (ExecutionException | InterruptedException e)
-                        {
-                            PLogger.get().logThrowable(e);
-                        }
-                    });
+        if (!Util.hasPermissionForAction(player, door, DoorAttribute.ADDOWNER))
+        {
+            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+            return true;
+        }
+        BigDoors.get().getDatabaseManager().addOwner(door, player, permission).whenComplete(
+            (result, throwable) ->
+                plugin.getPLogger()
+                      .sendMessageToTarget(sender, Level.INFO, result ?
+                                                               messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+                                                               messages.getString(Message.COMMAND_ADDOWNER_FAIL)));
         return true;
     }
 
@@ -94,9 +80,9 @@ public class SubCommandAddOwner extends SubCommand
         }
         catch (Exception e)
         {
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    messages.getString(Message.ERROR_COMMAND_INVALIDPERMISSIONVALUE,
-                                                                       args[pos]));
+            plugin.getPLogger()
+                  .sendMessageToTarget(sender, Level.INFO,
+                                       messages.getString(Message.ERROR_COMMAND_INVALIDPERMISSIONVALUE, args[pos]));
         }
         return permission;
     }

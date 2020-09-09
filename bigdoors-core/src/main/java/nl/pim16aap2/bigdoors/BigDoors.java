@@ -53,19 +53,6 @@ import java.util.Set;
 // TODO: Consider adding linked doors that will toggle upon activation of any of the existing doors.
 //       Need to figure out how to deal with the new powerblock system, though. Perhaps let the doors
 //       share a powerblock? Might be tricky to do in an efficient manner.
-// TODO: Consider switching to tight instance-control for doors. This would mean that each door can have at most
-//       1 instance. All setters would have to be synchronized or disabled. Perhaps use a manager with weak references.
-//       This would have the advantage that you cannot have out-of-date versions of a door, (for example in a GUI).
-//       There are some issues regarding what should and should not be loaded, though. For example, should ALL owners
-//       be loaded into a door at all times? Or should there be a separate system to retrieve that data?
-//       Also, when mass-selecting doors (e.g. all doors part of a certain group), how would that work with the cache?
-//       Ideally, it wouldn't have to construct all those doors when retrieving it, but the database has no reason to
-//       know about the door manager's existence. Perhaps _all_ door creation should then be routed via a factory of
-//       some kind? Only this factory should be allowed to create new doors, so everything would have to be routed
-//       through it regardless. The factory can then check if the door already has an instance. What to do if the instance
-//       is different from the data in the db, though? Should that (out-of-sync instances) even be possible? If not,
-//       when should they be updated? And how?
-//       Design Pattern: https://en.wikipedia.org/wiki/Multiton_pattern
 // TODO: Consider using some kind of component system in the doors. You'd have to add something like
 //       ComponentBoolean("NS", Clock::getNS); A separate ComponentManager (initialized statically per-type)
 //       should then handle the creation of the objects array as well as the parsing of it. The parsing should happens
@@ -77,6 +64,15 @@ import java.util.Set;
 /*
  * Doors
  */
+// TODO: Flags: Add a secondary mode where it doesn't use a hardcoded formula, but a user-defined one instead.
+//       Use a JSON file and allow the user to define a set of formulas and store the results in variables.
+//       There should be 3 types of formulas:
+//       1) Per-Door:  Calculated once, then reused for every run .
+//       2) Per-Run:   Calculated once per run (tick), then reused for every block.
+//       3) Per-Block: Calculated for every block.
+// TODO: Make a separate config file (file.zip?, so people who don't understand it won't touch it) for advanced options
+//       including, but not limited to, setting cache sizes.
+//       For caches: https://guava.dev/releases/19.0/api/docs/com/google/common/cache/CacheBuilderSpec.html
 // TODO: Make doors thread-safe: https://stackoverflow.com/questions/53769141/making-a-pojo-thread-safe
 //       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
 //       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java
@@ -118,6 +114,8 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: See if Guava's LoadingCache might be useful: https://guava.dev/releases/18.0/api/docs/com/google/common/cache/LoadingCache.html
+//       "Values are automatically loaded by the cache, and are stored in the cache until either evicted or manually invalidated."
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
@@ -475,6 +473,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * Unit tests
  */
+// TODO: To speed up testing, use an in-memory database: https://www.sqlite.org/inmemorydb.html
+//       Then write it to disk once it's done (for potential manual inspection): https://www.sqlite.org/backup.html
 // TODO: Test the DoorRegistry system somehow.
 // TODO: Don't use the beforeLastMessage method. Instead, use something like getLastWarning. Also means that levels will
 //       have to be used when messaging players.

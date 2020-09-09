@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -21,10 +20,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -97,7 +96,7 @@ public class UnitTestUtil
     {
         if (isInitialized)
             return;
-        
+
         setFakeDoorRegistry();
 
         System.out.println("LOG_FILE = " + LOG_FILE.toString());
@@ -118,18 +117,8 @@ public class UnitTestUtil
      * @throws IllegalAccessException
      */
     public void setFakeDoorRegistry()
-        throws NoSuchFieldException, IllegalAccessException
     {
-        final @NotNull Field fieldDoors = DoorRegistry.class.getDeclaredField("doors");
-        final @NotNull Field fieldFutureDoors = DoorRegistry.class.getDeclaredField("doors");
-
-        final @NotNull Map<Long, CompletableFuture<Optional<AbstractDoorBase>>> fakeMap = getFakeMap();
-
-        fieldDoors.setAccessible(true);
-        fieldFutureDoors.setAccessible(true);
-
-        fieldDoors.set(DoorRegistry.get(), fakeMap);
-        fieldFutureDoors.set(DoorRegistry.get(), fakeMap);
+        DoorRegistry.get().init(0, 1, 0, Duration.ZERO);
     }
 
     /**
