@@ -77,6 +77,14 @@ import java.util.Set;
 /*
  * Doors
  */
+// TODO: Flags: Add a secondary mode where it doesn't use a hardcoded formula, but a user-defined one instead.
+//       Use a JSON file and allow the user to define a set of formulas and store the results in variables.
+//       There should be 3 types of formulas:
+//       1) Per-Door:  Calculated once, then reused for every run .
+//       2) Per-Run:   Calculated once per run (tick), then reused for every block.
+//       3) Per-Block: Calculated for every block.
+// TODO: Make a separate config file (file.zip?, so people who don't understand it won't touch it) for advanced options
+//       including, but not limited to, setting cache sizes.
 // TODO: Make doors thread-safe: https://stackoverflow.com/questions/53769141/making-a-pojo-thread-safe
 //       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
 //       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java
@@ -118,6 +126,8 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: See if Guava's LoadingCache might be useful: https://guava.dev/releases/18.0/api/docs/com/google/common/cache/LoadingCache.html
+//       "Values are automatically loaded by the cache, and are stored in the cache until either evicted or manually invalidated."
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.

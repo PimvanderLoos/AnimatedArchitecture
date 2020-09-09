@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.util.Map;
+import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a registry of doors.
@@ -18,15 +17,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
-// TODO: ConcurrentHashMaps are pretty slow at resizing, so try to estimate the size (based on the config options)
-//       on init. Also, see the note at #getDoor(long) regarding the use of ConcurrentHashmaps in general.
+// TODO: Guava performs some cache cleanup on writes if possible, but it will resort to performing it on reads,
+//       if necessary. Because this cache is probably not written to too often, this can cause some read operations
+//       to get slowed down. Consider regularly calling Cache#cleanup from a separate thread.
 public final class DoorRegistry extends Restartable
 {
-    @NotNull
     private static final DoorRegistry INSTANCE = new DoorRegistry();
 
-    @NotNull
-    private final Map<Long, WeakReference<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
+    // TODO: Figure out how much space a door takes up in memory, roughly, and figure out what sane values to use.
+    // TODO: Make these configurable.
+    public static final int MAX_REGISTRY_SIZE = 1000;
+    public static final int CONCURRENCY_LEVEL = 4;
+    public static final int INITIAL_CAPACITY = 100;
+    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(10);
+
+    private final @NotNull Cache<Long, AbstractDoorBase> doorCache;
 
     private DoorRegistry()
     {
@@ -37,6 +42,14 @@ public final class DoorRegistry extends Restartable
             PLogger.get().logThrowableSilently(e);
             throw e;
         }
+
+        doorCache = CacheBuilder.newBuilder()
+                                .softValues()
+                                .maximumSize(MAX_REGISTRY_SIZE)
+                                .expireAfterAccess(CACHE_EXPIRY)
+                                .initialCapacity(INITIAL_CAPACITY)
+                                .concurrencyLevel(CONCURRENCY_LEVEL)
+                                .build();
     }
 
     public static @NotNull DoorRegistry get()
@@ -52,8 +65,7 @@ public final class DoorRegistry extends Restartable
      */
     public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
-        final @Nullable WeakReference<AbstractDoorBase> val = doors.get(doorUID);
-        return Optional.ofNullable(val == null ? null : val.get());
+        return Optional.ofNullable(doorCache.getIfPresent(doorUID));
     }
 
     /**
@@ -63,11 +75,7 @@ public final class DoorRegistry extends Restartable
      */
     void deregisterDoor(final long doorUID)
     {
-        doors.computeIfPresent(doorUID, (key, val) ->
-        {
-            val.clear();
-            return null;
-        });
+        doorCache.invalidate(doorUID);
     }
 
     /**
@@ -81,8 +89,7 @@ public final class DoorRegistry extends Restartable
      */
     public boolean isRegistered(final long doorUID)
     {
-        final @Nullable WeakReference<AbstractDoorBase> val = doors.get(doorUID);
-        return val != null && val.get() != null;
+        return doorCache.getIfPresent(doorUID) != null;
     }
 
     /**
@@ -92,21 +99,24 @@ public final class DoorRegistry extends Restartable
      *                     is to be registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
+    public synchronized boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return doors.putIfAbsent(doorBase.getDoorUID(), new WeakReference<>(doorBase)) == null;
+        if (doorCache.getIfPresent(doorBase.getDoorUID()) != null)
+            return false;
+        doorCache.put(doorBase.getDoorUID(), doorBase);
+        return true;
     }
 
     @Override
     public void restart()
     {
-        doors.clear();
+        shutdown();
     }
 
     @Override
     public void shutdown()
     {
-        doors.clear();
+        doorCache.invalidateAll();
     }
 }
