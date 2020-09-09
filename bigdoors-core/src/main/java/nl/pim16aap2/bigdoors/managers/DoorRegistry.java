@@ -80,9 +80,6 @@ public final class DoorRegistry extends Restartable
 
     /**
      * Checks if a {@link AbstractDoorBase} associated with a given UID has been registered.
-     * <p>
-     * Note that this does not mean that this {@link AbstractDoorBase} actually exists. Merely that a mapping to a
-     * potentially missing {@link AbstractDoorBase} exists.
      *
      * @param doorUID The UID of the door.
      * @return True if an entry exists for the {@link AbstractDoorBase} with the given UID.
@@ -90,6 +87,18 @@ public final class DoorRegistry extends Restartable
     public boolean isRegistered(final long doorUID)
     {
         return doorCache.getIfPresent(doorUID) != null;
+    }
+
+    /**
+     * Checks if the exact instance of the provided {@link AbstractDoorBase} has been registered. (i.e. it uses '==' to
+     * check if the cached entry is the same).
+     *
+     * @param doorBase The door.
+     * @return True if an entry exists for the exact instance of the provided {@link AbstractDoorBase}.
+     */
+    public boolean isRegistered(final @NotNull AbstractDoorBase doorBase)
+    {
+        return doorCache.getIfPresent(doorBase.getDoorUID()) == doorBase;
     }
 
     /**

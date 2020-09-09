@@ -248,25 +248,31 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             throw e;
         }
 
+        if (!DoorRegistry.get().isRegistered(this))
+            return doorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
+
         if (skipAnimation && !canSkipAnimation())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
+        final @NotNull DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
-        Vector3Di newMin = new Vector3Di(getMinimum());
-        Vector3Di newMax = new Vector3Di(getMaximum());
+        final @NotNull Vector3Di newMin = new Vector3Di(getMinimum());
+        final @NotNull Vector3Di newMax = new Vector3Di(getMaximum());
 
         if (!getPotentialNewCoordinates(newMin, newMax))
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                       .createPrepareEvent(this, cause, actionType, responsible, time,
-                                                                           skipAnimation, newMin, newMax);
+        final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                                      .createPrepareEvent(this, cause, actionType,
+                                                                                          responsible, time,
+                                                                                          skipAnimation, newMin,
+                                                                                          newMax);
+
         BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);

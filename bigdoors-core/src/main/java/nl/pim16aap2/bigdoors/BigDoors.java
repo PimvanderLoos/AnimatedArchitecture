@@ -53,19 +53,6 @@ import java.util.Set;
 // TODO: Consider adding linked doors that will toggle upon activation of any of the existing doors.
 //       Need to figure out how to deal with the new powerblock system, though. Perhaps let the doors
 //       share a powerblock? Might be tricky to do in an efficient manner.
-// TODO: Consider switching to tight instance-control for doors. This would mean that each door can have at most
-//       1 instance. All setters would have to be synchronized or disabled. Perhaps use a manager with weak references.
-//       This would have the advantage that you cannot have out-of-date versions of a door, (for example in a GUI).
-//       There are some issues regarding what should and should not be loaded, though. For example, should ALL owners
-//       be loaded into a door at all times? Or should there be a separate system to retrieve that data?
-//       Also, when mass-selecting doors (e.g. all doors part of a certain group), how would that work with the cache?
-//       Ideally, it wouldn't have to construct all those doors when retrieving it, but the database has no reason to
-//       know about the door manager's existence. Perhaps _all_ door creation should then be routed via a factory of
-//       some kind? Only this factory should be allowed to create new doors, so everything would have to be routed
-//       through it regardless. The factory can then check if the door already has an instance. What to do if the instance
-//       is different from the data in the db, though? Should that (out-of-sync instances) even be possible? If not,
-//       when should they be updated? And how?
-//       Design Pattern: https://en.wikipedia.org/wiki/Multiton_pattern
 // TODO: Consider using some kind of component system in the doors. You'd have to add something like
 //       ComponentBoolean("NS", Clock::getNS); A separate ComponentManager (initialized statically per-type)
 //       should then handle the creation of the objects array as well as the parsing of it. The parsing should happens
