@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
@@ -489,7 +488,6 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assert.assertEquals(0, storage.getPermission(player1UUID.toString(), 1));
         Assert.assertEquals(1, storage.getDoorCountForPlayer(player1UUID, "massive1"));
         Assert.assertEquals(2, storage.getDoorCountForPlayer(player1UUID));
         Assert.assertEquals(1, storage.getDoorCountForPlayer(player2UUID));
@@ -529,7 +527,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertEquals(2, storage.getDoor(1L).get().getDoorOwners().size());
 
         // Verify the permission level of player 2 over door 2.
-        Assert.assertEquals(1, storage.getPermission(player2UUID.toString(), 2L));
+        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
         Assert.assertEquals(2, storage.getDoor(2L).get().getDoorOwners().size());
 
@@ -547,7 +545,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify that adding an existing owner overrides the permission level.
         Assert.assertTrue(storage.addOwner(2L, player2, 2));
-        Assert.assertEquals(2, storage.getPermission(player2UUID.toString(), 2L));
+        Assert.assertEquals(2, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
 
         // Remove player 2 as owner of door 2.
         Assert.assertTrue(storage.removeOwner(2L, player2UUID.toString()));
@@ -630,109 +628,72 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
-     * Verifies that door 3 exists in the database, and that the database entry of door 3 does equals the object of door
-     * 3.
-     */
-    private void assertDoor3Parity()
-    {
-        // Check if door 3 exists in the database.
-        Assert.assertTrue(storage.getDoor(player2UUID, 3L).isPresent());
-        // Check if the object of door 3 and the database entry of door 3 are the same.
-        Assert.assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
-    }
-
-    /**
-     * Verifies that door 3 exists in the database, and that the database entry of door 3 does not equal the object of
-     * door 3.
-     */
-    private void assertDoor3NotParity()
-    {
-        // Check if door 3 exists in the database.
-        Assert.assertTrue(storage.getDoor(player2UUID, 3L).isPresent());
-        // Check if the object of door 3 and the database entry of door 3 are NOT the same.
-        Assert.assertNotSame(door3, storage.getDoor(player2UUID, 3L).get());
-    }
-
-    /**
      * Runs tests of the methods that modify doors in the database.
      */
     public void modifyDoors()
     {
-        // Test changing autoCloseTime value.
+        // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
         {
             ITimerToggleableArchetype doorTimeToggle = (ITimerToggleableArchetype) door3;
             final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTime();
             final int testAutoCloseTime = 20;
 
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            // Change the autoCloseTimer of the object of door 3.
-            storage.syncTypeData(door3);
+            Assert.assertTrue(storage.syncTypeData(door3));
+            Assert.assertEquals(testAutoCloseTime,
+                                ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
+
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
+            Assert.assertTrue(storage.syncTypeData(door3));
+            Assert.assertEquals(door3AutoCloseTime,
+                                ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
-            // Verify that door 3 in the database is no longer the same as the door 3 object.
-            // This should be the case, because the auto close timer is 0 for the door 3 object.
-            assertDoor3NotParity();
-
-            doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            Assert.assertEquals(door3, storage.getDoor(player2UUID, 3L).get());
-
-            // Reset the autoclose timer of both the object of door 3 and the database entry of door 3 and
-            // verify data parity.
-            doorTimeToggle.setAutoCloseTime(0);
-            storage.syncTypeData(door3);
-            assertDoor3Parity();
+            Assert.assertEquals(door3, storage.getDoor(3L).get());
         }
 
-        // Test changing blocksToMove value.
+        // Test (un)locking (i.e. syncing base data).
         {
-            IBlocksToMoveArchetype doorBTM = (IBlocksToMoveArchetype) door3;
-            final int door3BlocksToMove = doorBTM.getBlocksToMove();
-            final int testBlocksToMove = 20;
-            // Change blocksToMove of the object of door 3.
-            doorBTM.setBlocksToMove(testBlocksToMove);
-            storage.syncTypeData(door3);
-            doorBTM.setBlocksToMove(door3BlocksToMove);
-
-            // Verify that door 3 in the database is no longer the same as the door 3 object.
-            // This should be the case, because the blocksToMove value is 0 for the door 3 object.
-            assertDoor3NotParity();
-            // Update the door 3 object to have the same blocksToMove value as the door 3 in the database
-            // And verify that the door 3 in the database and the door 3 object are the same again.
-            doorBTM.setBlocksToMove(testBlocksToMove);
-            assertDoor3Parity();
-
-            // Reset the blocksToMove value of both the object of door 3 and the database entry of door 3 and
-            // verify data parity.
-            doorBTM.setBlocksToMove(8);
-            storage.syncTypeData(door3);
-            assertDoor3Parity();
-        }
-
-        // Test (un)locking.
-        {
-            // Set the lock status of the database entry of door 3 to true.
-            storage.setLock(3L, true);
-            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-            // This should be the case because the database entry of door 3 is now locked,
-            // while the object of door 3 is not.
-            assertDoor3NotParity();
-            // Set the object of door 3 to locked so it matches the database entry of door 3. Then make sure
-            // Both the object and the database entry of door 3 match.
             door3.setLocked(true);
-            assertDoor3Parity();
+            Assert.assertTrue(storage.syncBaseData(door3));
+            Assert.assertTrue(storage.getDoor(3L).get().isLocked());
 
-            // Reset the lock status of both the database entry and the object of door 3 and verify they are
-            // the same again.
-            storage.setLock(3L, false);
             door3.setLocked(false);
-            assertDoor3Parity();
+            Assert.assertTrue(storage.syncBaseData(door3));
+            Assert.assertFalse(storage.getDoor(3L).get().isLocked());
         }
 
         // Test syncing all data.
         {
             Portcullis pc = ((Portcullis) door3);
+
+            // Save the current data
+            final @NotNull RotateDirection oldDir = door3.getOpenDir();
+            final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
+            Assert.assertNotSame(oldDir, newDir);
+
+            final @NotNull Vector3DiConst oldPowerBlock = door3.getPowerBlock();
+            final @NotNull Vector3Di newPowerBlock = new Vector3Di(oldPowerBlock);
+            newPowerBlock.setY((newPowerBlock.getX() + 30) % 256);
+            Assert.assertNotSame(newPowerBlock, oldPowerBlock);
+
+            final @NotNull Vector3Di oldMin = new Vector3Di(door3.getMinimum());
+            final @NotNull Vector3Di oldMax = new Vector3Di(door3.getMaximum());
+            final @NotNull Vector3Di newMin = oldMin.clone().add(0, 20, 10);
+            final @NotNull Vector3Di newMax = oldMax.clone().add(40, 0, 20);
+            Assert.assertNotSame(oldMin, newMin);
+            Assert.assertNotSame(oldMax, newMax);
+
+            final boolean isLocked = door3.isLocked();
+            final boolean isOpen = door3.isOpen();
+
+
             // update some general data.
-            door3.setLocked(true);
+            door3.setLocked(!isLocked);
+            door3.setOpen(!isOpen);
+            door3.setPowerBlockPosition(newPowerBlock);
+            door3.setCoordinates(newMin, newMax);
+            door3.setOpenDir(newDir);
+
 
             // Update some type-specific data
             final int blocksToMove = pc.getBlocksToMove();
@@ -742,96 +703,32 @@ public class SQLiteJDBCDriverConnectionTest
 
             Assert.assertTrue(storage.syncAllData(door3));
 
-            @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
-            Assert.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
-            Assert.assertTrue(retrieved.isLocked());
 
-            door3.setLocked(false);
+            @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
+
+            // Check base data
+            Assert.assertEquals(!isLocked, retrieved.isLocked());
+            Assert.assertEquals(!isOpen, retrieved.isOpen());
+            Assert.assertEquals(newPowerBlock, retrieved.getPowerBlock());
+            Assert.assertEquals(newMin, retrieved.getMinimum());
+            Assert.assertEquals(newMax, retrieved.getMaximum());
+            Assert.assertEquals(newDir, retrieved.getOpenDir());
+
+            // Check type-specific data
+            Assert.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
+
+
+            // reset base data
+            door3.setLocked(isLocked);
+            door3.setOpen(isOpen);
+            door3.setPowerBlockPosition(oldPowerBlock);
+            door3.setCoordinates(oldMin, oldMax);
+            door3.setOpenDir(oldDir);
+
+            // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
             storage.syncAllData(door3);
-
-            retrieved = (Portcullis) storage.getDoor(3L).get();
-            Assert.assertEquals(blocksToMove, retrieved.getBlocksToMove());
-            Assert.assertFalse(retrieved.isLocked());
-        }
-
-        // Test rotate direction change
-        {
-            final @NotNull RotateDirection oldDir = door3.getOpenDir();
-            final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
-
-            // Set the rotation direction of the database entry of door 3 to true.
-            storage.updateDoorOpenDirection(3L, newDir);
-            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-            // This should be the case because the rotate directions should differ.
-            assertDoor3NotParity();
-            // Change the rotation direction of the object of door 3 so that it matches the rotation direction
-            // of the database entry of door 3.
-            door3.setOpenDir(newDir);
-            assertDoor3Parity();
-
-            // Reset the rotation direction of both the database entry and the object of door 3 and verify they are
-            // the same again.
-            storage.updateDoorOpenDirection(3L, oldDir);
-            door3.setOpenDir(oldDir);
-            assertDoor3Parity();
-        }
-
-        // Test power block relocation.
-        {
-            // Create a new location that is not the same as the current power block location of door 3.
-            final @NotNull Vector3DiConst oldLoc = door3.getPowerBlock();
-            final @NotNull Vector3Di newLoc = new Vector3Di(oldLoc);
-            newLoc.setY((newLoc.getX() + 30) % 256);
-            Assert.assertNotSame(newLoc, oldLoc);
-
-            // Set the power block location of the database entry of door 3 to the new location.
-            storage.updateDoorPowerBlockLoc(3L, newLoc.getX(), newLoc.getY(), newLoc.getZ());
-            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-            // This should be the case because the power block locations should differ between them.
-            assertDoor3NotParity();
-            // Move the powerBlock location of the object of door 3 so that it matches the database entry of door 3.
-            // Then make sure both the object and the database entry of door 3 match.
-            door3.setPowerBlockPosition(newLoc);
-            assertDoor3Parity();
-
-            // Reset the powerBlock location of both the database entry and the object of door 3 and verify they are the
-            // same again.
-            storage.updateDoorPowerBlockLoc(3L, oldLoc.getX(), oldLoc.getY(), oldLoc.getZ());
-            door3.setPowerBlockPosition(oldLoc);
-            assertDoor3Parity();
-        }
-
-        // Test updating doors.
-        {
-            // Create some new locations and verify they're different from the old min/max values.
-            final @NotNull Vector3Di oldMin = new Vector3Di(door3.getMinimum());
-            final @NotNull Vector3Di oldMax = new Vector3Di(door3.getMaximum());
-            final @NotNull Vector3Di newMin = oldMin.clone().add(0, 20, 10);
-            final @NotNull Vector3Di newMax = oldMax.clone().add(40, 0, 20);
-            Assert.assertNotSame(oldMin, newMin);
-            Assert.assertNotSame(oldMax, newMax);
-
-            // Set the coordinates of the database entry of door 3 to the new location.
-            storage.updateDoorCoords(3L, false, newMin.getX(), newMin.getY(), newMin.getZ(),
-                                     newMax.getX(), newMax.getY(), newMax.getZ());
-            // Verify that the database entry of door 3 and the object of door 3 are no longer the same.
-            // This should be the case because the coordinates should differ between them.
-            assertDoor3NotParity();
-            // Move the coordinates of the object of door 3 so that it matches the database entry of door 3.
-            // Then make sure both the object and the database entry of door 3 match.
-            door3.setMinimum(newMin);
-            door3.setMaximum(newMax);
-            assertDoor3Parity();
-
-            // Reset the coordinates of both the database entry and the object of door 3 and verify they are the
-            // same again.
-            storage.updateDoorCoords(3L, false, oldMin.getX(), oldMin.getY(), oldMin.getZ(),
-                                     oldMax.getX(), oldMax.getY(), oldMax.getZ());
-            door3.setMinimum(oldMin);
-            door3.setMaximum(oldMax);
-            assertDoor3Parity();
         }
     }
 

@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,15 +43,6 @@ public interface IStorage
      * existing identifier value. As long as the type does not change,
      */
     long registerDoorType(final @NotNull DoorType doorType);
-
-    /**
-     * Gets the level of ownership a given player has over a given door.
-     *
-     * @param playerUUID The player to check.
-     * @param doorUID    The door to retrieve this player's level of ownership of.
-     * @return The level of ownership this player has over this door or -1 for no ownership at all.
-     */
-    int getPermission(final @NotNull String playerUUID, final long doorUID);
 
     /**
      * Checks if this storage type only allows single threaded access or not.
@@ -170,8 +160,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID,
-                                             final @NotNull String doorName,
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
                                              final int maxPermission);
 
     /**
@@ -228,51 +217,6 @@ public interface IStorage
      * @return A list of door UIDs that have their engine in a given chunk.
      */
     @NotNull List<Long> getDoorsInChunk(final long chunkHash);
-
-    /**
-     * Updates the coordinates of a door.
-     *
-     * @param doorUID The UID of the door to update.
-     * @param isOpen  The new open-status of the door.
-     * @param xMin    The new minimum x coordinate.
-     * @param yMin    The new minimum y coordinate.
-     * @param zMin    The new minimum z coordinate.
-     * @param xMax    The new maximum x coordinate.
-     * @param yMax    The new maximum y coordinate.
-     * @param zMax    The new maximum z coordinate.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
-                             final int xMax, final int yMax, final int zMax);
-
-    /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID The door to modify.
-     * @param openDir The new rotation direction of this door.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir);
-
-    /**
-     * Changes the location of the powerblock of a door.
-     *
-     * @param doorUID The door to modify.
-     * @param xPos    The new x coordinate for the powerblock.
-     * @param yPos    The new y coordinate for the powerblock.
-     * @param zPos    The new z coordinate for the powerblock.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos);
-
-    /**
-     * Changes the lock status of a door.
-     *
-     * @param doorUID       The UID of the door to modify.
-     * @param newLockStatus The new lock status of this door.
-     * @return True if the update was successful.
-     */
-    boolean setLock(final long doorUID, final boolean newLockStatus);
 
     /**
      * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoorBase} will be

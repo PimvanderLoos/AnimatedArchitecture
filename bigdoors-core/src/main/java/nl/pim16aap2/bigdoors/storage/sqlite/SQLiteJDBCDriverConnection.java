@@ -700,7 +700,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
                                     rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
-        executeUpdate(conn, SQLStatement.INSERT_DOOR_CREATOR.constructPPreparedStatement().setString(1, playerUUID));
+        executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement().setString(1, playerUUID));
 
         return doorUID;
     }
@@ -841,15 +841,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                          .setLong(1, doorUID)
                                                                          .setString(2, playerUUID.toString()),
                             this::getDoor, Optional.empty());
-    }
-
-    @Override
-    public int getPermission(final @NotNull String playerUUID, final long doorUID)
-    {
-        return executeQuery(SQLStatement.GET_PLAYER_PERMISSION_OF_DOOR.constructPPreparedStatement()
-                                                                      .setString(1, playerUUID)
-                                                                      .setLong(2, doorUID),
-                            resultSet -> resultSet.next() ? resultSet.getInt("permission") : -1, -1);
     }
 
     @Override
@@ -1025,62 +1016,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                     doors.add(resultSet.getLong("id"));
                                 return doors;
                             }, new ArrayList<>(0));
-    }
-
-    @Override
-    public boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin,
-                                    final int zMin, final int xMax, final int yMax, final int zMax)
-    {
-        boolean result = executeUpdate(SQLStatement.UPDATE_DOOR_COORDS.constructPPreparedStatement()
-                                                                      .setInt(1, xMin)
-                                                                      .setInt(2, yMin)
-                                                                      .setInt(3, zMin)
-                                                                      .setInt(4, xMax)
-                                                                      .setInt(5, yMax)
-                                                                      .setInt(6, zMax)
-                                                                      .setLong(7, doorUID)) > 0;
-        return result && changeDoorFlag(doorUID, DoorFlag.IS_OPEN, isOpen);
-    }
-
-    @Override
-    public boolean updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir)
-    {
-        return executeUpdate(SQLStatement.UPDATE_DOOR_OPEN_DIR.constructPPreparedStatement()
-                                                              .setInt(1, RotateDirection.getValue(openDir))
-                                                              .setLong(2, doorUID)) > 0;
-    }
-
-    @Override
-    public boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos)
-    {
-        return executeUpdate(SQLStatement.UPDATE_DOOR_POWER_BLOCK_LOC
-                                 .constructPPreparedStatement()
-                                 .setInt(1, xPos)
-                                 .setInt(2, yPos)
-                                 .setInt(3, zPos)
-                                 .setLong(4, Util.simpleChunkHashFromLocation(xPos, zPos))
-                                 .setLong(5, doorUID)) > 0;
-    }
-
-    /**
-     * Changes the flag status of a door.
-     *
-     * @param doorUID    The UID fo the door.
-     * @param flag       The {@link DoorFlag} to change.
-     * @param flagStatus Whether to enable or disable the {@link DoorFlag}.
-     */
-    private boolean changeDoorFlag(final long doorUID, final @NotNull DoorFlag flag, final boolean flagStatus)
-    {
-        SQLStatement statement = flagStatus ? SQLStatement.ADD_DOOR_FLAG : SQLStatement.REMOVE_DOOR_FLAG;
-        return executeUpdate(statement.constructPPreparedStatement()
-                                      .setLong(1, DoorFlag.getFlagValue(flag))
-                                      .setLong(2, doorUID)) > 0;
-    }
-
-    @Override
-    public boolean setLock(final long doorUID, final boolean newLockStatus)
-    {
-        return changeDoorFlag(doorUID, DoorFlag.IS_LOCKED, newLockStatus);
     }
 
     /**

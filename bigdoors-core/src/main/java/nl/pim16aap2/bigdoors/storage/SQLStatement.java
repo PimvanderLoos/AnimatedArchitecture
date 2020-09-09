@@ -33,22 +33,12 @@ public enum SQLStatement
             "WHERE id = ?;"
     ),
 
-    UPDATE_DOOR_POWER_BLOCK_LOC(
-        "UPDATE DoorBase SET powerBlockX = ?, powerBlockY = ?, powerBlockZ = ?, powerBlockHash = ? WHERE id = ?;"
-    ),
-
     UPDATE_DOOR_OWNER_PERMISSION(
         "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
     ),
 
     GET_DOOR_OWNER_PLAYER(
         "SELECT * FROM DoorOwnerPlayer WHERE playerID = ? AND doorUID = ?;"
-    ),
-
-    GET_DOOR_SPECIFIC_PLAYER(
-        "SELECT D.*, P.playerUUID, P.playerName, U.permission \n" +
-            "FROM DoorBase as D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id INNER JOIN Player AS P ON P.id = U.playerID \n" +
-            "WHERE P.playerUUID = ? AND D.id = ?;"
     ),
 
     DELETE_NAMED_DOOR_OF_PLAYER(
@@ -58,15 +48,6 @@ public enum SQLStatement
             "       FROM DoorBase AS D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id, \n" +
             "            (SELECT P.id FROM Player as P WHERE P.playerUUID = ?) AS R \n" +
             "      WHERE D.name = ? AND R.id = U.playerID);"
-    ),
-
-    UPDATE_DOOR_COORDS(
-        "UPDATE DoorBase SET xMin = ?,yMin = ?,zMin = ?,xMax = ?\n" +
-            ",yMax = ?,zMax = ? WHERE id = ?;"
-    ),
-
-    UPDATE_DOOR_OPEN_DIR(
-        "UPDATE DoorBase SET openDirection = ? WHERE id = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(
@@ -84,24 +65,6 @@ public enum SQLStatement
             "(SELECT O.id \n" +
             "FROM DoorOwnerPlayer AS O INNER JOIN Player AS P on O.playerID = P.id \n" +
             "WHERE P.playerUUID = ? AND O.permission > '0' AND O.doorUID = ?);"
-    ),
-
-    GET_DOOR_FLAG(
-        "SELECT bitflag FROM DoorBase WHERE id = ?;"
-    ),
-
-    /**
-     * Adds a single flag to the bitflag column. Please only provide powers of two.
-     */
-    ADD_DOOR_FLAG(
-        "UPDATE DoorBase SET bitflag = (bitflag | ?) WHERE id = ?;"
-    ),
-
-    /**
-     * Removes a single flag to the bitflag column. Please only provide powers of two.
-     */
-    REMOVE_DOOR_FLAG(
-        "UPDATE DoorBase SET bitflag = (bitflag &~ ?) WHERE id = ?;"
     ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(
@@ -173,12 +136,6 @@ public enum SQLStatement
 
     GET_PLAYER_ID(
         "SELECT id FROM Player WHERE playerUUID = ?;"
-    ),
-
-    GET_PLAYER_PERMISSION_OF_DOOR(
-        "SELECT permission \n" +
-            "FROM DoorOwnerPlayer INNER JOIN Player ON Player.id = DoorOwnerPlayer.playerID \n" +
-            "WHERE Player.playerUUID = ? AND doorUID = ?;"
     ),
 
     GET_DOOR_BASE_FROM_ID(
@@ -320,7 +277,7 @@ public enum SQLStatement
      * <p>
      * This statement is intended to be used in the same transaction that inserted the DoorBase.
      */
-    INSERT_DOOR_CREATOR(
+    INSERT_PRIME_OWNER(
         "INSERT INTO DoorOwnerPlayer\n" +
             "    (permission, playerID, doorUID)\n" +
             "    VALUES (0,\n" +
@@ -330,12 +287,6 @@ public enum SQLStatement
             "        (SELECT seq\n" +
             "         FROM sqlite_sequence\n" +
             "         WHERE sqlite_sequence.name = \"DoorBase\"));"
-    ),
-
-    GET_PRIME_OWNER(
-        "SELECT playerName, playerUUID\n" +
-            "FROM Player INNER JOIN DoorOwnerPlayer ON Player.id = DoorOwnerPlayer.playerID\n" +
-            "WHERE permission = 0 AND doorUID = ?;"
     ),
 
     SELECT_MOST_RECENT_DOOR(
