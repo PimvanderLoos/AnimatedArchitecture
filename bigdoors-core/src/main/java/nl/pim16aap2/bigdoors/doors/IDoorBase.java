@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Represents a door.
+ * Represents a door. Every implementation of this interface should be an {@link AbstractDoorBase}.
  *
  * @author Pim
  */
@@ -54,14 +54,25 @@ public interface IDoorBase
     boolean isOpenable();
 
     /**
+     * Changes the open-status of this door. True if open, False if closed.
+     *
+     * @param bool The new open-status of the door.
+     */
+    @NotNull AbstractDoorBase setOpen(final boolean bool);
+
+    /**
+     * Changes the lock status of this door. Locked doors cannot be opened.
+     *
+     * @param locked New lock status.
+     */
+    @NotNull AbstractDoorBase setLocked(final boolean locked);
+
+    /**
      * Checks if this door can be closed right now.
      *
      * @return True if this door can be closed right now.
      */
     boolean isCloseable();
-
-    // TODO: implement this.
-    boolean isValidOpenDirection(final @NotNull RotateDirection openDir);
 
     /**
      * Handles a change in redstone current for this door's powerblock.
@@ -93,6 +104,8 @@ public interface IDoorBase
     /**
      * Cycle the {@link RotateDirection} direction this {@link IDoorBase} will open in. By default it'll set and return
      * the opposite direction of the current direction.
+     * <p>
+     * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
      * @return The new {@link RotateDirection} direction this {@link IDoorBase} will open in.
      */
@@ -135,7 +148,7 @@ public interface IDoorBase
      *
      * @param name The new name of this door.
      */
-    void setName(final @NotNull String name);
+    @NotNull AbstractDoorBase setName(final @NotNull String name);
 
     /**
      * Gets the IPWorld this {@link IDoorBase} exists in.
@@ -214,20 +227,6 @@ public interface IDoorBase
     @NotNull RotateDirection getOpenDir();
 
     /**
-     * Changes the direction the {@link IDoorBase} will open in.
-     *
-     * @param newRotDir New {@link RotateDirection} direction the {@link IDoorBase} will open in.
-     */
-    void setOpenDir(final @NotNull RotateDirection newRotDir);
-
-    /**
-     * Changes the open-status of this door. True if open, False if closed.
-     *
-     * @param bool The new open-status of the door.
-     */
-    void setOpen(final boolean bool);
-
-    /**
      * Gets the position of power block of this door.
      *
      * @return The position of the power block of this door.
@@ -249,25 +248,11 @@ public interface IDoorBase
     @NotNull Vector3DiConst getMinimum();
 
     /**
-     * Changes the 'minimum' position of this {@link IDoorBase}.
-     *
-     * @param pos The new minimum position.
-     */
-    void setMinimum(final @NotNull Vector3DiConst pos);
-
-    /**
      * Gets a copy of the maximum position of this door.
      *
      * @return A copy of the maximum position of this door.
      */
     @NotNull Vector3DiConst getMaximum();
-
-    /**
-     * Changes the 'maximum' position of this {@link IDoorBase}.
-     *
-     * @param loc The new maximum position of this door.
-     */
-    void setMaximum(final @NotNull Vector3DiConst loc);
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
@@ -277,27 +262,6 @@ public interface IDoorBase
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */
     @NotNull Vector2Di[] getChunkRange();
-
-    /**
-     * Changes the position of the engine.
-     *
-     * @param loc The new position of the engine.
-     */
-    void setEnginePosition(final @NotNull Vector3DiConst loc);
-
-    /**
-     * Changes the position of the power block.
-     *
-     * @param loc The new position of the power block.
-     */
-    void setPowerBlockPosition(final @NotNull Vector3DiConst loc);
-
-    /**
-     * Changes the lock status of this door. Locked doors cannot be opened.
-     *
-     * @param locked New lock status.
-     */
-    void setLocked(final boolean locked);
 
     /**
      * Retrieve the Vector2Di the power block of this {@link IDoorBase} resides in. If invalidated or not calculated

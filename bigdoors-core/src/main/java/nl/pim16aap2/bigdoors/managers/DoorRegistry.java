@@ -5,7 +5,9 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +26,7 @@ public final class DoorRegistry extends Restartable
     private static final DoorRegistry INSTANCE = new DoorRegistry();
 
     @NotNull
-    private final Map<Long, Optional<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
+    private final Map<Long, WeakReference<AbstractDoorBase>> doors = new ConcurrentHashMap<>();
 
     private DoorRegistry()
     {
@@ -50,7 +52,8 @@ public final class DoorRegistry extends Restartable
      */
     public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
-        return doors.getOrDefault(doorUID, Optional.empty());
+        final @Nullable WeakReference<AbstractDoorBase> val = doors.get(doorUID);
+        return Optional.ofNullable(val == null ? null : val.get());
     }
 
     /**
@@ -60,7 +63,11 @@ public final class DoorRegistry extends Restartable
      */
     void deregisterDoor(final long doorUID)
     {
-        doors.computeIfPresent(doorUID, (key, val) -> Optional.empty());
+        doors.computeIfPresent(doorUID, (key, val) ->
+        {
+            val.clear();
+            return null;
+        });
     }
 
     /**
@@ -74,7 +81,8 @@ public final class DoorRegistry extends Restartable
      */
     public boolean isRegistered(final long doorUID)
     {
-        return doors.containsKey(doorUID);
+        final @Nullable WeakReference<AbstractDoorBase> val = doors.get(doorUID);
+        return val != null && val.get() != null;
     }
 
     /**
@@ -87,7 +95,7 @@ public final class DoorRegistry extends Restartable
     public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return doors.putIfAbsent(doorBase.getDoorUID(), Optional.of(doorBase)) == null;
+        return doors.putIfAbsent(doorBase.getDoorUID(), new WeakReference<>(doorBase)) == null;
     }
 
     @Override

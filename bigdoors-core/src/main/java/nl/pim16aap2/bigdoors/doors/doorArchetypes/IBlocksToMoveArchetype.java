@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Describes a type of door that moves a certain number of blocks to open.
@@ -26,6 +27,7 @@ public interface IBlocksToMoveArchetype extends IDoorBase
      * {@link AbstractDoorBase}.
      *
      * @param newBTM The number of blocks the {@link AbstractDoorBase} will try to move.
+     * @return The instance of this door.
      */
-    void setBlocksToMove(final int newBTM);
+    @NotNull AbstractDoorBase setBlocksToMove(final int newBTM);
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -59,10 +60,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     private String name;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     private boolean open;
     @Getter(onMethod = @__({@Override}))
     @NotNull
@@ -70,7 +73,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
-    private boolean isLocked;
+    @Accessors(chain = true)
+    private boolean locked;
 
     private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
@@ -79,8 +83,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     // "cached" values that only get calculated when first retrieved.
     private Vector2Di engineChunk = null;
     private Integer blockCount = null;
-
-    private final Registerable registerable = new Registerable();
 
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
@@ -108,7 +110,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorUID = doorData.getUid();
 
         PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
-        if (doorUID > 0 && !DoorRegistry.get().registerDoor(registerable))
+        if (doorUID > 0 && !DoorRegistry.get().registerDoor(new Registerable()))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorUID + "\" while it is already registered!");
@@ -126,7 +128,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         openDir = doorData.getOpenDirection();
         primeOwner = doorData.getPrimeOwner();
         doorOwners = doorData.getDoorOwners();
-        isLocked = doorData.isLocked();
+        locked = doorData.isLocked();
         dimensions = calculateDimensions();
 
         doorOpeningUtility = DoorOpeningUtility.get();
@@ -134,9 +136,38 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     /**
+     * Synchronizes all data of this door with the database.
+     * <p>
+     * Calling this method is faster than calling both {@link #syncBaseData()} and {@link #syncTypeData()}. However,
+     * because of the added overhead of type-specific data, you should try to use {@link #syncBaseData()} whenever
+     * possible (i.e. when no type-specific data was changed).
+     */
+    public final void syncAllData()
+    {
+        DatabaseManager.get().syncAllDataOfDoor(this);
+    }
+
+    /**
+     * Synchronizes the base data of this door with the database.
+     */
+    public final void syncBaseData()
+    {
+        DatabaseManager.get().syncDoorBaseData(this);
+    }
+
+    /**
+     * Synchronizes the type-specific data in this door with the database.
+     */
+    public final void syncTypeData()
+    {
+        DatabaseManager.get().syncDoorTypeData(this);
+    }
+
+    /**
      * Obtains a copy of the {@link DoorData} the describes this door.
      * <p>
-     * Note that this creates a deep copy of the DoorData including its {@link DoorOwner}s, so use it sparingly.
+     * Note that this creates a deep copy of the DoorData <u><b>including its {@link DoorOwner}s</b></u>, so use it
+     * sparingly.
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
@@ -146,7 +177,21 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorOwners.forEach((key, value) -> doorOwnersCopy.put(key, value.clone()));
 
         return new DoorData(doorUID, name, minimum.clone(), maximum.clone(), engine.clone(), powerBlock.clone(),
-                            world.clone(), open, openDir, primeOwner.clone(), doorOwnersCopy, isLocked);
+                            world.clone(), open, openDir, primeOwner.clone(), doorOwnersCopy, locked);
+    }
+
+    /**
+     * Obtains a simple copy of the {@link DoorData} the describes this door.
+     * <p>
+     * Note that this creates a deep copy of the DoorData <u><b>excluding its {@link DoorOwner}s</b></u>, so use it
+     * sparingly.
+     *
+     * @return A copy of the {@link DoorData} the describes this door.
+     */
+    public @NotNull DoorData getSimpleDoorDataCopy()
+    {
+        return new DoorData(doorUID, name, minimum.clone(), maximum.clone(), engine.clone(), powerBlock.clone(),
+                            world.clone(), open, openDir, primeOwner.clone(), locked);
     }
 
     /**
@@ -173,12 +218,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         //       Might have to load up to 3 chunks.
         return BigDoors.get().getPlatform().getPowerBlockRedstoneManager()
                        .isBlockPowered(getWorld(), getPowerBlock());
-    }
-
-    @Override
-    public boolean isValidOpenDirection(final @NotNull RotateDirection openDir)
-    {
-        return false;
     }
 
     /**
@@ -356,42 +395,102 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         return primeOwner;
     }
 
-    @Override
-    public final void setOpenDir(final @NotNull RotateDirection newRotDir)
-    {
-        if (newRotDir.equals(RotateDirection.NONE))
-        {
-            PLogger.get()
-                   .logMessage(Level.WARNING,
-                               "\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
-            return;
-        }
-        openDir = newRotDir;
-        invalidateChunkRange();
-    }
-
     /**
-     * {@inheritDoc}
+     * Changes the 'minimum' position of this {@link IDoorBase}.
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new minimum position.
+     * @return This object.
      */
-    @Override
-    public final void setMinimum(final @NotNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setMinimum(final @NotNull Vector3DiConst pos)
     {
         minimum = new Vector3Di(pos);
         onCoordsUpdate();
+        return this;
     }
 
     /**
-     * {@inheritDoc}
+     * Changes the 'maximum' position of this {@link IDoorBase}.
      * <p>
      * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new maximum position.
+     * @return This object.
      */
-    @Override
-    public final void setMaximum(final @NotNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setMaximum(final @NotNull Vector3DiConst pos)
     {
         maximum = new Vector3Di(pos);
         onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the coordinates of this {@link IDoorBase}.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param min The new minimum position.
+     * @param max The new maximum position.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst min,
+                                                          final @NotNull Vector3DiConst max)
+    {
+        minimum = new Vector3Di(min);
+        maximum = new Vector3Di(max);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the position of the power block.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new position of the power block.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos)
+    {
+        powerBlock = new Vector3Di(pos);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the position of the engine.
+     * <p>
+     * Triggers {@link #onCoordsUpdate()}.
+     *
+     * @param pos The new position of the engine.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setEnginePosition(final @NotNull Vector3DiConst pos)
+    {
+        engine = new Vector3Di(pos);
+        onCoordsUpdate();
+        return this;
+    }
+
+    /**
+     * Changes the direction the {@link IDoorBase} will open in.
+     *
+     * @param newRotDir New {@link RotateDirection} direction the {@link IDoorBase} will open in.
+     * @return This object.
+     */
+    public final @NotNull AbstractDoorBase setOpenDir(final @NotNull RotateDirection newRotDir)
+    {
+        if (newRotDir.equals(RotateDirection.NONE))
+            PLogger.get()
+                   .logMessage(Level.WARNING,
+                               "\"NONE\" is not a valid rotate direction! Defaulting to: \"" + getOpenDir() + "\".");
+        else
+        {
+            openDir = newRotDir;
+            invalidateChunkRange();
+        }
+        return this;
     }
 
     /**
@@ -445,30 +544,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         return new Vector3Di(maximum.getX() - minimum.getX(),
                              maximum.getY() - minimum.getY(),
                              maximum.getZ() - minimum.getZ());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
-    @Override
-    public final void setEnginePosition(final @NotNull Vector3DiConst pos)
-    {
-        engine = new Vector3Di(pos);
-        onCoordsUpdate();
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Triggers {@link #onCoordsUpdate()}.
-     */
-    @Override
-    public final void setPowerBlockPosition(final @NotNull Vector3DiConst pos)
-    {
-        powerBlock = new Vector3Di(pos);
-        onCoordsUpdate();
     }
 
     private @NotNull Vector2Di calculateEngineChunk()
@@ -530,7 +605,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("World: ").append(getWorld().getUUID().toString()).append("\n");
-        builder.append("This door is ").append((isLocked ? "" : "NOT ")).append("locked. ");
+        builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
         getDoorType().getTypeData(this).ifPresent(
@@ -558,7 +633,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && minimum.equals(other.minimum) &&
             maximum.equals(other.maximum) && engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) &&
-            open == other.open && doorOwners.equals(other.doorOwners) && isLocked == other.isLocked &&
+            open == other.open && doorOwners.equals(other.doorOwners) && locked == other.locked &&
             world.getUUID().equals(other.world.getUUID());
     }
 

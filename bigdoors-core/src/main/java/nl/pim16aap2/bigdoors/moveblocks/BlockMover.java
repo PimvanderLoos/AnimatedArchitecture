@@ -428,14 +428,10 @@ public abstract class BlockMover implements IRestartable
         if (finalMin.equals(door.getMinimum()) && finalMax.equals(door.getMaximum()))
             return;
 
+        door.setOpen(!door.isOpen());
         door.setMinimum(finalMin);
         door.setMaximum(finalMax);
-
-        toggleOpen(door);
-        BigDoors.get().getDatabaseManager()
-                .updateDoorCoords(door.getDoorUID(), door.isOpen(), finalMin.getX(), finalMin.getY(),
-                                  finalMin.getZ(),
-                                  finalMax.getX(), finalMax.getY(), finalMax.getZ());
+        door.setCoordinates(finalMin, finalMax).syncBaseData();
     }
 
     /**
@@ -448,16 +444,6 @@ public abstract class BlockMover implements IRestartable
      * @return The new Location of the block.
      */
     protected abstract @NotNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
-
-    /**
-     * Toggles the open status of a {@link AbstractDoorBase}.
-     *
-     * @param door The {@link AbstractDoorBase}.
-     */
-    private void toggleOpen(AbstractDoorBase door)
-    {
-        door.setOpen(!door.isOpen());
-    }
 
     /**
      * Gets the UID of the {@link AbstractDoorBase} being moved.

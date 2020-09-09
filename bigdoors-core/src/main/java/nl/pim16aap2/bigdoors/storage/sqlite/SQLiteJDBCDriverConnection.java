@@ -491,7 +491,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private boolean syncBaseData(final @NotNull Connection conn, final @NotNull AbstractDoorBase door)
     {
-        final @NotNull AbstractDoorBase.DoorData doorDataCopy = door.getDoorDataCopy();
+        final @NotNull AbstractDoorBase.DoorData doorDataCopy = door.getSimpleDoorDataCopy();
 
         return executeUpdate(conn, SQLStatement.UPDATE_DOOR_BASE
             .constructPPreparedStatement()

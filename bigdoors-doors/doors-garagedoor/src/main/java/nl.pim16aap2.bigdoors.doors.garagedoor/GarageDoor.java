@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -47,10 +48,12 @@ public class GarageDoor extends AbstractDoorBase
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     protected int autoCloseTime;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
+    @Accessors(chain = true)
     protected int autoOpenTime;
 
     public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,

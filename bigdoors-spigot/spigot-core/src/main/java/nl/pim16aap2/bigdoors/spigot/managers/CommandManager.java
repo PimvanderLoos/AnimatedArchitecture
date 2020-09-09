@@ -13,10 +13,8 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -310,29 +308,6 @@ public class CommandManager implements CommandExecutor
         if (args.length == minArgCount)
             return commandWaiter.executeCommand(args);
         return false;
-    }
-
-    /**
-     * Checks if a player has access to use an attribute of a door ON THE CURRENT THREAD.
-     *
-     * @param player    The player.
-     * @param doorUID   The UID of the door.
-     * @param attribute The attribute.
-     * @return True if the player has permission for this attribute for this door.
-     */
-    public boolean hasPermissionForActionSynced(final @NotNull Player player, final long doorUID,
-                                                final @NotNull DoorAttribute attribute)
-    {
-        try
-        {
-            return BigDoors.get().getDatabaseManager()
-                           .hasPermissionForAction(SpigotAdapter.wrapPlayer(player), doorUID, attribute).get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return false;
-        }
     }
 
     /**
