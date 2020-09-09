@@ -72,6 +72,7 @@ import java.util.Set;
 //       3) Per-Block: Calculated for every block.
 // TODO: Make a separate config file (file.zip?, so people who don't understand it won't touch it) for advanced options
 //       including, but not limited to, setting cache sizes.
+//       For caches: https://guava.dev/releases/19.0/api/docs/com/google/common/cache/CacheBuilderSpec.html
 // TODO: Make doors thread-safe: https://stackoverflow.com/questions/53769141/making-a-pojo-thread-safe
 //       https://stackoverflow.com/questions/14648627/java-synchronization-lock-without-blocking
 //       https://stackoverflow.com/questions/10548066/multiple-object-locks-in-java

@@ -22,16 +22,16 @@ import java.util.Optional;
 //       to get slowed down. Consider regularly calling Cache#cleanup from a separate thread.
 public final class DoorRegistry extends Restartable
 {
-    private static final DoorRegistry INSTANCE = new DoorRegistry();
-
     // TODO: Figure out how much space a door takes up in memory, roughly, and figure out what sane values to use.
     // TODO: Make these configurable.
     public static final int MAX_REGISTRY_SIZE = 1000;
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
-    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(10);
+    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
 
-    private final @NotNull Cache<Long, AbstractDoorBase> doorCache;
+    private static final DoorRegistry INSTANCE = new DoorRegistry();
+
+    private Cache<Long, AbstractDoorBase> doorCache;
 
     private DoorRegistry()
     {
@@ -43,13 +43,7 @@ public final class DoorRegistry extends Restartable
             throw e;
         }
 
-        doorCache = CacheBuilder.newBuilder()
-                                .softValues()
-                                .maximumSize(MAX_REGISTRY_SIZE)
-                                .expireAfterAccess(CACHE_EXPIRY)
-                                .initialCapacity(INITIAL_CAPACITY)
-                                .concurrencyLevel(CONCURRENCY_LEVEL)
-                                .build();
+        init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     public static @NotNull DoorRegistry get()
@@ -127,5 +121,30 @@ public final class DoorRegistry extends Restartable
     public void shutdown()
     {
         doorCache.invalidateAll();
+    }
+
+    /**
+     * (Re)initializes the {@link #doorCache}.
+     *
+     * @param maxRegistrySize  The maximum number of entries in the cache.
+     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity  The initial size of the cache to reserve.
+     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @return This {@link DoorRegistry}.
+     */
+    public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                      final @NotNull Duration cacheExpiry)
+    {
+        if (doorCache != null)
+            doorCache.invalidateAll();
+
+        doorCache = CacheBuilder.newBuilder()
+                                .softValues()
+                                .maximumSize(maxRegistrySize)
+                                .expireAfterAccess(cacheExpiry)
+                                .initialCapacity(initialCapacity)
+                                .concurrencyLevel(concurrencyLevel)
+                                .build();
+        return this;
     }
 }
