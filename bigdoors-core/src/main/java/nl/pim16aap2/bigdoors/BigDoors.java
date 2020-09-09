@@ -64,6 +64,7 @@ import java.util.Set;
 /*
  * Doors
  */
+// TODO: Use a cache eviction listener to sync doors once they are removed from the cache.
 // TODO: Flags: Add a secondary mode where it doesn't use a hardcoded formula, but a user-defined one instead.
 //       Use a JSON file and allow the user to define a set of formulas and store the results in variables.
 //       There should be 3 types of formulas:
