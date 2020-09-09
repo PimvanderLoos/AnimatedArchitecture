@@ -11,12 +11,9 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,12 +21,13 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 /**
  * Manages all database interactions.
@@ -193,32 +191,17 @@ public final class DatabaseManager extends Restartable
      * @return All {@link AbstractDoorBase} owned by a player with a specific name.
      */
     public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
-                                                                       final @Nullable String name)
+                                                                       final @NotNull String name)
     {
         // Check if the name is actually the UID of the door.
-        final @NotNull Pair<Boolean, Long> doorID = Util.longFromString(name);
-        if (doorID.first)
+        final @NotNull OptionalLong doorID = Util.parseLong(name);
+        if (doorID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.second)
+                .supplyAsync(() -> db.getDoor(playerUUID, doorID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool);
 
-
-        return name == null ? getDoors(playerUUID) :
-               CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool);
-
-    }
-
-    /**
-     * Gets the prime {@link DoorOwner}. I.e. the owner with permission level 0. In most cases, this will just be the
-     * original creator of the door. Every valid door has a prime owner.
-     *
-     * @param doorUID The UID of the door.
-     * @return The Owner of the door, is possible.
-     */
-    public @NotNull CompletableFuture<Optional<DoorOwner>> getPrimeOwner(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getPrimeOwner(doorUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool);
     }
 
     /**
@@ -283,20 +266,31 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} with the given UID owned by the player, if provided. Otherwise, the original
-     * creator is used as {@link DoorOwner}.
+     * Gets the {@link AbstractDoorBase} with the given UID owned by the player. If the given player does not own the
+     * provided door, no door will be returned.
      *
-     * @param player  The player. Null will default to the original creator.
+     * @param player  The {@link IPPlayer}.
      * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link AbstractDoorBase} with the given UID owned by the player, if provided.
+     * @return The {@link AbstractDoorBase} with the given UID if it exists and the provided player owns it.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @Nullable IPPlayer player,
+    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull IPPlayer player,
                                                                           final long doorUID)
     {
-        return player == null ?
-               CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool) :
-               CompletableFuture.supplyAsync(() -> db.getDoor(player.getUUID(), doorUID),
-                                             threadPool);
+        return getDoor(player.getUUID(), doorUID);
+    }
+
+    /**
+     * Gets the {@link AbstractDoorBase} with the given UID owned by the player. If the given player does not own the *
+     * provided door, no door will be returned.
+     *
+     * @param uuid    The {@link UUID} of the player.
+     * @param doorUID The UID of the {@link AbstractDoorBase}.
+     * @return The {@link AbstractDoorBase} with the given UID if it exists and the provided player owns it.
+     */
+    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull UUID uuid,
+                                                                          final long doorUID)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool);
     }
 
     /**
@@ -323,11 +317,6 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool);
     }
 
-    public @NotNull CompletableFuture<Integer> countOwnersOfDoor(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getOwnerCountOfDoor(doorUID), threadPool);
-    }
-
     /**
      * The number of {@link AbstractDoorBase}s in the database with a specific name.
      *
@@ -337,117 +326,6 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Integer> countDoorsByName(final @NotNull String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool);
-    }
-
-    /**
-     * Checks if a player has a high enough lever of ownership over a {@link AbstractDoorBase} to interact with a
-     * specific {@link DoorAttribute}.
-     *
-     * @param player  The {@link IPPlayer}.
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @param atr     The {@link DoorAttribute}.
-     * @return True if the player has a high enough lever of ownership over a {@link AbstractDoorBase} to interact with
-     * a specific {@link DoorAttribute}.
-     */
-    public @NotNull CompletableFuture<Boolean> hasPermissionForAction(final @NotNull IPPlayer player,
-                                                                      final long doorUID,
-                                                                      final @NotNull DoorAttribute atr)
-    {
-        return hasPermissionForAction(player.getUUID(), doorUID, atr);
-    }
-
-    /**
-     * Checks if a player has a high enough lever of ownership over a {@link AbstractDoorBase} to interact with a
-     * specific {@link DoorAttribute}.
-     *
-     * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
-     * @param doorUID    The UID of the {@link AbstractDoorBase}.
-     * @param atr        The {@link DoorAttribute}.
-     * @return True if the player has a high enough lever of ownership over a {@link AbstractDoorBase} to interact with
-     * a specific {@link DoorAttribute}.
-     */
-    public @NotNull CompletableFuture<Boolean> hasPermissionForAction(final @NotNull UUID playerUUID,
-                                                                      final long doorUID,
-                                                                      final @NotNull DoorAttribute atr)
-    {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                int playerPermission;
-                try
-                {
-                    playerPermission = getPermission(playerUUID, doorUID).get();
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    PLogger.get().logThrowable(e);
-                    playerPermission = Integer.MAX_VALUE;
-                }
-                return playerPermission >= 0 && playerPermission <= DoorAttribute.getPermissionLevel(atr);
-            });
-    }
-
-    /**
-     * Gets the level of ownership a player has over a {@link AbstractDoorBase}.
-     *
-     * @param player  The player.
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The level of ownership a player has over a {@link AbstractDoorBase}.
-     */
-    public @NotNull CompletableFuture<Integer> getPermission(final @NotNull IPPlayer player, final long doorUID)
-    {
-        return getPermission(player.getUUID(), doorUID);
-    }
-
-    /**
-     * Gets the level of ownership a player has over a {@link AbstractDoorBase}.
-     *
-     * @param playerUUID The {@link UUID} of the player.
-     * @param doorUID    The UID of the {@link AbstractDoorBase}.
-     * @return The level of ownership a player has over a {@link AbstractDoorBase}.
-     */
-    public @NotNull CompletableFuture<Integer> getPermission(final @NotNull UUID playerUUID, final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getPermission(playerUUID.toString(), doorUID), threadPool);
-    }
-
-    /**
-     * Updates the coordinates of a {@link AbstractDoorBase} in the database.
-     *
-     * @param doorUID   The UID of the {@link AbstractDoorBase}.
-     * @param isOpen    Whether the {@link AbstractDoorBase} is now open or not.
-     * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Boolean> updateDoorCoords(final long doorUID, final boolean isOpen,
-                                                                final @NotNull CuboidConst newCuboid)
-    {
-        return updateDoorCoords(doorUID, isOpen,
-                                newCuboid.getMin().getX(), newCuboid.getMin().getY(), newCuboid.getMin().getZ(),
-                                newCuboid.getMax().getX(), newCuboid.getMax().getY(), newCuboid.getMax().getZ());
-    }
-
-    /**
-     * Updates the coordinates of a {@link AbstractDoorBase} in the database.
-     *
-     * @param doorUID   The UID of the {@link AbstractDoorBase}.
-     * @param isOpen    Whether the {@link AbstractDoorBase} is now open or not.
-     * @param blockXMin The lower bound x coordinates.
-     * @param blockYMin The lower bound y coordinates.
-     * @param blockZMin The lower bound z coordinates.
-     * @param blockXMax The upper bound x coordinates.
-     * @param blockYMax The upper bound y coordinates.
-     * @param blockZMax The upper bound z coordinates.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Boolean> updateDoorCoords(final long doorUID, final boolean isOpen,
-                                                                final int blockXMin, final int blockYMin,
-                                                                final int blockZMin, final int blockXMax,
-                                                                final int blockYMax, final int blockZMax)
-    {
-        return CompletableFuture.supplyAsync(() -> db.updateDoorCoords(doorUID, isOpen,
-                                                                       blockXMin, blockYMin, blockZMin,
-                                                                       blockXMax, blockYMax, blockZMax), threadPool);
     }
 
     /**
@@ -462,11 +340,19 @@ public final class DatabaseManager extends Restartable
                                                         final @NotNull IPPlayer player,
                                                         final int permission)
     {
-        if (permission < 1 || permission > 2 || door.getPermission() != 0 ||
-            door.getPlayerUUID().equals(player.getUUID()))
+        if (permission < 1 || permission > 2)
             return CompletableFuture.completedFuture(false);
 
-        return CompletableFuture.supplyAsync(() -> db.addOwner(door.getDoorUID(), player, permission), threadPool);
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                final boolean result = db.addOwner(door.getDoorUID(), player, permission);
+                if (result)
+                    ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
+                                                                                         player.getUUID(),
+                                                                                         player.getName(), permission));
+                return result;
+            }, threadPool);
     }
 
     /**
@@ -479,49 +365,30 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Boolean> removeOwner(final @NotNull AbstractDoorBase door,
                                                            final @NotNull UUID playerUUID)
     {
-        return removeOwner(door.getDoorUID(), playerUUID);
-    }
+        final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
+        if (!doorOwner.isPresent())
+        {
+            PLogger.get().logMessage(Level.FINE,
+                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
+                                         ", but the player is not an owner!");
+            return CompletableFuture.completedFuture(false);
+        }
+        if (doorOwner.get().getPermission() == 0)
+        {
+            PLogger.get().logMessage(Level.FINE,
+                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
+                                         ", but the player is the prime owner! This is not allowed!");
+            return CompletableFuture.completedFuture(false);
+        }
 
-    /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
-     *
-     * @param doorUID    The UID of the {@link AbstractDoorBase}.
-     * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
-     * @return True if owner removal was successful.
-     */
-    public @NotNull CompletableFuture<Boolean> removeOwner(final long doorUID, final @NotNull UUID playerUUID)
-    {
         return CompletableFuture.supplyAsync(
             () ->
             {
-                if (db.getPermission(playerUUID.toString(), doorUID) == 0)
-                    return false;
-                return db.removeOwner(doorUID, playerUUID.toString());
+                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID.toString());
+                if (result)
+                    ((FriendDoorAccessor) door).removeOwner(playerUUID);
+                return result;
             }, threadPool);
-    }
-
-    /**
-     * Gets all owners of a {@link AbstractDoorBase}.
-     *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return All owners of a {@link AbstractDoorBase}.
-     */
-    public @NotNull CompletableFuture<List<DoorOwner>> getDoorOwners(final long doorUID)
-    {
-        return CompletableFuture.supplyAsync(() -> db.getOwnersOfDoor(doorUID), threadPool);
-    }
-
-    /**
-     * Updates the opening direction of a {@link AbstractDoorBase}.
-     *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @param openDir The new opening direction.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Boolean> updateDoorOpenDirection(final long doorUID,
-                                                                       final @NotNull RotateDirection openDir)
-    {
-        return CompletableFuture.supplyAsync(() -> db.updateDoorOpenDirection(doorUID, openDir), threadPool);
     }
 
     /**
@@ -531,35 +398,32 @@ public final class DatabaseManager extends Restartable
      * @param door The {@link AbstractDoorBase} whose type-specific data will be updated.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> updateDoorTypeData(final @NotNull AbstractDoorBase door)
+    public @NotNull CompletableFuture<Boolean> syncDoorTypeData(final @NotNull AbstractDoorBase door)
     {
-        return CompletableFuture.supplyAsync(() -> db.updateTypeData(door), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncTypeData(door), threadPool);
     }
 
     /**
-     * Changes the locked status of a {@link AbstractDoorBase}.
+     * Updates the base data of an {@link AbstractDoorBase}.
      *
-     * @param doorUID       The UID of the {@link AbstractDoorBase}.
-     * @param newLockStatus The new locked status.
+     * @param door The {@link AbstractDoorBase} whose base data will be updated.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> setLock(final long doorUID, final boolean newLockStatus)
+    public @NotNull CompletableFuture<Boolean> syncDoorBaseData(final @NotNull AbstractDoorBase door)
     {
-        return CompletableFuture.supplyAsync(() -> db.setLock(doorUID, newLockStatus), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncBaseData(door), threadPool);
     }
 
     /**
-     * Updates the location of a power block of a door. If you want to move the powerblock, it's recommended to use
-     * {@link PowerBlockManager#updatePowerBlockLoc} instead, as that will properly invalidate the cache.
+     * Updates the all data of an {@link AbstractDoorBase}. This includes both the base data and the type-specific
+     * data.
      *
-     * @param doorUID The UID of the door.
-     * @param newLoc  The new location.
+     * @param door The {@link AbstractDoorBase} whose data will be updated.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    @NotNull CompletableFuture<Boolean> updatePowerBlockLoc(final long doorUID, final @NotNull Vector3DiConst newLoc)
+    public @NotNull CompletableFuture<Boolean> syncAllDataOfDoor(final @NotNull AbstractDoorBase door)
     {
-        return CompletableFuture.supplyAsync(() -> db.updateDoorPowerBlockLoc(doorUID, newLoc.getX(), newLoc.getY(),
-                                                                              newLoc.getZ()), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncAllData(door), threadPool);
     }
 
     /**
@@ -596,5 +460,36 @@ public final class DatabaseManager extends Restartable
         threadPool = Executors.newSingleThreadExecutor();
         db = null;
         instance = this;
+    }
+
+    /**
+     * Provides private access to certain aspects of the {@link AbstractDoorBase} class. Kind of like an (inverted, more
+     * cumbersome, and less useful) friend in C++ terms.
+     */
+    // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
+    //       of this class? This has several advantages:
+    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these methods)
+    //       - All the commands that modify a door can be pooled in the AbstractDoorBase class, instead of being split
+    //         over several classes.
+    //       Alternatively, consider creating a separate class with package-private access to either this class or
+    //       the door one. Might be a bit cleaner.
+    public static abstract class FriendDoorAccessor
+    {
+        /**
+         * Adds an owner to the map of Owners.
+         *
+         * @param uuid      The {@link UUID} of the owner.
+         * @param doorOwner The {@link DoorOwner} to add.
+         */
+        protected abstract void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner);
+
+        /**
+         * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
+         *
+         * @param uuid The {@link UUID} of the {@link DoorOwner} that is to be removed.
+         * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
+         * {@link UUID}.
+         */
+        protected abstract boolean removeOwner(final @NotNull UUID uuid);
     }
 }

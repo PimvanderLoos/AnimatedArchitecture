@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
+import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -11,6 +12,8 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -54,22 +57,29 @@ public class SubCommandRemoveOwner extends SubCommand
                 optionalDoor.ifPresent(
                     door ->
                     {
-                        boolean hasPermission = true;
-                        if (sender instanceof Player)
+                        final boolean hasPermission;
+                        if (!(sender instanceof Player))
+                            hasPermission = true;
+                        else
                         {
-                            IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
-                            try
+                            final @NotNull Player player = (Player) sender;
+                            final int executorPermission = door.getDoorOwner(player.getUniqueId())
+                                                               .map(DoorOwner::getPermission).orElse(Integer.MAX_VALUE);
+                            final int targetPermission = door.getDoorOwner(target.getUUID())
+                                                             .map(DoorOwner::getPermission).orElse(Integer.MAX_VALUE);
+
+                            if (executorPermission == Integer.MAX_VALUE || targetPermission == Integer.MAX_VALUE)
                             {
-                                hasPermission = BigDoors.get().getDatabaseManager()
-                                                        .hasPermissionForAction(player, door.getDoorUID(),
-                                                                                DoorAttribute.REMOVEOWNER).get();
+                                commandManager
+                                    .handleException(new CommandPermissionException(), sender, null, null);
+                                return;
                             }
-                            catch (InterruptedException | ExecutionException e)
-                            {
-                                plugin.getPLogger().logThrowable(e);
-                                hasPermission = false;
-                            }
+
+                            hasPermission = executorPermission < targetPermission &&
+                                Util.hasPermissionForAction(((Player) sender).getUniqueId(), door,
+                                                            DoorAttribute.REMOVEOWNER);
                         }
+
                         if (!hasPermission)
                         {
                             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);

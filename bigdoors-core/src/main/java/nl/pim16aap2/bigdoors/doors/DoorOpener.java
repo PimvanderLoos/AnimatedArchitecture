@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
 
 /**
  * Represents the class that can open, close, and toggle doors.
@@ -149,28 +147,16 @@ public final class DoorOpener
     public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(final @NotNull AbstractDoorBase door,
                                                                          final @NotNull DoorActionCause cause,
                                                                          final @NotNull IMessageable messageReceiver,
-                                                                         final @Nullable IPPlayer responsible,
+                                                                         @Nullable IPPlayer responsible,
                                                                          final double time,
                                                                          final boolean skipAnimation,
                                                                          final @NotNull DoorActionType doorActionType)
     {
         if (responsible == null)
-            return DatabaseManager.get().getPrimeOwner(door.getDoorUID()).thenCompose(
-                (optionalDoorOwner) ->
-                {
-                    if (!optionalDoorOwner.isPresent())
-                    {
-                        PLogger.get().logMessage(Level.SEVERE,
-                                                 "Failed to obtain prime owner of door: " + door.getDoorUID());
-                        return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
-                    }
-                    return animateDoorSendToMainThread(door, cause, messageReceiver,
-                                                       optionalDoorOwner.get().getPlayer(), time, skipAnimation,
-                                                       doorActionType);
-                });
-        else
-            return animateDoorSendToMainThread(door, cause, messageReceiver, responsible, time, skipAnimation,
-                                               doorActionType);
+            responsible = door.getPrimeOwner().getPlayer();
+        
+        return animateDoorSendToMainThread(door, cause, messageReceiver, responsible, time, skipAnimation,
+                                           doorActionType);
     }
 
     /**

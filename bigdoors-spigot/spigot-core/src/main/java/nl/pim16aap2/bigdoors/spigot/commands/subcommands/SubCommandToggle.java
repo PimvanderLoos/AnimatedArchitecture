@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
@@ -12,7 +11,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -22,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -59,18 +58,11 @@ public class SubCommandToggle extends SubCommand
             toggleDoor(sender, door, time);
             return;
         }
-        BigDoors.get().getDatabaseManager()
-                .hasPermissionForAction(SpigotAdapter.wrapPlayer((Player) sender), door.getDoorUID(),
-                                        DoorAttribute.TOGGLE)
-                .whenComplete(
-                    (isAllowed, throwable) ->
-                    {
-                        if (!isAllowed)
-                            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                        else
-                            toggleDoor(sender, door, time);
-                        // No need to print result message here, that'll be done by the opening process of the door itself.
-                    });
+
+        if (Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.TOGGLE))
+            toggleDoor(sender, door, time);
+        else
+            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
     }
 
     private @NotNull CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender,
@@ -82,14 +74,12 @@ public class SubCommandToggle extends SubCommand
         // First try to get a long from the last string. If it's successful, it must be a door UID.
         // If it isn't successful (-1), try to get parse it as a double. If that is successful, it
         // must be the speed. If that isn't successful either (0.0), it must be a door name.
-        final @NotNull Pair<Boolean, Long> lastUID = Util.longFromString(lastStr);
-
         double time = 0.0d;
-        if (!lastUID.first)
+        if (!Util.parseLong(lastStr).isPresent())
         {
-            final @NotNull Pair<Boolean, Double> timeVal = Util.doubleFromString(lastStr);
-            if (timeVal.first)
-                time = timeVal.second;
+            final @NotNull OptionalDouble timeVal = Util.parseDouble(lastStr);
+            if (timeVal.isPresent())
+                time = timeVal.getAsDouble();
         }
 
         int index = args.length;

@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -11,10 +9,10 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -51,25 +49,18 @@ public class SubCommandSetRotation extends SubCommand
     {
         if (!(sender instanceof Player))
         {
-            BigDoors.get().getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
+            door.setOpenDir(openDir).syncBaseData();
             sendResultMessage(sender, openDir);
             return;
         }
 
-
-        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
-        BigDoors.get().getDatabaseManager()
-                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
-            (isAllowed, throwable) ->
-            {
-                if (!isAllowed)
-                {
-                    commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                    return;
-                }
-                BigDoors.get().getDatabaseManager().updateDoorOpenDirection(door.getDoorUID(), openDir);
-                sendResultMessage(sender, openDir);
-            });
+        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.BLOCKSTOMOVE))
+        {
+            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+            return;
+        }
+        door.setOpenDir(openDir).syncBaseData();
+        sendResultMessage(sender, openDir);
     }
 
     @Override

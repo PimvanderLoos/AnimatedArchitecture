@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface IStationaryDoorArchetype extends IDoorBase
 {
     @Override
-    default Optional<Cuboid> getPotentialNewCoordinates()
+    default @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboidCopy());
     }

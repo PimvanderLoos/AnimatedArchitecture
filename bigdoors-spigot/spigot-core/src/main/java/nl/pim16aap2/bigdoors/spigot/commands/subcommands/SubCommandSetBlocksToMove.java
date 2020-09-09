@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -12,7 +11,6 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -64,26 +62,20 @@ public class SubCommandSetBlocksToMove extends SubCommand
         if (!(sender instanceof Player))
         {
             doorBTM.setBlocksToMove(blocksToMove);
-            BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
+            BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
             sendResultMessage(sender, blocksToMove);
             return true;
         }
 
-        final IPPlayer player = SpigotAdapter.wrapPlayer((Player) sender);
-        BigDoors.get().getDatabaseManager()
-                .hasPermissionForAction(player, door.getDoorUID(), DoorAttribute.BLOCKSTOMOVE).whenComplete(
-            (isAllowed, throwable) ->
-            {
-                if (!isAllowed)
-                {
-                    commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-                    return;
-                }
+        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.BLOCKSTOMOVE))
+        {
+            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+            return true;
+        }
 
-                doorBTM.setBlocksToMove(blocksToMove);
-                BigDoors.get().getDatabaseManager().updateDoorTypeData(door);
-                sendResultMessage(sender, blocksToMove);
-            });
+        doorBTM.setBlocksToMove(blocksToMove).syncTypeData();
+        sendResultMessage(sender, blocksToMove);
+
         return true;
     }
 

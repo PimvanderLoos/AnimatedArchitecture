@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,13 +30,6 @@ public class GUIPageRemoveOwner implements IGUIPage
     @NotNull
     private List<CompletableFuture<Optional<ItemStack>>> futurePlayerHeads = new ArrayList<>();
 
-    /**
-     * Used to store a list of future owners of the door before they are retrieved. It is stored in an intermediate step
-     * so it can be aborted on an update or something.
-     */
-    @Nullable
-    private CompletableFuture<List<DoorOwner>> futureDoorOwners = null;
-
     private List<DoorOwner> owners;
 
     protected GUIPageRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull GUI gui)
@@ -56,8 +48,6 @@ public class GUIPageRemoveOwner implements IGUIPage
             if (!futurePlayerHead.isDone())
                 futurePlayerHead.cancel(true);
         }
-        if (futureDoorOwners != null && !futureDoorOwners.isDone())
-            futureDoorOwners.cancel(true);
     }
 
     @Override
@@ -172,27 +162,18 @@ public class GUIPageRemoveOwner implements IGUIPage
     @Override
     public void refresh()
     {
-        futureDoorOwners = BigDoors.get().getDatabaseManager().getDoorOwners(gui.getDoor().getDoorUID());
-        futureDoorOwners.whenComplete(
-            (ownerList, throwable) ->
-            {
-                owners = ownerList;
-                owners.sort(Comparator.comparing(owner -> owner.getPlayer().getName()));
-                maxDoorOwnerPageCount =
-                    owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
+        owners = new ArrayList<>(gui.getDoor().getDoorOwners());
+        owners.sort(Comparator.comparing(owner -> owner.getPlayer().getName()));
+        maxDoorOwnerPageCount =
+            owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
-                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
-                    () ->
-                    {
-                        fillHeader();
-                        fillPage();
-                    });
-            });
+        fillHeader();
+        fillPage();
     }
 
     private void removeOwner(DoorOwner owner)
     {
-        BigDoors.get().getDatabaseManager().removeOwner(owner.getDoorUID(), owner.getPlayer().getUUID());
+        BigDoors.get().getDatabaseManager().removeOwner(gui.getDoor(), owner.getPlayer().getUUID());
         owners.remove(owner);
     }
 }

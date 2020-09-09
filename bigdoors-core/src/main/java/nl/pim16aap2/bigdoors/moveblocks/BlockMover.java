@@ -429,7 +429,7 @@ public abstract class BlockMover implements IRestartable
         door.setCoordinates(newCuboid);
 
         door.setOpen(!door.isOpen());
-        BigDoors.get().getDatabaseManager().updateDoorCoords(door.getDoorUID(), door.isOpen(), newCuboid);
+        door.setCoordinates(newCuboid).syncBaseData();
     }
 
     /**

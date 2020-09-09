@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 public class GUI
 {
@@ -134,27 +133,18 @@ public class GUI
         isRefreshing = false;
     }
 
-    // TODO: ASYNC
     boolean isStillOwner()
     {
-        try
-        {
-            if (door != null &&
-                BigDoors.get().getDatabaseManager().getPermission(guiHolder, door.getDoorUID())
-                        .get() == -1)
-            {
-                doorBases.remove(door);
-                door = null;
-                setGUIPage(new GUIPageDoorList(plugin, this));
-                return false;
-            }
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            plugin.getPLogger().logThrowable(e);
+        if (door == null)
             return false;
-        }
-        return true;
+
+        if (door.getDoorOwner(guiHolder).isPresent())
+            return true;
+        
+        doorBases.remove(door);
+        door = null;
+        setGUIPage(new GUIPageDoorList(plugin, this));
+        return false;
     }
 
     void setGUIPage(final @NotNull IGUIPage guiPage)

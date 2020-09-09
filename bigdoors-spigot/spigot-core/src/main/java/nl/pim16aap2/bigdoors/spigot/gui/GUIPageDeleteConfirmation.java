@@ -7,26 +7,18 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class GUIPageDeleteConfirmation implements IGUIPage
 {
     protected final BigDoorsSpigot plugin;
     protected final GUI gui;
     protected final Messages messages;
-
-    /**
-     * Used to store whether or not a player has access to door removal for this door. It is stored in an intermediate
-     * step so it can be aborted on an update or something.
-     */
-    @Nullable
-    private CompletableFuture<Boolean> futurePermissionCheck = null;
 
     protected GUIPageDeleteConfirmation(final BigDoorsSpigot plugin, final GUI gui)
     {
@@ -39,8 +31,6 @@ public class GUIPageDeleteConfirmation implements IGUIPage
     @Override
     public void kill()
     {
-        if (futurePermissionCheck != null && !futurePermissionCheck.isDone())
-            futurePermissionCheck.cancel(true);
     }
 
     @Override
@@ -68,21 +58,15 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
-        futurePermissionCheck = BigDoors.get().getDatabaseManager()
-                                        .hasPermissionForAction(gui.getGuiHolder(), gui.getDoor().getDoorUID(),
-                                                                DoorAttribute.DELETE);
-        futurePermissionCheck.whenComplete(
-            (isAllowed, throwable) ->
+        if (!Util.hasPermissionForAction(gui.getGuiHolder(), gui.getDoor(), DoorAttribute.DELETE))
+            return;
+
+        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+            () ->
             {
-                if (!isAllowed)
-                    return;
-                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
-                    () ->
-                    {
-                        ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
-                            .execute(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), gui.getDoor());
-                        gui.removeSelectedDoor();
-                    });
+                ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
+                    .execute(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), gui.getDoor());
+                gui.removeSelectedDoor();
             });
 
     }

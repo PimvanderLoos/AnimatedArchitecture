@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.experimental.UtilityClass;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -14,6 +17,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +26,7 @@ import java.util.regex.Pattern;
  *
  * @author Pim
  */
+@UtilityClass
 public final class Util
 {
     /**
@@ -272,6 +277,20 @@ public final class Util
         return sb.toString();
     }
 
+    public static boolean hasPermissionForAction(final @NotNull UUID uuid, final @NotNull AbstractDoorBase door,
+                                                 final @NotNull DoorAttribute attribute)
+    {
+        return door.getDoorOwner(uuid)
+                   .map(doorOwner -> doorOwner.getPermission() <= DoorAttribute.getPermissionLevel(attribute))
+                   .orElse(false);
+    }
+
+    public static boolean hasPermissionForAction(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door,
+                                                 final @NotNull DoorAttribute attribute)
+    {
+        return hasPermissionForAction(player.getUUID(), door, attribute);
+    }
+
     /**
      * Obtains a random integer value.
      *
@@ -288,58 +307,6 @@ public final class Util
         }
 
         return rnd.nextInt((max - min) + 1) + min;
-    }
-
-    /**
-     * Try to convert a string to a double. Use the default value in case of failure.
-     *
-     * @param input The string to be converted to a double.
-     * @return Double converted from the string if possible, and defaultVal otherwise.
-     */
-    public static @NotNull Pair<Boolean, Double> doubleFromString(final @NotNull String input)
-    {
-        boolean isDouble = false;
-        double value = 0;
-
-        try
-        {
-            if (input != null)
-            {
-                value = Double.parseDouble(input);
-                isDouble = true;
-            }
-        }
-        catch (final NumberFormatException unhandled)
-        {
-            // This exception doesn't need to be handled, as it means the default values will be returned.
-        }
-        return new Pair<>(isDouble, value);
-    }
-
-    /**
-     * Try to convert a string to a long. Use the default value in case of failure.
-     *
-     * @param input The string to be converted to a long.
-     * @return Long converted from the string if possible, and defaultVal otherwise.
-     */
-    public static @NotNull Pair<Boolean, Long> longFromString(final String input)
-    {
-        boolean isLong = false;
-        long value = 0;
-
-        try
-        {
-            if (input != null)
-            {
-                value = Long.parseLong(input);
-                isLong = true;
-            }
-        }
-        catch (final NumberFormatException unhandled)
-        {
-            // This exception doesn't need to be handled, as it means the default values will be returned.
-        }
-        return new Pair<>(isLong, value);
     }
 
     /**

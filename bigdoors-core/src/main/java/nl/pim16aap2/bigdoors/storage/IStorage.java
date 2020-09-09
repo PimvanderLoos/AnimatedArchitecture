@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -44,15 +43,6 @@ public interface IStorage
      * existing identifier value. As long as the type does not change,
      */
     long registerDoorType(final @NotNull DoorType doorType);
-
-    /**
-     * Gets the level of ownership a given player has over a given door.
-     *
-     * @param playerUUID The player to check.
-     * @param doorUID    The door to retrieve this player's level of ownership of.
-     * @return The level of ownership this player has over this door or -1 for no ownership at all.
-     */
-    int getPermission(final @NotNull String playerUUID, final long doorUID);
 
     /**
      * Checks if this storage type only allows single threaded access or not.
@@ -170,8 +160,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID,
-                                             final @NotNull String doorName,
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
                                              final int maxPermission);
 
     /**
@@ -211,15 +200,6 @@ public interface IStorage
     @NotNull Optional<String> getPlayerName(final @NotNull String playerUUID);
 
     /**
-     * Gets the prime {@link DoorOwner}. I.e. the owner with permission level 0. In most cases, this will just be the
-     * original creator of the door. Every valid door has a prime owner.
-     *
-     * @param doorUID The UID of the door.
-     * @return The Owner of the door, is possible.
-     */
-    @NotNull Optional<DoorOwner> getPrimeOwner(final long doorUID);
-
-    /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
      * <p>
      * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
@@ -239,51 +219,6 @@ public interface IStorage
     @NotNull List<Long> getDoorsInChunk(final long chunkHash);
 
     /**
-     * Updates the coordinates of a door.
-     *
-     * @param doorUID The UID of the door to update.
-     * @param isOpen  The new open-status of the door.
-     * @param xMin    The new minimum x coordinate.
-     * @param yMin    The new minimum y coordinate.
-     * @param zMin    The new minimum z coordinate.
-     * @param xMax    The new maximum x coordinate.
-     * @param yMax    The new maximum y coordinate.
-     * @param zMax    The new maximum z coordinate.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorCoords(final long doorUID, final boolean isOpen, final int xMin, final int yMin, final int zMin,
-                             final int xMax, final int yMax, final int zMax);
-
-    /**
-     * Changes the blocksToMove value of a door.
-     *
-     * @param doorUID The door to modify.
-     * @param openDir The new rotation direction of this door.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorOpenDirection(final long doorUID, final @NotNull RotateDirection openDir);
-
-    /**
-     * Changes the location of the powerblock of a door.
-     *
-     * @param doorUID The door to modify.
-     * @param xPos    The new x coordinate for the powerblock.
-     * @param yPos    The new y coordinate for the powerblock.
-     * @param zPos    The new z coordinate for the powerblock.
-     * @return True if the update was successful.
-     */
-    boolean updateDoorPowerBlockLoc(final long doorUID, final int xPos, final int yPos, final int zPos);
-
-    /**
-     * Changes the lock status of a door.
-     *
-     * @param doorUID       The UID of the door to modify.
-     * @param newLockStatus The new lock status of this door.
-     * @return True if the update was successful.
-     */
-    boolean setLock(final long doorUID, final boolean newLockStatus);
-
-    /**
      * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoorBase} will be
      * created with the correct doorUID.
      *
@@ -296,12 +231,29 @@ public interface IStorage
 
     /**
      * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
-     * DoorType#getTypeData(AbstractDoorBase)} ()}.
+     * DoorType#getTypeData(AbstractDoorBase)}.
      *
      * @param door The door whose type-specific data should be updated.
      * @return True if the update was successful.
      */
-    boolean updateTypeData(final @NotNull AbstractDoorBase door);
+    boolean syncTypeData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Updates the base data of an {@link AbstractDoorBase} in the database
+     *
+     * @param door The door whose base data should be updated.
+     * @return True if the update was successful.
+     */
+    boolean syncBaseData(final @NotNull AbstractDoorBase door);
+
+    /**
+     * Synchronizes an {@link AbstractDoorBase} door with the database. This will synchronize both the base and the
+     * type-specific data of the {@link AbstractDoorBase}.
+     *
+     * @param door The {@link AbstractDoorBase} to synchronize.
+     * @return True if the update was successful.
+     */
+    boolean syncAllData(final @NotNull AbstractDoorBase door);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
@@ -322,14 +274,6 @@ public interface IStorage
      * @return True if an owner was removed.
      */
     boolean removeOwner(final long doorUID, final @NotNull String playerUUID);
-
-    /**
-     * Gets a list of all owners of a door. Contains at least 1 entry (creator).
-     *
-     * @param doorUID The door to get the owners of.
-     * @return A list of all owners of the door.
-     */
-    @NotNull List<DoorOwner> getOwnersOfDoor(final long doorUID);
 
     /**
      * Adds a player as owner of a door with at a certain permission level to a door.

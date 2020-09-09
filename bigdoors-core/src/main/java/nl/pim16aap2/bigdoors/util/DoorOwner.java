@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -13,23 +13,25 @@ import java.util.UUID;
  *
  * @author Pim
  */
-@Value
 @AllArgsConstructor
 public class DoorOwner
 {
     /**
      * The UID of the door that is owned.
      */
+    @Getter
     long doorUID;
 
     /**
      * The permission level at which the player owns the door.
      */
+    @Getter
     int permission;
 
     /**
      * The {@link IPPlayer} object represented by this {@link DoorOwner}.
      */
+    @Getter
     @NotNull IPPlayer player;
 
     /**
@@ -52,9 +54,31 @@ public class DoorOwner
     @Override
     public @NotNull String toString()
     {
-        return "doorUID: " + doorUID +
-            ". playerUUID: " + getPlayer().getUUID().toString() +
-            ". Permission: " + permission +
-            ". PlayerName: " + getPlayer().getName();
+        return "doorUID: " + doorUID + ". player: " + getPlayer().toString() + ". Permission: " + permission;
+    }
+
+    @Override
+    public final int hashCode()
+    {
+        return player.getUUID().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        DoorOwner other = (DoorOwner) o;
+        return player.equals(other.player) && doorUID == other.doorUID && permission == other.permission;
+    }
+
+    @Override
+    public @NotNull DoorOwner clone()
+    {
+        return new DoorOwner(doorUID, getPermission(), getPlayer());
     }
 }
