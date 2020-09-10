@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.storage.DoorTypeDataStatementMap;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
@@ -57,10 +58,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
     //       are still useful when writing the code to upgrade the v1 database to v2.
     private static final int MIN_DATABASE_VERSION = 0;
+
     @NotNull
-    private final Map<Long, Pair<String, Integer>> typeDataInsertionStatementsCache = new HashMap<>();
-    @NotNull
-    private final Map<Long, Pair<String, Integer>> typeDataUpdateStatementsCache = new HashMap<>();
+    private final DoorTypeDataStatementMap doorTypeStatementMap = new DoorTypeDataStatementMap();
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -422,6 +422,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             executeUpdate(SQLStatement.DELETE_DOOR_TYPE.constructPPreparedStatement().setLong(1, result.get().first));
             return -1;
         }
+
+        IStorage.addToStatementMap(doorTypeStatementMap, doorType,
+                                   generateInsertStatement(doorType), generateUpdateStatement(doorType));
         return result.get().first;
     }
 
@@ -461,26 +464,66 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return removed;
     }
 
-    private @NotNull Optional<Pair<String, Integer>> getTypeDataUpdateStatement(final @NotNull DoorType doorType,
-                                                                                final long doorTypeID)
+    /**
+     * Generates the insert statement for a given {@link DoorType}.
+     *
+     * @param doorType The type of door to generate the insert statement for.
+     * @return A pair containing the statement and the number of arguments.
+     */
+    private @NotNull Pair<String, Integer> generateInsertStatement(final @NotNull DoorType doorType)
     {
-        return Optional.of(typeDataUpdateStatementsCache.computeIfAbsent(
-            doorTypeID, key ->
-            {
-                final @NotNull StringBuilder updateStatementBuilder = new StringBuilder();
-                updateStatementBuilder.append("UPDATE ").append(getTableNameOfType(doorType)).append(" SET ");
+        final @NotNull String typeTableName = getTableNameOfType(doorType);
+        final @NotNull StringBuilder parameterNames = new StringBuilder();
+        final @NotNull StringBuilder parameterQuestionMarks = new StringBuilder();
 
-                final @NotNull List<DoorType.Parameter> parameters = doorType.getParameters();
-                final int parameterCount = parameters.size();
-                for (int idx = 0; idx < parameterCount; ++idx)
-                {
-                    updateStatementBuilder.append(parameters.get(idx).getParameterName()).append(" = ?");
-                    if (idx < (parameterCount - 1))
-                        updateStatementBuilder.append(", ");
-                }
-                updateStatementBuilder.append(" WHERE doorUID = ?;");
-                return new Pair<>(updateStatementBuilder.toString(), parameterCount);
-            }));
+        parameterNames.append("INSERT INTO ").append(typeTableName).append(" (doorUID, ");
+        parameterQuestionMarks.append(
+            "((SELECT seq FROM sqlite_sequence WHERE sqlite_sequence.name =\"DoorBase\"), ");
+
+        final int parameterCount = doorType.getParameterCount();
+        for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
+        {
+            final @NotNull DoorType.Parameter parameter = doorType.getParameters().get(parameterIDX);
+            parameterNames.append(parameter.getParameterName());
+            parameterQuestionMarks.append("?");
+
+            if (parameterIDX == (parameterCount - 1))
+            {
+                parameterNames.append(") VALUES ");
+                parameterQuestionMarks.append(");");
+            }
+            else
+            {
+                parameterNames.append(", ");
+                parameterQuestionMarks.append(", ");
+            }
+        }
+
+        final @NotNull String insertString = parameterNames.toString() + parameterQuestionMarks.toString();
+        return new Pair<>(insertString, parameterCount);
+    }
+
+    /**
+     * Generates the update statement for a given {@link DoorType}.
+     *
+     * @param doorType The type of door to generate the update statement for.
+     * @return A pair containing the statement and the number of arguments.
+     */
+    private @NotNull Pair<String, Integer> generateUpdateStatement(final @NotNull DoorType doorType)
+    {
+        final @NotNull StringBuilder updateStatementBuilder = new StringBuilder();
+        updateStatementBuilder.append("UPDATE ").append(getTableNameOfType(doorType)).append(" SET ");
+
+        final @NotNull List<DoorType.Parameter> parameters = doorType.getParameters();
+        final int parameterCount = parameters.size();
+        for (int idx = 0; idx < parameterCount; ++idx)
+        {
+            updateStatementBuilder.append(parameters.get(idx).getParameterName()).append(" = ?");
+            if (idx < (parameterCount - 1))
+                updateStatementBuilder.append(", ");
+        }
+        updateStatementBuilder.append(" WHERE doorUID = ?;");
+        return new Pair<>(updateStatementBuilder.toString(), parameterCount);
     }
 
     @Override
@@ -562,8 +605,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final @NotNull Optional<Pair<String, Integer>> typeSpecificDataUpdateStatementOpt
-            = getTypeDataUpdateStatement(door.getDoorType(), doorTypeID.getAsLong());
+        final @NotNull Optional<DoorTypeDataStatementMap.DoorTypeDataStatement> typeSpecificDataUpdateStatementOpt =
+            doorTypeStatementMap.getStatement(door.getDoorType(), DoorTypeDataStatementMap.SQLStatementType.UPDATE);
         if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
             PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific update statement " +
@@ -571,14 +614,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return false;
         }
 
-        final @NotNull Pair<String, Integer> typeSpecificDataUpdateStatement = typeSpecificDataUpdateStatementOpt.get();
+        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement typeSpecificDataUpdateStatement
+            = typeSpecificDataUpdateStatementOpt.get();
+
         final @NotNull PPreparedStatement pPreparedStatement =
-            new PPreparedStatement(typeSpecificDataUpdateStatement.second + 1, typeSpecificDataUpdateStatement.first);
+            new PPreparedStatement(typeSpecificDataUpdateStatement.getArgumentCount() + 1,
+                                   typeSpecificDataUpdateStatement.getStatement());
+
         final @NotNull Object[] typeData = typeDataOpt.get();
 
-        for (int idx = 0; idx < typeSpecificDataUpdateStatement.second; ++idx)
+        for (int idx = 0; idx < typeSpecificDataUpdateStatement.getArgumentCount(); ++idx)
             pPreparedStatement.setObject(idx + 1, typeData[idx]);
-        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.second + 1, door.getDoorUID());
+        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.getArgumentCount() + 1, door.getDoorUID());
 
         return executeUpdate(conn, pPreparedStatement) > 0;
     }
@@ -594,63 +641,18 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return String.format("%s_%s_%d", doorType.getPluginName(), doorType.getSimpleName(), doorType.getTypeVersion());
     }
 
-    /**
-     * Generates the insertionstatement for a given {@link DoorType}.
-     *
-     * @param doorType   The type of door to generate the insertionstatement for.
-     * @param doorTypeID The ID of the {@link DoorType}.
-     * @return A pair containing the statement and the number of arguments.
-     */
-    private @NotNull Optional<Pair<String, Integer>> getTypeSpecificDataInsertStatement(
-        final @NotNull DoorType doorType,
-        final long doorTypeID)
-    {
-        return Optional.of(typeDataInsertionStatementsCache.computeIfAbsent(
-            doorTypeID, key ->
-            {
-                final @NotNull String typeTableName = getTableNameOfType(doorType);
-                final @NotNull StringBuilder parameterNames = new StringBuilder();
-                final @NotNull StringBuilder parameterQuestionMarks = new StringBuilder();
-
-                parameterNames.append("INSERT INTO ").append(typeTableName).append(" (doorUID, ");
-                parameterQuestionMarks.append(
-                    "((SELECT seq FROM sqlite_sequence WHERE sqlite_sequence.name =\"DoorBase\"), ");
-
-                final int parameterCount = doorType.getParameterCount();
-                for (int parameterIDX = 0; parameterIDX < parameterCount; ++parameterIDX)
-                {
-                    final @NotNull DoorType.Parameter parameter = doorType.getParameters().get(parameterIDX);
-                    parameterNames.append(parameter.getParameterName());
-                    parameterQuestionMarks.append("?");
-
-                    if (parameterIDX == (parameterCount - 1))
-                    {
-                        parameterNames.append(") VALUES ");
-                        parameterQuestionMarks.append(");");
-                    }
-                    else
-                    {
-                        parameterNames.append(", ");
-                        parameterQuestionMarks.append(", ");
-                    }
-                }
-
-                final @NotNull String insertString = parameterNames.toString() + parameterQuestionMarks.toString();
-                return new Pair<>(insertString, parameterCount);
-            }));
-    }
-
     private Long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door, final long doorTypeID,
                         final @NotNull Object[] typeSpecificData)
         throws Exception
     {
-        final @NotNull Optional<Pair<String, Integer>> typeSpecificDataInsertStatementOpt
-            = getTypeSpecificDataInsertStatement(door.getDoorType(), doorTypeID);
+        final @NotNull Optional<DoorTypeDataStatementMap.DoorTypeDataStatement> typeSpecificDataInsertStatementOpt
+            = doorTypeStatementMap.getStatement(door.getDoorType(), DoorTypeDataStatementMap.SQLStatementType.INSERT);
         if (!typeSpecificDataInsertStatementOpt.isPresent())
             throw new NullPointerException(
                 "Failed to obtain type-specific insertion statement " + "for type with ID: " + doorTypeID);
 
-        final @NotNull Pair<String, Integer> typeSpecificDataInsertStatement = typeSpecificDataInsertStatementOpt.get();
+        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement typeSpecificDataInsertStatement =
+            typeSpecificDataInsertStatementOpt.get();
 
         final @NotNull String playerUUID = door.getPrimeOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getPrimeOwner().getPlayer().getName();
@@ -687,10 +689,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setInt(19, RotateDirection.getValue(door.getOpenDir())));
 
         final @NotNull PPreparedStatement pPreparedStatement
-            = new PPreparedStatement(typeSpecificDataInsertStatement.second,
-                                     typeSpecificDataInsertStatement.first);
+            = new PPreparedStatement(typeSpecificDataInsertStatement.getArgumentCount(),
+                                     typeSpecificDataInsertStatement.getStatement());
 
-        for (int parameterIDX = 0; parameterIDX < typeSpecificDataInsertStatement.second; ++parameterIDX)
+        for (int parameterIDX = 0; parameterIDX < typeSpecificDataInsertStatement.getArgumentCount(); ++parameterIDX)
             pPreparedStatement.setObject(parameterIDX + 1, typeSpecificData[parameterIDX]);
 
         executeUpdate(conn, pPreparedStatement);
@@ -1305,7 +1307,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
     {
-        PLogger.get().logMessage(Level.FINEST, "Executed statement:", pPreparedStatement::toString);
+        PLogger.get().logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
     }
 
     @Override

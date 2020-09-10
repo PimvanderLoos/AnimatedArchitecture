@@ -100,7 +100,7 @@ public class SubCommandToggle extends SubCommand
                         // TODO: Error when trying to toggle an invalid door.
                         commandManager.getDoorFromArg(sender, args[currentPos], null, null).get().ifPresent(doors::add);
                     }
-                    catch (InterruptedException | ExecutionException e)
+                    catch (InterruptedException | ExecutionException | NullPointerException e)
                     {
                         plugin.getPLogger().logThrowable(e, "Failed to obtain door \"" + args[currentPos] + "\"");
                     }

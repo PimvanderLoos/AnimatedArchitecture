@@ -22,7 +22,6 @@ import nl.pim16aap2.bigdoors.doors.slidingdoor.DoorTypeSlidingDoor;
 import nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
@@ -125,7 +124,7 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.setupStatic();
         PLogger.get().setConsoleLogLevel(Level.FINEST);
         PLogger.get().setFileLogLevel(Level.SEVERE);
-        DoorRegistry.get().restart();
+        UnitTestUtil.setFakeDoorRegistry();
     }
 
     // Initialize mocking.

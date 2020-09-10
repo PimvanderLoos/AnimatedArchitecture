@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.managers;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalCause;
-import com.google.common.cache.RemovalListener;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -138,28 +137,47 @@ public final class DoorRegistry extends Restartable
     public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
                                       final @NotNull Duration cacheExpiry)
     {
+        return init(maxRegistrySize, concurrencyLevel, initialCapacity, cacheExpiry, true);
+    }
+
+    /**
+     * (Re)initializes the {@link #doorCache}.
+     *
+     * @param maxRegistrySize  The maximum number of entries in the cache.
+     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity  The initial size of the cache to reserve.
+     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @param removalListener  Whether to enable the RemovalListener that syncs the door with the database when that
+     *                         door is evicted from the cache. This is mostly useful for unit tests.
+     * @return This {@link DoorRegistry}.
+     */
+    public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                      final @NotNull Duration cacheExpiry, boolean removalListener)
+    {
         if (doorCache != null)
             doorCache.invalidateAll();
 
-        doorCache = CacheBuilder.newBuilder()
-                                .softValues()
-                                .maximumSize(maxRegistrySize)
-                                .expireAfterAccess(cacheExpiry)
-                                .initialCapacity(initialCapacity)
-                                .concurrencyLevel(concurrencyLevel)
-                                .removalListener(
-                                    (RemovalListener<Long, AbstractDoorBase>) notification ->
-                                    {
-                                        PLogger.get().logMessage(Level.FINEST, "Removed door " +
-                                            notification.getKey().toString() + " from the registry! Reason: " +
-                                            notification.getCause().name());
+        @NotNull CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+                                                                         .softValues()
+                                                                         .maximumSize(maxRegistrySize)
+                                                                         .expireAfterAccess(cacheExpiry)
+                                                                         .initialCapacity(initialCapacity)
+                                                                         .concurrencyLevel(concurrencyLevel);
+        if (removalListener)
+            cacheBuilder = cacheBuilder.removalListener(
+                notification ->
+                {
+                    PLogger.get().logMessage(Level.FINEST, "Removed door " +
+                        notification.getKey().toString() + " from the registry! Reason: " +
+                        notification.getCause().name());
 
-                                        if (notification.getCause() == RemovalCause.COLLECTED ||
-                                            notification.getCause() == RemovalCause.EXPIRED ||
-                                            notification.getCause() == RemovalCause.SIZE)
-                                            notification.getValue().syncAllData();
-                                    })
-                                .build();
+                    if (notification.getCause() == RemovalCause.COLLECTED ||
+                        notification.getCause() == RemovalCause.EXPIRED ||
+                        notification.getCause() == RemovalCause.SIZE)
+                        ((AbstractDoorBase) notification.getValue()).syncAllData();
+                });
+
+        doorCache = cacheBuilder.build();
         return this;
     }
 }

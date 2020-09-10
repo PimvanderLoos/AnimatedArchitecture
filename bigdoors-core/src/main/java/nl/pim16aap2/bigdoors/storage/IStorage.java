@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
+import nl.pim16aap2.bigdoors.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -299,6 +300,29 @@ public interface IStorage
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), door.isOpen(), flag);
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), door.isLocked(), flag);
         return flag;
+    }
+
+    /**
+     * Inserts an insert/update statement pair for the type-specific data of a {@link DoorType} to the provided {@link
+     * DoorTypeDataStatementMap}.
+     *
+     * @param doorTypeDataStatementMap The map to add the statements to.
+     * @param doorType                 The {@link DoorType} for which these statements are meant.
+     * @param insertStatement          The insert statement for the type-specific data of the {@link DoorType}.
+     * @param updateStatement          The update statement for the type-specific data of the {@link DoorType}.
+     */
+    static void addToStatementMap(final @NotNull DoorTypeDataStatementMap doorTypeDataStatementMap,
+                                  final @NotNull DoorType doorType,
+                                  final @NotNull Pair<String, Integer> insertStatement,
+                                  final @NotNull Pair<String, Integer> updateStatement)
+    {
+        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement insert =
+            new DoorTypeDataStatementMap.DoorTypeDataStatement(insertStatement);
+
+        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement update =
+            new DoorTypeDataStatementMap.DoorTypeDataStatement(updateStatement);
+
+        doorTypeDataStatementMap.put(doorType, new DoorTypeDataStatementMap.DoorTypeDataStatementEntry(insert, update));
     }
 
     /**

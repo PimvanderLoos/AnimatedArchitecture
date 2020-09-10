@@ -213,6 +213,20 @@ public abstract class DoorType
         return Optional.empty();
     }
 
+    @Override
+    public final int hashCode()
+    {
+        // There may only ever exist 1 instance of each DoorType.
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(final @Nullable Object obj)
+    {
+        // There may only ever exist 1 instance of each DoorType.
+        return super.equals(obj);
+    }
+
     /**
      * Represents the various types of parameters accepted by the storage system.
      */

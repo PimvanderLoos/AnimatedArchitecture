@@ -297,6 +297,7 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Use a batched action for registering DoorTypes. This way, it can just roll back when/if something goes wrong.
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
 // TODO: Make sure you can remove yourself as (co)owner.
