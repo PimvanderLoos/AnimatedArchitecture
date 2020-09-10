@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -109,14 +110,14 @@ public class SlidingDoor extends AbstractDoorBase
     }
 
     @Override
-    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                      final @NotNull IPPlayer responsible, final @NotNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
     {
         final @NotNull RotateDirection currentToggleDir = getCurrentToggleDir();
-        doorOpeningUtility.registerBlockMover(
-            new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
-                             doorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType));
+        return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
+                                doorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override

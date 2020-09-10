@@ -5,4 +5,8 @@ import org.bukkit.event.Event;
 
 public abstract class BigDoorsSpigotEvent extends Event
 {
+    protected BigDoorsSpigotEvent()
+    {
+        super(true);
+    }
 }

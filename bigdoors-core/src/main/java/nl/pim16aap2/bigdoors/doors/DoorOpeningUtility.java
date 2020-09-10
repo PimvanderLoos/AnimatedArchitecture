@@ -273,20 +273,6 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Checks if a {@link AbstractDoorBase} is busy and set it to busy if that is the case.
-     *
-     * @param doorUID The UID of the {@link AbstractDoorBase} to check.
-     * @return True if already busy.
-     */
-    private boolean isBusySetIfNot(final long doorUID)
-    {
-        if (BigDoors.get().getDoorManager().isDoorBusy(doorUID))
-            return true;
-        BigDoors.get().getDoorManager().setDoorBusy(doorUID);
-        return false;
-    }
-
-    /**
      * Checks if a {@link AbstractDoorBase} can be toggled or not.
      * <p>
      * It checks the following items:
@@ -304,11 +290,11 @@ public final class DoorOpeningUtility
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    public @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
-                                                  final @NotNull DoorActionCause cause,
-                                                  final @NotNull DoorActionType actionType)
+    @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
+                                           final @NotNull DoorActionCause cause,
+                                           final @NotNull DoorActionType actionType)
     {
-        if (isBusySetIfNot(door.getDoorUID()))
+        if (!BigDoors.get().getDoorManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
 
         if (actionType == DoorActionType.OPEN && !door.isOpenable())
@@ -318,6 +304,7 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
+
         if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 

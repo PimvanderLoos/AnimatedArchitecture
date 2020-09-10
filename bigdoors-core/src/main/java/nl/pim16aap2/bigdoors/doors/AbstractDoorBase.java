@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -184,8 +186,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     /**
      * Obtains a copy of the {@link DoorData} the describes this door.
      * <p>
-     * Note that this creates a deep copy of the DoorData <u><b>including its {@link DoorOwner}s</b></u>, so use it
-     * sparingly.
+     * Note that this creates a deep copy of the DoorData <u><b>including</u></b><b> its {@link DoorOwner}s</b>, so use
+     * it sparingly.
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
@@ -201,12 +203,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     /**
      * Obtains a simple copy of the {@link DoorData} the describes this door.
      * <p>
-     * Note that this creates a deep copy of the DoorData <u><b>excluding its {@link DoorOwner}s</b></u>, so use it
-     * sparingly.
+     * Note that this creates a deep copy of the DoorData <u><b>excluding</u></b><b> its {@link DoorOwner}s</b>, so use
+     * it sparingly.
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
-    public @NotNull DoorData getSimpleDoorDataCopy()
+    public synchronized @NotNull DoorData getSimpleDoorDataCopy()
     {
         return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
                             world.clone(), open, openDir, primeOwner.clone(), locked);
@@ -217,11 +219,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return The {@link DoorType} of this door.
      */
-    public abstract DoorType getDoorType();
+    public abstract @NotNull DoorType getDoorType();
 
     @Override
     public boolean isPowerBlockActive()
     {
+        // FIXME: Cleanup
         Vector3Di powerBlockChunkSpaceCoords = Util.getChunkSpacePosition(getPowerBlock());
         Vector2Di powerBlockChunk = Util.getChunkCoords(getPowerBlock());
         if (BigDoors.get().getPlatform().getChunkManager().load(getWorld(), powerBlockChunk) ==
@@ -299,7 +302,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
 
-        registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType);
+        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+            () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
 
         BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                                  .createStartEvent(this, cause, actionType, responsible,
@@ -328,17 +332,47 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public boolean isOpenable()
     {
-        return !open;
+        synchronized (openMutex)
+        {
+            return !open;
+        }
     }
 
     @Override
     public boolean isCloseable()
     {
-        return open;
+        synchronized (openMutex)
+        {
+            return open;
+        }
     }
 
     /**
-     * Starts and registers a new {@link BlockMover}.
+     * Gets the {@link Supplier} for the {@link BlockMover} for this type.
+     * <p>
+     * This method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
+     * synchronously)
+     *
+     * @param cause         What caused this action.
+     * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
+     *                      is limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param responsible   The {@link IPPlayer} responsible for the door action.
+     * @param actionType    The type of action that will be performed by the BlockMover.
+     * @return The {@link BlockMover} for this class.
+     */
+    protected abstract @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause,
+                                                               final double time, final boolean skipAnimation,
+                                                               final @NotNull CuboidConst newCuboid,
+                                                               final @NotNull IPPlayer responsible,
+                                                               final @NotNull DoorActionType actionType);
+
+    /**
+     * Registers a {@link BlockMover} with the {@link DoorActivityManager}.
+     * <p>
+     * This method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
+     * synchronously)
      *
      * @param cause         What caused this action.
      * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
@@ -348,11 +382,29 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      */
-    protected abstract void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                               final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                               final @NotNull IPPlayer responsible,
-                                               final @NotNull DoorActionType actionType);
+    private synchronized void registerBlockMover(final @NotNull DoorActionCause cause,
+                                                 final double time, final boolean skipAnimation,
+                                                 final @NotNull CuboidConst newCuboid,
+                                                 final @NotNull IPPlayer responsible,
+                                                 final @NotNull DoorActionType actionType)
+    {
+        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
+        {
+            final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
+                "BlockMovers must be instantiated on the main thread!");
+            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getDoorManager().setDoorAvailable(getDoorUID());
+            return;
+        }
 
+        doorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
+                                                                  responsible, actionType));
+    }
+
+    /**
+     * @deprecated This method needs to be replaced with the 'new' chunk-system from v1.
+     */
+    @Deprecated
     @Override
     public @NotNull Vector2Di[] calculateCurrentChunkRange()
     {
@@ -363,6 +415,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
     }
 
+    /**
+     * @deprecated This method needs to be replaced with the 'new' chunk-system from v1.
+     */
+    @Deprecated
     @Override
     public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk)
     {
@@ -378,7 +434,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     /**
      * Verify that the ranges of Vector2Di coordinates are available. if not, {@link #calculateChunkRange()} is called
      * to calculate and store them.
+     *
+     * @deprecated This method needs to be replaced with the 'new' chunk-system from v1.
      */
+    @Deprecated
     private void verifyChunkRange()
     {
         if (maxChunkCoords == null || minChunkCoords == null)
@@ -404,9 +463,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
+        // TODO: Synchronize?
         return Optional.ofNullable(doorOwners.get(uuid));
     }
-
 
     @Override
     public @NotNull AbstractDoorBase setCoordinates(final @NotNull CuboidConst newCuboid)
@@ -461,28 +520,25 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * <p>
      * This function should be called whenever certain aspects change that affect the way/distance this door might move.
      * E.g. the open direction.
+     *
+     * @deprecated This method needs to be replaced with the 'new' chunk-system from v1.
      */
+    @Deprecated
     protected void invalidateChunkRange()
     {
         maxChunkCoords = null;
         minChunkCoords = null;
     }
 
+    /**
+     * @deprecated This method needs to be replaced with the 'new' chunk-system from v1.
+     */
+    @Deprecated
     @Override
     public final @NotNull Vector2Di[] getChunkRange()
     {
         verifyChunkRange();
         return new Vector2Di[]{minChunkCoords, maxChunkCoords};
-    }
-
-    /**
-     * Invalidate variables that depend on the coordinates of the {@link AbstractDoorBase} when those are modified.
-     * <p>
-     * Only applies to variables that are not guaranteed to always be available. They are calculated when needed.
-     */
-    private void invalidateCoordsDependents()
-    {
-        invalidateChunkRange();
     }
 
     @Override
@@ -526,6 +582,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public final @NotNull Vector2DiConst getChunk()
     {
+        // TODO: Don't calculate this on runtime. Just make sure it's always available.
         return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
     }
 

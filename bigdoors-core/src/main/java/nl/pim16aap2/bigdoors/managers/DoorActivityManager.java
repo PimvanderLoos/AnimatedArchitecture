@@ -70,13 +70,16 @@ public final class DoorActivityManager extends Restartable
     }
 
     /**
-     * Registers a {@link AbstractDoorBase} as busy.
+     * Attempts to register a door (as described by its UID) as busy. If the door was not previously registered as busy,
+     * it will be registered now and this method will return <code>true</code>. If it was already registered as busy, it
+     * will not touch it and return <code>false</code>.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
+     * @param doorUID The UID of the door to register.
+     * @return True if the door was not registered before (but is now), otherwise false.
      */
-    public void setDoorBusy(final long doorUID)
+    public synchronized boolean attemptRegisterAsBusy(final long doorUID)
     {
-        busyDoors.put(doorUID, Optional.empty());
+        return busyDoors.putIfAbsent(doorUID, Optional.empty()) == null;
     }
 
     /**
