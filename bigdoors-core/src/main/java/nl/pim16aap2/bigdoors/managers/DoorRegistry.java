@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.managers;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalCause;
+import com.google.common.cache.RemovalListener;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -10,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a registry of doors.
@@ -144,6 +147,18 @@ public final class DoorRegistry extends Restartable
                                 .expireAfterAccess(cacheExpiry)
                                 .initialCapacity(initialCapacity)
                                 .concurrencyLevel(concurrencyLevel)
+                                .removalListener(
+                                    (RemovalListener<Long, AbstractDoorBase>) notification ->
+                                    {
+                                        PLogger.get().logMessage(Level.FINEST, "Removed door " +
+                                            notification.getKey().toString() + " from the registry! Reason: " +
+                                            notification.getCause().name());
+
+                                        if (notification.getCause() == RemovalCause.COLLECTED ||
+                                            notification.getCause() == RemovalCause.EXPIRED ||
+                                            notification.getCause() == RemovalCause.SIZE)
+                                            notification.getValue().syncAllData();
+                                    })
                                 .build();
         return this;
     }
