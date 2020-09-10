@@ -56,7 +56,7 @@ public final class PLogger
      */
     @Getter
     @NotNull
-    private Level fileLogLevel = Level.FINER;
+    private Level fileLogLevel = Level.FINEST;
 
     @Getter
     @NotNull

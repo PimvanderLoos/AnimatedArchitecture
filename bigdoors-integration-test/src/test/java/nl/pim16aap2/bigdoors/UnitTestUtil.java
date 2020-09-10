@@ -21,12 +21,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 @UtilityClass
 public class UnitTestUtil
@@ -110,69 +106,12 @@ public class UnitTestUtil
     }
 
     /**
-     * Stubs the maps for the {@link DoorRegistry}. No entries can be added to it or retrieved from it after this metd
+     * Stubs the map for the {@link DoorRegistry}. No entries can be added to it or retrieved from it after this method
      * has been called.
-     *
-     * @throws NoSuchFieldException
-     * @throws IllegalAccessException
      */
     public void setFakeDoorRegistry()
     {
-        DoorRegistry.get().init(0, 1, 0, Duration.ZERO);
-    }
-
-    /**
-     * Creates a 'fake' map with stubbed methods so you cannot add/retrieve items to/from it.
-     *
-     * @param <T1> The type of the key.
-     * @param <T2> The type of the value.
-     * @return The 'fake' map.
-     */
-    public @NotNull <T1, T2> Map<T1, T2> getFakeMap()
-    {
-        return new HashMap<T1, T2>()
-        {
-            @Override
-            public T2 get(Object key)
-            {
-                return null;
-            }
-
-            @Override
-            public boolean containsKey(Object key)
-            {
-                return false;
-            }
-
-            @Override
-            public T2 put(T1 key, T2 value)
-            {
-                return null;
-            }
-
-            @Override
-            public void putAll(Map m)
-            {
-            }
-
-            @Override
-            public T2 putIfAbsent(T1 key, T2 value)
-            {
-                return null;
-            }
-
-            @Override
-            public T2 computeIfAbsent(Object key, Function mappingFunction)
-            {
-                return null;
-            }
-
-            @Override
-            public T2 computeIfPresent(Object key, BiFunction remappingFunction)
-            {
-                return null;
-            }
-        };
+        DoorRegistry.get().init(0, 1, 0, Duration.ZERO, false);
     }
 
     /**
