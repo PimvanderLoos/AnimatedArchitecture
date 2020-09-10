@@ -1,5 +1,6 @@
 Alpha 0.1.8.26
 - Added method to get all available doors. Thanks, @Chojo, for the implementation.
+- Renamed the permission node for changing door direction to "bigdoors.user.direction" so it works with "bigdoors.user.*". Thanks, @Hydridity, for the bug report!
 
 Alpha 0.1.8.25
 - Added support for version 1.16.2 of Minecraft.

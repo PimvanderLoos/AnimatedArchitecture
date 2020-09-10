@@ -320,7 +320,7 @@ public class BridgeMover implements BlockMover
     // Put the door blocks back, but change their state now.
     @SuppressWarnings("deprecation")
     @Override
-    public void putBlocks(boolean onDisable)
+    public synchronized void putBlocks(boolean onDisable)
     {
         if (blocksPlaced.get())
             return;

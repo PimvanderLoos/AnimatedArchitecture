@@ -8,7 +8,7 @@ public enum DoorAttribute
     DELETE              (0, "bigdoors.user.delete", "bigdoors.admin.bypass.delete"),
     RELOCATEPOWERBLOCK  (1, "bigdoors.user.relocatepowerblock", "bigdoors.admin.bypass.relocatepowerblock"),
     CHANGETIMER         (1, "bigdoors.user.setautoclosetime", "bigdoors.admin.bypass.changetimer"),
-    DIRECTION_STRAIGHT  (1, "bigdoors.user", "bigdoors.admin.bypass.direction"),
+    DIRECTION_STRAIGHT  (1, "bigdoors.user.direction", "bigdoors.admin.bypass.direction"),
     DIRECTION_ROTATE    (1, DIRECTION_STRAIGHT.userPermission, DIRECTION_STRAIGHT.adminPermission),
     BLOCKSTOMOVE        (1, "bigdoors.user.setblockstomove", "bigdoors.admin.bypass.blockstomove"),
     ADDOWNER            (0, "bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),
