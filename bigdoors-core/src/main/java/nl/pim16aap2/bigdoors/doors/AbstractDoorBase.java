@@ -99,12 +99,26 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
     {
+        if (doorOwner.getPermission() == 0)
+        {
+            PLogger.get().logThrowable(new IllegalArgumentException(
+                "Failed to add owner: " + doorOwner.getPlayer().toString() + " as owner to door: " + getDoorUID() +
+                    " because a permission level of 0 is not allowed!"));
+            return;
+        }
         doorOwners.put(uuid, doorOwner);
     }
 
     @Override
     protected final boolean removeOwner(final @NotNull UUID uuid)
     {
+        if (primeOwner.getPlayer().getUUID().equals(uuid))
+        {
+            PLogger.get().logThrowable(new IllegalArgumentException(
+                "Failed to remove owner: " + primeOwner.getPlayer().toString() + " as owner from door: " +
+                    getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
+            return false;
+        }
         return doorOwners.remove(uuid) != null;
     }
 
@@ -447,7 +461,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
-        // TODO: Synchronize?
         return Optional.ofNullable(doorOwners.get(uuid));
     }
 

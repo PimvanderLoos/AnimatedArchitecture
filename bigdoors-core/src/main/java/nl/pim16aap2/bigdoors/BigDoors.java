@@ -64,15 +64,15 @@ import java.util.Set;
 /*
  * Doors
  */
-// TODO: Don't toggle doors via the main thread. Async should work just fine. All the events should be async as well
-//       (if they aren't already).
-// TODO: Use a cache eviction listener to sync doors once they are removed from the cache.
+// TODO: Instead of having two ways of using DoorData (one method returning WITH doorOwners, another without), consider
+//       create 2 different types of DoorData, where the one with DoorOwners extends the one without.
 // TODO: Flags: Add a secondary mode where it doesn't use a hardcoded formula, but a user-defined one instead.
 //       Use a JSON file and allow the user to define a set of formulas and store the results in variables.
 //       There should be 3 types of formulas:
-//       1) Per-Door:  Calculated once, then reused for every run .
+//       1) Per-Door:  Calculated once, then reused for every run.
 //       2) Per-Run:   Calculated once per run (tick), then reused for every block.
 //       3) Per-Block: Calculated for every block.
+//       Also, consider making this a standalone type, where you can define all this kind of stuff as well.
 // TODO: Make a separate config file (file.zip?, so people who don't understand it won't touch it) for advanced options
 //       including, but not limited to, setting cache sizes.
 //       For caches: https://guava.dev/releases/19.0/api/docs/com/google/common/cache/CacheBuilderSpec.html
