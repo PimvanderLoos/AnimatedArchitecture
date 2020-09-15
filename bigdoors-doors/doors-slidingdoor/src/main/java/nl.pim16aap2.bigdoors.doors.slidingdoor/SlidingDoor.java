@@ -84,8 +84,9 @@ public class SlidingDoor extends AbstractDoorBase
             distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.getX(), getBlocksToMove()) :
                          Math.min(-dimensions.getX(), getBlocksToMove())) / 16 + 1;
 
-        return new Vector2Di[]{new Vector2Di(getChunk().getX() - distanceX, getChunk().getY() - distanceZ),
-                               new Vector2Di(getChunk().getX() + distanceX, getChunk().getY() + distanceZ)};
+        return new Vector2Di[]{
+            new Vector2Di(getEngineChunk().getX() - distanceX, getEngineChunk().getY() - distanceZ),
+            new Vector2Di(getEngineChunk().getX() + distanceX, getEngineChunk().getY() + distanceZ)};
     }
 
     @Override
@@ -97,7 +98,7 @@ public class SlidingDoor extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
@@ -106,7 +107,7 @@ public class SlidingDoor extends AbstractDoorBase
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboidCopy().move(0, getBlocksToMove() * vec.getY(), 0));
+        return Optional.of(getCuboid().clone().move(0, getBlocksToMove() * vec.getY(), 0));
     }
 
     @Override

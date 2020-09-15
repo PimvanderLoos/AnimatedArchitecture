@@ -84,7 +84,7 @@ public class Portcullis extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
     }
@@ -93,7 +93,7 @@ public class Portcullis extends AbstractDoorBase
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboidCopy().move(getBlocksToMove() * vec.getX(), 0, getBlocksToMove() * vec.getZ()));
+        return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.getX(), 0, getBlocksToMove() * vec.getZ()));
     }
 
     @Override

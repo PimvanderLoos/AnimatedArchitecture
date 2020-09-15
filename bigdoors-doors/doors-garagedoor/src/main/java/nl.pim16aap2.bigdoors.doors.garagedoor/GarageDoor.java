@@ -92,12 +92,13 @@ public class GarageDoor extends AbstractDoorBase
             radius =
                 Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
-        return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
-                               new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
+        return new Vector2Di[]{
+            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
+            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())
@@ -109,7 +110,7 @@ public class GarageDoor extends AbstractDoorBase
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
-        final @NotNull Cuboid cuboid = getCuboidCopy();
+        final @NotNull Cuboid cuboid = getCuboid().clone();
 
         final @NotNull Vector3DiConst dimensions = cuboid.getDimensions();
         final @NotNull Vector3DiConst minimum = cuboid.getMin();

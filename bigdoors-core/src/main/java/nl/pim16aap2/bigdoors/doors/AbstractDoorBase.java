@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Synchronized;
 import lombok.Value;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -59,44 +58,37 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Getter(onMethod = @__({@Override}))
     protected final @NotNull IPWorld world;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("engineMutex")}))
-    protected @NotNull Vector3DiConst engine;
-    private final @NotNull Object engineMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    protected volatile @NotNull Vector3DiConst engine;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("powerBlockMutex")}))
-    protected @NotNull Vector3DiConst powerBlock;
-    private final @NotNull Object powerBlockMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    private volatile @NotNull Vector2DiConst engineChunk;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("nameMutex")}))
-    @Setter(onMethod = @__({@Override, @Synchronized("nameMutex")}))
-    private @NotNull String name;
-    private final @NotNull Object nameMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    protected volatile @NotNull Vector3DiConst powerBlock;
 
-    private Cuboid cuboid;
-    private final @NotNull Object cuboidMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private volatile @NotNull String name;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("openMutex")}))
-    @Setter(onMethod = @__({@Override, @Synchronized("openMutex")}))
-    private boolean open;
-    private final @NotNull Object openMutex = new Object();
+    private volatile CuboidConst cuboid;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("openDirMutex")}))
-    @Setter(onMethod = @__({@Override, @Synchronized("openDirMutex")}))
-    private @NotNull RotateDirection openDir;
-    private final @NotNull Object openDirMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private volatile boolean open;
 
-    @Getter(onMethod = @__({@Override, @Synchronized("lockedMutex")}))
-    @Setter(onMethod = @__({@Override, @Synchronized("lockedMutex")}))
-    private boolean locked;
-    private final @NotNull Object lockedMutex = new Object();
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private volatile @NotNull RotateDirection openDir;
+
+    @Getter(onMethod = @__({@Override}))
+    @Setter(onMethod = @__({@Override}))
+    private volatile boolean locked;
 
     private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
     @Getter(onMethod = @__({@Override}))
     private final @NotNull DoorOwner primeOwner;
-
-    // "cached" values that only get calculated when first retrieved.
-    private Vector2Di engineChunk = null;
 
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
@@ -135,6 +127,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         name = doorData.getName();
         cuboid = doorData.getCuboid();
         engine = doorData.getEngine();
+        engineChunk = Util.getChunkCoords(engine);
         powerBlock = doorData.getPowerBlock();
         world = doorData.getWorld();
         open = doorData.isOpen();
@@ -177,10 +170,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull CuboidConst getCuboid()
     {
-        synchronized (cuboidMutex)
-        {
-            return cuboid;
-        }
+        return cuboid;
     }
 
     /**
@@ -332,19 +322,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public boolean isOpenable()
     {
-        synchronized (openMutex)
-        {
-            return !open;
-        }
+        return !open;
     }
 
     @Override
     public boolean isCloseable()
     {
-        synchronized (openMutex)
-        {
-            return open;
-        }
+        return open;
     }
 
     /**
@@ -470,49 +454,28 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull AbstractDoorBase setCoordinates(final @NotNull CuboidConst newCuboid)
     {
-        synchronized (cuboidMutex)
-        {
-            cuboid = newCuboid.clone();
-            return this;
-        }
+        cuboid = new CuboidConst(newCuboid);
+        return this;
     }
 
     @Override
     public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst posA,
                                                           final @NotNull Vector3DiConst posB)
     {
-        synchronized (cuboidMutex)
-        {
-            cuboid = new Cuboid(posA, posB);
-            return this;
-        }
+        cuboid = new Cuboid(posA, posB);
+        return this;
     }
 
     @Override
     public @NotNull Vector3DiConst getMinimum()
     {
-        synchronized (cuboidMutex)
-        {
-            return cuboid.getMin();
-        }
+        return cuboid.getMin();
     }
 
     @Override
     public @NotNull Vector3DiConst getMaximum()
     {
-        synchronized (cuboidMutex)
-        {
-            return cuboid.getMax();
-        }
-    }
-
-    @Override
-    public @NotNull Cuboid getCuboidCopy()
-    {
-        synchronized (cuboidMutex)
-        {
-            return cuboid.clone();
-        }
+        return cuboid.getMax();
     }
 
     /**
@@ -544,68 +507,39 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Vector3DiConst getDimensions()
     {
-        synchronized (cuboidMutex)
-        {
-            return cuboid.getDimensions();
-        }
+        return cuboid.getDimensions();
     }
 
     @Override
-    public final @NotNull AbstractDoorBase setEngine(final @NotNull Vector3DiConst pos)
+    public synchronized final @NotNull AbstractDoorBase setEngine(final @NotNull Vector3DiConst pos)
     {
-        synchronized (engineMutex)
-        {
-            engine = new Vector3Di(pos);
-            return this;
-        }
+        engine = new Vector3Di(pos);
+        engineChunk = Util.getChunkCoords(pos);
+        return this;
     }
 
     @Override
     public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos)
     {
-        synchronized (powerBlockMutex)
-        {
-            powerBlock = new Vector3Di(pos);
-            invalidateChunkRange();
-            return this;
-        }
-    }
-
-    private @NotNull Vector2Di calculateEngineChunk()
-    {
-        synchronized (engineMutex)
-        {
-            return Util.getChunkCoords(engine);
-        }
-    }
-
-    @Override
-    public final @NotNull Vector2DiConst getChunk()
-    {
-        // TODO: Don't calculate this on runtime. Just make sure it's always available.
-        return engineChunk == null ? engineChunk = calculateEngineChunk() : engineChunk;
+        powerBlock = new Vector3Di(pos);
+        invalidateChunkRange();
+        return this;
     }
 
     @Override
     public final int getBlockCount()
     {
-        synchronized (cuboidMutex)
-        {
-            return cuboid.getVolume();
-        }
+        return cuboid.getVolume();
     }
 
     @Override
-    public final long getSimplePowerBlockChunkHash()
+    public synchronized final long getSimplePowerBlockChunkHash()
     {
-        synchronized (powerBlockMutex)
-        {
-            return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
-        }
+        return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
     }
 
     @Override
-    public final @NotNull String getBasicInfo()
+    public synchronized @NotNull String getBasicInfo()
     {
         return doorUID + " (" + getPrimeOwner().toString() + ") - " + getDoorType().getSimpleName() + ": " + name;
     }

@@ -97,13 +97,6 @@ public interface IDoorBase
     @NotNull CuboidConst getCuboid();
 
     /**
-     * Gets a copy of the {@link CuboidConst} representing the area taken up by this door.
-     *
-     * @return A copy of the {@link CuboidConst} representing the area taken up by this door.
-     */
-    @NotNull Cuboid getCuboidCopy();
-
-    /**
      * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this door that would be the
      * result of toggling it.
      *
@@ -127,6 +120,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in animation range.
      */
+    @Deprecated
     @NotNull Vector2Di[] calculateChunkRange();
 
     /**
@@ -135,6 +129,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in current range.
      */
+    @Deprecated
     @NotNull Vector2Di[] calculateCurrentChunkRange();
 
     /**
@@ -144,6 +139,7 @@ public interface IDoorBase
      * @param chunk The chunk to check
      * @return True if the {@link Vector2DiConst} is in range of the door.
      */
+    @Deprecated
     boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk);
 
     /**
@@ -314,6 +310,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */
+    @Deprecated
     @NotNull Vector2Di[] getChunkRange();
 
     /**
@@ -324,7 +321,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
-    @NotNull Vector2DiConst getChunk();
+    @NotNull Vector2DiConst getEngineChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *

@@ -50,7 +50,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

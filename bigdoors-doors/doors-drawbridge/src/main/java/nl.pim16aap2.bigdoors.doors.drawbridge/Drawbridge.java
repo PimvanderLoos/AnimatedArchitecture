@@ -89,12 +89,13 @@ public class Drawbridge extends AbstractDoorBase
         else
             radius = Math.max(xLen, zLen) / 16 + 1;
 
-        return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
-                               new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
+        return new Vector2Di[]{
+            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
+            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
@@ -114,10 +115,11 @@ public class Drawbridge extends AbstractDoorBase
             return Optional.empty();
         }
 
+        final @NotNull Cuboid cuboid = getCuboid().clone();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
-            return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
         else
-            return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundZAxis(getEngine(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(getEngine(), angle)));
     }
 
     @Override

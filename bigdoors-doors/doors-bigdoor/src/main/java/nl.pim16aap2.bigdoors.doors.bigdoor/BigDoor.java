@@ -70,8 +70,9 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         // Yeah, radius might be too big, but it doesn't really matter.
         final int radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
-        return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
-                               new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
+        return new Vector2Di[]{
+            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
+            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
     }
 
     @Override
@@ -101,7 +102,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
             return Optional.empty();
         }
 
-        return Optional.of(getCuboidCopy().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
+        return Optional.of(getCuboid().clone().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
     }
 
     @Override

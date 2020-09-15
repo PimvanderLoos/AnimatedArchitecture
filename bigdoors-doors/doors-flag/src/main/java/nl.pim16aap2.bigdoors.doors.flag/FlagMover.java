@@ -30,7 +30,7 @@ public class FlagMover extends BlockMover
                      final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
                      final @NotNull DoorActionType actionType)
     {
-        super(door, time, false, RotateDirection.NONE, player, door.getCuboidCopy(), cause, actionType);
+        super(door, time, false, RotateDirection.NONE, player, door.getCuboid().clone(), cause, actionType);
 
         final int xLen = Math.abs(xMax - xMin) + 1;
         final int zLen = Math.abs(zMax - zMin) + 1;

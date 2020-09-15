@@ -18,7 +18,7 @@ public interface IStationaryDoorArchetype extends IDoorBase
     @Override
     default @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        return Optional.of(getCuboidCopy());
+        return Optional.of(getCuboid().clone());
     }
 
     @Override
