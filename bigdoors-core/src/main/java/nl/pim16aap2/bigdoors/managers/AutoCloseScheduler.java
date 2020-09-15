@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,35 +21,22 @@ import java.util.TimerTask;
  *
  * @author Pim
  */
-public class AutoCloseScheduler extends Restartable
+public final class AutoCloseScheduler extends Restartable
 {
-    private static AutoCloseScheduler instance;
+    private static final @NotNull AutoCloseScheduler instance = new AutoCloseScheduler();
+
     /**
      * A map of {@link TimerTask}s.
      * <p>
-     * Key: doorUID
+     * <b>Key:</b> doorUID
      * <p>
-     * Value: A {@link TimerTask} to toggle this door again after a certain amount of time.
+     * <b>Value:</b> A {@link TimerTask} to toggle this door again after a certain amount of time.
      */
-    @NotNull
-    private final Map<Long, TimerTask> timers;
+    private final @NotNull Map<Long, TimerTask> timers = new HashMap<>();
 
-    private AutoCloseScheduler(final @NotNull IRestartableHolder restartableHolder)
+    private AutoCloseScheduler()
     {
-        super(restartableHolder);
-        timers = new HashMap<>();
-    }
-
-    /**
-     * Initializes the {@link AutoCloseScheduler}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param restartableHolder The object that can restart this object.
-     * @return The instance of this {@link AutoCloseScheduler}.
-     */
-    public static @NotNull AutoCloseScheduler init(final @NotNull IRestartableHolder restartableHolder)
-    {
-        return (instance == null) ? instance = new AutoCloseScheduler(restartableHolder) : instance;
+        super(BigDoors.get());
     }
 
     /**
@@ -69,13 +56,11 @@ public class AutoCloseScheduler extends Restartable
      *
      * @param doorUID The UID of the door.
      */
-    private void deleteTimer(long doorUID)
+    private synchronized void deleteTimer(long doorUID)
     {
-        if (timers.containsKey(doorUID))
-        {
-            timers.get(doorUID).cancel();
-            timers.remove(doorUID);
-        }
+        final @Nullable TimerTask task = timers.remove(doorUID);
+        if (task != null)
+            task.cancel();
     }
 
     /**
@@ -83,7 +68,7 @@ public class AutoCloseScheduler extends Restartable
      *
      * @param doorUID The UID of the door.
      */
-    public void unscheduleAutoClose(long doorUID)
+    public synchronized void unscheduleAutoClose(long doorUID)
     {
         deleteTimer(doorUID);
     }
@@ -97,7 +82,7 @@ public class AutoCloseScheduler extends Restartable
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    public <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
+    public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
         final @NotNull DoorActionCause cause, final @NotNull IPPlayer player,
         final T door, double speed, boolean skipAnimation)
     {
@@ -107,11 +92,10 @@ public class AutoCloseScheduler extends Restartable
 
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
-        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door
-        // available again.
-        int delay = Math.min(Constants.MINIMUMDOORDELAY + 2, autoCloseTimer * 20);
+        // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door available again.
+        final int delay = Math.min(Constants.MINIMUMDOORDELAY + 2, autoCloseTimer * 20);
 
-        TimerTask task = new TimerTask()
+        final @NotNull TimerTask task = new TimerTask()
         {
             @Override
             public void run()
@@ -137,7 +121,7 @@ public class AutoCloseScheduler extends Restartable
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    public <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
+    public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
         final @NotNull IPPlayer player, final @NotNull T door,
         double speed, boolean skipAnimation)
     {
@@ -145,13 +129,13 @@ public class AutoCloseScheduler extends Restartable
     }
 
     @Override
-    public void restart()
+    public synchronized void restart()
     {
         shutdown();
     }
 
     @Override
-    public void shutdown()
+    public synchronized void shutdown()
     {
         timers.forEach((K, V) -> V.cancel());
         timers.clear();
