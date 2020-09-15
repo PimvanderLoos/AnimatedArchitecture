@@ -17,6 +17,9 @@ import java.util.Set;
 /*
  * Experimental
  */
+// TODO: Consider using Caffeine instead of Guava for caching.
+//       https://github.com/ben-manes/caffeine
+//       https://medium.com/outbrain-engineering/oh-my-guava-we-are-moving-to-caffeine-99387819fdbb
 // TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
 // TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
 //       service handle the automatic packing/unpacking, so the door classes won't even notice it.
