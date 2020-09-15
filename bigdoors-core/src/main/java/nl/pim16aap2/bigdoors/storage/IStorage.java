@@ -234,27 +234,32 @@ public interface IStorage
      * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
      * DoorType#getTypeData(AbstractDoorBase)}.
      *
-     * @param door The door whose type-specific data should be updated.
+     * @param doorUID  The UID of the door to update.
+     * @param doorType The {@link DoorType} of the door to update.
+     * @param typeData The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncTypeData(final @NotNull AbstractDoorBase door);
+    boolean syncTypeData(final long doorUID, final @NotNull DoorType doorType, final @NotNull Object[] typeData);
 
     /**
      * Updates the base data of an {@link AbstractDoorBase} in the database
      *
-     * @param door The door whose base data should be updated.
+     * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
      * @return True if the update was successful.
      */
-    boolean syncBaseData(final @NotNull AbstractDoorBase door);
+    boolean syncBaseData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData);
 
     /**
      * Synchronizes an {@link AbstractDoorBase} door with the database. This will synchronize both the base and the
      * type-specific data of the {@link AbstractDoorBase}.
      *
-     * @param door The {@link AbstractDoorBase} to synchronize.
+     * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
+     * @param doorType       The {@link DoorType} of the door to update.
+     * @param typeData       The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncAllData(final @NotNull AbstractDoorBase door);
+    boolean syncAllData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData,
+                        final @NotNull DoorType doorType, final @NotNull Object[] typeData);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
@@ -299,6 +304,21 @@ public interface IStorage
         long flag = 0;
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), door.isOpen(), flag);
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), door.isLocked(), flag);
+        return flag;
+    }
+
+    /**
+     * Gets the flag value of various boolean properties of a {@link AbstractDoorBase}.
+     *
+     * @param isOpen   Whether the door is currently open.
+     * @param isLocked Whether the door is currently locked.
+     * @return The flag value of a {@link AbstractDoorBase}.
+     */
+    default long getFlag(final boolean isOpen, final boolean isLocked)
+    {
+        long flag = 0;
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), isOpen, flag);
+        flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), isLocked, flag);
         return flag;
     }
 

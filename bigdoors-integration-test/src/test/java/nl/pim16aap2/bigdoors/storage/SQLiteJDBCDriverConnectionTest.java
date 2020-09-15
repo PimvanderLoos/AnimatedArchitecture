@@ -150,7 +150,7 @@ public class SQLiteJDBCDriverConnectionTest
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.EAST, doorOwner, isLocked);
+                                                         isLocked, RotateDirection.EAST, doorOwner);
                 final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
                 door1 = bigDoor;
             }
@@ -171,7 +171,7 @@ public class SQLiteJDBCDriverConnectionTest
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player1);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.valueOf(0), doorOwner, isLocked);
+                                                         isLocked, RotateDirection.valueOf(0), doorOwner);
                 final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
                 door2 = drawbridge;
             }
@@ -191,7 +191,7 @@ public class SQLiteJDBCDriverConnectionTest
                 final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player2);
 
                 doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         RotateDirection.UP, doorOwner, isLocked);
+                                                         isLocked, RotateDirection.UP, doorOwner);
                 final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
                 door3 = portcullis;
             }
@@ -334,7 +334,7 @@ public class SQLiteJDBCDriverConnectionTest
             final @NotNull String name = "DOORTYPETEST_" + doorType.toString();
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, player4);
             doorData = new AbstractDoorBase.DoorData(doorUID++, name, min, max, engine, powerBlock, world,
-                                                     isOpen, RotateDirection.NONE, doorOwner, isLocked);
+                                                     isLocked, isOpen, RotateDirection.NONE, doorOwner);
 
             final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
             int parameterIDX = 0;
@@ -638,12 +638,14 @@ public class SQLiteJDBCDriverConnectionTest
             final int testAutoCloseTime = 20;
 
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            Assert.assertTrue(storage.syncTypeData(door3));
+            Assert.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
+                                                   door3.getDoorType().getTypeData(door3).get()));
             Assert.assertEquals(testAutoCloseTime,
                                 ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
-            Assert.assertTrue(storage.syncTypeData(door3));
+            Assert.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
+                                                   door3.getDoorType().getTypeData(door3).get()));
             Assert.assertEquals(door3AutoCloseTime,
                                 ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
@@ -653,11 +655,11 @@ public class SQLiteJDBCDriverConnectionTest
         // Test (un)locking (i.e. syncing base data).
         {
             door3.setLocked(true);
-            Assert.assertTrue(storage.syncBaseData(door3));
+            Assert.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
             Assert.assertTrue(storage.getDoor(3L).get().isLocked());
 
             door3.setLocked(false);
-            Assert.assertTrue(storage.syncBaseData(door3));
+            Assert.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
             Assert.assertFalse(storage.getDoor(3L).get().isLocked());
         }
 
@@ -700,8 +702,8 @@ public class SQLiteJDBCDriverConnectionTest
             Assert.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assert.assertTrue(storage.syncAllData(door3));
-
+            Assert.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
+                                                  door3.getDoorType().getTypeData(door3).get()));
 
             @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
 
@@ -727,7 +729,8 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            storage.syncAllData(door3);
+            Assert.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
+                                                  door3.getDoorType().getTypeData(door3).get()));
         }
     }
 

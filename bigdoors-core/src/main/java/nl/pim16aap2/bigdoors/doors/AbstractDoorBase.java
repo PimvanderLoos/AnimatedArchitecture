@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Value;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -154,31 +153,48 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     /**
+     * Tries to get {@link DoorType#getTypeData(AbstractDoorBase)} for this door. If no type-specific data is found, an
+     * exception will be logged.
+     *
+     * @return The result of {@link DoorType#getTypeData(AbstractDoorBase)}, no matter the outcome.
+     */
+    private @NotNull Optional<Object[]> verifyTypeData()
+    {
+        final @NotNull Optional<Object[]> typeDataOpt = getDoorType().getTypeData(this);
+        if (!typeDataOpt.isPresent())
+            PLogger.get().logThrowable(new IllegalArgumentException(
+                "Failed to update door " + getDoorUID() + ": Could not get type-specific data!"));
+        return typeDataOpt;
+    }
+
+    /**
      * Synchronizes all data of this door with the database.
      * <p>
      * Calling this method is faster than calling both {@link #syncBaseData()} and {@link #syncTypeData()}. However,
      * because of the added overhead of type-specific data, you should try to use {@link #syncBaseData()} whenever
      * possible (i.e. when no type-specific data was changed).
      */
-    public final void syncAllData()
+    public synchronized final void syncAllData()
     {
-        DatabaseManager.get().syncAllDataOfDoor(this);
+        verifyTypeData().ifPresent(
+            typeData -> DatabaseManager.get().syncAllDataOfDoor(getSimpleDoorDataCopy(), getDoorType(), typeData));
     }
 
     /**
      * Synchronizes the base data of this door with the database.
      */
-    public final void syncBaseData()
+    public synchronized final void syncBaseData()
     {
-        DatabaseManager.get().syncDoorBaseData(this);
+        DatabaseManager.get().syncDoorBaseData(getSimpleDoorDataCopy());
     }
 
     /**
      * Synchronizes the type-specific data in this door with the database.
      */
-    public final void syncTypeData()
+    public synchronized final void syncTypeData()
     {
-        DatabaseManager.get().syncDoorTypeData(this);
+        verifyTypeData().ifPresent(
+            typeData -> DatabaseManager.get().syncDoorTypeData(getDoorUID(), getDoorType(), typeData));
     }
 
     @Override
@@ -201,7 +217,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorOwners.forEach((key, value) -> doorOwnersCopy.put(key, value.clone()));
 
         return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
-                            world.clone(), open, openDir, primeOwner.clone(), doorOwnersCopy, locked);
+                            world.clone(), open, locked, openDir, primeOwner.clone(), doorOwnersCopy);
     }
 
     /**
@@ -212,10 +228,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
-    public synchronized @NotNull DoorData getSimpleDoorDataCopy()
+    public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
-        return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
-                            world.clone(), open, openDir, primeOwner.clone(), locked);
+        return new SimpleDoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
+                                  world.clone(), open, locked, openDir, primeOwner.clone());
     }
 
     /**
@@ -603,14 +619,18 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             world.getUUID().equals(other.world.getUUID());
     }
 
+
     /**
      * POD class that stores all the data needed for basic door initialization.
+     * <p>
+     * This type is called 'simple', as it doesn't include the list of all {@link DoorOwner}s. If you need that, use an
+     * {@link DoorData} instead.
      *
      * @author Pim
      */
-    @Value
     @AllArgsConstructor
-    public static class DoorData
+    @Getter
+    public static class SimpleDoorData
     {
         /**
          * The UID of this door.
@@ -649,6 +669,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         boolean isOpen; // TODO: Use the bitflag here instead.
 
         /**
+         * Whether or not this door is currently locked.
+         */
+        boolean isLocked;
+
+        /**
          * The open direction of this door.
          */
 
@@ -658,46 +683,63 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          * The {@link DoorOwner} that originally created this door.
          */
         @NotNull DoorOwner primeOwner;
+    }
 
+    /**
+     * Represents a more complete picture of {@link SimpleDoorData}, as it includes a list of <u>all</u> {@link
+     * DoorOwner}s of a door.
+     * <p>
+     * When no list of {@link DoorOwner}s is provided, it is assumed that the {@link SimpleDoorData#primeOwner} is the
+     * only {@link DoorOwner}.
+     *
+     * @author Pim
+     */
+    public static class DoorData extends SimpleDoorData
+    {
         /**
          * The list of {@link DoorOwner}s of this door.
          */
-
+        @Getter
         @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
-
-        /**
-         * Whether or not this door is currently locked.
-         */
-        boolean isLocked;
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
                         final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
-                        final @NotNull IPWorld world, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
-                        final boolean isLocked)
+                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
         {
-            this(uid, name, cuboid, engine, powerBlock, world, isOpen, openDirection, primeOwner,
-                 Collections.singletonMap(primeOwner.getPlayer().getUUID(), primeOwner), isLocked);
+            super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
+            doorOwners = Collections.singletonMap(primeOwner.getPlayer().getUUID(), primeOwner);
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
                         final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
                         final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
-                        final boolean isLocked)
+                        final boolean isLocked, final @NotNull RotateDirection openDirection,
+                        final @NotNull DoorOwner primeOwner)
         {
-            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, openDirection, primeOwner,
-                 Collections.singletonMap(primeOwner.getPlayer().getUUID(), primeOwner), isLocked);
+            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
+                 primeOwner);
+        }
+
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
+                        final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
+                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
+                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
+        {
+            this(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
+            this.doorOwners = doorOwners;
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
                         final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
                         final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
-                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners, final boolean isLocked)
+                        final boolean isLocked, final @NotNull RotateDirection openDirection,
+                        final @NotNull DoorOwner primeOwner,
+                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
         {
-            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, openDirection, primeOwner,
-                 doorOwners, isLocked);
+            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
+                 primeOwner, doorOwners);
         }
     }
 

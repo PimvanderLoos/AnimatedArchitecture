@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -62,7 +61,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
         if (!(sender instanceof Player))
         {
             doorBTM.setBlocksToMove(blocksToMove);
-            BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
+            door.syncTypeData();
             sendResultMessage(sender, blocksToMove);
             return true;
         }

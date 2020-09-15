@@ -60,7 +60,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
         if (!(sender instanceof Player))
         {
             doorWithTimer.setAutoCloseTime(time);
-            BigDoors.get().getDatabaseManager().syncDoorTypeData(door);
+            door.syncTypeData();
             BigDoors.get().getAutoCloseScheduler()
                     .scheduleAutoClose(door.getPrimeOwner().getPlayer(),
                                        (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
