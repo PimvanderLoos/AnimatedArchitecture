@@ -22,6 +22,9 @@ import java.util.logging.Level;
 // TODO: Guava performs some cache cleanup on writes if possible, but it will resort to performing it on reads,
 //       if necessary. Because this cache is probably not written to too often, this can cause some read operations
 //       to get slowed down. Consider regularly calling Cache#cleanup from a separate thread.
+// TODO: Make sure that entries aren't removed from the cache if a reference is still available.
+//       Perhaps setting the expiry to an insanely high value? 24h?
+// TODO: Allow enabling statistics for debugging purposes.
 public final class DoorRegistry extends Restartable
 {
     // TODO: Figure out how much space a door takes up in memory, roughly, and figure out what sane values to use.
@@ -31,7 +34,7 @@ public final class DoorRegistry extends Restartable
     public static final int INITIAL_CAPACITY = 100;
     public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
 
-    private static final DoorRegistry INSTANCE = new DoorRegistry();
+    private static final @NotNull DoorRegistry INSTANCE = new DoorRegistry();
 
     private Cache<Long, AbstractDoorBase> doorCache;
 
@@ -152,7 +155,7 @@ public final class DoorRegistry extends Restartable
      * @return This {@link DoorRegistry}.
      */
     public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
-                                      final @NotNull Duration cacheExpiry, boolean removalListener)
+                                      final @NotNull Duration cacheExpiry, final boolean removalListener)
     {
         if (doorCache != null)
             doorCache.invalidateAll();

@@ -25,7 +25,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
-import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
@@ -246,7 +245,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             DoorActivityManager.init(this);
             vaultManager = VaultManager.init(this);
-            AutoCloseScheduler.init(this);
 
             headManager = HeadManager.init(this, getConfigLoader());
 

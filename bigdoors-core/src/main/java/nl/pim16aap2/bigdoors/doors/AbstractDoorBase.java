@@ -241,6 +241,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public abstract @NotNull DoorType getDoorType();
 
+    @Deprecated
     @Override
     public boolean isPowerBlockActive()
     {

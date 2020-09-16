@@ -220,6 +220,16 @@ public class TimedMapCache<K, V> extends Restartable implements Map<K, V>
     }
 
     @Override
+    public @Nullable V putIfAbsent(K key, V value)
+    {
+        if (timeOut < 0)
+            return null;
+
+        TimedValue<V> result = map.putIfAbsent(key, new TimedValue<>(value));
+        return result == null ? null : result.value;
+    }
+
+    @Override
     public boolean containsValue(Object value)
     {
         return map.containsValue(value);

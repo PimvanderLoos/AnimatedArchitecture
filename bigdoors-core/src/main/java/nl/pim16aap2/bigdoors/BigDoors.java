@@ -17,6 +17,9 @@ import java.util.Set;
 /*
  * Experimental
  */
+// TODO: Consider using Caffeine instead of Guava for caching.
+//       https://github.com/ben-manes/caffeine
+//       https://medium.com/outbrain-engineering/oh-my-guava-we-are-moving-to-caffeine-99387819fdbb
 // TODO: Do not define the version of a DoorType in its class. Instead, use the version found in the manifest.
 // TODO: Consider storing boolean type-specific entries in single integers as much as possible. Let the db or some
 //       service handle the automatic packing/unpacking, so the door classes won't even notice it.
@@ -66,6 +69,8 @@ import java.util.Set;
  */
 // TODO: Instead of having two ways of using DoorData (one method returning WITH doorOwners, another without), consider
 //       create 2 different types of DoorData, where the one with DoorOwners extends the one without.
+// TODO: Use World#rayTraceBlocks(Location, Vector, maxDistance, FluidCollisionMode) to check if a door can move
+//       in a given direction (for elevators/portcullises/etc) instead of looping over all the blocks in that direction.
 // TODO: Flags: Add a secondary mode where it doesn't use a hardcoded formula, but a user-defined one instead.
 //       Use a JSON file and allow the user to define a set of formulas and store the results in variables.
 //       There should be 3 types of formulas:
@@ -117,8 +122,10 @@ import java.util.Set;
 /*
  * General
  */
-// TODO: See if Guava's LoadingCache might be useful: https://guava.dev/releases/18.0/api/docs/com/google/common/cache/LoadingCache.html
-//       "Values are automatically loaded by the cache, and are stored in the cache until either evicted or manually invalidated."
+// TODO: Stop using UID's to describe Worlds. Just use their names. The names are unique anyway.
+// TODO: Use Guava for all caches:
+//       - PowerBlockManager
+//       - HeadManager
 // TODO: There are some instances where it is just assumed something will never be null, even though it's clearly
 //       @Nullable. E.g. when retrieving the SpigotPlatform. This should be handled better. Either use Optionals,
 //       or add 'throws NotInstantiatedException' or something to those methods. Then just propagate the exceptions.
@@ -299,6 +306,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: Consider not storing the worlds in their own table, but just making them part of the door base table.
+//       This just adds so much overhead in terms of maintenance and performance for a very minor space improvement.
 // TODO: Use a batched action for registering DoorTypes. This way, it can just roll back when/if something goes wrong.
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
