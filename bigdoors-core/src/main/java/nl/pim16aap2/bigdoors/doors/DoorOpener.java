@@ -53,7 +53,7 @@ public final class DoorOpener
      */
     public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(
         final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor, final @NotNull DoorActionCause cause,
-        final @NotNull IMessageable messageReceiver, final @NotNull IPPlayer responsible, final double time,
+        final @NotNull IMessageable messageReceiver, @Nullable IPPlayer responsible, final double time,
         final boolean skipAnimation, final @NotNull DoorActionType doorActionType)
     {
         return futureDoor.thenCompose(
@@ -64,8 +64,11 @@ public final class DoorOpener
                     PLogger.get().logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
                     return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
                 }
-                return animateDoorSendToMainThread(doorOpt.get(), cause, messageReceiver, responsible, time,
-                                                   skipAnimation, doorActionType);
+                final @NotNull IPPlayer finalResponsible = responsible == null ?
+                                                           doorOpt.get().getPrimeOwner().getPlayer() : responsible;
+
+                return animateDoorSendToMainThread(doorOpt.get(), cause, messageReceiver, finalResponsible,
+                                                   time, skipAnimation, doorActionType);
             });
     }
 
@@ -84,7 +87,7 @@ public final class DoorOpener
      */
     public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(
         final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor, final @NotNull DoorActionCause cause,
-        final @NotNull IPPlayer responsible, final double time, final boolean skipAnimation,
+        final @Nullable IPPlayer responsible, final double time, final boolean skipAnimation,
         final @NotNull DoorActionType doorActionType)
     {
         final @NotNull IMessageable messageReceiver = getMessageReceiver(responsible, cause);
@@ -154,7 +157,7 @@ public final class DoorOpener
     {
         if (responsible == null)
             responsible = door.getPrimeOwner().getPlayer();
-        
+
         return animateDoorSendToMainThread(door, cause, messageReceiver, responsible, time, skipAnimation,
                                            doorActionType);
     }

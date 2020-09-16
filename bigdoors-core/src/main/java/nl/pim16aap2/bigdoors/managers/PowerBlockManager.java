@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 /**
@@ -108,6 +107,11 @@ public final class PowerBlockManager extends Restartable
         powerBlockWorlds.put(worldUUID, new PowerBlockWorld(worldUUID));
     }
 
+    private CompletableFuture<Optional<AbstractDoorBase>> x(long uid)
+    {
+        return databaseManager.getDoor(uid);
+    }
+
     /**
      * Gets all {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      *
@@ -115,8 +119,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldUUID The {@link UUID} of the world.
      * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> doorsFromPowerBlockLoc(final @NotNull Vector3DiConst loc,
-                                                                                     final @NotNull UUID worldUUID)
+    // TODO: Try to have about 50% less CompletableFuture here.
+    public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoorBase>>>> doorsFromPowerBlockLoc(
+        final @NotNull Vector3DiConst loc, final @NotNull UUID worldUUID)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
         if (powerBlockWorld == null)
@@ -126,27 +131,12 @@ public final class PowerBlockManager extends Restartable
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
-        // TODO: Rewrite this mess.
-        final @NotNull List<Long> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
-        return CompletableFuture.supplyAsync(
-            () ->
+        final @NotNull CompletableFuture<List<Long>> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
+        return doorUIDs.handle(
+            (list, throwable) ->
             {
-                final @NotNull List<AbstractDoorBase> doorBases = new ArrayList<>();
-                doorUIDs.forEach(
-                    U ->
-                    {
-                        Optional<AbstractDoorBase> door;
-                        try
-                        {
-                            door = databaseManager.getDoor(U).get();
-                        }
-                        catch (InterruptedException | ExecutionException e)
-                        {
-                            pLogger.logThrowable(e);
-                            door = Optional.empty();
-                        }
-                        door.ifPresent(doorBases::add);
-                    });
+                final @NotNull List<CompletableFuture<Optional<AbstractDoorBase>>> doorBases = new ArrayList<>();
+                list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
             });
     }
@@ -251,8 +241,7 @@ public final class PowerBlockManager extends Restartable
      */
     private final class PowerBlockWorld implements IRestartable
     {
-        @NotNull
-        private final UUID world;
+        private final @NotNull UUID world;
         private volatile boolean isBigDoorsWorld = false;
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
@@ -261,8 +250,7 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
-        @NotNull
-        private final TimedMapCache<Long, PowerBlockChunk> powerBlockChunks =
+        private final @NotNull TimedMapCache<Long, PowerBlockChunk> powerBlockChunks =
             new TimedMapCache<>(restartableHolder, ConcurrentHashMap::new, config.cacheTimeout());
 
         private PowerBlockWorld(final @NotNull UUID world)
@@ -287,17 +275,35 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        @NotNull
-        private List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
+        private @NotNull CompletableFuture<List<Long>> getPowerBlocks(final @NotNull Vector3DiConst loc)
         {
             if (!isBigDoorsWorld())
-                return Collections.emptyList();
+                return CompletableFuture.completedFuture(Collections.emptyList());
 
             final long chunkHash = Util.simpleChunkHashFromLocation(loc.getX(), loc.getZ());
-            if (!powerBlockChunks.containsKey(chunkHash))
-                powerBlockChunks.put(chunkHash, new PowerBlockChunk(chunkHash));
 
-            return powerBlockChunks.get(chunkHash).getPowerBlocks(loc);
+            if (!powerBlockChunks.containsKey(chunkHash))
+            {
+                final @Nullable PowerBlockChunk powerBlockChunk =
+                    powerBlockChunks.put(chunkHash, new PowerBlockChunk());
+
+                final @NotNull CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> powerBlocks
+                    = DatabaseManager.get().getPowerBlockData(chunkHash);
+
+                return powerBlocks.handle(
+                    (map, exception) ->
+                    {
+                        if (powerBlockChunk != null)
+                            powerBlockChunk.setPowerBlocks(map);
+
+                        final @NotNull List<Long> doorUIDs = new ArrayList<>(map.size());
+                        map.forEach((key, value) -> doorUIDs.addAll(value));
+                        return doorUIDs;
+                    });
+            }
+            final @Nullable PowerBlockChunk entry = powerBlockChunks.get(chunkHash);
+            return CompletableFuture.completedFuture(entry == null ?
+                                                     Collections.emptyList() : entry.getPowerBlocks(loc));
         }
 
         /**
@@ -340,7 +346,6 @@ public final class PowerBlockManager extends Restartable
      */
     private final class PowerBlockChunk
     {
-        private final long chunkHash;
         /**
          * Map that contains all power blocks in this chunk.
          * <p>
@@ -349,12 +354,11 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: List of UIDs of all doors whose power block occupy this space.
          */
-        private Map<Integer, List<Long>> powerBlocks; // TODO: Make notnull
+        private @NotNull Map<Integer, List<Long>> powerBlocks = Collections.emptyMap();
 
-        private PowerBlockChunk(final long chunkHash)
+        private void setPowerBlocks(final @NotNull Map<Integer, List<Long>> powerBlocks)
         {
-            this.chunkHash = chunkHash;
-            checkPowerBlockChunkStatus();
+            this.powerBlocks = powerBlocks;
         }
 
         /**
@@ -363,8 +367,7 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        @NotNull
-        private List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
+        private @NotNull List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
         {
             if (!isPowerBlockChunk())
                 return Collections.emptyList();
@@ -380,27 +383,6 @@ public final class PowerBlockManager extends Restartable
          */
         private boolean isPowerBlockChunk()
         {
-            return powerBlocks.size() > 0;
-        }
-
-        /**
-         * Updates the power blocks mapped in this
-         * <p>
-         * This differs from {@link #isPowerBlockChunk()} in that this method queries the database.
-         *
-         * @return True if this chunk contains more than 0 doors.
-         */
-        private boolean checkPowerBlockChunkStatus()
-        {
-            try
-            {
-                powerBlocks = databaseManager.getPowerBlockData(chunkHash).get();
-            }
-            catch (InterruptedException | ExecutionException e)
-            {
-                pLogger.logThrowable(e);
-                powerBlocks = new ConcurrentHashMap<>();
-            }
             return powerBlocks.size() > 0;
         }
     }

@@ -41,7 +41,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     {
         plugin.getPLogger()
               .sendMessageToTarget(sender, Level.INFO,
-                                   time < 0 ?
+                                   time > 0 ?
                                    messages.getString(Message.COMMAND_SETTIME_SUCCESS, Integer.toString(time)) :
                                    messages.getString(Message.COMMAND_SETTIME_DISABLED));
     }
