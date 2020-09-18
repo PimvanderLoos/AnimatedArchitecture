@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -31,19 +30,13 @@ import java.util.logging.Level;
  */
 public final class PowerBlockManager extends Restartable
 {
-    @NotNull
-    private final Map<UUID, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
-    @NotNull
-    private final IConfigLoader config;
-    @NotNull
-    private final DatabaseManager databaseManager;
-    @NotNull
-    private final PLogger pLogger;
+    private final @NotNull Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
+    private final @NotNull IConfigLoader config;
+    private final @NotNull DatabaseManager databaseManager;
+    private final @NotNull PLogger pLogger;
 
-    @Nullable
-    private static PowerBlockManager instance;
-    @NotNull
-    private final IRestartableHolder restartableHolder;
+    private static @Nullable PowerBlockManager instance;
+    private final @NotNull IRestartableHolder restartableHolder;
 
     private PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
                               final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
@@ -90,44 +83,38 @@ public final class PowerBlockManager extends Restartable
     /**
      * Unloads a world from the cache.
      *
-     * @param worldUUID The world the unload.
+     * @param worldName The name of the world the unload.
      */
-    public void unloadWorld(final @NotNull UUID worldUUID)
+    public void unloadWorld(final @NotNull String worldName)
     {
-        powerBlockWorlds.remove(worldUUID);
+        powerBlockWorlds.remove(worldName);
     }
 
     /**
      * Loads a world.
      *
-     * @param worldUUID The world the unload.
+     * @param worldName The name of the world.
      */
-    public void loadWorld(final @NotNull UUID worldUUID)
+    public void loadWorld(final @NotNull String worldName)
     {
-        powerBlockWorlds.put(worldUUID, new PowerBlockWorld(worldUUID));
-    }
-
-    private CompletableFuture<Optional<AbstractDoorBase>> x(long uid)
-    {
-        return databaseManager.getDoor(uid);
+        powerBlockWorlds.put(worldName, new PowerBlockWorld(worldName));
     }
 
     /**
      * Gets all {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      *
      * @param loc       The location.
-     * @param worldUUID The {@link UUID} of the world.
+     * @param worldName The name of the world.
      * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
     public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoorBase>>>> doorsFromPowerBlockLoc(
-        final @NotNull Vector3DiConst loc, final @NotNull UUID worldUUID)
+        final @NotNull Vector3DiConst loc, final @NotNull String worldName)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
@@ -144,16 +131,15 @@ public final class PowerBlockManager extends Restartable
     /**
      * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 doors.
      *
-     * @param worldUUID The world.
+     * @param worldName The name of the world.
      * @return True if the world contains at least 1 door.
      */
-    public boolean isBigDoorsWorld(final @NotNull UUID worldUUID)
+    public boolean isBigDoorsWorld(final @NotNull String worldName)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
             return false;
         }
         return powerBlockWorld.isBigDoorsWorld();
@@ -170,12 +156,11 @@ public final class PowerBlockManager extends Restartable
                                     final @NotNull Vector3DiConst newPos)
     {
         door.setPowerBlockPosition(newPos).syncBaseData();
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getUUID());
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getWorldName());
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" +
-                                   door.getWorld().getUUID().toString() + "\".");
+                               "Failed to load power blocks for world: \"" + door.getWorld().getWorldName() + "\".");
             return;
         }
 
@@ -187,16 +172,15 @@ public final class PowerBlockManager extends Restartable
     /**
      * Invalidates the cache for when a door is either added to a world or removed from it.
      *
-     * @param worldUUID The world of the door.
+     * @param worldName The name of the world of the door.
      * @param pos       The position of the door's power block.
      */
-    public void onDoorAddOrRemove(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst pos)
+    public void onDoorAddOrRemove(final @NotNull String worldName, final @NotNull Vector3DiConst pos)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -206,16 +190,15 @@ public final class PowerBlockManager extends Restartable
     /**
      * Invalidates the cache of a chunk in a world.
      *
-     * @param worldUUID The UUID of the world.
+     * @param worldName The name of the world.
      * @param chunk     The location (x,z) of the chunk in chunk-space.
      */
-    public void invalidateChunk(final @NotNull UUID worldUUID, final @NotNull Vector2DiConst chunk)
+    public void invalidateChunk(final @NotNull String worldName, final @NotNull Vector2DiConst chunk)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldUUID);
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + worldUUID.toString() + "\".");
+            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.getX(), 64, chunk.getY()));
@@ -241,7 +224,7 @@ public final class PowerBlockManager extends Restartable
      */
     private final class PowerBlockWorld implements IRestartable
     {
-        private final @NotNull UUID world;
+        private final @NotNull String worldName;
         private volatile boolean isBigDoorsWorld = false;
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
@@ -253,9 +236,9 @@ public final class PowerBlockManager extends Restartable
         private final @NotNull TimedMapCache<Long, PowerBlockChunk> powerBlockChunks =
             new TimedMapCache<>(restartableHolder, ConcurrentHashMap::new, config.cacheTimeout());
 
-        private PowerBlockWorld(final @NotNull UUID world)
+        private PowerBlockWorld(final @NotNull String worldName)
         {
-            this.world = world;
+            this.worldName = worldName;
             checkBigDoorsWorldStatus();
         }
 
@@ -323,7 +306,7 @@ public final class PowerBlockManager extends Restartable
          */
         private void checkBigDoorsWorldStatus()
         {
-            databaseManager.isBigDoorsWorld(world).whenComplete((result, throwable) -> isBigDoorsWorld = result);
+            databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result);
         }
 
         @Override
@@ -344,7 +327,7 @@ public final class PowerBlockManager extends Restartable
      *
      * @author Pim
      */
-    private final class PowerBlockChunk
+    private static final class PowerBlockChunk
     {
         /**
          * Map that contains all power blocks in this chunk.

@@ -118,6 +118,8 @@ import java.util.Set;
 //       guardian beams or glowing blocks for the edges of the door, and red glowing blocks to show
 //       which blocks have been excluded so far.
 //       Store them as a list or something in the database (in the top level table).
+// TODO: New door type (kinda like a camera shutter):
+//       https://www.reddit.com/r/Minecraft/comments/isl5ej/i_made_an_iris_with_command_blocks/
 
 /*
  * General
@@ -306,8 +308,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
-// TODO: Consider not storing the worlds in their own table, but just making them part of the door base table.
-//       This just adds so much overhead in terms of maintenance and performance for a very minor space improvement.
 // TODO: Use a batched action for registering DoorTypes. This way, it can just roll back when/if something goes wrong.
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
@@ -337,8 +337,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       function that takes the array of Objects and returns a new array of Objects that should be put in the new
 //       type-specific table. All this should be done off the main thread and the database should be locked until it's done.
 // TODO: Be consistent in UUID usage. Either use Strings everywhere or UUIDs everywhere, not the current mix.
-// TODO: Add more overloaded methods for different types to make stuff easier to use. For example, if a method expexts
-//       a Player's UUID, don't just have a method for the IPPlayer, but also for the UUID. Same for worlds, etc.
+// TODO: Add more overloaded methods for different types to make stuff easier to use. For example, if a method expects
+//       a Player's UUID, don't just have a method for the IPPlayer, but also for the UUID.
 // TODO: When registering DoorTypes, make sure to take into account that the database might be upgrading itself on
 //       another thread. If this is the case, wait until the upgrades have finished before registering them.
 //       Just return a CompletableFuture<Boolean> instead of a boolean from the register method.

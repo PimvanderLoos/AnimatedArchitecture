@@ -243,7 +243,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             // as well and don't set it up.
             if (!conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
             {
-                executeUpdate(conn, SQLStatement.CREATE_TABLE_WORLD.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORTYPE.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORBASE.constructPPreparedStatement());
@@ -300,7 +299,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                      doorBaseRS.getInt("powerBlockZ"));
 
         final @NotNull IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
-                                               .create(UUID.fromString(doorBaseRS.getString("worldUUID")));
+                                               .create(doorBaseRS.getString("world"));
 
         final long bitflag = doorBaseRS.getLong("bitflag");
         final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), bitflag);
@@ -536,32 +535,33 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         return executeUpdate(conn, SQLStatement.UPDATE_DOOR_BASE
             .constructPPreparedStatement()
-            .setString(1, simpleDoorData.getName())
+            .setNextString(simpleDoorData.getName())
+            .setNextString(simpleDoorData.getWorld().getWorldName())
 
-            .setInt(2, simpleDoorData.getCuboid().getMin().getX())
-            .setInt(3, simpleDoorData.getCuboid().getMin().getY())
-            .setInt(4, simpleDoorData.getCuboid().getMin().getZ())
+            .setNextInt(simpleDoorData.getCuboid().getMin().getX())
+            .setNextInt(simpleDoorData.getCuboid().getMin().getY())
+            .setNextInt(simpleDoorData.getCuboid().getMin().getZ())
 
-            .setInt(5, simpleDoorData.getCuboid().getMax().getX())
-            .setInt(6, simpleDoorData.getCuboid().getMax().getY())
-            .setInt(7, simpleDoorData.getCuboid().getMax().getZ())
+            .setNextInt(simpleDoorData.getCuboid().getMax().getX())
+            .setNextInt(simpleDoorData.getCuboid().getMax().getY())
+            .setNextInt(simpleDoorData.getCuboid().getMax().getZ())
 
-            .setInt(8, simpleDoorData.getEngine().getX())
-            .setInt(9, simpleDoorData.getEngine().getY())
-            .setInt(10, simpleDoorData.getEngine().getZ())
-            .setLong(11, Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().getX(),
+            .setNextInt(simpleDoorData.getEngine().getX())
+            .setNextInt(simpleDoorData.getEngine().getY())
+            .setNextInt(simpleDoorData.getEngine().getZ())
+            .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().getX(),
                                                           simpleDoorData.getEngine().getZ()))
 
-            .setInt(12, simpleDoorData.getPowerBlock().getX())
-            .setInt(13, simpleDoorData.getPowerBlock().getY())
-            .setInt(14, simpleDoorData.getPowerBlock().getZ())
-            .setLong(15, Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().getX(),
+            .setNextInt(simpleDoorData.getPowerBlock().getX())
+            .setNextInt(simpleDoorData.getPowerBlock().getY())
+            .setNextInt(simpleDoorData.getPowerBlock().getZ())
+            .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().getX(),
                                                           simpleDoorData.getPowerBlock().getZ()))
 
-            .setInt(16, RotateDirection.getValue(simpleDoorData.getOpenDirection()))
-            .setLong(17, getFlag(simpleDoorData.isOpen(), simpleDoorData.isLocked()))
+            .setNextInt(RotateDirection.getValue(simpleDoorData.getOpenDirection()))
+            .setNextLong(getFlag(simpleDoorData.isOpen(), simpleDoorData.isLocked()))
 
-            .setLong(18, simpleDoorData.getUid())) > 0;
+            .setNextLong(simpleDoorData.getUid())) > 0;
     }
 
     @Override
@@ -646,9 +646,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull String playerUUID = door.getPrimeOwner().getPlayer().getUUID().toString();
         final @NotNull String playerName = door.getPrimeOwner().getPlayer().getName();
-        final @NotNull String worldUUID = door.getWorld().getUUID().toString();
-
-        executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_WORLD.constructPPreparedStatement().setString(1, worldUUID));
+        final @NotNull String worldName = door.getWorld().getWorldName();
 
         executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER.constructPPreparedStatement()
                                                                 .setString(1, playerUUID)
@@ -658,25 +656,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final long powerBlockHash = Util
             .simpleChunkHashFromLocation(door.getPowerBlock().getX(), door.getPowerBlock().getZ());
         executeUpdate(conn, SQLStatement.INSERT_DOOR_BASE.constructPPreparedStatement()
-                                                         .setString(1, door.getName())
-                                                         .setString(2, worldUUID)
-                                                         .setLong(3, doorTypeID)
-                                                         .setInt(4, door.getMinimum().getX())
-                                                         .setInt(5, door.getMinimum().getY())
-                                                         .setInt(6, door.getMinimum().getZ())
-                                                         .setInt(7, door.getMaximum().getX())
-                                                         .setInt(8, door.getMaximum().getY())
-                                                         .setInt(9, door.getMaximum().getZ())
-                                                         .setInt(10, door.getEngine().getX())
-                                                         .setInt(11, door.getEngine().getY())
-                                                         .setInt(12, door.getEngine().getZ())
-                                                         .setLong(13, engineHash)
-                                                         .setInt(14, door.getPowerBlock().getX())
-                                                         .setInt(15, door.getPowerBlock().getY())
-                                                         .setInt(16, door.getPowerBlock().getZ())
-                                                         .setLong(17, powerBlockHash)
-                                                         .setLong(18, getFlag(door))
-                                                         .setInt(19, RotateDirection.getValue(door.getOpenDir())));
+                                                         .setNextString(door.getName())
+                                                         .setNextString(worldName)
+                                                         .setNextLong(doorTypeID)
+                                                         .setNextInt(door.getMinimum().getX())
+                                                         .setNextInt(door.getMinimum().getY())
+                                                         .setNextInt(door.getMinimum().getZ())
+                                                         .setNextInt(door.getMaximum().getX())
+                                                         .setNextInt(door.getMaximum().getY())
+                                                         .setNextInt(door.getMaximum().getZ())
+                                                         .setNextInt(door.getEngine().getX())
+                                                         .setNextInt(door.getEngine().getY())
+                                                         .setNextInt(door.getEngine().getZ())
+                                                         .setNextLong(engineHash)
+                                                         .setNextInt(door.getPowerBlock().getX())
+                                                         .setNextInt(door.getPowerBlock().getY())
+                                                         .setNextInt(door.getPowerBlock().getZ())
+                                                         .setNextLong(powerBlockHash)
+                                                         .setNextLong(getFlag(door))
+                                                         .setNextInt(RotateDirection.getValue(door.getOpenDir())));
 
         final @NotNull PPreparedStatement pPreparedStatement
             = new PPreparedStatement(typeSpecificDataInsertStatement.getArgumentCount(),
@@ -851,10 +849,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean isBigDoorsWorld(final @NotNull UUID worldUUID)
+    public boolean isBigDoorsWorld(final @NotNull String worldName)
     {
         return executeQuery(SQLStatement.IS_BIGDOORS_WORLD.constructPPreparedStatement()
-                                                          .setString(1, worldUUID.toString()),
+                                                          .setString(1, worldName),
                             ResultSet::next, false);
     }
 

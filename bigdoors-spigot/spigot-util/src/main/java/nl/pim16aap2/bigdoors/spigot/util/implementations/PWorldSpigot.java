@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.WorldTime;
@@ -8,8 +9,6 @@ import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 /**
  * Represents an implementation of {@link IPWorld} for the Spigot platform.
  *
@@ -17,37 +16,24 @@ import java.util.UUID;
  */
 public final class PWorldSpigot implements IPWorld
 {
-    @NotNull
-    private final UUID uuid;
-    @Nullable
-    private final World world;
+    @Getter(onMethod = @__({@Override}))
+    private final @NotNull String worldName;
+    private final @Nullable World world;
 
-    public PWorldSpigot(final @NotNull UUID worldUUID)
+    public PWorldSpigot(final @NotNull String worldName)
     {
-        uuid = worldUUID;
-        final @Nullable World bukkitWorld = Bukkit.getWorld(worldUUID);
+        this.worldName = worldName;
+        final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null)
             PLogger.get().logThrowable(
-                new NullPointerException("World \"" + worldUUID.toString() + "\" could not be found!"));
+                new NullPointerException("World \"" + worldName + "\" could not be found!"));
         world = bukkitWorld;
     }
 
     public PWorldSpigot(final @NotNull World world)
     {
-        uuid = world.getUID();
+        worldName = world.getName();
         this.world = world;
-    }
-
-    @Override
-    public @NotNull String getName()
-    {
-        return world == null ? "ERROR" : world.getName();
-    }
-
-    @Override
-    public @NotNull UUID getUUID()
-    {
-        return uuid;
     }
 
     @Override
@@ -75,8 +61,7 @@ public final class PWorldSpigot implements IPWorld
     @Override
     public @NotNull String toString()
     {
-        String worldName = world == null ? "" : (" (" + world.getName() + ")");
-        return uuid.toString() + worldName;
+        return worldName;
     }
 
     @Override
@@ -88,13 +73,13 @@ public final class PWorldSpigot implements IPWorld
             return false;
         if (getClass() != o.getClass())
             return false;
-        return getUUID().equals(((IPWorld) o).getUUID());
+        return worldName.equals(((IPWorld) o).getWorldName());
     }
 
     @Override
     public int hashCode()
     {
-        return getUUID().hashCode();
+        return worldName.hashCode();
     }
 
     @Override

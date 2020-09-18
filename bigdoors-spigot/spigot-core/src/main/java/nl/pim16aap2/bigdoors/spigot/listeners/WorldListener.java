@@ -17,17 +17,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WorldListener implements Listener
 {
-    @Nullable
-    private static WorldListener instance;
+    private static @Nullable WorldListener instance;
 
-    @NotNull
-    private final PowerBlockManager powerBlockManager;
+    private final @NotNull PowerBlockManager powerBlockManager;
 
     private WorldListener(final @NotNull PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;
-        for (World world : Bukkit.getWorlds())
-            powerBlockManager.loadWorld(world.getUID());
+        for (final @NotNull World world : Bukkit.getWorlds())
+            powerBlockManager.loadWorld(world.getName());
     }
 
     /**
@@ -44,13 +42,13 @@ public class WorldListener implements Listener
     @EventHandler(ignoreCancelled = true)
     public void onWorldLoad(final WorldLoadEvent event)
     {
-        powerBlockManager.loadWorld(event.getWorld().getUID());
+        powerBlockManager.loadWorld(event.getWorld().getName());
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onWorldUnload(final WorldUnloadEvent event)
     {
-        powerBlockManager.unloadWorld(event.getWorld().getUID());
+        powerBlockManager.unloadWorld(event.getWorld().getName());
     }
 
 }

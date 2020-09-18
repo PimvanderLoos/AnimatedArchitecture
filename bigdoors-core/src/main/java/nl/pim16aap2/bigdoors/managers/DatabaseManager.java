@@ -139,7 +139,7 @@ public final class DatabaseManager extends Restartable
                 final @NotNull Optional<AbstractDoorBase> result = db.insert(newDoor);
                 result.ifPresent(
                     (door) -> BigDoors.get().getPowerBlockManager()
-                                      .onDoorAddOrRemove(door.getWorld().getUUID(), new Vector3Di(
+                                      .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(
                                           door.getPowerBlock().getX(),
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
@@ -161,10 +161,11 @@ public final class DatabaseManager extends Restartable
             {
                 boolean result = db.removeDoor(door.getDoorUID());
                 if (result)
-                    BigDoors.get().getPowerBlockManager().onDoorAddOrRemove(door.getWorld().getUUID(), new Vector3Di(
-                        door.getPowerBlock().getX(),
-                        door.getPowerBlock().getY(),
-                        door.getPowerBlock().getZ()));
+                    BigDoors.get().getPowerBlockManager()
+                            .onDoorAddOrRemove(door.getWorld().getWorldName(),
+                                               new Vector3Di(door.getPowerBlock().getX(),
+                                                             door.getPowerBlock().getY(),
+                                                             door.getPowerBlock().getZ()));
                 return result;
             }, threadPool);
     }
@@ -435,12 +436,12 @@ public final class DatabaseManager extends Restartable
     /**
      * Checks if a world contains any big doors.
      *
-     * @param world The world.
+     * @param worldName The name of the world.
      * @return True if at least 1 door exists in the world.
      */
-    @NotNull CompletableFuture<Boolean> isBigDoorsWorld(final @NotNull UUID world)
+    @NotNull CompletableFuture<Boolean> isBigDoorsWorld(final @NotNull String worldName)
     {
-        return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(world), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool);
     }
 
     /**

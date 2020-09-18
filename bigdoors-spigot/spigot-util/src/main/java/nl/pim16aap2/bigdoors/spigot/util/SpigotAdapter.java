@@ -33,7 +33,7 @@ public final class SpigotAdapter
     {
         if (pWorld instanceof PWorldSpigot)
             return ((PWorldSpigot) pWorld).getBukkitWorld();
-        return Bukkit.getWorld(pWorld.getUUID());
+        return Bukkit.getWorld(pWorld.getWorldName());
     }
 
     /**

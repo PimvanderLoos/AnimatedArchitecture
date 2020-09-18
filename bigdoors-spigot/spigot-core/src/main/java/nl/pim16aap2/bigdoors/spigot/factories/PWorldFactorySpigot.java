@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 /**
  * Represents an implementation of {@link IPLocationFactory} for the Spigot platform.
  *
@@ -16,8 +14,8 @@ import java.util.UUID;
 public class PWorldFactorySpigot implements IPWorldFactory
 {
     @Override
-    public @NotNull IPWorld create(final @NotNull UUID worldUUID)
+    public @NotNull IPWorld create(final @NotNull String worldName)
     {
-        return new PWorldSpigot(worldUUID);
+        return new PWorldSpigot(worldName);
     }
 }

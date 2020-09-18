@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 /**
  * Represents a factory for {@link IPLocation} objects.
  *
@@ -47,29 +45,29 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param worldUUID The uuid of the world.
+     * @param worldName The name of the world.
      * @param x         The x coordinate.
      * @param y         The y coordinate.
      * @param z         The z coordinate.
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z);
+    @NotNull IPLocation create(final @NotNull String worldName, final double x, final double y, final double z);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param worldUUID The uuid of the world.
+     * @param worldName The name of the world.
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position);
+    @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param worldUUID The uuid of the world.
+     * @param worldName The name of the world.
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position);
+    @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DdConst position);
 }

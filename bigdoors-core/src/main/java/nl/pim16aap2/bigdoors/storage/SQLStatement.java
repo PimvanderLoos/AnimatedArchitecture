@@ -14,6 +14,7 @@ public enum SQLStatement
     UPDATE_DOOR_BASE(
         "UPDATE DoorBase SET\n" +
             "     name           = ?,\n" +
+            "     world          = ?,\n" +
             "     xMin           = ?,\n" +
             "     yMin           = ?,\n" +
             "     zMin           = ?,\n" +
@@ -119,11 +120,10 @@ public enum SQLStatement
     ),
 
     IS_BIGDOORS_WORLD(
-        "SELECT World.id \n" +
+        "SELECT world \n" +
             "FROM DoorBase \n" +
-            "INNER JOIN World ON DoorBase.world = World.id \n" +
-            "WHERE World.worldUUID = ? \n" +
-            "LIMIT 1;"
+            "WHERE world = ? \n" +
+            "LIMIT 1;\n"
     ),
 
     DELETE_DOOR(
@@ -139,12 +139,11 @@ public enum SQLStatement
     ),
 
     GET_DOOR_BASE_FROM_ID(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
             "    FROM DoorBase \n" +
             "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
             "    WHERE DoorBase.id = ? AND DoorOwnerPlayer.permission = 0;"
     ),
 
@@ -158,42 +157,38 @@ public enum SQLStatement
     ),
 
     GET_DOOR_BASE_FROM_ID_FOR_PLAYER(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
             "    FROM DoorBase \n" +
             "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
             "    WHERE DoorBase.id = ? AND Player.playerUUID = ?;"
     ),
 
     GET_NAMED_DOORS_OWNED_BY_PLAYER(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
             "    FROM DoorBase \n" +
             "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
             "    WHERE Player.playerUUID = ? AND DoorBase.name = ? And DoorOwnerPlayer.permission <= ?;"
     ),
 
     GET_DOORS_WITH_NAME(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
             "    FROM DoorBase \n" +
             "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
             "    WHERE DoorBase.name = ? And DoorOwnerPlayer.permission = 0;"
     ),
 
     GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL(
-        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, World.worldUUID, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.playerUUID, Player.playerName, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
             "    FROM DoorBase \n" +
             "    INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "    INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "    INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
-            "    INNER JOIN World ON DoorBase.world = World.id\n" +
             "    WHERE Player.playerUUID = ? AND DoorOwnerPlayer.permission <= ?;"
     ),
 
@@ -206,18 +201,6 @@ public enum SQLStatement
             "         WHERE DoorType.typeTableName = ?\n" +
             "    ) AS TypeTable\n" +
             "    WHERE TypeSpecificTable.doorUID = ?;"
-    ),
-
-    INSERT_OR_IGNORE_WORLD(
-        "INSERT OR IGNORE INTO World(worldUUID) VALUES(?);"
-    ),
-
-    SELECT_WORLD_FROM_DATA(
-        "SELECT * FROM World WHERE worldUUID = ?;"
-    ),
-
-    SELECT_WORLD_FROM_ID(
-        "SELECT * FROM World WHERE id = ?;"
     ),
 
     /**
@@ -265,11 +248,7 @@ public enum SQLStatement
         "INSERT INTO DoorBase\n" +
             "    (name, world, doorType, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash," +
             " powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, bitflag, openDirection)\n" +
-            "    VALUES (?,\n" +
-            "    (SELECT id\n" +
-            "     FROM World\n" +
-            "     WHERE World.worldUUID = ?)\n" +
-            "    , ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+            "    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
     ),
 
     /**
@@ -311,13 +290,6 @@ public enum SQLStatement
         "PRAGMA foreign_keys = OFF;"
     ),
 
-    CREATE_TABLE_WORLD(
-        "CREATE TABLE IF NOT EXISTS World\n" +
-            "    (id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-            "     worldUUID      TEXT       NOT NULL,\n" +
-            "     unique(worldUUID));"
-    ),
-
     CREATE_TABLE_PLAYER(
         "CREATE TABLE IF NOT EXISTS Player\n" +
             "    (id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
@@ -341,7 +313,7 @@ public enum SQLStatement
         "CREATE TABLE IF NOT EXISTS DoorBase\n" +
             "    (id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
             "     name           TEXT       NOT NULL,\n" +
-            "     world          REFERENCES World(id)    ON UPDATE CASCADE ON DELETE CASCADE,\n" +
+            "     world          TEXT       NOT NULL,\n" +
             "     doorType       REFERENCES DoorType(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
             "     xMin           INTEGER    NOT NULL,\n" +
             "     yMin           INTEGER    NOT NULL,\n" +

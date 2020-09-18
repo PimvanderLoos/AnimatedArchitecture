@@ -282,6 +282,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param actionType      The type of action.
      * @return The result of the attempt.
      */
+    // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
+    //       These aren't necessarily the same entity.
     final synchronized @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
                                                         final @NotNull IMessageable messageReceiver,
                                                         final @NotNull IPPlayer responsible, final double time,
@@ -610,7 +612,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                .append("\n");
         builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
-        builder.append("World: ").append(getWorld().getUUID().toString()).append("\n");
+        builder.append("World: ").append(getWorld().getWorldName()).append("\n");
         builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
@@ -640,7 +642,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         return doorUID == other.doorUID && name.equals(other.name) && cuboid.equals(other.cuboid) &&
             engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) && open == other.open &&
             primeOwner.equals(other.primeOwner) && locked == other.locked &&
-            world.getUUID().equals(other.world.getUUID());
+            world.getWorldName().equals(other.world.getWorldName());
     }
 
 

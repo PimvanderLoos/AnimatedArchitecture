@@ -94,10 +94,8 @@ public class CreatorTestsUtil
     protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
     protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected @NotNull String doorName = "testDoor123";
-    protected @NotNull IPWorld world =
-        UnitTestUtil.PLATFORM.getPWorldFactory().create(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db8"));
-    protected @NotNull IPWorld world2 =
-        UnitTestUtil.PLATFORM.getPWorldFactory().create(UUID.fromString("9ba0de97-01ef-4b4f-b12c-025ff84a6931"));
+    protected @NotNull IPWorld world = UnitTestUtil.PLATFORM.getPWorldFactory().create("world");
+    protected @NotNull IPWorld world2 = UnitTestUtil.PLATFORM.getPWorldFactory().create("world2");
     protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER);

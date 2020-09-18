@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class TestPLocationFactory implements IPLocationFactory
 {
     @Override
@@ -31,22 +29,22 @@ public class TestPLocationFactory implements IPLocationFactory
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final double x, final double y, final double z)
+    public @NotNull IPLocation create(final @NotNull String worldName, final double x, final double y, final double z)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID), x, y, z);
+        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName), x, y, z);
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DiConst position)
+    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DiConst position)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID),
+        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
                       position.getX(), position.getY(), position.getZ());
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull UUID worldUUID, final @NotNull Vector3DdConst position)
+    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DdConst position)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldUUID),
+        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
                       position.getX(), position.getY(), position.getZ());
     }
 }

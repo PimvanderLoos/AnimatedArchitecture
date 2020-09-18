@@ -72,10 +72,10 @@ public interface IStorage
     /**
      * Checks whether or not there are any doors in a given world.
      *
-     * @param worldUUID The world.
-     * @return True if there are more than 0 doors in a given world.
+     * @param worldName The name of the world.
+     * @return True if there are more than 0 doors in the given world.
      */
-    boolean isBigDoorsWorld(final @NotNull UUID worldUUID);
+    boolean isBigDoorsWorld(final @NotNull String worldName);
 
     /**
      * Gets the total number of doors own by the given player.

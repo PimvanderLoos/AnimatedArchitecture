@@ -22,12 +22,10 @@ import java.util.regex.Pattern;
  */
 public class PPreparedStatement
 {
-    @NotNull
-    private final Action[] actions;
-    @NotNull
-    private String statement;
-    @NotNull
-    public static final Pattern QUESTION_MARK = Pattern.compile("\\?");
+    private final @NotNull Action[] actions;
+    private @NotNull String statement;
+    public static final @NotNull Pattern QUESTION_MARK = Pattern.compile("\\?");
+    private int currentIDX = 1;
 
     /**
      * Keeps track of the number of variables that should be skipped.
@@ -304,7 +302,7 @@ public class PPreparedStatement
      * @param obj The name of the table.
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setRawString(final int idx, final String obj)
+    public @NotNull PPreparedStatement setRawString(final int idx, final @NotNull String obj)
     {
         if (!IStorage.isValidTableName(obj))
         {
@@ -342,13 +340,38 @@ public class PPreparedStatement
 
     /**
      * See {@link PreparedStatement#setBoolean(int, boolean)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setBoolean(final int idx, final boolean obj)
+    public @NotNull PPreparedStatement setNextBoolean(final @NotNull Boolean obj)
     {
+        return setBoolean(currentIDX, obj);
+    }
+
+    /**
+     * See {@link PreparedStatement#setBoolean(int, boolean)}.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setBoolean(final int idx, final @NotNull Boolean obj)
+    {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setBoolean, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setByte(int, byte)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextByte(final @NotNull Byte obj)
+    {
+        return setByte(currentIDX, obj);
     }
 
     /**
@@ -356,10 +379,23 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setByte(final int idx, final byte obj)
+    public @NotNull PPreparedStatement setByte(final int idx, final @NotNull Byte obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setByte, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setShort(int, short)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextShort(final @NotNull Short obj)
+    {
+        return setShort(currentIDX, obj);
     }
 
     /**
@@ -367,10 +403,23 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setShort(final int idx, final short obj)
+    public @NotNull PPreparedStatement setShort(final int idx, final @NotNull Short obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setShort, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setInt(int, int)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextInt(final @NotNull Integer obj)
+    {
+        return setInt(currentIDX, obj);
     }
 
     /**
@@ -378,10 +427,23 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setInt(final int idx, final int obj)
+    public @NotNull PPreparedStatement setInt(final int idx, final @NotNull Integer obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setInt, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setLong(int, long)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextLong(final @NotNull Long obj)
+    {
+        return setLong(currentIDX, obj);
     }
 
     /**
@@ -389,10 +451,23 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setLong(final int idx, final long obj)
+    public @NotNull PPreparedStatement setLong(final int idx, final @NotNull Long obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setLong, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setFloat(int, float)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextFloat(final @NotNull Float obj)
+    {
+        return setFloat(currentIDX, obj);
     }
 
     /**
@@ -400,19 +475,47 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setFloat(final int idx, final float obj)
+    public @NotNull PPreparedStatement setFloat(final int idx, final @NotNull Float obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setFloat, idx - skipCount, obj);
         return this;
     }
 
     /**
      * See {@link PreparedStatement#setDouble(int, double)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setDouble(final int idx, final @NotNull Object obj)
+    public @NotNull PPreparedStatement setNextDouble(final @NotNull Double obj)
     {
+        return setDouble(currentIDX, obj);
+    }
+
+    /**
+     * See {@link PreparedStatement#setDouble(int, double)}.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setDouble(final int idx, final @NotNull Double obj)
+    {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setDouble, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setBigDecimal(int, BigDecimal)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextBigDecimal(final @NotNull BigDecimal obj)
+    {
+        return setBigDecimal(currentIDX, obj);
     }
 
     /**
@@ -422,8 +525,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setBigDecimal(final int idx, final @NotNull BigDecimal obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setBigDecimal, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setString(int, String)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextString(final @NotNull String obj)
+    {
+        return setString(currentIDX, obj);
     }
 
     /**
@@ -433,8 +549,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setString(final int idx, final @NotNull String obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setString, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setBytes(int, byte[])}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextBytes(final @NotNull byte[] obj)
+    {
+        return setBytes(currentIDX, obj);
     }
 
     /**
@@ -444,8 +573,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setBytes(final int idx, final @NotNull byte[] obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setBytes, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setDate(int, Date)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextDate(final @NotNull Date obj)
+    {
+        return setDate(currentIDX, obj);
     }
 
     /**
@@ -455,8 +597,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setDate(final int idx, final @NotNull Date obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setDate, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setTime(int, Time)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextTime(final @NotNull Time obj)
+    {
+        return setTime(currentIDX, obj);
     }
 
     /**
@@ -466,8 +621,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setTime(final int idx, final @NotNull Time obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setTime, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setTimestamp(int, Timestamp)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextTimestamp(final @NotNull Timestamp obj)
+    {
+        return setTimestamp(currentIDX, obj);
     }
 
     /**
@@ -477,8 +645,21 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setTimestamp(final int idx, final @NotNull Timestamp obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setTimestamp, idx - skipCount, obj);
         return this;
+    }
+
+    /**
+     * See {@link PreparedStatement#setObject(int, Object)}.
+     * <p>
+     * The index used is simply the one following from the previous set action.
+     *
+     * @return This {@link PPreparedStatement}.
+     */
+    public @NotNull PPreparedStatement setNextObject(final @NotNull Object obj)
+    {
+        return setObject(currentIDX, obj);
     }
 
     /**
@@ -488,6 +669,7 @@ public class PPreparedStatement
      */
     public @NotNull PPreparedStatement setObject(final int idx, final @NotNull Object obj)
     {
+        currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setObject, idx - skipCount, obj);
         return this;
     }

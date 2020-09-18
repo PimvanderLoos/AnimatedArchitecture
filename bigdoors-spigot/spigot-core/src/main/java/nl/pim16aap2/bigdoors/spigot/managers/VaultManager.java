@@ -96,7 +96,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             return true;
 
         final double price = priceOpt.getAsDouble();
-        if (withdrawPlayer(spigotPlayer, world.getName(), price))
+        if (withdrawPlayer(spigotPlayer, world.getWorldName(), price))
         {
             player.sendMessage(plugin.getMessages().getString(Message.CREATOR_GENERAL_MONEYWITHDRAWN,
                                                               Double.toString(price)));

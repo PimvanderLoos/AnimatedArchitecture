@@ -357,7 +357,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean verifyWorldMatch(final @NotNull IPLocationConst loc)
     {
-        if (world.getUUID().equals(loc.getWorld().getUUID()))
+        if (world.getWorldName().equals(loc.getWorld().getWorldName()))
             return true;
         PLogger.get().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
         return false;
@@ -468,7 +468,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeSetPowerBlockStep(final @NotNull IPLocationConst loc)
     {
-        if (!loc.getWorld().getUUID().equals(world.getUUID()))
+        if (!loc.getWorld().getWorldName().equals(world.getWorldName()))
             return false;
 
         if (!playerHasAccessToLocation(loc))

@@ -108,8 +108,8 @@ public class ChunkListener implements Listener
     public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
     {
         BigDoors.get().getPowerBlockManager()
-                .invalidateChunk(event.getWorld().getUID(), new Vector2Di(event.getChunk().getX(),
-                                                                          event.getChunk().getZ()));
+                .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
+                                                                           event.getChunk().getZ()));
         try
         {
             // If this class couldn't figure out reflection properly, give up.

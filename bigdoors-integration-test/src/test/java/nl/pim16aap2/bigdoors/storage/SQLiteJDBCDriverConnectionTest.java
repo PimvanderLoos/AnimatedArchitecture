@@ -63,7 +63,7 @@ public class SQLiteJDBCDriverConnectionTest
     private static final String DELETEDOORNAME = "deletemeh";
 
     @NotNull
-    private static final UUID worldUUID = UUID.fromString("ea163ae7-de27-4b3e-b642-d459d56bb360");
+    private static final String worldName = "TestWorld";
     @NotNull
     private static final UUID player1UUID = UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935");
     @NotNull
@@ -84,7 +84,7 @@ public class SQLiteJDBCDriverConnectionTest
     private static final String player4Name = "TypeTester";
 
     @NotNull
-    private static final IPWorld world = new TestPWorld(worldUUID);
+    private static final IPWorld world = new TestPWorld(worldName);
 
     @NotNull
     private static final IPPlayer player1 = new TestPPlayer(player1UUID, player1Name);
@@ -122,7 +122,7 @@ public class SQLiteJDBCDriverConnectionTest
         throws NoSuchFieldException, IllegalAccessException
     {
         UnitTestUtil.setupStatic();
-        PLogger.get().setConsoleLogLevel(Level.FINEST);
+        PLogger.get().setConsoleLogLevel(Level.ALL);
         PLogger.get().setFileLogLevel(Level.SEVERE);
         UnitTestUtil.setFakeDoorRegistry();
     }
@@ -499,8 +499,8 @@ public class SQLiteJDBCDriverConnectionTest
         Assert.assertEquals(door1.getPrimeOwner(), testDoor1.get().getPrimeOwner());
         Assert.assertEquals(door1, testDoor1.get());
         Assert.assertFalse(storage.getDoor(9999999).isPresent());
-        Assert.assertTrue(storage.isBigDoorsWorld(worldUUID));
-        Assert.assertFalse(storage.isBigDoorsWorld(UUID.randomUUID()));
+        Assert.assertTrue(storage.isBigDoorsWorld(worldName));
+        Assert.assertFalse(storage.isBigDoorsWorld("fakeWorld"));
 
         Assert.assertEquals(1, storage.getOwnerCountOfDoor(1L));
 

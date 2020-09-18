@@ -3,8 +3,6 @@ package nl.pim16aap2.bigdoors.api;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 /**
  * Represents a BigDoors world.
  *
@@ -13,18 +11,11 @@ import java.util.UUID;
 public interface IPWorld extends Cloneable
 {
     /**
-     * Gets the UUID of this world.
-     *
-     * @return The UUID of this world.
-     */
-    @NotNull UUID getUUID();
-
-    /**
      * Gets the name of this world.
      *
      * @return The name of this world.
      */
-    @NotNull String getName();
+    @NotNull String getWorldName();
 
     /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
