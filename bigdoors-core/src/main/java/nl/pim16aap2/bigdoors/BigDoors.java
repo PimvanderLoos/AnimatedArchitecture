@@ -312,7 +312,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
 // TODO: Make sure you can remove yourself as (co)owner.
-// TODO: (not SQL-related), make isLocked part of DoorData.
 // TODO: Make sure that trying to use unregistered doortypes is handled gracefully.
 //       This includes: Toggling, Creating, Commands, and GUI.
 // TODO: Use batch statements to reduce the number of transactions for door inserts. More info:
