@@ -11,6 +11,9 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -20,6 +23,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Garage Door doorType.
@@ -79,20 +84,21 @@ public class GarageDoor extends AbstractDoorBase
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        int radius = 0;
-
+        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final int radius;
         if (!isOpen())
             radius = dimensions.getY() / 16 + 1;
         else
             radius =
                 Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
 
-        return new Vector2Di[]{new Vector2Di(getChunk().getX() - radius, getChunk().getY() - radius),
-                               new Vector2Di(getChunk().getX() + radius, getChunk().getY() + radius)};
+        return new Vector2Di[]{
+            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
+            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())
@@ -101,9 +107,15 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        RotateDirection rotateDirection = getCurrentToggleDir();
+        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final @NotNull Cuboid cuboid = getCuboid().clone();
+
+        final @NotNull Vector3DiConst dimensions = cuboid.getDimensions();
+        final @NotNull Vector3DiConst minimum = cuboid.getMin();
+        final @NotNull Vector3DiConst maximum = cuboid.getMax();
+
         int minX = minimum.getX();
         int minY = minimum.getY();
         int minZ = minimum.getZ();
@@ -114,7 +126,7 @@ public class GarageDoor extends AbstractDoorBase
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
 
-        Vector3DiConst rotateVec;
+        final @NotNull Vector3DiConst rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
@@ -124,13 +136,12 @@ public class GarageDoor extends AbstractDoorBase
             PLogger.get().logThrowable(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
                     getDoorType().toString() + "\""));
-            return false;
+            return Optional.empty();
         }
 
         if (!isOpen())
         {
             minY = maxY = maximum.getY() + 1;
-
             minX += rotateVec.getX();
             maxX += (1 + yLen) * rotateVec.getX();
             minZ += rotateVec.getZ();
@@ -178,29 +189,21 @@ public class GarageDoor extends AbstractDoorBase
             maxZ = tmp;
         }
 
-        newMin.setX(minX);
-        newMin.setY(minY);
-        newMin.setZ(minZ);
-
-        newMax.setX(maxX);
-        newMax.setY(maxY);
-        newMax.setZ(maxZ);
-
-        return true;
+        return Optional.of(new Cuboid(new Vector3Di(minX, minY, minZ),
+                                      new Vector3Di(maxX, maxY, maxZ)));
     }
 
     @Override
-    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
-                                      final @NotNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        doorOpeningUtility.registerBlockMover(
-            new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
-                                getCurrentToggleDir(), responsible, newMin, newMax, cause, actionType));
+        return new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
+                                   getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 
     @Override

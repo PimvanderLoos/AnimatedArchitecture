@@ -9,13 +9,13 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 public class BigDoorMover extends BlockMover
@@ -30,11 +30,10 @@ public class BigDoorMover extends BlockMover
 
     public BigDoorMover(final @NotNull AbstractDoorBase door, final @NotNull RotateDirection rotDirection,
                         final double time, final boolean skipAnimation, final double multiplier,
-                        @NotNull final IPPlayer player, final @NotNull Vector3DiConst finalMin,
-                        final @NotNull Vector3DiConst finalMax, final @NotNull DoorActionCause cause,
-                        final @NotNull DoorActionType actionType)
+                        @NotNull final IPPlayer player, final @NotNull CuboidConst newCuboid,
+                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, rotDirection, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;

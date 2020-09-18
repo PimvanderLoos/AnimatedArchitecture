@@ -14,16 +14,4 @@ public interface IMovingDoorArchetype extends IDoorBase
     {
         return true;
     }
-
-    @Override
-    default boolean isOpenable()
-    {
-        return !isOpen();
-    }
-
-    @Override
-    default boolean isCloseable()
-    {
-        return isOpen();
-    }
 }

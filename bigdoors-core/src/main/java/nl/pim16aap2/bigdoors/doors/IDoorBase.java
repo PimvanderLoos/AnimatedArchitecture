@@ -2,11 +2,12 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
@@ -89,17 +90,19 @@ public interface IDoorBase
     @NotNull RotateDirection getCurrentToggleDir();
 
     /**
-     * Finds the new minimum and maximum coordinates of this door that would be the result of toggling it.
-     * <p>
-     * Note that the variables themselves are changed.
+     * Gets the {@link CuboidConst} representing the area taken up by this door.
      *
-     * @param newMin Used to store the new minimum coordinates.
-     * @param newMax Used to store the new maximum coordinates.
-     * @return True if the new coordinates were found successfully. In case no valid coordinates could be found, False
-     * is returned instead.
+     * @return The {@link CuboidConst} representing the area taken up by this door.
      */
-    // TODO: Return Optional<Cuboid>
-    boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax);
+    @NotNull CuboidConst getCuboid();
+
+    /**
+     * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this door that would be the
+     * result of toggling it.
+     *
+     * @return The {@link Cuboid} that would represent the door if it was toggled right now.
+     */
+    @NotNull Optional<Cuboid> getPotentialNewCoordinates();
 
     /**
      * Cycle the {@link RotateDirection} direction this {@link IDoorBase} will open in. By default it'll set and return
@@ -117,6 +120,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in animation range.
      */
+    @Deprecated
     @NotNull Vector2Di[] calculateChunkRange();
 
     /**
@@ -125,6 +129,7 @@ public interface IDoorBase
      *
      * @return 2 {@link Vector2Di}. Min and Max coordinates of Vector2Dis in current range.
      */
+    @Deprecated
     @NotNull Vector2Di[] calculateCurrentChunkRange();
 
     /**
@@ -134,6 +139,7 @@ public interface IDoorBase
      * @param chunk The chunk to check
      * @return True if the {@link Vector2DiConst} is in range of the door.
      */
+    @Deprecated
     boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk);
 
     /**
@@ -227,11 +233,30 @@ public interface IDoorBase
     @NotNull RotateDirection getOpenDir();
 
     /**
+     * Sets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
+     * <p>
+     * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
+     * direction is the opposite of the opening direction.
+     *
+     * @param rotateDirection The {@link RotateDirection} this {@link IDoorBase} will open in.
+     * @return This {@link AbstractDoorBase}.
+     */
+    @NotNull AbstractDoorBase setOpenDir(final @NotNull RotateDirection rotateDirection);
+
+    /**
      * Gets the position of power block of this door.
      *
      * @return The position of the power block of this door.
      */
     @NotNull Vector3DiConst getPowerBlock();
+
+    /**
+     * Updates the position of the powerblock.
+     *
+     * @param pos The new position.
+     * @return This {@link AbstractDoorBase}.
+     */
+    @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos);
 
     /**
      * Gets the position of the engine of this door.
@@ -241,11 +266,35 @@ public interface IDoorBase
     @NotNull Vector3DiConst getEngine();
 
     /**
+     * Updates the position of the engine.
+     *
+     * @param pos The new position.
+     * @return This {@link AbstractDoorBase}.
+     */
+    @NotNull AbstractDoorBase setEngine(final @NotNull Vector3DiConst pos);
+
+    /**
      * Gets the minimum position of this door.
      *
      * @return The minimum coordinates of this door.
      */
     @NotNull Vector3DiConst getMinimum();
+
+    /**
+     * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
+     *
+     * @param posA The first new position.
+     * @return This {@link AbstractDoorBase}.
+     */
+    @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB);
+
+    /**
+     * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
+     *
+     * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
+     * @return This {@link AbstractDoorBase}.
+     */
+    @NotNull AbstractDoorBase setCoordinates(final @NotNull CuboidConst newCuboid);
 
     /**
      * Gets a copy of the maximum position of this door.
@@ -261,6 +310,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di coordinates of the min and max Vector2Dis in range of this door.
      */
+    @Deprecated
     @NotNull Vector2Di[] getChunkRange();
 
     /**
@@ -271,7 +321,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
-    @NotNull Vector2DiConst getChunk();
+    @NotNull Vector2DiConst getEngineChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *

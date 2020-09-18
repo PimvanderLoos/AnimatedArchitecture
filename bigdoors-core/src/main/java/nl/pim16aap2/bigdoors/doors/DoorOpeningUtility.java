@@ -17,6 +17,8 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -129,41 +131,43 @@ public final class DoorOpeningUtility
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
      * @param door        The {@link AbstractDoorBase} being opened.
-     * @param pos1        The first position of the area to check.
-     * @param pos2        The second position of the area to check.
+     * @param cuboid      The area of blocks to check.
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull Vector3DiConst pos1,
-                                             final @NotNull Vector3DiConst pos2, final @NotNull IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull CuboidConst cuboid,
+                                             final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionManager.canBreakBlocksBetweenLocs(responsible, pos1, pos2, door.getWorld()).map(
-            PROT ->
-            {
-                PLogger.get()
-                       .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
-                                 door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
-                return false;
-            }).orElse(true);
+        return protectionManager
+            .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
+                PROT ->
+                {
+                    PLogger.get()
+                           .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
+                                     door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
+                    return false;
+                }).orElse(true);
     }
 
     /**
      * Checks if an area is empty. "Empty" here means that there no blocks that are not air or liquid.
      *
-     * @param newMin The lower bound position of the area.
-     * @param newMax The upper bound position of the area.
-     * @param curMin The current lower bound position of the door (blocks in this area are skipped).
-     * @param curMax The upper lower bound position of the door (blocks in this area are skipped).
-     * @param player The {@link IPPlayer} to notify of violations. May be null.
-     * @param world  The world to check the blocks in.
+     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param currentCuboid The {@link CuboidConst} representing the area the door currently takes up.
+     * @param player        The {@link IPPlayer} to notify of violations. May be null.
+     * @param world         The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(final @NotNull Vector3DiConst newMin, final @NotNull Vector3DiConst newMax,
-                                   final @NotNull Vector3DiConst curMin, final @NotNull Vector3DiConst curMax,
+    public boolean isLocationEmpty(final @NotNull CuboidConst newCuboid, final @NotNull CuboidConst currentCuboid,
                                    final @Nullable IPPlayer player, final @NotNull IPWorld world)
     {
-        IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+        final @NotNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+        final Vector3DiConst newMin = newCuboid.getMin();
+        final Vector3DiConst newMax = newCuboid.getMax();
+        final Vector3DiConst curMin = currentCuboid.getMin();
+        final Vector3DiConst curMax = currentCuboid.getMax();
+
         boolean isEmpty = true;
         for (int xAxis = newMin.getX(); xAxis <= newMax.getX(); ++xAxis)
         {
@@ -203,16 +207,17 @@ public final class DoorOpeningUtility
      * @param vec          Which direction to count the number of available blocks in.
      * @param player       The player for whom to check. May be null.
      * @param world        The world to check the blocks in.
-     * @param curMin       The current lower bound position of the door (blocks in this area are skipped).
-     * @param curMax       The upper lower bound position of the door (blocks in this area are skipped).
+     * @param cuboid       The {@link CuboidConst} representing the area the door currently takes up.
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
     public int getBlocksInDir(final @NotNull Vector3DiConst vec, final @Nullable IPPlayer player,
-                              final @NotNull IPWorld world, final @NotNull Vector3DiConst curMin,
-                              final @NotNull Vector3DiConst curMax, final int blocksToMove)
+                              final @NotNull IPWorld world, final @NotNull CuboidConst cuboid, final int blocksToMove)
     {
-        int startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
+        final Vector3DiConst curMin = cuboid.getMin();
+        final Vector3DiConst curMax = cuboid.getMax();
+
+        final int startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
 
         // Doors cannot start outside of the world limit.
         if (startY < 0 || startY > 255)
@@ -227,14 +232,14 @@ public final class DoorOpeningUtility
         endZ = vec.getZ() == 0 ? curMax.getZ() : startZ;
 
 
-        Vector3Di locA = new Vector3Di(startX, startY, startZ);
-        Vector3Di locB = new Vector3Di(endX, endY, endZ);
+        final @NotNull Vector3Di locA = new Vector3Di(startX, startY, startZ);
+        final @NotNull Vector3Di locB = new Vector3Di(endX, endY, endZ);
 
         // xLen and zLen describe the length of the door in the x and the z direction respectively.
         // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
-        int xLen = blocksToMove < 1 ? (curMax.getX() - curMin.getX()) + 1 : blocksToMove;
+        final int xLen = blocksToMove < 1 ? (curMax.getX() - curMin.getX()) + 1 : blocksToMove;
         int yLen = blocksToMove < 1 ? (curMax.getY() - curMin.getY()) + 1 : blocksToMove;
-        int zLen = blocksToMove < 1 ? (curMax.getZ() - curMin.getZ()) + 1 : blocksToMove;
+        final int zLen = blocksToMove < 1 ? (curMax.getZ() - curMin.getZ()) + 1 : blocksToMove;
 
         yLen = vec.getY() == 1 ? Math.min(255, curMax.getY() + yLen) :
                vec.getY() == -1 ? Math.max(0, curMin.getY() - yLen) : yLen;
@@ -249,7 +254,7 @@ public final class DoorOpeningUtility
         boolean obstructed = false;
         while (steps < maxDist)
         {
-            boolean isEmpty = isLocationEmpty(locA, locB, curMin, curMax, player, world);
+            final boolean isEmpty = isLocationEmpty(new Cuboid(locA, locB), cuboid, player, world);
             if (!isEmpty)
             {
                 obstructed = true;
@@ -265,20 +270,6 @@ public final class DoorOpeningUtility
 
         // If the direction was in a negative direction, make sure the output is negative as well.
         return (vec.getX() == -1 || vec.getY() == -1 || vec.getZ() == -1) ? -1 * ret : ret;
-    }
-
-    /**
-     * Checks if a {@link AbstractDoorBase} is busy and set it to busy if that is the case.
-     *
-     * @param doorUID The UID of the {@link AbstractDoorBase} to check.
-     * @return True if already busy.
-     */
-    private boolean isBusySetIfNot(final long doorUID)
-    {
-        if (BigDoors.get().getDoorManager().isDoorBusy(doorUID))
-            return true;
-        BigDoors.get().getDoorManager().setDoorBusy(doorUID);
-        return false;
     }
 
     /**
@@ -299,11 +290,11 @@ public final class DoorOpeningUtility
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    public @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
-                                                  final @NotNull DoorActionCause cause,
-                                                  final @NotNull DoorActionType actionType)
+    @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
+                                           final @NotNull DoorActionCause cause,
+                                           final @NotNull DoorActionType actionType)
     {
-        if (isBusySetIfNot(door.getDoorUID()))
+        if (!BigDoors.get().getDoorManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
 
         if (actionType == DoorActionType.OPEN && !door.isOpenable())
@@ -313,6 +304,7 @@ public final class DoorOpeningUtility
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
+
         if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 

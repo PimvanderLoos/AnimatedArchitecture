@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.jetbrains.annotations.NotNull;
 
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
@@ -22,11 +22,9 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
                                                                final @NotNull DoorActionType actionType,
                                                                final @NotNull IPPlayer responsible, final double time,
                                                                final boolean skipAnimation,
-                                                               final @NotNull Vector3DiConst newMinimum,
-                                                               final @NotNull Vector3DiConst newMaximum)
+                                                               final @NotNull CuboidConst newCuboid)
     {
-        return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newMinimum,
-                                          newMaximum);
+        return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
@@ -35,12 +33,10 @@ public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
                                                            final @NotNull DoorActionType actionType,
                                                            final @NotNull IPPlayer responsible, final double time,
                                                            final boolean skipAnimation,
-                                                           final @NotNull Vector3DiConst newMinimum,
-                                                           final @NotNull Vector3DiConst newMaximum)
+                                                           final @NotNull CuboidConst newCuboid)
 
     {
-        return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newMinimum,
-                                        newMaximum);
+        return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override

@@ -11,14 +11,18 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Portcullis doorType.
@@ -80,40 +84,27 @@ public class Portcullis extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
     @Override
-    public boolean getPotentialNewCoordinates(final @NotNull Vector3Di newMin, final @NotNull Vector3Di newMax)
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-
-        int blocksToMove = getBlocksToMove() > 0 ? getBlocksToMove() :
-                           1 + Math.abs(vec.getY() * dimensions.getY());
-
-        newMin.setX(minimum.getX());
-        newMin.setY(minimum.getY() + blocksToMove * vec.getY());
-        newMin.setZ(minimum.getZ());
-
-        newMax.setX(maximum.getX());
-        newMax.setY(maximum.getY() + blocksToMove * vec.getY());
-        newMax.setZ(maximum.getZ());
-        return true;
+        final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.getX(), 0, getBlocksToMove() * vec.getZ()));
     }
 
     @Override
-    protected void registerBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                      final boolean skipAnimation, final @NotNull Vector3DiConst newMin,
-                                      final @NotNull Vector3DiConst newMax, final @NotNull IPPlayer responsible,
-                                      final @NotNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
     {
-
-        int blocksToMove = newMin.getY() - minimum.getY();
-        doorOpeningUtility.registerBlockMover(
-            new VerticalMover(this, time, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
-                              responsible, newMin, newMax, cause, actionType));
+        final int blocksToMove = getOpenDir().equals(RotateDirection.UP) ? getBlocksToMove() : -getBlocksToMove();
+        return new VerticalMover(this, time, skipAnimation, blocksToMove, doorOpeningUtility.getMultiplier(this),
+                                 responsible, newCuboid, cause, actionType);
     }
 
     @Override

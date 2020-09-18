@@ -105,8 +105,8 @@ public class CreatorTestsUtil
 
     protected AbstractDoorBase.DoorData constructDoorData()
     {
-        return new AbstractDoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world, false, openDirection,
-                                             doorOwner, false);
+        return new AbstractDoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world,
+                                             false, false, openDirection, doorOwner);
     }
 
 

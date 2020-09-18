@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,16 +35,14 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param time             The number of seconds the door will take to open. Note that there are other factors that
      *                         affect the total time as well.
      * @param animationSkipped If true, the door will skip the animation and open instantly.
-     * @param newMinimum       The new minimum coordinates of the door after the toggle.
-     * @param newMaximum       The new maximum coordinates of the door after the toggle.
+     * @param newCuboid        The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
     public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                                  final @NotNull DoorActionType actionType,
-                                  final @NotNull IPPlayer responsible, final double time,
-                                  final boolean animationSkipped, final @NotNull Vector3DiConst newMinimum,
-                                  final @NotNull Vector3DiConst newMaximum)
+                                  final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+                                  final double time, final boolean animationSkipped,
+                                  final @NotNull CuboidConst newCuboid)
     {
-        super(door, cause, actionType, responsible, time, animationSkipped, newMinimum, newMaximum);
+        super(door, cause, actionType, responsible, time, animationSkipped, newCuboid);
     }
 
     @Override

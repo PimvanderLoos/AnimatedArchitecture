@@ -9,11 +9,11 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,11 +37,10 @@ public class SlidingMover extends BlockMover
 
     public SlidingMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
-                        final @NotNull IPPlayer player, final @NotNull Vector3DiConst finalMin,
-                        final @NotNull Vector3DiConst finalMax, final @NotNull DoorActionCause cause,
-                        final @NotNull DoorActionType actionType)
+                        final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
+                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
     {
-        super(door, time, skipAnimation, openDirection, player, finalMin, finalMax, cause, actionType);
+        super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
         NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);

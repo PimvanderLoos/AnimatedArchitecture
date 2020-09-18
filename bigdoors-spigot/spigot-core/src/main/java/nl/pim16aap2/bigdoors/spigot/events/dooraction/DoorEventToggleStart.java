@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,16 +17,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    Vector3DiConst newMinimum;
-
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    Vector3DiConst newMaximum;
-
     @NotNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
+
+    @Getter(onMethod = @__({@Override}))
+    private final @NotNull CuboidConst newCuboid;
 
     /**
      * Constructs a door action event.
@@ -38,17 +33,14 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
-     * @param newMinimum    The new minimum coordinates of the door after the toggle.
-     * @param newMaximum    The new maximum coordinates of the door after the toggle.
+     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
     public DoorEventToggleStart(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
                                 final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
-                                final double time, final boolean skipAnimation,
-                                final @NotNull Vector3DiConst newMinimum, final @NotNull Vector3DiConst newMaximum)
+                                final double time, final boolean skipAnimation, final @NotNull CuboidConst newCuboid)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
-        this.newMinimum = newMinimum;
-        this.newMaximum = newMaximum;
+        this.newCuboid = newCuboid;
     }
 
     @Override

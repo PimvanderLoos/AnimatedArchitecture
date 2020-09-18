@@ -315,10 +315,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
         final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, eng,
-                                                                                          pow, world, isOpen,
+                                                                                          pow, world, isOpen, isLocked,
                                                                                           openDirection.get(),
-                                                                                          primeOwner, doorOwners,
-                                                                                          isLocked);
+                                                                                          primeOwner, doorOwners);
 
         final @NotNull Optional<? extends AbstractDoorBase> door = doorType.get().constructDoor(doorData,
                                                                                                 typeDataSupplier.get());
@@ -527,86 +526,79 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean syncBaseData(final @NotNull AbstractDoorBase door)
+    public boolean syncBaseData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData)
     {
-        return execute(conn -> syncBaseData(conn, door), false);
+        return execute(conn -> syncBaseData(conn, simpleDoorData), false);
     }
 
-    private boolean syncBaseData(final @NotNull Connection conn, final @NotNull AbstractDoorBase door)
+    private boolean syncBaseData(final @NotNull Connection conn,
+                                 final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData)
     {
-        final @NotNull AbstractDoorBase.DoorData doorDataCopy = door.getSimpleDoorDataCopy();
-
         return executeUpdate(conn, SQLStatement.UPDATE_DOOR_BASE
             .constructPPreparedStatement()
-            .setString(1, doorDataCopy.getName())
+            .setString(1, simpleDoorData.getName())
 
-            .setInt(2, doorDataCopy.getMin().getX())
-            .setInt(3, doorDataCopy.getMin().getY())
-            .setInt(4, doorDataCopy.getMin().getZ())
+            .setInt(2, simpleDoorData.getCuboid().getMin().getX())
+            .setInt(3, simpleDoorData.getCuboid().getMin().getY())
+            .setInt(4, simpleDoorData.getCuboid().getMin().getZ())
 
-            .setInt(5, doorDataCopy.getMax().getX())
-            .setInt(6, doorDataCopy.getMax().getY())
-            .setInt(7, doorDataCopy.getMax().getZ())
+            .setInt(5, simpleDoorData.getCuboid().getMax().getX())
+            .setInt(6, simpleDoorData.getCuboid().getMax().getY())
+            .setInt(7, simpleDoorData.getCuboid().getMax().getZ())
 
-            .setInt(8, doorDataCopy.getEngine().getX())
-            .setInt(9, doorDataCopy.getEngine().getY())
-            .setInt(10, doorDataCopy.getEngine().getZ())
-            .setLong(11, Util.simpleChunkHashFromLocation(doorDataCopy.getEngine().getX(),
-                                                          doorDataCopy.getEngine().getZ()))
+            .setInt(8, simpleDoorData.getEngine().getX())
+            .setInt(9, simpleDoorData.getEngine().getY())
+            .setInt(10, simpleDoorData.getEngine().getZ())
+            .setLong(11, Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().getX(),
+                                                          simpleDoorData.getEngine().getZ()))
 
-            .setInt(12, doorDataCopy.getPowerBlock().getX())
-            .setInt(13, doorDataCopy.getPowerBlock().getY())
-            .setInt(14, doorDataCopy.getPowerBlock().getZ())
-            .setLong(15, Util.simpleChunkHashFromLocation(doorDataCopy.getPowerBlock().getX(),
-                                                          doorDataCopy.getPowerBlock().getZ()))
+            .setInt(12, simpleDoorData.getPowerBlock().getX())
+            .setInt(13, simpleDoorData.getPowerBlock().getY())
+            .setInt(14, simpleDoorData.getPowerBlock().getZ())
+            .setLong(15, Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().getX(),
+                                                          simpleDoorData.getPowerBlock().getZ()))
 
-            .setInt(16, RotateDirection.getValue(doorDataCopy.getOpenDirection()))
-            .setLong(17, getFlag(door))
+            .setInt(16, RotateDirection.getValue(simpleDoorData.getOpenDirection()))
+            .setLong(17, getFlag(simpleDoorData.isOpen(), simpleDoorData.isLocked()))
 
-            .setLong(18, doorDataCopy.getUid())) > 0;
+            .setLong(18, simpleDoorData.getUid())) > 0;
     }
 
     @Override
-    public boolean syncAllData(final @NotNull AbstractDoorBase door)
+    public boolean syncAllData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData,
+                               final @NotNull DoorType doorType, final @NotNull Object[] typeData)
     {
         return executeTransaction(
             conn ->
             {
-                final long doorUID = door.getDoorUID();
-                if (!syncBaseData(conn, door))
+                final long doorUID = simpleDoorData.getUid();
+                if (!syncBaseData(conn, simpleDoorData))
                     throw new SQLException("Failed to update base data of door: " + doorUID);
-                if (!syncTypeData(conn, door))
+                if (!syncTypeData(conn, simpleDoorData.getUid(), doorType, typeData))
                     throw new IllegalStateException("Failed to update type-specific data of door: " + doorUID);
                 return true;
             }, false);
     }
 
     @Override
-    public boolean syncTypeData(final @NotNull AbstractDoorBase door)
+    public boolean syncTypeData(final long doorUID, final @NotNull DoorType doorType, final @NotNull Object[] typeData)
     {
-        return execute(conn -> syncTypeData(conn, door), false);
+        return execute(conn -> syncTypeData(conn, doorUID, doorType, typeData), false);
     }
 
-    private boolean syncTypeData(final @NotNull Connection conn, final @NotNull AbstractDoorBase door)
+    private boolean syncTypeData(final @NotNull Connection conn, final long doorUID, final @NotNull DoorType doorType,
+                                 final @NotNull Object[] typeData)
     {
-        final @NotNull Optional<Object[]> typeDataOpt = door.getDoorType().getTypeData(door);
-        if (!typeDataOpt.isPresent())
-        {
-            PLogger.get().logThrowable(new IllegalArgumentException(
-                "Failed to update door " + door.getDoorUID() + ": Could not get type-specific data!"));
-            return false;
-        }
-
-        final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(door.getDoorType());
+        final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(doorType);
         if (!doorTypeID.isPresent())
         {
             PLogger.get().logThrowable(new SQLException(
-                "Failed to update type-data of door: \"" + door.getDoorUID() + "\"! Reason: DoorType not registered!"));
+                "Failed to update type-data of door: \"" + doorUID + "\"! Reason: DoorType not registered!"));
             return false;
         }
 
         final @NotNull Optional<DoorTypeDataStatementMap.DoorTypeDataStatement> typeSpecificDataUpdateStatementOpt =
-            doorTypeStatementMap.getStatement(door.getDoorType(), DoorTypeDataStatementMap.SQLStatementType.UPDATE);
+            doorTypeStatementMap.getStatement(doorType, DoorTypeDataStatementMap.SQLStatementType.UPDATE);
         if (!typeSpecificDataUpdateStatementOpt.isPresent())
         {
             PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific update statement " +
@@ -621,11 +613,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             new PPreparedStatement(typeSpecificDataUpdateStatement.getArgumentCount() + 1,
                                    typeSpecificDataUpdateStatement.getStatement());
 
-        final @NotNull Object[] typeData = typeDataOpt.get();
-
         for (int idx = 0; idx < typeSpecificDataUpdateStatement.getArgumentCount(); ++idx)
             pPreparedStatement.setObject(idx + 1, typeData[idx]);
-        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.getArgumentCount() + 1, door.getDoorUID());
+        pPreparedStatement.setLong(typeSpecificDataUpdateStatement.getArgumentCount() + 1, doorUID);
 
         return executeUpdate(conn, pPreparedStatement) > 0;
     }
@@ -731,7 +721,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return door.getDoorType().constructDoor(
                 new AbstractDoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
                                               door.getEngine(), door.getPowerBlock(), door.getWorld(), door.isOpen(),
-                                              door.getOpenDir(), door.getPrimeOwner(), door.isLocked()),
+                                              door.isLocked(), door.getOpenDir(), door.getPrimeOwner()),
                 typeSpecificDataOpt.get());
 
         return Optional.empty();

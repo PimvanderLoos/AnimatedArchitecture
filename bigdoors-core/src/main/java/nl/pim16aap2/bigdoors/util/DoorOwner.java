@@ -79,6 +79,7 @@ public class DoorOwner
     @Override
     public @NotNull DoorOwner clone()
     {
+        // TODO: Clone player as well?
         return new DoorOwner(doorUID, getPermission(), getPlayer());
     }
 }
