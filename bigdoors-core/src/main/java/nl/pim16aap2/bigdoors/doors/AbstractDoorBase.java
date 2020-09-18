@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Synchronized;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -85,8 +86,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private volatile boolean locked;
 
     private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
+    private final @NotNull Object doorOwnersLock = new Object();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
     private final @NotNull DoorOwner primeOwner;
 
     /**
@@ -98,27 +100,33 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
     {
-        if (doorOwner.getPermission() == 0)
+        synchronized (doorOwnersLock)
         {
-            PLogger.get().logThrowable(new IllegalArgumentException(
-                "Failed to add owner: " + doorOwner.getPlayer().toString() + " as owner to door: " + getDoorUID() +
-                    " because a permission level of 0 is not allowed!"));
-            return;
+            if (doorOwner.getPermission() == 0)
+            {
+                PLogger.get().logThrowable(new IllegalArgumentException(
+                    "Failed to add owner: " + doorOwner.getPlayer().toString() + " as owner to door: " + getDoorUID() +
+                        " because a permission level of 0 is not allowed!"));
+                return;
+            }
+            doorOwners.put(uuid, doorOwner);
         }
-        doorOwners.put(uuid, doorOwner);
     }
 
     @Override
     protected final boolean removeOwner(final @NotNull UUID uuid)
     {
-        if (primeOwner.getPlayer().getUUID().equals(uuid))
+        synchronized (doorOwnersLock)
         {
-            PLogger.get().logThrowable(new IllegalArgumentException(
-                "Failed to remove owner: " + primeOwner.getPlayer().toString() + " as owner from door: " +
-                    getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
-            return false;
+            if (primeOwner.getPlayer().getUUID().equals(uuid))
+            {
+                PLogger.get().logThrowable(new IllegalArgumentException(
+                    "Failed to remove owner: " + primeOwner.getPlayer().toString() + " as owner from door: " +
+                        getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
+                return false;
+            }
+            return doorOwners.remove(uuid) != null;
         }
-        return doorOwners.remove(uuid) != null;
     }
 
     /**
@@ -213,11 +221,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull DoorData getDoorDataCopy()
     {
-        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwnersCopy = new HashMap<>(doorOwners.size());
-        doorOwners.forEach((key, value) -> doorOwnersCopy.put(key, value.clone()));
-
         return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
-                            world.clone(), open, locked, openDir, primeOwner.clone(), doorOwnersCopy);
+                            world.clone(), open, locked, openDir, getPrimeOwner().clone(), getDoorOwnersCopy());
     }
 
     /**
@@ -231,7 +236,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
         return new SimpleDoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
-                                  world.clone(), open, locked, openDir, primeOwner.clone());
+                                  world.clone(), open, locked, openDir, getPrimeOwner().clone());
     }
 
     /**
@@ -466,7 +471,22 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Collection<@NotNull DoorOwner> getDoorOwners()
     {
-        return Collections.unmodifiableCollection(doorOwners.values());
+        synchronized (doorOwnersLock)
+        {
+            return Collections.unmodifiableCollection(doorOwners.values());
+        }
+    }
+
+    protected @NotNull Map<@NotNull UUID, @NotNull DoorOwner> getDoorOwnersCopy()
+    {
+        synchronized (doorOwnersLock)
+        {
+            final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> copy = new HashMap<>(doorOwners.size());
+            doorOwners.forEach(
+                (key, value) -> copy.put(new UUID(key.getMostSignificantBits(), key.getLeastSignificantBits()),
+                                         value.clone()));
+            return copy;
+        }
     }
 
     @Override
@@ -478,7 +498,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
-        return Optional.ofNullable(doorOwners.get(uuid));
+        synchronized (doorOwnersLock)
+        {
+            return Optional.ofNullable(doorOwners.get(uuid));
+        }
     }
 
     @Override

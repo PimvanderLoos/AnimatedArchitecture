@@ -421,16 +421,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       let the user decide which option they prefer.
 
 /*
- * Thread Safety
- */
-// TODO: Make sure that Door access is thread safe. Also goes for the subtypes.
-// TODO: Consider if it's necessary to put everything in synchronized blocks. If the variables are const, then
-//       we can just return them, as reference changes are guaranteed to be atomic by the JVM. Just make sure that
-//       stuff like toggling/updating in the database is done using synchronized blocks.
-// TODO: Give the DatabaseManager / Storage class everything it needs to update a door. This avoid issues where it can
-//       update stuff that changed after it called the sync method.
-
-/*
  * Openers / Movers
  */
 // TODO: Consider making it possible to still use the velocity method. But to do so, it'll have to be a separate mode.
