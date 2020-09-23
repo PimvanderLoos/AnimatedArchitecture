@@ -124,6 +124,9 @@ import java.util.Set;
 /*
  * General
  */
+// TODO: Rename maxBlocksToMove in the config to maxMoveDistance or something, to avoid confusion.
+//       You could read it as the number of blocks as in count instead of the number of blocks 
+//       as in distance.
 // TODO: Stop using UID's to describe Worlds. Just use their names. The names are unique anyway.
 // TODO: Use Guava for all caches:
 //       - PowerBlockManager
