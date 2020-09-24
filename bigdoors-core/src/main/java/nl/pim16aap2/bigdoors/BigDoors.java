@@ -311,6 +311,8 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
+// TODO: When using batched stuff, make sure not to catch exceptions on any of the steps. If they don't get caught
+//       by the executeTransaction method, the database won't be able to roll back!
 // TODO: Use a batched action for registering DoorTypes. This way, it can just roll back when/if something goes wrong.
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
