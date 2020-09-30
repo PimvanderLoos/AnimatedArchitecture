@@ -1,3 +1,6 @@
+Alpha 0.1.8.27
+- New command: "/listplayerdoors <player>". This command will list all doors owned by the given player. Permission: "bigdoors.admin.listplayerdoors".
+
 Alpha 0.1.8.26
 - Added method to get all available doors. Thanks, @Chojo, for the implementation.
 - Renamed the permission node for changing door direction to "bigdoors.user.direction" so it works with "bigdoors.user.*". Thanks, @Hydridity, for the bug report!

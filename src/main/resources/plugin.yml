@@ -87,6 +87,11 @@ commands:
     usage: /ListDoors [name]
     permission: bigdoors.user.listdoors
     permission-message: You do not have the bigdoors.user.listdoors permission node.
+  listplayerdoors:
+    description: Returns a list of all doors owned by a player.
+    usage: /ListPlayerDoors [player]
+    permission: bigdoors.admin.listplayerdoors
+    permission-message: You do not have the bigdoors.admin.listplayerdoors permission node.
   changepowerblockloc:
     description: Relocate the Power Block for a given door.
     usage: /ChangePowerBlockLoc <doorName || doorUID> 

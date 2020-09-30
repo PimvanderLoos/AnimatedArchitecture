@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -189,6 +190,18 @@ public class CommandHandler implements CommandExecutor
         }
         plugin.getMyLogger().myLogger(Level.INFO,
                                       Util.nameFromUUID(door.getPlayerUUID()) + ": " + Util.getFullDoorInfo(door));
+    }
+
+    // Yeah, this duplicates some code, but I can't be bothered to untangle the
+    // rest, so fuck it. This code is EOL ayway.
+    private void listPlayerDoors(CommandSender receiver, UUID targetUUID, String targetName)
+    {
+        ArrayList<Door> doors = plugin.getCommander().getDoors(targetUUID.toString(), null);
+        for (final Door door : doors)
+            plugin.getMyLogger().myLogger(Level.INFO, targetName + ": " + Util.getBasicDoorInfo(door));
+
+        if (doors.isEmpty())
+            plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
     }
 
     private void listDoorsFromConsole(String playerUUID, String name)
@@ -824,6 +837,37 @@ public class CommandHandler implements CommandExecutor
                 }
                 return true;
             }
+        }
+
+        // /listplayerdoors <player>
+        if (cmd.getName().equalsIgnoreCase("listplayerdoors"))
+        {
+            if (args.length == 0)
+                return false;
+
+            UUID uuid = null;
+            String name = null;
+
+            final Optional<UUID> uuidOpt = Util.parseUUID(args[0]);
+            if (uuidOpt.isPresent())
+            {
+                uuid = uuidOpt.get();
+                name = plugin.getCommander().playerNameFromUUID(uuid);
+            }
+            else
+            {
+                name = args[0];
+                uuid = plugin.getCommander().playerUUIDFromName(name);
+            }
+            if (name == null || uuid == null)
+            {
+                plugin.getMyLogger().returnToSender(sender, Level.WARNING, ChatColor.RED,
+                                                    "Failed to find player: \"" + args[0] + "\"");
+                return true;
+            }
+
+            listPlayerDoors(sender, uuid, name);
+            return true;
         }
 
         // /listdoors [name]

@@ -814,6 +814,18 @@ public final class Util
         }
     }
 
+    public static Optional<UUID> parseUUID(final String str)
+    {
+        try
+        {
+            return Optional.of(UUID.fromString(str));
+        }
+        catch (IllegalArgumentException e)
+        {
+            return Optional.empty();
+        }
+    }
+
     public static boolean between(int value, int start, int end)
     {
         return value <= end && value >= start;
