@@ -120,7 +120,8 @@ public class ConfigLoader
                                           "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)." };
         String[] autoDLUpdateComment = { "Allow this plugin to automatically download new updates. They will be applied on restart." };
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
-                                       "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!" };
+                                       "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!",
+                                       "You can see all the stats that are gathered here: https://bstats.org/plugin/bukkit/BigDoors" };
         String[] maxDoorSizeComment = { "Max. number of blocks allowed in a door (including air blocks). Doors exceeding this limit cannt be created or used.",
                                         "For example, If you'd want to allow doors of 20 by 10 blocks, you'd need a limit of at least 200.",
                                         "This is a global limit that not even OPs can bypass. Use permissions for more fine-grained control.",
