@@ -61,6 +61,13 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
         return true;
     }
 
+    private boolean canBreakRoads(Player player)
+    {
+        return plugin.getVaultManager()
+            .hasPermission(player,
+                           com.plotsquared.core.configuration.Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
+    }
+
     // Check if a given player is allowed to build in a given plot.
     // Adapted from:
     // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
@@ -101,9 +108,8 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
             }
             return true;
         }
-        return plugin.getVaultManager()
-            .hasPermission(player,
-                           com.plotsquared.core.configuration.Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
+
+        return canBreakRoads(player);
     }
 
     /**
@@ -120,6 +126,8 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
+        final boolean canBreakRoads = canBreakRoads(player);
+
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)
             {
@@ -135,7 +143,10 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
                 loc.setY(area.getMaxBuildHeight() - 1);
 
                 com.plotsquared.core.plot.Plot newPlot = area.getPlot(psLocation);
-                if (newPlot != null && !canBreakBlock(player, area, newPlot, loc))
+
+                if (newPlot == null && (!canBreakRoads))
+                    return false;
+                else if (!canBreakBlock(player, area, newPlot, loc))
                     return false;
             }
         return true;

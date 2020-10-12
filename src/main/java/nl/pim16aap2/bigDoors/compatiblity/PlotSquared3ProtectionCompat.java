@@ -97,13 +97,18 @@ public class PlotSquared3ProtectionCompat implements IProtectionCompat
             return true;
         }
 
-        return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_ROAD.s());
+        return canBreakRoads(player);
     }
 
     private com.intellectualcrafters.plot.object.Location getPSLocation(Location loc)
     {
         Object psLocationObj = com.plotsquared.bukkit.util.BukkitUtil.getLocation(loc);
         return (com.intellectualcrafters.plot.object.Location) psLocationObj;
+    }
+
+    private boolean canBreakRoads(Player player)
+    {
+        return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_ROAD.s());
     }
 
     /**
@@ -124,6 +129,8 @@ public class PlotSquared3ProtectionCompat implements IProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
+        final boolean canBreakRoads = canBreakRoads(player);
+
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)
             {
@@ -137,7 +144,9 @@ public class PlotSquared3ProtectionCompat implements IProtectionCompat
                 loc.setY(area.MAX_BUILD_HEIGHT - 1);
 
                 Plot newPlot = area.getPlot(psLocation);
-                if (newPlot != null && !canBreakBlock(player, area, newPlot, loc))
+                if (newPlot == null && (!canBreakRoads))
+                    return false;
+                else if (!canBreakBlock(player, area, newPlot, loc))
                     return false;
             }
         return true;
