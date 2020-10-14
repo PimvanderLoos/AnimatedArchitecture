@@ -17,6 +17,7 @@ import java.util.Set;
 /*
  * Experimental
  */
+// TODO: Use Annotations to define DoorTypes. E.g. stuff like version, name, variables.
 // TODO: Consider using Caffeine instead of Guava for caching.
 //       https://github.com/ben-manes/caffeine
 //       https://medium.com/outbrain-engineering/oh-my-guava-we-are-moving-to-caffeine-99387819fdbb
@@ -32,6 +33,7 @@ import java.util.Set;
 //       system only for perpetually moving objects.
 // TODO: Consider being more strict in the data types used for the door types system. If the type is actually correctly
 //       defined, it's possible to cast it, right?
+// TODO: ByteBuddy to generate classes for custom types?
 // TODO: Look into allowing people to set a (estimated) max size in RAM for certain caches.
 //       Example: https://www.javaworld.com/article/2074458/estimating-java-object-sizes-with-instrumentation.html
 //       Simpler example: https://stackoverflow.com/questions/52353/in-java-what-is-the-best-way-to-determine-the-size-of-an-object#
@@ -124,9 +126,11 @@ import java.util.Set;
 /*
  * General
  */
-// TODO: Rename maxBlocksToMove in the config to maxMoveDistance or something, to avoid confusion.
-//       You could read it as the number of blocks as in count instead of the number of blocks 
-//       as in distance.
+// TODO: Make sure that issues with loading DoorTypes are handled gracefully. For example:
+//       - Missing dependencies.
+//       - Dependency version mismatch.
+//       - More than one copy found (with the same main class and/or type name).
+// TODO: Do not use both IMessageable and IMessagingInterface. It's duplicated.
 // TODO: Stop using UID's to describe Worlds. Just use their names. The names are unique anyway.
 // TODO: Use Guava for all caches:
 //       - PowerBlockManager
@@ -311,8 +315,6 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 /*
  * SQL
  */
-// TODO: When using batched stuff, make sure not to catch exceptions on any of the steps. If they don't get caught
-//       by the executeTransaction method, the database won't be able to roll back!
 // TODO: Use a batched action for registering DoorTypes. This way, it can just roll back when/if something goes wrong.
 // TODO: Allow renaming doors.
 // TODO: Allow transfer of door ownership.
@@ -325,6 +327,18 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 //       https://www.whoishostingthis.com/compare/sqlite/optimize/
 //       Or maybe insert into views using triggers?
 // TODO: Look into triggers to potentially improve stuff.
+// TODO: Use triggers to automatically update stuff like chunk/engine hash. Inserting it manually is dumb.
+// TODO: Store min/max chunk x/z values for each door. Update these using triggers. This can be used to help find all doors
+//       intersecting with a given chunk. This is useful for several reasons:
+//       - Admin tool to find all doors in a given chunk
+//       - Chunk loading for perpetual movement.
+//       Consider using this for optimal performance: https://sqlite.org/rtree.html
+//       When using this, don't forget to do this: https://github.com/endlesssoftware/sqlite3/blob/master/rtree.c#:~:text=SQLITE_RTREE_INT_ONLY
+//       However, is appears to be deprecated: https://www.sqlite.org/compile.html#:~:text=SQLITE_RTREE_INT_ONLY
+//       So maybe find an alternative? Or just fork rtree?
+//       Perhaps it's as simple as using this instead: https://sqlite.org/rtree.html#:~:text=rtree_i32
+// TODO: Use instr to allow partial name matching: https://stackoverflow.com/a/16726460
+//       This is nice for command completion. Alternatively, look into this SQLite extension: https://sqlite.org/completion.html
 // TODO: Allow storing lists/arrays. Perhaps do this dynamically via creating yet more dynamic tables? Sorry, future me!
 // TODO: Store the locked variable as a flag. Also (not SQL-related), make it part of DoorData.
 // TODO: Implement a doorUpdate method that updates both the doorBase and the door-specific data.
@@ -359,11 +373,32 @@ Preconditions.checkState(instance != null, "Instance has not yet been initialize
 // TODO: Store engineChunkHash in the database, so stuff can be done when the chunk of a door is loaded. Also make sure
 //       to move the engine location for movable doors (sliding, etc).
 // TODO: Maybe store UUIDs as 16 byte binary blobs to save space: https://stackoverflow.com/a/17278095
+//       Alternatively, use this: https://sqlite.org/changes.html#:~:text=Added%20the%20uuid.c%20extension
 // TODO: Move database upgrades out of the main SQL class. Perhaps create some kind of upgrade routine interface.
 
 /*
  * Commands
  */
+// TODO: Fix width-related stuff caused by MC not using a monospace font.
+//       https://www.spigotmc.org/threads/help-making-a-chat-table-based.170306/
+//       https://www.spigotmc.org/threads/free-code-sending-perfectly-centered-chat-message.95872/
+//       https://bukkit.org/threads/class-monospace-fixed-width-fonts.259459/
+// TODO: For the width, don't use the number of characters, but take the size of the characters into account:
+//       https://www.spigotmc.org/threads/max-characters-in-motd-and-chat-line.317332/
+// TODO: Use ResourceBundles for the commands so they can be translated and shit.
+// TODO: Make the command prefix (i.e. '/') configurable in PCommandLine. It should be empty when interacting
+//       via the server.
+// TODO: Make the chat width configurable. People playing very zoomed in will have better results that way,
+//       while people using a high GUI scale are better off using a wider chat window.
+// TODO: Customizable color scheme?
+// TODO: Make sure to format everything nicely. This includes setting a much lower width.
+//       Total width should be roughly the length of this sentence (excluding quotation marks):
+//       "BigDoors allows you to create many different kinds of animated"
+//       Overview: https://picocli.info/apidocs/picocli/CommandLine.Help.html
+// TODO: Make sure that help messages are sent to players properly. The issue is that CommandLine.HelpCommand sends them
+//       to stdout. Solution: Copy it into its own command instead.
+// TODO: Use https://picocli.info/ for CLI parsing.
+//       Autocomplete: https://picocli.info/autocomplete.html
 // TODO: Make sure onTabComplete works. Perhaps switch to using a Suffix Tree instead of a map?
 //       Though bukkit just uses brute force to iterate over the entryset, so that might be overkill?
 //       https://en.wikipedia.org/wiki/Suffix_tree
