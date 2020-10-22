@@ -39,7 +39,7 @@ public class DoorOpener implements Opener
     {
         if (newDirection == null)
         {
-            plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.getDoorUID()
+            plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.toSimpleString()
                 + "! Using current range instead!");
             return getCurrentChunkRange(door);
         }
@@ -265,14 +265,14 @@ public class DoorOpener implements Opener
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         DoorDirection currentDirection = getCurrentDirection(door);
         RotateDirection rotDirection = getShadowRotationDirection(door, currentDirection);
         if (door.getOpenDir().equals(RotateDirection.NONE) || currentDirection == null || rotDirection == null)
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         CylindricalMover.updateCoords(door, currentDirection, rotDirection, 0, true);
@@ -293,14 +293,16 @@ public class DoorOpener implements Opener
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+                plugin.getMyLogger().myLogger(Level.INFO,
+                                              "Door " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for door " + door.getName() + " are not loaded!", true, false);
+            plugin.getMyLogger().logMessage("Chunks for door " + door.toSimpleString() + " are not loaded!", true,
+                                            false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -309,18 +311,16 @@ public class DoorOpener implements Opener
         DoorDirection currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
-            plugin.getMyLogger()
-                .logMessage("Current direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!",
-                            true, false);
+            plugin.getMyLogger().logMessage("Current direction is null for door " + door.toSimpleString() + "!", true,
+                                            false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         RotateDirection rotDirection = getRotationDirection(door, currentDirection);
         if (rotDirection == null)
         {
-            plugin.getMyLogger()
-                .logMessage("Rotation direction is null for door " + door.getName() + " (" + door.getDoorUID() + ")!",
-                            true, false);
+            plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.toSimpleString() + "!", true,
+                                            false);
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
@@ -334,7 +334,7 @@ public class DoorOpener implements Opener
                 newRotDirection = newRotDirection.equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
                     RotateDirection.CLOCKWISE;
 
-            plugin.getMyLogger().logMessage("Updating openDirection of door " + door.getName() + " to "
+            plugin.getMyLogger().logMessage("Updating openDirection of door " + door.toSimpleString() + " to "
                 + newRotDirection.name() + ". If this is undesired, change it via the GUI.", true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDirection);
         }
@@ -366,7 +366,7 @@ public class DoorOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+            plugin.getMyLogger().logMessage("Door " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }

@@ -308,14 +308,15 @@ public class BridgeOpener implements Opener
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
+            plugin.getMyLogger().myLogger(Level.INFO,
+                                          "Bridge " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         DoorDirection openDirection = getOpenDirection(door);
         final RotateDirection upDown = getUpDown(door);
         if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null || upDown == null)
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         BridgeMover.updateCoords(door, openDirection, upDown, 0, true);
@@ -334,14 +335,16 @@ public class BridgeOpener implements Opener
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Bridge " + door.getName() + " is not available right now!");
+                plugin.getMyLogger().myLogger(Level.INFO,
+                                              "Bridge " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for bridge " + door.getName() + " are not loaded!", true, false);
+            plugin.getMyLogger().logMessage("Chunks for bridge " + door.toSimpleString() + " are not loaded!", true,
+                                            false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -350,26 +353,24 @@ public class BridgeOpener implements Opener
         DoorDirection currentDirection = getCurrentDirection(door);
         if (currentDirection == null)
         {
-            plugin.getMyLogger()
-                .logMessage("Current direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
-                            true, false);
+            plugin.getMyLogger().logMessage("Current direction is null for bridge " + door.toSimpleString() + "!", true,
+                                            false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         RotateDirection upDown = getUpDown(door);
         if (upDown == null)
         {
-            plugin.getMyLogger()
-                .logMessage("UpDown direction is null for bridge " + door.getName() + " (" + door.getDoorUID() + ")!",
-                            true, false);
+            plugin.getMyLogger().logMessage("UpDown direction is null for bridge " + door.toSimpleString() + "!", true,
+                                            false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
         DoorDirection openDirection = getOpenDirection(door);
         if (openDirection == null || !isNewPosFree(door, upDown, openDirection))
         {
-            plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.getName() + " ("
-                + door.getDoorUID() + ")!", true, false);
+            plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.toSimpleString() + "!",
+                                            true, false);
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
         if (!isRotateDirectionValid(door))
@@ -386,7 +387,7 @@ public class BridgeOpener implements Opener
             }
 
             plugin.getMyLogger().logMessage(
-                                            "Updating openDirection of drawbridge " + door.getName() + " to "
+                                            "Updating openDirection of drawbridge " + door.toSimpleString() + " to "
                                                 + newRotDir.name() + ". If this is undesired, change it via the GUI.",
                                             true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
@@ -397,7 +398,7 @@ public class BridgeOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+            plugin.getMyLogger().logMessage("Door " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }

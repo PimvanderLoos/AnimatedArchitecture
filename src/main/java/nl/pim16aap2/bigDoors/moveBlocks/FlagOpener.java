@@ -64,14 +64,14 @@ public class FlagOpener implements Opener
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+                plugin.getMyLogger().myLogger(Level.INFO, "Flag " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for door " + door.getName() + " are not loaded!", true, false);
+            plugin.getMyLogger().logMessage("Chunks for flag " + door.toSimpleString() + " are not loaded!", true, false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -82,7 +82,7 @@ public class FlagOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+            plugin.getMyLogger().logMessage("Flag " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
@@ -96,7 +96,7 @@ public class FlagOpener implements Opener
         if (!isRotateDirectionValid(door))
         {
             RotateDirection rotDir = getRotateDirection(door);
-            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.getName() + " to " + rotDir.name()
+            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.toSimpleString() + " to " + rotDir.name()
                 + ". If this is undesired, change it via the GUI.", true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), rotDir);
         }

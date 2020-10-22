@@ -57,12 +57,12 @@ public class PortcullisOpener implements Opener
     {
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
         if (door.getOpenDir().equals(RotateDirection.NONE))
         {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " has no open direction!");
+            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
@@ -90,14 +90,14 @@ public class PortcullisOpener implements Opener
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.getName() + " is not available right now!");
+                plugin.getMyLogger().myLogger(Level.INFO, "Portcullis " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for door " + door.getName() + " are not loaded!", true, false);
+            plugin.getMyLogger().logMessage("Chunks for portcullis " + door.toSimpleString() + " are not loaded!", true, false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -108,7 +108,7 @@ public class PortcullisOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds the size limit: " + maxDoorSize,
+            plugin.getMyLogger().logMessage("Portcullis " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
                                             true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
@@ -116,7 +116,7 @@ public class PortcullisOpener implements Opener
         int blocksToMove = getBlocksToMove(door);
         if (Math.abs(blocksToMove) > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
         {
-            plugin.getMyLogger().logMessage("Door \"" + door.getDoorUID() + "\" Exceeds blocksToMove limit: "
+            plugin.getMyLogger().logMessage("Portcullis " + door.toSimpleString() + " Exceeds blocksToMove limit: "
                 + blocksToMove + ". Limit = " + BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true, false);
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
@@ -136,7 +136,7 @@ public class PortcullisOpener implements Opener
                 RotateDirection openDirection = door.isOpen() ?
                     (blocksToMove > 0 ? RotateDirection.DOWN : RotateDirection.UP) :
                     (blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN);
-                plugin.getMyLogger().logMessage("Updating openDirection of portcullis " + door.getName() + " to "
+                plugin.getMyLogger().logMessage("Updating openDirection of portcullis " + door.toSimpleString() + " to "
                     + openDirection.name() + ". If this is undesired, change it via the GUI.", true, false);
                 plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), openDirection);
             }

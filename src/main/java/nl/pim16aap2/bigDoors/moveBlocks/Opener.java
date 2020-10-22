@@ -24,7 +24,7 @@ public interface Opener
         if (door.getWorld() != null)
             return true;
 
-        BigDoors.get().getMyLogger().logMessage("World is null for door \"" + door.getName() + "\"", true, false);
+        BigDoors.get().getMyLogger().logMessage("World is null for door " + door.toSimpleString() + "!", true, false);
         return false;
     }
 

@@ -138,7 +138,7 @@ public class Commander
     public void printDoors(Player player, ArrayList<Door> doors)
     {
         for (Door door : doors)
-            Util.messagePlayer(player, door.getDoorUID() + ": " + door.getName().toString());
+            Util.messagePlayer(player, door.toSimpleString());
     }
 
     // Get the door from the string. Can be use with a doorUID or a doorName.

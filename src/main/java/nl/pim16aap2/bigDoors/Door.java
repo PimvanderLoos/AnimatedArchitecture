@@ -316,6 +316,11 @@ public class Door
         return blockCount == null ? blockCount = calculateBlockCount() : blockCount;
     }
 
+    public String toSimpleString()
+    {
+        return doorUID + ": \"" + name + "\"";
+    }
+
     @Override
     public String toString()
     {
