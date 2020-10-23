@@ -318,7 +318,7 @@ public class Door
 
     public String toSimpleString()
     {
-        return doorUID + ": \"" + name + "\"";
+        return doorUID + " \"" + name + "\"";
     }
 
     @Override

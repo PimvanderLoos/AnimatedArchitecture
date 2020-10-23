@@ -821,7 +821,7 @@ public class CommandHandler implements CommandExecutor
                                 plugin.getMyLogger()
                                     .returnToSender(sender, Level.INFO, ChatColor.RED,
                                                     plugin.getMessages().getString("GENERAL.Door")
-                                                        + door.toSimpleString() + " "
+                                                        + " " + door.toSimpleString() + " "
                                                         + plugin.getMessages().getString("GENERAL.DoorAlreadyClosed"));
                         }
                         else if (type == 0)
@@ -831,7 +831,7 @@ public class CommandHandler implements CommandExecutor
                                 plugin.getMyLogger()
                                     .returnToSender(sender, Level.INFO, ChatColor.RED,
                                                     plugin.getMessages().getString("GENERAL.Door")
-                                                        + door.toSimpleString() + " "
+                                                        + " " + door.toSimpleString() + " "
                                                         + plugin.getMessages().getString("GENERAL.DoorAlreadyOpen"));
                     }
                 }
