@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Commander;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
@@ -54,6 +55,9 @@ public class CommandHandler implements CommandExecutor
 
     public void stopDoors()
     {
+        if (!plugin.getCommander().canGo())
+            return;
+        
         plugin.getCommander().setCanGo(false);
         plugin.getCommander().emptyBusyDoors();
         new BukkitRunnable()
@@ -422,23 +426,38 @@ public class CommandHandler implements CommandExecutor
 
             switch (firstCommand)
             {
-            case "upgradedatabaseforv2":
-                if (player != null) // Only the server may use this command.
-                    break;
-//                prepareDatabaseForV2(sender, cmd, label, args);
-                plugin.getMyLogger()
-                    .info("This command has been disabled! v2's database has changed significantly recently.");
-                plugin.getMyLogger()
-                    .info("The upgrade process will need to be updated because, as it stands, neither v1, nor v2 ");
-                plugin.getMyLogger().info("Will be able to use the database after the \"upgrade\".");
-                break;
+//            case "upgradedatabaseforv2":
+//                if (player != null) // Only the server may use this command.
+//                    break;
+////                prepareDatabaseForV2(sender, cmd, label, args);
+//                plugin.getMyLogger()
+//                    .info("This command has been disabled! v2's database has changed significantly recently.");
+//                plugin.getMyLogger()
+//                    .info("The upgrade process will need to be updated because, as it stands, neither v1, nor v2 ");
+//                plugin.getMyLogger().info("Will be able to use the database after the \"upgrade\".");
+//                break;
             case "version":
                 if (player != null && !player.hasPermission("bigdoors.admin.version"))
                     break;
                 plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, "This server uses version "
                     + plugin.getDescription().getVersion() + " of this plugin!");
                 break;
-
+                
+            case "disabletoggle":
+                if (player != null && !player.hasPermission("bigdoors.admin.disabletoggle"))
+                    break;
+                plugin.getCommander().setCanGo(false);
+                plugin.getCommander().emptyBusyDoors();
+                plugin.getMyLogger().info("All door toggles have been stopped! Doors will not be able to toggle until you run '/bigdoors enabletoggle'.");
+                break;
+                
+            case "enabletoggle":
+                if (player != null && !player.hasPermission("bigdoors.admin.disabletoggle"))
+                    break;
+                plugin.getCommander().setCanGo(true);
+                plugin.getMyLogger().info("Door toggles have been activated again!");
+                break;
+                
             case "menu":
                 if (player != null && player.hasPermission("bigdoors.user.gui"))
                     plugin.addGUIUser(new GUI(plugin, player));
@@ -1157,6 +1176,11 @@ public class CommandHandler implements CommandExecutor
             help += helpFormat("BigDoors stop", "Forces all doors to finish instantly.");
         if (player == null || player.hasPermission("bigdoors.admin.pausedoors"))
             help += helpFormat("BigDoors pause", "Pauses all door movement until the command is run again.");
+        if (player == null || player.hasPermission("bigdoors.admin.disabletoggle"))
+        {
+            help += helpFormat("BigDoors disabletoggle", "Stops all active doors and prevents any doors from being toggled until this is enabled again.");
+            help += helpFormat("BigDoors enabletoggle", "Enables doors being toggled again. Has no effect if they are not currently disabled.");
+        }
         if (player == null)
             help += helpFormat("BigDoors upgradedatabaseforv2", "Prepares the database for v2 of BigDoors.");
 

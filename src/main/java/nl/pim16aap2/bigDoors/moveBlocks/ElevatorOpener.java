@@ -53,6 +53,12 @@ public class ElevatorOpener implements Opener
     @Override
     public DoorOpenResult shadowToggle(Door door)
     {
+        if (!plugin.getCommander().canGo())
+        {
+            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
+        }
+        
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " is not available right now!");
@@ -85,6 +91,12 @@ public class ElevatorOpener implements Opener
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
     {
+        if (!plugin.getCommander().canGo())
+        {
+            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            return abort(DoorOpenResult.ERROR, door.getDoorUID());
+        }
+        
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
