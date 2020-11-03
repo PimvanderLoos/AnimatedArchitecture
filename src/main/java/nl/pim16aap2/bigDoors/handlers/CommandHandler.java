@@ -448,14 +448,20 @@ public class CommandHandler implements CommandExecutor
                     break;
                 plugin.getCommander().setCanGo(false);
                 plugin.getCommander().emptyBusyDoors();
-                plugin.getMyLogger().info("All door toggles have been stopped! Doors will not be able to toggle until you run '/bigdoors enabletoggle'.");
+                if (player != null)
+                    plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, plugin.getMessages().getString("COMMAND.ToggleDisabled"));
+                else
+                    plugin.getMyLogger().info("All door toggles have been stopped! Doors will not be able to toggle until you run '/bigdoors enabletoggle'.");
                 break;
                 
             case "enabletoggle":
                 if (player != null && !player.hasPermission("bigdoors.admin.disabletoggle"))
                     break;
                 plugin.getCommander().setCanGo(true);
-                plugin.getMyLogger().info("Door toggles have been activated again!");
+                if (player != null)
+                    plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, plugin.getMessages().getString("COMMAND.ToggleEnabled"));
+                else
+                    plugin.getMyLogger().info("Door toggles have been activated again!");
                 break;
                 
             case "menu":
