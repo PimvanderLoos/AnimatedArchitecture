@@ -507,13 +507,11 @@ public final class Util
             return 5;
         if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG) || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG) ||
             xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG) || xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG) ||
-            xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG))
+            xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) || 
+            xmat.equals(XMaterial.CHAIN))
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
-        {
-//            Util.broadcastMessage("Material CANNOT ROTATE!");
-        }
         return 0;
     }
 

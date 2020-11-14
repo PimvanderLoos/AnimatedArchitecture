@@ -1,3 +1,6 @@
+Alpha 0.1.8.28
+- Fixed chaings not rotating when they should. Thanks, @Sorienrot, for the bug report!
+
 Alpha 0.1.8.27
 - Added support for version 1.16.4 of Minecraft.
 - New command: "/listplayerdoors <player>". This command will list all doors owned by the given player. Permission: "bigdoors.admin.listplayerdoors".
