@@ -202,10 +202,12 @@ public class CommandHandler implements CommandExecutor
     {
         ArrayList<Door> doors = plugin.getCommander().getDoors(targetUUID.toString(), null);
         for (final Door door : doors)
-            plugin.getMyLogger().myLogger(Level.INFO, targetName + ": " + Util.getBasicDoorInfo(door));
+            plugin.getMyLogger().returnToSender(receiver, Level.WARNING, ChatColor.WHITE,
+                                                targetName + ": " + Util.getBasicDoorInfo(door));
 
         if (doors.isEmpty())
-            plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+            plugin.getMyLogger().returnToSender(receiver, Level.WARNING, ChatColor.RED,
+                                                plugin.getMessages().getString("GENERAL.NoDoorsFound"));
     }
 
     private void listDoorsFromConsole(String playerUUID, String name)

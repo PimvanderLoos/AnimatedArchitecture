@@ -1,5 +1,6 @@
 Alpha 0.1.8.28
-- Fixed chaings not rotating when they should. Thanks, @Sorienrot, for the bug report!
+- Fixed chains not rotating when they should. Thanks, @Sorienrot, for the bug report!
+- Fixed "/listplayerdoors <player>" always sending its result to the server, even if it was issued by a player.
 
 Alpha 0.1.8.27
 - Added support for version 1.16.4 of Minecraft.
