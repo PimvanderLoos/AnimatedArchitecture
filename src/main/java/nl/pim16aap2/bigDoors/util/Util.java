@@ -290,7 +290,10 @@ public final class Util
 
     private static void playSoundSync(Location loc, String sound, float volume, float pitch)
     {
-        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+        final int range = BigDoors.get().getConfigLoader().getSoundRange();
+        if (range < 1)
+            return;
+        for (Entity ent : loc.getWorld().getNearbyEntities(loc, range, range, range))
             if (ent instanceof Player)
                 ((Player) ent).playSound(loc, sound, volume, pitch);
     }

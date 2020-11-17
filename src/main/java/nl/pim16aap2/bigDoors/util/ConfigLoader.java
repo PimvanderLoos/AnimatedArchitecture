@@ -48,6 +48,7 @@ public class ConfigLoader
     private int commandWaiterTimeout;
     private boolean enableFileLogging;
     private int maxBlocksToMove;
+    private int soundRange;
     private boolean unsafeMode;
     private boolean loadChunksForToggle;
     private int maxPowerBlockDistance;
@@ -165,15 +166,12 @@ public class ConfigLoader
                                                         "The autoCloseTimer itself is not affected, so the timer can still toggle doors regardless of ",
                                                         "this specific setting. ",
                                                         "Note that this setting has not effect if \"loadChunksForToggle\" is disabled." };
+        String[] soundRangeComment = {"The range of the sounds the doors make, counted in number of blocks. Note that using too high ranges may cause lag.",
+                                      "The sound is only played at the engine of a door.",
+                                      "Use a value of 0 or less to completely disable all sounds."};
 
 //        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
 //                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
-
-//        String[] unsafeModeComment = { "Abort initialization if the plugin detects you are running it in an invalid environment.",
-//                                       "Disabling this is NOT SUPPORTED and you WILL run into issues. ",
-//                                       "By disabling this option you agree that you will not complain if any issues arise and that it is completely",
-//                                       "your own responsibility.",
-//                                       "If you need to disable this option you are doing it wrong and you should rethink your life choices." };
 
         String[] unsafeModeComment = { "Only load this plugin in supported environments.",
                                        "Enabling this is NOT SUPPORTED and you WILL run into issues. ",
@@ -242,6 +240,9 @@ public class ConfigLoader
 
         resourcePackEnabled = config.getBoolean("resourcePackEnabled", true);
         configOptionsList.add(new ConfigOption("resourcePackEnabled", resourcePackEnabled, resourcePackComment));
+
+        soundRange = config.getInt("soundRange", 15);
+        configOptionsList.add(new ConfigOption("soundRange", soundRange, soundRangeComment));
 
         bdMultiplier = config.getDouble("bdMultiplier", 1.0D);
         configOptionsList.add(new ConfigOption("bdMultiplier", bdMultiplier, multiplierComment));
@@ -703,5 +704,15 @@ public class ConfigLoader
     public boolean unsafeMode()
     {
         return unsafeMode;
+    }
+
+    /**
+     * Gets the range around an engine for playing sound.
+     *
+     * @return The sound range.
+     */
+    public int getSoundRange()
+    {
+        return soundRange;
     }
 }
