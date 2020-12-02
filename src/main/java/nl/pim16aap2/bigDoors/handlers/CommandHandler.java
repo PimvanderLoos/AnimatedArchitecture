@@ -53,23 +53,6 @@ public class CommandHandler implements CommandExecutor
         this.plugin = plugin;
     }
 
-    public void stopDoors()
-    {
-        if (!plugin.getCommander().canGo())
-            return;
-        
-        plugin.getCommander().setCanGo(false);
-        plugin.getCommander().emptyBusyDoors();
-        new BukkitRunnable()
-        {
-            @Override
-            public void run()
-            {
-                plugin.getCommander().setCanGo(true);
-            }
-        }.runTaskLater(plugin, 5L);
-    }
-
     // Open the door.
     public void openDoorCommand(CommandSender sender, Door door, double time, boolean instant)
     {
@@ -449,7 +432,7 @@ public class CommandHandler implements CommandExecutor
                 if (player != null && !player.hasPermission("bigdoors.admin.disabletoggle"))
                     break;
                 plugin.getCommander().setCanGo(false);
-                plugin.getCommander().emptyBusyDoors();
+                plugin.getCommander().stopMovers(false);
                 if (player != null)
                     plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN, plugin.getMessages().getString("COMMAND.ToggleDisabled"));
                 else
@@ -482,7 +465,7 @@ public class CommandHandler implements CommandExecutor
 
             case "stop":
                 if ((player != null && player.hasPermission("bigdoors.admin.stopdoors")) || player == null)
-                    stopDoors();
+                    plugin.getCommander().stopMovers(false);
                 break;
 
             case "pause":
@@ -598,7 +581,7 @@ public class CommandHandler implements CommandExecutor
         // /stopdoors
         if (cmd.getName().equalsIgnoreCase("stopdoors"))
         {
-            stopDoors();
+            plugin.getCommander().stopMovers(false);
             return true;
         }
 

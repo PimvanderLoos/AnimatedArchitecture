@@ -40,6 +40,7 @@ public class FlagMover implements BlockMover
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
+    private BukkitRunnable animationRunnable;
 
     @SuppressWarnings("deprecation")
     public FlagMover(BigDoors plugin, World world, double time, Door door)
@@ -114,15 +115,24 @@ public class FlagMover implements BlockMover
         else
             putBlocks(false);
     }
+    
+    @Override
+    public synchronized void cancel(boolean onDisable)
+    {
+        if (this.animationRunnable == null)
+            return;
+        this.animationRunnable.cancel();
+        this.putBlocks(onDisable);
+    }
 
     // Put the door blocks back, but change their state now.
     @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.get())
-            return;
-        blocksPlaced.set(true);
+        if (blocksPlaced.getAndSet(true))
+            return;        
+        
         int index = 0;
         double yAxis = yMin;
         do
@@ -202,7 +212,8 @@ public class FlagMover implements BlockMover
     private void rotateEntities()
     {
         endCount = (int) (20.0f / tickRate * time);
-        new BukkitRunnable()
+        
+        animationRunnable = new BukkitRunnable()
         {
             double counter = 0;
             int totalTicks = (int) (endCount * 1.1);
@@ -224,7 +235,7 @@ public class FlagMover implements BlockMover
                 else
                     startTime += currentTime - lastTime;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getCommander().canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -275,7 +286,8 @@ public class FlagMover implements BlockMover
                     }
                 }
             }
-        }.runTaskTimer(plugin, 14, tickRate);
+        };
+        animationRunnable.runTaskTimer(plugin, 14, tickRate);
     }
 
     private CustomCraftFallingBlock_Vall fallingBlockFactory(Location loc, Material mat, byte matData,

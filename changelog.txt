@@ -3,6 +3,7 @@ Alpha 0.1.8.28
 - Fixed "/listplayerdoors <player>" always sending its result to the server, even if it was issued by a player. Thanks, @Minecreeper.Isi, for the bug report!
 - Made audio range configureable. Thanks, @OverDhill, for the suggestion!
 - Whenever a chunk with active doors is unloaded, the animations will now be cancelled regardless of whether or not the unload is cancelled. This also goes for forceloaded chunks. Ignoring forceloaded chunks solves an issue with the server sometimes unloading forceloaded chunks regardless (looking at you, Tuinity). Thanks, @Gorderok, for the bug report!
+- Tighten timing on animation cancellation.
 
 Alpha 0.1.8.27
 - Added support for version 1.16.4 of Minecraft.

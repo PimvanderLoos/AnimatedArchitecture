@@ -45,6 +45,7 @@ public class SlidingMover implements BlockMover
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
+    private BukkitRunnable animationRunnable;
 
     @SuppressWarnings("deprecation")
     public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
@@ -154,15 +155,24 @@ public class SlidingMover implements BlockMover
         else
             putBlocks(false);
     }
+    
+    @Override
+    public synchronized void cancel(boolean onDisable)
+    {
+        if (this.animationRunnable == null)
+            return;
+        this.animationRunnable.cancel();
+        this.putBlocks(onDisable);
+    }
 
     // Put the door blocks back, but change their state now.
     @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.get())
-            return;
-        blocksPlaced.set(true);
+        if (blocksPlaced.getAndSet(true))
+            return;        
+        
         int index = 0;
         double yAxis = yMin;
         do
@@ -246,7 +256,8 @@ public class SlidingMover implements BlockMover
     private void rotateEntities()
     {
         endCount = (int) (20.0f / tickRate * time);
-        new BukkitRunnable()
+        
+        animationRunnable = new BukkitRunnable()
         {
             double counter = 0;
             double step = ((double) blocksToMove) / ((double) endCount);
@@ -277,7 +288,7 @@ public class SlidingMover implements BlockMover
                 else
                     stepSum = blocksToMove;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks || firstBlockData == null)
+                if (!plugin.getCommander().canGo() || counter > totalTicks || firstBlockData == null)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -309,7 +320,8 @@ public class SlidingMover implements BlockMover
                             block.getFBlock().setVelocity(vec);
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 14, tickRate);
+        };
+        animationRunnable.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
     // Toggle the open status of a drawbridge.

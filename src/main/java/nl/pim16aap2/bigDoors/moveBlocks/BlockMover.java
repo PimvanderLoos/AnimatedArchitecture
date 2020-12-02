@@ -11,6 +11,8 @@ public interface BlockMover
     public long getDoorUID();
 
     public Door getDoor();
+    
+    public void cancel(boolean onDisable);
 
     /**
      * Gets the number of ticks the door should to the delay to make sure the second

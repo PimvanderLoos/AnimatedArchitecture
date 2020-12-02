@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -54,9 +55,11 @@ public class Commander
         busyDoors.clear();
     }
 
-    public void stopMovers()
+    public void stopMovers(boolean onDisable)
     {
-        busyDoors.forEach((K, V) -> V.putBlocks(true));
+        Iterator<BlockMover> it = busyDoors.values().iterator();
+        while (it.hasNext())
+            it.next().cancel(onDisable);
     }
 
     // Check if a door is busy
@@ -454,6 +457,11 @@ public class Commander
 
     private static final class DummyMover implements BlockMover
     {
+        
+        @Override
+        public synchronized void cancel(boolean onDisable)
+        {
+        }
 
         @Override
         public void putBlocks(boolean onDisable)

@@ -439,7 +439,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
-        commander.stopMovers();
+        commander.stopMovers(true);
 
         Iterator<Entry<UUID, ToolUser>> it = toolUsers.entrySet().iterator();
         while (it.hasNext())
@@ -684,7 +684,6 @@ public class BigDoors extends JavaPlugin implements Listener
         new GetNewLocationEast();
         new GetNewLocationSouth();
         new GetNewLocationWest();
-        commandHandler.stopDoors();
     }
 
     public boolean is1_13()

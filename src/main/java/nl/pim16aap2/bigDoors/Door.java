@@ -18,7 +18,6 @@ public class Door
     private String               name;
     private DoorType             type;
     private World               world;
-    private boolean             canGo;
     private boolean            isOpen;
     private Location           engine;
     private UUID               player;
@@ -61,7 +60,6 @@ public class Door
         chunkLoc        = null;
         length          = null;
         roundedLength   = null;
-        canGo           = true;
         this.openDir    = openDir == null ? RotateDirection.NONE : openDir;
         this.autoClose  = autoClose;
     }
@@ -114,7 +112,6 @@ public class Door
     public UUID getPlayerUUID()         {  return player;        }  // Get UUID of the owner of the door. Might be null!
     public String getPlayerName()       {  return playerName;    }  // Get name of the owner of the door. Might be null!
     public DoorDirection getEngSide()   {  return engineSide;    }  // Get this door's (or drawbridge's, in this case) engine side.
-    public boolean canGo()              {  return canGo;         }  // Check if this door can still be opened or not.
     public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.
     public int getBlocksToMove()        {  return blocksToMove;  }  // Get the desired number of blocks to move this door.
@@ -138,11 +135,6 @@ public class Door
     public void setOpenStatus(boolean bool)
     {
         isOpen = bool;
-    }
-
-    public void setCanGo(boolean bool)
-    {
-        canGo = bool;
     }
 
     // Return the location of the powerblock of this door.

@@ -58,6 +58,7 @@ public class BridgeMover implements BlockMover
     private List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
+    private BukkitRunnable animationRunnable;
 
     @SuppressWarnings("deprecation")
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
@@ -316,15 +317,23 @@ public class BridgeMover implements BlockMover
         else
             putBlocks(false);
     }
+    
+    @Override
+    public synchronized void cancel(boolean onDisable)
+    {
+        if (this.animationRunnable == null)
+            return;
+        this.animationRunnable.cancel();
+        this.putBlocks(onDisable);
+    }
 
     // Put the door blocks back, but change their state now.
     @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.get())
-            return;
-        blocksPlaced.set(true);
+        if (blocksPlaced.getAndSet(true))
+            return;        
 
         int index = 0;
         double xAxis = turningPoint.getX();
@@ -414,7 +423,8 @@ public class BridgeMover implements BlockMover
     private void rotateEntities()
     {
         endCount = (int) (20.0f / tickRate * time);
-        new BukkitRunnable()
+        
+        animationRunnable = new BukkitRunnable()
         {
             Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
@@ -450,7 +460,7 @@ public class BridgeMover implements BlockMover
                 if (counter == replaceCount)
                     replace = true;
 
-                if (!plugin.getCommander().canGo() || !door.canGo() || counter > totalTicks)
+                if (!plugin.getCommander().canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
                     for (int idx = 0; idx < savedBlocks.size(); ++idx)
@@ -523,7 +533,8 @@ public class BridgeMover implements BlockMover
                     }
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 14, tickRate);
+        };
+        animationRunnable.runTaskTimerAsynchronously(plugin, 14, tickRate);
     }
 
     // Rotate blocks such a logs by modifying its material data.
