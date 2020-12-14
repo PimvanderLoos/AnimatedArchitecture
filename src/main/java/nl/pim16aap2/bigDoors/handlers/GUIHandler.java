@@ -23,6 +23,12 @@ public class GUIHandler implements Listener
         messages = plugin.getMessages();
     }
 
+    public boolean isInBigDoorsInventory(Player player)
+    {
+        return player.getOpenInventory() != null &&
+            PageType.valueOfName(messages.getStringReverse(player.getOpenInventory().getTitle())) != PageType.NOTBIGDOORS;
+    }
+
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event)
     {
@@ -42,8 +48,7 @@ public class GUIHandler implements Listener
                 {
                     // Get the current page type. If no inventory is open (I don't think that's possible), it's notbigdoors by definition,
                     // Otherwise, check which one it is and then close the GUI.
-                    if ((player.getOpenInventory() == null ? PageType.NOTBIGDOORS :
-                        PageType.valueOfName(messages.getStringReverse(player.getOpenInventory().getTitle()))) == PageType.NOTBIGDOORS)
+                    if (!isInBigDoorsInventory(player))
                         gui.close();
                 }
             }.runTaskLater(plugin, 1);
@@ -58,6 +63,9 @@ public class GUIHandler implements Listener
             return;
 
         Player player = (Player) event.getWhoClicked();
+        if (!isInBigDoorsInventory(player))
+            return;
+
         GUI gui = plugin.getGUIUser(player);
 
         if (gui == null)
