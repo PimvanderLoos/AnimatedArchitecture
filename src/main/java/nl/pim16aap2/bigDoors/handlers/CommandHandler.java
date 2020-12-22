@@ -70,10 +70,12 @@ public class CommandHandler implements CommandExecutor
             return;
         }
 
+        final boolean bypass = hasBypassAccess(sender instanceof Player ? (Player) sender :  null, DoorAttribute.TOGGLE);
+
         // Get a new instance of the door to make sure the locked / unlocked status is
         // recent.
         Door newDoor = plugin.getCommander().getDoor(sender instanceof Player ? ((Player) sender).getUniqueId() : null,
-                                                     door.getDoorUID());
+                                                     door.getDoorUID(), bypass);
 
         if (newDoor == null)
         {
@@ -81,10 +83,10 @@ public class CommandHandler implements CommandExecutor
                                                 plugin.getMessages().getString("GENERAL.ToggleFailure"));
             return;
         }
+
         if (newDoor.isLocked())
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
                                                 plugin.getMessages().getString("GENERAL.DoorIsLocked"));
-
         else
         {
             Opener opener = plugin.getDoorOpener(newDoor.getType());
@@ -485,7 +487,8 @@ public class CommandHandler implements CommandExecutor
                     if (cw != null)
                         return cw.executeCommand(args);
 
-                    Door door = plugin.getCommander().getDoor(args[1], player);
+                    final boolean bypass = hasBypassAccess(player, DoorAttribute.ADDOWNER);
+                    Door door = plugin.getCommander().getDoor(args[1], player, bypass);
                     if (door == null)
                     {
                         plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[1] + "\" "
@@ -544,7 +547,8 @@ public class CommandHandler implements CommandExecutor
                     if (cw != null && cw.getCommand().equals("removeowner"))
                         cw.abortSilently();
 
-                    Door door = plugin.getCommander().getDoor(args[1], player);
+                    final boolean bypass = hasBypassAccess(player, DoorAttribute.REMOVEOWNER);
+                    Door door = plugin.getCommander().getDoor(args[1], player, bypass);
                     if (door == null)
                     {
                         plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED, "\"" + args[1] + "\" "
@@ -613,7 +617,8 @@ public class CommandHandler implements CommandExecutor
                 if (cw != null && cw.getCommand().equals("setautoclosetime"))
                     cw.abortSilently();
 
-                Door door = plugin.getCommander().getDoor(args[0], player);
+                final boolean bypass = hasBypassAccess(player, DoorAttribute.CHANGETIMER);
+                Door door = plugin.getCommander().getDoor(args[0], player, bypass);
                 if (door == null)
                     return false;
 
@@ -655,7 +660,8 @@ public class CommandHandler implements CommandExecutor
                 if (cw != null && cw.getCommand().equals("setblockstomove"))
                     cw.abortSilently();
 
-                Door door = plugin.getCommander().getDoor(args[0], player);
+                final boolean bypass = hasBypassAccess(player, DoorAttribute.BLOCKSTOMOVE);
+                Door door = plugin.getCommander().getDoor(args[0], player, bypass);
                 if (door == null)
                     return false;
 
@@ -688,7 +694,8 @@ public class CommandHandler implements CommandExecutor
             if (args.length != 2)
                 return false;
 
-            Door door = plugin.getCommander().getDoor(args[0], player);
+            final boolean bypass = hasBypassAccess(player, DoorAttribute.DIRECTION_ROTATE);
+            Door door = plugin.getCommander().getDoor(args[0], player, bypass);
             if (door == null)
                 return false;
 
@@ -801,10 +808,12 @@ public class CommandHandler implements CommandExecutor
                         instantly = true;
                 }
 
+                final boolean bypass = hasBypassAccess(player, DoorAttribute.TOGGLE);
+
                 // Go over all arguments until the last one (or the one before that).
                 for (int index = 0; index < endIDX; ++index)
                 {
-                    Door door = plugin.getCommander().getDoor(args[index], player);
+                    Door door = plugin.getCommander().getDoor(args[index], player, bypass);
 
                     // If the door is null, let the player know that the selected door is invalid.
                     if (door == null)
@@ -952,7 +961,9 @@ public class CommandHandler implements CommandExecutor
             {
                 if (args.length < 1)
                     return false;
-                Door door = plugin.getCommander().getDoor(args[0], player);
+
+                final boolean bypass = hasBypassAccess(player, DoorAttribute.RELOCATEPOWERBLOCK);
+                Door door = plugin.getCommander().getDoor(args[0], player, bypass);
                 if (door == null)
                 {
                     Util.messagePlayer(player, ChatColor.RED, "No door found by that name!");
@@ -1030,6 +1041,23 @@ public class CommandHandler implements CommandExecutor
         return false;
     }
 
+    /**
+     * Checks if a player has bypass access for a certain attribute.
+     * See {@link DoorAttribute#getAdminPermission(DoorAttribute)}.
+     * <p>
+     * OPs (see {@link Player#isOp()} and non-players are considered to
+     * have bypass access to everything.
+     *
+     * @param player The player to check (may be null).
+     * @param doorAttribute The attribute to check.
+     * @return True if the player exists and has bypass access to the provided attribute.
+     */
+    public boolean hasBypassAccess(final Player player, final DoorAttribute doorAttribute)
+    {
+        return player != null &&
+            (player.isOp() || player.hasPermission(DoorAttribute.getAdminPermission(doorAttribute)));
+    }
+
     public void delDoor(Player player, String doorName)
     {
         long doorUID = -1;
@@ -1047,7 +1075,8 @@ public class CommandHandler implements CommandExecutor
             }
             else if (doorCount == 1)
             {
-                doorUID = plugin.getCommander().getDoor(doorName, player).getDoorUID();
+                final boolean bypass = hasBypassAccess(player, DoorAttribute.DELETE);
+                doorUID = plugin.getCommander().getDoor(doorName, player, bypass).getDoorUID();
             }
             else
             {

@@ -920,6 +920,26 @@ public class SQLiteJDBCDriverConnection
     // Get Door from a doorID.
     public Door getDoor(@Nullable UUID playerUUID, final long doorUID)
     {
+        return getDoor(playerUUID, doorUID, false);
+    }
+
+    /**
+     * Gets the door from its UID.
+     * <p>
+     * When no playerUUID is provided, the original creator will be retrieved as owner.
+     * <p>
+     * If a playerUUID is provided, only doors owned by this player are considered, unless
+     * includeNonOwners is enabled (in which case the original creator will be returned in the
+     * provided player is not an owner).
+     *
+     * @param playerUUID       The UUID of the player who should be the owner of the door. May be null.
+     * @param doorUID          The UID of the door to look for.
+     * @param includeNonOwners Whether or not to include doors not owned by the provided player in the search.
+     *                         This has no effect when the provided playerUUID is null.
+     * @return The door if one exists with the UID and within the ownership constraints.
+     */
+    public Door getDoor(@Nullable UUID playerUUID, final long doorUID, final boolean includeNonOwners)
+    {
         Door door = null;
 
         Connection conn = null;
@@ -927,18 +947,9 @@ public class SQLiteJDBCDriverConnection
         {
             conn = getConnection();
             int permission = -1;
-            String playerName;
+            String playerName = null;
 
-            // If no player is specified, get the lowest tier permission and the original
-            // creator.
-            if (playerUUID == null)
-            {
-                permission = 2;
-                DoorOwner doorOwner = getOwnerOfDoor(conn, doorUID);
-                playerUUID = doorOwner.getPlayerUUID();
-                playerName = doorOwner.getPlayerName();
-            }
-            else
+            if (playerUUID != null)
             {
                 long playerID = getPlayerID(conn, playerUUID.toString());
 
@@ -959,8 +970,21 @@ public class SQLiteJDBCDriverConnection
                 ps2.close();
                 rs2.close();
 
-                if (permission == -1)
+                // If the permission level is -1, the provided player is not a (co-)owner of this door.
+                // If includeNonOwners is disabled, this means no doors existed within the provided
+                // constraints. If includeNonOwners is enabled, we can continue by searching for the
+                // original creator.
+                if (permission == -1 && !includeNonOwners)
                     return null;
+            }
+            // If no player is specified, or if the specified player is not an owner of a door but
+            // we're also looking for non-owners, get the lowest tier permission and the original creator.
+            if (playerUUID == null || playerName == null)
+            {
+                permission = 2;
+                DoorOwner doorOwner = getOwnerOfDoor(conn, doorUID);
+                playerUUID = doorOwner.getPlayerUUID();
+                playerName = doorOwner.getPlayerName();
             }
 
             PreparedStatement ps3 = conn.prepareStatement("SELECT * FROM doors WHERE id = '" + doorUID + "';");

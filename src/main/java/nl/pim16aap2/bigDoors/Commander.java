@@ -144,14 +144,34 @@ public class Commander
             Util.messagePlayer(player, door.toSimpleString());
     }
 
-    // Get the door from the string. Can be use with a doorUID or a doorName.
+    /**
+     * See {@link #getDoor(String, Player, boolean)} with the bypass disabled.
+     */
     public Door getDoor(String doorStr, @Nullable Player player)
+    {
+        return getDoor(doorStr, player, false);
+    }
+
+    /**
+     * Gets the door with the given name/UID. If a player object is provided,
+     * it will restrict itself to only doors (co-)owned by this player.
+     * <p>
+     * If bypass is true, door lookups using the door's UID also includes
+     * doors that are not owned by the player.
+     *
+     * @param doorStr The ID of the door, represented either by its name or its UID.
+     * @param player  The player for which to retrieve the door. May be null.
+     * @param bypass  Whether the player has bypass access to the door.
+     *                This has no effect if the player is null.
+     * @return The door with the provided name, if exactly one could be found.
+     */
+    public Door getDoor(String doorStr, @Nullable Player player, final boolean bypass)
     {
         // First try converting the doorStr to a doorUID.
         try
         {
             long doorUID = Long.parseLong(doorStr);
-            return db.getDoor(player == null ? null : player.getUniqueId(), doorUID);
+            return db.getDoor(player == null ? null : player.getUniqueId(), doorUID, bypass);
         }
         // If it can't convert to a long, get all doors from the player with the
         // provided name.
@@ -316,7 +336,12 @@ public class Commander
     // Get a door with a specific doorUID.
     public Door getDoor(@Nullable UUID playerUUID, long doorUID)
     {
-        return db.getDoor(playerUUID, doorUID);
+        return getDoor(playerUUID, doorUID, false);
+    }
+
+    public Door getDoor(@Nullable UUID playerUUID, long doorUID, final boolean bypass)
+    {
+        return db.getDoor(playerUUID, doorUID, bypass);
     }
 
     public boolean hasPermissionNodeForAction(Player player, DoorAttribute atr)

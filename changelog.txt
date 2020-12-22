@@ -1,5 +1,6 @@
 Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!
+- Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
 
 Alpha 0.1.8.28
 - Fixed chains not rotating when they should. Thanks, @Sorienrot, for the bug report!
