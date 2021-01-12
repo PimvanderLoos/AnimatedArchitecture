@@ -25,13 +25,6 @@
         <module>doors-windmill</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>maven-jar-plugin</id>
-            <url>https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -39,4 +32,45 @@
             <version>1</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <mainClass>UNDEFINED</mainClass>
+        <typeName>UNDEFINED</typeName>
+        <version>UNDEFINED</version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <outputDirectory>../DoorTypes/</outputDirectory>
+                        <archive>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                                <mainClass>${mainClass}</mainClass>
+                            </manifest>
+                            <manifestSections>
+                                <manifestSection>
+                                    <name>TypeName</name>
+                                    <manifestEntries>
+                                        <TypeName>${typeName}</TypeName>
+                                    </manifestEntries>
+                                </manifestSection>
+                                <manifestSection>
+                                    <name>Version</name>
+                                    <manifestEntries>
+                                        <Version>${version}</Version>
+                                    </manifestEntries>
+                                </manifestSection>
+                            </manifestSections>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
