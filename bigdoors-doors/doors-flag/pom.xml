@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>doors-flag</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <properties>
         <mainClass>nl.pim16aap2.bigdoors.doors.flag.DoorTypeFlag</mainClass>
@@ -14,7 +14,7 @@
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-doors</artifactId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <build>

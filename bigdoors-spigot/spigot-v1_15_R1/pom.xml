@@ -4,19 +4,19 @@
     <artifactId>spigot-v1_15_R1</artifactId>
     <packaging>jar</packaging>
     <description>BigDoors implementation for v1_15_R1</description>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <parent>
         <artifactId>bigdoors-spigot</artifactId>
         <groupId>nl.pim16aap2.bigdoors</groupId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1</version>
         </dependency>
 
         <!-- Spigot API (docs) -->

@@ -4,12 +4,12 @@
     <artifactId>bigdoors-integration-test</artifactId>
     <packaging>jar</packaging>
     <description>BigDoors' integration test</description>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-parent</artifactId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <repositories>
@@ -29,77 +29,77 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-bigdoor</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-clock</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-drawbridge</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-elevator</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-flag</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-garagedoor</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-portcullis</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-revolvingdoor</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-slidingdoor</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-windmill</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>test</scope>
         </dependency>
 

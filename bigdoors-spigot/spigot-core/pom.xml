@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>spigot-core</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-parent</artifactId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <repositories>
@@ -46,31 +46,19 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>spigot-v1_14_R1</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-v1_15_R1</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1</version>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-util</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-spigot</artifactId>
-            <version>${project.parent.version}</version>
+            <version>1</version>
         </dependency>
 
 
@@ -78,7 +66,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <version>1.15.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -86,7 +74,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.14.4-R0.1-SNAPSHOT</version>
+            <version>1.15.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -94,7 +82,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.5</version>
+            <version>1.7</version>
             <scope>compile</scope>
         </dependency>
 

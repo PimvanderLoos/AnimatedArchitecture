@@ -4,12 +4,12 @@
     <artifactId>bigdoors-doors</artifactId>
     <packaging>pom</packaging>
     <description>Modules for the different types of Doors</description>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-parent</artifactId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <modules>
@@ -36,7 +36,7 @@
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
-            <version>200</version>
+            <version>1</version>
         </dependency>
     </dependencies>
 </project>

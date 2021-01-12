@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>doors-elevator</artifactId>
     <packaging>jar</packaging>
-    <version>${project.parent.version}</version>
+    <version>1</version>
 
     <properties>
         <mainClass>nl.pim16aap2.bigdoors.doors.elevator.DoorTypeElevator</mainClass>
@@ -14,14 +14,14 @@
     <parent>
         <groupId>nl.pim16aap2.bigdoors</groupId>
         <artifactId>bigdoors-doors</artifactId>
-        <version>200</version>
+        <version>1</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-portcullis</artifactId>
-            <version>200</version>
+            <version>1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

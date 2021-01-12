@@ -5,7 +5,7 @@
     <artifactId>bigdoors-parent</artifactId>
 
     <packaging>pom</packaging>
-    <version>200</version>
+    <version>1</version>
     <name>BigDoors</name>
 
     <properties>
