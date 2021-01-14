@@ -81,7 +81,7 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Registeres an {@link DoorType} in the database.
+     * Registers an {@link DoorType} in the database.
      *
      * @param doorType The {@link DoorType}.
      * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
@@ -204,14 +204,31 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
+     * See {@link #getDoors(UUID, String)}.
+     */
+    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull IPPlayer player,
+                                                                       final @NotNull String name)
+    {
+        return getDoors(player.getUUID(), name);
+    }
+
+    /**
      * Gets all {@link AbstractDoorBase} owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the payer.
+     * @param playerUUID The {@link UUID} of the player.
      * @return All {@link AbstractDoorBase} owned by a player.
      */
     public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool);
+    }
+
+    /**
+     * See {@link #getDoors(UUID)}.
+     */
+    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull IPPlayer player)
+    {
+        return getDoors(player.getUUID());
     }
 
     /**
