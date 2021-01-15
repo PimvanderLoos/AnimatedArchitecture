@@ -35,12 +35,6 @@
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-core</artifactId>
-            <version>1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>spigot-v1_15_R1</artifactId>
             <version>1</version>
         </dependency>
@@ -75,6 +69,12 @@
             <artifactId>spigot</artifactId>
             <version>1.15.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- bStats -->

@@ -2,10 +2,12 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
 
 import java.util.Collections;
 import java.util.List;
@@ -82,6 +84,10 @@ public abstract class DoorRetriever
      * Attempts to retrieve a door from its specification (see {@link #getDoor(IPPlayer)}).
      * <p>
      * If more than 1 match was found, the player will be asked to specify which one they asked for specifically.
+     * <p>
+     * The amount of time to wait (when required) is determined by {@link IConfigLoader#specificationTimeout()}.
+     * <p>
+     * See {@link DelayedDoorSpecificationInputRequest}.
      *
      * @param player The player for whom to get the door.
      * @return The door as specified by this {@link DoorRetriever} and with user input in case more than one match was
@@ -183,7 +189,16 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoorInteractive(final @NonNull IPPlayer player)
         {
-            throw new NotImplementedException();
+            return getDoors(player).thenApplyAsync(
+                doorList ->
+                {
+                    if (doorList.size() == 1)
+                        return Optional.of(doorList.get(0));
+                    if (doorList.isEmpty())
+                        return Optional.empty();
+                    return DelayedDoorSpecificationInputRequest
+                        .get(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout(), doorList, player);
+                });
         }
     }
 

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -13,11 +14,14 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +89,11 @@ public final class Util
         }
     }
 
+    public static @NotNull OptionalInt parseInt(final @NonNull Optional<String> str)
+    {
+        return str.map(Util::parseInt).orElse(OptionalInt.empty());
+    }
+
     public static @NotNull OptionalDouble parseDouble(final @Nullable String str)
     {
         if (str == null)
@@ -100,6 +109,11 @@ public final class Util
         }
     }
 
+    public static @NotNull OptionalDouble parseDouble(final @NonNull Optional<String> str)
+    {
+        return str.map(Util::parseDouble).orElse(OptionalDouble.empty());
+    }
+
     public static @NotNull OptionalLong parseLong(final @Nullable String str)
     {
         if (str == null)
@@ -113,6 +127,42 @@ public final class Util
         {
             return OptionalLong.empty();
         }
+    }
+
+    public static @NotNull OptionalLong parseLong(final @NonNull Optional<String> str)
+    {
+        return str.map(Util::parseLong).orElse(OptionalLong.empty());
+    }
+
+    /**
+     * Gets a {@link NonNull} value from a {@link Nullable} one, with a provided fallback in case the value is null.
+     *
+     * @param value    The value that may or may not be null.
+     * @param fallback A {@link Supplier} to supply a fallback to return in case the value is null.
+     * @param <T>      The type of the value.
+     * @return The value if it is not null, otherwise the fallback.
+     */
+    public @NonNull <T> T valOrDefault(final @Nullable T value, final @NonNull Supplier<T> fallback)
+    {
+        return value == null ? fallback.get() : value;
+    }
+
+    /**
+     * Searches through an {@link Iterable} object using a provided search function.
+     *
+     * @param iterable   The {@link Iterable} object to search through.
+     * @param searchPred The search predicate to use.
+     * @param <T>        The type of objects stored in the {@link Iterable}.
+     * @return The value in the {@link Iterable} object for which the search function returns true, otherwise {@link
+     * Optional#empty()}.
+     */
+    public @NonNull <T> Optional<T> searchIterable(final @NonNull Iterable<T> iterable,
+                                                   final @NonNull Predicate<T> searchPred)
+    {
+        for (final @NonNull T val : iterable)
+            if (searchPred.test(val))
+                return Optional.of(val);
+        return Optional.empty();
     }
 
     /**

@@ -22,6 +22,18 @@ public interface IConfigLoader extends IRestartable
     boolean debug();
 
     /**
+     * The amount of time a user gets to specify which door they meant in case of doorID collisions.
+     * <p>
+     * This can happen in case they specified a door by its name when they own more than 1 door with that name.
+     *
+     * @return The amount of time (in ms) to give a user to specify which door they meant.
+     */
+    default int specificationTimeout()
+    {
+        return 20000;
+    }
+
+    /**
      * Gets the formula of a flag. Used for debugging.
      *
      * @return The formula of a flag.
