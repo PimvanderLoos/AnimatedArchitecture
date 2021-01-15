@@ -28,6 +28,16 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         this.player = player;
     }
 
+    /**
+     * Asks the user to specify which one of multiple doors they want to select.
+     *
+     * @param timeout The amount of time (in ms) to give the user to provide the required input.
+     *                <p>
+     *                If the user fails to provide input within this timeout window, an empty result will be returned.
+     * @param options The list of options they can choose from.
+     * @param player  The player that is asked to make a choice.
+     * @return
+     */
     public static @NonNull Optional<AbstractDoorBase> get(final long timeout,
                                                           final @NonNull List<AbstractDoorBase> options,
                                                           final @NonNull IPPlayer player)
@@ -49,6 +59,12 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
 
     @Override
     protected void init()
+    {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    protected void cleanup()
     {
         throw new NotImplementedException();
     }

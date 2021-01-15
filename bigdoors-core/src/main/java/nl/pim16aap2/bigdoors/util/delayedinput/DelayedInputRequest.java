@@ -14,10 +14,16 @@ import java.util.Optional;
  */
 public abstract class DelayedInputRequest<T>
 {
+    /**
+     * Object used for waiting/notifying.
+     */
     private final Object guard = new Object();
 
+    /**
+     * Gets the current {@link Status} of the request.
+     */
     @Getter
-    private volatile Status status = Status.UNINITIALIZED;
+    private volatile Status status = Status.INACTIVE;
 
     /**
      * The input that may be received in the future.
@@ -62,7 +68,7 @@ public abstract class DelayedInputRequest<T>
     {
         synchronized (guard)
         {
-            if (status != Status.UNINITIALIZED)
+            if (status != Status.INACTIVE)
             {
                 final IllegalStateException e = new IllegalStateException(
                     "Trying to initialize delayed input request while it has status: " + status.name());
@@ -85,6 +91,8 @@ public abstract class DelayedInputRequest<T>
 
             if (status != Status.COMPLETED)
                 status = Status.TIMED_OUT;
+
+            cleanup();
 
             return Optional.ofNullable(value);
         }
@@ -110,8 +118,38 @@ public abstract class DelayedInputRequest<T>
      */
     protected abstract void init();
 
+    /**
+     * Runs after the request has closed. Either because input was provided or because the request timed out.
+     * <p>
+     * See {@link #getStatus()}.
+     */
+    protected void cleanup()
+    {
+    }
+
+    /**
+     * Represents the various different stages of a request.
+     */
     public enum Status
     {
-        UNINITIALIZED, WAITING, COMPLETED, TIMED_OUT
+        /**
+         * The request has not been made yet.
+         */
+        INACTIVE,
+
+        /**
+         * The request is waiting for input.
+         */
+        WAITING,
+
+        /**
+         * The request received input and everything went as expected.
+         */
+        COMPLETED,
+
+        /**
+         * The request timed out before it received input.
+         */
+        TIMED_OUT
     }
 }

@@ -71,7 +71,7 @@ class DelayedInputRequestTest
     public void testStatus()
     {
         DelayedInputRequest<String> request = new DelayedInputRequestImpl(1000);
-        Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.UNINITIALIZED);
+        Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.INACTIVE);
         CompletableFuture.supplyAsync(request::waitForInput);
         sleep(5);
         Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.WAITING);
