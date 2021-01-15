@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -337,7 +338,13 @@ public class CommandManager implements CommandExecutor
                         doors = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
                                         .get();
                     }
-                    catch (InterruptedException | ExecutionException e)
+                    catch (InterruptedException e)
+                    {
+                        PLogger.get().logThrowableSilently(e);
+                        doors = Collections.emptyList();
+                        Thread.currentThread().interrupt();
+                    }
+                    catch (ExecutionException e)
                     {
                         plugin.getPLogger().logThrowable(e);
                         doors = Collections.emptyList();

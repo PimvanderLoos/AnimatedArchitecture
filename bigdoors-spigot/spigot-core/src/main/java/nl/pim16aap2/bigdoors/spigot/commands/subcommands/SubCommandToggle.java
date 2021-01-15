@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -100,7 +101,12 @@ public class SubCommandToggle extends SubCommand
                         // TODO: Error when trying to toggle an invalid door.
                         commandManager.getDoorFromArg(sender, args[currentPos], null, null).get().ifPresent(doors::add);
                     }
-                    catch (InterruptedException | ExecutionException | NullPointerException e)
+                    catch (InterruptedException e)
+                    {
+                        PLogger.get().logThrowableSilently(e);
+                        Thread.currentThread().interrupt();
+                    }
+                    catch (ExecutionException | NullPointerException e)
                     {
                         plugin.getPLogger().logThrowable(e, "Failed to obtain door \"" + args[currentPos] + "\"");
                     }

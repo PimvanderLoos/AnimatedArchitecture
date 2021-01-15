@@ -146,6 +146,7 @@ public class UnitTestUtil
             catch (InterruptedException e)
             {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         }
         // Wait a bit longer to make sure it's finished writing the file as well.
@@ -156,6 +157,7 @@ public class UnitTestUtil
         catch (InterruptedException e)
         {
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
 
         Assertions.assertTrue(PLogger.get().isEmpty());

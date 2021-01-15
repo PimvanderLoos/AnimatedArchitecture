@@ -12,13 +12,15 @@ import java.util.OptionalLong;
 
 /**
  * Represents a {@link DelayedInputRequest} to specify which door was meant out of a list of multiple.
+ *
+ * @author Pim
  */
 public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final @NonNull List<AbstractDoorBase> options;
     private final @NonNull IPPlayer player;
 
-    private DelayedDoorSpecificationInputRequest(final int timeout, final @NonNull List<AbstractDoorBase> options,
+    private DelayedDoorSpecificationInputRequest(final long timeout, final @NonNull List<AbstractDoorBase> options,
                                                  final @NonNull IPPlayer player)
     {
         super(timeout);
@@ -26,7 +28,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         this.player = player;
     }
 
-    public static @NonNull Optional<AbstractDoorBase> get(final int timeout,
+    public static @NonNull Optional<AbstractDoorBase> get(final long timeout,
                                                           final @NonNull List<AbstractDoorBase> options,
                                                           final @NonNull IPPlayer player)
     {
@@ -36,7 +38,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
             return Optional.empty();
 
         final @NonNull Optional<String> specification =
-            new DelayedDoorSpecificationInputRequest(timeout, options, player).get();
+            new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
         final @NonNull OptionalLong uidOpt = Util.parseLong(specification);
         if (!uidOpt.isPresent())
             return Optional.empty();

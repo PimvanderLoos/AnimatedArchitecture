@@ -165,6 +165,7 @@ public final class PLogger
             // But it shouldn't ever be reached anyway.
             System.out.println("Cannot write to log file! Please contact pim16aap2!");
             e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -17,7 +17,7 @@ public abstract class DelayedInputRequest<T>
     private final Object guard = new Object();
 
     @Getter
-    private volatile Status status = Status.WAITING;
+    private volatile Status status = Status.UNINITIALIZED;
 
     /**
      * The input that may be received in the future.
@@ -27,14 +27,15 @@ public abstract class DelayedInputRequest<T>
     /**
      * The amount of time (in ms) to wait for input.
      */
-    protected final int timeout;
+    protected final long timeout;
 
     /**
-     * Instantiates a new {@link DelayedInputRequest}. The request itself is not placed until {@link #get()} is called.
+     * Instantiates a new {@link DelayedInputRequest}. The request itself is not placed until {@link #waitForInput()} is
+     * called.
      *
-     * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0!
+     * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
-    protected DelayedInputRequest(final int timeout)
+    protected DelayedInputRequest(final long timeout)
     {
         if (timeout < 1)
         {
@@ -50,27 +51,43 @@ public abstract class DelayedInputRequest<T>
      * received.
      * <p>
      * Note that this will block the current thread until either one of the exit conditions is met.
+     * <p>
+     * Calling this method more than once for the same {@link DelayedInputRequest} instance is not allowed and will
+     * throw a {@link IllegalStateException}.
      *
      * @return The value that was received. If no value was received or if the value was null, an empty optional is
      * returned instead.
      */
-    protected final @NonNull Optional<T> get()
+    protected final @NonNull Optional<T> waitForInput()
     {
-        init();
-        try
+        synchronized (guard)
         {
-            guard.wait(timeout);
-        }
-        catch (InterruptedException e)
-        {
-            Thread.currentThread().interrupt();
-            PLogger.get().logThrowable(e, "Interrupted while waiting for input!");
-        }
-        
-        if (status != Status.COMPLETED)
-            status = Status.TIMED_OUT;
+            if (status != Status.UNINITIALIZED)
+            {
+                final IllegalStateException e = new IllegalStateException(
+                    "Trying to initialize delayed input request while it has status: " + status.name());
+                PLogger.get().logThrowableSilently(e);
+                throw e;
+            }
 
-        return Optional.ofNullable(value);
+            init();
+
+            status = Status.WAITING;
+            try
+            {
+                guard.wait(timeout);
+            }
+            catch (InterruptedException e)
+            {
+                PLogger.get().logThrowable(e, "Interrupted while waiting for input!");
+                Thread.currentThread().interrupt();
+            }
+
+            if (status != Status.COMPLETED)
+                status = Status.TIMED_OUT;
+
+            return Optional.ofNullable(value);
+        }
     }
 
     /**
@@ -78,11 +95,14 @@ public abstract class DelayedInputRequest<T>
      *
      * @param value The new value.
      */
-    public final synchronized void set(final @Nullable T value)
+    public final void set(final @Nullable T value)
     {
-        this.value = value;
-        guard.notify();
-        status = Status.COMPLETED;
+        synchronized (guard)
+        {
+            this.value = value;
+            guard.notify();
+            status = Status.COMPLETED;
+        }
     }
 
     /**
@@ -92,6 +112,6 @@ public abstract class DelayedInputRequest<T>
 
     public enum Status
     {
-        WAITING, COMPLETED, TIMED_OUT
+        UNINITIALIZED, WAITING, COMPLETED, TIMED_OUT
     }
 }
