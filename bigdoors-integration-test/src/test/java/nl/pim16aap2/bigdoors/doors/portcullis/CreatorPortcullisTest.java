@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
-import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.OptionalInt;
@@ -42,11 +42,12 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         final int blocksToMoveLimit = blocksToMove - 1;
         config.maxBlocksToMove = OptionalInt.of(blocksToMoveLimit);
 
-        Assert.assertFalse(creator.setBlocksToMove(blocksToMove));
-        Assert.assertEquals(String.format("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR %d %d", blocksToMove, blocksToMoveLimit),
-                            PLAYER.getLastMessage());
+        Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
+        Assertions.assertEquals(String.format("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR %d %d",
+                                              blocksToMove, blocksToMoveLimit),
+                                PLAYER.getLastMessage());
         config.maxBlocksToMove = OptionalInt.of(blocksToMove);
-        Assert.assertTrue(creator.setBlocksToMove(blocksToMove));
+        Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));
 
         // Cleanup
         config.maxBlocksToMove = OptionalInt.empty();

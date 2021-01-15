@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -15,6 +14,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -29,33 +29,33 @@ public class CreatorTest extends CreatorTestsUtil
     {
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
 
-        Assert.assertEquals("CREATOR_GENERAL_GIVENAME", creator.getCurrentStepMessage());
-        Assert.assertFalse(creator.completeNamingStep("0"));
-        Assert.assertFalse(creator.handleInput(true));
-        Assert.assertFalse(creator.handleInput(0));
-        Assert.assertFalse(creator.handleInput(engine));
-        Assert.assertFalse(creator.handleInput(engine.toLocation(world)));
-        Assert.assertFalse(creator.handleInput(world));
+        Assertions.assertEquals("CREATOR_GENERAL_GIVENAME", creator.getCurrentStepMessage());
+        Assertions.assertFalse(creator.completeNamingStep("0"));
+        Assertions.assertFalse(creator.handleInput(true));
+        Assertions.assertFalse(creator.handleInput(0));
+        Assertions.assertFalse(creator.handleInput(engine));
+        Assertions.assertFalse(creator.handleInput(engine.toLocation(world)));
+        Assertions.assertFalse(creator.handleInput(world));
 
-        Assert.assertNull(creator.name);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetName);
+        Assertions.assertNull(creator.name);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetName);
 
-        Assert.assertTrue(creator.completeNamingStep(doorName));
-        Assert.assertEquals(doorName, creator.name);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetFirstPos);
+        Assertions.assertTrue(creator.completeNamingStep(doorName));
+        Assertions.assertEquals(doorName, creator.name);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetFirstPos);
     }
 
     @Test
     public void testSetFirstPos()
     {
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetFirstPos));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetFirstPos));
 
-        Assert.assertEquals("CREATOR_BIGDOOR_STEP1", creator.getCurrentStepMessage());
+        Assertions.assertEquals("CREATOR_BIGDOOR_STEP1", creator.getCurrentStepMessage());
 
-        Assert.assertTrue(creator.setFirstPos(min.toLocation(world)));
-        Assert.assertEquals(min, creator.firstPos);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetSecondPos);
+        Assertions.assertTrue(creator.setFirstPos(min.toLocation(world)));
+        Assertions.assertEquals(min, creator.firstPos);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetSecondPos);
     }
 
     @Test
@@ -68,20 +68,20 @@ public class CreatorTest extends CreatorTestsUtil
         final @NotNull Cuboid cuboid = new Cuboid(min, max);
         final int sizeLimit = cuboid.getVolume() - 1;
         testConfigLoader.maxDoorSize = OptionalInt.of(sizeLimit);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetSecondPos));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetSecondPos));
 
-        Assert.assertEquals("CREATOR_BIGDOOR_STEP2", creator.getCurrentStepMessage());
-        Assert.assertFalse(creator.setSecondPos(max.toLocation(world2)));
-        Assert.assertFalse(creator.setSecondPos(max.toLocation(world)));
-        Assert.assertEquals("CREATOR_GENERAL_AREATOOBIG " + cuboid.getVolume() + " " + sizeLimit,
-                            PLAYER.getLastMessage());
+        Assertions.assertEquals("CREATOR_BIGDOOR_STEP2", creator.getCurrentStepMessage());
+        Assertions.assertFalse(creator.setSecondPos(max.toLocation(world2)));
+        Assertions.assertFalse(creator.setSecondPos(max.toLocation(world)));
+        Assertions.assertEquals("CREATOR_GENERAL_AREATOOBIG " + cuboid.getVolume() + " " + sizeLimit,
+                                PLAYER.getLastMessage());
 
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetSecondPos);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetSecondPos);
 
         testConfigLoader.maxDoorSize = OptionalInt.of(cuboid.getVolume());
-        Assert.assertTrue(creator.setSecondPos(max.toLocation(world)));
-        Assert.assertEquals(new Cuboid(min, max), creator.cuboid);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetEnginePos);
+        Assertions.assertTrue(creator.setSecondPos(max.toLocation(world)));
+        Assertions.assertEquals(new Cuboid(min, max), creator.cuboid);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetEnginePos);
 
         testConfigLoader.maxDoorSize = OptionalInt.empty();
     }
@@ -92,18 +92,18 @@ public class CreatorTest extends CreatorTestsUtil
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
         creator.world = world;
         creator.cuboid = new Cuboid(min, max);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetEnginePos));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetEnginePos));
 
-        Assert.assertEquals("CREATOR_BIGDOOR_STEP3", creator.getCurrentStepMessage());
-        Assert.assertFalse(creator.completeSetEngineStep(engine.toLocation(world2)));
-        Assert.assertFalse(creator.completeSetEngineStep(powerblock.toLocation(world)));
-        Assert.assertEquals("CREATOR_GENERAL_INVALIDROTATIONPOINT", PLAYER.getLastMessage());
+        Assertions.assertEquals("CREATOR_BIGDOOR_STEP3", creator.getCurrentStepMessage());
+        Assertions.assertFalse(creator.completeSetEngineStep(engine.toLocation(world2)));
+        Assertions.assertFalse(creator.completeSetEngineStep(powerblock.toLocation(world)));
+        Assertions.assertEquals("CREATOR_GENERAL_INVALIDROTATIONPOINT", PLAYER.getLastMessage());
 
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetEnginePos);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetEnginePos);
 
-        Assert.assertTrue(creator.completeSetEngineStep(engine.toLocation(world)));
-        Assert.assertEquals(engine, creator.engine);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetPowerBlockPos);
+        Assertions.assertTrue(creator.completeSetEngineStep(engine.toLocation(world)));
+        Assertions.assertEquals(engine, creator.engine);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetPowerBlockPos);
     }
 
     @Test
@@ -116,22 +116,22 @@ public class CreatorTest extends CreatorTestsUtil
         final double distance = creator.cuboid.getCenter().getDistance(powerblock);
         final int limit = (int) distance - 1;
         testConfigLoader.maxPowerBlockDistance = OptionalInt.of(limit);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetPowerBlockPos));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetPowerBlockPos));
 
-        Assert.assertEquals("CREATOR_GENERAL_SETPOWERBLOCK", creator.getCurrentStepMessage());
-        Assert.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world2)));
-        Assert.assertFalse(creator.completeSetPowerBlockStep(engine.toLocation(world)));
-        Assert.assertEquals("CREATOR_GENERAL_POWERBLOCKINSIDEDOOR", PLAYER.getLastMessage());
-        Assert.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
-        Assert.assertEquals("CREATOR_GENERAL_POWERBLOCKTOOFAR " + String.format("%.2f", distance) + " " + limit,
-                            PLAYER.getLastMessage());
+        Assertions.assertEquals("CREATOR_GENERAL_SETPOWERBLOCK", creator.getCurrentStepMessage());
+        Assertions.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world2)));
+        Assertions.assertFalse(creator.completeSetPowerBlockStep(engine.toLocation(world)));
+        Assertions.assertEquals("CREATOR_GENERAL_POWERBLOCKINSIDEDOOR", PLAYER.getLastMessage());
+        Assertions.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
+        Assertions.assertEquals("CREATOR_GENERAL_POWERBLOCKTOOFAR " + String.format("%.2f", distance) + " " + limit,
+                                PLAYER.getLastMessage());
 
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetPowerBlockPos);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetPowerBlockPos);
         testConfigLoader.maxPowerBlockDistance = OptionalInt.of(limit + 2);
 
-        Assert.assertTrue(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
-        Assert.assertEquals(powerblock, creator.powerblock);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetOpenDir);
+        Assertions.assertTrue(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
+        Assertions.assertEquals(powerblock, creator.powerblock);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetOpenDir);
     }
 
     @Test
@@ -140,13 +140,13 @@ public class CreatorTest extends CreatorTestsUtil
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
 
         final @NotNull List<RotateDirection> validOpenDirections = creator.getDoorType().getValidOpenDirections();
-        Assert.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection("-1")));
-        Assert.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection(Integer.toString(
+        Assertions.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection("-1")));
+        Assertions.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection(Integer.toString(
             validOpenDirections.size()))));
 
         for (int idx = 0; idx < validOpenDirections.size(); ++idx)
-            Assert.assertTrue(UnitTestUtil.optionalEquals(validOpenDirections.get(idx),
-                                                          creator.parseOpenDirection(Integer.toString(idx))));
+            Assertions.assertTrue(UnitTestUtil.optionalEquals(validOpenDirections.get(idx),
+                                                              creator.parseOpenDirection(Integer.toString(idx))));
 
         for (final @NotNull RotateDirection rotateDirection : RotateDirection.values())
         {
@@ -155,7 +155,8 @@ public class CreatorTest extends CreatorTestsUtil
                 goalDir = rotateDirection;
             else
                 goalDir = null;
-            Assert.assertTrue(UnitTestUtil.optionalEquals(goalDir, creator.parseOpenDirection(rotateDirection.name())));
+            Assertions
+                .assertTrue(UnitTestUtil.optionalEquals(goalDir, creator.parseOpenDirection(rotateDirection.name())));
         }
     }
 
@@ -167,7 +168,7 @@ public class CreatorTest extends CreatorTestsUtil
         testEconomyManager.isEconomyEnabled = true;
         testEconomyManager.price = OptionalDouble.of(10d);
         creator.cuboid = new Cuboid(min, max);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
 
         @Nullable RotateDirection invalidDir = null;
         @Nullable RotateDirection validDir = null;
@@ -180,19 +181,19 @@ public class CreatorTest extends CreatorTestsUtil
             if (validDir != null && invalidDir != null)
                 break;
         }
-        Assert.assertNotNull(invalidDir);
-        Assert.assertNotNull(validDir);
+        Assertions.assertNotNull(invalidDir);
+        Assertions.assertNotNull(validDir);
 
-        Assert.assertTrue(creator.getCurrentStepMessage().startsWith("CREATOR_GENERAL_SETOPENDIR"));
-        Assert.assertFalse(creator.completeSetOpenDirStep(invalidDir.name()));
+        Assertions.assertTrue(creator.getCurrentStepMessage().startsWith("CREATOR_GENERAL_SETOPENDIR"));
+        Assertions.assertFalse(creator.completeSetOpenDirStep(invalidDir.name()));
 
-        Assert.assertNull(creator.opendir);
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepSetOpenDir);
+        Assertions.assertNull(creator.opendir);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetOpenDir);
 
-        Assert.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
-        Assert.assertEquals(validDir, creator.opendir);
+        Assertions.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
+        Assertions.assertEquals(validDir, creator.opendir);
 
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepConfirmPrice);
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepConfirmPrice);
 
 
         // Cleanup
@@ -204,7 +205,7 @@ public class CreatorTest extends CreatorTestsUtil
     public void testSkipConfirmPrice()
     {
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
 
         @Nullable RotateDirection validDir = null;
         for (final @NotNull RotateDirection rotateDirection : RotateDirection.values())
@@ -213,9 +214,9 @@ public class CreatorTest extends CreatorTestsUtil
                 validDir = rotateDirection;
                 break;
             }
-        Assert.assertNotNull(validDir);
-        Assert.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepCompleteProcess);
+        Assertions.assertNotNull(validDir);
+        Assertions.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepCompleteProcess);
     }
 
     @Test
@@ -229,14 +230,14 @@ public class CreatorTest extends CreatorTestsUtil
         final double price = 100;
         testEconomyManager.price = OptionalDouble.of(price);
 
-        Assert.assertTrue(creator.buyDoor());
+        Assertions.assertTrue(creator.buyDoor());
 
         testEconomyManager.isEconomyEnabled = false;
-        Assert.assertTrue(creator.buyDoor());
+        Assertions.assertTrue(creator.buyDoor());
 
         testEconomyManager.isEconomyEnabled = true;
         testEconomyManager.buyDoor = false;
-        Assert.assertFalse(creator.buyDoor());
+        Assertions.assertFalse(creator.buyDoor());
 
         // Cleanup
         testEconomyManager.isEconomyEnabled = false;
@@ -254,25 +255,26 @@ public class CreatorTest extends CreatorTestsUtil
         final double price = 100.73462;
         testEconomyManager.price = OptionalDouble.of(price);
         creator.cuboid = new Cuboid(min, max);
-        Assert.assertTrue(creator.getProcedure().skipToStep(creator.stepConfirmPrice));
+        Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepConfirmPrice));
 
-        Assert.assertEquals("CREATOR_GENERAL_CONFIRMPRICE " + String.format("%.2f", price),
-                            creator.getCurrentStepMessage());
-        Assert.assertEquals(creator.getCurrentStep(), creator.stepConfirmPrice);
+        Assertions.assertEquals("CREATOR_GENERAL_CONFIRMPRICE " + String.format("%.2f", price),
+                                creator.getCurrentStepMessage());
+        Assertions.assertEquals(creator.getCurrentStep(), creator.stepConfirmPrice);
 
         OptionalDouble foundPrice = creator.getPrice();
-        Assert.assertTrue(foundPrice.isPresent());
-        Assert.assertTrue(Math.abs(creator.getPrice().getAsDouble() - price) < UnitTestUtil.EPSILON);
+        Assertions.assertTrue(foundPrice.isPresent());
+        Assertions.assertTrue(Math.abs(creator.getPrice().getAsDouble() - price) < UnitTestUtil.EPSILON);
 
         creator.confirmPrice(false);
-        Assert.assertEquals("CREATOR_GENERAL_CANCELLED", PLAYER.getLastMessage());
+        Assertions.assertEquals("CREATOR_GENERAL_CANCELLED", PLAYER.getLastMessage());
 
         creator.confirmPrice(true);
-        Assert.assertEquals(String.format("CREATOR_GENERAL_INSUFFICIENTFUNDS %.2f", price), PLAYER.getLastMessage());
+        Assertions
+            .assertEquals(String.format("CREATOR_GENERAL_INSUFFICIENTFUNDS %.2f", price), PLAYER.getLastMessage());
 
         testEconomyManager.buyDoor = true;
         creator.confirmPrice(true);
-        Assert.assertEquals(creator.stepCompleteProcess, creator.getCurrentStep());
+        Assertions.assertEquals(creator.stepCompleteProcess, creator.getCurrentStep());
 
         // Cleanup
         testEconomyManager.isEconomyEnabled = false;

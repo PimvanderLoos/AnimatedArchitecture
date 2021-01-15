@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import junit.framework.Assert;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
@@ -14,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Assertions;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class UnitTestUtil
         catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
         {
             e.printStackTrace();
-            Assert.fail();
+            Assertions.fail();
         }
 
         try
@@ -65,7 +65,7 @@ public class UnitTestUtil
         {
             e.printStackTrace();
         }
-        Assert.assertNotNull(TEST_DIR);
+        Assertions.assertNotNull(TEST_DIR);
     }
 
     public void setDatabaseStorage(final @Nullable IStorage storage)
@@ -158,6 +158,6 @@ public class UnitTestUtil
             e.printStackTrace();
         }
 
-        Assert.assertTrue(PLogger.get().isEmpty());
+        Assertions.assertTrue(PLogger.get().isEmpty());
     }
 }

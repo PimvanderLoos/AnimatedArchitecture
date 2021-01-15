@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -14,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
@@ -42,7 +42,7 @@ public class CreatorTestsUtil
         catch (NoSuchFieldException | IllegalAccessException e)
         {
             e.printStackTrace();
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -76,9 +76,9 @@ public class CreatorTestsUtil
         catch (Exception e)
         {
             e.printStackTrace();
-            Assert.fail();
+            Assertions.fail();
         }
-        Assert.assertNotNull(threadPool);
+        Assertions.assertNotNull(threadPool);
     }
 
     // Set up basic stuff.
@@ -147,16 +147,16 @@ public class CreatorTestsUtil
 
         int idx = 0;
         for (Object obj : input)
-            Assert.assertTrue(String.format("IDX: %d, Input: %s, Step: %s Error Message: %s",
-                                            (idx++), obj.toString(), creator.getCurrentStep().getName(),
-                                            PLAYER.getBeforeLastMessage()),
-                              creator.handleInput(obj));
+            Assertions.assertTrue(creator.handleInput(obj),
+                                  String.format("IDX: %d, Input: %s, Step: %s Error Message: %s",
+                                                (idx++), obj.toString(), creator.getCurrentStep().getName(),
+                                                PLAYER.getBeforeLastMessage()));
 
         // Wait for the thread pool to finish inserting the door etc,
         threadPool.awaitTermination(20L, TimeUnit.MILLISECONDS);
         AbstractDoorBase resultDoor = resultDoorRef.get();
-        Assert.assertNotNull(resultDoor);
-        Assert.assertEquals(actualDoor, resultDoor);
+        Assertions.assertNotNull(resultDoor);
+        Assertions.assertEquals(actualDoor, resultDoor);
     }
 
 }

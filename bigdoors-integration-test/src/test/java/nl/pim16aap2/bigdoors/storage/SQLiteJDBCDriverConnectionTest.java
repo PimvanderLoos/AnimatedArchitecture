@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import junit.framework.Assert;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -35,6 +34,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -217,9 +217,9 @@ public class SQLiteJDBCDriverConnectionTest
         catch (NoSuchFieldException | IllegalAccessException e)
         {
             e.printStackTrace();
-            Assert.fail();
+            Assertions.fail();
         }
-        Assert.assertNotNull(threadPool);
+        Assertions.assertNotNull(threadPool);
     }
 
     /**
@@ -293,18 +293,18 @@ public class SQLiteJDBCDriverConnectionTest
 
         threadPool.awaitTermination(600L, TimeUnit.MILLISECONDS);
 
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeBigDoor.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeClock.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeDrawbridge.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeElevator.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeFlag.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeGarageDoor.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypePortcullis.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeRevolvingDoor.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeSlidingDoor.get()).isPresent());
-        Assert.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeWindmill.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeBigDoor.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeClock.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeDrawbridge.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeElevator.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeFlag.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeGarageDoor.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypePortcullis.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeRevolvingDoor.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeSlidingDoor.get()).isPresent());
+        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeWindmill.get()).isPresent());
 
-        Assert.assertEquals(10, DoorTypeManager.get().getRegisteredDoorTypes().size());
+        Assertions.assertEquals(10, DoorTypeManager.get().getRegisteredDoorTypes().size());
 
     }
 
@@ -357,7 +357,7 @@ public class SQLiteJDBCDriverConnectionTest
                 typeData[parameterIDX++] = data;
             }
             Optional<AbstractDoorBase> door = doorType.constructDoor(doorData, typeData);
-            Assert.assertTrue(door.isPresent());
+            Assertions.assertTrue(door.isPresent());
             typeTesting[idx++] = door.get();
         }
     }
@@ -368,7 +368,7 @@ public class SQLiteJDBCDriverConnectionTest
     private void insertDoorTypeTestDoors()
     {
         for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            Assert.assertTrue(storage.insert(typeTesting[idx]).isPresent());
+            Assertions.assertTrue(storage.insert(typeTesting[idx]).isPresent());
     }
 
     /**
@@ -387,11 +387,11 @@ public class SQLiteJDBCDriverConnectionTest
     private void deleteDoorTypeTestDoors()
     {
         // Just make sure it still exists, to make debugging easier.
-        Assert.assertTrue(storage.getDoor(3L).isPresent());
-        Assert.assertTrue(storage.deleteDoorType(DoorTypePortcullis.get()));
-        Assert.assertTrue(storage.getDoor(1L).isPresent());
-        Assert.assertTrue(storage.getDoor(2L).isPresent());
-        Assert.assertFalse(storage.getDoor(3L).isPresent());
+        Assertions.assertTrue(storage.getDoor(3L).isPresent());
+        Assertions.assertTrue(storage.deleteDoorType(DoorTypePortcullis.get()));
+        Assertions.assertTrue(storage.getDoor(1L).isPresent());
+        Assertions.assertTrue(storage.getDoor(2L).isPresent());
+        Assertions.assertFalse(storage.getDoor(3L).isPresent());
     }
 
 
@@ -426,7 +426,7 @@ public class SQLiteJDBCDriverConnectionTest
         testDoorTypes();
         // Make sure no errors were logged.
         UnitTestUtil.waitForLogger();
-        Assert.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
+        Assertions.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
 
         PLogger.get().setFileLogLevel(Level.ALL);
 
@@ -439,9 +439,9 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void insertDoors()
     {
-        Assert.assertTrue(storage.insert(door1).isPresent());
-        Assert.assertTrue(storage.insert(door2).isPresent());
-        Assert.assertTrue(storage.insert(door3).isPresent());
+        Assertions.assertTrue(storage.insert(door1).isPresent());
+        Assertions.assertTrue(storage.insert(door2).isPresent());
+        Assertions.assertTrue(storage.insert(door3).isPresent());
     }
 
     /**
@@ -452,20 +452,20 @@ public class SQLiteJDBCDriverConnectionTest
     private void testRetrieval(final @NotNull AbstractDoorBase door)
         throws TooManyDoorsException
     {
-        Assert.assertNotNull(storage);
-        Assert.assertNotNull(door);
-        Assert.assertNotNull(door.getPrimeOwner().toString());
-        Assert.assertNotNull(door.getName());
+        Assertions.assertNotNull(storage);
+        Assertions.assertNotNull(door);
+        Assertions.assertNotNull(door.getPrimeOwner().toString());
+        Assertions.assertNotNull(door.getName());
 
         List<AbstractDoorBase> test = storage.getDoors(door.getPrimeOwner().getPlayer().getUUID(), door.getName());
         if (test.size() != 1)
-            Assert.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
+            Assertions.fail("TOO MANY DOORS FOUND FOR DOOR WITH name \"" + door.getName() + "\"!");
 
         if (!door.getPrimeOwner().equals(test.get(0).getPrimeOwner()))
-            Assert.fail("DOOR OWNERS DO NOT MATCH!");
+            Assertions.fail("DOOR OWNERS DO NOT MATCH!");
 
         if (!door.equals(test.get(0)))
-            Assert.fail(
+            Assertions.fail(
                 "Data of retrieved door is not the same! ID = " + door.getDoorUID() + ", name = " + door.getName() +
                     ", found ID = " + test.get(0).getDoorUID() + ", found name = " + test.get(0).getName());
     }
@@ -487,143 +487,143 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assert.assertEquals(1, storage.getDoorCountForPlayer(player1UUID, "massive1"));
-        Assert.assertEquals(2, storage.getDoorCountForPlayer(player1UUID));
-        Assert.assertEquals(1, storage.getDoorCountForPlayer(player2UUID));
-        Assert.assertEquals(1, storage.getDoorCountByName("massive1"));
-        Assert.assertTrue(storage.getDoor(player1UUID, 1).isPresent());
-        Assert.assertEquals(door1, storage.getDoor(player1UUID, 1).get());
-        Assert.assertFalse(storage.getDoor(player1UUID, 3).isPresent());
+        Assertions.assertEquals(1, storage.getDoorCountForPlayer(player1UUID, "massive1"));
+        Assertions.assertEquals(2, storage.getDoorCountForPlayer(player1UUID));
+        Assertions.assertEquals(1, storage.getDoorCountForPlayer(player2UUID));
+        Assertions.assertEquals(1, storage.getDoorCountByName("massive1"));
+        Assertions.assertTrue(storage.getDoor(player1UUID, 1).isPresent());
+        Assertions.assertEquals(door1, storage.getDoor(player1UUID, 1).get());
+        Assertions.assertFalse(storage.getDoor(player1UUID, 3).isPresent());
         final @NotNull Optional<AbstractDoorBase> testDoor1 = storage.getDoor(1L);
-        Assert.assertTrue(testDoor1.isPresent());
-        Assert.assertEquals(door1.getPrimeOwner(), testDoor1.get().getPrimeOwner());
-        Assert.assertEquals(door1, testDoor1.get());
-        Assert.assertFalse(storage.getDoor(9999999).isPresent());
-        Assert.assertTrue(storage.isBigDoorsWorld(worldName));
-        Assert.assertFalse(storage.isBigDoorsWorld("fakeWorld"));
+        Assertions.assertTrue(testDoor1.isPresent());
+        Assertions.assertEquals(door1.getPrimeOwner(), testDoor1.get().getPrimeOwner());
+        Assertions.assertEquals(door1, testDoor1.get());
+        Assertions.assertFalse(storage.getDoor(9999999).isPresent());
+        Assertions.assertTrue(storage.isBigDoorsWorld(worldName));
+        Assertions.assertFalse(storage.isBigDoorsWorld("fakeWorld"));
 
-        Assert.assertEquals(1, storage.getOwnerCountOfDoor(1L));
+        Assertions.assertEquals(1, storage.getOwnerCountOfDoor(1L));
 
         long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
                                                           door1.getPowerBlock().getZ());
-        Assert.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
+        Assertions.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
 
         // Check if adding owners works correctly.
-        Assert.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
+        Assertions.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
 
         // Try adding player2 as owner of door 2.
-        Assert.assertTrue(storage.addOwner(2L, player2, 1));
+        Assertions.assertTrue(storage.addOwner(2L, player2, 1));
 
         // Try adding player 1 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        Assert.assertFalse(storage.addOwner(2L, player1, 0));
+        Assertions.assertFalse(storage.addOwner(2L, player1, 0));
 
         // Try adding player 2 as owner of door 2, while player 1 is already the creator! This is not allowed.
-        Assert.assertFalse(storage.addOwner(2L, player2, 0));
+        Assertions.assertFalse(storage.addOwner(2L, player2, 0));
 
         // Try adding a player that is not in the database yet as owner.
-        Assert.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
-        Assert.assertTrue(storage.addOwner(1L, player3, 1));
-        Assert.assertEquals(2, storage.getDoor(1L).get().getDoorOwners().size());
+        Assertions.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
+        Assertions.assertTrue(storage.addOwner(1L, player3, 1));
+        Assertions.assertEquals(2, storage.getDoor(1L).get().getDoorOwners().size());
 
         // Verify the permission level of player 2 over door 2.
-        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
+        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
-        Assert.assertEquals(2, storage.getDoor(2L).get().getDoorOwners().size());
+        Assertions.assertEquals(2, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 door.
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), 0).size());
+        Assertions.assertEquals(1, storage.getDoors(player2UUID.toString(), 0).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors (door 3 (0) and door 2 (1)).
-        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), 1).size());
+        Assertions.assertEquals(2, storage.getDoors(player2UUID.toString(), 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors, both named "massive2".
-        Assert.assertEquals(2, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
+        Assertions.assertEquals(2, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 1 door, named "massive2".
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 0).size());
+        Assertions.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 0).size());
 
         // Verify that adding an existing owner overrides the permission level.
-        Assert.assertTrue(storage.addOwner(2L, player2, 2));
-        Assert.assertEquals(2, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
+        Assertions.assertTrue(storage.addOwner(2L, player2, 2));
+        Assertions.assertEquals(2, storage.getDoor(2L).get().getDoorOwner(player2UUID).get().getPermission());
 
         // Remove player 2 as owner of door 2.
-        Assert.assertTrue(storage.removeOwner(2L, player2UUID.toString()));
-        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
+        Assertions.assertTrue(storage.removeOwner(2L, player2UUID.toString()));
+        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Try to remove player 1 (creator) of door 2. This is not allowed.
-        Assert.assertFalse(storage.removeOwner(2L, player1UUID.toString()));
-        Assert.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
+        Assertions.assertFalse(storage.removeOwner(2L, player1UUID.toString()));
+        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, named "massive2" (door 3).
-        Assert.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
+        Assertions.assertEquals(1, storage.getDoors(player2UUID.toString(), "massive2", 1).size());
 
         // Verify that player 1 is owner of exactly 1 door named "massive2".
-        Assert.assertEquals(1, storage.getDoors(player1UUID, "massive2").size());
+        Assertions.assertEquals(1, storage.getDoors(player1UUID, "massive2").size());
 
         // Verify that player 1 owns exactly 2 doors.
-        Assert.assertEquals(2, storage.getDoors(player1UUID).size());
+        Assertions.assertEquals(2, storage.getDoors(player1UUID).size());
 
         // Verify that there are exactly 2 doors named "massive2" in the database.
-        Assert.assertEquals(2, storage.getDoors("massive2").size());
+        Assertions.assertEquals(2, storage.getDoors("massive2").size());
 
         // Insert a copy of door 1 in the database (will have doorUID = 4).
-        Assert.assertTrue(storage.insert(door1).isPresent());
+        Assertions.assertTrue(storage.insert(door1).isPresent());
 
         // Verify there are now exactly 2 doors named "massive1" in the database.
-        Assert.assertEquals(2, storage.getDoors("massive1").size());
+        Assertions.assertEquals(2, storage.getDoors("massive1").size());
 
         // Remove the just-added copy of door 1 (doorUID = 4) from the database.
-        Assert.assertTrue(storage.removeDoor(4L));
+        Assertions.assertTrue(storage.removeDoor(4L));
 
         // Verify that after removal of the copy of door 1 (doorUID = 4), there is now exactly 1 door named
         // "massive1" in the database again.
-        Assert.assertEquals(1, storage.getDoors("massive1").size());
+        Assertions.assertEquals(1, storage.getDoors("massive1").size());
 
         // Verify that player 2 cannot delete doors they do not own (door 1 belongs to player 1).
-        Assert.assertFalse(storage.removeOwner(1L, player2UUID.toString()));
-        Assert.assertEquals(1, storage.getDoors("massive1").size());
+        Assertions.assertFalse(storage.removeOwner(1L, player2UUID.toString()));
+        Assertions.assertEquals(1, storage.getDoors("massive1").size());
 
         // Add 10 copies of door3 with a different name to the database.
         door3.setName(DELETEDOORNAME);
         // Verify there are currently exactly 0 doors with this different name in the database.
-        Assert.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
+        Assertions.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
 
         for (int idx = 0; idx < 10; ++idx)
-            Assert.assertTrue(storage.insert(door3).isPresent());
+            Assertions.assertTrue(storage.insert(door3).isPresent());
 
         // Verify there are now exactly 10 doors with this different name in the database.
-        Assert.assertEquals(10, storage.getDoors(DELETEDOORNAME).size());
+        Assertions.assertEquals(10, storage.getDoors(DELETEDOORNAME).size());
 
         // Remove all 10 doors we just added (owned by player 2) and verify there are exactly 0 entries of the door with
         // the new name after batch removal. Also revert the name change of door 3.
-        Assert.assertTrue(storage.removeDoors(player2UUID.toString(), DELETEDOORNAME));
-        Assert.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
-        Assert.assertTrue(storage.getDoor(3L).isPresent());
+        Assertions.assertTrue(storage.removeDoors(player2UUID.toString(), DELETEDOORNAME));
+        Assertions.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
+        Assertions.assertTrue(storage.getDoor(3L).isPresent());
         door3.setName(storage.getDoor(3L).get().getName());
 
         // Make sure the player name corresponds to the correct UUID.
-        Assert.assertTrue(storage.getPlayerName(player2UUID.toString()).isPresent());
-        Assert.assertEquals(player2Name, storage.getPlayerName(player2UUID.toString()).get());
-        Assert.assertFalse(storage.getPlayerUUID(player2NameALT).isPresent());
-        Assert.assertTrue(storage.getPlayerUUID(player2Name).isPresent());
-        Assert.assertEquals(player2UUID, storage.getPlayerUUID(player2Name).get());
-        Assert.assertNotSame(player1UUID, storage.getPlayerUUID(player2Name).get());
+        Assertions.assertTrue(storage.getPlayerName(player2UUID.toString()).isPresent());
+        Assertions.assertEquals(player2Name, storage.getPlayerName(player2UUID.toString()).get());
+        Assertions.assertFalse(storage.getPlayerUUID(player2NameALT).isPresent());
+        Assertions.assertTrue(storage.getPlayerUUID(player2Name).isPresent());
+        Assertions.assertEquals(player2UUID, storage.getPlayerUUID(player2Name).get());
+        Assertions.assertNotSame(player1UUID, storage.getPlayerUUID(player2Name).get());
 
         // Update player 2's name to their alt name and make sure the old name is gone and the new one is reachable.
-        Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2NameALT));
-        Assert.assertFalse(storage.getPlayerUUID(player2Name).isPresent());
-        Assert.assertTrue(storage.getPlayerUUID(player2NameALT).isPresent());
-        Assert.assertEquals(player2UUID, storage.getPlayerUUID(player2NameALT).get());
+        Assertions.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2NameALT));
+        Assertions.assertFalse(storage.getPlayerUUID(player2Name).isPresent());
+        Assertions.assertTrue(storage.getPlayerUUID(player2NameALT).isPresent());
+        Assertions.assertEquals(player2UUID, storage.getPlayerUUID(player2NameALT).get());
 
         // Revert name change of player 2.
-        Assert.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2Name));
+        Assertions.assertTrue(storage.updatePlayerName(player2UUID.toString(), player2Name));
 
         chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().getX(),
                                                      door1.getPowerBlock().getZ());
         final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkHash);
-        Assert.assertNotNull(powerBlockData);
-        Assert.assertEquals(3, powerBlockData.elements().nextElement().size());
+        Assertions.assertNotNull(powerBlockData);
+        Assertions.assertEquals(3, powerBlockData.elements().nextElement().size());
     }
 
     /**
@@ -638,29 +638,29 @@ public class SQLiteJDBCDriverConnectionTest
             final int testAutoCloseTime = 20;
 
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            Assert.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
-                                                   door3.getDoorType().getTypeData(door3).get()));
-            Assert.assertEquals(testAutoCloseTime,
-                                ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
+            Assertions.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
+                                                       door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertEquals(testAutoCloseTime,
+                                    ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
-            Assert.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
-                                                   door3.getDoorType().getTypeData(door3).get()));
-            Assert.assertEquals(door3AutoCloseTime,
-                                ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
+            Assertions.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
+                                                       door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertEquals(door3AutoCloseTime,
+                                    ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
-            Assert.assertEquals(door3, storage.getDoor(3L).get());
+            Assertions.assertEquals(door3, storage.getDoor(3L).get());
         }
 
         // Test (un)locking (i.e. syncing base data).
         {
             door3.setLocked(true);
-            Assert.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
-            Assert.assertTrue(storage.getDoor(3L).get().isLocked());
+            Assertions.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
+            Assertions.assertTrue(storage.getDoor(3L).get().isLocked());
 
             door3.setLocked(false);
-            Assert.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
-            Assert.assertFalse(storage.getDoor(3L).get().isLocked());
+            Assertions.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
+            Assertions.assertFalse(storage.getDoor(3L).get().isLocked());
         }
 
         // Test syncing all data.
@@ -670,19 +670,19 @@ public class SQLiteJDBCDriverConnectionTest
             // Save the current data
             final @NotNull RotateDirection oldDir = door3.getOpenDir();
             final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
-            Assert.assertNotSame(oldDir, newDir);
+            Assertions.assertNotSame(oldDir, newDir);
 
             final @NotNull Vector3DiConst oldPowerBlock = door3.getPowerBlock();
             final @NotNull Vector3Di newPowerBlock = new Vector3Di(oldPowerBlock);
             newPowerBlock.setY((newPowerBlock.getX() + 30) % 256);
-            Assert.assertNotSame(newPowerBlock, oldPowerBlock);
+            Assertions.assertNotSame(newPowerBlock, oldPowerBlock);
 
             final @NotNull Vector3Di oldMin = new Vector3Di(door3.getMinimum());
             final @NotNull Vector3Di oldMax = new Vector3Di(door3.getMaximum());
             final @NotNull Vector3Di newMin = oldMin.clone().add(0, 20, 10);
             final @NotNull Vector3Di newMax = oldMax.clone().add(40, 0, 20);
-            Assert.assertNotSame(oldMin, newMin);
-            Assert.assertNotSame(oldMax, newMax);
+            Assertions.assertNotSame(oldMin, newMin);
+            Assertions.assertNotSame(oldMax, newMax);
 
             final boolean isLocked = door3.isLocked();
             final boolean isOpen = door3.isOpen();
@@ -699,24 +699,24 @@ public class SQLiteJDBCDriverConnectionTest
             // Update some type-specific data
             final int blocksToMove = pc.getBlocksToMove();
             final int newBlocksToMove = blocksToMove * 2;
-            Assert.assertNotSame(0, blocksToMove);
+            Assertions.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assert.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
-                                                  door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
+                                                      door3.getDoorType().getTypeData(door3).get()));
 
             @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
 
             // Check base data
-            Assert.assertEquals(!isLocked, retrieved.isLocked());
-            Assert.assertEquals(!isOpen, retrieved.isOpen());
-            Assert.assertEquals(newPowerBlock, retrieved.getPowerBlock());
-            Assert.assertEquals(newMin, retrieved.getMinimum());
-            Assert.assertEquals(newMax, retrieved.getMaximum());
-            Assert.assertEquals(newDir, retrieved.getOpenDir());
+            Assertions.assertEquals(!isLocked, retrieved.isLocked());
+            Assertions.assertEquals(!isOpen, retrieved.isOpen());
+            Assertions.assertEquals(newPowerBlock, retrieved.getPowerBlock());
+            Assertions.assertEquals(newMin, retrieved.getMinimum());
+            Assertions.assertEquals(newMax, retrieved.getMaximum());
+            Assertions.assertEquals(newDir, retrieved.getOpenDir());
 
             // Check type-specific data
-            Assert.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
+            Assertions.assertEquals(blocksToMove * 2, retrieved.getBlocksToMove());
 
 
             // reset base data
@@ -729,8 +729,8 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            Assert.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
-                                                  door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
+                                                      door3.getDoorType().getTypeData(door3).get()));
         }
     }
 
@@ -744,7 +744,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         UnitTestUtil.waitForLogger();
         final long currentLogSize = UnitTestUtil.LOG_FILE.length();
-        Assert.assertTrue(currentLogSize > previousSize);
+        Assertions.assertTrue(currentLogSize > previousSize);
         return currentLogSize;
     }
 
@@ -768,7 +768,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
             databaseLock.set(storage, IStorage.DatabaseState.OK);
-            Assert.assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
+            Assertions.assertTrue(storage.getDoor(player1UUID, 1L).isPresent());
         }
 
         // Make sure new errors were added to the log file.
