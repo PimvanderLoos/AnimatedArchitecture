@@ -213,7 +213,7 @@ permissions:
   bigdoors.user.setblockstomove:
     description: Allows a user to specify the number of blocks a door will try to move.
     default: op
-  bigdoors.user.opendoor:
+  bigdoors.user.toggledoor:
     description: Allows a user to open, close, or toggle a door that they own.
     default: op
   bigdoors.user.lock:
