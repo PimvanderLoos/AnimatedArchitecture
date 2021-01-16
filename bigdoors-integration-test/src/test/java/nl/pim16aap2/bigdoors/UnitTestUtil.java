@@ -111,7 +111,7 @@ public class UnitTestUtil
      */
     public void setFakeDoorRegistry()
     {
-        DoorRegistry.get().init(0, 1, 0, Duration.ZERO, false);
+        DoorRegistry.get().init(0, 1, 0, Duration.ofMillis(-1), false);
     }
 
     /**

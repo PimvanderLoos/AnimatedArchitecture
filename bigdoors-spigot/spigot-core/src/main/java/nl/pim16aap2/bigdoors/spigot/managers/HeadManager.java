@@ -1,10 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import com.google.common.base.Preconditions;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
+import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -13,10 +14,11 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
@@ -36,7 +38,7 @@ public final class HeadManager extends Restartable
      * Value: The player's head as item.
      */
     @NotNull
-    private final TimedMapCache<UUID, ItemStack> headMap;
+    private final TimedCache<UUID, Optional<ItemStack>> headMap;
     @NotNull
     private final ConfigLoaderSpigot config;
 
@@ -50,7 +52,8 @@ public final class HeadManager extends Restartable
     {
         super(holder);
         this.config = config;
-        headMap = new TimedMapCache<>(holder, ConcurrentHashMap::new, config.headCacheTimeout());
+        headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
+            .duration(Duration.ofMinutes(config.headCacheTimeout())).build();
     }
 
     /**
@@ -90,33 +93,34 @@ public final class HeadManager extends Restartable
                                                                          final @NotNull String displayName)
     {
         return CompletableFuture.supplyAsync(
-            () ->
-            {
-                if (headMap.containsKey(playerUUID))
-                    return Optional.of(headMap.get(playerUUID));
-
-                OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
-                ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-                SkullMeta smeta = (SkullMeta) skull.getItemMeta();
-                if (smeta == null)
-                    return Optional.empty();
-                smeta.setOwningPlayer(oPlayer);
-                smeta.setDisplayName(displayName);
-                skull.setItemMeta(smeta);
-
-                return Optional.ofNullable(headMap.put(oPlayer.getUniqueId(), skull));
-            });
+            () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
+                         .flatMap(Function.identity()));
     }
+
+    private @NonNull Optional<ItemStack> createItemStack(final @NonNull UUID playerUUID,
+                                                         final @NonNull String displayName)
+    {
+        OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta smeta = (SkullMeta) skull.getItemMeta();
+        if (smeta == null)
+            return Optional.empty();
+        smeta.setOwningPlayer(oPlayer);
+        smeta.setDisplayName(displayName);
+        skull.setItemMeta(smeta);
+        return Optional.of(skull);
+    }
+
 
     @Override
     public void restart()
     {
-        headMap.reInit(config.headCacheTimeout());
+        headMap.clear();
     }
 
     @Override
     public void shutdown()
     {
-        headMap.shutdown();
+        headMap.clear();
     }
 }

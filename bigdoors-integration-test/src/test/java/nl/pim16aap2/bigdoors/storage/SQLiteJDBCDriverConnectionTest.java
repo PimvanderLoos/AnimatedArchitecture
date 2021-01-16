@@ -199,6 +199,7 @@ public class SQLiteJDBCDriverConnectionTest
         catch (Exception e)
         {
             PLogger.get().logThrowable(e);
+            throw e;
         }
     }
 

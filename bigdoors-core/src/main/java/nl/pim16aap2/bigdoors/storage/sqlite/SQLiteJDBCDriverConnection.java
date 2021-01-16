@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -696,7 +697,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door)
+    public @NotNull Optional<AbstractDoorBase> insert(final @NonNull AbstractDoorBase door)
     {
         final @NotNull Optional<Object[]> typeSpecificDataOpt = door.getDoorType().getTypeData(door);
         if (!typeSpecificDataOpt.isPresent())

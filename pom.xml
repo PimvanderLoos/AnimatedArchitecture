@@ -31,14 +31,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>30.1-jre</version>
-                <scope>compile</scope>
-                <optional>true</optional>
-            </dependency>
-
-            <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>JCalculator</artifactId>
                 <version>1.7</version>
@@ -113,10 +105,6 @@
                     <version>3.2.4</version>
                     <configuration>
                         <relocations>
-                            <relocation>
-                                <pattern>com.google</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.google</shadedPattern>
-                            </relocation>
                             <relocation>
                                 <pattern>org.bstats</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.bstats</shadedPattern>

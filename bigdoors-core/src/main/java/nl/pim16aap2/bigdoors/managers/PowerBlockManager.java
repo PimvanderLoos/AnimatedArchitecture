@@ -1,19 +1,21 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
-import nl.pim16aap2.bigdoors.util.TimedMapCache;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -226,6 +228,7 @@ public final class PowerBlockManager extends Restartable
     {
         private final @NotNull String worldName;
         private volatile boolean isBigDoorsWorld = false;
+
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
          * <p>
@@ -233,8 +236,9 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
-        private final @NotNull TimedMapCache<Long, PowerBlockChunk> powerBlockChunks =
-            new TimedMapCache<>(restartableHolder, ConcurrentHashMap::new, config.cacheTimeout());
+        private final @NonNull TimedCache<Long, PowerBlockChunk> powerBlockChunks =
+            TimedCache.<Long, PowerBlockChunk>builder()
+                .duration(Duration.ofMinutes(config.cacheTimeout())).refresh(true).build();
 
         private PowerBlockWorld(final @NotNull String worldName)
         {
@@ -267,7 +271,7 @@ public final class PowerBlockManager extends Restartable
 
             if (!powerBlockChunks.containsKey(chunkHash))
             {
-                final @Nullable PowerBlockChunk powerBlockChunk =
+                final @NonNull PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
                 final @NotNull CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> powerBlocks
@@ -276,17 +280,17 @@ public final class PowerBlockManager extends Restartable
                 return powerBlocks.handle(
                     (map, exception) ->
                     {
-                        if (powerBlockChunk != null)
-                            powerBlockChunk.setPowerBlocks(map);
+                        powerBlockChunk.setPowerBlocks(map);
 
                         final @NotNull List<Long> doorUIDs = new ArrayList<>(map.size());
                         map.forEach((key, value) -> doorUIDs.addAll(value));
                         return doorUIDs;
                     });
             }
-            final @Nullable PowerBlockChunk entry = powerBlockChunks.get(chunkHash);
-            return CompletableFuture.completedFuture(entry == null ?
-                                                     Collections.emptyList() : entry.getPowerBlocks(loc));
+
+            return CompletableFuture.completedFuture(powerBlockChunks.get(chunkHash)
+                                                                     .map((entry) -> entry.getPowerBlocks(loc))
+                                                                     .orElseGet(Collections::emptyList));
         }
 
         /**
@@ -312,13 +316,13 @@ public final class PowerBlockManager extends Restartable
         @Override
         public void restart()
         {
-            powerBlockChunks.restart();
+            powerBlockChunks.clear();
         }
 
         @Override
         public void shutdown()
         {
-            powerBlockChunks.shutdown();
+            powerBlockChunks.clear();
         }
     }
 

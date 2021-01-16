@@ -1,17 +1,14 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalCause;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.logging.Level;
 
 /**
  * Represents a registry of doors.
@@ -19,12 +16,6 @@ import java.util.logging.Level;
  * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
-// TODO: Guava performs some cache cleanup on writes if possible, but it will resort to performing it on reads,
-//       if necessary. Because this cache is probably not written to too often, this can cause some read operations
-//       to get slowed down. Consider regularly calling Cache#cleanup from a separate thread.
-// TODO: Make sure that entries aren't removed from the cache if a reference is still available.
-//       Perhaps setting the expiry to an insanely high value? 24h?
-// TODO: Allow enabling statistics for debugging purposes.
 public final class DoorRegistry extends Restartable
 {
     // TODO: Figure out how much space a door takes up in memory, roughly, and figure out what sane values to use.
@@ -36,7 +27,7 @@ public final class DoorRegistry extends Restartable
 
     private static final @NotNull DoorRegistry INSTANCE = new DoorRegistry();
 
-    private Cache<Long, AbstractDoorBase> doorCache;
+    private TimedCache<Long, AbstractDoorBase> doorCache;
 
     private DoorRegistry()
     {
@@ -64,7 +55,7 @@ public final class DoorRegistry extends Restartable
      */
     public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
-        return Optional.ofNullable(doorCache.getIfPresent(doorUID));
+        return doorCache.get(doorUID);
     }
 
     /**
@@ -74,7 +65,7 @@ public final class DoorRegistry extends Restartable
      */
     void deregisterDoor(final long doorUID)
     {
-        doorCache.invalidate(doorUID);
+        doorCache.remove(doorUID);
     }
 
     /**
@@ -85,7 +76,7 @@ public final class DoorRegistry extends Restartable
      */
     public boolean isRegistered(final long doorUID)
     {
-        return doorCache.getIfPresent(doorUID) != null;
+        return doorCache.containsKey(doorUID);
     }
 
     /**
@@ -97,7 +88,7 @@ public final class DoorRegistry extends Restartable
      */
     public boolean isRegistered(final @NotNull AbstractDoorBase doorBase)
     {
-        return doorCache.getIfPresent(doorBase.getDoorUID()) == doorBase;
+        return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }
 
     /**
@@ -107,13 +98,10 @@ public final class DoorRegistry extends Restartable
      *                     is to be registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public synchronized boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
+    public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        if (doorCache.getIfPresent(doorBase.getDoorUID()) != null)
-            return false;
-        doorCache.put(doorBase.getDoorUID(), doorBase);
-        return true;
+        return !doorCache.putIfAbsent(doorBase.getDoorUID(), doorBase).isPresent();
     }
 
     @Override
@@ -125,7 +113,7 @@ public final class DoorRegistry extends Restartable
     @Override
     public void shutdown()
     {
-        doorCache.invalidateAll();
+        doorCache.clear();
     }
 
     /**
@@ -150,37 +138,19 @@ public final class DoorRegistry extends Restartable
      * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
      * @param initialCapacity  The initial size of the cache to reserve.
      * @param cacheExpiry      How long to keep stuff in the cache.
-     * @param removalListener  Whether to enable the RemovalListener that syncs the door with the database when that
-     *                         door is evicted from the cache. This is mostly useful for unit tests.
      * @return This {@link DoorRegistry}.
      */
     public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
                                       final @NotNull Duration cacheExpiry, final boolean removalListener)
     {
         if (doorCache != null)
-            doorCache.invalidateAll();
+            doorCache.clear();
 
-        @NotNull CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-                                                                         .softValues()
-                                                                         .maximumSize(maxRegistrySize)
-                                                                         .expireAfterAccess(cacheExpiry)
-                                                                         .initialCapacity(initialCapacity)
-                                                                         .concurrencyLevel(concurrencyLevel);
-        if (removalListener)
-            cacheBuilder = cacheBuilder.removalListener(
-                notification ->
-                {
-                    PLogger.get().logMessage(Level.FINEST, "Removed door " +
-                        notification.getKey().toString() + " from the registry! Reason: " +
-                        notification.getCause().name());
+        doorCache = TimedCache.<Long, AbstractDoorBase>builder()
+            .softReference(true)
+            .duration(cacheExpiry)
+            .build();
 
-                    if (notification.getCause() == RemovalCause.COLLECTED ||
-                        notification.getCause() == RemovalCause.EXPIRED ||
-                        notification.getCause() == RemovalCause.SIZE)
-                        ((AbstractDoorBase) notification.getValue()).syncAllData();
-                });
-
-        doorCache = cacheBuilder.build();
         return this;
     }
 }

@@ -547,6 +547,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return hooksMap.get(hook);
     }
 
+    /**
+     * Gets the amount of time to keeps heads cached.
+     *
+     * @return The amount of time (in minutes) to cache head items.
+     */
     public int headCacheTimeout()
     {
         return headCacheTimeout;
