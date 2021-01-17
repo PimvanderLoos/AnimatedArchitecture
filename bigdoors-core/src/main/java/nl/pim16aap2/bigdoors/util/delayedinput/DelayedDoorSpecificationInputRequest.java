@@ -4,7 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +35,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
      *                If the user fails to provide input within this timeout window, an empty result will be returned.
      * @param options The list of options they can choose from.
      * @param player  The player that is asked to make a choice.
-     * @return
+     * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
     public static @NonNull Optional<AbstractDoorBase> get(final long timeout,
                                                           final @NonNull List<AbstractDoorBase> options,
@@ -60,12 +59,12 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     @Override
     protected void init()
     {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("DelayedDoorSpecificationInputRequest is not fully implemented yet!");
     }
 
     @Override
     protected void cleanup()
     {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException("DelayedDoorSpecificationInputRequest is not fully implemented yet!");
     }
 }
