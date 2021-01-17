@@ -74,16 +74,23 @@ class DelayedInputRequestTest
         Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.INACTIVE);
         CompletableFuture.supplyAsync(request::waitForInput);
         sleep(5);
-        Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.WAITING);
+        Assertions.assertEquals(DelayedInputRequest.Status.WAITING, request.getStatus());
         request.set("");
         sleep(5);
-        Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.COMPLETED);
+        Assertions.assertEquals(DelayedInputRequest.Status.COMPLETED, request.getStatus());
 
         request = new DelayedInputRequestImpl(10);
         CompletableFuture.supplyAsync(request::waitForInput);
         sleep(50);
-        Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.TIMED_OUT);
+        Assertions.assertEquals(DelayedInputRequest.Status.TIMED_OUT, request.getStatus());
 
+        request = new DelayedInputRequestImpl(1000);
+        CompletableFuture<Optional<String>> futureResult = CompletableFuture.supplyAsync(request::waitForInput);
+        sleep(5);
+        request.cancel();
+        sleep(5);
+        Assertions.assertEquals(DelayedInputRequest.Status.CANCELLED, request.getStatus());
+        Assertions.assertFalse(futureResult.join().isPresent());
     }
 
     private void sleep(final long millis)

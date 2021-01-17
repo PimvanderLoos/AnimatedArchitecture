@@ -5,8 +5,8 @@ import org.jetbrains.annotations.Nullable;
 
 public enum CommandData
 {
-    BDM("bdm", "bigdoors.user", null),
-    BIGDOORS("bigdoors", "bigdoors.user", null),
+    BDM("bdm", "bigdoors.user.base", null),
+    BIGDOORS("bigdoors", "bigdoors.user.base", null),
 
     ADDOWNER("AddOwner", "bigdoors.user.addowner", CommandData.BIGDOORS),
     CANCEL("cancel", CommandData.BDM.permission, CommandData.BIGDOORS),
@@ -30,6 +30,7 @@ public enum CommandData
     STOPDOORS("stopdoors", "bigdoors.admin.stopdoors", CommandData.BIGDOORS),
     TOGGLE("toggle", "bigdoors.user.toggle", CommandData.BIGDOORS),
     OPEN("open", CommandData.TOGGLE.permission, CommandData.BIGDOORS),
+    IDENTIFY("specify", CommandData.BDM.permission, CommandData.BIGDOORS),
     CLOSE("close", CommandData.TOGGLE.permission, CommandData.BIGDOORS),
     VERSION("version", "bigdoors.admin.version", CommandData.BIGDOORS);
 

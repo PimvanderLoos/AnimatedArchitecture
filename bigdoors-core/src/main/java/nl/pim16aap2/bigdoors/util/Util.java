@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -132,6 +133,32 @@ public final class Util
     public static @NotNull OptionalLong parseLong(final @NonNull Optional<String> str)
     {
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
+    }
+
+    /**
+     * See {@link #getDistanceToDoor(IPLocationConst, AbstractDoorBase)}.
+     * <p>
+     * If the player object has no location, -2 is returned.
+     */
+    public static double getDistanceToDoor(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
+    {
+        return player.getLocation().map(location -> getDistanceToDoor(location, door)).orElse(-2d);
+    }
+
+    /**
+     * Gets the distance between a location and a door. If the location and the door are not in the same world, -1 is
+     * returned.
+     *
+     * @param location The location to check.
+     * @param door     The door to check.
+     * @return The distance between the location and the door if they lie in the same world, otherwise -1.
+     */
+    public static double getDistanceToDoor(final @NonNull IPLocationConst location,
+                                           final @NonNull AbstractDoorBase door)
+    {
+        if (!location.getWorld().equals(door.getWorld()))
+            return -1;
+        return door.getCuboid().getCenter().getDistance(location.getPosition());
     }
 
     /**

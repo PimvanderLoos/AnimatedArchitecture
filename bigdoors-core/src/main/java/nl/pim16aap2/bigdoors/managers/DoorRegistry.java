@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.jetbrains.annotations.NotNull;
@@ -32,12 +31,6 @@ public final class DoorRegistry extends Restartable
     private DoorRegistry()
     {
         super(BigDoors.get());
-        if (INSTANCE != null)
-        {
-            IllegalAccessError e = new IllegalAccessError("Illegally trying to instantiate DoorManager!");
-            PLogger.get().logThrowableSilently(e);
-            throw e;
-        }
 
         init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }

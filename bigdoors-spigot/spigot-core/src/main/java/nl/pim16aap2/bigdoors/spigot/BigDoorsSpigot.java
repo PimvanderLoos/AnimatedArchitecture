@@ -55,6 +55,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseT
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetName;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetRotation;
+import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSpecify;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandStopDoors;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandVersion;
@@ -349,6 +350,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             commandBigDoors.registerSubCommand(new SubCommandStopDoors(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandToggle(this, commandManager));
             commandBigDoors.registerSubCommand(new SubCommandVersion(this, commandManager));
+            commandBigDoors.registerSubCommand(new SubCommandSpecify(this, commandManager));
         }
         commandManager.registerCommand(commandBigDoors);
         commandManager.registerCommand(new CommandMenu(this, commandManager));

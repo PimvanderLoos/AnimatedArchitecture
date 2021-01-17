@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -65,6 +67,11 @@ public interface IPLocationConst extends Cloneable
      * @return The Z value of this location.
      */
     double getZ();
+
+    default @NonNull Vector3Di getPosition()
+    {
+        return new Vector3Di(getBlockX(), getBlockY(), getBlockZ());
+    }
 
     /**
      * Gets the position (so no world) in integers as a String.

@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
+import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -32,6 +35,12 @@ public final class TestPPlayer implements IPPlayer
     public @NotNull UUID getUUID()
     {
         return uuid;
+    }
+
+    @Override
+    public @NonNull Optional<IPLocation> getLocation()
+    {
+        return Optional.empty();
     }
 
     @Override

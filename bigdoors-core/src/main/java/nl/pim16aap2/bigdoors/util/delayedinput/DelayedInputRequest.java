@@ -85,16 +85,33 @@ public abstract class DelayedInputRequest<T>
             }
             catch (InterruptedException e)
             {
-                PLogger.get().logThrowable(e, "Interrupted while waiting for input!");
+                PLogger.get().logThrowableSilently(e, "Interrupted while waiting for input!");
                 Thread.currentThread().interrupt();
             }
 
-            if (status != Status.COMPLETED)
+            if (status != Status.COMPLETED && status != Status.CANCELLED)
                 status = Status.TIMED_OUT;
 
             cleanup();
 
             return Optional.ofNullable(value);
+        }
+    }
+
+    /**
+     * Cancels the request.
+     */
+    public final void cancel()
+    {
+        synchronized (guard)
+        {
+            if (status == Status.WAITING)
+            {
+                value = null;
+                guard.notify();
+                status = Status.CANCELLED;
+                cleanup();
+            }
         }
     }
 
@@ -150,6 +167,11 @@ public abstract class DelayedInputRequest<T>
         /**
          * The request timed out before it received input.
          */
-        TIMED_OUT
+        TIMED_OUT,
+
+        /**
+         * The request was cancelled.
+         */
+        CANCELLED
     }
 }

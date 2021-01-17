@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -197,7 +198,8 @@ public abstract class DoorRetriever
                     if (doorList.isEmpty())
                         return Optional.empty();
                     return DelayedDoorSpecificationInputRequest
-                        .get(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout(), doorList, player);
+                        .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
+                             doorList, player);
                 });
         }
     }

@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -8,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -16,6 +19,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+// TODO: Clean up this class. E.g., the name is not available for offline players.
 public final class PPlayerSpigot implements IPPlayer
 {
     @NotNull
@@ -43,6 +47,13 @@ public final class PPlayerSpigot implements IPPlayer
     public @NotNull UUID getUUID()
     {
         return uuid;
+    }
+
+    @Override
+    public @NotNull Optional<IPLocation> getLocation()
+    {
+        @Nullable Player player = getBukkitPlayer();
+        return player == null ? Optional.empty() : Optional.of(SpigotAdapter.wrapLocation(player.getLocation()));
     }
 
     @Override
@@ -102,9 +113,8 @@ public final class PPlayerSpigot implements IPPlayer
         }
         catch (CloneNotSupportedException e)
         {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logThrowable(er);
+            PLogger.get().logThrowableSilently(er);
             throw er;
         }
     }

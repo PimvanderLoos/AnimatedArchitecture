@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,6 +28,13 @@ public interface IPPlayer extends IMessageable
      * @return The UUID of this player.
      */
     @NotNull UUID getUUID();
+
+    /**
+     * Gets the current location of this player.
+     *
+     * @return The current location of this player.
+     */
+    @NonNull Optional<IPLocation> getLocation();
 
     /**
      * Gets the player as a String in the format '"playerName" (playerUUID)'.
