@@ -5,6 +5,7 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -94,7 +95,8 @@ public final class HeadManager extends Restartable
     {
         return CompletableFuture.supplyAsync(
             () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
-                         .flatMap(Function.identity()));
+                         .flatMap(Function.identity()))
+                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
     }
 
     private @NonNull Optional<ItemStack> createItemStack(final @NonNull UUID playerUUID,

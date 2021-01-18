@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,10 +57,10 @@ public final class DoorOpener
         final @NotNull IMessageable messageReceiver, @Nullable IPPlayer responsible, final double time,
         final boolean skipAnimation, final @NotNull DoorActionType doorActionType)
     {
-        return futureDoor.thenCompose(
+        return futureDoor.thenComposeAsync(
             doorOpt ->
             {
-                if (!doorOpt.isPresent())
+                if (doorOpt.isEmpty())
                 {
                     PLogger.get().logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
                     return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
@@ -69,7 +70,7 @@ public final class DoorOpener
 
                 return animateDoor(doorOpt.get(), cause, messageReceiver, finalResponsible,
                                    time, skipAnimation, doorActionType);
-            });
+            }).exceptionally(ex -> Util.exceptionally(ex, DoorToggleResult.ERROR));
     }
 
     /**
@@ -182,12 +183,13 @@ public final class DoorOpener
                                                                      final double time, boolean skipAnimation,
                                                                      final @NotNull DoorActionType doorActionType)
     {
-        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
+        if (BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
             return CompletableFuture.completedFuture(door.toggle(cause, messageReceiver, responsible,
                                                                  time, skipAnimation, doorActionType));
 
         final @NotNull IPExecutor<DoorToggleResult> pExecutor = BigDoors.get().getPlatform().newPExecutor();
         return pExecutor.supplyOnMainThread(() -> door.toggle(cause, messageReceiver, responsible,
-                                                              time, skipAnimation, doorActionType));
+                                                              time, skipAnimation, doorActionType))
+                        .exceptionally(ex -> Util.exceptionally(ex, DoorToggleResult.ERROR));
     }
 }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -19,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
+import java.util.Collections;
 
 /*
  * This class really does whatever I want to test at a given point.
@@ -42,7 +42,6 @@ public class SubCommandDebug extends SubCommand
         init(help, argsHelp, minArgCount, command);
     }
 
-    @SneakyThrows
     public boolean execute(CommandSender sender)
     {
         if (!(sender instanceof Player))
@@ -52,11 +51,12 @@ public class SubCommandDebug extends SubCommand
         final @NotNull IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
 
         DatabaseManager.get().getDoors(pPlayer)
+                       .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()))
                        .thenApplyAsync(doors -> DelayedDoorSpecificationInputRequest.get(Duration.ofSeconds(30),
                                                                                          doors, pPlayer))
                        .whenComplete((door, ex) -> Bukkit.broadcastMessage("Selected door: " + door
                            .map(AbstractDoorBase::getBasicInfo).orElse("NULL")))
-                       .handle(Util::handleThrowable);
+                       .exceptionally(Util::exceptionally);
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));

@@ -112,7 +112,7 @@ public class SubCommandToggle extends SubCommand
                     }
                 }
                 return finalTime;
-            });
+            }).exceptionally(ex -> Util.exceptionally(ex, 0.0D));
     }
 
     @Override

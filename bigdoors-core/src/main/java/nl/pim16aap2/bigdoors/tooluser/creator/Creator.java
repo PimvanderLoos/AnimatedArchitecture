@@ -376,9 +376,9 @@ public abstract class Creator extends ToolUser
         DatabaseManager.get().addDoorBase(door).whenComplete(
             (newDoor, throwable) ->
             {
-                if (!newDoor.isPresent())
+                if (newDoor.isEmpty())
                     PLogger.get().severe("Failed to insert door after creation!");
-            });
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

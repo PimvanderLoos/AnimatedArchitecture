@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,7 @@ public final class UpdateManager
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
-    
+
     @NotNull
     private UpdateChecker updater;
     @NotNull
@@ -114,7 +115,7 @@ public final class UpdateManager
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());
                 }
-            });
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

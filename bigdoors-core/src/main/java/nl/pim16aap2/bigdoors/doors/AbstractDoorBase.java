@@ -289,6 +289,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                                                         final @NotNull IPPlayer responsible, final double time,
                                                         boolean skipAnimation, final @NotNull DoorActionType actionType)
     {
+        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
+            throw new IllegalStateException("Doors must be toggled on the main thread!");
+
         if (openDir == RotateDirection.NONE)
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");

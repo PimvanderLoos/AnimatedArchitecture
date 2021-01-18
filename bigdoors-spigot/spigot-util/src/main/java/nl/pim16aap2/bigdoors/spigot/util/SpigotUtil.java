@@ -347,7 +347,7 @@ public final class SpigotUtil
                             // Ignore
                         }
                 return ret;
-            });
+            }).exceptionally(ex -> Util.exceptionally(ex, 0)); // 0 to indicate a limit of 0, to err on the safe side.
     }
 
 

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -23,6 +22,8 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -78,27 +79,30 @@ public final class Util
     }
 
     /**
-     * "handles" a throwable by sending it to the logger and rethrowing it (sneakily).
+     * Logs a throwable using {@link PLogger#logThrowable(Throwable)} and returns a fallback value.
      * <p>
-     * If no throwable was provided, the provided value is returned.
-     * <p>
-     * This is mostly useful for CompletableFutures.
+     * Mostly useful for {@link CompletableFuture#exceptionally(Function)}.
      *
-     * @param val The value that is returned in case the throwable doesn't exist.
-     * @param t   The throwable to log and rethrow if it exists.
-     * @param <T> The type of the value to return.
-     * @return The provided value if the throwable does not exist.
+     * @param throwable The throwable to send to the logger.
+     * @param fallback  The fallback value to return.
+     * @param <T>       The type of the fallback value.
+     * @return The fallback value.
      */
-    @SneakyThrows
-    @Contract("!null ,_ -> !null")
-    public static <T> T handleThrowable(final T val, final @Nullable Throwable t)
+    @Contract("_, !null -> !null")
+    public <T> T exceptionally(final @NonNull Throwable throwable, final T fallback)
     {
-        if (t != null)
-        {
-            PLogger.get().logThrowable(t);
-            throw t;
-        }
-        return val;
+        PLogger.get().logThrowable(throwable);
+        return fallback;
+    }
+
+    /**
+     * See {@link #exceptionally(Throwable, Object)} with a null fallback value.
+     *
+     * @return Always null
+     */
+    public @Nullable <T> T exceptionally(final @NonNull Throwable throwable)
+    {
+        return exceptionally(throwable, null);
     }
 
     public static @NotNull OptionalInt parseInt(final @Nullable String str)

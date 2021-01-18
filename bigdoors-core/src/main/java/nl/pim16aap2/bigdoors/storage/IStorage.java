@@ -36,7 +36,7 @@ public interface IStorage
     }
 
     /**
-     * Registeres an {@link DoorType} in the database.
+     * Registers an {@link DoorType} in the database.
      *
      * @param doorType The {@link DoorType}.
      * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that

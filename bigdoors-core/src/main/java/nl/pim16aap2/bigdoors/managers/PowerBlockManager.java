@@ -120,14 +120,13 @@ public final class PowerBlockManager extends Restartable
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
-        final @NotNull CompletableFuture<List<Long>> doorUIDs = powerBlockWorld.getPowerBlocks(loc);
-        return doorUIDs.handle(
+        return powerBlockWorld.getPowerBlocks(loc).handle(
             (list, throwable) ->
             {
                 final @NotNull List<CompletableFuture<Optional<AbstractDoorBase>>> doorBases = new ArrayList<>();
                 list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
-            });
+            }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -274,10 +273,7 @@ public final class PowerBlockManager extends Restartable
                 final @NonNull PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
-                final @NotNull CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> powerBlocks
-                    = DatabaseManager.get().getPowerBlockData(chunkHash);
-
-                return powerBlocks.handle(
+                return DatabaseManager.get().getPowerBlockData(chunkHash).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);
@@ -285,7 +281,7 @@ public final class PowerBlockManager extends Restartable
                         final @NotNull List<Long> doorUIDs = new ArrayList<>(map.size());
                         map.forEach((key, value) -> doorUIDs.addAll(value));
                         return doorUIDs;
-                    });
+                    }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
             }
 
             return CompletableFuture.completedFuture(powerBlockChunks.get(chunkHash)
@@ -310,7 +306,8 @@ public final class PowerBlockManager extends Restartable
          */
         private void checkBigDoorsWorldStatus()
         {
-            databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result);
+            databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result)
+                           .exceptionally(Util::exceptionally);
         }
 
         @Override

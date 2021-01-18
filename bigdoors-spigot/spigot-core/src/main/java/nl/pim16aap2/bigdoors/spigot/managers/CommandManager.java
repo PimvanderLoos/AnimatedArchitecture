@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -15,7 +14,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -24,15 +23,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 /**
@@ -329,54 +325,40 @@ public class CommandManager implements CommandExecutor
 
         if (sender instanceof Player)
         {
-            door = CompletableFuture.supplyAsync(
-                () ->
-                {
-                    List<AbstractDoorBase> doors;
-                    try
+            door = DatabaseManager.get().getDoors(((Player) sender).getUniqueId(), doorArg)
+                .<Optional<AbstractDoorBase>>handleAsync(
+                    (doors, ex) ->
                     {
-                        doors = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
-                                        .get();
-                    }
-                    catch (InterruptedException e)
-                    {
-                        PLogger.get().logThrowableSilently(e);
-                        doors = Collections.emptyList();
-                        Thread.currentThread().interrupt();
-                    }
-                    catch (ExecutionException e)
-                    {
-                        plugin.getPLogger().logThrowable(e);
-                        doors = Collections.emptyList();
-                    }
-                    if (doors.isEmpty())
-                    {
-                        handleException(new NotEnoughDoorsException(), sender, cmd, args);
-                        return Optional.empty();
-                    }
-                    else if (doors.size() > 1)
-                    {
-                        handleException(new TooManyDoorsException(), sender, cmd, args);
-                        return Optional.empty();
-                    }
-                    return Optional.of(doors.get(0));
-                });
+                        if (doors.isEmpty())
+                        {
+                            handleException(new NotEnoughDoorsException(), sender, cmd, args);
+                            return Optional.empty();
+                        }
+                        else if (doors.size() > 1)
+                        {
+                            handleException(new TooManyDoorsException(), sender, cmd, args);
+                            return Optional.empty();
+                        }
+                        return Optional.of(doors.get(0));
+                    }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
         }
         else
+        {
             try
             {
-                door = DatabaseManager.get().getDoor(Long.parseLong(doorArg));
+                door = DatabaseManager.get().getDoor(Long.parseLong(doorArg))
+                                      .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
             }
             catch (NumberFormatException e)
             {
-                plugin.getPLogger()
-                      .info("\"" + doorArg + "\" " +
-                                plugin.getMessages().getString(Message.ERROR_INVALIDDOORID, doorArg));
+                plugin.getPLogger().info("\"" + doorArg + "\" " +
+                                             plugin.getMessages().getString(Message.ERROR_INVALIDDOORID, doorArg));
             }
+        }
         if (door == null)
         {
-            handleException(
-                new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!"), sender, cmd, args);
+            handleException(new IllegalArgumentException("\"" + doorArg + "\" is not a valid door!"),
+                            sender, cmd, args);
             door = CompletableFuture.completedFuture(Optional.empty());
         }
         return door;

@@ -129,7 +129,8 @@ public abstract class DoorRetriever
     private static CompletableFuture<List<AbstractDoorBase>> optionalToList(
         final @NonNull CompletableFuture<Optional<AbstractDoorBase>> optionalDoor)
     {
-        return optionalDoor.thenApply(door -> door.map(Collections::singletonList).orElseGet(Collections::emptyList));
+        return optionalDoor.thenApply(door -> door.map(Collections::singletonList).orElseGet(Collections::emptyList))
+                           .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -142,13 +143,13 @@ public abstract class DoorRetriever
     private static @NonNull CompletableFuture<Optional<AbstractDoorBase>> listToOptional(
         final @NonNull CompletableFuture<List<AbstractDoorBase>> list)
     {
-        return list.thenApply(
+        return list.<Optional<AbstractDoorBase>>thenApply(
             doorList ->
             {
                 if (doorList.size() == 1)
                     return Optional.of(doorList.get(0));
                 return Optional.empty();
-            });
+            }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
     }
 
     /**
@@ -178,19 +179,21 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<List<AbstractDoorBase>> getDoors()
         {
-            return DatabaseManager.get().getDoors(name);
+            return DatabaseManager.get().getDoors(name)
+                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
         public @NonNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NonNull IPPlayer player)
         {
-            return DatabaseManager.get().getDoors(player, name);
+            return DatabaseManager.get().getDoors(player, name)
+                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoorInteractive(final @NonNull IPPlayer player)
         {
-            return getDoors(player).thenApplyAsync(
+            return getDoors(player).<Optional<AbstractDoorBase>>thenApplyAsync(
                 doorList ->
                 {
                     if (doorList.size() == 1)
@@ -200,7 +203,7 @@ public abstract class DoorRetriever
                     return DelayedDoorSpecificationInputRequest
                         .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
                              doorList, player);
-                });
+                }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
         }
     }
 
@@ -219,13 +222,15 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor()
         {
-            return DatabaseManager.get().getDoor(uid);
+            return DatabaseManager.get().getDoor(uid)
+                                  .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
         }
 
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NonNull IPPlayer player)
         {
-            return DatabaseManager.get().getDoor(player, uid);
+            return DatabaseManager.get().getDoor(player, uid)
+                                  .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
         }
     }
 

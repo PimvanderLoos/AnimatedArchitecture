@@ -63,7 +63,7 @@ public final class DoorTypeLoader extends Restartable
 
     private @NotNull Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(final @NotNull File file)
     {
-        PLogger.get().logMessage(Level.INFO, "Attempting to load DoorType from jar: " + file.toString());
+        PLogger.get().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file.toString());
         if (!file.toString().endsWith(".jar"))
         {
             PLogger.get()

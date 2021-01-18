@@ -90,7 +90,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Long> registerDoorType(final @NotNull DoorType doorType)
     {
-        return CompletableFuture.supplyAsync(() -> db.registerDoorType(doorType));
+        return CompletableFuture.supplyAsync(() -> db.registerDoorType(doorType))
+                                .exceptionally(ex -> Util.exceptionally(ex, -1L));
     }
 
     /**
@@ -144,7 +145,7 @@ public final class DatabaseManager extends Restartable
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
                 return result;
-            }, threadPool);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
     }
 
     /**
@@ -167,7 +168,7 @@ public final class DatabaseManager extends Restartable
                                                              door.getPowerBlock().getY(),
                                                              door.getPowerBlock().getZ()));
                 return result;
-            }, threadPool);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -178,7 +179,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<List<Long>> getDoorsInChunk(final long chunkHash)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -198,9 +200,11 @@ public final class DatabaseManager extends Restartable
             return CompletableFuture
                 .supplyAsync(() -> db.getDoor(playerUUID, doorID.getAsLong())
                                      .map(Collections::singletonList)
-                                     .orElse(Collections.emptyList()), threadPool);
+                                     .orElse(Collections.emptyList()), threadPool)
+                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -220,7 +224,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -244,7 +249,8 @@ public final class DatabaseManager extends Restartable
                                                                        final @NotNull String name,
                                                                        final int maxPermission)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -255,7 +261,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull String name)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -266,8 +273,9 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Boolean> updatePlayer(final @NotNull IPPlayer player)
     {
-        return CompletableFuture
-            .supplyAsync(() -> db.updatePlayerName(player.getUUID().toString(), player.getName()), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.updatePlayerName(player.getUUID().toString(), player.getName()),
+                                             threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -278,7 +286,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
     }
 
     /**
@@ -306,7 +315,8 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull UUID uuid,
                                                                           final long doorUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
     }
 
     /**
@@ -317,7 +327,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Integer> countDoorsOwnedByPlayer(final @NotNull UUID playerUUID)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -330,7 +341,8 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Integer> countDoorsOwnedByPlayer(final @NotNull UUID playerUUID,
                                                                        final @NotNull String doorName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -341,7 +353,8 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Integer> countDoorsByName(final @NotNull String doorName)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -368,7 +381,7 @@ public final class DatabaseManager extends Restartable
                                                                                          player.getUUID(),
                                                                                          player.getName(), permission));
                 return result;
-            }, threadPool);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -382,7 +395,7 @@ public final class DatabaseManager extends Restartable
                                                            final @NotNull UUID playerUUID)
     {
         final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
-        if (!doorOwner.isPresent())
+        if (doorOwner.isEmpty())
         {
             PLogger.get().logMessage(Level.FINE,
                                      "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
@@ -404,7 +417,7 @@ public final class DatabaseManager extends Restartable
                 if (result)
                     ((FriendDoorAccessor) door).removeOwner(playerUUID);
                 return result;
-            }, threadPool);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -419,7 +432,8 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Boolean> syncDoorTypeData(final long doorUID, final @NotNull DoorType doorType,
                                                                 final @NotNull Object[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncTypeData(doorUID, doorType, typeData), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncTypeData(doorUID, doorType, typeData), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -431,7 +445,8 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Boolean> syncDoorBaseData(
         final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncBaseData(simpleDoorData), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncBaseData(simpleDoorData), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -447,7 +462,8 @@ public final class DatabaseManager extends Restartable
         final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final @NotNull DoorType doorType,
         final @NotNull Object[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncAllData(simpleDoorData, doorType, typeData), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.syncAllData(simpleDoorData, doorType, typeData), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -458,7 +474,8 @@ public final class DatabaseManager extends Restartable
      */
     @NotNull CompletableFuture<Boolean> isBigDoorsWorld(final @NotNull String worldName)
     {
-        return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -472,7 +489,8 @@ public final class DatabaseManager extends Restartable
      */
     @NotNull CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
     {
-        return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool);
+        return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
     }
 
     /**
