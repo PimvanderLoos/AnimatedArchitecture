@@ -11,6 +11,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.BlockingQueue;
@@ -277,7 +279,7 @@ public final class PLogger
      */
     public void dumpStackTrace(final @NotNull String message)
     {
-        dumpBoundedStackTrace(Level.SEVERE, message, 0);
+        dumpStackTrace(Level.SEVERE, message);
     }
 
     /**
@@ -287,19 +289,7 @@ public final class PLogger
      */
     public void dumpStackTrace(final @NotNull Level level, final @NotNull String message)
     {
-        dumpBoundedStackTrace(level, message, 0);
-    }
-
-    /**
-     * Dumps the stack trace to the log file at an arbitrary location. Only print a given number of lines.
-     *
-     * @param message       An optional message to be printed along with the stack trace.
-     * @param numberOfLines The number of lines to be written to the log.
-     */
-    public void dumpBoundedStackTrace(final @NotNull Level level, final @NotNull String message,
-                                      final int numberOfLines)
-    {
-        addToMessageQueue(level, () -> new LogMessageThrowable(new Exception(), message, numberOfLines));
+        addToMessageQueue(level, () -> new LogMessageThrowable(new Exception(), message));
     }
 
     /**
@@ -529,25 +519,17 @@ public final class PLogger
     }
 
     /**
-     * Limits the length of a stack trace to a provided number of lines. If the provided number of lines is less than 1
-     * or exceeds the number of elements, all existing elements will get printed.
+     * Converts a stacktrace to a string.
      *
-     * @param throwable     The {@link Throwable} whose stacktrace to get.
-     * @param numberOfLines The number of lines to limit it to.
-     * @return A string of the stack trace for at most numberOfLines lines if numberOfLines > 0.
+     * @param throwable The {@link Throwable} whose stacktrace to get.
+     * @return A string of the stack trace.
      */
-    private static @NotNull String limitStackTraceLength(final @NotNull Throwable throwable, final int numberOfLines)
+    private static @NotNull String stacktraceToString(final @NotNull Throwable throwable)
     {
-        StackTraceElement[] stackTrace = throwable.getStackTrace();
-        int linesToWrite = numberOfLines > 0 ? Math.min(numberOfLines, stackTrace.length) : stackTrace.length;
-
-        StringBuilder sb = new StringBuilder().append(throwable).append("\n");
-        for (int idx = 0; idx < linesToWrite; ++idx)
-            sb.append("    at ").append(stackTrace[idx]).append("\n");
-        // If any lines were omitted, make sure to log that too.
-        if (linesToWrite < stackTrace.length)
-            sb.append((stackTrace.length - linesToWrite)).append(" more lines omitted...\n\n");
-        return sb.toString();
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
     }
 
     /**
@@ -620,14 +602,9 @@ public final class PLogger
      */
     private static class LogMessageThrowable extends LogMessage
     {
-        LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message, final int numberOfLines)
-        {
-            super(checkMessage(message) + checkMessage(limitStackTraceLength(throwable, numberOfLines)));
-        }
-
         LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message)
         {
-            this(throwable, checkMessage(message), 0);
+            super(checkMessage(message) + checkMessage(stacktraceToString(throwable)));
         }
     }
 
