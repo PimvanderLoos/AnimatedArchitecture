@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
+import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -8,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,6 +75,30 @@ public final class Util
             toRotateDirection.put(pbf, mappedRotDir);
             toPBlockFace.put(mappedRotDir, pbf);
         }
+    }
+
+    /**
+     * "handles" a throwable by sending it to the logger and rethrowing it (sneakily).
+     * <p>
+     * If no throwable was provided, the provided value is returned.
+     * <p>
+     * This is mostly useful for CompletableFutures.
+     *
+     * @param val The value that is returned in case the throwable doesn't exist.
+     * @param t   The throwable to log and rethrow if it exists.
+     * @param <T> The type of the value to return.
+     * @return The provided value if the throwable does not exist.
+     */
+    @SneakyThrows
+    @Contract("!null ,_ -> !null")
+    public static <T> T handleThrowable(final T val, final @Nullable Throwable t)
+    {
+        if (t != null)
+        {
+            PLogger.get().logThrowable(t);
+            throw t;
+        }
+        return val;
     }
 
     public static @NotNull OptionalInt parseInt(final @Nullable String str)
@@ -307,14 +333,22 @@ public final class Util
     }
 
     /**
-     * Check if a given string is a valid door name. Numerical names aren't allowed to make sure they don't get confused
-     * for doorUIDs.
+     * Check if a given string is a valid door name. The following input is not allowed:
+     * <p>
+     * - Numerical names (numerical values are reserved for UIDs).
+     * <p>
+     * - Empty input.
+     * <p>
+     * - Input containing spaces.
      *
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
     public static boolean isValidDoorName(final @NotNull String name)
     {
+        if (name.length() == 0 || name.contains(" "))
+            return false;
+
         try
         {
             Long.parseLong(name);
@@ -324,6 +358,7 @@ public final class Util
         {
             return true;
         }
+
     }
 
     /**
@@ -528,11 +563,11 @@ public final class Util
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
-    public static @NotNull double[] calculateTimeAndTickRate(final int doorSize, double time,
-                                                             final double speedMultiplier,
-                                                             final double baseSpeed)
+    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
+                                                    final double speedMultiplier,
+                                                    final double baseSpeed)
     {
-        final @NotNull double[] ret = new double[3];
+        final double[] ret = new double[3];
         final double distance = Math.PI * doorSize / 2;
         if (time == 0.0)
             time = baseSpeed + doorSize / 3.5;

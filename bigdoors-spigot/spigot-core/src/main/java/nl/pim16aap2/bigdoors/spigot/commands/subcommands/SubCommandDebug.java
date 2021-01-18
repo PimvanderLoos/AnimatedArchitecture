@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -54,7 +55,8 @@ public class SubCommandDebug extends SubCommand
                        .thenApplyAsync(doors -> DelayedDoorSpecificationInputRequest.get(Duration.ofSeconds(30),
                                                                                          doors, pPlayer))
                        .whenComplete((door, ex) -> Bukkit.broadcastMessage("Selected door: " + door
-                           .map(AbstractDoorBase::getBasicInfo).orElse("NULL")));
+                           .map(AbstractDoorBase::getBasicInfo).orElse("NULL")))
+                       .handle(Util::handleThrowable);
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));
