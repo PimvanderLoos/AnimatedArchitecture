@@ -9,6 +9,7 @@
         <mainClass>nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock</mainClass>
         <typeName>Clock</typeName>
         <version>1</version>
+        <TypeDependencies>windmill(1;1)</TypeDependencies>
     </properties>
 
     <parent>

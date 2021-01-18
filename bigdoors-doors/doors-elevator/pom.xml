@@ -9,6 +9,7 @@
         <mainClass>nl.pim16aap2.bigdoors.doors.elevator.DoorTypeElevator</mainClass>
         <typeName>Elevator</typeName>
         <version>1</version>
+        <TypeDependencies>portcullis(1;1)</TypeDependencies>
     </properties>
 
     <parent>

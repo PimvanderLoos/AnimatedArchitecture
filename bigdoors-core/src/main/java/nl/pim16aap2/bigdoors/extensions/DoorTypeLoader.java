@@ -71,9 +71,9 @@ public final class DoorTypeLoader extends Restartable
             return Optional.empty();
         }
 
-        final @NotNull String typeName;
+        final String typeName;
         final @NotNull String className;
-        final @Nullable String dependencies;
+        @Nullable String dependencies;
         final int version;
         try (final @NotNull FileInputStream fileInputStream = new FileInputStream(file);
              final @NotNull JarInputStream jarStream = new JarInputStream(fileInputStream))
@@ -99,7 +99,7 @@ public final class DoorTypeLoader extends Restartable
             final @Nullable Attributes versionSection = manifest.getEntries().get("Version");
             final @NotNull OptionalInt versionOpt = Util.parseInt(versionSection == null ?
                                                                   null : versionSection.getValue("Version"));
-            if (!versionOpt.isPresent())
+            if (versionOpt.isEmpty())
             {
                 PLogger.get().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
                                                                             "\" does not specify its version!"));
@@ -107,8 +107,10 @@ public final class DoorTypeLoader extends Restartable
             }
             version = versionOpt.getAsInt();
 
-            final @Nullable Attributes dependencySection = manifest.getEntries().get("Dependencies");
-            dependencies = dependencySection != null ? dependencySection.getValue("Dependencies") : null;
+            final @Nullable Attributes dependencySection = manifest.getEntries().get("TypeDependencies");
+            dependencies = dependencySection != null ? dependencySection.getValue("TypeDependencies") : null;
+            // When no dependencies are provided, we don't get a null reference, but a "null" string instead.
+            dependencies = "null".equals(dependencies) ? null : dependencies;
         }
         catch (IOException | IllegalArgumentException e)
         {

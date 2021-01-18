@@ -9,6 +9,7 @@
         <mainClass>nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill</mainClass>
         <typeName>Windmill</typeName>
         <version>1</version>
+        <TypeDependencies>drawbridge(1;1)</TypeDependencies>
     </properties>
 
     <parent>

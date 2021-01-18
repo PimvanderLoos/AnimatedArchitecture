@@ -9,6 +9,7 @@
         <mainClass>nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor</mainClass>
         <typeName>RevolvingDoor</typeName>
         <version>1</version>
+        <TypeDependencies>bigdoor(1;1)</TypeDependencies>
     </properties>
 
     <parent>
