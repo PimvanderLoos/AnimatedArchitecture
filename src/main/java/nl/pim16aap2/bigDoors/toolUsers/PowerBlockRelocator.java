@@ -10,6 +10,7 @@ import nl.pim16aap2.bigDoors.util.Util;
 public class PowerBlockRelocator extends ToolUser
 {
     private final Door door;
+    private boolean powerBlockLocationChanged = false;
 
     public PowerBlockRelocator(BigDoors plugin, Player player, Door door)
     {
@@ -32,7 +33,9 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (one != null)
         {
-            plugin.getCommander().updatePowerBlockLoc(doorUID, one);
+            // Only update the powerblock location if it actually changed.
+            if (powerBlockLocationChanged)
+                plugin.getCommander().updatePowerBlockLoc(doorUID, one);
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.Success"));
         }
         finishUp(null);
@@ -57,14 +60,30 @@ public class PowerBlockRelocator extends ToolUser
             return;
         }
 
-        if (plugin.getCommander().isPowerBlockLocationValid(loc))
+        if (loc.equals(door.getPowerBlockLoc()))
         {
-            done = true;
-            one = loc;
-            setIsDone(true);
+            powerBlockLocationChanged = false;
+            applySelected(loc);
+        }
+        else if (plugin.getCommander().isPowerBlockLocationValid(loc))
+        {
+            powerBlockLocationChanged = true;
+            applySelected(loc);
         }
         else
             Util.messagePlayer(player, messages.getString("CREATOR.PBRELOCATOR.LocationInUse"));
+    }
+
+    /**
+     * Applies the selected location and continues the process.
+     *
+     * @param loc The Location to apply. It is assumed that the location is already valid.
+     */
+    private void applySelected(Location loc)
+    {
+        done = true;
+        one = loc;
+        setIsDone(true);
     }
 
     @Override
