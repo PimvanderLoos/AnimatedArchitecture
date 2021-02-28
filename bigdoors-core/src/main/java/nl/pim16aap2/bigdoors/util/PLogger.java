@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import org.jetbrains.annotations.NotNull;
@@ -185,18 +185,18 @@ public final class PLogger
     }
 
     /**
-     * Checks if this {@link PLogger} is in a valid state and if a message at a given level can be logged at all (either
-     * console or file).
+     * Checks if this {@link PLogger} is in a valid state and if a message at a given level should be logged at all
+     * (either console or file).
      *
      * @param level The level to compare against the allowed levels.
-     * @return True if the provided level can be logged to the {@link PLogger}.
+     * @return True if the provided level should be skipped by the {@link PLogger}.
      */
-    private boolean canLog(final @NotNull Level level)
+    private boolean skipLog(final @NonNull Level level)
     {
         if (isInitialized() && !success)
             throw new IllegalStateException("PLogger was not initialized successfully!");
 
-        return level.intValue() >= lowestLevel.intValue();
+        return level.intValue() < lowestLevel.intValue();
     }
 
     /**
@@ -209,7 +209,7 @@ public final class PLogger
      */
     private void addToMessageQueue(final @NotNull Level level, final @NotNull Supplier<LogMessage> logMessageSupplier)
     {
-        if (!canLog(level))
+        if (skipLog(level))
             return;
 
         final @NotNull LogMessage logMessage = logMessageSupplier.get();
@@ -233,7 +233,7 @@ public final class PLogger
     private void addToSilentMessageQueue(final @NotNull Level level,
                                          final @NotNull Supplier<LogMessage> logMessageSupplier)
     {
-        if (!canLog(level))
+        if (skipLog(level))
             return;
 
         if (level.intValue() >= fileLogLevel.intValue())
@@ -245,6 +245,9 @@ public final class PLogger
      */
     private void prepareLog()
     {
+        if (logFile == null)
+            throw new IllegalStateException("Trying to prepare log without a valid log file!");
+
         if (!logFile.exists())
             try
             {
@@ -289,7 +292,7 @@ public final class PLogger
      */
     public void dumpStackTrace(final @NotNull Level level, final @NotNull String message)
     {
-        addToMessageQueue(level, () -> new LogMessageThrowable(new Exception(), message));
+        addToMessageQueue(level, () -> new LogMessageThrowable(new Exception(), message, level));
     }
 
     /**
@@ -324,7 +327,7 @@ public final class PLogger
      */
     public void logMessage(final @NotNull Level level, final @NotNull String msg)
     {
-        addToMessageQueue(level, () -> new LogMessageString(msg));
+        addToMessageQueue(level, () -> new LogMessageString(msg, level));
     }
 
     /**
@@ -349,7 +352,7 @@ public final class PLogger
     private void addThrowableToQueue(final @NotNull Level level, final @NotNull Throwable throwable,
                                      final @NotNull String message)
     {
-        addToMessageQueue(level, () -> new LogMessageThrowable(throwable, message));
+        addToMessageQueue(level, () -> new LogMessageThrowable(throwable, message, level));
     }
 
     /**
@@ -360,7 +363,8 @@ public final class PLogger
      */
     public void logThrowableSilently(final @NotNull Throwable throwable, final @NotNull String message)
     {
-        addToSilentMessageQueue(Level.SEVERE, () -> new LogMessageThrowable(throwable, message));
+        final Level level = Level.SEVERE;
+        addToSilentMessageQueue(level, () -> new LogMessageThrowable(throwable, message, level));
     }
 
     /**
@@ -373,7 +377,7 @@ public final class PLogger
     public void logThrowableSilently(final @NotNull Level level, final @NotNull Throwable throwable,
                                      final @NotNull String message)
     {
-        addToSilentMessageQueue(level, () -> new LogMessageThrowable(throwable, message));
+        addToSilentMessageQueue(level, () -> new LogMessageThrowable(throwable, message, level));
     }
 
     /**
@@ -409,11 +413,13 @@ public final class PLogger
     {
         addThrowableToQueue(level, throwable, message);
 
+        // There's a limit to disabling stacktraces.
+        // When disabled, the name of the issue is still printed!
         if (consoleLogLevel.intValue() == Level.OFF.intValue())
             writeToConsole(Level.OFF, throwable.toString());
 
         if (fileLogLevel.intValue() == Level.OFF.intValue())
-            addToMessageQueue(Level.OFF, () -> new LogMessageString(throwable.toString()));
+            addToMessageQueue(Level.OFF, () -> new LogMessageString(throwable.toString(), level));
     }
 
     /**
@@ -461,7 +467,7 @@ public final class PLogger
     public void logMessage(final @NotNull Level level, final @NotNull String message,
                            final @NotNull Supplier<String> messageSupplier)
     {
-        addToMessageQueue(level, () -> new LogMessageStringSupplier(message, messageSupplier));
+        addToMessageQueue(level, () -> new LogMessageStringSupplier(message, messageSupplier, level));
     }
 
     /**
@@ -569,16 +575,28 @@ public final class PLogger
      *
      * @author Pim
      */
-    @AllArgsConstructor
     private static abstract class LogMessage
     {
-        @NotNull
-        protected final String message;
+        protected final @NonNull String message;
+
+        protected final @NonNull Level logLevel;
+
+        /**
+         * The id of the thread from which this messages was created.
+         */
+        private final long threadID;
+
+        protected LogMessage(final @NonNull String message, final @NonNull Level logLevel)
+        {
+            this.message = message;
+            this.logLevel = logLevel;
+            threadID = Thread.currentThread().getId();
+        }
 
         @Override
         public @NotNull String toString()
         {
-            return message;
+            return getFormattedLevel() + getFormattedThreadID() + message;
         }
 
         /**
@@ -593,6 +611,16 @@ public final class PLogger
                 return "";
             return str + "\n";
         }
+
+        private @NonNull String getFormattedThreadID()
+        {
+            return String.format("Thread [%d] ", threadID);
+        }
+
+        private @NonNull String getFormattedLevel()
+        {
+            return String.format("(%s) ", logLevel.toString());
+        }
     }
 
     /**
@@ -602,9 +630,10 @@ public final class PLogger
      */
     private static class LogMessageThrowable extends LogMessage
     {
-        LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message)
+        LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message,
+                            final @NonNull Level logLevel)
         {
-            super(checkMessage(message) + checkMessage(stacktraceToString(throwable)));
+            super(checkMessage(message) + checkMessage(stacktraceToString(throwable)), logLevel);
         }
     }
 
@@ -615,17 +644,18 @@ public final class PLogger
      */
     private static class LogMessageString extends LogMessage
     {
-        LogMessageString(final @NotNull String message)
+        LogMessageString(final @NotNull String message, final @NonNull Level logLevel)
         {
-            super(checkMessage(message));
+            super(checkMessage(message), logLevel);
         }
     }
 
     private static class LogMessageStringSupplier extends LogMessage
     {
-        LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier)
+        LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier,
+                                 final @NonNull Level logLevel)
         {
-            super(checkMessage(message) + checkMessage(stringSupplier.get()));
+            super(checkMessage(message) + checkMessage(stringSupplier.get()), logLevel);
         }
     }
 }
