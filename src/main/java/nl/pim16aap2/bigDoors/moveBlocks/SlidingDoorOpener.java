@@ -233,50 +233,49 @@ public class SlidingDoorOpener implements Opener
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
 
-        if (blocksToMove.getBlocks() != 0)
-        {
-            if (!isRotateDirectionValid(door))
-            {
-                // If the door is currently open, then the selected rotDirection is actually the
-                // closing direction.
-                // So, if the door is open, flip the direciton.
-                RotateDirection newRotDir = blocksToMove.getRotateDirection();
-                if (door.isOpen())
-                {
-                    newRotDir = newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
-                        newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
-                        newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
-                }
+        if (blocksToMove.getBlocks() == 0)
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
 
-                plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.toSimpleString() + " to "
-                    + newRotDir.name() + ". If this is undesired, change it via the GUI.", true, false);
-                plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
+        if (!isRotateDirectionValid(door))
+        {
+            // If the door is currently open, then the selected rotDirection is actually the
+            // closing direction.
+            // So, if the door is open, flip the direciton.
+            RotateDirection newRotDir = blocksToMove.getRotateDirection();
+            if (door.isOpen())
+            {
+                newRotDir = newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
+                    newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
+                    newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
             }
 
-            Location newMin = door.getMinimum();
-            Location newMax = door.getMaximum();
-            getNewCoords(newMin, newMax, blocksToMove);
-
-            // The door's owner does not have permission to move the door into the new
-            // position (e.g. worldguard doens't allow it.
-            if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), newMin,
-                                                 newMax) != null ||
-                plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                                 door.getMinimum(), door.getMaximum()) != null)
-
-                return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
-
-            if (fireDoorEventTogglePrepare(door, instantOpen))
-                return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
-
-            plugin.getCommander()
-                .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen,
-                                                blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),
-                                                plugin.getConfigLoader().sdMultiplier()));
-            fireDoorEventToggleStart(door, instantOpen);
-            return DoorOpenResult.SUCCESS;
+            plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.toSimpleString() + " to "
+                + newRotDir.name() + ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
         }
-        return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
+
+        Location newMin = door.getMinimum();
+        Location newMax = door.getMaximum();
+        getNewCoords(newMin, newMax, blocksToMove);
+
+        // The door's owner does not have permission to move the door into the new
+        // position (e.g. worldguard doens't allow it.
+        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), newMin,
+                                             newMax) != null ||
+            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
+                                             door.getMinimum(), door.getMaximum()) != null)
+
+            return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
+
+        if (fireDoorEventTogglePrepare(door, instantOpen))
+            return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
+
+        plugin.getCommander()
+            .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen,
+                                            blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),
+                                            plugin.getConfigLoader().sdMultiplier()));
+        fireDoorEventToggleStart(door, instantOpen);
+        return DoorOpenResult.SUCCESS;
     }
 
     private int getBlocksInDir(Door door, RotateDirection slideDir)
@@ -355,6 +354,9 @@ public class SlidingDoorOpener implements Opener
 
     private MovementSpecification getBlocksToMove(Door door)
     {
+        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+            return new MovementSpecification(door.getBlocksToMove(), RotateDirection.NONE);
+
         int blocksNorth = 0, blocksEast = 0, blocksSouth = 0, blocksWest = 0;
 
         if (door.getOpenDir().equals(RotateDirection.NONE))

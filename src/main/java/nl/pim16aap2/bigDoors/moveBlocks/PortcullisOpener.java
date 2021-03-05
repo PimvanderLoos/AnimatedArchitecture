@@ -98,7 +98,7 @@ public class PortcullisOpener implements Opener
             plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
-        
+
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
@@ -133,6 +133,9 @@ public class PortcullisOpener implements Opener
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
 
+        if (blocksToMove == 0)
+            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
+
         // The door's owner does not have permission to move the door into the new
         // position (e.g. worldguard doens't allow it.
         if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
@@ -141,8 +144,6 @@ public class PortcullisOpener implements Opener
                                              door.getMinimum(), door.getMinimum()) != null)
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
-        if (blocksToMove != 0)
-        {
             if (!isRotateDirectionValid(door))
             {
                 RotateDirection openDirection = door.isOpen() ?
@@ -161,8 +162,6 @@ public class PortcullisOpener implements Opener
                                                  plugin.getConfigLoader().pcMultiplier()));
             fireDoorEventToggleStart(door, instantOpen);
             return DoorOpenResult.SUCCESS;
-        }
-        return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
     }
 
     private int getBlocksInDir(Door door, RotateDirection upDown)
@@ -177,6 +176,7 @@ public class PortcullisOpener implements Opener
         yLen = yMax - yMin + 1;
 //        int distanceToCheck = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
         int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
+
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
@@ -212,6 +212,9 @@ public class PortcullisOpener implements Opener
 
     private int getBlocksToMove(Door door)
     {
+        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+            return door.getBlocksToMove();
+
         int blocksToMove;
         RotateDirection openDir = getCurrentDirection(door);
         if (isRotateDirectionValid(openDir))
