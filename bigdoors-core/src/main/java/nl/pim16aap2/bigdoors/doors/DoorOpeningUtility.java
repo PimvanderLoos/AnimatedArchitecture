@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a utility singleton that is used to open {@link AbstractDoorBase}s.
@@ -107,6 +108,11 @@ public final class DoorOpeningUtility
     public @NotNull DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
                                            final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
+        PLogger.get().logMessage(Level.FINE,
+                                 String.format("Aborted toggle for door %d because of %s." +
+                                                   " Toggle Reason: %s, Responsible: %s",
+                                               door.getDoorUID(), result.name(), cause.name(), responsible.asString()));
+
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
         // registered as busy before all the other checks take place.
