@@ -267,7 +267,7 @@ public final class Util
 
     public static String getBasicDoorInfo(Door door)
     {
-        return door.getDoorUID() + " (" + door.getPermission() + ")" + ": " + door.getName().toString();
+        return String.format("%5d (%d): %s", door.getDoorUID(), door.getPermission(), door.getName());
     }
 
     public static String getFullDoorInfo(Door door)

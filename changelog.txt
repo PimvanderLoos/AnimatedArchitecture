@@ -2,6 +2,7 @@ Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!
 - Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
 - When moving a powerblock, selecting the current powerblock's location will no longer tell you that the location is already occupied. Instead, it'll just tell you everything went well.
+- Executing "/listdoors" in the console without any player/doorName argument will now list all doors instead of complain about being unable to find any doors. 
 
 Alpha 0.1.8.28
 - Fixed chains not rotating when they should. Thanks, @Sorienrot, for the bug report!

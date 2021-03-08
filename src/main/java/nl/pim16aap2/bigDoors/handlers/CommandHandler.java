@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigDoors.handlers;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -18,7 +20,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.Commander;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
@@ -197,15 +198,25 @@ public class CommandHandler implements CommandExecutor
 
     private void listDoorsFromConsole(String playerUUID, String name)
     {
-        ArrayList<Door> doors = plugin.getCommander().getDoors(playerUUID, name);
-        for (Door door : doors)
-        {
-            String playerName = plugin.getCommander().playerNameFromUUID(UUID.fromString(playerUUID));
-            plugin.getMyLogger().myLogger(Level.INFO,
-                                          (playerName == null ? "" : playerName + ": ") + Util.getBasicDoorInfo(door));
-        }
+        List<Door> doors;
+        if (playerUUID == null && name == null)
+            doors = new ArrayList<>(plugin.getCommander().getDoors());
+        else
+            doors = plugin.getCommander().getDoors(playerUUID, name);
+
         if (doors.size() == 0)
             plugin.getMyLogger().myLogger(Level.INFO, plugin.getMessages().getString("GENERAL.NoDoorsFound"));
+
+        doors.sort(Comparator.comparing(Door::getDoorUID));
+
+        StringBuilder sb = new StringBuilder("List of found doors:\n");
+        for (Door door : doors)
+        {
+            String playerName = door.getPlayerName();
+            sb.append(String.format("%17s ", playerName == null ? "" : (playerName + ":")))
+              .append(Util.getBasicDoorInfo(door)).append("\n");
+        }
+        plugin.getMyLogger().myLogger(Level.INFO, sb.toString());
     }
 
     public void listDoorsFromConsole(String str)
@@ -901,8 +912,12 @@ public class CommandHandler implements CommandExecutor
                     listDoors(player, args[0]);
             }
             else if (args.length == 0)
-                return false;
+                // If there aren't any arguments, we know that there's
+                // nothing to infer from them and that everything is null.
+                listDoorsFromConsole(null, null);
             else if (args.length == 1)
+                // If we do have 1 argument, it could be either a door name
+                // or a player name, so we have to figure that out first.
                 listDoorsFromConsole(args[0]);
 
             return true;
