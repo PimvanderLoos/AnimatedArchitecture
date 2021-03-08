@@ -427,7 +427,7 @@ public class SQLiteJDBCDriverConnectionTest
         testDoorTypes();
         // Make sure no errors were logged.
         UnitTestUtil.waitForLogger();
-        Assertions.assertEquals(UnitTestUtil.LOG_FILE.length(), 0);
+        Assertions.assertEquals(0, UnitTestUtil.LOG_FILE.length());
 
         PLogger.get().setFileLogLevel(Level.ALL);
 
@@ -588,7 +588,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Add 10 copies of door3 with a different name to the database.
         door3.setName(DELETEDOORNAME);
         // Verify there are currently exactly 0 doors with this different name in the database.
-        Assertions.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
+        Assertions.assertEquals(0, storage.getDoors(DELETEDOORNAME).size());
 
         for (int idx = 0; idx < 10; ++idx)
             Assertions.assertTrue(storage.insert(door3).isPresent());
@@ -599,7 +599,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Remove all 10 doors we just added (owned by player 2) and verify there are exactly 0 entries of the door with
         // the new name after batch removal. Also revert the name change of door 3.
         Assertions.assertTrue(storage.removeDoors(player2UUID.toString(), DELETEDOORNAME));
-        Assertions.assertEquals(storage.getDoors(DELETEDOORNAME).size(), 0);
+        Assertions.assertEquals(0, storage.getDoors(DELETEDOORNAME).size());
         Assertions.assertTrue(storage.getDoor(3L).isPresent());
         door3.setName(storage.getDoor(3L).get().getName());
 

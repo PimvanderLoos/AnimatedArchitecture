@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.OptionalInt;
@@ -13,6 +14,12 @@ import java.util.OptionalInt;
 class CreatorPortcullisTest extends CreatorTestsUtil
 {
     private static final int blocksToMove = 17;
+
+    @BeforeEach
+    public void setup()
+    {
+        super.beforeEach();
+    }
 
     @Test
     public void createPortcullis()

@@ -225,8 +225,7 @@ public interface IStorage
      *
      * @param door The door to insert.
      * @return The {@link AbstractDoorBase} that was just inserted if insertion was successful. This is
-     * <u><b>NOT!!</b></u> the same object as the
-     * one passed to this method.
+     * <u><b>NOT!!</b></u> the same object as the one passed to this method.
      */
     @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door);
 

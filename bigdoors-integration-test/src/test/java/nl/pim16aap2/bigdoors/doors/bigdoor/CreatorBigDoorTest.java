@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -10,6 +11,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class CreatorBigDoorTest extends CreatorTestsUtil
 {
+    @BeforeEach
+    public void setup()
+    {
+        super.beforeEach();
+    }
+
     @Test
     public void createBigDoor()
         throws InterruptedException

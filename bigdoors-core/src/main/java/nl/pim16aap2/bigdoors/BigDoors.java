@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors;
 
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IRestartable;
@@ -29,6 +30,9 @@ public final class BigDoors implements IRestartableHolder, IRestartable
 
     @NotNull
     private final Set<IRestartable> restartables = new HashSet<>();
+
+    @Setter
+    private PowerBlockManager powerBlockManager = PowerBlockManager.get();
 
     /**
      * The platform to use. e.g. "Spigot".
@@ -100,7 +104,7 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public @NotNull PowerBlockManager getPowerBlockManager()
     {
-        return PowerBlockManager.get();
+        return powerBlockManager;
     }
 
     /**

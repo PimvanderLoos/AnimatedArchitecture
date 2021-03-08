@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
@@ -21,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,13 +62,22 @@ public class CreatorTestsUtil
     @Mock
     protected IStorage fakeStorage;
 
+    @Mock
+    protected PowerBlockManager fakePowerBlockManager;
+
     @BeforeEach
+    protected void beforeEach()
+    {
+        initMocks();
+        setupFakeDatabaseManager();
+        setupFakePowerBlockManager();
+    }
+
     public void initMocks()
     {
         MockitoAnnotations.initMocks(this);
     }
 
-    @BeforeEach
     public void setupFakeDatabaseManager()
     {
         try
@@ -81,9 +93,14 @@ public class CreatorTestsUtil
         Assertions.assertNotNull(threadPool);
     }
 
+    public void setupFakePowerBlockManager()
+    {
+        BigDoors.get().setPowerBlockManager(fakePowerBlockManager);
+    }
+
     // Set up basic stuff.
     @BeforeAll
-    public static void basicSetup()
+    public static void beforeAll()
     {
         PLogger.get().setConsoleLogLevel(Level.FINEST);
         PLogger.get().setFileLogLevel(Level.SEVERE);
@@ -107,7 +124,6 @@ public class CreatorTestsUtil
                                              false, false, openDirection, doorOwner);
     }
 
-
     /**
      * Sets up hijacking of any calls to the fake database ({@link #fakeStorage}) to insert a new door.
      *
@@ -123,16 +139,16 @@ public class CreatorTestsUtil
 
         // Capture the call to the fake database that is supposed to insert the door. Then chcck if the door being
         // inserted is the door we will try to create.
-        Mockito.when(fakeStorage.insert(Mockito.any())).thenAnswer((Answer<Boolean>) invocation ->
-        {
-            Object[] args = invocation.getArguments();
-            // Yeah, this may throw all kinds of exceptions and whatnot. However, because of it being run on a separate
-            // thread, it doesn't matter. It'll either set the variable, or fail to do so.
-            // In case of an SQL exception, it'll end up in the log anyway.
-            resultDoorRef.set(((AbstractDoorBase) args[0]));
-
-            return Boolean.TRUE;
-        });
+        Mockito.when(fakeStorage.insert(Mockito.any())).thenAnswer(
+            (Answer<Optional<AbstractDoorBase>>) invocation ->
+            {
+                Object[] args = invocation.getArguments();
+                // Yeah, this may throw all kinds of exceptions and whatnot. However, because of it being run on a separate
+                // thread, it doesn't matter. It'll either set the variable, or fail to do so.
+                // In case of an SQL exception, it'll end up in the log anyway.
+                resultDoorRef.set(((AbstractDoorBase) args[0]));
+                return Optional.of((AbstractDoorBase) args[0]);
+            });
 
         return resultDoorRef;
     }

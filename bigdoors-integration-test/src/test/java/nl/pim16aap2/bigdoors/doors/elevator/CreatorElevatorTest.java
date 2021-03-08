@@ -4,11 +4,18 @@ import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CreatorElevatorTest extends CreatorTestsUtil
 {
     private static final int blocksToMove = 17;
+
+    @BeforeEach
+    public void setup()
+    {
+        super.beforeEach();
+    }
 
     @Test
     public void createElevator()
