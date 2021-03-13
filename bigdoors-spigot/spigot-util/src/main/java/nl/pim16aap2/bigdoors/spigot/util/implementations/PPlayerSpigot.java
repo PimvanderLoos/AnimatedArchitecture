@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
@@ -26,6 +28,12 @@ public final class PPlayerSpigot implements IPPlayer
     private final String name;
     @NotNull
     private final UUID uuid;
+
+    public PPlayerSpigot(final @NonNull PPlayerData playerData)
+    {
+        name = playerData.getName();
+        uuid = playerData.getUUID();
+    }
 
     public PPlayerSpigot(final @NotNull UUID uuid, final @NotNull String name)
     {

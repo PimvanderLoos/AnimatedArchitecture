@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Contains all details needed about a doorOwner.
@@ -32,20 +32,18 @@ public class DoorOwner
      * The {@link IPPlayer} object represented by this {@link DoorOwner}.
      */
     @Getter
-    @NotNull IPPlayer player;
+    @NonNull IPPlayer player;
 
     /**
      * Constructor of {@link DoorOwner}.
      *
      * @param doorUID    The UID of the DoorBase.
-     * @param playerUUID The UUID of the player that owns the given door.
-     * @param playerName The name of the player that owns the given door.
      * @param permission The permission level at which the player owns the door.
+     * @param playerData The {@link PPlayerData} of the player that owns the given door.
      */
-    public DoorOwner(final long doorUID, final @NotNull UUID playerUUID, final @NotNull String playerName,
-                     final int permission)
+    public DoorOwner(final long doorUID, final int permission, final @NonNull PPlayerData playerData)
     {
-        this(doorUID, permission, BigDoors.get().getPlatform().getPPlayerFactory().create(playerUUID, playerName));
+        this(doorUID, permission, BigDoors.get().getPlatform().getPPlayerFactory().create(playerData));
     }
 
     /**

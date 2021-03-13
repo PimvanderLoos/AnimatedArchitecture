@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 public class TestPPlayerFactory implements IPPlayerFactory
 {
     @Override
-    public @NotNull IPPlayer create(@NotNull UUID playerUUID, @NotNull String playerName)
+    public @NonNull IPPlayer create(@NonNull PPlayerData playerData)
     {
-        return new TestPPlayer(playerUUID, playerName);
+        return new TestPPlayer(playerData);
     }
 }

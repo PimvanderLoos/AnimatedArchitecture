@@ -346,9 +346,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
-        final @NotNull IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
-                                                 .create(getPrimeOwner().getPlayer().getUUID(),
-                                                         getPrimeOwner().getPlayer().getName());
+        final @NotNull IPPlayer player = getPrimeOwner().getPlayer();
 
         if (newCurrent == 0 && isCloseable())
             DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,

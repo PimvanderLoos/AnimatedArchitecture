@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,32 +14,29 @@ import java.util.logging.Level;
 
 public final class TestPPlayer implements IPPlayer
 {
-    @NotNull
-    private final String name;
-    @NotNull
-    private final UUID uuid;
     @Nullable
     private String lastMessage, beforeLastMessage;
+
+    private @NonNull final PPlayerData playerData;
 
     @Setter
     private boolean hasProtectionBypassPermission = false;
 
-    public TestPPlayer(final @NotNull UUID uuid, final @NotNull String name)
+    public TestPPlayer(final @NonNull PPlayerData playerData)
     {
-        this.uuid = uuid;
-        this.name = name;
+        this.playerData = playerData;
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
-        return name;
+        return playerData.getName();
     }
 
     @Override
-    public @NotNull UUID getUUID()
+    public @NonNull UUID getUUID()
     {
-        return uuid;
+        return playerData.getUUID();
     }
 
     @Override
@@ -111,5 +109,11 @@ public final class TestPPlayer implements IPPlayer
     public @Nullable String getBeforeLastMessage()
     {
         return beforeLastMessage;
+    }
+
+    @Override
+    public @NonNull PPlayerData getPPlayerData()
+    {
+        return playerData;
     }
 }

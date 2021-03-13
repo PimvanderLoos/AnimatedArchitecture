@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.factories;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Represents an implementation of {@link IPPlayerFactory} for the Spigot platform.
@@ -15,8 +14,8 @@ import java.util.UUID;
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
     @Override
-    public @NotNull IPPlayer create(final @NotNull UUID playerUUID, final @NotNull String playerName)
+    public @NonNull IPPlayer create(final @NonNull PPlayerData playerData)
     {
-        return new PPlayerSpigot(playerUUID, playerName);
+        return new PPlayerSpigot(playerData);
     }
 }
