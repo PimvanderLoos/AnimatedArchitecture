@@ -94,7 +94,7 @@ public final class DoorRegistry extends Restartable
     public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
         final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return !doorCache.putIfAbsent(doorBase.getDoorUID(), doorBase).isPresent();
+        return doorCache.putIfAbsent(doorBase.getDoorUID(), doorBase).isEmpty();
     }
 
     @Override

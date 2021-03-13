@@ -59,13 +59,13 @@ public class SubCommandInfo extends SubCommand
         }
 
         final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(((Player) sender).getUniqueId());
-        if (!doorOwner.isPresent() ||
+        if (doorOwner.isEmpty() ||
             doorOwner.get().getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
         {
             sender.sendMessage(messages.getString(Message.ERROR_COMMAND_NOPERMISSION));
             return true;
         }
-        
+
         sendDoorInfo(sender, door);
         try
         {

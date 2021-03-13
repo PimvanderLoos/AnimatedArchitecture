@@ -242,7 +242,7 @@ public abstract class ToolUser implements IRestartable
                 if (!compat.isEmpty())
                     player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
             });
-        return !result.isPresent();
+        return result.isEmpty();
     }
 
     /**
@@ -267,6 +267,6 @@ public abstract class ToolUser implements IRestartable
                 if (!compat.isEmpty())
                     player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
             });
-        return !result.isPresent();
+        return result.isEmpty();
     }
 }

@@ -65,7 +65,7 @@ public class CommandManager implements CommandExecutor
         throws CommandPlayerNotFoundException
     {
         Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
-        if (!playerUUID.isPresent())
+        if (playerUUID.isEmpty())
             throw new CommandPlayerNotFoundException(playerArg);
         return playerUUID.get();
     }

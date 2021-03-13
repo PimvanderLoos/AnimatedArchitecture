@@ -76,7 +76,7 @@ public class SubCommandToggle extends SubCommand
         // If it isn't successful (-1), try to get parse it as a double. If that is successful, it
         // must be the speed. If that isn't successful either (0.0), it must be a door name.
         double time = 0.0d;
-        if (!Util.parseLong(lastStr).isPresent())
+        if (Util.parseLong(lastStr).isEmpty())
         {
             final @NotNull OptionalDouble timeVal = Util.parseDouble(lastStr);
             if (timeVal.isPresent())

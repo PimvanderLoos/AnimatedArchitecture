@@ -100,7 +100,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public void spawn(final @NotNull PColor pColor, final double x, final double y, final double z, final long ticks)
     {
         final @NotNull Optional<PlayerConnection> playerConnectionOpt = getConnection();
-        if (!playerConnectionOpt.isPresent())
+        if (playerConnectionOpt.isEmpty())
             return;
 
         if (killTask != null)

@@ -92,7 +92,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
 
         final @NotNull OptionalDouble priceOpt = getPrice(type, blockCount);
-        if (!priceOpt.isPresent())
+        if (priceOpt.isEmpty())
             return true;
 
         final double price = priceOpt.getAsDouble();
@@ -173,7 +173,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (!economyEnabled)
             return OptionalDouble.empty();
         final @NotNull OptionalLong typeID = DoorTypeManager.get().getDoorTypeID(type);
-        if (!typeID.isPresent())
+        if (typeID.isEmpty())
         {
             PLogger.get()
                    .logThrowable(new IllegalStateException("Trying to calculate the price for an unregistered door!"));

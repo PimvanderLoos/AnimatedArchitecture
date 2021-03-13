@@ -169,7 +169,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private @NotNull Optional<Object[]> verifyTypeData()
     {
         final @NotNull Optional<Object[]> typeDataOpt = getDoorType().getTypeData(this);
-        if (!typeDataOpt.isPresent())
+        if (typeDataOpt.isEmpty())
             PLogger.get().logThrowable(new IllegalArgumentException(
                 "Failed to update door " + getDoorUID() + ": Could not get type-specific data!"));
         return typeDataOpt;
@@ -314,7 +314,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
         final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
-        if (!newCuboid.isPresent())
+        if (newCuboid.isEmpty())
             return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
         final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()

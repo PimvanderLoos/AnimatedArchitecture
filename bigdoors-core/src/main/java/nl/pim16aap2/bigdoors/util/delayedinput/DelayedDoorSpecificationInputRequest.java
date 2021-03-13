@@ -56,7 +56,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
             new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
 
         final @NonNull OptionalLong uidOpt = Util.parseLong(specification);
-        if (!uidOpt.isPresent())
+        if (uidOpt.isEmpty())
             return Optional.empty();
 
         final long uid = uidOpt.getAsLong();
@@ -93,7 +93,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
                                         door.getDoorUID(), door.getDoorType().getSimpleName(),
                                         door.getPrimeOwner().getPlayer().getName(), door.getWorld().getWorldName()));
 
-                if (!location.isPresent())
+                if (location.isEmpty())
                     return;
 
                 final double distance = Util.getDistanceToDoor(location.get(), door);

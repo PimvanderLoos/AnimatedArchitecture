@@ -156,7 +156,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             return Optional.of("InvalidWorld");
 
         Optional<Player> fakePlayer = getPlayer(player, loc.getWorld());
-        if (!fakePlayer.isPresent())
+        if (fakePlayer.isEmpty())
             return Optional.empty();
 
         if (canByPass(fakePlayer.get()))
@@ -197,7 +197,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
 
         Optional<Player> fakePlayer = getPlayer(player, loc1.getWorld());
-        if (!fakePlayer.isPresent())
+        if (fakePlayer.isEmpty())
             return Optional.empty();
 
         if (canByPass(fakePlayer.get()))

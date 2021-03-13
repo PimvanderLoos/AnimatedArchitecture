@@ -269,7 +269,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final long doorUID = doorBaseRS.getLong("id");
 
         final @NotNull Optional<DoorType> doorType = DoorTypeManager.get().getDoorType(doorBaseRS.getInt("doorType"));
-        if (!doorType.isPresent())
+        if (doorType.isEmpty())
         {
             PLogger.get().logThrowable(new NullPointerException(
                 "Failed to obtain door type of door: " + doorUID + ", typeID: " + doorBaseRS.getInt("doorType")));
@@ -283,7 +283,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull Optional<RotateDirection> openDirection =
             Optional.ofNullable(RotateDirection.valueOf(doorBaseRS.getInt("openDirection")));
 
-        if (!openDirection.isPresent())
+        if (openDirection.isEmpty())
             return Optional.empty();
 
         final @NotNull Vector3Di min = new Vector3Di(doorBaseRS.getInt("xMin"),
@@ -340,7 +340,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             // is the ID of the type-specific-table.
             DoorTypeManager.get().getDoorType(doorBaseRS.getInt(1));
 
-        if (!doorType.isPresent())
+        if (doorType.isEmpty())
             return new Object[]{};
 
         final @NotNull List<DoorType.Parameter> parameters = doorType.get().getParameters();
@@ -394,7 +394,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                         .setInt(3, doorType.getTypeVersion()),
             resultSet -> new Pair<>(resultSet.getLong("id"), resultSet.getString("typeTableName"))));
 
-        if (!result.isPresent())
+        if (result.isEmpty())
         {
             PLogger.get().logThrowable(
                 new SQLException("Failed to obtain ID and typeTableName for door type: \"" + typeTableName + "\""));
@@ -591,7 +591,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                  final @NotNull Object[] typeData)
     {
         final @NotNull OptionalLong doorTypeID = DoorTypeManager.get().getDoorTypeID(doorType);
-        if (!doorTypeID.isPresent())
+        if (doorTypeID.isEmpty())
         {
             PLogger.get().logThrowable(new SQLException(
                 "Failed to update type-data of door: \"" + doorUID + "\"! Reason: DoorType not registered!"));
@@ -600,7 +600,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull Optional<DoorTypeDataStatementMap.DoorTypeDataStatement> typeSpecificDataUpdateStatementOpt =
             doorTypeStatementMap.getStatement(doorType, DoorTypeDataStatementMap.SQLStatementType.UPDATE);
-        if (!typeSpecificDataUpdateStatementOpt.isPresent())
+        if (typeSpecificDataUpdateStatementOpt.isEmpty())
         {
             PLogger.get().logThrowable(new NullPointerException("Failed to obtain type-specific update statement " +
                                                                     "for type with ID: " + doorTypeID));
@@ -638,7 +638,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         final @NotNull Optional<DoorTypeDataStatementMap.DoorTypeDataStatement> typeSpecificDataInsertStatementOpt
             = doorTypeStatementMap.getStatement(door.getDoorType(), DoorTypeDataStatementMap.SQLStatementType.INSERT);
-        if (!typeSpecificDataInsertStatementOpt.isPresent())
+        if (typeSpecificDataInsertStatementOpt.isEmpty())
             throw new NullPointerException(
                 "Failed to obtain type-specific insertion statement " + "for type with ID: " + doorTypeID);
 
@@ -700,7 +700,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     public @NotNull Optional<AbstractDoorBase> insert(final @NonNull AbstractDoorBase door)
     {
         final @NotNull Optional<Object[]> typeSpecificDataOpt = door.getDoorType().getTypeData(door);
-        if (!typeSpecificDataOpt.isPresent())
+        if (typeSpecificDataOpt.isEmpty())
         {
             PLogger.get().logThrowable(new IllegalArgumentException(
                 "Could not get type-specific data for a new door of type: " + door.getDoorType().toString()));

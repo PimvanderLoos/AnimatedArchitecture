@@ -64,7 +64,7 @@ final class DoorTypeInitializer
                                final @NotNull DoorTypeClassLoader doorTypeClassLoader)
     {
         this.doorTypeClassLoader = doorTypeClassLoader;
-        registrationQueue = new HashMap<String, Pair<TypeInfo, Integer>>(typeInfoList.size())
+        registrationQueue = new HashMap<>(typeInfoList.size())
         {
             @Override
             public @Nullable Pair<TypeInfo, Integer> put(final @NotNull String key,
@@ -227,7 +227,7 @@ final class DoorTypeInitializer
 
         for (final @NotNull Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
         {
-            if (!dependencyOpt.isPresent())
+            if (dependencyOpt.isEmpty())
             {
                 registrationQueue.replace(currentName, new Pair<>(doorTypeInfo, -1));
                 return new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE,
@@ -345,7 +345,7 @@ final class DoorTypeInitializer
             for (int idx = 0; idx < split.length; ++idx)
             {
                 final @NotNull Optional<Dependency> dependency = parseDependency(split[idx]);
-                if (!dependency.isPresent())
+                if (dependency.isEmpty())
                     PLogger.get().severe("Failed to parse dependency \"" + split[idx] + "\" for type: " + typeName);
                 ret.add(idx, dependency);
             }
@@ -371,7 +371,7 @@ final class DoorTypeInitializer
             @NotNull String minVersionStr = minVersionMatcher.group();
             minVersionStr = minVersionStr.substring(0, minVersionStr.length() - 1);
             final @NotNull OptionalInt minVersionOpt = Util.parseInt(minVersionStr);
-            if (!minVersionOpt.isPresent())
+            if (minVersionOpt.isEmpty())
             {
                 PLogger.get().logMessage(Level.FINE, "Failed to parse min version from: " + minVersionStr);
                 return Optional.empty();
@@ -387,7 +387,7 @@ final class DoorTypeInitializer
             @NotNull String maxVersionStr = maxVersionMatcher.group();
             maxVersionStr = maxVersionStr.substring(1);
             final @NotNull OptionalInt maxVersionOpt = Util.parseInt(maxVersionStr);
-            if (!maxVersionOpt.isPresent())
+            if (maxVersionOpt.isEmpty())
             {
                 PLogger.get().logMessage(Level.FINE, "Failed to parse max version from: " + maxVersionStr);
                 return Optional.empty();

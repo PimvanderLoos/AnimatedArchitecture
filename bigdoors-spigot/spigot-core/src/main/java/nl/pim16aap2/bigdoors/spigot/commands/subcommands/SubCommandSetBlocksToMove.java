@@ -98,7 +98,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
             if (toolUser.isPresent())
             {
                 OptionalInt btm = Util.parseInt(args[1]);
-                if (!btm.isPresent())
+                if (btm.isEmpty())
                     return false;
 
                 toolUser.get().handleInput(btm.getAsInt());

@@ -428,7 +428,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean skipConfirmPrice()
     {
-        return !getPrice().isPresent();
+        return getPrice().isEmpty();
     }
 
     /**

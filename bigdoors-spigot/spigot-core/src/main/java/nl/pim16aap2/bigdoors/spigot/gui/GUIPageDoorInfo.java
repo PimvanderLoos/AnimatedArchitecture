@@ -118,7 +118,7 @@ public class GUIPageDoorInfo implements IGUIPage
             return;
 
         GUIItem guiItem = gui.getItem(interactionIDX);
-        if (!guiItem.getDoorAttribute().isPresent())
+        if (guiItem.getDoorAttribute().isEmpty())
             return;
 
 
