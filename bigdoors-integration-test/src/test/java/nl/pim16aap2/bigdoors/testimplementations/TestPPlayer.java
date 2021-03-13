@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.NonNull;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,9 @@ public final class TestPPlayer implements IPPlayer
     private final UUID uuid;
     @Nullable
     private String lastMessage, beforeLastMessage;
+
+    @Setter
+    private boolean hasProtectionBypassPermission = false;
 
     public TestPPlayer(final @NotNull UUID uuid, final @NotNull String name)
     {
@@ -38,9 +42,33 @@ public final class TestPPlayer implements IPPlayer
     }
 
     @Override
+    public boolean hasProtectionBypassPermission()
+    {
+        return false;
+    }
+
+    @Override
     public @NonNull Optional<IPLocation> getLocation()
     {
         return Optional.empty();
+    }
+
+    @Override
+    public int getDoorSizeLimit()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getDoorCountLimit()
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isOp()
+    {
+        return false;
     }
 
     @Override

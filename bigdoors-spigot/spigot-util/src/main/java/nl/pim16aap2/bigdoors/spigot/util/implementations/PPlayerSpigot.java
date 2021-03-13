@@ -50,10 +50,37 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
+    public boolean hasProtectionBypassPermission()
+    {
+        throw new UnsupportedOperationException("Method not implemented!");
+    }
+
+    @Override
     public @NotNull Optional<IPLocation> getLocation()
     {
         @Nullable Player player = getBukkitPlayer();
         return player == null ? Optional.empty() : Optional.of(SpigotAdapter.wrapLocation(player.getLocation()));
+    }
+
+    @Override
+    public int getDoorSizeLimit()
+    {
+        // TODO: IMPLEMENT THIS
+        throw new UnsupportedOperationException("Method not implemented!");
+    }
+
+    @Override
+    public int getDoorCountLimit()
+    {
+        // TODO: IMPLEMENT THIS
+        throw new UnsupportedOperationException("Method not implemented!");
+    }
+
+    @Override
+    public boolean isOp()
+    {
+        // TODO: IMPLEMENT THIS
+        throw new UnsupportedOperationException("Method not implemented!");
     }
 
     @Override
