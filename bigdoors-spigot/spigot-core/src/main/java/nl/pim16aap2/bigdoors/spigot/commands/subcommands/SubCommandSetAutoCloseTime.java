@@ -59,13 +59,14 @@ public class SubCommandSetAutoCloseTime extends SubCommand
         int time = CommandManager.getIntegerFromArg(timeArg);
         if (!(sender instanceof Player))
         {
-            doorWithTimer.setAutoCloseTime(time);
-            door.syncTypeData();
-            BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(door.getPrimeOwner().getPlayer(),
-                                       (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
-            sendResultMessage(sender, time);
-            return true;
+//            doorWithTimer.setAutoCloseTime(time);
+//            door.syncTypeData();
+//            BigDoors.get().getAutoCloseScheduler()
+//                    .scheduleAutoClose(door.getPrimeOwner().getPlayer(),
+//                                       (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);
+//            sendResultMessage(sender, time);
+//            return true;
+            throw new UnsupportedOperationException();
         }
 
         if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.CHANGETIMER))

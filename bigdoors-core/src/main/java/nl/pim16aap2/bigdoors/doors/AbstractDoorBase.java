@@ -105,7 +105,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             if (doorOwner.getPermission() == 0)
             {
                 PLogger.get().logThrowable(new IllegalArgumentException(
-                    "Failed to add owner: " + doorOwner.getPlayer().toString() + " as owner to door: " + getDoorUID() +
+                    "Failed to add owner: " + doorOwner.getPPlayerData().toString() + " as owner to door: " +
+                        getDoorUID() +
                         " because a permission level of 0 is not allowed!"));
                 return;
             }
@@ -118,10 +119,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     {
         synchronized (doorOwnersLock)
         {
-            if (primeOwner.getPlayer().getUUID().equals(uuid))
+            if (primeOwner.getPPlayerData().getUUID().equals(uuid))
             {
                 PLogger.get().logThrowable(new IllegalArgumentException(
-                    "Failed to remove owner: " + primeOwner.getPlayer().toString() + " as owner from door: " +
+                    "Failed to remove owner: " + primeOwner.getPPlayerData().toString() + " as owner from door: " +
                         getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
                 return false;
             }
@@ -346,16 +347,20 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public final void onRedstoneChange(final int newCurrent)
     {
-        final @NotNull IPPlayer player = getPrimeOwner().getPlayer();
+        final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
+                                        .create(getPrimeOwner().getPPlayerData());
 
+        final @Nullable DoorActionType doorActionType;
         if (newCurrent == 0 && isCloseable())
-            DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                              BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
-                                              false, DoorActionType.CLOSE);
+            doorActionType = DoorActionType.CLOSE;
         else if (newCurrent > 0 && isOpenable())
+            doorActionType = DoorActionType.CLOSE;
+        else
+            doorActionType = null;
+        if (doorActionType != null)
             DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                              BigDoors.get().getPlatform().getMessageableServer(), player, 0.0D,
-                                              false, DoorActionType.OPEN);
+                                              BigDoors.get().getPlatform().getMessageableServer(),
+                                              player, 0.0D, false, DoorActionType.CLOSE);
     }
 
     @Override
@@ -735,7 +740,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                         final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
         {
             super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
-            doorOwners = Collections.singletonMap(primeOwner.getPlayer().getUUID(), primeOwner);
+            doorOwners = Collections.singletonMap(primeOwner.getPPlayerData().getUUID(), primeOwner);
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,

@@ -3,14 +3,10 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.PLogger;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -21,40 +17,19 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-// TODO: Clean up this class. E.g., the name is not available for offline players.
 public final class PPlayerSpigot implements IPPlayer
 {
-    @NotNull
-    private final String name;
-    @NotNull
-    private final UUID uuid;
+    final @NonNull Player spigotPlayer;
 
-    public PPlayerSpigot(final @NonNull PPlayerData playerData)
+    public PPlayerSpigot(final @NonNull Player spigotPlayer)
     {
-        name = playerData.getName();
-        uuid = playerData.getUUID();
-    }
-
-    public PPlayerSpigot(final @NotNull UUID uuid, final @NotNull String name)
-    {
-        this.name = name;
-        this.uuid = uuid;
-    }
-
-    public PPlayerSpigot(final @NotNull IPPlayer player)
-    {
-        this(player.getUUID(), player.getName());
-    }
-
-    public PPlayerSpigot(final @NotNull OfflinePlayer player)
-    {
-        this(player.getUniqueId(), player.getName());
+        this.spigotPlayer = spigotPlayer;
     }
 
     @Override
-    public @NotNull UUID getUUID()
+    public @NonNull UUID getUUID()
     {
-        return uuid;
+        return spigotPlayer.getUniqueId();
     }
 
     @Override
@@ -66,8 +41,7 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public @NotNull Optional<IPLocation> getLocation()
     {
-        @Nullable Player player = getBukkitPlayer();
-        return player == null ? Optional.empty() : Optional.of(SpigotAdapter.wrapLocation(player.getLocation()));
+        return Optional.of(SpigotAdapter.wrapLocation(spigotPlayer.getLocation()));
     }
 
     @Override
@@ -87,22 +61,19 @@ public final class PPlayerSpigot implements IPPlayer
     @Override
     public boolean isOp()
     {
-        // TODO: IMPLEMENT THIS
-        throw new UnsupportedOperationException("Method not implemented!");
+        return spigotPlayer.isOp();
     }
 
     @Override
     public @NotNull String getName()
     {
-        return name;
+        return spigotPlayer.getName();
     }
 
     @Override
     public void sendMessage(final @NotNull Level level, final @NotNull String message)
     {
-        Player player = getBukkitPlayer();
-        if (player != null)
-            player.sendMessage(message);
+        spigotPlayer.sendMessage(message);
     }
 
     /**
@@ -110,9 +81,9 @@ public final class PPlayerSpigot implements IPPlayer
      *
      * @return The Bukkit player.
      */
-    public @Nullable Player getBukkitPlayer()
+    public @NonNull Player getBukkitPlayer()
     {
-        return Bukkit.getPlayer(uuid);
+        return spigotPlayer;
     }
 
     @Override

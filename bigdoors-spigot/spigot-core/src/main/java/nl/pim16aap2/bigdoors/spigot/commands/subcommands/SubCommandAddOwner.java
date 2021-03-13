@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -10,19 +8,13 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
-import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -43,32 +35,33 @@ public class SubCommandAddOwner extends SubCommand
                            final @NotNull String playerArg, final int permission)
         throws CommandPlayerNotFoundException, ExecutionException, InterruptedException
     {
-        final UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
-        final IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
-
-        // No need to check for permissions if the sender wasn't a player.
-        if (!(sender instanceof Player))
-        {
-            boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission).get();
-            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
-                                                    success ?
-                                                    messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
-                                                    messages.getString(Message.COMMAND_ADDOWNER_FAIL));
-            return true;
-        }
-
-        if (!Util.hasPermissionForAction(player, door, DoorAttribute.ADDOWNER))
-        {
-            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
-            return true;
-        }
-        BigDoors.get().getDatabaseManager().addOwner(door, player, permission).whenComplete(
-            (result, throwable) ->
-                plugin.getPLogger()
-                      .sendMessageToTarget(sender, Level.INFO, result ?
-                                                               messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
-                                                               messages.getString(Message.COMMAND_ADDOWNER_FAIL)));
-        return true;
+        throw new UnsupportedOperationException();
+//        final UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
+//        final IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
+//
+//        // No need to check for permissions if the sender wasn't a player.
+//        if (!(sender instanceof Player))
+//        {
+//            boolean success = BigDoors.get().getDatabaseManager().addOwner(door, player, permission).get();
+//            plugin.getPLogger().sendMessageToTarget(sender, Level.INFO,
+//                                                    success ?
+//                                                    messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+//                                                    messages.getString(Message.COMMAND_ADDOWNER_FAIL));
+//            return true;
+//        }
+//
+//        if (!Util.hasPermissionForAction(player, door, DoorAttribute.ADDOWNER))
+//        {
+//            commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
+//            return true;
+//        }
+//        BigDoors.get().getDatabaseManager().addOwner(door, player, permission).whenComplete(
+//            (result, throwable) ->
+//                plugin.getPLogger()
+//                      .sendMessageToTarget(sender, Level.INFO, result ?
+//                                                               messages.getString(Message.COMMAND_ADDOWNER_SUCCESS) :
+//                                                               messages.getString(Message.COMMAND_ADDOWNER_FAIL)));
+//        return true;
     }
 
     public int getPermissionFromArgs(final @NotNull CommandSender sender, final @NotNull String[] args, final int pos)

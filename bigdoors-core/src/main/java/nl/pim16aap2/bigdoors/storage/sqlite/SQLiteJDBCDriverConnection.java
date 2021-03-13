@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -651,7 +650,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement typeSpecificDataInsertStatement =
             typeSpecificDataInsertStatementOpt.get();
 
-        final @NonNull PPlayerData playerData = door.getPrimeOwner().getPlayer().getPPlayerData();
+        final @NonNull PPlayerData playerData = door.getPrimeOwner().getPPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
         final @NotNull String worldName = door.getWorld().getWorldName();
@@ -748,10 +747,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private long getPlayerID(final @NonNull Connection conn, final @NonNull DoorOwner doorOwner)
     {
-        insertOrIgnorePlayer(conn, doorOwner.getPlayer().getPPlayerData());
+        insertOrIgnorePlayer(conn, doorOwner.getPPlayerData());
 
-        return executeQuery(conn, SQLStatement.GET_PLAYER_ID.constructPPreparedStatement()
-                                                            .setString(1, doorOwner.getPlayer().getUUID().toString()),
+        return executeQuery(conn, SQLStatement.GET_PLAYER_ID
+                                .constructPPreparedStatement()
+                                .setString(1, doorOwner.getPPlayerData().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 
@@ -1345,7 +1345,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean addOwner(final long doorUID, final @NonNull IPPlayer player, final int permission)
+    public boolean addOwner(final long doorUID, final @NonNull PPlayerData player, final int permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission < 1)
@@ -1354,7 +1354,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeTransaction(
             conn ->
             {
-                final long playerID = getPlayerID(conn, new DoorOwner(doorUID, permission, player));
+                final long playerID = getPlayerID(conn, new DoorOwner(doorUID, permission, player.getPPlayerData()));
 
                 if (playerID == -1)
                     throw new IllegalArgumentException(

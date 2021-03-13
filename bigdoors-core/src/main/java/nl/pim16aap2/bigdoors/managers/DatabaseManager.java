@@ -403,10 +403,13 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final boolean result = db.addOwner(door.getDoorUID(), player, permission);
+                final @NonNull PPlayerData playerData = player.getPPlayerData();
+
+                final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
                 if (result)
                     ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
-                                                                                         permission, player));
+                                                                                         permission,
+                                                                                         playerData));
                 return result;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }

@@ -4,6 +4,10 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * Represents a factory for {@link IPPlayer} objects.
  *
@@ -18,4 +22,12 @@ public interface IPPlayerFactory
      * @return A new {@link IPPlayer} object.
      */
     @NonNull IPPlayer create(final @NonNull PPlayerData playerData);
+
+    /**
+     * Creates a new {@link IPPlayer}.
+     *
+     * @param uuid The {@link UUID} of the player.
+     * @return A new {@link IPPlayer} object.
+     */
+    @NonNull CompletableFuture<Optional<IPPlayer>> create(final @NonNull UUID uuid);
 }

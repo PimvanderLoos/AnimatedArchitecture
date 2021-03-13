@@ -156,7 +156,7 @@ public abstract class Creator extends ToolUser
     {
         // TODO: Make sure all variables are set.
         final long doorUID = -1;
-        final @NotNull DoorOwner owner = new DoorOwner(doorUID, 0, player);
+        final @NotNull DoorOwner owner = new DoorOwner(doorUID, 0, player.getPPlayerData());
         return new AbstractDoorBase.DoorData(doorUID, name, cuboid, engine, powerblock,
                                              world, isOpen, isLocked, opendir, owner);
     }

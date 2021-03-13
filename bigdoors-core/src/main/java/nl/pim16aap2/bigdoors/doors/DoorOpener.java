@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -65,8 +66,10 @@ public final class DoorOpener
                     PLogger.get().logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
                     return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
                 }
-                final @NotNull IPPlayer finalResponsible = responsible == null ?
-                                                           doorOpt.get().getPrimeOwner().getPlayer() : responsible;
+
+                final @NotNull IPPlayer finalResponsible = Objects.requireNonNullElseGet(responsible, ()
+                    -> BigDoors.get().getPlatform().getPPlayerFactory()
+                               .create(doorOpt.get().getPrimeOwner().getPPlayerData()));
 
                 return animateDoor(doorOpt.get(), cause, messageReceiver, finalResponsible,
                                    time, skipAnimation, doorActionType);
@@ -156,10 +159,10 @@ public final class DoorOpener
                                                                          final boolean skipAnimation,
                                                                          final @NotNull DoorActionType doorActionType)
     {
-        if (responsible == null)
-            responsible = door.getPrimeOwner().getPlayer();
-
-        return animateDoor(door, cause, messageReceiver, responsible, time, skipAnimation, doorActionType);
+        final IPPlayer finalResponsible = responsible != null ? responsible :
+                                          BigDoors.get().getPlatform().getPPlayerFactory()
+                                                  .create(door.getPrimeOwner().getPPlayerData());
+        return animateDoor(door, cause, messageReceiver, finalResponsible, time, skipAnimation, doorActionType);
     }
 
     /**

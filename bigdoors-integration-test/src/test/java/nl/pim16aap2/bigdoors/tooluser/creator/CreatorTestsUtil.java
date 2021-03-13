@@ -117,7 +117,7 @@ public class CreatorTestsUtil
     protected @NotNull IPWorld world2 = UnitTestUtil.PLATFORM.getPWorldFactory().create("world2");
     protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
-    protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER);
+    protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
 
 
     protected AbstractDoorBase.DoorData constructDoorData()

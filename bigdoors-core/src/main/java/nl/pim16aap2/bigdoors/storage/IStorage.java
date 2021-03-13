@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -292,7 +291,7 @@ public interface IStorage
      * @param permission The level of ownership the player will have over the door.
      * @return True if the update was successful.
      */
-    boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission);
+    boolean addOwner(final long doorUID, final @NotNull PPlayerData player, final int permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractDoorBase}.

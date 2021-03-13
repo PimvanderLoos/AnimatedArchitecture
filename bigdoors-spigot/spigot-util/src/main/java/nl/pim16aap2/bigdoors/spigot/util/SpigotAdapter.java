@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -17,6 +18,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public final class SpigotAdapter
 {
@@ -113,9 +117,9 @@ public final class SpigotAdapter
      * @param player The Bukkit player.
      * @return The IPPlayer.
      */
-    public static @NotNull IPPlayer wrapPlayer(final @NotNull OfflinePlayer player)
+    public static @NotNull CompletableFuture<Optional<IPPlayer>> wrapPlayer(final @NotNull OfflinePlayer player)
     {
-        return new PPlayerSpigot(player);
+        return BigDoors.get().getPlatform().getPPlayerFactory().create(player.getUniqueId());
     }
 
     /**

@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -67,32 +66,32 @@ public class SubCommandInfo extends SubCommand
         }
 
         sendDoorInfo(sender, door);
-        try
-        {
-            final IPPlayer player = doorOwner.get().getPlayer();
-            highlightBlock(door.getPowerBlock(), door.getWorld(), player, PColor.GOLD);
-            highlightBlock(door.getEngine(), door.getWorld(), player, PColor.DARK_PURPLE);
-            highlightBlock(door.getMinimum(), door.getWorld(), player, PColor.BLUE);
-            highlightBlock(door.getMaximum(), door.getWorld(), player, PColor.RED);
-
-            Vector3Di loc = new Vector3Di(0, 0, 0);
-            for (int x = door.getMinimum().getX(); x <= door.getMaximum().getX(); ++x)
-                for (int y = door.getMinimum().getY(); y <= door.getMaximum().getY(); ++y)
-                    for (int z = door.getMinimum().getZ(); z <= door.getMaximum().getZ(); ++z)
-                    {
-                        loc.setX(x);
-                        loc.setY(y);
-                        loc.setZ(z);
-                        if (loc.equals(door.getMinimum()) || loc.equals(door.getMaximum()) ||
-                            loc.equals(door.getEngine()))
-                            continue;
-                        highlightBlock(loc, door.getWorld(), player, PColor.GREEN);
-                    }
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().logThrowable(e, "Failed to spawn a glowing block!");
-        }
+//        try
+//        {
+//            final IPPlayer player = doorOwner.get().getPlayer();
+//            highlightBlock(door.getPowerBlock(), door.getWorld(), player, PColor.GOLD);
+//            highlightBlock(door.getEngine(), door.getWorld(), player, PColor.DARK_PURPLE);
+//            highlightBlock(door.getMinimum(), door.getWorld(), player, PColor.BLUE);
+//            highlightBlock(door.getMaximum(), door.getWorld(), player, PColor.RED);
+//
+//            Vector3Di loc = new Vector3Di(0, 0, 0);
+//            for (int x = door.getMinimum().getX(); x <= door.getMaximum().getX(); ++x)
+//                for (int y = door.getMinimum().getY(); y <= door.getMaximum().getY(); ++y)
+//                    for (int z = door.getMinimum().getZ(); z <= door.getMaximum().getZ(); ++z)
+//                    {
+//                        loc.setX(x);
+//                        loc.setY(y);
+//                        loc.setZ(z);
+//                        if (loc.equals(door.getMinimum()) || loc.equals(door.getMaximum()) ||
+//                            loc.equals(door.getEngine()))
+//                            continue;
+//                        highlightBlock(loc, door.getWorld(), player, PColor.GREEN);
+//                    }
+//        }
+//        catch (Exception e)
+//        {
+//            plugin.getPLogger().logThrowable(e, "Failed to spawn a glowing block!");
+//        }
         return true;
     }
 
