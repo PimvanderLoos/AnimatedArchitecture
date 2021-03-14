@@ -147,7 +147,7 @@ public final class DatabaseManager extends Restartable
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
                 return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+            }, threadPool).exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -288,7 +288,7 @@ public final class DatabaseManager extends Restartable
     public @NonNull CompletableFuture<Optional<PPlayerData>> getPlayerData(final @NonNull UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -315,7 +315,7 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -344,7 +344,7 @@ public final class DatabaseManager extends Restartable
                                                                           final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**

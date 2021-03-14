@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.OfflinePPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -36,7 +37,9 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
         Player player = Bukkit.getPlayer(uuid);
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PPlayerSpigot(player)));
-        return DatabaseManager.get().getPlayerData(uuid).thenApply(
-            playerData -> playerData.map(OfflinePPlayerSpigot::new));
+
+        return DatabaseManager.get().getPlayerData(uuid)
+                              .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
+                              .exceptionally(Util::exceptionallyOptional);
     }
 }

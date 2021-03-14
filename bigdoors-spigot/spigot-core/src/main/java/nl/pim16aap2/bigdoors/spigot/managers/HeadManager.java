@@ -96,7 +96,7 @@ public final class HeadManager extends Restartable
         return CompletableFuture.supplyAsync(
             () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
                          .flatMap(Function.identity()))
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     private @NonNull Optional<ItemStack> createItemStack(final @NonNull UUID playerUUID,

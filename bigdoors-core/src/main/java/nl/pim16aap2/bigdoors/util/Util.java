@@ -105,6 +105,16 @@ public final class Util
         return exceptionally(throwable, null);
     }
 
+    /**
+     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Optional#empty()}.
+     *
+     * @return Always {@link Optional#empty()}.
+     */
+    public <T> Optional<T> exceptionallyOptional(final @NonNull Throwable throwable)
+    {
+        return exceptionally(throwable, Optional.empty());
+    }
+
     public static @NotNull OptionalInt parseInt(final @Nullable String str)
     {
         if (str == null)

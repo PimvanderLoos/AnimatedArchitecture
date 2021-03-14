@@ -149,7 +149,7 @@ public abstract class DoorRetriever
                 if (doorList.size() == 1)
                     return Optional.of(doorList.get(0));
                 return Optional.empty();
-            }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+            }).exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -203,7 +203,7 @@ public abstract class DoorRetriever
                     return DelayedDoorSpecificationInputRequest
                         .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
                              doorList, player);
-                }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                }).exceptionally(Util::exceptionallyOptional);
         }
     }
 
@@ -223,14 +223,14 @@ public abstract class DoorRetriever
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor()
         {
             return DatabaseManager.get().getDoor(uid)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                  .exceptionally(Util::exceptionallyOptional);
         }
 
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NonNull IPPlayer player)
         {
             return DatabaseManager.get().getDoor(player, uid)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                  .exceptionally(Util::exceptionallyOptional);
         }
     }
 
