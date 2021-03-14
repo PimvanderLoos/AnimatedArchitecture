@@ -91,6 +91,7 @@ public class EventListeners implements Listener
         try
         {
             plugin.onPlayerLogout(event.getPlayer());
+            BigDoors.get().getDatabaseManager().updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
         }
         catch (Exception e)
         {

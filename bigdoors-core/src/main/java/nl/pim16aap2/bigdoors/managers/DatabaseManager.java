@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -145,7 +147,7 @@ public final class DatabaseManager extends Restartable
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
                 return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+            }, threadPool).exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -273,9 +275,35 @@ public final class DatabaseManager extends Restartable
      */
     public @NotNull CompletableFuture<Boolean> updatePlayer(final @NotNull IPPlayer player)
     {
-        return CompletableFuture.supplyAsync(() -> db.updatePlayerName(player.getUUID().toString(), player.getName()),
-                                             threadPool)
+        return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+    }
+
+    /**
+     * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
+     *
+     * @param uuid The {@link UUID} of a player.
+     * @return The {@link PPlayerData} that represents the player.
+     */
+    public @NonNull CompletableFuture<Optional<PPlayerData>> getPlayerData(final @NonNull UUID uuid)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
+                                .exceptionally(Util::exceptionallyOptional);
+    }
+
+    /**
+     * Tries to get all the players with a given name. Because names are not unique, this may result in any number of
+     * matches.
+     * <p>
+     * If you know the player's UUID, it is recommended to use {@link #getPlayerData(UUID)} instead.
+     *
+     * @param playerName The name of the player(s).
+     * @return All the players with the given name.
+     */
+    public @NonNull CompletableFuture<List<PPlayerData>> getPlayerData(final @NonNull String playerName)
+    {
+        return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -287,7 +315,7 @@ public final class DatabaseManager extends Restartable
     public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -316,7 +344,7 @@ public final class DatabaseManager extends Restartable
                                                                           final long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -375,11 +403,13 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final boolean result = db.addOwner(door.getDoorUID(), player, permission);
+                final @NonNull PPlayerData playerData = player.getPPlayerData();
+
+                final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
                 if (result)
                     ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
-                                                                                         player.getUUID(),
-                                                                                         player.getName(), permission));
+                                                                                         permission,
+                                                                                         playerData));
                 return result;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }

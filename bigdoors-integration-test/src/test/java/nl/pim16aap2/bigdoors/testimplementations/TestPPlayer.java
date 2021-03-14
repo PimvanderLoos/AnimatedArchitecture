@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.NonNull;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,35 +14,59 @@ import java.util.logging.Level;
 
 public final class TestPPlayer implements IPPlayer
 {
-    @NotNull
-    private final String name;
-    @NotNull
-    private final UUID uuid;
     @Nullable
     private String lastMessage, beforeLastMessage;
 
-    public TestPPlayer(final @NotNull UUID uuid, final @NotNull String name)
+    private @NonNull final PPlayerData playerData;
+
+    @Setter
+    private boolean hasProtectionBypassPermission = false;
+
+    public TestPPlayer(final @NonNull PPlayerData playerData)
     {
-        this.uuid = uuid;
-        this.name = name;
+        this.playerData = playerData;
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
-        return name;
+        return playerData.getName();
     }
 
     @Override
-    public @NotNull UUID getUUID()
+    public @NonNull UUID getUUID()
     {
-        return uuid;
+        return playerData.getUUID();
+    }
+
+    @Override
+    public boolean hasProtectionBypassPermission()
+    {
+        return false;
     }
 
     @Override
     public @NonNull Optional<IPLocation> getLocation()
     {
         return Optional.empty();
+    }
+
+    @Override
+    public int getDoorSizeLimit()
+    {
+        return 0;
+    }
+
+    @Override
+    public int getDoorCountLimit()
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isOp()
+    {
+        return false;
     }
 
     @Override
@@ -83,5 +109,11 @@ public final class TestPPlayer implements IPPlayer
     public @Nullable String getBeforeLastMessage()
     {
         return beforeLastMessage;
+    }
+
+    @Override
+    public @NonNull PPlayerData getPPlayerData()
+    {
+        return playerData;
     }
 }

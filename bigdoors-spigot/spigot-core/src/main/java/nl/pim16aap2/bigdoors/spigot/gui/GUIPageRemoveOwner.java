@@ -136,7 +136,7 @@ public class GUIPageRemoveOwner implements IGUIPage
         int idx = 9;
         for (DoorOwner owner : owners)
         {
-            if (owner.getPlayer().getUUID().equals(gui.getGuiHolder().getUUID()))
+            if (owner.getPPlayerData().getUUID().equals(gui.getGuiHolder().getUUID()))
                 continue;
 
             final int currentIDX = idx;
@@ -144,16 +144,16 @@ public class GUIPageRemoveOwner implements IGUIPage
             gui.setItem(idx++, new GUIItem(owner));
             // Then request a player head with that player's head texture. This is a CompletableFuture, so just update
             // the player head whenever it becomes available.
-            CompletableFuture<Optional<ItemStack>> futurePlayerHead = plugin.getHeadManager()
-                                                                            .getPlayerHead(owner.getPlayer().getUUID(),
-                                                                                           owner.getPlayer().getName());
+            CompletableFuture<Optional<ItemStack>> futurePlayerHead =
+                plugin.getHeadManager().getPlayerHead(owner.getPPlayerData().getUUID(),
+                                                      owner.getPPlayerData().getName());
             futurePlayerHeads.add(futurePlayerHead);
             futurePlayerHead.whenComplete(
                 (result, throwable) ->
                     result.ifPresent(
                         HEAD -> BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
                             () -> gui.updateItem(currentIDX,
-                                                 Optional.of(new GUIItem(HEAD, owner.getPlayer().getName(), null,
+                                                 Optional.of(new GUIItem(HEAD, owner.getPPlayerData().getName(), null,
                                                                          owner.getPermission())))))
             );
         }
@@ -163,7 +163,7 @@ public class GUIPageRemoveOwner implements IGUIPage
     public void refresh()
     {
         owners = new ArrayList<>(gui.getDoor().getDoorOwners());
-        owners.sort(Comparator.comparing(owner -> owner.getPlayer().getName()));
+        owners.sort(Comparator.comparing(owner -> owner.getPPlayerData().getName()));
         maxDoorOwnerPageCount =
             owners.size() / (GUI.CHESTSIZE - 9) + ((owners.size() % (GUI.CHESTSIZE - 9)) == 0 ? 0 : 1);
 
@@ -173,7 +173,7 @@ public class GUIPageRemoveOwner implements IGUIPage
 
     private void removeOwner(DoorOwner owner)
     {
-        BigDoors.get().getDatabaseManager().removeOwner(gui.getDoor(), owner.getPlayer().getUUID());
+        BigDoors.get().getDatabaseManager().removeOwner(gui.getDoor(), owner.getPPlayerData().getUUID());
         owners.remove(owner);
     }
 }

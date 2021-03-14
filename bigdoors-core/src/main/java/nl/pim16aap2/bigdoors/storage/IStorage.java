@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import nl.pim16aap2.bigdoors.api.IPPlayer;
+import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -95,6 +96,33 @@ public interface IStorage
     int getDoorCountForPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName);
 
     /**
+     * Updates the {@link PPlayerData} for a given player.
+     *
+     * @param playerData The {@link PPlayerData} the represents a player.
+     * @return True if at least 1 record was modified.
+     */
+    boolean updatePlayerData(final @NonNull PPlayerData playerData);
+
+    /**
+     * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
+     *
+     * @param uuid The {@link UUID} of a player.
+     * @return The {@link PPlayerData} that represents the player.
+     */
+    @NonNull Optional<PPlayerData> getPlayerData(final @NonNull UUID uuid);
+
+    /**
+     * Tries to get all the players with a given name. Because names are not unique, this may result in any number of
+     * matches.
+     * <p>
+     * If you know the player's UUID, it is recommended to use {@link #getPlayerData(UUID)} instead.
+     *
+     * @param playerName The name of the player(s).
+     * @return All the players with the given name.
+     */
+    @NonNull List<PPlayerData> getPlayerData(final @NonNull String playerName);
+
+    /**
      * Gets the total number of doors with the given name regardless of who owns them.
      *
      * @param doorName The name of the doors to search for.
@@ -172,33 +200,6 @@ public interface IStorage
      * @return All the doors owned by the player with at least a certain permission level.
      */
     @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final int maxPermission);
-
-    /**
-     * Updates the name of the player.
-     * <p>
-     * PlayerUUIDs cannot change, but player names can, so this is needed to keep the names in sync with the UUIDs.
-     *
-     * @param playerUUID The UUID of the player.
-     * @param playerName The current name of the player.
-     * @return True if at least 1 record was modified.
-     */
-    boolean updatePlayerName(final @NotNull String playerUUID, final @NotNull String playerName);
-
-    /**
-     * Gets the UUID of a player with a given name.
-     *
-     * @param playerName The name of the player to search for.
-     * @return The UUID of the player if there is exactly one player with this name.
-     */
-    @NotNull Optional<UUID> getPlayerUUID(final @NotNull String playerName);
-
-    /**
-     * Gets the name this player had when they last connected to the server from their UUID.
-     *
-     * @param playerUUID The UUID of the player to search for.
-     * @return The name this player had when they last connected to the server.
-     */
-    @NotNull Optional<String> getPlayerName(final @NotNull String playerUUID);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -290,7 +291,7 @@ public interface IStorage
      * @param permission The level of ownership the player will have over the door.
      * @return True if the update was successful.
      */
-    boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission);
+    boolean addOwner(final long doorUID, final @NotNull PPlayerData player, final int permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractDoorBase}.

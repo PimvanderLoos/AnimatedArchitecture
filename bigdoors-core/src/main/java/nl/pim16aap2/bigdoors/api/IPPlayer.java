@@ -1,48 +1,20 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Represents a BigDoors player.
  *
  * @author Pim
  */
-// TODO: This might be better suited as an abstract class, as the implementation of the basic stuff is always going to
-//       be the same (equals, hashCode, getName, etc).
-public interface IPPlayer extends IMessageable
+public interface IPPlayer extends IPPlayerDataContainer, IMessageable
 {
-    /**
-     * Gets the name of this player.
-     *
-     * @return The name of this player.
-     */
-    @NotNull String getName();
-
-    /**
-     * Gets the UUID of this player.
-     *
-     * @return The UUID of this player.
-     */
-    @NotNull UUID getUUID();
-
     /**
      * Gets the current location of this player.
      *
      * @return The current location of this player.
      */
     @NonNull Optional<IPLocation> getLocation();
-
-    /**
-     * Gets the player as a String in the format '"playerName" (playerUUID)'.
-     *
-     * @return The player as a String.
-     */
-    default @NotNull String asString()
-    {
-        return String.format("\"%s\" (%s)", getName(), getUUID().toString());
-    }
 }

@@ -101,7 +101,7 @@ class GUIItem
     {
         this.doorOwner = doorOwner;
         count = Math.max(1, doorOwner.getPermission());
-        name = doorOwner.getPlayer().getName();
+        name = doorOwner.getPPlayerData().getName();
         is = new ItemStack(Material.PLAYER_HEAD, 1);
         lore = null;
         construct();

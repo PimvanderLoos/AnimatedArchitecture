@@ -9,21 +9,18 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
@@ -46,9 +43,10 @@ public class SubCommandRemoveOwner extends SubCommand
                            final @NotNull String playerArg)
         throws CommandPlayerNotFoundException
     {
-        UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
-        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
-        return execute(sender, door.getDoorUID(), player);
+//        UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
+//        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
+//        return execute(sender, door.getDoorUID(), player);
+        throw new UnsupportedOperationException();
     }
 
     private boolean execute(final @NotNull CommandSender sender, final long doorUID, final @NotNull IPPlayer target)
@@ -130,13 +128,14 @@ public class SubCommandRemoveOwner extends SubCommand
         if (commandWaiter.isPresent())
             return commandManager.commandWaiterExecute(commandWaiter.get(), args, minArgCount);
 
-        UUID playerUUID = CommandManager.getPlayerFromArg(args[getMinArgCount() - 1]);
-        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
-
-        commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2], cmd, args).whenComplete(
-            (optionalDoor, throwable) ->
-                optionalDoor.ifPresent(door -> execute(sender, door.getDoorUID(), player)));
-        return true;
+        throw new UnsupportedOperationException();
+//        UUID playerUUID = CommandManager.getPlayerFromArg(args[getMinArgCount() - 1]);
+//        IPPlayer player = SpigotAdapter.wrapPlayer(Bukkit.getOfflinePlayer(playerUUID));
+//
+//        commandManager.getDoorFromArg(sender, args[getMinArgCount() - 2], cmd, args).whenComplete(
+//            (optionalDoor, throwable) ->
+//                optionalDoor.ifPresent(door -> execute(sender, door.getDoorUID(), player)));
+//        return true;
     }
 
     @Override

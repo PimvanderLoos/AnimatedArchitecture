@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -308,10 +308,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final @NotNull String name = doorBaseRS.getString("name");
 
+        final @NonNull PPlayerData playerData = new PPlayerData(UUID.fromString(doorBaseRS.getString("playerUUID")),
+                                                                doorBaseRS.getString("playerName"),
+                                                                doorBaseRS.getInt("sizeLimit"),
+                                                                doorBaseRS.getInt("countLimit"),
+                                                                doorBaseRS.getLong("permissions"));
+
         final @NotNull DoorOwner primeOwner = new DoorOwner(doorUID,
-                                                            UUID.fromString(doorBaseRS.getString("playerUUID")),
-                                                            doorBaseRS.getString("playerName"),
-                                                            doorBaseRS.getInt("permission"));
+                                                            doorBaseRS.getInt("permission"),
+                                                            playerData);
 
         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
         final @NotNull AbstractDoorBase.DoorData doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, eng,
@@ -645,14 +650,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement typeSpecificDataInsertStatement =
             typeSpecificDataInsertStatementOpt.get();
 
-        final @NotNull String playerUUID = door.getPrimeOwner().getPlayer().getUUID().toString();
-        final @NotNull String playerName = door.getPrimeOwner().getPlayer().getName();
+        final @NonNull PPlayerData playerData = door.getPrimeOwner().getPPlayerData();
+        insertOrIgnorePlayer(conn, playerData);
+
         final @NotNull String worldName = door.getWorld().getWorldName();
-
-        executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER.constructPPreparedStatement()
-                                                                .setString(1, playerUUID)
-                                                                .setString(2, playerName));
-
         final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().getX(), door.getEngine().getZ());
         final long powerBlockHash = Util
             .simpleChunkHashFromLocation(door.getPowerBlock().getX(), door.getPowerBlock().getZ());
@@ -691,7 +692,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
                                     rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
-        executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement().setString(1, playerUUID));
+        executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement()
+                                                           .setString(1, playerData.getUUID().toString()));
 
         return doorUID;
     }
@@ -726,6 +728,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return Optional.empty();
     }
 
+    private void insertOrIgnorePlayer(final @NonNull Connection conn, final @NonNull PPlayerData playerData)
+    {
+        executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER_DATA.constructPPreparedStatement()
+                                                                     .setNextString(playerData.getUUID().toString())
+                                                                     .setNextString(playerData.getName())
+                                                                     .setNextInt(playerData.getDoorSizeLimit())
+                                                                     .setNextInt(playerData.getDoorCountLimit())
+                                                                     .setNextLong(playerData.getPermissionsFlag()));
+    }
+
     /**
      * Gets the ID player in the "players" table. If the player isn't in the database yet, they are added first.
      *
@@ -733,15 +745,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param doorOwner The doorOwner with the player to retrieve.
      * @return The database ID of the player.
      */
-    private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner)
+    private long getPlayerID(final @NonNull Connection conn, final @NonNull DoorOwner doorOwner)
     {
-        executeUpdate(conn, SQLStatement.INSERT_OR_IGNORE_PLAYER.constructPPreparedStatement()
-                                                                .setString(1,
-                                                                           doorOwner.getPlayer().getUUID().toString())
-                                                                .setString(2, doorOwner.getPlayer().getName()));
+        insertOrIgnorePlayer(conn, doorOwner.getPPlayerData());
 
-        return executeQuery(conn, SQLStatement.GET_PLAYER_ID.constructPPreparedStatement()
-                                                            .setString(1, doorOwner.getPlayer().getUUID().toString()),
+        return executeQuery(conn, SQLStatement.GET_PLAYER_ID
+                                .constructPPreparedStatement()
+                                .setString(1, doorOwner.getPPlayerData().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 
@@ -933,44 +943,49 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean updatePlayerName(final @NotNull String playerUUID, final @NotNull String playerName)
+    public boolean updatePlayerData(final @NonNull PPlayerData playerData)
     {
-        return executeUpdate(SQLStatement.UPDATE_PLAYER_NAME.constructPPreparedStatement()
-                                                            .setString(1, playerName)
-                                                            .setString(2, playerUUID)) > 0;
+        return executeUpdate(SQLStatement.UPDATE_PLAYER_DATA.constructPPreparedStatement()
+                                                            .setNextString(playerData.getName())
+                                                            .setNextInt(playerData.getDoorSizeLimit())
+                                                            .setNextInt(playerData.getDoorCountLimit())
+                                                            .setNextLong(playerData.getPermissionsFlag())
+                                                            .setNextString(playerData.getUUID().toString())) > 0;
     }
 
     @Override
-    public @NotNull Optional<UUID> getPlayerUUID(final @NotNull String playerName)
+    public @NonNull Optional<PPlayerData> getPlayerData(final @NonNull UUID uuid)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_UUID.constructPPreparedStatement()
-                                                        .setString(1, playerName),
+        return executeQuery(SQLStatement.GET_PLAYER_DATA.constructPPreparedStatement()
+                                                        .setNextString(uuid.toString()),
                             resultSet ->
-                            {
-                                UUID playerUUID = null;
-                                int count = 0;
-                                while (resultSet.next())
-                                {
-                                    ++count;
-                                    if (count > 1)
-                                    {
-                                        playerUUID = null;
-                                        break;
-                                    }
-                                    playerUUID = UUID.fromString(resultSet.getString("playerUUID"));
-                                }
-                                return Optional.ofNullable(playerUUID);
-                            }, Optional.empty());
+                                Optional.of(new PPlayerData(
+                                    uuid,
+                                    resultSet.getString("playerName"),
+                                    resultSet.getInt("sizeLimit"),
+                                    resultSet.getInt("countLimit"),
+                                    resultSet.getLong("permissions")
+                                )), Optional.empty());
     }
 
     @Override
-    public @NotNull Optional<String> getPlayerName(final @NotNull String playerUUID)
+    public @NonNull List<PPlayerData> getPlayerData(final @NonNull String playerName)
     {
-        return executeQuery(SQLStatement.GET_PLAYER_NAME.constructPPreparedStatement()
-                                                        .setString(1, playerUUID),
-                            resultSet -> Optional
-                                .ofNullable(resultSet.next() ? resultSet.getString("playerName") : null),
-                            Optional.empty());
+
+        return executeQuery(SQLStatement.GET_PLAYER_DATA_FROM_NAME.constructPPreparedStatement()
+                                                                  .setNextString(playerName),
+                            (resultSet) ->
+                            {
+                                final List<PPlayerData> playerData = new ArrayList<>();
+                                while (resultSet.next())
+                                    playerData.add(new PPlayerData(
+                                        UUID.fromString(resultSet.getString("playerUUID")),
+                                        playerName,
+                                        resultSet.getInt("sizeLimit"),
+                                        resultSet.getInt("countLimit"),
+                                        resultSet.getLong("permissions")));
+                                return playerData;
+                            }, Collections.emptyList());
     }
 
     @Override
@@ -1197,17 +1212,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Contract(" _, _, _, !null -> !null")
-    private @NotNull <T> T executeQuery(final @NotNull Connection conn,
-                                        final @NotNull PPreparedStatement pPreparedStatement,
-                                        final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
-                                        final @Nullable T fallback)
+    private <T> T executeQuery(final @NotNull Connection conn,
+                               final @NotNull PPreparedStatement pPreparedStatement,
+                               final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
+                               final T fallback)
     {
         logStatement(pPreparedStatement);
         try (final PreparedStatement ps = pPreparedStatement.construct(conn);
              final ResultSet rs = ps.executeQuery())
         {
-            final @Nullable T result = fun.apply(rs);
-            return result == null ? fallback : result;
+            return fun.apply(rs);
         }
         catch (Exception e)
         {
@@ -1225,8 +1239,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @return The result of the Function.
      */
     @Contract(" _, !null -> !null")
-    private @NotNull <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
-                                   final @Nullable T fallback)
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun, final T fallback)
     {
         return execute(fun, fallback, FailureAction.IGNORE);
     }
@@ -1240,9 +1253,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param failureAction The action to take when an exception is caught.
      * @return The result of the Function.
      */
-    @Contract(" _, !null -> !null")
-    private @NotNull <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
-                                   final @Nullable T fallback, final FailureAction failureAction)
+    @Contract(" _, !null, _ -> !null")
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
+                          final T fallback, final FailureAction failureAction)
     {
         try (final @Nullable Connection conn = getConnection())
         {
@@ -1276,8 +1289,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @return The result of the Function.
      */
     @Contract(" _, !null -> !null")
-    private @NotNull <T> T executeTransaction(final @NotNull CheckedFunction<Connection, T, Exception> fun,
-                                              final @Nullable T fallback)
+    private <T> T executeTransaction(final @NotNull CheckedFunction<Connection, T, Exception> fun, final T fallback)
     {
         return execute(
             conn ->
@@ -1317,29 +1329,32 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                 while (resultSet.next())
                                 {
                                     final @NotNull UUID uuid = UUID.fromString(resultSet.getString("playerUUID"));
+                                    final @NonNull PPlayerData playerData =
+                                        new PPlayerData(uuid,
+                                                        resultSet.getString("playerName"),
+                                                        resultSet.getInt("sizeLimit"),
+                                                        resultSet.getInt("countLimit"),
+                                                        resultSet.getLong("permissions"));
+
                                     ret.put(uuid, new DoorOwner(resultSet.getLong("doorUID"),
-                                                                uuid,
-                                                                resultSet.getString("playerName"),
-                                                                resultSet.getInt("permission")));
+                                                                resultSet.getInt("permission"),
+                                                                playerData));
                                 }
                                 return ret;
                             }, new HashMap<>(0));
     }
 
     @Override
-    public boolean addOwner(final long doorUID, final @NotNull IPPlayer player, final int permission)
+    public boolean addOwner(final long doorUID, final @NonNull PPlayerData player, final int permission)
     {
         // permission level 0 is reserved for the creator, and negative values are not allowed.
         if (permission < 1)
             return false;
 
-        final String playerName = player.getName();
-
         return executeTransaction(
             conn ->
             {
-                final long playerID = getPlayerID(conn,
-                                                  new DoorOwner(doorUID, player.getUUID(), playerName, permission));
+                final long playerID = getPlayerID(conn, new DoorOwner(doorUID, permission, player.getPPlayerData()));
 
                 if (playerID == -1)
                     throw new IllegalArgumentException(

@@ -5,6 +5,7 @@ package nl.pim16aap2.bigdoors.util;
  *
  * @author Pim
  */
+// TODO: This can be more useful with default methods.
 public interface IBitFlag
 {
     /**

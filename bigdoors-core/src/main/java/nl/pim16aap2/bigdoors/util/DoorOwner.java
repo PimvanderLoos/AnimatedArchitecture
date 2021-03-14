@@ -2,11 +2,10 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.UUID;
 
 /**
  * Contains all details needed about a doorOwner.
@@ -32,21 +31,7 @@ public class DoorOwner
      * The {@link IPPlayer} object represented by this {@link DoorOwner}.
      */
     @Getter
-    @NotNull IPPlayer player;
-
-    /**
-     * Constructor of {@link DoorOwner}.
-     *
-     * @param doorUID    The UID of the DoorBase.
-     * @param playerUUID The UUID of the player that owns the given door.
-     * @param playerName The name of the player that owns the given door.
-     * @param permission The permission level at which the player owns the door.
-     */
-    public DoorOwner(final long doorUID, final @NotNull UUID playerUUID, final @NotNull String playerName,
-                     final int permission)
-    {
-        this(doorUID, permission, BigDoors.get().getPlatform().getPPlayerFactory().create(playerUUID, playerName));
-    }
+    @NonNull PPlayerData pPlayerData;
 
     /**
      * Get a basic overview of this door owner. Useful for debugging.
@@ -54,13 +39,13 @@ public class DoorOwner
     @Override
     public @NotNull String toString()
     {
-        return "doorUID: " + doorUID + ". player: " + getPlayer().toString() + ". Permission: " + permission;
+        return "doorUID: " + doorUID + ". player: " + getPPlayerData().toString() + ". Permission: " + permission;
     }
 
     @Override
     public final int hashCode()
     {
-        return player.getUUID().hashCode();
+        return getPPlayerData().getUUID().hashCode();
     }
 
     @Override
@@ -73,13 +58,15 @@ public class DoorOwner
             return false;
 
         DoorOwner other = (DoorOwner) o;
-        return player.equals(other.player) && doorUID == other.doorUID && permission == other.permission;
+        return getPPlayerData().equals(other.getPPlayerData()) &&
+            doorUID == other.doorUID &&
+            permission == other.permission;
     }
 
     @Override
     public @NotNull DoorOwner clone()
     {
         // TODO: Clone player as well?
-        return new DoorOwner(doorUID, getPermission(), getPlayer());
+        return new DoorOwner(doorUID, getPermission(), getPPlayerData());
     }
 }

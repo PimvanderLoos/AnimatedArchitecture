@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
@@ -33,7 +34,8 @@ import java.util.logging.Level;
 public class CreatorTestsUtil
 {
     protected static final TestPPlayer PLAYER =
-        new TestPPlayer(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"), "user");
+        new TestPPlayer(new PPlayerData(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"),
+                                        "user", 8, 9, true, true));
     protected static ExecutorService threadPool;
 
     static
@@ -115,7 +117,7 @@ public class CreatorTestsUtil
     protected @NotNull IPWorld world2 = UnitTestUtil.PLATFORM.getPWorldFactory().create("world2");
     protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
-    protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER);
+    protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
 
 
     protected AbstractDoorBase.DoorData constructDoorData()

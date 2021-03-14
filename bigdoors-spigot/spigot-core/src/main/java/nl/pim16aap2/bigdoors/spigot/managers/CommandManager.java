@@ -340,14 +340,14 @@ public class CommandManager implements CommandExecutor
                             return Optional.empty();
                         }
                         return Optional.of(doors.get(0));
-                    }).exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                    }).exceptionally(Util::exceptionallyOptional);
         }
         else
         {
             try
             {
                 door = DatabaseManager.get().getDoor(Long.parseLong(doorArg))
-                                      .exceptionally(ex -> Util.exceptionally(ex, Optional.empty()));
+                                      .exceptionally(Util::exceptionallyOptional);
             }
             catch (NumberFormatException e)
             {

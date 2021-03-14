@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import org.jetbrains.annotations.NotNull;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
 
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a factory for {@link IPPlayer} objects.
@@ -13,11 +16,18 @@ import java.util.UUID;
 public interface IPPlayerFactory
 {
     /**
-     * Creates a new IPWorld.
+     * Creates a new {@link IPPlayer}.
      *
-     * @param playerUUID The UUID of the player.
-     * @param playerName The name of the player.
-     * @return A new IPWorld object.
+     * @param playerData The {@link PPlayerData} of the player.
+     * @return A new {@link IPPlayer} object.
      */
-    @NotNull IPPlayer create(final @NotNull UUID playerUUID, final @NotNull String playerName);
+    @NonNull IPPlayer create(final @NonNull PPlayerData playerData);
+
+    /**
+     * Creates a new {@link IPPlayer}.
+     *
+     * @param uuid The {@link UUID} of the player.
+     * @return A new {@link IPPlayer} object.
+     */
+    @NonNull CompletableFuture<Optional<IPPlayer>> create(final @NonNull UUID uuid);
 }
