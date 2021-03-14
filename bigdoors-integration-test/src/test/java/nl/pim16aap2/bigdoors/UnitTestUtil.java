@@ -120,12 +120,18 @@ public class UnitTestUtil
      * @param obj The object to compare the optional to.
      * @param opt The Optional to compare against the object.
      * @param <T> The type of the Object and Optional.
-     * @return True if the Optional holds an object that equals the object or if the object is null and the Optional is
-     * empty.
+     * @return The object inside the Optional.
      */
-    public <T> boolean optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
+    public <T> T optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
     {
-        return opt.map(t -> t.equals(obj)).orElseGet(() -> obj == null);
+        if (obj == null)
+        {
+            Assertions.assertTrue(opt.isEmpty());
+            return null;
+        }
+        Assertions.assertTrue(opt.isPresent());
+        Assertions.assertEquals(obj, opt.get());
+        return opt.get();
     }
 
     /**

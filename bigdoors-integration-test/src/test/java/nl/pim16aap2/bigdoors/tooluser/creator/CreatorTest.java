@@ -140,13 +140,12 @@ public class CreatorTest extends CreatorTestsUtil
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
 
         final @NotNull List<RotateDirection> validOpenDirections = creator.getDoorType().getValidOpenDirections();
-        Assertions.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection("-1")));
-        Assertions.assertTrue(UnitTestUtil.optionalEquals(null, creator.parseOpenDirection(Integer.toString(
-            validOpenDirections.size()))));
+        UnitTestUtil.optionalEquals(null, creator.parseOpenDirection("-1"));
+        UnitTestUtil.optionalEquals(null, creator.parseOpenDirection(Integer.toString(validOpenDirections.size())));
 
         for (int idx = 0; idx < validOpenDirections.size(); ++idx)
-            Assertions.assertTrue(UnitTestUtil.optionalEquals(validOpenDirections.get(idx),
-                                                              creator.parseOpenDirection(Integer.toString(idx))));
+            UnitTestUtil.optionalEquals(validOpenDirections.get(idx),
+                                        creator.parseOpenDirection(Integer.toString(idx)));
 
         for (final @NotNull RotateDirection rotateDirection : RotateDirection.values())
         {
@@ -155,8 +154,7 @@ public class CreatorTest extends CreatorTestsUtil
                 goalDir = rotateDirection;
             else
                 goalDir = null;
-            Assertions
-                .assertTrue(UnitTestUtil.optionalEquals(goalDir, creator.parseOpenDirection(rotateDirection.name())));
+            UnitTestUtil.optionalEquals(goalDir, creator.parseOpenDirection(rotateDirection.name()));
         }
     }
 
