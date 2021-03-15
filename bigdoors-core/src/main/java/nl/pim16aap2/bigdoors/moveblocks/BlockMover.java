@@ -46,10 +46,8 @@ public abstract class BlockMover implements IRestartable
     protected final AbstractDoorBase door;
     @NotNull
     protected final IPPlayer player;
-    @NotNull
-    final DoorActionCause cause;
-    @NotNull
-    final DoorActionType actionType;
+    @NotNull final DoorActionCause cause;
+    @NotNull final DoorActionType actionType;
     protected final IFallingBlockFactory fallingBlockFactory;
     protected double time;
     protected boolean skipAnimation;
@@ -437,7 +435,7 @@ public abstract class BlockMover implements IRestartable
         door.setCoordinates(newCuboid);
 
         door.setOpen(!door.isOpen());
-        door.setCoordinates(newCuboid).syncBaseData();
+        door.setCoordinates(newCuboid).syncData();
     }
 
     /**

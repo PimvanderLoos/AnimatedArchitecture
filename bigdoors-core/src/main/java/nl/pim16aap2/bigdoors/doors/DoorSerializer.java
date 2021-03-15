@@ -67,7 +67,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
      * @param door The door.
      * @return The serialized type-specific data.
      */
-    public byte[] serialize(final @NonNull T door)
+    public byte[] serialize(final AbstractDoorBase door)
     {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
         for (final Field field : fields)

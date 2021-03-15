@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,9 +30,15 @@ public enum SQLStatement
             "powerBlockZ    = ?,\n" +
             "powerBlockHash = ?,\n" +
             "openDirection  = ?,\n" +
-            "bitflag        = ?\n" +
+            "bitflag        = ?,\n" +
+            "typeData       = ?,\n" +
             "WHERE id = ?;"
     ),
+
+//        "INSERT INTO DoorBase\n" +
+//            "(name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash, " +
+//            "powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, openDirection, bitflag, doorType, typeData)\n" +
+//            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 
     UPDATE_DOOR_OWNER_PERMISSION(
         "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
@@ -50,6 +55,10 @@ public enum SQLStatement
             "    FROM DoorBase AS D INNER JOIN DoorOwnerPlayer AS U ON U.doorUID = D.id, \n" +
             "        (SELECT P.id FROM Player as P WHERE P.playerUUID = ?) AS R \n" +
             "        WHERE D.name = ? AND R.id = U.playerID);"
+    ),
+
+    DELETE_DOOR_TYPE(
+        "DELETE FROM DoorBase WHERE DoorBase.name = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(
@@ -141,9 +150,8 @@ public enum SQLStatement
     ),
 
     GET_DOOR_BASE_FROM_ID(
-        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission\n" +
             "FROM DoorBase \n" +
-            "INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "WHERE DoorBase.id = ? AND DoorOwnerPlayer.permission = 0;"
@@ -159,85 +167,35 @@ public enum SQLStatement
     ),
 
     GET_DOOR_BASE_FROM_ID_FOR_PLAYER(
-        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission \n" +
             "FROM DoorBase \n" +
-            "INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "WHERE DoorBase.id = ? AND Player.playerUUID = ?;"
     ),
 
     GET_NAMED_DOORS_OWNED_BY_PLAYER(
-        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission \n" +
             "FROM DoorBase \n" +
-            "INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "WHERE Player.playerUUID = ? AND DoorBase.name = ? And DoorOwnerPlayer.permission <= ?;"
     ),
 
     GET_DOORS_WITH_NAME(
-        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission \n" +
             "FROM DoorBase \n" +
-            "INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "WHERE DoorBase.name = ? And DoorOwnerPlayer.permission = 0;"
     ),
 
     GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL(
-        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission, DoorType.typeTableName \n" +
+        "SELECT DoorBase.*, Player.*, DoorOwnerPlayer.permission \n" +
             "FROM DoorBase \n" +
-            "INNER JOIN DoorType ON DoorBase.doorType = DoorType.id \n" +
             "INNER JOIN DoorOwnerPlayer ON DoorBase.id = DoorOwnerPlayer.doorUID \n" +
             "INNER JOIN Player ON DoorOwnerPlayer.playerID = Player.id \n" +
             "WHERE Player.playerUUID = ? AND DoorOwnerPlayer.permission <= ?;"
-    ),
-
-    GET_TYPE_SPECIFIC_DATA(
-        "SELECT TypeTable.id, TypeSpecificTable.*\n" +
-            "FROM ? AS TypeSpecificTable\n" +
-            "INNER JOIN \n" +
-            "    (SELECT DoorType.id\n" +
-            "    FROM DoorType\n" +
-            "    WHERE DoorType.typeTableName = ?\n" +
-            ") AS TypeTable\n" +
-            "WHERE TypeSpecificTable.doorUID = ?;"
-    ),
-
-    /**
-     * Insert the {@link DoorType} into the database if it doesn't exist already.
-     */
-    INSERT_OR_IGNORE_DOOR_TYPE(
-        "INSERT OR IGNORE INTO DoorType(pluginName, typeName, typeVersion, typeTableName) VALUES(?,?,?,?);"
-    ),
-
-    /**
-     * Deletes a DoorType.
-     */
-    DELETE_DOOR_TYPE(
-        "DELETE FROM DoorType WHERE id = ?;"
-    ),
-
-    /**
-     * Obtains both the typeTableName and the ID of a {@link DoorType}.
-     */
-    GET_DOOR_TYPE_TABLE_NAME_AND_ID(
-        "SELECT id, typeTableName FROM DoorType WHERE pluginName = ? AND typeName = ? AND typeVersion = ?;"
-    ),
-
-    /**
-     * Gets the typeTableName of an {@link DoorType}.
-     */
-    GET_DOOR_TYPE_TABLE_NAME(
-        "SELECT typeTableName FROM DoorType WHERE pluginName = ? AND typeName = ? AND, typeVersion = ?;"
-    ),
-
-    /**
-     * Obtains the ID value of the {@link DoorType} as described by its "typeTableName".
-     */
-    GET_DOOR_TYPE_ID(
-        "SELECT id FROM DoorType WHERE typeTableName = \"?\";"
     ),
 
     GET_DOOR_OWNERS(
@@ -248,9 +206,9 @@ public enum SQLStatement
 
     INSERT_DOOR_BASE(
         "INSERT INTO DoorBase\n" +
-            "(name, world, doorType, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash, " +
-            "powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, bitflag, openDirection)\n" +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+            "(name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash, " +
+            "powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, openDirection, bitflag, doorType, typeData)\n" +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
     ),
 
     /**
@@ -303,23 +261,11 @@ public enum SQLStatement
             " unique(playerUUID));"
     ),
 
-    CREATE_TABLE_DOORTYPE(
-        "CREATE TABLE IF NOT EXISTS DoorType\n" +
-            "(id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
-            " pluginName     TEXT       NOT NULL,\n" +
-            " typeName       TEXT       NOT NULL,\n" +
-            " typeVersion    INTEGER    NOT NULL,\n" +
-            " typeTableName  TEXT       NOT NULL,\n" +
-            " unique(pluginName, typeName, typeVersion), \n" +
-            " unique(typeTableName));"
-    ),
-
     CREATE_TABLE_DOORBASE(
         "CREATE TABLE IF NOT EXISTS DoorBase\n" +
             "(id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
             " name           TEXT       NOT NULL,\n" +
             " world          TEXT       NOT NULL,\n" +
-            " doorType       REFERENCES DoorType(id) ON UPDATE CASCADE ON DELETE CASCADE,\n" +
             " xMin           INTEGER    NOT NULL,\n" +
             " yMin           INTEGER    NOT NULL,\n" +
             " zMin           INTEGER    NOT NULL,\n" +
@@ -335,6 +281,8 @@ public enum SQLStatement
             " powerBlockZ    INTEGER    NOT NULL,\n" +
             " powerBlockHash INTEGER    NOT NULL,\n" +
             " openDirection  INTEGER    NOT NULL,\n" +
+            " doorType       TEXT       NOT NULL,\n" +
+            " typeData       BLOB       NOT NULL,\n" +
             " bitflag        INTEGER    NOT NULL);"
     ),
 

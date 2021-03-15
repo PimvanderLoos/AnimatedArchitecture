@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -80,20 +79,6 @@ public final class DatabaseManager extends Restartable
                                                 final @NotNull File dbFile)
     {
         return (instance == null) ? instance = new DatabaseManager(restartableHolder, dbFile) : instance;
-    }
-
-    /**
-     * Registers an {@link DoorType} in the database.
-     *
-     * @param doorType The {@link DoorType}.
-     * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
-     * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
-     * existing identifier value. As long as the type does not change,
-     */
-    public @NotNull CompletableFuture<Long> registerDoorType(final @NotNull DoorType doorType)
-    {
-        return CompletableFuture.supplyAsync(() -> db.registerDoorType(doorType))
-                                .exceptionally(ex -> Util.exceptionally(ex, -1L));
     }
 
     /**
@@ -451,48 +436,17 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Updates the type-specific data of an {@link AbstractDoorBase}. The data will be provided by {@link
-     * DoorType#getTypeData(AbstractDoorBase)}.
-     *
-     * @param doorUID  The UID of the door to update.
-     * @param doorType The {@link DoorType} of the door to update.
-     * @param typeData The type-specific data of this door.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Boolean> syncDoorTypeData(final long doorUID, final @NotNull DoorType doorType,
-                                                                final @NotNull Object[] typeData)
-    {
-        return CompletableFuture.supplyAsync(() -> db.syncTypeData(doorUID, doorType, typeData), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
-    }
-
-    /**
-     * Updates the base data of an {@link AbstractDoorBase}.
-     *
-     * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
-     * @return The future result of the operation. If the operation was successful this will be true.
-     */
-    public @NotNull CompletableFuture<Boolean> syncDoorBaseData(
-        final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData)
-    {
-        return CompletableFuture.supplyAsync(() -> db.syncBaseData(simpleDoorData), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
-    }
-
-    /**
      * Updates the all data of an {@link AbstractDoorBase}. This includes both the base data and the type-specific
      * data.
      *
      * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
-     * @param doorType       The {@link DoorType} of the door to update.
      * @param typeData       The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> syncAllDataOfDoor(
-        final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final @NotNull DoorType doorType,
-        final @NotNull Object[] typeData)
+    public @NotNull CompletableFuture<Boolean> syncDoorData(
+        final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncAllData(simpleDoorData, doorType, typeData), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.syncDoorData(simpleDoorData, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 

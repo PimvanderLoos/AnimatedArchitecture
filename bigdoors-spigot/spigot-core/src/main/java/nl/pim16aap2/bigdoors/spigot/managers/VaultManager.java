@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 
 /**
@@ -172,13 +171,6 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     {
         if (!economyEnabled)
             return OptionalDouble.empty();
-        final @NotNull OptionalLong typeID = DoorTypeManager.get().getDoorTypeID(type);
-        if (typeID.isEmpty())
-        {
-            PLogger.get()
-                   .logThrowable(new IllegalStateException("Trying to calculate the price for an unregistered door!"));
-            return OptionalDouble.empty();
-        }
 
         // TODO: Store flat prices as OptionalDoubles.
         final double price = flatPrices

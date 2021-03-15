@@ -63,8 +63,14 @@ public abstract class DoorType
      *
      * @return The value of this type that represents the key in the translation system.
      */
-    @Getter(onMethod = @__({@NotNull}))
+    @Getter
     protected final String translationName;
+
+    /**
+     * The fully-qualified name of this {@link DoorType}.
+     */
+    @Getter(onMethod = @__({@NotNull}))
+    private final @NonNull String fullName;
 
     /**
      * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
@@ -97,6 +103,7 @@ public abstract class DoorType
         this.parameters = parameters;
         this.validOpenDirections = validOpenDirections;
         translationName = "DOORTYPE_" + simpleName.toUpperCase();
+        fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
     }
 
     /**
@@ -202,25 +209,6 @@ public abstract class DoorType
         return Optional.empty();
     }
 
-    /**
-     * Attempts to get all the type-specific data for a given {@link AbstractDoorBase}.
-     *
-     * @param door The {@link AbstractDoorBase} whose type-specific data to get.
-     * @return An optional containing the type-specific data of the door, represented as an array of Objects.
-     */
-    public final @NotNull Optional<Object[]> getTypeData(final @NotNull AbstractDoorBase door)
-    {
-        try
-        {
-            return Optional.of(generateTypeData(door));
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return Optional.empty();
-    }
-
     @Override
     public final int hashCode()
     {
@@ -234,6 +222,9 @@ public abstract class DoorType
         // There may only ever exist 1 instance of each DoorType.
         return super.equals(obj);
     }
+
+
+    // TODO: REMOVE EVERYTHING below:
 
     /**
      * Represents the various types of parameters accepted by the storage system.

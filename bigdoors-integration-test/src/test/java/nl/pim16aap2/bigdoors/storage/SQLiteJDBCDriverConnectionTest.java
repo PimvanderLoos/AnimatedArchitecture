@@ -6,20 +6,14 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
+import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doors.clock.DoorTypeClock;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
-import nl.pim16aap2.bigdoors.doors.elevator.DoorTypeElevator;
-import nl.pim16aap2.bigdoors.doors.flag.DoorTypeFlag;
-import nl.pim16aap2.bigdoors.doors.garagedoor.DoorTypeGarageDoor;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.doors.revolvingdoor.DoorTypeRevolvingDoor;
-import nl.pim16aap2.bigdoors.doors.slidingdoor.DoorTypeSlidingDoor;
-import nl.pim16aap2.bigdoors.doors.windmill.DoorTypeWindmill;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -45,7 +39,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +46,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @ExtendWith(MockitoExtension.class)
@@ -276,33 +268,6 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private void registerDoorTypes()
-        throws InterruptedException
-    {
-        DoorTypeManager.get().registerDoorTypes(Arrays.asList(DoorTypeBigDoor.get(), DoorTypeClock.get(),
-                                                              DoorTypeDrawbridge.get(), DoorTypeElevator.get(),
-                                                              DoorTypeFlag.get(), DoorTypeGarageDoor.get(),
-                                                              DoorTypePortcullis.get(), DoorTypeRevolvingDoor.get(),
-                                                              DoorTypeSlidingDoor.get(), DoorTypeWindmill.get()));
-
-
-        threadPool.awaitTermination(600L, TimeUnit.MILLISECONDS);
-
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeBigDoor.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeClock.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeDrawbridge.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeElevator.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeFlag.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeGarageDoor.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypePortcullis.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeRevolvingDoor.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeSlidingDoor.get()).isPresent());
-        Assertions.assertTrue(DoorTypeManager.get().getDoorTypeID(DoorTypeWindmill.get()).isPresent());
-
-        Assertions.assertEquals(10, DoorTypeManager.get().getRegisteredDoorTypes().size());
-
-    }
-
     private void initDoorTypeTest()
     {
         AbstractDoorBase.DoorData doorData;
@@ -402,6 +367,13 @@ public class SQLiteJDBCDriverConnectionTest
         deleteDoorTypeTestDoors();
     }
 
+    private void registerDoorTypes()
+    {
+        DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get());
+        DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get());
+        DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get());
+    }
+
     /**
      * Runs all tests.
      */
@@ -410,8 +382,8 @@ public class SQLiteJDBCDriverConnectionTest
         throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
                NoSuchFieldException, IOException, ExecutionException, InterruptedException
     {
-        initStorage();
         registerDoorTypes();
+        initStorage();
         insertDoors();
         verifyDoors();
         auxiliaryMethods();
@@ -629,21 +601,24 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
+        DoorSerializer<?> serializer = new DoorSerializer<>(door3.getDoorType().getDoorClass());
+        Assertions.assertNotNull(serializer);
+
         // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
         {
             ITimerToggleableArchetype doorTimeToggle = (ITimerToggleableArchetype) door3;
             final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTime();
             final int testAutoCloseTime = 20;
 
+
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            Assertions.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
-                                                       door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
             Assertions.assertEquals(testAutoCloseTime,
                                     ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
-            Assertions.assertTrue(storage.syncTypeData(door3.getDoorUID(), door3.getDoorType(),
-                                                       door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+
             Assertions.assertEquals(door3AutoCloseTime,
                                     ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
 
@@ -653,11 +628,11 @@ public class SQLiteJDBCDriverConnectionTest
         // Test (un)locking (i.e. syncing base data).
         {
             door3.setLocked(true);
-            Assertions.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
             Assertions.assertTrue(storage.getDoor(3L).get().isLocked());
 
             door3.setLocked(false);
-            Assertions.assertTrue(storage.syncBaseData(door3.getSimpleDoorDataCopy()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
             Assertions.assertFalse(storage.getDoor(3L).get().isLocked());
         }
 
@@ -700,8 +675,7 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assertions.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
-                                                      door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
 
             @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
 
@@ -727,8 +701,7 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            Assertions.assertTrue(storage.syncAllData(door3.getSimpleDoorDataCopy(), door3.getDoorType(),
-                                                      door3.getDoorType().getTypeData(door3).get()));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
         }
     }
 

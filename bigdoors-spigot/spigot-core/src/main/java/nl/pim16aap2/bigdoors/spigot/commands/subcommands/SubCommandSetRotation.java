@@ -49,7 +49,7 @@ public class SubCommandSetRotation extends SubCommand
     {
         if (!(sender instanceof Player))
         {
-            door.setOpenDir(openDir).syncBaseData();
+            door.setOpenDir(openDir).syncData();
             sendResultMessage(sender, openDir);
             return;
         }
@@ -59,7 +59,7 @@ public class SubCommandSetRotation extends SubCommand
             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
             return;
         }
-        door.setOpenDir(openDir).syncBaseData();
+        door.setOpenDir(openDir).syncData();
         sendResultMessage(sender, openDir);
     }
 
