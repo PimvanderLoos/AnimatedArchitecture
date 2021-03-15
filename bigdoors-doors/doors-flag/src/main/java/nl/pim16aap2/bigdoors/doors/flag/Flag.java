@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -37,6 +38,7 @@ public class Flag extends AbstractDoorBase
      * @return True if this door is animated along the North/South axis.
      */
     @Getter(onMethod = @__({@Override}))
+    @PersistentVariable
     protected final boolean northSouthAligned;
 
     public Flag(final @NotNull DoorData doorData, final boolean northSouthAligned)

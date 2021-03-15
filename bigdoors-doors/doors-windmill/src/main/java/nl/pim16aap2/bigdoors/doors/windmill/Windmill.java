@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.windmill;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -32,6 +33,7 @@ public class Windmill extends AbstractDoorBase
      * @return The number of quarter circles this door will rotate.
      */
     @Getter
+    @PersistentVariable
     private int quarterCircles = 1;
 
     public Windmill(final @NotNull DoorData doorData, final int quarterCircles)

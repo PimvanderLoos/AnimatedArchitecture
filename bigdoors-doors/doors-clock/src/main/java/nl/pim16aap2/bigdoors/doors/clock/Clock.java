@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -40,6 +41,7 @@ public class Clock extends AbstractDoorBase
      * @return True if this clock is situated along the north/south axis.
      */
     @Getter(onMethod = @__({@Override}))
+    @PersistentVariable
     protected final boolean northSouthAligned;
 
     /**
@@ -53,6 +55,7 @@ public class Clock extends AbstractDoorBase
      * @return The side of the hour arm relative to the minute arm.
      */
     @Getter
+    @PersistentVariable
     protected @NotNull PBlockFace hourArmSide;
 
     public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,

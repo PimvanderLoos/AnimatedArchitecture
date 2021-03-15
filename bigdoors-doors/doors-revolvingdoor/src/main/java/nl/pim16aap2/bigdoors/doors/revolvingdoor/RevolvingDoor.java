@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
@@ -30,6 +31,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
      * @return The number of quarter circles this door will rotate.
      */
     @Getter
+    @PersistentVariable
     private int quarterCircles;
 
     public RevolvingDoor(final @NotNull DoorData doorData, final int quarterCircles)

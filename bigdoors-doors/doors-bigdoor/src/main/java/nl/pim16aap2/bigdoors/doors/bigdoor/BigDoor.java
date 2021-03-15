@@ -59,8 +59,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     }
 
     @Override
-    public @NotNull
-    DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -86,8 +85,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     }
 
     @Override
-    public @NotNull
-    RotateDirection getCurrentToggleDir()
+    public @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }

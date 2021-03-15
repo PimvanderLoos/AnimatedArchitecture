@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -49,16 +50,19 @@ public class GarageDoor extends AbstractDoorBase
      * @return True if this door is animated along the North/South axis.
      */
     @Getter(onMethod = @__({@Override}))
+    @PersistentVariable
     protected final boolean northSouthAligned;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoCloseTime;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoOpenTime;
 
     public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
