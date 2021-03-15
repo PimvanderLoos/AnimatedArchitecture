@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -55,6 +56,7 @@ public class Clock extends AbstractDoorBase
      * @return The side of the hour arm relative to the minute arm.
      */
     @Getter
+    @Setter
     @PersistentVariable
     protected @NotNull PBlockFace hourArmSide;
 

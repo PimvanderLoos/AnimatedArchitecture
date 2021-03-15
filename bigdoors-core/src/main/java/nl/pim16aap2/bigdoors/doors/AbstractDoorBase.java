@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.Synchronized;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -18,7 +17,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -36,7 +34,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -169,9 +166,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized final void syncData()
     {
-        DoorTypeManager.get().getDoorSerializer(getDoorType()).ifPresent(
-            doorSerializer -> DatabaseManager.get().syncDoorData(getSimpleDoorDataCopy(),
-                                                                 doorSerializer.serialize(this)));
+        DatabaseManager.get().syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
     }
 
     @Override
@@ -597,7 +592,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     // TODO: Hashcode. Just the UID? Or actually calculate it?
     @Override
-    @SneakyThrows
     public boolean equals(Object o)
     {
         if (this == o)
@@ -605,14 +599,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
         if (o == null || getClass() != o.getClass())
             return false;
-
-        StringBuilder sb = new StringBuilder();
-        for (Field f : getClass().getDeclaredFields())
-        {
-            f.setAccessible(true);
-            sb.append(f.getName()).append(": ").append(f.get(this)).append("   VS  ").append(f.get(o)).append("\n");
-        }
-        System.out.println(sb.toString());
 
         AbstractDoorBase other = (AbstractDoorBase) o;
         return doorUID == other.doorUID && name.equals(other.name) && cuboid.equals(other.cuboid) &&

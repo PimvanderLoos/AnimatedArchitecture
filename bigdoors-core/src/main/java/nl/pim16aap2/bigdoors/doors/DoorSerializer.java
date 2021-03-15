@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,7 +46,15 @@ public class DoorSerializer<T extends AbstractDoorBase>
 
     private void findAnnotatedFields()
     {
-        for (final Field field : doorClass.getDeclaredFields())
+        List<Field> fieldList = new ArrayList<>();
+        Class<?> clazz = doorClass;
+        while (!clazz.equals(AbstractDoorBase.class))
+        {
+            fieldList.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
+        }
+
+        for (final Field field : fieldList)
             if (field.isAnnotationPresent(PersistentVariable.class))
             {
                 field.setAccessible(true);
@@ -170,5 +179,16 @@ public class DoorSerializer<T extends AbstractDoorBase>
     public @NonNull String getDoorTypeName()
     {
         return doorClass.getName();
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append("\n");
+        for (Field field : fields)
+            sb.append("Type: ").append(field.getType().getName())
+              .append(", name: ").append(field.getName())
+              .append("\n");
+        return sb.toString();
     }
 }

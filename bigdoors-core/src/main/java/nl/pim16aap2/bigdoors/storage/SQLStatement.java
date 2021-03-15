@@ -31,14 +31,9 @@ public enum SQLStatement
             "powerBlockHash = ?,\n" +
             "openDirection  = ?,\n" +
             "bitflag        = ?,\n" +
-            "typeData       = ?,\n" +
+            "typeData       = ? \n" +
             "WHERE id = ?;"
     ),
-
-//        "INSERT INTO DoorBase\n" +
-//            "(name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash, " +
-//            "powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, openDirection, bitflag, doorType, typeData)\n" +
-//            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 
     UPDATE_DOOR_OWNER_PERMISSION(
         "UPDATE DoorOwnerPlayer SET permission = ? WHERE playerID = ? and doorUID = ?;"
@@ -58,7 +53,7 @@ public enum SQLStatement
     ),
 
     DELETE_DOOR_TYPE(
-        "DELETE FROM DoorBase WHERE DoorBase.name = ?;"
+        "DELETE FROM DoorBase WHERE DoorBase.doorType = ?;"
     ),
 
     GET_LATEST_ROW_ADDITION(

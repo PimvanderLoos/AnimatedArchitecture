@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
@@ -37,8 +36,6 @@ public final class DoorTypeManager extends Restartable
     @NotNull
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final @NonNull Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
-    private final @NonNull Map<DoorType, DoorSerializer<? extends AbstractDoorBase>> doorSerializerMap =
-        new ConcurrentHashMap<>();
 
     /**
      * Gets all registered AND enabled {@link DoorType}s.
@@ -130,18 +127,6 @@ public final class DoorTypeManager extends Restartable
     }
 
     /**
-     * Gets the {@link DoorSerializer} for the {@link DoorType}.
-     *
-     * @param doorType The {@link DoorType} for which to get the {@link DoorSerializer}.
-     * @return The appropriate {@link DoorSerializer} if it was registered.
-     */
-    public @NonNull Optional<DoorSerializer<? extends AbstractDoorBase>> getDoorSerializer(
-        final @NonNull DoorType doorType)
-    {
-        return Optional.ofNullable(doorSerializerMap.get(doorType));
-    }
-
-    /**
      * Checks if a {@link DoorType} is enabled or not. Disabled {@link DoorType}s cannot be toggled or created.
      * <p>
      * {@link DoorType}s that are not registered, are disabled by definition.
@@ -179,7 +164,8 @@ public final class DoorTypeManager extends Restartable
         doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
         doorTypeFromFullName.put(doorType.getFullName(), doorType);
-        doorSerializerMap.put(doorType, new DoorSerializer<>(doorType.getDoorClass()));
+
+        DoorSerializer<?> doorSerializer = new DoorSerializer<>(doorType.getDoorClass());
         if (isEnabled)
             sortedDoorTypes.add(doorType);
     }
@@ -239,7 +225,6 @@ public final class DoorTypeManager extends Restartable
         doorTypeStatus.clear();
         sortedDoorTypes.clear();
         doorTypeFromName.clear();
-        doorSerializerMap.clear();
         doorTypeFromFullName.clear();
     }
 

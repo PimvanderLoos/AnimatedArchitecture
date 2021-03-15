@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
@@ -41,7 +40,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -66,29 +64,12 @@ public class SQLiteJDBCDriverConnectionTest
     private static final @NonNull PPlayerData playerData3 =
         new PPlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
 
-    private static final @NonNull PPlayerData playerData4 =
-        new PPlayerData(UUID.fromString("b9bb3938-e49e-4ff2-b74f-25df08e2eda3"), "TypeTester", 40, 44, false, false);
-
     @NotNull
     private static final IPWorld world = new TestPWorld(worldName);
-
-//    @NotNull
-//    private static final IPPlayer playerData1 = new TestPPlayer(playerData1);
-//    @NotNull
-//    private static final IPPlayer playerData2 = new TestPPlayer(playerData2);
-//    @NotNull
-//    private static final IPPlayer player3 = new TestPPlayer(playerData3);
-//    @NotNull
-//    private static final IPPlayer player4 = new TestPPlayer(playerData4);
 
     private static AbstractDoorBase door1;
     private static AbstractDoorBase door2;
     private static AbstractDoorBase door3;
-
-    /**
-     * Used to test the insertion of every type.
-     */
-    private static AbstractDoorBase[] typeTesting;
 
     private static final File DB_FILE;
     private static final File dbFileBackup;
@@ -143,7 +124,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             {
                 final int doorUID = 2;
-                final int autoOpen = -1;
+                final int autoOpen = 10;
                 final int autoClose = -1;
                 final boolean modeUp = true;
                 final boolean isOpen = false;
@@ -268,82 +249,6 @@ public class SQLiteJDBCDriverConnectionTest
         }
     }
 
-    private void initDoorTypeTest()
-    {
-        AbstractDoorBase.DoorData doorData;
-
-        int doorUID = 15;
-        boolean isOpen = false;
-        boolean isLocked = true;
-        final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
-        final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
-        final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-        final @NotNull Vector3Di powerBlock = new Vector3Di(103, 103, 103);
-
-        final @NotNull Set<DoorType> registeredDoorTypes = DoorTypeManager.get().getRegisteredDoorTypes();
-        typeTesting = new AbstractDoorBase[registeredDoorTypes.size()];
-
-        System.out.println("TESTING " + typeTesting.length + " different door types!");
-        int idx = 0;
-        for (final @NotNull DoorType doorType : registeredDoorTypes)
-        {
-            isOpen = !isOpen;
-            if (isOpen)
-                isLocked = !isLocked;
-
-            final @NotNull String name = "DOORTYPETEST_" + doorType.toString();
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData4);
-            doorData = new AbstractDoorBase.DoorData(doorUID++, name, min, max, engine, powerBlock, world,
-                                                     isLocked, isOpen, RotateDirection.NONE, doorOwner);
-
-            final @NotNull Object[] typeData = new Object[doorType.getParameterCount()];
-            int parameterIDX = 0;
-            // Just populate the type-specific dataset with random-ish data.
-            for (DoorType.Parameter parameter : doorType.getParameters())
-            {
-                Object data;
-                switch (parameter.getParameterType())
-                {
-                    case TEXT:
-                        data = "TEST" + idx * parameterIDX;
-                        break;
-                    case INTEGER:
-                        data = Util.getRandomNumber(0, 5);
-                        break;
-                    case BLOB:
-                    default:
-                        data = null;
-                }
-                typeData[parameterIDX++] = data;
-            }
-            Optional<AbstractDoorBase> door = doorType.constructDoor(doorData, typeData);
-            Assertions.assertTrue(door.isPresent());
-            typeTesting[idx++] = door.get();
-        }
-    }
-
-    /**
-     * Inserts all doors in {@link #typeTesting}.
-     */
-    private void insertDoorTypeTestDoors()
-    {
-        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            Assertions.assertTrue(storage.insert(typeTesting[idx]).isPresent());
-    }
-
-    /**
-     * Verifies all doors in {@link #typeTesting}.
-     */
-    private void verifyDoorTypeTestDoors()
-        throws TooManyDoorsException
-    {
-        for (int idx = 0; idx < DoorTypeManager.get().getRegisteredDoorTypes().size(); ++idx)
-            testRetrieval(typeTesting[idx]);
-    }
-
-    /**
-     * Verifies all doors in {@link #typeTesting}.
-     */
     private void deleteDoorTypeTestDoors()
     {
         // Just make sure it still exists, to make debugging easier.
@@ -354,16 +259,8 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertFalse(storage.getDoor(3L).isPresent());
     }
 
-
-    /**
-     * Tests all doors in {@link #typeTesting}.
-     */
     private void testDoorTypes()
-        throws TooManyDoorsException
     {
-        initDoorTypeTest();
-        insertDoorTypeTestDoors();
-        verifyDoorTypeTestDoors();
         deleteDoorTypeTestDoors();
     }
 

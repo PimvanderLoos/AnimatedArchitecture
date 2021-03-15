@@ -268,6 +268,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
 
         final long doorUID = doorBaseRS.getLong("id");
+        System.out.println("Constructing door with ID: " + doorUID);
 
         final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
@@ -318,9 +319,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                           primeOwner, doorOwners);
 
         final byte[] rawTypeData = doorBaseRS.getBytes("typeData");
-
-        return DoorTypeManager.get().getDoorSerializer(doorType.get())
-                              .map(doorSerializer -> doorSerializer.deserialize(doorData, rawTypeData));
+        return Optional.of(doorType.get().getDoorSerializer().deserialize(doorData, rawTypeData));
     }
 
     @Override
@@ -367,10 +366,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setNextLong(getFlag(door))
                                                          .setNextString(doorType)
                                                          .setNextBytes(typeSpecificData));
-//        "INSERT INTO DoorBase\n" +
-//            "(name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash, " +
-//            "powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, openDirection, bitflag, doorType, typeData)\n" +
-//            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 
         // TODO: Just use the fact that the last-inserted door has the current UID (that fact is already used by
         //       getTypeSpecificDataInsertStatement(DoorType)), so it can be done in a single statement.
@@ -386,20 +381,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public @NotNull Optional<AbstractDoorBase> insert(final @NonNull AbstractDoorBase door)
     {
-        final Optional<DoorSerializer<?>> serializerOpt = DoorTypeManager.get().getDoorSerializer(door.getDoorType());
-        if (serializerOpt.isEmpty())
-        {
-            PLogger.get().logThrowable(new SQLException("Could not insert door of type: " +
-                                                            door.getDoorType().toString()));
-            return Optional.empty();
-        }
-
+        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer();
         final String typeName = door.getDoorType().getFullName();
-        final byte[] typeData = serializerOpt.get().serialize(door);
+        final byte[] typeData = serializer.serialize(door);
 
         final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
         if (doorUID > 0)
-            return Optional.of(serializerOpt.get().deserialize(
+            return Optional.of(serializer.deserialize(
                 new AbstractDoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
                                               door.getEngine(), door.getPowerBlock(), door.getWorld(), door.isOpen(),
                                               door.isLocked(), door.getOpenDir(), door.getPrimeOwner()), typeData));

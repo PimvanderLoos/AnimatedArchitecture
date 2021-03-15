@@ -63,6 +63,18 @@ class DoorSerializerTest
         Assertions.assertEquals(testDoorType1, instantiator.deserialize(doorData, serialized));
     }
 
+    @Test
+    void subclass()
+    {
+        final DoorSerializer<TestDoorSubType> instantiator = new DoorSerializer<>(TestDoorSubType.class);
+        final TestDoorSubType testDoorSubType1 = new TestDoorSubType(doorData, "test", true, 42, 6);
+
+        final byte[] serialized = instantiator.serialize(testDoorSubType1);
+        final TestDoorSubType testDoorSubType2 = instantiator.deserialize(doorData, serialized);
+
+        Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
+    }
+
     // Don't call super for equals etc, as we don't care about the equality
     // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
@@ -70,11 +82,11 @@ class DoorSerializerTest
     {
         @PersistentVariable
         @Getter
-        private String testName;
+        protected String testName;
 
         @PersistentVariable
         @Getter
-        private boolean isCoolType;
+        protected boolean isCoolType;
 
         @PersistentVariable
         @Getter
@@ -138,6 +150,30 @@ class DoorSerializerTest
         public @NotNull Vector2Di[] calculateChunkRange()
         {
             return new Vector2Di[0];
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    private static class TestDoorSubType extends TestDoorType
+    {
+        @PersistentVariable
+        @Getter
+        private int subclassTestValue = -1;
+
+        public TestDoorSubType(final @NonNull DoorData doorData)
+        {
+            super(doorData);
+        }
+
+        public TestDoorSubType(final @NonNull DoorData doorData, final @NonNull String testName,
+                               final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
+        {
+            super(doorData, testName, isCoolType, blockTestCount);
+
+            this.testName = testName;
+            this.isCoolType = isCoolType;
+
+            this.subclassTestValue = subclassTestValue;
         }
     }
 }
