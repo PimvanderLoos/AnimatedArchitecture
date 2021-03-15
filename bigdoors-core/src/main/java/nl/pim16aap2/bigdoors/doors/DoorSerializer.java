@@ -31,7 +31,8 @@ public class DoorSerializer<T extends AbstractDoorBase>
         this.doorClass = doorClass;
         try
         {
-            ctor = doorClass.getConstructor(AbstractDoorBase.DoorData.class);
+            ctor = doorClass.getDeclaredConstructor(AbstractDoorBase.DoorData.class);
+            ctor.setAccessible(true);
             findAnnotatedFields();
         }
         catch (Throwable t)

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -47,6 +48,12 @@ public final class DoorTypePortcullis extends DoorType
     public static @NotNull DoorTypePortcullis get()
     {
         return INSTANCE;
+    }
+
+    @Override
+    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    {
+        return Portcullis.class;
     }
 
     @Override

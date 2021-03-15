@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -48,6 +49,12 @@ public final class DoorTypeClock extends DoorType
     public static @NotNull DoorTypeClock get()
     {
         return INSTANCE;
+    }
+
+    @Override
+    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    {
+        return Clock.class;
     }
 
     @Override

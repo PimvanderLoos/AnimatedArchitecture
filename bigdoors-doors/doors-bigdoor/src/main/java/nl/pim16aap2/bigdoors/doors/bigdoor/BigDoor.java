@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
@@ -36,11 +37,13 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoCloseTime;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoOpenTime;
 
     public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime)
@@ -52,7 +55,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
 
     public BigDoor(final @NotNull DoorData doorData)
     {
-        this(doorData, -1, -1);
+        this(doorData, -1, -1); // Add tmp/default values
     }
 
     @Override

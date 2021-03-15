@@ -75,6 +75,11 @@ public class GarageDoor extends AbstractDoorBase
         this(doorData, -1, -1, northSouthAligned);
     }
 
+    private GarageDoor(final @NotNull DoorData doorData)
+    {
+        this(doorData, false); // Add tmp/default values
+    }
+
     @Override
     public @NotNull DoorType getDoorType()
     {

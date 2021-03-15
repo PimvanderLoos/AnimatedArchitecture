@@ -45,6 +45,11 @@ public class Flag extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
+    private Flag(final @NotNull DoorData doorData)
+    {
+        this(doorData, false); // Add tmp/default values
+    }
+
     @Override
     public @NotNull DoorType getDoorType()
     {

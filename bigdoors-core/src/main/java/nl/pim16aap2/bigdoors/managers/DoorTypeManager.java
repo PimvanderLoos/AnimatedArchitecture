@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
@@ -37,12 +40,14 @@ public final class DoorTypeManager extends Restartable
     private final Map<Long, DoorType> doorTypeFromID = new ConcurrentHashMap<>();
     @NotNull
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
+    private final @NonNull Map<DoorType, DoorSerializer<? extends AbstractDoorBase>> doorSerializerMap =
+        new ConcurrentHashMap<>();
 
     /**
      * Gets all registered AND enabled {@link DoorType}s.
      */
     @Getter(onMethod = @__({@NotNull}))
-    private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<DoorType>()
+    private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<>()
     {
         @Override
         public boolean add(DoorType doorType)
@@ -138,6 +143,18 @@ public final class DoorTypeManager extends Restartable
     }
 
     /**
+     * Gets the {@link DoorSerializer} for the {@link DoorType}.
+     *
+     * @param doorType The {@link DoorType} for which to get the {@link DoorSerializer}.
+     * @return The appropriate {@link DoorSerializer} if it was registered.
+     */
+    public @NonNull Optional<DoorSerializer<? extends AbstractDoorBase>> getDoorSerializer(
+        final @NonNull DoorType doorType)
+    {
+        return Optional.ofNullable(doorSerializerMap.get(doorType));
+    }
+
+    /**
      * Obtains the ID of a {@link DoorType}.
      *
      * @param doorType The {@link Class} of the {@link DoorType}.
@@ -229,6 +246,7 @@ public final class DoorTypeManager extends Restartable
                 doorTypeToID.put(doorType, new DoorRegistrationStatus(doorTypeID, isEnabled, doorType.getSimpleName()));
                 doorTypeFromID.put(doorTypeID, doorType);
                 doorTypeFromName.put(doorType.getSimpleName(), doorType);
+                doorSerializerMap.put(doorType, new DoorSerializer<>(doorType.getDoorClass()));
                 if (isEnabled)
                     sortedDoorTypes.add(doorType);
                 return OptionalLong.of(doorTypeID);

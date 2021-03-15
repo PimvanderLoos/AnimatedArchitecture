@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -45,6 +46,12 @@ public final class DoorTypeRevolvingDoor extends DoorType
     public static @NotNull DoorTypeRevolvingDoor get()
     {
         return INSTANCE;
+    }
+
+    @Override
+    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    {
+        return RevolvingDoor.class;
     }
 
     @Override

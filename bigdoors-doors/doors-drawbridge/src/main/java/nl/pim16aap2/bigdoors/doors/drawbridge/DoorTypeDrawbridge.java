@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -61,6 +62,12 @@ public final class DoorTypeDrawbridge extends DoorType
     public static @NotNull DoorTypeDrawbridge get()
     {
         return INSTANCE;
+    }
+
+    @Override
+    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    {
+        return Drawbridge.class;
     }
 
     @Override

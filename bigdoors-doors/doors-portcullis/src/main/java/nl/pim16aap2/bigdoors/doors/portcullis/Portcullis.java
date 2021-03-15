@@ -65,6 +65,11 @@ public class Portcullis extends AbstractDoorBase
         this(doorData, blocksToMove, -1, -1);
     }
 
+    private Portcullis(final @NotNull DoorData doorData)
+    {
+        this(doorData, -1); // Add tmp/default values
+    }
+
     @Override
     public @NotNull DoorType getDoorType()
     {

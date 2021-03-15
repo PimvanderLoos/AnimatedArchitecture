@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doortypes;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Value;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -108,6 +109,13 @@ public abstract class DoorType
     {
         return validOpenDirections.contains(rotateDirection);
     }
+
+    /**
+     * Gets the main door class of the type.
+     *
+     * @return THe class of the door.
+     */
+    public abstract @NonNull Class<? extends AbstractDoorBase> getDoorClass();
 
     /**
      * Instantiates a new {@link AbstractDoorBase} associated with this type.

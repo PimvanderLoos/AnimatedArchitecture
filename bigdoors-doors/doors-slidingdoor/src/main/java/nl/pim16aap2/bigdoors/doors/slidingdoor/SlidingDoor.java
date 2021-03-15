@@ -64,6 +64,11 @@ public class SlidingDoor extends AbstractDoorBase
         this(doorData, blocksToMove, -1, -1);
     }
 
+    private SlidingDoor(final @NotNull DoorData doorData)
+    {
+        this(doorData, -1); // Add tmp/default values
+    }
+
     @Override
     public @NotNull DoorType getDoorType()
     {
