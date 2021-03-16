@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI.SortType;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
@@ -121,7 +120,7 @@ class GUIPageDoorList implements IGUIPage
 //            lore.add(messages.getString(EDoorType.getMessage(EDoorType)));
             lore.add(doorType.getSimpleName());
             GUIItem item = new GUIItem(
-                GUI.DOORTYPES[(int) (long) DoorTypeManager.get().getDoorTypeID(doorType).orElse(0L)],
+                GUI.DOORTYPES[0],
                 currentDoor.getName(), lore, 1);
             item.setDoor(currentDoor);
             gui.addItem(idx + 9, item);

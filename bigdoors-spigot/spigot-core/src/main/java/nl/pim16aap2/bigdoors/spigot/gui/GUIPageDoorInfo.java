@@ -62,7 +62,7 @@ public class GUIPageDoorInfo implements IGUIPage
                 switch (attr)
                 {
                     case LOCK:
-                        door.setLocked(!door.isLocked()).syncBaseData();
+                        door.setLocked(!door.isLocked()).syncData();
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;
                     case TOGGLE:

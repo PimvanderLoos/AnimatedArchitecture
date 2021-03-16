@@ -27,6 +27,11 @@ public class Elevator extends Portcullis
         super(doorData, blocksToMove, -1, -1);
     }
 
+    private Elevator(final @NotNull DoorData doorData)
+    {
+        this(doorData, -1); // Add tmp/default values
+    }
+
     @Override
     public @NotNull DoorType getDoorType()
     {

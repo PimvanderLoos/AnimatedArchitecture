@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
@@ -38,11 +40,13 @@ public class Drawbridge extends AbstractDoorBase
 //    @Setter(onMethod = @__({@Override, @Synchronized("readLock")}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoCloseTime;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
+    @PersistentVariable
     protected int autoOpenTime;
 
     /**
@@ -52,6 +56,7 @@ public class Drawbridge extends AbstractDoorBase
      * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
     @Getter
+    @PersistentVariable
     protected boolean modeUp;
 
     public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
@@ -66,6 +71,11 @@ public class Drawbridge extends AbstractDoorBase
     public Drawbridge(final @NotNull DoorData doorData, final boolean modeUp)
     {
         this(doorData, -1, -1, modeUp);
+    }
+
+    private Drawbridge(final @NonNull DoorData doorData)
+    {
+        this(doorData, false); // Add tmp/default values
     }
 
     @Override

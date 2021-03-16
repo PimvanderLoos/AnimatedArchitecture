@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -9,32 +10,19 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public final class DoorTypeRevolvingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
-    @NotNull
-    private static final List<Parameter> PARAMETERS;
-
-    static
-    {
-        final @NotNull List<Parameter> parameterTMP = new ArrayList<>(1);
-        parameterTMP.add(new Parameter(ParameterType.INTEGER, "qCircles"));
-        PARAMETERS = Collections.unmodifiableList(parameterTMP);
-    }
 
     @NotNull
     private static final DoorTypeRevolvingDoor INSTANCE = new DoorTypeRevolvingDoor();
 
     private DoorTypeRevolvingDoor()
     {
-        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION, PARAMETERS, Arrays
-            .asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
+        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION,
+              Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
     /**
@@ -48,12 +36,9 @@ public final class DoorTypeRevolvingDoor extends DoorType
     }
 
     @Override
-    protected @NotNull Optional<AbstractDoorBase> instantiate(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                              final @NotNull Object... typeData)
+    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
     {
-        final int qCircles = (int) typeData[0];
-        return Optional.of(new RevolvingDoor(doorData,
-                                             qCircles));
+        return RevolvingDoor.class;
     }
 
     @Override
@@ -66,17 +51,5 @@ public final class DoorTypeRevolvingDoor extends DoorType
     public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorRevolvingDoor(player, name);
-    }
-
-    @Override
-    protected @NotNull Object[] generateTypeData(final @NotNull AbstractDoorBase door)
-    {
-        if (!(door instanceof RevolvingDoor))
-            throw new IllegalArgumentException(
-                "Trying to get the type-specific data for an RevolvingDoor from type: " +
-                    door.getDoorType().toString());
-
-        final @NotNull RevolvingDoor revolvingDoor = (RevolvingDoor) door;
-        return new Object[]{revolvingDoor.getQuarterCircles()};
     }
 }

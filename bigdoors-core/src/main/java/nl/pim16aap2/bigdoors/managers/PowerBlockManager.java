@@ -156,7 +156,7 @@ public final class PowerBlockManager extends Restartable
     public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3DiConst oldPos,
                                     final @NotNull Vector3DiConst newPos)
     {
-        door.setPowerBlockPosition(newPos).syncBaseData();
+        door.setPowerBlockPosition(newPos).syncData();
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getWorldName());
         if (powerBlockWorld == null)
         {

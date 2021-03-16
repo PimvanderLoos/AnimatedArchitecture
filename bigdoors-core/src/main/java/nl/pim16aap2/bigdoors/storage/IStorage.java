@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import nl.pim16aap2.bigdoors.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -35,16 +34,6 @@ public interface IStorage
     {
         return VALID_TABLE_NAME.matcher(str).find();
     }
-
-    /**
-     * Registers an {@link DoorType} in the database.
-     *
-     * @param doorType The {@link DoorType}.
-     * @return The identifier value assigned to the {@link DoorType} during registration. A value less than 1 means that
-     * registration was not successful. If the {@link DoorType} already exists in the database, it will return the
-     * existing identifier value. As long as the type does not change,
-     */
-    long registerDoorType(final @NotNull DoorType doorType);
 
     /**
      * Checks if this storage type only allows single threaded access or not.
@@ -231,35 +220,14 @@ public interface IStorage
     @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door);
 
     /**
-     * Updates the type-specific data of an {@link AbstractDoorBase} in the database. This data is provided by {@link
-     * DoorType#getTypeData(AbstractDoorBase)}.
-     *
-     * @param doorUID  The UID of the door to update.
-     * @param doorType The {@link DoorType} of the door to update.
-     * @param typeData The type-specific data of this door.
-     * @return True if the update was successful.
-     */
-    boolean syncTypeData(final long doorUID, final @NotNull DoorType doorType, final @NotNull Object[] typeData);
-
-    /**
-     * Updates the base data of an {@link AbstractDoorBase} in the database
-     *
-     * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
-     * @return True if the update was successful.
-     */
-    boolean syncBaseData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData);
-
-    /**
      * Synchronizes an {@link AbstractDoorBase} door with the database. This will synchronize both the base and the
      * type-specific data of the {@link AbstractDoorBase}.
      *
      * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
-     * @param doorType       The {@link DoorType} of the door to update.
      * @param typeData       The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncAllData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData,
-                        final @NotNull DoorType doorType, final @NotNull Object[] typeData);
+    boolean syncDoorData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final byte[] typeData);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
@@ -320,29 +288,6 @@ public interface IStorage
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), isOpen, flag);
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_LOCKED), isLocked, flag);
         return flag;
-    }
-
-    /**
-     * Inserts an insert/update statement pair for the type-specific data of a {@link DoorType} to the provided {@link
-     * DoorTypeDataStatementMap}.
-     *
-     * @param doorTypeDataStatementMap The map to add the statements to.
-     * @param doorType                 The {@link DoorType} for which these statements are meant.
-     * @param insertStatement          The insert statement for the type-specific data of the {@link DoorType}.
-     * @param updateStatement          The update statement for the type-specific data of the {@link DoorType}.
-     */
-    static void addToStatementMap(final @NotNull DoorTypeDataStatementMap doorTypeDataStatementMap,
-                                  final @NotNull DoorType doorType,
-                                  final @NotNull Pair<String, Integer> insertStatement,
-                                  final @NotNull Pair<String, Integer> updateStatement)
-    {
-        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement insert =
-            new DoorTypeDataStatementMap.DoorTypeDataStatement(insertStatement);
-
-        final @NotNull DoorTypeDataStatementMap.DoorTypeDataStatement update =
-            new DoorTypeDataStatementMap.DoorTypeDataStatement(updateStatement);
-
-        doorTypeDataStatementMap.put(doorType, new DoorTypeDataStatementMap.DoorTypeDataStatementEntry(insert, update));
     }
 
     /**

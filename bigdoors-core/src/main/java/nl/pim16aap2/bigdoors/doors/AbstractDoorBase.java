@@ -162,48 +162,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     /**
-     * Tries to get {@link DoorType#getTypeData(AbstractDoorBase)} for this door. If no type-specific data is found, an
-     * exception will be logged.
-     *
-     * @return The result of {@link DoorType#getTypeData(AbstractDoorBase)}, no matter the outcome.
-     */
-    private @NotNull Optional<Object[]> verifyTypeData()
-    {
-        final @NotNull Optional<Object[]> typeDataOpt = getDoorType().getTypeData(this);
-        if (typeDataOpt.isEmpty())
-            PLogger.get().logThrowable(new IllegalArgumentException(
-                "Failed to update door " + getDoorUID() + ": Could not get type-specific data!"));
-        return typeDataOpt;
-    }
-
-    /**
      * Synchronizes all data of this door with the database.
-     * <p>
-     * Calling this method is faster than calling both {@link #syncBaseData()} and {@link #syncTypeData()}. However,
-     * because of the added overhead of type-specific data, you should try to use {@link #syncBaseData()} whenever
-     * possible (i.e. when no type-specific data was changed).
      */
-    public synchronized final void syncAllData()
+    public synchronized final void syncData()
     {
-        verifyTypeData().ifPresent(
-            typeData -> DatabaseManager.get().syncAllDataOfDoor(getSimpleDoorDataCopy(), getDoorType(), typeData));
-    }
-
-    /**
-     * Synchronizes the base data of this door with the database.
-     */
-    public synchronized final void syncBaseData()
-    {
-        DatabaseManager.get().syncDoorBaseData(getSimpleDoorDataCopy());
-    }
-
-    /**
-     * Synchronizes the type-specific data in this door with the database.
-     */
-    public synchronized final void syncTypeData()
-    {
-        verifyTypeData().ifPresent(
-            typeData -> DatabaseManager.get().syncDoorTypeData(getDoorUID(), getDoorType(), typeData));
+        DatabaseManager.get().syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
     }
 
     @Override
@@ -622,14 +585,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
-        getDoorType().getTypeData(this).ifPresent(
-            data ->
-            {
-                int idx = 0;
-                for (DoorType.Parameter parameter : getDoorType().getParameters())
-                    builder.append(parameter.getParameterName()).append(": ").append(data[idx++].toString())
-                           .append("\n");
-            });
+        // TODO: Print persistent data
 
         return builder.toString();
     }

@@ -74,7 +74,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
             return true;
         }
-        doorWithTimer.setAutoCloseTime(time).syncTypeData();
+        doorWithTimer.setAutoCloseTime(time).syncData();
         BigDoors.get().getAutoCloseScheduler()
                 .scheduleAutoClose(SpigotAdapter.wrapPlayer((Player) sender),
                                    (AbstractDoorBase & ITimerToggleableArchetype) doorWithTimer, time, false);

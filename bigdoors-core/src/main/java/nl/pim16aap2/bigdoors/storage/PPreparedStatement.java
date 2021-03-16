@@ -561,7 +561,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setNextBytes(final @NotNull byte[] obj)
+    public @NotNull PPreparedStatement setNextBytes(final byte[] obj)
     {
         return setBytes(currentIDX, obj);
     }
@@ -571,7 +571,7 @@ public class PPreparedStatement
      *
      * @return This {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement setBytes(final int idx, final @NotNull byte[] obj)
+    public @NotNull PPreparedStatement setBytes(final int idx, final byte[] obj)
     {
         currentIDX = idx + 1;
         actions[getRealIndex(idx)] = new Action(PPreparedStatement::setBytes, idx - skipCount, obj);
