@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
@@ -181,6 +182,13 @@ public class SQLiteJDBCDriverConnectionTest
         {
             UnitTestUtil.setDatabaseStorage(storage);
             threadPool = UnitTestUtil.getDatabaseManagerThreadPool();
+
+            // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
+            // More info:
+            // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
+            // https://www.sqlite.org/pragma.html#pragma_synchronous
+            storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+            storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
         }
         catch (NoSuchFieldException | IllegalAccessException e)
         {

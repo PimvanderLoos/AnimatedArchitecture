@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
+import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -22,12 +23,12 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -55,6 +56,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
     //       are still useful when writing the code to upgrade the v1 database to v2.
     private static final int MIN_DATABASE_VERSION = 0;
+
+    @Getter
+    private final SQLiteConfig configRW;
+    @Getter
+    private final SQLiteConfig configRO;
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -88,6 +94,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     public SQLiteJDBCDriverConnection(final @NotNull File dbFile)
     {
         this.dbFile = dbFile;
+        configRW = new SQLiteConfig();
+        configRW.enforceForeignKeys(true);
+
+        configRO = new SQLiteConfig(configRW.toProperties());
+        configRO.setReadOnly(true);
+
         url = "jdbc:sqlite:" + dbFile;
         if (!loadDriver())
         {
@@ -127,10 +139,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Establishes a connection with the database.
      *
-     * @param state The state from which the connection was requested.
+     * @param state    The state from which the connection was requested.
+     * @param readMode The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
-    private @Nullable Connection getConnection(final @NotNull DatabaseState state)
+    private @Nullable Connection getConnection(final @NonNull DatabaseState state, final @NonNull ReadMode readMode)
     {
         if (!databaseState.equals(state))
         {
@@ -143,8 +156,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         Connection conn = null;
         try
         {
-            conn = DriverManager.getConnection(url);
-            SQLStatement.FOREIGN_KEYS_ON.constructPPreparedStatement().construct(conn).execute();
+            final SQLiteConfig config = readMode == ReadMode.READ_ONLY ? configRO : configRW;
+            conn = config.createConnection(url);
         }
         catch (SQLException e)
         {
@@ -158,11 +171,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Establishes a connection with the database, assuming a database state of {@link DatabaseState#OK}.
      *
+     * @param readMode The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
-    private @Nullable Connection getConnection()
+    private @Nullable Connection getConnection(final @NonNull ReadMode readMode)
     {
-        return getConnection(DatabaseState.OK);
+        return getConnection(DatabaseState.OK, readMode);
     }
 
     /**
@@ -225,7 +239,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
 
         // Table creation
-        try (final Connection conn = getConnection(DatabaseState.UNINITIALIZED))
+        try (final Connection conn = getConnection(DatabaseState.UNINITIALIZED, ReadMode.READ_WRITE))
         {
             if (conn == null)
             {
@@ -695,293 +709,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                             }, new ArrayList<>(0));
     }
 
-    /**
-     * Executes an update defined by a {@link PPreparedStatement}.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @return Either the number of rows modified by the update, or -1 if an error occurred.
-     */
-    private int executeUpdate(final @NotNull PPreparedStatement pPreparedStatement)
-    {
-        try (final Connection conn = getConnection())
-        {
-            if (conn == null)
-            {
-                logStatement(pPreparedStatement);
-                return -1;
-            }
-            return executeUpdate(conn, pPreparedStatement);
-        }
-        catch (SQLException e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes an update defined by a {@link PPreparedStatement}.
-     *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @return Either the number of rows modified by the update, or -1 if an error occurred.
-     */
-    private int executeUpdate(final @NotNull Connection conn, final @NotNull PPreparedStatement pPreparedStatement)
-    {
-        logStatement(pPreparedStatement);
-        try (final PreparedStatement ps = pPreparedStatement.construct(conn))
-        {
-            return ps.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
-     * Statement#RETURN_GENERATED_KEYS}.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @return The generated key index if possible, otherwise -1.
-     */
-    private int executeUpdateReturnGeneratedKeys(final @NotNull PPreparedStatement pPreparedStatement)
-    {
-        try (final Connection conn = getConnection())
-        {
-            if (conn == null)
-            {
-                logStatement(pPreparedStatement);
-                return -1;
-            }
-            return executeUpdateReturnGeneratedKeys(conn, pPreparedStatement);
-        }
-        catch (SQLException e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
-     * Statement#RETURN_GENERATED_KEYS}.
-     *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @return The generated key index if possible, otherwise -1.
-     */
-    private int executeUpdateReturnGeneratedKeys(final @NotNull Connection conn,
-                                                 final @NotNull PPreparedStatement pPreparedStatement)
-    {
-        logStatement(pPreparedStatement);
-        try (final PreparedStatement ps = pPreparedStatement.construct(conn, Statement.RETURN_GENERATED_KEYS))
-        {
-            ps.executeUpdate();
-            try (final ResultSet resultSet = ps.getGeneratedKeys())
-            {
-                return resultSet.getInt(1);
-            }
-            catch (SQLException ex)
-            {
-                PLogger.get().logThrowable(ex);
-            }
-        }
-        catch (SQLException e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return -1;
-    }
-
-    /**
-     * Executes a query defined by a {@link PPreparedStatement}.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @return The {@link ResultSet} of the query, or null in case an error occurred.
-     */
-    private @Nullable <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
-                                         final @NotNull CheckedFunction<ResultSet, T, Exception> fun)
-    {
-        return executeQuery(pPreparedStatement, fun, null);
-    }
-
-    /**
-     * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param <T>                The type of the result to return.
-     * @return The {@link ResultSet} of the query, or null in case an error occurred.
-     */
-    @Contract(" _, _, !null -> !null;")
-    private @Nullable <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
-                                         final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
-                                         final @Nullable T fallback)
-    {
-        try (final @Nullable Connection conn = getConnection())
-        {
-            if (conn == null)
-            {
-                logStatement(pPreparedStatement);
-                return fallback;
-            }
-            return executeQuery(conn, pPreparedStatement, fun, fallback);
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return fallback;
-    }
-
-    /**
-     * Executes a batched query defined by a {@link PPreparedStatement} and applies a function to the result.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param <T>                The type of the result to return.
-     * @return The {@link ResultSet} of the query, or null in case an error occurred.
-     */
-    @Contract(" _, _, !null -> !null;")
-    private @Nullable <T> T executeBatchQuery(final @NotNull PPreparedStatement pPreparedStatement,
-                                              final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
-                                              final @Nullable T fallback)
-    {
-        try (final @Nullable Connection conn = getConnection())
-        {
-            if (conn == null)
-            {
-                logStatement(pPreparedStatement);
-                return fallback;
-            }
-            conn.setAutoCommit(false);
-            final @Nullable T result = executeQuery(conn, pPreparedStatement, fun, fallback);
-            conn.commit();
-            conn.setAutoCommit(true);
-            return result;
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return fallback;
-    }
-
-    /**
-     * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
-     *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param <T>                The type of the result to return.
-     * @return The {@link ResultSet} of the query, or null in case an error occurred.
-     */
-    @Contract(" _, _, _, !null -> !null")
-    private <T> T executeQuery(final @NotNull Connection conn,
-                               final @NotNull PPreparedStatement pPreparedStatement,
-                               final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
-                               final T fallback)
-    {
-        logStatement(pPreparedStatement);
-        try (final PreparedStatement ps = pPreparedStatement.construct(conn);
-             final ResultSet rs = ps.executeQuery())
-        {
-            return fun.apply(rs);
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return fallback;
-    }
-
-    /**
-     * Executes a {@link CheckedFunction} given an active Connection.
-     *
-     * @param fun      The function to execute.
-     * @param fallback The fallback value to return in case of failure.
-     * @param <T>      The type of the result to return.
-     * @return The result of the Function.
-     */
-    @Contract(" _, !null -> !null")
-    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun, final T fallback)
-    {
-        return execute(fun, fallback, FailureAction.IGNORE);
-    }
-
-    /**
-     * Executes a {@link CheckedFunction} given an active Connection.
-     *
-     * @param fun           The function to execute.
-     * @param fallback      The fallback value to return in case of failure.
-     * @param <T>           The type of the result to return.
-     * @param failureAction The action to take when an exception is caught.
-     * @return The result of the Function.
-     */
-    @Contract(" _, !null, _ -> !null")
-    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
-                          final T fallback, final FailureAction failureAction)
-    {
-        try (final @Nullable Connection conn = getConnection())
-        {
-            try
-            {
-                if (conn == null)
-                    return fallback;
-                return fun.apply(conn);
-            }
-            catch (Exception e)
-            {
-                if (failureAction == FailureAction.ROLLBACK)
-                    conn.rollback();
-                PLogger.get().logThrowable(e);
-            }
-        }
-        catch (Exception e)
-        {
-            PLogger.get().logThrowable(e);
-        }
-        return fallback;
-    }
-
-    /**
-     * Executes a {@link CheckedFunction} given an active Connection as a transaction. In case an error was caught, it
-     * will attempt to roll back to the state before the
-     *
-     * @param fun      The function to execute.
-     * @param fallback The fallback value to return in case of failure.
-     * @param <T>      The type of the result to return.
-     * @return The result of the Function.
-     */
-    @Contract(" _, !null -> !null")
-    private <T> T executeTransaction(final @NotNull CheckedFunction<Connection, T, Exception> fun, final T fallback)
-    {
-        return execute(
-            conn ->
-            {
-                conn.setAutoCommit(false);
-                T result = fun.apply(conn);
-                conn.commit();
-                return result;
-            }, fallback, FailureAction.ROLLBACK);
-    }
-
-    /**
-     * Logs a {@link PPreparedStatement} to the logger.
-     *
-     * @param pPreparedStatement The {@link PPreparedStatement} to log.
-     */
-    private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
-    {
-        PLogger.get().logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
-    }
-
     @Override
     public boolean removeOwner(final long doorUID, final @NotNull String playerUUID)
     {
@@ -1107,7 +834,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         Connection conn;
         try
         {
-            conn = getConnection(DatabaseState.OUT_OF_DATE);
+            conn = getConnection(DatabaseState.OUT_OF_DATE, ReadMode.READ_WRITE);
             if (conn == null)
                 return;
 
@@ -1121,7 +848,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             conn.close();
             if (!makeBackup())
                 return;
-            conn = getConnection(DatabaseState.OUT_OF_DATE);
+            conn = getConnection(DatabaseState.OUT_OF_DATE, ReadMode.READ_WRITE);
             if (conn == null)
                 return;
 
@@ -1218,6 +945,298 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
+     * Executes an update defined by a {@link PPreparedStatement}.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @return Either the number of rows modified by the update, or -1 if an error occurred.
+     */
+    private int executeUpdate(final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        try (final Connection conn = getConnection(ReadMode.READ_WRITE))
+        {
+            if (conn == null)
+            {
+                logStatement(pPreparedStatement);
+                return -1;
+            }
+            return executeUpdate(conn, pPreparedStatement);
+        }
+        catch (SQLException e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return -1;
+    }
+
+    /**
+     * Executes an update defined by a {@link PPreparedStatement}.
+     *
+     * @param conn               A connection to the database.
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @return Either the number of rows modified by the update, or -1 if an error occurred.
+     */
+    private int executeUpdate(final @NotNull Connection conn, final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        logStatement(pPreparedStatement);
+        try (final PreparedStatement ps = pPreparedStatement.construct(conn))
+        {
+            return ps.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return -1;
+    }
+
+    /**
+     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
+     * Statement#RETURN_GENERATED_KEYS}.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @return The generated key index if possible, otherwise -1.
+     */
+    private int executeUpdateReturnGeneratedKeys(final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        try (final Connection conn = getConnection(ReadMode.READ_WRITE))
+        {
+            if (conn == null)
+            {
+                logStatement(pPreparedStatement);
+                return -1;
+            }
+            return executeUpdateReturnGeneratedKeys(conn, pPreparedStatement);
+        }
+        catch (SQLException e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return -1;
+    }
+
+    /**
+     * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
+     * Statement#RETURN_GENERATED_KEYS}.
+     *
+     * @param conn               A connection to the database.
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @return The generated key index if possible, otherwise -1.
+     */
+    private int executeUpdateReturnGeneratedKeys(final @NotNull Connection conn,
+                                                 final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        logStatement(pPreparedStatement);
+        try (final PreparedStatement ps = pPreparedStatement.construct(conn, Statement.RETURN_GENERATED_KEYS))
+        {
+            ps.executeUpdate();
+            try (final ResultSet resultSet = ps.getGeneratedKeys())
+            {
+                return resultSet.getInt(1);
+            }
+            catch (SQLException ex)
+            {
+                PLogger.get().logThrowable(ex);
+            }
+        }
+        catch (SQLException e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return -1;
+    }
+
+    /**
+     * Executes a query defined by a {@link PPreparedStatement}.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param fun                The function used to process the result of the query.
+     * @return The {@link ResultSet} of the query, or null in case an error occurred.
+     */
+    private @Nullable <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
+                                         final @NotNull CheckedFunction<ResultSet, T, Exception> fun)
+    {
+        return executeQuery(pPreparedStatement, fun, null);
+    }
+
+    /**
+     * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param fun                The function to apply to the {@link ResultSet}.
+     * @param fallback           The value to return in case the result is null or if an error occurred.
+     * @param <T>                The type of the result to return.
+     * @return The {@link ResultSet} of the query, or null in case an error occurred.
+     */
+    @Contract(" _, _, !null -> !null;")
+    private <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
+                               final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
+                               final T fallback)
+    {
+        try (final @Nullable Connection conn = getConnection(ReadMode.READ_ONLY))
+        {
+            if (conn == null)
+            {
+                logStatement(pPreparedStatement);
+                return fallback;
+            }
+            return executeQuery(conn, pPreparedStatement, fun, fallback);
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return fallback;
+    }
+
+    /**
+     * Executes a batched query defined by a {@link PPreparedStatement} and applies a function to the result.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param fun                The function to apply to the {@link ResultSet}.
+     * @param fallback           The value to return in case the result is null or if an error occurred.
+     * @param readMode           The {@link ReadMode} to use for the database.
+     * @param <T>                The type of the result to return.
+     * @return The {@link ResultSet} of the query, or null in case an error occurred.
+     */
+    @Contract(" _, _, !null ,_ -> !null;")
+    private <T> T executeBatchQuery(final @NotNull PPreparedStatement pPreparedStatement,
+                                    final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
+                                    final T fallback, final @NonNull ReadMode readMode)
+    {
+        try (final @Nullable Connection conn = getConnection(readMode))
+        {
+            if (conn == null)
+            {
+                logStatement(pPreparedStatement);
+                return fallback;
+            }
+            conn.setAutoCommit(false);
+            final @Nullable T result = executeQuery(conn, pPreparedStatement, fun, fallback);
+            conn.commit();
+            conn.setAutoCommit(true);
+            return result;
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return fallback;
+    }
+
+    /**
+     * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
+     *
+     * @param conn               A connection to the database.
+     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param fun                The function to apply to the {@link ResultSet}.
+     * @param fallback           The value to return in case the result is null or if an error occurred.
+     * @param <T>                The type of the result to return.
+     * @return The {@link ResultSet} of the query, or null in case an error occurred.
+     */
+    @Contract(" _, _, _, !null -> !null")
+    private <T> T executeQuery(final @NotNull Connection conn,
+                               final @NotNull PPreparedStatement pPreparedStatement,
+                               final @NotNull CheckedFunction<ResultSet, T, Exception> fun,
+                               final T fallback)
+    {
+        logStatement(pPreparedStatement);
+        try (final PreparedStatement ps = pPreparedStatement.construct(conn);
+             final ResultSet rs = ps.executeQuery())
+        {
+            return fun.apply(rs);
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return fallback;
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection.
+     *
+     * @param fun      The function to execute.
+     * @param fallback The fallback value to return in case of failure.
+     * @param readMode The {@link ReadMode} to use for the database.
+     * @param <T>      The type of the result to return.
+     * @return The result of the Function.
+     */
+    @Contract(" _, _, !null -> !null")
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
+                          final T fallback, final @NonNull ReadMode readMode)
+    {
+        return execute(fun, fallback, FailureAction.IGNORE, readMode);
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection.
+     *
+     * @param fun           The function to execute.
+     * @param fallback      The fallback value to return in case of failure.
+     * @param failureAction The action to take when an exception is caught.
+     * @param readMode      The {@link ReadMode} to use for the database.
+     * @param <T>           The type of the result to return.
+     * @return The result of the Function.
+     */
+    @Contract(" _, _, !null, _ -> !null")
+    private <T> T execute(final @NotNull CheckedFunction<Connection, T, Exception> fun,
+                          final T fallback, final FailureAction failureAction, final @NonNull ReadMode readMode)
+    {
+        try (final @Nullable Connection conn = getConnection(readMode))
+        {
+            try
+            {
+                if (conn == null)
+                    return fallback;
+                return fun.apply(conn);
+            }
+            catch (Exception e)
+            {
+                if (failureAction == FailureAction.ROLLBACK)
+                    conn.rollback();
+                PLogger.get().logThrowable(e);
+            }
+        }
+        catch (Exception e)
+        {
+            PLogger.get().logThrowable(e);
+        }
+        return fallback;
+    }
+
+    /**
+     * Executes a {@link CheckedFunction} given an active Connection as a transaction. In case an error was caught, it
+     * will attempt to roll back to the state before the action was applied.
+     *
+     * @param fun      The function to execute.
+     * @param fallback The fallback value to return in case of failure.
+     * @param <T>      The type of the result to return.
+     * @return The result of the Function.
+     */
+    @Contract(" _, !null -> !null")
+    private <T> T executeTransaction(final @NotNull CheckedFunction<Connection, T, Exception> fun, final T fallback)
+    {
+        return execute(
+            conn ->
+            {
+                conn.setAutoCommit(false);
+                T result = fun.apply(conn);
+                conn.commit();
+                return result;
+            }, fallback, FailureAction.ROLLBACK, ReadMode.READ_WRITE);
+    }
+
+    /**
+     * Logs a {@link PPreparedStatement} to the logger.
+     *
+     * @param pPreparedStatement The {@link PPreparedStatement} to log.
+     */
+    private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
+    {
+        PLogger.get().logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
+    }
+
+    /**
      * Describes the action to take when an exception is caught.
      */
     private enum FailureAction
@@ -1231,6 +1250,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage
          * Attempt to roll back the database when an exception is caught.
          */
         ROLLBACK,
+        ;
+    }
+
+    private enum ReadMode
+    {
+        /**
+         * Allows writing to the database, at a performance cost.
+         */
+        READ_WRITE,
+
+        /**
+         * Does not allow writing to the database (surprise!), but may result in better performance.
+         *
+         * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/Connection.html#setReadOnly(boolean)">javadoc</a>
+         */
+        READ_ONLY,
         ;
     }
 }
