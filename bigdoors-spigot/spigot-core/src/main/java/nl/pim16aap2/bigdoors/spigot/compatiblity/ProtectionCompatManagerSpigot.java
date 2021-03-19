@@ -46,7 +46,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private FakePlayerCreator fakePlayerCreator;
     private ConfigLoaderSpigot config;
 
-    private static ProtectionCompatManagerSpigot instance;
+    private static ProtectionCompatManagerSpigot INSTANCE;
 
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
@@ -71,8 +71,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     public static @NotNull ProtectionCompatManagerSpigot init(final @NotNull BigDoorsSpigot plugin)
     {
-        return (instance == null) ?
-               instance = new ProtectionCompatManagerSpigot(plugin) : instance;
+        return (INSTANCE == null) ?
+               INSTANCE = new ProtectionCompatManagerSpigot(plugin) : INSTANCE;
     }
 
     /**
@@ -82,9 +82,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     public static @NotNull ProtectionCompatManagerSpigot get()
     {
-        Preconditions.checkState(instance != null,
+        Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

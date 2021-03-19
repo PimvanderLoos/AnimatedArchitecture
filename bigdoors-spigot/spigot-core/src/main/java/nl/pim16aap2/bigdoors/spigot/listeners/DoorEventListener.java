@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class DoorEventListener implements Listener
 {
     @Nullable
-    private static DoorEventListener instance;
+    private static DoorEventListener INSTANCE;
     @NotNull
     private final DoorOpener doorOpener;
 
@@ -32,7 +32,7 @@ public class DoorEventListener implements Listener
      */
     public static @NotNull DoorEventListener init(final @NotNull DoorOpener doorOpener)
     {
-        return (instance == null) ? instance = new DoorEventListener(doorOpener) : instance;
+        return (INSTANCE == null) ? INSTANCE = new DoorEventListener(doorOpener) : INSTANCE;
     }
 
     /**
@@ -42,8 +42,8 @@ public class DoorEventListener implements Listener
      */
     public static @NotNull DoorEventListener get()
     {
-        Preconditions.checkState(instance != null,
+        Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 }

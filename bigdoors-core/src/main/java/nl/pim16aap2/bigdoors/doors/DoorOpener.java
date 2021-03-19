@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class DoorOpener
 {
-    private static final DoorOpener instance = new DoorOpener();
+    private static final DoorOpener INSTANCE = new DoorOpener();
 
     private DoorOpener()
     {
@@ -36,7 +36,7 @@ public final class DoorOpener
      */
     public static @NotNull DoorOpener get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     /**

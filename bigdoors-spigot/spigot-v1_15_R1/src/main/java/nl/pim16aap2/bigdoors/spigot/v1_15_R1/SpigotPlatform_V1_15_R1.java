@@ -14,7 +14,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     @NotNull
     private static final String VERSION = "v1_15_R1";
     @NotNull
-    private static final SpigotPlatform_V1_15_R1 instance = new SpigotPlatform_V1_15_R1();
+    private static final SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
 
     @Getter(onMethod = @__({@Override}))
     private IFallingBlockFactory fallingBlockFactory;
@@ -24,7 +24,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 
     @Getter(onMethod = @__({@Override}))
     private IBlockAnalyzer blockAnalyzer;
-    
+
     @Getter(onMethod = @__({@Override}))
     private IGlowingBlockFactory glowingBlockFactory;
 
@@ -45,7 +45,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
      */
     public static @NotNull SpigotPlatform_V1_15_R1 get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

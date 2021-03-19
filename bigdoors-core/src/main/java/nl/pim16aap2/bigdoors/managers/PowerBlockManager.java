@@ -37,7 +37,7 @@ public final class PowerBlockManager extends Restartable
     private final @NotNull DatabaseManager databaseManager;
     private final @NotNull PLogger pLogger;
 
-    private static @Nullable PowerBlockManager instance;
+    private static @Nullable PowerBlockManager INSTANCE;
     private final @NotNull IRestartableHolder restartableHolder;
 
     private PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
@@ -66,8 +66,8 @@ public final class PowerBlockManager extends Restartable
                                                   final @NotNull DatabaseManager databaseManager,
                                                   final @NotNull PLogger pLogger)
     {
-        return (instance == null) ? instance = new PowerBlockManager(holder, config, databaseManager, pLogger) :
-               instance;
+        return (INSTANCE == null) ? INSTANCE = new PowerBlockManager(holder, config, databaseManager, pLogger) :
+               INSTANCE;
     }
 
     /**
@@ -79,7 +79,7 @@ public final class PowerBlockManager extends Restartable
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

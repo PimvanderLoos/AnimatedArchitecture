@@ -41,7 +41,7 @@ import java.util.Set;
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
     @Nullable
-    private static ConfigLoaderSpigot instance;
+    private static ConfigLoaderSpigot INSTANCE;
 
     @NotNull
     private final BigDoorsSpigot plugin;
@@ -114,7 +114,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     public static @NotNull ConfigLoaderSpigot init(final @NotNull BigDoorsSpigot plugin, final @NotNull PLogger logger)
     {
-        return (instance == null) ? instance = new ConfigLoaderSpigot(plugin, logger) : instance;
+        return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
     }
 
     /**
@@ -124,9 +124,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     public static @NotNull ConfigLoaderSpigot get()
     {
-        Preconditions.checkState(instance != null,
+        Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     @Override

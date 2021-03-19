@@ -73,7 +73,7 @@ public final class PLogger
      * The instance of this {@link PLogger}.
      */
     @NotNull
-    private static final PLogger instance = new PLogger();
+    private static final PLogger INSTANCE = new PLogger();
 
     private PLogger()
     {
@@ -89,18 +89,18 @@ public final class PLogger
      */
     public static @NotNull PLogger init(final @NotNull File logFile)
     {
-        if (instance.isInitialized())
+        if (INSTANCE.isInitialized())
         {
-            instance.logThrowable(new IllegalStateException("Trying to change the log file while it's already set!"));
-            return instance;
+            INSTANCE.logThrowable(new IllegalStateException("Trying to change the log file while it's already set!"));
+            return INSTANCE;
         }
 
-        instance.logFile = logFile;
-        instance.prepareLog();
-        if (instance.success)
-            new Thread(instance::processQueue).start();
+        INSTANCE.logFile = logFile;
+        INSTANCE.prepareLog();
+        if (INSTANCE.success)
+            new Thread(INSTANCE::processQueue).start();
 
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -120,7 +120,7 @@ public final class PLogger
      */
     public static @NotNull PLogger get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     /**

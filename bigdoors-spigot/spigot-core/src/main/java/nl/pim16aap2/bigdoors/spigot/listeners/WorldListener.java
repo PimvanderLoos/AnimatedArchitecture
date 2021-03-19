@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class WorldListener implements Listener
 {
-    private static @Nullable WorldListener instance;
+    private static @Nullable WorldListener INSTANCE;
 
     private final @NotNull PowerBlockManager powerBlockManager;
 
@@ -36,7 +36,7 @@ public class WorldListener implements Listener
      */
     public static WorldListener init(final @NotNull PowerBlockManager powerBlockManager)
     {
-        return instance == null ? instance = new WorldListener(powerBlockManager) : instance;
+        return INSTANCE == null ? INSTANCE = new WorldListener(powerBlockManager) : INSTANCE;
     }
 
     @EventHandler(ignoreCancelled = true)

@@ -30,7 +30,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class DoorTypeManager extends Restartable
 {
     @NotNull
-    private static final DoorTypeManager instance = new DoorTypeManager();
+    private static final DoorTypeManager INSTANCE = new DoorTypeManager();
     @NotNull
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
     @NotNull
@@ -88,7 +88,7 @@ public final class DoorTypeManager extends Restartable
      */
     public static @NotNull DoorTypeManager get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     /**

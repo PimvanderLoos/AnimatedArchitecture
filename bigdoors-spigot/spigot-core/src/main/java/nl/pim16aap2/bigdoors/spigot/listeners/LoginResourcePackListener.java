@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class LoginResourcePackListener extends Restartable implements Listener
 {
     @Nullable
-    private static LoginResourcePackListener instance;
+    private static LoginResourcePackListener INSTANCE;
     @NotNull
     private final BigDoorsSpigot plugin;
     @NotNull
@@ -44,7 +44,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
     public static @NotNull LoginResourcePackListener init(final @NotNull BigDoorsSpigot plugin,
                                                           final @NotNull String url)
     {
-        return (instance == null) ? instance = new LoginResourcePackListener(plugin, url) : instance;
+        return (INSTANCE == null) ? INSTANCE = new LoginResourcePackListener(plugin, url) : INSTANCE;
     }
 
     @Override

@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 public class RedstoneListener extends Restartable implements Listener
 {
     @Nullable
-    private static RedstoneListener instance;
+    private static RedstoneListener INSTANCE;
     @NotNull
     private final BigDoorsSpigot plugin;
     @NotNull
@@ -54,7 +54,7 @@ public class RedstoneListener extends Restartable implements Listener
      */
     public static @NotNull RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
     {
-        return (instance == null) ? instance = new RedstoneListener(plugin) : instance;
+        return (INSTANCE == null) ? INSTANCE = new RedstoneListener(plugin) : INSTANCE;
     }
 
     @Override

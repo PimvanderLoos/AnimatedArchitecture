@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public final class ChunkManagerSpigot implements IChunkManager
 {
     @NotNull
-    private static final ChunkManagerSpigot instance = new ChunkManagerSpigot();
+    private static final ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
 
     private ChunkManagerSpigot()
     {
@@ -26,7 +26,7 @@ public final class ChunkManagerSpigot implements IChunkManager
      */
     public static @NotNull ChunkManagerSpigot get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     @Override

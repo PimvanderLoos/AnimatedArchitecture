@@ -23,7 +23,7 @@ import java.util.Set;
 public final class BigDoors implements IRestartableHolder, IRestartable
 {
     @NotNull
-    private static final BigDoors instance = new BigDoors();
+    private static final BigDoors INSTANCE = new BigDoors();
 
     @Nullable
     private IMessagingInterface messagingInterface = null;
@@ -51,7 +51,7 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public static @NotNull BigDoors get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     /**

@@ -36,7 +36,7 @@ import java.util.logging.Level;
 public final class DatabaseManager extends Restartable
 {
     @Nullable
-    private static DatabaseManager instance;
+    private static DatabaseManager INSTANCE;
 
     /**
      * The thread pool to use for storage access.
@@ -78,7 +78,7 @@ public final class DatabaseManager extends Restartable
     public static @NotNull DatabaseManager init(final @NotNull IRestartableHolder restartableHolder,
                                                 final @NotNull File dbFile)
     {
-        return (instance == null) ? instance = new DatabaseManager(restartableHolder, dbFile) : instance;
+        return (INSTANCE == null) ? INSTANCE = new DatabaseManager(restartableHolder, dbFile) : INSTANCE;
     }
 
     /**
@@ -90,7 +90,7 @@ public final class DatabaseManager extends Restartable
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -485,7 +485,7 @@ public final class DatabaseManager extends Restartable
         super(restartableHolder);
         threadPool = Executors.newSingleThreadExecutor();
         db = null;
-        instance = this;
+        INSTANCE = this;
     }
 
     /**

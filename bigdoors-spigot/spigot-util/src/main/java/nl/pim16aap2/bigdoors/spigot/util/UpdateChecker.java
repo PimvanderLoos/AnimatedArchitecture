@@ -73,7 +73,7 @@ public final class UpdateChecker
     private final String downloadURL;
 
     @Nullable
-    private static UpdateChecker instance;
+    private static UpdateChecker INSTANCE;
 
     @Nullable
     private UpdateResult lastResult = null;
@@ -290,7 +290,7 @@ public final class UpdateChecker
     {
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
 
-        return (instance == null) ? instance = new UpdateChecker(plugin, pluginID, versionScheme, logger) : instance;
+        return (INSTANCE == null) ? INSTANCE = new UpdateChecker(plugin, pluginID, versionScheme, logger) : INSTANCE;
     }
 
     /**
@@ -319,9 +319,9 @@ public final class UpdateChecker
      */
     public static @NotNull UpdateChecker get()
     {
-        Preconditions.checkState(instance != null,
+        Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -332,7 +332,7 @@ public final class UpdateChecker
      */
     public static boolean isInitialized()
     {
-        return instance != null;
+        return INSTANCE != null;
     }
 
     /**

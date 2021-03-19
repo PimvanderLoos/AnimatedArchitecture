@@ -29,7 +29,7 @@ import java.util.function.Function;
 public final class HeadManager extends Restartable
 {
     @Nullable
-    private static HeadManager instance;
+    private static HeadManager INSTANCE;
 
     /**
      * Timed cache of player heads.
@@ -67,7 +67,7 @@ public final class HeadManager extends Restartable
     public static @NotNull HeadManager init(final @NotNull IRestartableHolder holder,
                                             final @NotNull ConfigLoaderSpigot config)
     {
-        return (instance == null) ? instance = new HeadManager(holder, config) : instance;
+        return (INSTANCE == null) ? INSTANCE = new HeadManager(holder, config) : INSTANCE;
     }
 
     /**
@@ -77,9 +77,9 @@ public final class HeadManager extends Restartable
      */
     public static @NotNull HeadManager get()
     {
-        Preconditions.checkState(instance != null,
+        Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

@@ -23,7 +23,7 @@ import java.util.TimerTask;
  */
 public final class AutoCloseScheduler extends Restartable
 {
-    private static final @NotNull AutoCloseScheduler instance = new AutoCloseScheduler();
+    private static final @NotNull AutoCloseScheduler INSTANCE = new AutoCloseScheduler();
 
     /**
      * A map of {@link TimerTask}s.
@@ -48,7 +48,7 @@ public final class AutoCloseScheduler extends Restartable
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

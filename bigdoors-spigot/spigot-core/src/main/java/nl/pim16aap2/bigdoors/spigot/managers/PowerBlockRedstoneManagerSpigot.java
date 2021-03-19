@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
     @NotNull
-    private static final PowerBlockRedstoneManagerSpigot instance = new PowerBlockRedstoneManagerSpigot();
+    private static final PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
 
     private PowerBlockRedstoneManagerSpigot()
     {
@@ -28,7 +28,7 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
      */
     public static @NotNull PowerBlockRedstoneManagerSpigot get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     private boolean isPoweredRedstone(final @NotNull Location loc)

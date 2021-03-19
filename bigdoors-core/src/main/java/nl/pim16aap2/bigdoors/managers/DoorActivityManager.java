@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public final class DoorActivityManager extends Restartable
 {
     @Nullable
-    private static DoorActivityManager instance = null;
+    private static DoorActivityManager INSTANCE = null;
     @NotNull
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
@@ -43,7 +43,7 @@ public final class DoorActivityManager extends Restartable
      */
     public static @NotNull DoorActivityManager init(final @NotNull IRestartableHolder holder)
     {
-        return (instance == null) ? instance = new DoorActivityManager(holder) : instance;
+        return (INSTANCE == null) ? INSTANCE = new DoorActivityManager(holder) : INSTANCE;
     }
 
     /**
@@ -55,7 +55,7 @@ public final class DoorActivityManager extends Restartable
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

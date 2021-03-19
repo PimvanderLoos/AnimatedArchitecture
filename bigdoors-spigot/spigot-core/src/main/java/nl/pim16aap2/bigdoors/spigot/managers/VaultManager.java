@@ -38,7 +38,7 @@ import java.util.Set;
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
     @NotNull
-    private static final VaultManager instance = new VaultManager();
+    private static final VaultManager INSTANCE = new VaultManager();
     @NotNull
     private final Map<DoorType, Double> flatPrices;
     private boolean economyEnabled = false;
@@ -68,11 +68,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     public static @NotNull VaultManager init(final @NotNull BigDoorsSpigot plugin)
     {
-        if (!plugin.isRestartableRegistered(instance))
-            plugin.registerRestartable(instance);
-        instance.plugin = plugin;
-        instance.init();
-        return instance;
+        if (!plugin.isRestartableRegistered(INSTANCE))
+            plugin.registerRestartable(INSTANCE);
+        INSTANCE.plugin = plugin;
+        INSTANCE.init();
+        return INSTANCE;
     }
 
     @Override

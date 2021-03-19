@@ -39,7 +39,7 @@ import java.util.logging.Level;
 public final class DoorOpeningUtility
 {
     @Nullable
-    private static DoorOpeningUtility instance;
+    private static DoorOpeningUtility INSTANCE;
 
     @Getter // Temporary until this is a global thing that can be accessed from the core.
     private final IGlowingBlockSpawner glowingBlockSpawner;
@@ -79,9 +79,9 @@ public final class DoorOpeningUtility
                                                    final @NotNull IConfigLoader config,
                                                    final @NotNull IProtectionCompatManager protectionManager)
     {
-        return (instance == null) ?
-               instance = new DoorOpeningUtility(pLogger, glowingBlockSpawner, config, protectionManager) :
-               instance;
+        return (INSTANCE == null) ?
+               INSTANCE = new DoorOpeningUtility(pLogger, glowingBlockSpawner, config, protectionManager) :
+               INSTANCE;
     }
 
     /**
@@ -93,7 +93,7 @@ public final class DoorOpeningUtility
     {
 //        Preconditions.checkState(instance != null,
 //                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return instance;
+        return INSTANCE;
     }
 
     /**

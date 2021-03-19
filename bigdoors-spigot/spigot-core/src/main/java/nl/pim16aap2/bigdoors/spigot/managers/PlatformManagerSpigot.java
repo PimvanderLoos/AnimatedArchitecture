@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
     @NotNull
-    private static final PlatformManagerSpigot instance = new PlatformManagerSpigot();
+    private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
     @Nullable
     private static final ISpigotPlatform spigotPlatform;
     @NotNull
@@ -47,7 +47,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      */
     public static @NotNull PlatformManagerSpigot get()
     {
-        return instance;
+        return INSTANCE;
     }
 
     @Override
