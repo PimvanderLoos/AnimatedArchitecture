@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
@@ -7,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -175,4 +177,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link IGlowingBlockSpawner} for the current platform.
      */
     @NotNull IGlowingBlockSpawner getGlowingBlockSpawner();
+
+    /**
+     * Gets the {@link PowerBlockManager} instance.
+     *
+     * @return The {@link PowerBlockManager} instance.
+     */
+    @NonNull PowerBlockManager getPowerBlockManager();
 }

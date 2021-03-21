@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
+import lombok.Getter;
+import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
@@ -22,6 +24,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,6 +49,10 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final IEconomyManager economyManager = new TestEconomyManager();
     private final IPermissionsManager permissionsManager = new TestPermissionsManager();
     private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
+
+    @Getter
+    @Setter
+    private PowerBlockManager powerBlockManager = null;
 
     public TestPlatform()
     {

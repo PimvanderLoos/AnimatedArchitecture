@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
+import nl.pim16aap2.bigdoors.testimplementations.TestPlatform;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -97,7 +98,7 @@ public class CreatorTestsUtil
 
     public void setupFakePowerBlockManager()
     {
-        BigDoors.get().setPowerBlockManager(fakePowerBlockManager);
+        ((TestPlatform) BigDoors.get().getPlatform()).setPowerBlockManager(fakePowerBlockManager);
     }
 
     // Set up basic stuff.

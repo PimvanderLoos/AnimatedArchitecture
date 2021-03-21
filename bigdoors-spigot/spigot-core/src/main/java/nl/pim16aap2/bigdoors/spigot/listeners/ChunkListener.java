@@ -107,7 +107,7 @@ public class ChunkListener implements Listener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
     {
-        BigDoors.get().getPowerBlockManager()
+        BigDoors.get().getPlatform().getPowerBlockManager()
                 .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
                                                                            event.getChunk().getZ()));
         try

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IRestartable;
@@ -8,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
-import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,9 +28,6 @@ public final class BigDoors implements IRestartableHolder, IRestartable
 
     @NotNull
     private final Set<IRestartable> restartables = new HashSet<>();
-
-    @Setter
-    private PowerBlockManager powerBlockManager = PowerBlockManager.get();
 
     /**
      * The platform to use. e.g. "Spigot".
@@ -95,16 +90,6 @@ public final class BigDoors implements IRestartableHolder, IRestartable
     public @NotNull AutoCloseScheduler getAutoCloseScheduler()
     {
         return AutoCloseScheduler.get();
-    }
-
-    /**
-     * Gets the {@link PowerBlockManager} instance.
-     *
-     * @return The {@link PowerBlockManager} instance.
-     */
-    public @NotNull PowerBlockManager getPowerBlockManager()
-    {
-        return powerBlockManager;
     }
 
     /**

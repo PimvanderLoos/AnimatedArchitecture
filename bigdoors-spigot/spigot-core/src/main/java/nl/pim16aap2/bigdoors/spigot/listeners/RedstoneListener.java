@@ -102,7 +102,7 @@ public class RedstoneListener extends Restartable implements Listener
 
     private void checkDoors(final @NotNull Location loc)
     {
-        BigDoors.get().getPowerBlockManager().doorsFromPowerBlockLoc(
+        BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getName()).whenComplete(
             (doorList, throwable) -> doorList.forEach(
                 door -> DoorOpener.get().animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
@@ -159,7 +159,7 @@ public class RedstoneListener extends Restartable implements Listener
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
             return;
 
-        if (!BigDoors.get().getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getName()))
+        if (!BigDoors.get().getPlatform().getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getName()))
             return;
 
         CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(Util::exceptionally);

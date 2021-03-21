@@ -144,6 +144,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private LoginResourcePackListener rPackHandler;
 
     @Getter
+    private PowerBlockManager powerBlockManager;
+
+    @Getter
     private VaultManager vaultManager;
 
     @Getter
@@ -257,9 +260,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
             DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protectionCompatManager);
 
-            Bukkit.getPluginManager().registerEvents(WorldListener.init(PowerBlockManager.init(this, configLoader,
-                                                                                               DatabaseManager.get(),
-                                                                                               getPLogger())), this);
+            powerBlockManager = PowerBlockManager.init(this, configLoader, DatabaseManager.get(), getPLogger());
+            Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
@@ -285,7 +287,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     private void registerDoorTypes()
     {
-        final @NotNull File extensionsDir = new File(getDataDirectory() + "/Extensions");
+        final @NotNull File extensionsDir = new File(BigDoors.get().getPlatform().getDataDirectory() +
+                                                         Constants.BIGDOORS_EXTENSIONS_FOLDER);
         if (!extensionsDir.exists())
             if (!extensionsDir.mkdirs())
             {
