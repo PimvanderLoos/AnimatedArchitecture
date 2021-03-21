@@ -53,9 +53,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @NotNull
     private static final String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION = 11;
-    // TODO: Set this to 10. This cannot be done currently because the tests will fail for the upgrades, which
-    //       are still useful when writing the code to upgrade the v1 database to v2.
-    private static final int MIN_DATABASE_VERSION = 0;
+    private static final int MIN_DATABASE_VERSION = 10;
 
     @Getter
     private final SQLiteConfig configRW;
