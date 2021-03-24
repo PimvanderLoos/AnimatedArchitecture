@@ -5,7 +5,6 @@ import lombok.NonNull;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
@@ -165,7 +164,6 @@ public final class DoorTypeManager extends Restartable
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
         doorTypeFromFullName.put(doorType.getFullName(), doorType);
 
-        DoorSerializer<?> doorSerializer = new DoorSerializer<>(doorType.getDoorClass());
         if (isEnabled)
             sortedDoorTypes.add(doorType);
     }
@@ -208,6 +206,11 @@ public final class DoorTypeManager extends Restartable
         }
     }
 
+    /**
+     * Registers a list of {@link DoorType}s. See {@link #registerDoorType(DoorType)}.
+     *
+     * @param doorTypes The list of {@link DoorType}s to register.
+     */
     public void registerDoorTypes(final @NotNull List<DoorType> doorTypes)
     {
         doorTypes.forEach(this::registerDoorType);
