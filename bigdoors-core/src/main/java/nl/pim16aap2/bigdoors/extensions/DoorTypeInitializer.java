@@ -26,6 +26,14 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Represents an initializer for a group of {@link DoorType}s.
+ * <p>
+ * This class will ensure that the dependencies between {@link DoorType}s are met and then load their jars into the
+ * desired {@link DoorTypeClassLoader}.,
+ *
+ * @author Pim
+ */
 final class DoorTypeInitializer
 {
     /**
