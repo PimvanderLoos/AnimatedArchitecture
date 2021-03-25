@@ -1629,7 +1629,7 @@ public class SQLiteJDBCDriverConnection
         try(Connection conn = getConnection();)
         {
             conn.setAutoCommit(false);
-            String update = "UPDATE doors SET notify='" + notify + "' WHERE id = '" + doorUID + "';";
+            String update = "UPDATE doors SET notify='" + (notify ? 1 : 0) + "' WHERE id = '" + doorUID + "';";
             conn.prepareStatement(update).executeUpdate();
             conn.commit();
         }
@@ -1830,7 +1830,7 @@ public class SQLiteJDBCDriverConnection
             doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
             doorstatement.setLong(DOOR_CHUNK_HASH - 1, door.getPowerBlockChunkHash());
             doorstatement.setLong(DOOR_BLOCKS_TO_MOVE - 1, door.getBlocksToMove());
-            doorstatement.setBoolean(DOOR_NOTIFY - 1, door.notificationEnabled());
+            doorstatement.setInt(DOOR_NOTIFY - 1, door.notificationEnabled() ? 1 : 0);
 
             doorstatement.executeUpdate();
             doorstatement.close();
