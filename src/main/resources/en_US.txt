@@ -38,6 +38,7 @@ GENERAL.Error=An error occurred!
 GENERAL.TooManyBlocks=This door cannot be activated! It is too big!
 GENERAL.NoPermissionForAction=&cYou do not have the required permissions for this action!
 GENERAL.DoorToggleNotification=&eDoor {0} was just toggled!
+GENERAL.NotACreator=&cOnly the original creator of a door can receive notifications for it!
 GUI.NAME.DoorList=Door Menu
 GUI.NAME.SubMenu=Door Sub-Menu
 GUI.NAME.ConfirmMenu=Confirmation Menu

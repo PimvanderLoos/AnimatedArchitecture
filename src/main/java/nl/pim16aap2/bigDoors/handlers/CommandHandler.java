@@ -600,15 +600,50 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
+        else if (cmd.getName().equalsIgnoreCase("setnotification"))
+        {
+            if (player == null)
+            {
+                plugin.getMyLogger().warn("Only players can use 'togglenotification'!");
+                return true;
+            }
+            if (args.length != 2)
+                return false;
+
+            final boolean notify;
+            try
+            {
+                notify = Boolean.parseBoolean(args[1]);
+            }
+            catch (NumberFormatException e)
+            {
+                return false;
+            }
+            Door door = plugin.getCommander().getDoor(args[0], player);
+            if (door == null)
+                return true;
+
+            if (door.getPermission() != 0)
+            {
+                player.sendMessage(plugin.getMessages().getString("GENERAL.NotACreator"));
+                return true;
+            }
+
+            door.setNotificationEnabled(notify);
+            plugin.getCommander().updateDoorNotify(door.getDoorUID(), notify);
+
+            return true;
+        }
+
         // /doordebug
-        if (cmd.getName().equalsIgnoreCase("doordebug"))
+        else if (cmd.getName().equalsIgnoreCase("doordebug"))
         {
             doorDebug(player, args);
             return true;
         }
 
         // /setautoclosetime <doorName> <time>
-        if (cmd.getName().equalsIgnoreCase("setautoclosetime"))
+        else if (cmd.getName().equalsIgnoreCase("setautoclosetime"))
         {
             // If there is only 1 argument, assume that it is a player using the
             // commandWaiter system
@@ -651,7 +686,7 @@ public class CommandHandler implements CommandExecutor
         }
 
         // /setblockstomove <doorName> <distance>
-        if (cmd.getName().equalsIgnoreCase("setblockstomove"))
+        else if (cmd.getName().equalsIgnoreCase("setblockstomove"))
         {
             // If there is only 1 argument, assume that it is a player using the
             // commandWaiter system
@@ -700,7 +735,7 @@ public class CommandHandler implements CommandExecutor
         }
 
         // /setdoorrotation <doorName> <CLOCK || COUNTER || ANY>
-        if (cmd.getName().equalsIgnoreCase("setdoorrotation"))
+        else if (cmd.getName().equalsIgnoreCase("setdoorrotation"))
         {
             if (args.length != 2)
                 return false;
@@ -748,7 +783,7 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("filldoor"))
+        else if (cmd.getName().equalsIgnoreCase("filldoor"))
         {
             if (args.length != 1)
                 return false;
@@ -765,7 +800,7 @@ public class CommandHandler implements CommandExecutor
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("recalculatepowerblocks"))
+        else if (cmd.getName().equalsIgnoreCase("recalculatepowerblocks"))
         {
             plugin.getCommander().recalculatePowerBlockHashes();
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.GREEN,
@@ -774,14 +809,14 @@ public class CommandHandler implements CommandExecutor
         }
 
         // /pausedoors
-        if (cmd.getName().equalsIgnoreCase("pausedoors"))
+        else if (cmd.getName().equalsIgnoreCase("pausedoors"))
         {
             plugin.getCommander().togglePaused();
             return true;
         }
 
         // /pausedoors
-        if (cmd.getName().equalsIgnoreCase("shadowtoggledoor"))
+        else if (cmd.getName().equalsIgnoreCase("shadowtoggledoor"))
         {
             if (args.length != 1)
                 return false;
@@ -796,7 +831,7 @@ public class CommandHandler implements CommandExecutor
         }
 
         // /opendoor <doorName 1> [doorName 2] ... [doorName x] [time]
-        if (cmd.getName().equalsIgnoreCase("opendoor") || cmd.getName().equalsIgnoreCase("closedoor") ||
+        else if (cmd.getName().equalsIgnoreCase("opendoor") || cmd.getName().equalsIgnoreCase("closedoor") ||
             cmd.getName().equalsIgnoreCase("toggledoor"))
         {
             boolean instantly = false;
@@ -870,7 +905,7 @@ public class CommandHandler implements CommandExecutor
         }
 
         // /listplayerdoors <player>
-        if (cmd.getName().equalsIgnoreCase("listplayerdoors"))
+        else if (cmd.getName().equalsIgnoreCase("listplayerdoors"))
         {
             if (args.length == 0)
                 return false;
@@ -902,7 +937,7 @@ public class CommandHandler implements CommandExecutor
 
         // /listdoors [name]
         // /listdoors <doorName || playerName>
-        if (cmd.getName().equalsIgnoreCase("listdoors"))
+        else if (cmd.getName().equalsIgnoreCase("listdoors"))
         {
             if (player != null)
             {
@@ -925,7 +960,8 @@ public class CommandHandler implements CommandExecutor
 
         // /doorinfo <doorName>
         // /doorinfo <doorUID>
-        if (cmd.getName().equalsIgnoreCase("doorinfo"))
+        else if (cmd.getName().equalsIgnoreCase("doorinfo"))
+        {
             if (args.length == 1)
             {
                 if (player != null)
@@ -934,8 +970,9 @@ public class CommandHandler implements CommandExecutor
                     listDoorInfoFromConsole(args[0]);
                 return true;
             }
+        }
 
-        if (player != null)
+        else if (player != null)
         {
             // /inspectpowerblockloc
             if (cmd.getName().equalsIgnoreCase("inspectpowerblockloc"))

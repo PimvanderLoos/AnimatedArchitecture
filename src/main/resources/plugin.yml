@@ -106,6 +106,10 @@ commands:
     description: Display door info.
     usage: /DoorInfo <doorName || doorUID> 
     permission: bigdoors.user.doorinfo
+  setnotification:
+    description: Toggles notifications for a given door.
+    usage: /setnotification <doorName || doorUID> <true || false>
+    permission: bigdoors.user.receivenotifications
   doordebug:
     description: Do not use this unless you are me... What?
     usage: This command is not meant for mere mortals.
@@ -194,6 +198,9 @@ permissions:
     default: op
   bigdoors.user.doorinfo:
     description: Allows a user to retrieve the information of a door.
+    default: op
+  bigdoors.user.receivenotifications:
+    description: Allows the original creator of a door to request and receive notifications for all toggles of a given door.
     default: op
   bigdoors.user.inspectpowerblock:
     description: Allows the player to find out which doors are attached to a given power block.
