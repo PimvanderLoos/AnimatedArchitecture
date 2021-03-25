@@ -37,6 +37,7 @@ GENERAL.PlayerNotFound=Player not found!
 GENERAL.Error=An error occurred!
 GENERAL.TooManyBlocks=This door cannot be activated! It is too big!
 GENERAL.NoPermissionForAction=&cYou do not have the required permissions for this action!
+GENERAL.DoorToggleNotification=&eDoor {0} was just toggled!
 GUI.NAME.DoorList=Door Menu
 GUI.NAME.SubMenu=Door Sub-Menu
 GUI.NAME.ConfirmMenu=Confirmation Menu

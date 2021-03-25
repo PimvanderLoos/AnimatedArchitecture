@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigDoors.handlers;
 
+import java.text.MessageFormat;
+
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
@@ -17,6 +21,8 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
 
 import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 
 public class EventHandlers implements Listener
@@ -43,6 +49,20 @@ public class EventHandlers implements Listener
                     return;
                 }
             }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onDoorToggleStart(DoorEventToggleStart event)
+    {
+        Door door = event.getDoor();
+        if (!door.notificationEnabled())
+            return;
+        Player player = Bukkit.getPlayer(door.getPrimeOwner());
+        if (player == null)
+            return;
+
+        player.sendMessage(MessageFormat.format(plugin.getMessages().getString("GENERAL.DoorToggleNotification"),
+                                                door.toSimpleString()));
     }
 
     @EventHandler
