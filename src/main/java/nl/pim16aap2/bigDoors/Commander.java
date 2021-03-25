@@ -349,7 +349,7 @@ public class Commander
         if (atr == null)
             return false;
         return player.hasPermission(DoorAttribute.getUserPermission(atr)) ||
-               player.hasPermission(DoorAttribute.getAdminPermission(atr));
+               (DoorAttribute.getAdminPermission(atr) != null && player.hasPermission(DoorAttribute.getAdminPermission(atr)));
     }
 
     public boolean hasPermissionForAction(Player player, long doorUID, DoorAttribute atr)

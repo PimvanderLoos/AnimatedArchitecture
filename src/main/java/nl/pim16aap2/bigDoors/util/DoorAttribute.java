@@ -12,9 +12,20 @@ public enum DoorAttribute
     DIRECTION_ROTATE    (1, DIRECTION_STRAIGHT.userPermission, DIRECTION_STRAIGHT.adminPermission),
     BLOCKSTOMOVE        (1, "bigdoors.user.setblockstomove", "bigdoors.admin.bypass.blockstomove"),
     ADDOWNER            (0, "bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),
-    REMOVEOWNER         (0, "bigdoors.user.removeowner", "bigdoors.admin.bypass.removeowner");
+    REMOVEOWNER         (0, "bigdoors.user.removeowner", "bigdoors.admin.bypass.removeowner"),
+    NOTIFICATIONS       (0, "bigdoors.user.receivenotifications", null)
+    ;
 
     private String userPermission, adminPermission;
+    /**
+     * The permission level.
+     * <p>
+     * 0 = Creator
+     * <p>
+     * 1 = Admin
+     * <p>
+     * 2 = User
+     */
     private int permissionLevel;
 
     private DoorAttribute(int permissionLevel, String userPermission, String adminPermission)

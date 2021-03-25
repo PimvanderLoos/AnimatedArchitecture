@@ -1107,7 +1107,9 @@ public class CommandHandler implements CommandExecutor
     public boolean hasBypassAccess(final Player player, final DoorAttribute doorAttribute)
     {
         return player != null &&
-            (player.isOp() || player.hasPermission(DoorAttribute.getAdminPermission(doorAttribute)));
+            (player.isOp() || 
+                (DoorAttribute.getAdminPermission(doorAttribute) != null &&
+                player.hasPermission(DoorAttribute.getAdminPermission(doorAttribute))));
     }
 
     public void delDoor(Player player, String doorName)

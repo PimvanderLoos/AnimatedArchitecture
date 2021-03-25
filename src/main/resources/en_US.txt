@@ -98,6 +98,9 @@ GUI.ChangeTimerLore=This door automatically closes after
 GUI.ChangeTimerLoreDisabled=This door is not set\nto close automatically.
 GUI.ADDOWNER=Add another owner for this door.
 GUI.REMOVEOWNER=Remove another owner of this door.
+GUI.ReceiveNotifications=Toggle notifications
+GUI.ReceiveNotificationsLoreEnabled=You currently receive toggle notifications for this door.
+GUI.ReceiveNotificationsLoreDisabled=You currently do not receive toggle notifications for this door.
 COMMAND.TimeOutOrFail=&cTimed out waiting for input or input was incorrect! Try again!
 COMMAND.UnexpectedInput=&aI was not expecting any input! Perhaps waiting for the command timed out?
 COMMAND.AddOwner.Init=&aType "/BigDoors addowner <playerName> [permission]" in chat. Replace "<playerName>" by the name of the player you want to add as owner.\nOptionally, you can specify their permission level. 1 = default (can edit door), 2 = limited access (use only, no editing).

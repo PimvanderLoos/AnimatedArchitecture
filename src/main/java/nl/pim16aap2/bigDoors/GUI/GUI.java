@@ -44,6 +44,8 @@ public class GUI
     private static final Material SETBTMOVEMAT = XMaterial.STICKY_PISTON.parseMaterial();
     private static final Material ADDOWNERMAT = XMaterial.PLAYER_HEAD.parseMaterial();
     private static final Material REMOVEOWNERMAT = XMaterial.SKELETON_SKULL.parseMaterial();
+    private static final Material NOTIFICATIONSMAT_ON = XMaterial.MUSIC_DISC_STAL.parseMaterial();
+    private static final Material NOTIFICATIONSMAT_OFF = XMaterial.MUSIC_DISC_11.parseMaterial();
     private static final byte LOCKEDDATA = 14;
     private static final byte UNLOCKEDDATA = 5;
     private static final byte CONFIRMDATA = 14;
@@ -274,6 +276,11 @@ public class GUI
         {
             if (!plugin.getCommander().hasPermissionNodeForAction(player, attr))
                 continue;
+            
+            if (attr == DoorAttribute.NOTIFICATIONS && 
+                !plugin.getConfigLoader().allowNotifications())
+                continue;
+            
             GUIItem item = getGUIItem(door, attr);
             if (item != null)
                 items.put(position++, item);
@@ -436,6 +443,13 @@ public class GUI
                 break;
             case REMOVEOWNER:
                 switchToRemoveOwner();
+                break;
+            case NOTIFICATIONS:
+                boolean newStatus = !door.notificationEnabled();
+                door.setNotificationEnabled(newStatus);
+                plugin.getCommander().updateDoorNotify(door.getDoorUID(), newStatus);
+                update();
+                break;
             }
         }
     }
@@ -648,6 +662,17 @@ public class GUI
             addLore(lore, desc);
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
+            
+        case NOTIFICATIONS:
+            desc = messages.getString("GUI.ReceiveNotifications");
+            addLore(lore, door.notificationEnabled() ? 
+                messages.getString("GUI.ReceiveNotificationsLoreEnabled") :
+                    messages.getString("GUI.ReceiveNotificationsLoreDisabled")
+                );
+
+            ret = new GUIItem(door.notificationEnabled() ? NOTIFICATIONSMAT_ON : NOTIFICATIONSMAT_OFF, desc, lore, 1);
+            break;
+            
         }
         if (ret != null)
             ret.setDoorAttribute(atr);
