@@ -435,6 +435,11 @@ public class Commander
         db.updateDoorAutoClose(doorUID, autoClose);
     }
 
+    public void updateDoorNotify(long doorUID, boolean notify)
+    {
+        db.updateNotify(doorUID, notify);
+    }
+
     public void updateDoorBlocksToMove(long doorID, int blocksToMove)
     {
         db.updateDoorBlocksToMove(doorID, blocksToMove);

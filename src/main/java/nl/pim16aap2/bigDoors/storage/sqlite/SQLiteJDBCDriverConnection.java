@@ -74,6 +74,7 @@ public class SQLiteJDBCDriverConnection
     private static final int DOOR_AUTO_CLOSE = 21;
     private static final int DOOR_CHUNK_HASH = 22;
     private static final int DOOR_BLOCKS_TO_MOVE = 23;
+    private static final int DOOR_NOTIFY = 24;
 
     private static final int PLAYERS_ID = 1;
     private static final int PLAYERS_UUID = 2;
@@ -190,18 +191,30 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt1 = conn.createStatement();
                 String sql1 = "CREATE TABLE IF NOT EXISTS doors "
-                    + "(id            INTEGER    PRIMARY KEY autoincrement, " + " name          TEXT       NOT NULL, "
-                    + " world         TEXT       NOT NULL, " + " isOpen        INTEGER    NOT NULL, "
-                    + " xMin          INTEGER    NOT NULL, " + " yMin          INTEGER    NOT NULL, "
-                    + " zMin          INTEGER    NOT NULL, " + " xMax          INTEGER    NOT NULL, "
-                    + " yMax          INTEGER    NOT NULL, " + " zMax          INTEGER    NOT NULL, "
-                    + " engineX       INTEGER    NOT NULL, " + " engineY       INTEGER    NOT NULL, "
-                    + " engineZ       INTEGER    NOT NULL, " + " isLocked      INTEGER    NOT NULL, "
-                    + " type          INTEGER    NOT NULL, " + " engineSide    INTEGER    NOT NULL, "
-                    + " powerBlockX   INTEGER    NOT NULL, " + " powerBlockY   INTEGER    NOT NULL, "
-                    + " powerBlockZ   INTEGER    NOT NULL, " + " openDirection INTEGER    NOT NULL, "
-                    + " autoClose     INTEGER    NOT NULL, " + " chunkHash     INTEGER    NOT NULL, "
-                    + " blocksToMove  INTEGER    NOT NULL) ";
+                    + "(id            INTEGER    PRIMARY KEY autoincrement, " 
+                    + " name          TEXT       NOT NULL, "
+                    + " world         TEXT       NOT NULL, " 
+                    + " isOpen        INTEGER    NOT NULL, "
+                    + " xMin          INTEGER    NOT NULL, " 
+                    + " yMin          INTEGER    NOT NULL, "
+                    + " zMin          INTEGER    NOT NULL, " 
+                    + " xMax          INTEGER    NOT NULL, "
+                    + " yMax          INTEGER    NOT NULL, " 
+                    + " zMax          INTEGER    NOT NULL, "
+                    + " engineX       INTEGER    NOT NULL, " 
+                    + " engineY       INTEGER    NOT NULL, "
+                    + " engineZ       INTEGER    NOT NULL, " 
+                    + " isLocked      INTEGER    NOT NULL, "
+                    + " type          INTEGER    NOT NULL, " 
+                    + " engineSide    INTEGER    NOT NULL, "
+                    + " powerBlockX   INTEGER    NOT NULL, " 
+                    + " powerBlockY   INTEGER    NOT NULL, "
+                    + " powerBlockZ   INTEGER    NOT NULL, " 
+                    + " openDirection INTEGER    NOT NULL, "
+                    + " autoClose     INTEGER    NOT NULL, " 
+                    + " chunkHash     INTEGER    NOT NULL, "
+                    + " blocksToMove  INTEGER    NOT NULL, "
+                    + " notify        INTEGER    NOT NULL) ";
                 stmt1.executeUpdate(sql1);
                 stmt1.close();
 
@@ -250,6 +263,13 @@ public class SQLiteJDBCDriverConnection
     // This may change to include more changes in the future.
     public void prepareForV2()
     {
+        if (true) // Bypass the unreachable code check
+            throw new UnsupportedOperationException();
+        
+        // All code below is outdated and probably mostly useless.
+        // I can't be bothered to check it now, though, and I've
+        // given up on cleanliness ages ago, so... yeah...
+
         if (getDatabaseVersion() != DATABASE_VERSION)
         {
             plugin.getMyLogger()
@@ -395,13 +415,20 @@ public class SQLiteJDBCDriverConnection
             conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
 
             String newDoors = "CREATE TABLE IF NOT EXISTS doors\n"
-                + "(id            INTEGER    PRIMARY KEY autoincrement,\n" + " name          TEXT       NOT NULL,\n"
-                + " world         TEXT       NOT NULL,\n" + " xMin          INTEGER    NOT NULL,\n"
-                + " yMin          INTEGER    NOT NULL,\n" + " zMin          INTEGER    NOT NULL,\n"
-                + " xMax          INTEGER    NOT NULL,\n" + " yMax          INTEGER    NOT NULL,\n"
-                + " zMax          INTEGER    NOT NULL,\n" + " engineX       INTEGER    NOT NULL,\n"
-                + " engineY       INTEGER    NOT NULL,\n" + " engineZ       INTEGER    NOT NULL,\n"
-                + " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" + " type          INTEGER    NOT NULL DEFAULT 0,\n"
+                + "(id            INTEGER    PRIMARY KEY autoincrement,\n" 
+                + " name          TEXT       NOT NULL,\n"
+                + " world         TEXT       NOT NULL,\n" 
+                + " xMin          INTEGER    NOT NULL,\n"
+                + " yMin          INTEGER    NOT NULL,\n" 
+                + " zMin          INTEGER    NOT NULL,\n"
+                + " xMax          INTEGER    NOT NULL,\n" 
+                + " yMax          INTEGER    NOT NULL,\n"
+                + " zMax          INTEGER    NOT NULL,\n" 
+                + " engineX       INTEGER    NOT NULL,\n"
+                + " engineY       INTEGER    NOT NULL,\n" 
+                + " engineZ       INTEGER    NOT NULL,\n"
+                + " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" 
+                + " type          INTEGER    NOT NULL DEFAULT 0,\n"
                 + " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n"
                 + " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n"
                 + " powerBlockZ   INTEGER    NOT NULL DEFAULT -1,\n"
@@ -772,7 +799,7 @@ public class SQLiteJDBCDriverConnection
                                  (rs.getInt(DOOR_LOCKED) == 1 ? true : false), permission,
                                  DoorType.valueOf(rs.getInt(DOOR_TYPE)),
                                  DoorDirection.valueOf(rs.getInt(DOOR_ENG_SIDE)), powerB,
-                                 RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)), rs.getInt(DOOR_AUTO_CLOSE));
+                                 RotateDirection.valueOf(rs.getInt(DOOR_OPEN_DIR)), rs.getInt(DOOR_AUTO_CLOSE), rs.getBoolean(DOOR_NOTIFY));
 
             door.setBlocksToMove(rs.getInt(DOOR_BLOCKS_TO_MOVE));
             return door;
@@ -1055,7 +1082,7 @@ public class SQLiteJDBCDriverConnection
         Set<Door> doors = new HashSet<>();
         try (Connection conn = getConnection();
              // Lord forgive me...
-             PreparedStatement stmp = conn.prepareStatement("SELECT DISTINCT (d.id), name, world, isopen, xmin, ymin, zmin, xmax, ymax, zmax, enginex, enginey, enginez, islocked, type, engineside, powerblockx, powerblocky, powerblockz, opendirection, autoclose, chunkhash, blockstomove, p.playername, p.playeruuid from (SELECT d.*, u.playerid FROM doors d left join sqlUnion u on d.id = u.doorUID where u.permission = 0) d left join players p on p.id = d.playerid");
+             PreparedStatement stmp = conn.prepareStatement("SELECT DISTINCT (d.id), name, world, isopen, xmin, ymin, zmin, xmax, ymax, zmax, enginex, enginey, enginez, islocked, type, engineside, powerblockx, powerblocky, powerblockz, opendirection, autoclose, chunkhash, blockstomove, notify, p.playername, p.playeruuid from (SELECT d.*, u.playerid FROM doors d left join sqlUnion u on d.id = u.doorUID where u.permission = 0) d left join players p on p.id = d.playerid");
              ResultSet rs = stmp.executeQuery())
         {
             while (rs.next())
@@ -1596,6 +1623,21 @@ public class SQLiteJDBCDriverConnection
             }
         }
     }
+    
+    public void updateNotify(final long doorUID, final boolean notify)
+    {
+        try(Connection conn = getConnection();)
+        {
+            conn.setAutoCommit(false);
+            String update = "UPDATE doors SET notify='" + notify + "' WHERE id = '" + doorUID + "';";
+            conn.prepareStatement(update).executeUpdate();
+            conn.commit();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("928", e);
+        }
+    }
 
     // Update the door with UID doorUID's Power Block Location with the provided
     // coordinates and open status.
@@ -1759,8 +1801,8 @@ public class SQLiteJDBCDriverConnection
                 rs2.close();
             }
 
-            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose,chunkHash,blocksToMove) "
-                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            String doorInsertsql = "INSERT INTO doors(name,world,isOpen,xMin,yMin,zMin,xMax,yMax,zMax,engineX,engineY,engineZ,isLocked,type,engineSide,powerBlockX,powerBlockY,powerBlockZ,openDirection,autoClose,chunkHash,blocksToMove,notify) "
+                + "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
             PreparedStatement doorstatement = conn.prepareStatement(doorInsertsql);
 
             doorstatement.setString(DOOR_NAME - 1, door.getName());
@@ -1788,6 +1830,7 @@ public class SQLiteJDBCDriverConnection
             doorstatement.setInt(DOOR_AUTO_CLOSE - 1, door.getAutoClose());
             doorstatement.setLong(DOOR_CHUNK_HASH - 1, door.getPowerBlockChunkHash());
             doorstatement.setLong(DOOR_BLOCKS_TO_MOVE - 1, door.getBlocksToMove());
+            doorstatement.setBoolean(DOOR_NOTIFY - 1, door.notificationEnabled());
 
             doorstatement.executeUpdate();
             doorstatement.close();
