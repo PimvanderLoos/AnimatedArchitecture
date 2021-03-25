@@ -49,7 +49,7 @@ public class SQLiteJDBCDriverConnection
     // The highest database version. If the found db version matches or exceeds
     // this version, the database cannot be enabled.
     private static final int MAX_DATABASE_VERSION = 10;
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     private static final int DOOR_ID = 1;
     private static final int DOOR_NAME = 2;
@@ -2170,6 +2170,9 @@ public class SQLiteJDBCDriverConnection
                 upgradeToV6();
                 conn = getConnectionUnsafe();
             }
+            
+            if (dbVersion < 7)
+                upgradeToV7(conn);
 
             // If the database upgrade to V5 got interrupted in a previous attempt, the
             // fakeUUID
@@ -2627,6 +2630,21 @@ public class SQLiteJDBCDriverConnection
             {
                 logMessage("2280", e);
             }
+        }
+    }
+
+    private void upgradeToV7(final Connection conn)
+    {
+        try
+        {
+            String addColumn;
+            plugin.getMyLogger().logMessage("Upgrading database to V7! Adding notification status!", true, true);
+            addColumn = "ALTER TABLE doors ADD COLUMN notify INTEGER DEFAULT 0";
+            conn.createStatement().execute(addColumn);
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("1420", e);
         }
     }
 
