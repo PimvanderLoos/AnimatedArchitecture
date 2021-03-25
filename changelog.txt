@@ -3,6 +3,12 @@ Alpha 0.1.8.29
 - Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
 - When moving a powerblock, selecting the current powerblock's location will no longer tell you that the location is already occupied. Instead, it'll just tell you everything went well.
 - Executing "/listdoors" in the console without any player/doorName argument will now list all doors instead of complain about being unable to find any doors. 
+- Added new notification system for door creators. Thanks, @IronAR, for the suggestion! This allows door creators to opt-in on a per-door basis to receive notifications whenever a door is toggled.
+- Added config option "allowNotifications" (default: true) to enable/disable the notification system. 
+- Added permission node "bigdoors.user.receivenotifications" that gives access to both signing up for and receiving notifications. (again, only the original creator of a door has access to this!)
+- Added command "/setnotification <doorName || doorUID> <true || false>" to enable/disable notifications for a door. There's also a corresponding GUI option.
+- Added new localizable messages for the notification system.
+- Updated database to v7.
 
 Alpha 0.1.8.28
 - Fixed chains not rotating when they should. Thanks, @Sorienrot, for the bug report!
