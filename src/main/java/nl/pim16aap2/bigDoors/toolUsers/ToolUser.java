@@ -87,7 +87,8 @@ public abstract class ToolUser extends Abortable
                 return;
             }
 
-            Door door = new Door(player.getUniqueId(), player.getName(), world, min, max, engine, name, isOpen, -1,
+            Door door = new Door(player.getUniqueId(), player.getName(), player.getUniqueId(),
+                                 world, min, max, engine, name, isOpen, -1,
                                  false, 0, type, engineSide, powerB, openDir, -1);
 
             int doorSize = door.getBlockCount();
