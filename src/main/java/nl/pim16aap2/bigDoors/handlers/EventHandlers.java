@@ -63,6 +63,8 @@ public class EventHandlers implements Listener
         Player player = Bukkit.getPlayer(door.getPrimeOwner());
         if (player == null)
             return;
+        if (!player.hasPermission("bigdoors.user.receivenotifications") && !player.isOp())
+            return;
 
         player.sendMessage(MessageFormat.format(plugin.getMessages().getString("GENERAL.DoorToggleNotification"),
                                                 door.toSimpleString()));
