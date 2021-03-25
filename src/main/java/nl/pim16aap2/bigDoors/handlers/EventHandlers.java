@@ -54,6 +54,9 @@ public class EventHandlers implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDoorToggleStart(DoorEventToggleStart event)
     {
+        if (!plugin.getConfigLoader().allowNotifications())
+            return;
+        
         Door door = event.getDoor();
         if (!door.notificationEnabled())
             return;

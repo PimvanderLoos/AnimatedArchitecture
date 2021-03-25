@@ -54,6 +54,7 @@ public class ConfigLoader
     private int maxPowerBlockDistance;
     private int maxAutoCloseTimer;
     private boolean skipUnloadedAutoCloseToggle;
+    private boolean allowNotifications;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -178,6 +179,10 @@ public class ConfigLoader
                                        "By enabling this option you agree that you will not complain if any issues arise and that it is completely",
                                        "your own responsibility.",
                                        "If you need to enable this option you are doing it wrong and you should rethink your life choices." };
+        
+        String[] allowNotificationsComment = { "Whether or not to allow toggle notifications. ",
+                                               "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
+                                               "This is on a per-door basis."};
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
@@ -299,6 +304,9 @@ public class ConfigLoader
         skipUnloadedAutoCloseToggle = config.getBoolean("skipUnloadedAutoCloseToggle", true);
         configOptionsList.add(new ConfigOption("skipUnloadedAutoCloseToggle", skipUnloadedAutoCloseToggle,
                                                skipUnloadedAutoCloseToggleComment));
+
+        allowNotifications = config.getBoolean("allowNotifications", true);
+        configOptionsList.add(new ConfigOption("allowNotifications", allowNotifications, allowNotificationsComment));
 
         enableFileLogging = config.getBoolean("enableFileLogging", true);
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
@@ -659,6 +667,11 @@ public class ConfigLoader
         return skipUnloadedAutoCloseToggle;
     }
 
+    public boolean allowNotifications()
+    {
+        return allowNotifications;
+    }
+    
     /**
      * Gets a set of blacklisted materials as defined in the config.
      *
