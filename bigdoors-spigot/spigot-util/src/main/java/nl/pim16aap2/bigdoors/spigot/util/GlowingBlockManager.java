@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -47,7 +46,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         final @Nullable ScoreboardManager scoreBoardManager = Bukkit.getServer().getScoreboardManager();
         if (scoreBoardManager == null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException("Could not find a ScoreBoardManager! No glowing blocks can be spawned!"));
             glowingBlockFactory = null;
             scoreboard = null;
@@ -59,7 +58,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         final @NotNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
         if (!(platform instanceof BigDoorsSpigotAbstract))
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException("Spigot's GlowingBlockManager can only be used with the Spigot Platform!"));
             glowingBlockFactory = null;
             return;
@@ -69,8 +68,9 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
                                                                                             .getSpigotPlatform();
         if (spigotPlatform == null)
         {
-            PLogger.get().logThrowableSilently(Level.FINE,
-                                               new NullPointerException("No valid Spigot platform was found!"));
+            BigDoors.get().getPLogger().logThrowableSilently(Level.FINE,
+                                                             new NullPointerException(
+                                                                 "No valid Spigot platform was found!"));
             glowingBlockFactory = null;
             return;
         }
@@ -96,8 +96,8 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
     {
         if (scoreboard == null)
         {
-            PLogger.get()
-                   .logMessage(Level.FINE, "Skipping GlowingBlockManager team registration: No ScoreBoard found!");
+            BigDoors.get().getPLogger()
+                    .logMessage(Level.FINE, "Skipping GlowingBlockManager team registration: No ScoreBoard found!");
             return;
         }
 
@@ -108,7 +108,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
             }
             catch (Exception e)
             {
-                PLogger.get().logThrowable(e, "Failed to register color: " + col.name());
+                BigDoors.get().getPLogger().logThrowable(e, "Failed to register color: " + col.name());
             }
     }
 
@@ -156,21 +156,21 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         if (glowingBlockFactory == null)
         {
             // FINER because it will already have been logged on startup.
-            PLogger.get().logMessage(Level.FINER, "GlowingBlockFactory was not initialized!");
+            BigDoors.get().getPLogger().logMessage(Level.FINER, "GlowingBlockFactory was not initialized!");
             return Optional.empty();
         }
         if (teams.get(pColor) == null)
         {
             // FINER because it will already have been logged on startup.
-            PLogger.get()
-                   .logMessage(Level.FINER, "GlowingBlock Color " + pColor.name() + " was not registered properly!");
+            BigDoors.get().getPLogger()
+                    .logMessage(Level.FINER, "GlowingBlock Color " + pColor.name() + " was not registered properly!");
             return Optional.empty();
         }
 
         final long ticks = TimeUnit.MILLISECONDS.convert(time, timeUnit) / 50;
         if (ticks == 0)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new IllegalArgumentException("Invalid duration of " + time + " " + timeUnit.name() + " provided! "));
             return Optional.empty();
         }
@@ -178,7 +178,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logThrowable(new NullPointerException(), "Player " + player.toString() +
+            BigDoors.get().getPLogger().logThrowable(new NullPointerException(), "Player " + player.toString() +
                 " does not appear to be online! They will not receive any GlowingBlock packets!");
             return Optional.empty();
         }
@@ -186,14 +186,14 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            PLogger.get().logThrowable(new NullPointerException(), "World " + world.toString() +
+            BigDoors.get().getPLogger().logThrowable(new NullPointerException(), "World " + world.toString() +
                 " does not appear to be online! No Glowing Blocks can be spawned here!");
             return Optional.empty();
         }
 
         final @NotNull IGlowingBlock glowingBlock = glowingBlockFactory
             .createGlowingBlock(spigotPlayer, spigotWorld, this);
-        
+
         glowingBlock.spawn(pColor, x, y, z, ticks);
         return Optional.of(glowingBlock);
     }

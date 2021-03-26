@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,8 +25,9 @@ public abstract class StepExecutor
             return protectedAccept(input);
         else
         {
-            PLogger.get().debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
-                                    " into " + getInputClass().getSimpleName());
+            BigDoors.get().getPLogger()
+                    .debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
+                               " into " + getInputClass().getSimpleName());
             return false;
         }
     }

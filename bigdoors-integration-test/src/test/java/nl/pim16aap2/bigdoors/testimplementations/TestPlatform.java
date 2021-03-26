@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
@@ -24,6 +25,8 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +43,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final TestPLocationFactory pLocationFactory = new TestPLocationFactory();
     private final TestConfigLoader configLoader = new TestConfigLoader();
 
-    private static final File dataDirectory = new File(".");
+    private static final File DATA_DIRECTORY = new File(".");
     private final Set<IRestartable> restartables = new HashSet<>();
     @Nullable
     private Messages messages;
@@ -49,6 +52,7 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final IEconomyManager economyManager = new TestEconomyManager();
     private final IPermissionsManager permissionsManager = new TestPermissionsManager();
     private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
+    private IPLogger pLogger = new BasicPLogger();
 
     @Getter
     @Setter
@@ -59,10 +63,9 @@ public final class TestPlatform implements IBigDoorsPlatform
         // TODO: Reinitialize everything between every test.
     }
 
-    @Override
-    public @NotNull File getDataDirectory()
+    @Override public @NotNull File getDataDirectory()
     {
-        return dataDirectory;
+        return DATA_DIRECTORY;
     }
 
     @Override
@@ -200,6 +203,12 @@ public final class TestPlatform implements IBigDoorsPlatform
     public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
     {
         return null;
+    }
+
+    @Override
+    public @NonNull IPLogger getPLogger()
+    {
+        return pLogger;
     }
 
     @Override

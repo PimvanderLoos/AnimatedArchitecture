@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
@@ -68,7 +67,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
-            PLogger.get().logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
+            BigDoors.get().getPLogger().logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
                 " could not be found! They cannot receive Glowing Block packets!");
             return Optional.empty();
         }

@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.testimplementations.TestPlatform;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
@@ -105,8 +104,8 @@ public class CreatorTestsUtil
     @BeforeAll
     public static void beforeAll()
     {
-        PLogger.get().setConsoleLogLevel(Level.FINEST);
-        PLogger.get().setFileLogLevel(Level.SEVERE);
+        BigDoors.get().getPLogger().setConsoleLogLevel(Level.FINEST);
+        BigDoors.get().getPLogger().setFileLogLevel(Level.SEVERE);
     }
 
     protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);

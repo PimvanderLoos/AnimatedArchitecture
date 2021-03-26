@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.Functional.TriFunction;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -85,7 +84,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
             default:
                 angle = 0;
                 rotator = null;
-                PLogger.get().logThrowable(new IllegalArgumentException(
+                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
                     "RotateDirection \"" + rotateDirection.name() + " is not valid for this type!"));
                 return;
         }

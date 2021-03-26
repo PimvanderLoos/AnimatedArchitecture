@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -308,7 +307,7 @@ public abstract class Creator extends ToolUser
             int id = idOpt.getAsInt();
             if (id < 0 || id >= validOpenDirs.size())
             {
-                PLogger.get().debug(
+                BigDoors.get().getPLogger().debug(
                     getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
                         " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
@@ -359,7 +358,7 @@ public abstract class Creator extends ToolUser
     {
         if (world.getWorldName().equals(loc.getWorld().getWorldName()))
             return true;
-        PLogger.get().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
+        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
         return false;
     }
 
@@ -377,7 +376,7 @@ public abstract class Creator extends ToolUser
             (newDoor, throwable) ->
             {
                 if (newDoor.isEmpty())
-                    PLogger.get().severe("Failed to insert door after creation!");
+                    BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
             }).exceptionally(Util::exceptionally);
     }
 

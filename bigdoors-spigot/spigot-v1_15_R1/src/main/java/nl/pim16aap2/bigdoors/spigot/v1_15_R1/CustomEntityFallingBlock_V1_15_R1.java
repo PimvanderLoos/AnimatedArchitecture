@@ -18,8 +18,8 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.TagsBlock;
 import net.minecraft.server.v1_15_R1.WorldServer;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -102,7 +102,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         {
             IllegalStateException e = new IllegalStateException(
                 "Failed to obtain EntityTracker for FallingBlock: " + getId());
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
     }

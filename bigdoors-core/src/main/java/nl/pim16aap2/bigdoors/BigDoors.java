@@ -1,9 +1,12 @@
 package nl.pim16aap2.bigdoors;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
@@ -29,10 +32,11 @@ public final class BigDoors implements IRestartableHolder, IRestartable
     @NotNull
     private final Set<IRestartable> restartables = new HashSet<>();
 
+    private IPLogger backupLogger;
+
     /**
      * The platform to use. e.g. "Spigot".
      */
-    @NotNull
     private IBigDoorsPlatform platform;
 
     private BigDoors()
@@ -103,6 +107,13 @@ public final class BigDoors implements IRestartableHolder, IRestartable
         if (messagingInterface == null)
             return getPlatform().getMessagingInterface();
         return messagingInterface;
+    }
+
+    public @NonNull IPLogger getPLogger()
+    {
+        if (platform == null)
+            return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
+        return getPlatform().getPLogger();
     }
 
     public void setMessagingInterface(final @Nullable IMessagingInterface messagingInterface)

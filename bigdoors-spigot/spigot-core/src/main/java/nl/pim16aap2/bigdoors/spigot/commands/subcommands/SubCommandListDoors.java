@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -76,7 +75,7 @@ public class SubCommandListDoors extends SubCommand
                         }
                         catch (InterruptedException e)
                         {
-                            PLogger.get().logThrowableSilently(e);
+                            BigDoors.get().getPLogger().logThrowableSilently(e);
                             Thread.currentThread().interrupt();
                         }
                         catch (ExecutionException e)

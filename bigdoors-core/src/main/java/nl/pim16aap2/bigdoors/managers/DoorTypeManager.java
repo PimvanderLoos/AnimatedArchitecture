@@ -6,7 +6,6 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -158,7 +157,7 @@ public final class DoorTypeManager extends Restartable
      */
     public void registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
     {
-        PLogger.get().info("Registering door type: " + doorType.toString() + "...");
+        BigDoors.get().getPLogger().info("Registering door type: " + doorType.toString() + "...");
 
         doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
@@ -180,8 +179,9 @@ public final class DoorTypeManager extends Restartable
     {
         if (doorTypeStatus.remove(doorType) == null)
         {
-            PLogger.get().warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
-                                   "registered already!");
+            BigDoors.get().getPLogger()
+                    .warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
+                              "registered already!");
             return;
         }
         doorTypeFromName.remove(doorType.getSimpleName());

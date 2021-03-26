@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -116,9 +116,9 @@ public class CreatorClock extends Creator
         // The clock has to be an odd number of blocks tall.
         if (cuboidDims.getY() % 2 == 0)
         {
-            PLogger.get()
-                   .debug("ClockCreator: " + player.asString() +
-                              ": The height of the selected area for the clock is not odd!");
+            BigDoors.get().getPLogger()
+                    .debug("ClockCreator: " + player.asString() +
+                               ": The height of the selected area for the clock is not odd!");
             return false;
         }
 
@@ -127,8 +127,8 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.getY() != cuboidDims.getZ())
             {
-                PLogger.get().debug("ClockCreator: " + player.asString() +
-                                        ": The selected Clock area is not square! The x-axis is valid.");
+                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                                                      ": The selected Clock area is not square! The x-axis is valid.");
                 return false;
             }
             northSouthAligned = false;
@@ -138,15 +138,16 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.getY() != cuboidDims.getX())
             {
-                PLogger.get().debug("ClockCreator: " + player.asString() +
-                                        ": The selected Clock area is not square! The z-axis is valid.");
+                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                                                      ": The selected Clock area is not square! The z-axis is valid.");
                 return false;
             }
             northSouthAligned = true;
         }
         else
         {
-            PLogger.get().debug("ClockCreator: " + player.asString() + ": Selected Clock area is not valid!");
+            BigDoors.get().getPLogger()
+                    .debug("ClockCreator: " + player.asString() + ": Selected Clock area is not valid!");
             return false;
         }
 

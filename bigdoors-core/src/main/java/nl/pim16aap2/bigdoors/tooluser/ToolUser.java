@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -54,9 +53,9 @@ public abstract class ToolUser implements IRestartable
         }
         catch (InstantiationException e)
         {
-            PLogger.get()
-                   .logThrowable(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
-                       player.asString());
+            BigDoors.get().getPLogger()
+                    .logThrowable(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
+                        player.asString());
             active = false;
         }
         // It doesn't really matter if it's set to null here, as the process will be aborted in that case anyway.
@@ -173,7 +172,7 @@ public abstract class ToolUser implements IRestartable
     {
         final @NotNull String message = procedure.getMessage();
         if (message.isEmpty())
-            PLogger.get().warn("Missing translation for step: " + procedure.getCurrentStepName());
+            BigDoors.get().getPLogger().warn("Missing translation for step: " + procedure.getCurrentStepName());
         else
             player.sendMessage(message);
     }
@@ -186,8 +185,9 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean handleInput(final @NotNull Object obj)
     {
-        PLogger.get().debug("Handling input: " + obj.toString() + " for step: " + procedure.getCurrentStepName());
-        PLogger.get().debug("Class of input object: " + obj.getClass().getSimpleName());
+        BigDoors.get().getPLogger()
+                .debug("Handling input: " + obj.toString() + " for step: " + procedure.getCurrentStepName());
+        BigDoors.get().getPLogger().debug("Class of input object: " + obj.getClass().getSimpleName());
 
         if (!active)
             return false;
@@ -206,7 +206,7 @@ public abstract class ToolUser implements IRestartable
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
 
         return false;

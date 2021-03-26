@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -10,7 +11,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -61,9 +61,9 @@ public class RevolvingDoorMover extends BlockMover
                 break;
             default:
                 getGoalPos = null;
-                PLogger.get().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                                                 + "\". Reason: Invalid rotateDirection \"" +
-                                                 rotateDirection.toString() + "\"");
+                BigDoors.get().getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
+                                                               + "\". Reason: Invalid rotateDirection \"" +
+                                                               rotateDirection.toString() + "\"");
                 return;
         }
 

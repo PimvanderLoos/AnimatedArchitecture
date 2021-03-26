@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
@@ -95,7 +94,7 @@ public class SubCommandRemoveOwner extends SubCommand
                         }
                         catch (InterruptedException e)
                         {
-                            PLogger.get().logThrowableSilently(e);
+                            BigDoors.get().getPLogger().logThrowableSilently(e);
                             successfulRemoval = false;
                             Thread.currentThread().interrupt();
                         }

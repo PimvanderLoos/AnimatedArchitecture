@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -103,7 +102,7 @@ public abstract class BlockMover implements IRestartable
         {
             final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
                 "BlockMovers must be called on the main thread!");
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());

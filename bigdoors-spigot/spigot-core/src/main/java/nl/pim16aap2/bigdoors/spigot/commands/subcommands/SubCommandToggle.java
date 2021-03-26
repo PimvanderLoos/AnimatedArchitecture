@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -103,7 +103,7 @@ public class SubCommandToggle extends SubCommand
                     }
                     catch (InterruptedException e)
                     {
-                        PLogger.get().logThrowableSilently(e);
+                        BigDoors.get().getPLogger().logThrowableSilently(e);
                         Thread.currentThread().interrupt();
                     }
                     catch (ExecutionException | NullPointerException e)

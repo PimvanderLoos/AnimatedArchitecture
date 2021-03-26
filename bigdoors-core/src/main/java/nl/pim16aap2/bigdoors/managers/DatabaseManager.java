@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -412,16 +411,18 @@ public final class DatabaseManager extends Restartable
         final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
-            PLogger.get().logMessage(Level.FINE,
-                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
-                                         ", but the player is not an owner!");
+            BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                   "Trying to remove player: " + playerUUID + " from door: " +
+                                                       door.getDoorUID() +
+                                                       ", but the player is not an owner!");
             return CompletableFuture.completedFuture(false);
         }
         if (doorOwner.get().getPermission() == 0)
         {
-            PLogger.get().logMessage(Level.FINE,
-                                     "Trying to remove player: " + playerUUID + " from door: " + door.getDoorUID() +
-                                         ", but the player is the prime owner! This is not allowed!");
+            BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                   "Trying to remove player: " + playerUUID + " from door: " +
+                                                       door.getDoorUID() +
+                                                       ", but the player is the prime owner! This is not allowed!");
             return CompletableFuture.completedFuture(false);
         }
 

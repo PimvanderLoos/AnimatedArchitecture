@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -104,7 +103,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         {
             if (doorOwner.getPermission() == 0)
             {
-                PLogger.get().logThrowable(new IllegalArgumentException(
+                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
                     "Failed to add owner: " + doorOwner.getPPlayerData().toString() + " as owner to door: " +
                         getDoorUID() +
                         " because a permission level of 0 is not allowed!"));
@@ -121,7 +120,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         {
             if (primeOwner.getPPlayerData().getUUID().equals(uuid))
             {
-                PLogger.get().logThrowable(new IllegalArgumentException(
+                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
                     "Failed to remove owner: " + primeOwner.getPPlayerData().toString() + " as owner from door: " +
                         getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
                 return false;
@@ -137,12 +136,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     {
         doorUID = doorData.getUid();
 
-        PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
+        BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
         if (doorUID > 0 && !DoorRegistry.get().registerDoor(new Registerable()))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorUID + "\" while it is already registered!");
-            PLogger.get().logThrowableSilently(exception);
+            BigDoors.get().getPLogger().logThrowableSilently(exception);
             throw exception;
         }
 
@@ -220,8 +219,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (BigDoors.get().getPlatform().getChunkManager().load(getWorld(), powerBlockChunk) ==
             IChunkManager.ChunkLoadResult.FAIL)
         {
-            PLogger.get()
-                   .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
             return false;
         }
 
@@ -259,7 +258,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (openDir == RotateDirection.NONE)
         {
             IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
             throw e;
         }
 
@@ -383,7 +382,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         {
             final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
                 "BlockMovers must be instantiated on the main thread!");
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             BigDoors.get().getDoorManager().setDoorAvailable(getDoorUID());
             return;
         }

@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -42,9 +41,10 @@ public final class ToolUserManager extends Restartable
 
         if (result != null)
         {
-            PLogger.get().info("Aborting previous ToolUser for user: " +
-                                   toolUser.getPlayer().getName() + " (" + toolUser.getPlayer().getUUID() + ") " +
-                                   "because a new ToolUser was initiated.");
+            BigDoors.get().getPLogger().info("Aborting previous ToolUser for user: " +
+                                                 toolUser.getPlayer().getName() + " (" +
+                                                 toolUser.getPlayer().getUUID() + ") " +
+                                                 "because a new ToolUser was initiated.");
             abortPair(toolUser.getPlayer().getUUID(), result);
         }
     }
@@ -81,8 +81,8 @@ public final class ToolUserManager extends Restartable
 
         if (toolUsers.size() != 0)
         {
-            PLogger.get().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
-            toolUsers.forEach((uuid, pair) -> PLogger.get().severe(uuid.toString()));
+            BigDoors.get().getPLogger().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
+            toolUsers.forEach((uuid, pair) -> BigDoors.get().getPLogger().severe(uuid.toString()));
             toolUsers.clear();
         }
     }
@@ -116,14 +116,14 @@ public final class ToolUserManager extends Restartable
         final @Nullable Pair<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException("Trying to start a tool user even though it wasn't registered, somehow!"));
             return;
         }
 
         if (pair.second != null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException(
                     "Trying to create a timer for a tooluser even though it already has one! Aborting..."));
             abortToolUser(toolUser.getPlayer().getUUID());

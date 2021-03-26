@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class WaitForAddOwner extends WaitForCommand
         }
         catch (ExecutionException | InterruptedException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return false;
     }

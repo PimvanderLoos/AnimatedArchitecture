@@ -25,6 +25,8 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
@@ -93,7 +95,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bstats.bukkit.Metrics;
@@ -124,7 +125,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
 
-    private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
+    private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
     @Getter(onMethod = @__({@Override}))
     private ConfigLoaderSpigot configLoader;
@@ -241,8 +242,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             final IStorage.DatabaseState databaseState = DatabaseManager.get().getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
             {
-                PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
-                                         ". Plugin initialization has been aborted!");
+                BigDoors.get().getPLogger()
+                        .severe("Failed to load database! Found it in the state: " + databaseState.name() +
+                                    ". Plugin initialization has been aborted!");
                 disablePlugin();
                 return;
             }
@@ -292,7 +294,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!extensionsDir.exists())
             if (!extensionsDir.mkdirs())
             {
-                PLogger.get().logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
+                BigDoors.get().getPLogger()
+                        .logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
                 return;
             }
 
@@ -543,9 +546,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     // Get the logger.
-    public @NotNull PLogger getPLogger()
+    @Override
+    public @NotNull IPLogger getPLogger()
     {
-        return PLogger.get();
+        return pLogger;
     }
 
     /**

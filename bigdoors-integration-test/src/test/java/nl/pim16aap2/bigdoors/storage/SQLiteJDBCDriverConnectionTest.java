@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -20,7 +21,6 @@ import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -37,13 +37,11 @@ import org.sqlite.SQLiteConfig;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
@@ -90,8 +88,7 @@ public class SQLiteJDBCDriverConnectionTest
         throws NoSuchFieldException, IllegalAccessException
     {
         UnitTestUtil.setupStatic();
-        PLogger.get().setConsoleLogLevel(Level.ALL);
-        PLogger.get().setFileLogLevel(Level.SEVERE);
+        BigDoors.get().getPLogger().setConsoleLogLevel(Level.SEVERE);
         UnitTestUtil.setFakeDoorRegistry();
     }
 
@@ -166,7 +163,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
             throw e;
         }
     }
@@ -227,9 +224,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
         final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
-        final @NotNull File oldLog = new File(UnitTestUtil.LOG_FILE.toString() + ".FINISHED");
 
-        PLogger.get().setConsoleLogLevel(Level.FINEST);
         if (oldDB.exists())
             oldDB.delete();
         if (dbFileBackup.exists())
@@ -241,19 +236,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (IOException e)
         {
-            PLogger.get().logThrowable(e);
-        }
-        try
-        {
-            if (oldLog.exists())
-                oldLog.delete();
-            while (!PLogger.get().isEmpty())
-                Thread.sleep(100L);
-            Files.move(UnitTestUtil.LOG_FILE.toPath(), oldLog.toPath());
-        }
-        catch (IOException | InterruptedException e)
-        {
-            e.printStackTrace();
+            BigDoors.get().getPLogger().logThrowable(e);
         }
     }
 
@@ -284,8 +267,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @Test
     public void runTests()
-        throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
-               NoSuchFieldException, IOException, ExecutionException, InterruptedException
+        throws TooManyDoorsException, IllegalAccessException, NoSuchFieldException
     {
         registerDoorTypes();
         initStorage();
@@ -296,13 +278,6 @@ public class SQLiteJDBCDriverConnectionTest
 //        insertDoors(); // Insert the doors again to make sure the upgrade went smoothly.
 
         testDoorTypes();
-        // Make sure no errors were logged.
-        UnitTestUtil.waitForLogger();
-        Assertions.assertEquals(0, UnitTestUtil.LOG_FILE.length());
-
-        PLogger.get().setFileLogLevel(Level.ALL);
-
-        PLogger.get().logMessage(Level.INFO, "================================\nStarting failure testing now:");
         testFailures();
     }
 
@@ -344,7 +319,6 @@ public class SQLiteJDBCDriverConnectionTest
      * Verifies that the data of all doors that have been added to the database so far is correct.
      */
     public void verifyDoors()
-        throws TooManyDoorsException
     {
         testRetrieval(door1);
         testRetrieval(door2);
@@ -611,45 +585,24 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
-     * Verifies that the size of the log file has increased in regards to the previous size.
-     *
-     * @param previousSize The last known size of the log file to compare the current size against.
-     * @return The current size of the log file.
-     */
-    private long verifyLogSizeIncrease(final long previousSize)
-    {
-        UnitTestUtil.waitForLogger();
-        final long currentLogSize = UnitTestUtil.LOG_FILE.length();
-        Assertions.assertTrue(currentLogSize > previousSize);
-        return currentLogSize;
-    }
-
-    /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
     public void testFailures()
         throws NoSuchFieldException, IllegalAccessException
     {
-        // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
-        PLogger.get().setConsoleLogLevel(Level.OFF);
-
-        long previousLogSize = verifyLogSizeIncrease(-1L);
         // Verify database disabling works as intended.
         {
             // Set the enabled status of the database to false.
             final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("databaseState");
             databaseLock.setAccessible(true);
             databaseLock.set(storage, IStorage.DatabaseState.ERROR);
-            storage.getDoor(playerData1.getUUID(), 1L);
+
+            UnitTestUtil.assertWrappedThrows(IllegalStateException.class,
+                                             () -> storage.getDoor(playerData1.getUUID(), 1L), true);
 
             // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
             databaseLock.set(storage, IStorage.DatabaseState.OK);
             Assertions.assertTrue(storage.getDoor(playerData1.getUUID(), 1L).isPresent());
         }
-
-        // Make sure new errors were added to the log file.
-        previousLogSize = verifyLogSizeIncrease(previousLogSize);
-
-        PLogger.get().setConsoleLogLevel(Level.FINE); // Enable console logging again after the test.
     }
 }

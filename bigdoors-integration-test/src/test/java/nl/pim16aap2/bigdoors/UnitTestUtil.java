@@ -9,11 +9,11 @@ import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.testimplementations.TestMessagingInterface;
 import nl.pim16aap2.bigdoors.testimplementations.TestPlatform;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,9 +84,6 @@ public class UnitTestUtil
         return (ExecutorService) field.get(DatabaseManager.get());
     }
 
-    @NotNull
-    public final File LOG_FILE = new File(UnitTestUtil.TEST_DIR, "/log.txt");
-
     public void setupStatic()
         throws NoSuchFieldException, IllegalAccessException
     {
@@ -95,13 +92,11 @@ public class UnitTestUtil
 
         setFakeDoorRegistry();
 
-        System.out.println("LOG_FILE = " + LOG_FILE.toString());
-        PLogger.init(LOG_FILE);
-        BigDoors.get().setMessagingInterface(new TestMessagingInterface());
         BigDoors.get().setBigDoorsPlatform(PLATFORM);
         System.out.println("TEST_RESOURCE_FOLDER = " + TEST_RESOURCE_FOLDER.getAbsolutePath());
         PLATFORM.setMessages(
-            new Messages(PLATFORM, new File(TEST_RESOURCE_FOLDER.getAbsolutePath()), "en_US_TEST", PLogger.get()));
+            new Messages(PLATFORM, new File(TEST_RESOURCE_FOLDER.getAbsolutePath()), "en_US_TEST",
+                         BigDoors.get().getPLogger()));
         isInitialized = true;
     }
 
@@ -134,38 +129,18 @@ public class UnitTestUtil
         return opt.get();
     }
 
-    /**
-     * Makes this thread wait for the logger to finish writing everything to the log file.
-     */
-    public void waitForLogger()
+    public <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable)
     {
-        int count = 0;
-        while (!PLogger.get().isEmpty())
-        {
-            if (count > 100) // wait no more than 1 second.
-                break;
-            try
-            {
-                count += 1;
-                Thread.sleep(10L);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-                Thread.currentThread().interrupt();
-            }
-        }
-        // Wait a bit longer to make sure it's finished writing the file as well.
-        try
-        {
-            Thread.sleep(20L);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
+        assertWrappedThrows(expectedType, executable, false);
+    }
 
-        Assertions.assertTrue(PLogger.get().isEmpty());
+    public <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable,
+                                                          boolean deepSearch)
+    {
+        RuntimeException rte = Assertions.assertThrows(RuntimeException.class, executable);
+        if (deepSearch)
+            while (rte.getCause().getClass() == RuntimeException.class)
+                rte = (RuntimeException) rte.getCause();
+        Assertions.assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
     }
 }

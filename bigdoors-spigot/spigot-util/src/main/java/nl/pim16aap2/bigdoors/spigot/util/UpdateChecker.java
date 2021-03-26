@@ -5,7 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
@@ -29,7 +31,7 @@ import java.util.regex.Pattern;
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
  * <a href="https://spigotmc.org/resources/">SpigotMC</a>. Before any members of
- * this class are accessed, {@link #init(JavaPlugin, int, PLogger)} must be invoked by the plugin, preferrably in its
+ * this class are accessed, {@link #init(JavaPlugin, int, IPLogger)} must be invoked by the plugin, preferrably in its
  * {@link JavaPlugin#onEnable()} method, though that is not a requirement.
  * <p>
  * This class performs asynchronous queries to
@@ -84,10 +86,10 @@ public final class UpdateChecker
     @NotNull
     private final VersionScheme versionScheme;
     @NotNull
-    private final PLogger logger;
+    private final IPLogger logger;
 
     private UpdateChecker(final @NotNull JavaPlugin plugin, final int pluginID,
-                          final @NotNull VersionScheme versionScheme, final @NotNull PLogger logger)
+                          final @NotNull VersionScheme versionScheme, final @NotNull IPLogger logger)
     {
         this.plugin = plugin;
         this.pluginID = pluginID;
@@ -133,8 +135,9 @@ public final class UpdateChecker
                     }
                     catch (NumberFormatException e)
                     {
-                        PLogger.get()
-                               .logThrowable(e, "Failed to obtain age of update from ageString: \"" + ageString + "\"");
+                        BigDoors.get().getPLogger()
+                                .logThrowable(e,
+                                              "Failed to obtain age of update from ageString: \"" + ageString + "\"");
                     }
 
 
@@ -286,7 +289,8 @@ public final class UpdateChecker
      * @return The {@link UpdateChecker} instance.
      */
     public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                              final @NotNull VersionScheme versionScheme, final @NotNull PLogger logger)
+                                              final @NotNull VersionScheme versionScheme,
+                                              final @NotNull IPLogger logger)
     {
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
 
@@ -302,17 +306,17 @@ public final class UpdateChecker
      * @param pluginID the ID of the plugin as identified in the SpigotMC resource link. For example,
      *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The
      *                 value must be greater than 0
-     * @param logger   The {@link PLogger} to use for logging.
+     * @param logger   The {@link IPLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
     public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                              final @NotNull PLogger logger)
+                                              final @NotNull IPLogger logger)
     {
         return init(plugin, pluginID, VERSION_SCHEME_DECIMAL, logger);
     }
 
     /**
-     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, PLogger)} has not yet been
+     * Gets the initialized instance of UpdateChecker. If {@link #init(JavaPlugin, int, IPLogger)} has not yet been
      * invoked, this method will throw an exception.
      *
      * @return The {@link UpdateChecker} instance.
@@ -325,8 +329,8 @@ public final class UpdateChecker
     }
 
     /**
-     * Checks whether the UpdateChecker has been initialized or not (if {@link #init(JavaPlugin, int, PLogger)} has been
-     * invoked) and {@link #get()} is safe to use.
+     * Checks whether the UpdateChecker has been initialized or not (if {@link #init(JavaPlugin, int, IPLogger)} has
+     * been invoked) and {@link #get()} is safe to use.
      *
      * @return true if initialized, false otherwise
      */

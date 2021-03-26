@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -16,7 +17,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -142,7 +142,7 @@ public class GarageDoor extends AbstractDoorBase
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(new IllegalArgumentException(
+            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
                     getDoorType().toString() + "\""));
             return Optional.empty();

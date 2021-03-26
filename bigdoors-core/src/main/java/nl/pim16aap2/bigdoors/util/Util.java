@@ -2,9 +2,11 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -91,7 +93,7 @@ public final class Util
     @Contract("_, !null -> !null")
     public <T> T exceptionally(final @NonNull Throwable throwable, final T fallback)
     {
-        PLogger.get().logThrowable(throwable);
+        BigDoors.get().getPLogger().logThrowable(throwable);
         return fallback;
     }
 

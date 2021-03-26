@@ -14,13 +14,13 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -54,7 +54,7 @@ public final class DoorOpeningUtility
      * @param config              The configuration of the BigDoors plugin.
      * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
      */
-    private DoorOpeningUtility(final @NotNull PLogger pLogger,
+    private DoorOpeningUtility(final @NotNull IPLogger pLogger,
                                final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
                                final @NotNull IConfigLoader config,
                                final @NotNull IProtectionCompatManager protectionManager)
@@ -74,7 +74,7 @@ public final class DoorOpeningUtility
      * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
      * @return The instance of this {@link DoorOpeningUtility}.
      */
-    public static @NotNull DoorOpeningUtility init(final @NotNull PLogger pLogger,
+    public static @NotNull DoorOpeningUtility init(final @NotNull IPLogger pLogger,
                                                    final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
                                                    final @NotNull IConfigLoader config,
                                                    final @NotNull IProtectionCompatManager protectionManager)
@@ -108,10 +108,11 @@ public final class DoorOpeningUtility
     public @NotNull DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
                                            final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
-        PLogger.get().logMessage(Level.FINE,
-                                 String.format("Aborted toggle for door %d because of %s." +
-                                                   " Toggle Reason: %s, Responsible: %s",
-                                               door.getDoorUID(), result.name(), cause.name(), responsible.asString()));
+        BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                               String.format("Aborted toggle for door %d because of %s." +
+                                                                 " Toggle Reason: %s, Responsible: %s",
+                                                             door.getDoorUID(), result.name(), cause.name(),
+                                                             responsible.asString()));
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
@@ -121,7 +122,8 @@ public final class DoorOpeningUtility
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
-                PLogger.get().warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
+                BigDoors.get().getPLogger()
+                        .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
             else
             {
                 BigDoors.get().getMessagingInterface()
@@ -149,9 +151,9 @@ public final class DoorOpeningUtility
             .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
                 PROT ->
                 {
-                    PLogger.get()
-                           .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
-                                     door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
+                    BigDoors.get().getPLogger()
+                            .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
+                                      door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
                     return false;
                 }).orElse(true);
     }
@@ -316,7 +318,7 @@ public final class DoorOpeningUtility
 
         if (!chunksLoaded(door))
         {
-            PLogger.get().warn("Chunks for door " + door.getName() + " could not be not loaded!");
+            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
             return DoorToggleResult.ERROR;
         }
 

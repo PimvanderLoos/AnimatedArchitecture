@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.IConfigReader;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public final class ConfigEntry<V>
 {
     @NotNull
-    private final PLogger logger;
+    private final IPLogger logger;
     @NotNull
     private final IConfigReader config;
     @NotNull
@@ -37,7 +38,7 @@ public final class ConfigEntry<V>
      * @param comment      The comment that will preceed this option.
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(final @NotNull PLogger logger, final @NotNull IConfigReader config,
+    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
                        final @NotNull String optionName, final @NotNull V defaultValue,
                        final @Nullable String[] comment, final @Nullable ConfigEntry.TestValue<V> verifyValue)
     {
@@ -59,7 +60,7 @@ public final class ConfigEntry<V>
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    public ConfigEntry(final @NotNull PLogger logger, final @NotNull IConfigReader config,
+    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
                        final @NotNull String optionName, final @NotNull V defaultValue,
                        final @Nullable String[] comment)
     {

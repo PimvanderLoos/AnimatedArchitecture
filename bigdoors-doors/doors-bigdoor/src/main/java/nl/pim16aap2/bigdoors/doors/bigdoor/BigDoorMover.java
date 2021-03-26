@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -10,7 +11,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -39,7 +39,8 @@ public class BigDoorMover extends BlockMover
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
 
         if (angle == 0.0D)
-            PLogger.get().severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
+            BigDoors.get().getPLogger()
+                    .severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
 
         endCos = Math.cos(angle);
         endSin = Math.sin(angle);

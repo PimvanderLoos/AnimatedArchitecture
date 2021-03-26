@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
@@ -35,13 +35,13 @@ public final class PowerBlockManager extends Restartable
     private final @NotNull Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final @NotNull IConfigLoader config;
     private final @NotNull DatabaseManager databaseManager;
-    private final @NotNull PLogger pLogger;
+    private final @NotNull IPLogger pLogger;
 
     private static @Nullable PowerBlockManager INSTANCE;
     private final @NotNull IRestartableHolder restartableHolder;
 
     private PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
-                              final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
+                              final @NotNull DatabaseManager databaseManager, final @NotNull IPLogger pLogger)
     {
         super(restartableHolder);
         this.restartableHolder = restartableHolder;
@@ -64,7 +64,7 @@ public final class PowerBlockManager extends Restartable
     public static @NotNull PowerBlockManager init(final @NotNull IRestartableHolder holder,
                                                   final @NotNull IConfigLoader config,
                                                   final @NotNull DatabaseManager databaseManager,
-                                                  final @NotNull PLogger pLogger)
+                                                  final @NotNull IPLogger pLogger)
     {
         return (INSTANCE == null) ? INSTANCE = new PowerBlockManager(holder, config, databaseManager, pLogger) :
                INSTANCE;
