@@ -352,6 +352,9 @@ public final class PLogger
     private void addThrowableToQueue(final @NotNull Level level, final @NotNull Throwable throwable,
                                      final @NotNull String message)
     {
+        // TODO: Remove this once unit tests have been fixed.
+        if (!isInitialized())
+            throw new RuntimeException(message, throwable);
         addToMessageQueue(level, () -> new LogMessageThrowable(throwable, message, level));
     }
 
@@ -596,7 +599,7 @@ public final class PLogger
         @Override
         public @NotNull String toString()
         {
-            return getFormattedLevel() + getFormattedThreadID() + message;
+            return getFormattedLevelAndThread() + message;
         }
 
         /**
@@ -612,14 +615,9 @@ public final class PLogger
             return str + "\n";
         }
 
-        private @NonNull String getFormattedThreadID()
+        private @NonNull String getFormattedLevelAndThread()
         {
-            return String.format("Thread [%d] ", threadID);
-        }
-
-        private @NonNull String getFormattedLevel()
-        {
-            return String.format("(%s) ", logLevel.toString());
+            return String.format("[%d/%s] ", threadID, logLevel.toString());
         }
     }
 

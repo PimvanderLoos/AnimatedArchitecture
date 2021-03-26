@@ -187,6 +187,7 @@ final class DoorTypeInitializer
         }
         catch (Throwable e)
         {
+            e.printStackTrace();
             PLogger.get().logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
             return Optional.empty();
         }

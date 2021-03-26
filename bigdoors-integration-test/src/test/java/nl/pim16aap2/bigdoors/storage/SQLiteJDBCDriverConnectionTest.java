@@ -287,6 +287,7 @@ public class SQLiteJDBCDriverConnectionTest
         throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
                NoSuchFieldException, IOException, ExecutionException, InterruptedException
     {
+        final long currentLogSize = UnitTestUtil.LOG_FILE.length();
         registerDoorTypes();
         initStorage();
         insertDoors();
@@ -298,7 +299,7 @@ public class SQLiteJDBCDriverConnectionTest
         testDoorTypes();
         // Make sure no errors were logged.
         UnitTestUtil.waitForLogger();
-        Assertions.assertEquals(0, UnitTestUtil.LOG_FILE.length());
+        Assertions.assertEquals(currentLogSize, UnitTestUtil.LOG_FILE.length());
 
         PLogger.get().setFileLogLevel(Level.ALL);
 

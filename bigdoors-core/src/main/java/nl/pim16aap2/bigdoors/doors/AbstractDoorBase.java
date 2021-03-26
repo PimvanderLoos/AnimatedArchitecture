@@ -53,7 +53,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 {
     @Getter(onMethod = @__({@Override}))
     private final long doorUID;
-    protected final @NotNull DoorOpeningUtility doorOpeningUtility;
+    protected @NotNull DoorOpeningUtility doorOpeningUtility;
 
     @Getter(onMethod = @__({@Override}))
     protected final @NotNull IPWorld world;
@@ -135,8 +135,15 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     protected AbstractDoorBase(final @NotNull DoorData doorData)
     {
+        init(doorData);
         doorUID = doorData.getUid();
+        world = doorData.getWorld();
+        primeOwner = doorData.getPrimeOwner();
+        doorOwners = doorData.getDoorOwners();
+    }
 
+    private void init(final @NotNull DoorData doorData)
+    {
         PLogger.get().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
         if (doorUID > 0 && !DoorRegistry.get().registerDoor(new Registerable()))
         {
@@ -151,13 +158,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         engine = doorData.getEngine();
         engineChunk = Util.getChunkCoords(engine);
         powerBlock = doorData.getPowerBlock();
-        world = doorData.getWorld();
         open = doorData.isOpen();
         openDir = doorData.getOpenDirection();
-        primeOwner = doorData.getPrimeOwner();
-        doorOwners = doorData.getDoorOwners();
         locked = doorData.isLocked();
-
         doorOpeningUtility = DoorOpeningUtility.get();
     }
 

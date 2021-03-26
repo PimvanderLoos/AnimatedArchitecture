@@ -92,15 +92,10 @@ class DoorSerializerTest
         @Getter
         private int blockTestCount;
 
-        public TestDoorType(final @NonNull DoorData doorData)
-        {
-            super(doorData);
-        }
-
         public TestDoorType(final @NonNull DoorData doorData, final @NonNull String testName,
                             final boolean isCoolType, final int blockTestCount)
         {
-            this(doorData);
+            super(doorData);
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
@@ -159,11 +154,6 @@ class DoorSerializerTest
         @PersistentVariable
         @Getter
         private int subclassTestValue = -1;
-
-        public TestDoorSubType(final @NonNull DoorData doorData)
-        {
-            super(doorData);
-        }
 
         public TestDoorSubType(final @NonNull DoorData doorData, final @NonNull String testName,
                                final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
