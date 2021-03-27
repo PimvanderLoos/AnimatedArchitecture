@@ -161,6 +161,7 @@ public class SQLiteJDBCDriverConnectionTest
         initStorage();
         Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
         Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
+        Mockito.when(platform.getDoorTypeManager()).thenReturn(new DoorTypeManager());
     }
 
     /**
@@ -239,9 +240,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private void registerDoorTypes()
     {
-        DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeBigDoor.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypePortcullis.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeDrawbridge.get());
     }
 
     /**

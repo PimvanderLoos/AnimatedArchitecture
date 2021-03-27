@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -87,7 +86,7 @@ public class GUI
                 doorList.forEach(
                     doorEntry ->
                     {
-                        if (DoorTypeManager.get().isDoorTypeEnabled(doorEntry.getDoorType()))
+                        if (BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(doorEntry.getDoorType()))
                             doorBases.add(doorEntry);
                     });
                 sort();

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
@@ -269,9 +268,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         throws Exception
     {
         final Optional<DoorType> doorType =
-            DoorTypeManager.get().getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
+            BigDoors.get().getDoorTypeManager().getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
 
-        if (!doorType.map(type -> DoorTypeManager.get().isRegistered(type)).orElse(false))
+        if (!doorType.map(type -> BigDoors.get().getDoorTypeManager().isRegistered(type)).orElse(false))
         {
             BigDoors.get().getPLogger()
                     .logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
@@ -343,7 +342,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                       .setNextString(doorType.getFullName())) > 0, false);
 
         if (removed)
-            DoorTypeManager.get().unregisterDoorType(doorType);
+            BigDoors.get().getDoorTypeManager().unregisterDoorType(doorType);
         return removed;
     }
 

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -302,7 +301,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
         String[] usedMulitplierComment = multiplierComment;
         String[] usedPricesComment = pricesComment;
-        for (final @NotNull DoorType type : DoorTypeManager.get().getEnabledDoorTypes())
+        for (final @NotNull DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
         {
             doorMultipliers
                 .put(type, addNewConfigEntry(config, "multiplier_" + type.toString(), 0.0D, usedMulitplierComment));

@@ -28,8 +28,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class DoorTypeManager extends Restartable
 {
     @NotNull
-    private static final DoorTypeManager INSTANCE = new DoorTypeManager();
-    @NotNull
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
     @NotNull
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
@@ -50,7 +48,7 @@ public final class DoorTypeManager extends Restartable
         }
     };
 
-    private DoorTypeManager()
+    public DoorTypeManager()
     {
         super(BigDoors.get());
     }
@@ -77,16 +75,6 @@ public final class DoorTypeManager extends Restartable
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;
-    }
-
-    /**
-     * Obtain the instance of this class.
-     *
-     * @return The instance of this class.
-     */
-    public static @NotNull DoorTypeManager get()
-    {
-        return INSTANCE;
     }
 
     /**

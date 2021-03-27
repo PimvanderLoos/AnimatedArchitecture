@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.Value;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -246,7 +245,7 @@ final class DoorTypeInitializer
             final @NotNull String dependencyName = dependency.getDependencyName();
 
             // If the dependency has already been registered, it has already been loaded, obviously.
-            if (DoorTypeManager.get().getDoorType(dependencyName).isPresent())
+            if (BigDoors.get().getDoorTypeManager().getDoorType(dependencyName).isPresent())
             {
                 registrationQueue.replace(currentName, new Pair<>(doorTypeInfo, 0));
                 return new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "");

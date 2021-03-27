@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.extensions;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -126,7 +125,7 @@ public final class DoorTypeLoader extends Restartable
         final @NotNull List<DoorType> doorTypes =
             loadDoorTypesFromDirectory(BigDoors.get().getPlatform().getDataDirectory() +
                                            Constants.BIGDOORS_EXTENSIONS_FOLDER);
-        DoorTypeManager.get().registerDoorTypes(doorTypes);
+        BigDoors.get().getDoorTypeManager().registerDoorTypes(doorTypes);
     }
 
     /**
@@ -161,7 +160,7 @@ public final class DoorTypeLoader extends Restartable
     @Override
     public void shutdown()
     {
-        DoorTypeManager.get().shutdown();
+        BigDoors.get().getDoorTypeManager().shutdown();
         deregisterDoorTypes();
     }
 }

@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -129,7 +128,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void init()
     {
-        for (DoorType type : DoorTypeManager.get().getEnabledDoorTypes())
+        for (DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
             getFlatPrice(type);
     }
 

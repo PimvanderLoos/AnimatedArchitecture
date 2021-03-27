@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -96,7 +95,7 @@ public class SubCommandNew extends SubCommand
     // Create a new door.
     public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType doorType)
     {
-        if (!DoorTypeManager.get().isDoorTypeEnabled(doorType))
+        if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(doorType))
         {
             plugin.getPLogger()
                   .severe(
@@ -125,12 +124,12 @@ public class SubCommandNew extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
 
-        @Nullable DoorType doorType = DoorTypeManager.get().getDoorType("bigdoor").orElse(null);
+        @Nullable DoorType doorType = BigDoors.get().getDoorTypeManager().getDoorType("bigdoor").orElse(null);
         String name = args[args.length - 1];
 
         if (args.length == minArgCount + 1)
-            doorType = DoorTypeManager.get().getDoorType(args[args.length - 2])
-                                      .orElse(doorType);
+            doorType = BigDoors.get().getDoorTypeManager().getDoorType(args[args.length - 2])
+                               .orElse(doorType);
         if (doorType == null)
         {
             sender.sendMessage("TYPE NOT FOUND!");

@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
@@ -252,7 +251,7 @@ public final class DoorOpeningUtility
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
 
-        if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
+        if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))

@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -211,6 +212,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
+
+    @Getter
+    private final DoorTypeManager doorTypeManager = new DoorTypeManager();
 
     public BigDoorsSpigot()
     {
