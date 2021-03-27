@@ -268,7 +268,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
 
-            powerBlockManager = PowerBlockManager.init(this, configLoader, databaseManager, getPLogger());
+            powerBlockManager = new PowerBlockManager(this, configLoader, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             loadCommands();
 

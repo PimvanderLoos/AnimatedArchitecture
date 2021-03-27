@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,6 +81,16 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DoorRegistry getDoorRegistry()
     {
         return getPlatform().getDoorRegistry();
+    }
+
+    /**
+     * Gets the {@link PowerBlockManager}.
+     *
+     * @return The {@link PowerBlockManager}.
+     */
+    public @NonNull PowerBlockManager getPowerBlockManager()
+    {
+        return getPlatform().getPowerBlockManager();
     }
 
     /**
