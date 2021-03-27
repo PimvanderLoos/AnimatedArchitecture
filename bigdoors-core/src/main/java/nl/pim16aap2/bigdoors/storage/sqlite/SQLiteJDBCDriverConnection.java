@@ -281,7 +281,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
 
         final long doorUID = doorBaseRS.getLong("id");
-        System.out.println("Constructing door with ID: " + doorUID);
 
         final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())

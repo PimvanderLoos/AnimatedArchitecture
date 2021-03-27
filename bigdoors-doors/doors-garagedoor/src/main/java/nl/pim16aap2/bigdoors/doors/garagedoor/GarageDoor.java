@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -211,7 +212,7 @@ public class GarageDoor extends AbstractDoorBase
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        return new GarageDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), skipAnimation,
+        return new GarageDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 

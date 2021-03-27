@@ -27,6 +27,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +53,10 @@ public final class TestPlatform implements IBigDoorsPlatform
     private final IEconomyManager economyManager = new TestEconomyManager();
     private final IPermissionsManager permissionsManager = new TestPermissionsManager();
     private final IProtectionCompatManager protectionCompatManager = new TestProtectionCompatManager();
-    private IPLogger pLogger = new BasicPLogger();
+    private final IPLogger pLogger = new BasicPLogger();
+
+    @Getter @Setter
+    private DatabaseManager databaseManager;
 
     @Getter
     @Setter

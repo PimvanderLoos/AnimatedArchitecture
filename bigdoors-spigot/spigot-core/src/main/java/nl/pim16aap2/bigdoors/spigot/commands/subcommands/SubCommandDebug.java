@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -50,13 +50,13 @@ public class SubCommandDebug extends SubCommand
         final @NotNull Player player = (Player) sender;
         final @NotNull IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
 
-        DatabaseManager.get().getDoors(pPlayer)
-                       .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()))
-                       .thenApplyAsync(doors -> DelayedDoorSpecificationInputRequest.get(Duration.ofSeconds(30),
-                                                                                         doors, pPlayer))
-                       .whenComplete((door, ex) -> Bukkit.broadcastMessage("Selected door: " + door
-                           .map(AbstractDoorBase::getBasicInfo).orElse("NULL")))
-                       .exceptionally(Util::exceptionally);
+        BigDoors.get().getDatabaseManager().getDoors(pPlayer)
+                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()))
+                .thenApplyAsync(doors -> DelayedDoorSpecificationInputRequest.get(Duration.ofSeconds(30),
+                                                                                  doors, pPlayer))
+                .whenComplete((door, ex) -> Bukkit.broadcastMessage("Selected door: " + door
+                    .map(AbstractDoorBase::getBasicInfo).orElse("NULL")))
+                .exceptionally(Util::exceptionally);
 
 //        BigDoors.get().getDatabaseManager().updateDoorCoords(236L, false, 128, 76, 140, 131, 79, 140);
 //        BigDoors.get().getDatabaseManager().getDoor(236L).ifPresent(door -> BigDoors.get().getDatabaseManager().fillDoor((door)));

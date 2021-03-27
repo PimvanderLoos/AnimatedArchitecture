@@ -22,7 +22,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
@@ -196,6 +195,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
+    @Getter
+    private DatabaseManager databaseManager;
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -216,7 +218,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
-            DatabaseManager.init(this, new File(super.getDataFolder(), "doorDB.db"));
+            databaseManager = new DatabaseManager(this, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
@@ -239,7 +241,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             RedstoneListener.init(this);
             LoginResourcePackListener.init(this, configLoader.resourcePack());
 
-            final IStorage.DatabaseState databaseState = DatabaseManager.get().getDatabaseState();
+            final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
             {
                 BigDoors.get().getPLogger()
@@ -260,9 +262,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
-            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protectionCompatManager);
 
-            powerBlockManager = PowerBlockManager.init(this, configLoader, DatabaseManager.get(), getPLogger());
+            powerBlockManager = PowerBlockManager.init(this, configLoader, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             loadCommands();
 

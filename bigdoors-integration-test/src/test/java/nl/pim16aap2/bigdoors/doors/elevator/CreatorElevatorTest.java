@@ -19,7 +19,6 @@ class CreatorElevatorTest extends CreatorTestsUtil
 
     @Test
     public void createElevator()
-        throws InterruptedException
     {
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;

@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -140,7 +141,7 @@ public class Drawbridge extends AbstractDoorBase
                                                       final @NotNull DoorActionType actionType)
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
-                                 doorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override

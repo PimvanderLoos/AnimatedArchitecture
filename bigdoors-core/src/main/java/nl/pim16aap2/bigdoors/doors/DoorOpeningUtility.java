@@ -1,20 +1,16 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -36,66 +32,9 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@UtilityClass
 public final class DoorOpeningUtility
 {
-    @Nullable
-    private static DoorOpeningUtility INSTANCE;
-
-    @Getter // Temporary until this is a global thing that can be accessed from the core.
-    private final IGlowingBlockSpawner glowingBlockSpawner;
-    private final IConfigLoader config;
-    private final IProtectionCompatManager protectionManager;
-
-    /**
-     * Constructs a new {@link DoorOpeningUtility}.
-     *
-     * @param pLogger             The logger.
-     * @param glowingBlockSpawner The class that
-     * @param config              The configuration of the BigDoors plugin.
-     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
-     */
-    private DoorOpeningUtility(final @NotNull IPLogger pLogger,
-                               final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
-                               final @NotNull IConfigLoader config,
-                               final @NotNull IProtectionCompatManager protectionManager)
-    {
-        this.glowingBlockSpawner = glowingBlockSpawner;
-        this.config = config;
-        this.protectionManager = protectionManager;
-    }
-
-    /**
-     * Initializes the {@link DoorOpeningUtility}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param pLogger             The logger.
-     * @param glowingBlockSpawner The class that
-     * @param config              The configuration of the BigDoors plugin.
-     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
-     * @return The instance of this {@link DoorOpeningUtility}.
-     */
-    public static @NotNull DoorOpeningUtility init(final @NotNull IPLogger pLogger,
-                                                   final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
-                                                   final @NotNull IConfigLoader config,
-                                                   final @NotNull IProtectionCompatManager protectionManager)
-    {
-        return (INSTANCE == null) ?
-               INSTANCE = new DoorOpeningUtility(pLogger, glowingBlockSpawner, config, protectionManager) :
-               INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link DoorOpeningUtility} if it exists.
-     *
-     * @return The instance of the {@link DoorOpeningUtility}.
-     */
-    public static @NotNull DoorOpeningUtility get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
-    }
-
     /**
      * Aborts an attempt to toggle a {@link AbstractDoorBase} and cleans up leftover data from this attempt.
      *
@@ -147,8 +86,8 @@ public final class DoorOpeningUtility
                                              final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionManager
-            .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
+        return BigDoors.get().getPlatform().getProtectionCompatManager()
+                       .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
                 PROT ->
                 {
                     BigDoors.get().getPLogger()
@@ -196,8 +135,8 @@ public final class DoorOpeningUtility
                         if (player == null)
                             return false;
 
-                        glowingBlockSpawner
-                            .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
+                        BigDoors.get().getPlatform().getGlowingBlockSpawner()
+                                .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
                         isEmpty = false;
                     }
                 }
@@ -388,6 +327,6 @@ public final class DoorOpeningUtility
      */
     public double getMultiplier(final @NotNull AbstractDoorBase door)
     {
-        return config.getMultiplier(door.getDoorType());
+        return BigDoors.get().getPlatform().getConfigLoader().getMultiplier(door.getDoorType());
     }
 }

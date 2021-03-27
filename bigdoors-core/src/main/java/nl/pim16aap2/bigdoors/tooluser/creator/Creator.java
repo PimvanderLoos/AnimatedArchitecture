@@ -372,7 +372,7 @@ public abstract class Creator extends ToolUser
         // TODO: Don't complete the process until the CompletableFuture has an actual result.
         //       Or maybe just finish it anyway and send whatever message once it is done.
         //       There's nothing that can be done about failure anyway.
-        DatabaseManager.get().addDoorBase(door).whenComplete(
+        BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
             (newDoor, throwable) ->
             {
                 if (newDoor.isEmpty())
@@ -479,7 +479,6 @@ public abstract class Creator extends ToolUser
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
             return false;
         }
-
         final @NotNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&

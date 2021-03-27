@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.factories;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.OfflinePPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -38,8 +38,8 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PPlayerSpigot(player)));
 
-        return DatabaseManager.get().getPlayerData(uuid)
-                              .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
-                              .exceptionally(Util::exceptionallyOptional);
+        return BigDoors.get().getDatabaseManager().getPlayerData(uuid)
+                       .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
+                       .exceptionally(Util::exceptionallyOptional);
     }
 }

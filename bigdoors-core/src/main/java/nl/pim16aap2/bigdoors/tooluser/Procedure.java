@@ -54,14 +54,11 @@ public final class Procedure<T extends ToolUser>
      */
     public boolean skipToStep(final @NotNull IStep goalStep)
     {
-        System.out.println("skipToStep: Trying to find step: " + goalStep.getName());
         while (steps.hasNext())
         {
             IStep step = steps.next();
-            System.out.println("skipToStep: Checking step: " + step.getName());
             if (step.equals(goalStep))
             {
-                System.out.println("skipToStep: IS A MATCH! RETURN TRUE!");
                 currentStep = step;
                 return true;
             }

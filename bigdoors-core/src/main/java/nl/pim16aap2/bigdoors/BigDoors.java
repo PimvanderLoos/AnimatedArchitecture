@@ -109,26 +109,31 @@ public final class BigDoors implements IRestartableHolder, IRestartable
         return messagingInterface;
     }
 
+    /**
+     * Gets the currently set {@link IPLogger}.
+     *
+     * @return The currently set {@link IPLogger}..
+     */
     public @NonNull IPLogger getPLogger()
     {
-        if (platform == null)
+        if (platform == null || getPlatform().getPLogger() == null)
             return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
         return getPlatform().getPLogger();
+    }
+
+    /**
+     * Gets the {@link DatabaseManager}.
+     *
+     * @return The {@link DatabaseManager}.
+     */
+    public @NonNull DatabaseManager getDatabaseManager()
+    {
+        return getPlatform().getDatabaseManager();
     }
 
     public void setMessagingInterface(final @Nullable IMessagingInterface messagingInterface)
     {
         this.messagingInterface = messagingInterface;
-    }
-
-    /**
-     * Gets the {@link DatabaseManager} instance.
-     *
-     * @return The {@link DatabaseManager} instance.
-     */
-    public @NotNull DatabaseManager getDatabaseManager()
-    {
-        return DatabaseManager.get();
     }
 
     @Override

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
 
 import java.time.Duration;
@@ -167,27 +166,27 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor()
         {
-            return listToOptional(DatabaseManager.get().getDoors(name));
+            return listToOptional(BigDoors.get().getDatabaseManager().getDoors(name));
         }
 
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NonNull IPPlayer player)
         {
-            return listToOptional(DatabaseManager.get().getDoors(player, name));
+            return listToOptional(BigDoors.get().getDatabaseManager().getDoors(player, name));
         }
 
         @Override
         public @NonNull CompletableFuture<List<AbstractDoorBase>> getDoors()
         {
-            return DatabaseManager.get().getDoors(name)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            return BigDoors.get().getDatabaseManager().getDoors(name)
+                           .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
         public @NonNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NonNull IPPlayer player)
         {
-            return DatabaseManager.get().getDoors(player, name)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            return BigDoors.get().getDatabaseManager().getDoors(player, name)
+                           .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
@@ -222,15 +221,15 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor()
         {
-            return DatabaseManager.get().getDoor(uid)
-                                  .exceptionally(Util::exceptionallyOptional);
+            return BigDoors.get().getDatabaseManager().getDoor(uid)
+                           .exceptionally(Util::exceptionallyOptional);
         }
 
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NonNull IPPlayer player)
         {
-            return DatabaseManager.get().getDoor(player, uid)
-                                  .exceptionally(Util::exceptionallyOptional);
+            return BigDoors.get().getDatabaseManager().getDoor(player, uid)
+                           .exceptionally(Util::exceptionallyOptional);
         }
     }
 

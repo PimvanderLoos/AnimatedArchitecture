@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -114,7 +115,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                                       final @NotNull DoorActionType actionType)
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
-                                doorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+                                DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override

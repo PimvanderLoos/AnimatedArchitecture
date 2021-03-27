@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -191,5 +192,12 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The {@link IPLogger} for this platform.
      */
-    @NonNull IPLogger getPLogger();
+    IPLogger getPLogger();
+
+    /**
+     * Gets the {@link DatabaseManager}.
+     *
+     * @return The {@link DatabaseManager}.
+     */
+    @NonNull DatabaseManager getDatabaseManager();
 }

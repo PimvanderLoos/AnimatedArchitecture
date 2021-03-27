@@ -52,7 +52,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 {
     @Getter(onMethod = @__({@Override}))
     private final long doorUID;
-    protected final @NotNull DoorOpeningUtility doorOpeningUtility;
 
     @Getter(onMethod = @__({@Override}))
     protected final @NotNull IPWorld world;
@@ -156,8 +155,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         primeOwner = doorData.getPrimeOwner();
         doorOwners = doorData.getDoorOwners();
         locked = doorData.isLocked();
-
-        doorOpeningUtility = DoorOpeningUtility.get();
     }
 
     /**
@@ -165,7 +162,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized final void syncData()
     {
-        DatabaseManager.get().syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
+        BigDoors.get().getDatabaseManager()
+                .syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
     }
 
     @Override
@@ -263,22 +261,22 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         }
 
         if (!DoorRegistry.get().isRegistered(this))
-            return doorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
 
         if (skipAnimation && !canSkipAnimation())
-            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NotNull DoorToggleResult isOpenable = doorOpeningUtility.canBeToggled(this, cause, actionType);
+        final @NotNull DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return doorOpeningUtility.abort(this, isOpenable, cause, responsible);
+            return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
-            return doorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
         final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
         if (newCuboid.isEmpty())
-            return doorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
         final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                                       .createPrepareEvent(this, cause, actionType,
@@ -287,14 +285,14 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                                                                                           newCuboid.get());
         BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
         if (prepareEvent.isCancelled())
-            return doorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
 
         final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
-        if (!doorOpeningUtility.isLocationEmpty(newCuboid.get(), cuboid, responsiblePlayer, getWorld()))
-            return doorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
+        if (!DoorOpeningUtility.isLocationEmpty(newCuboid.get(), cuboid, responsiblePlayer, getWorld()))
+            return DoorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
 
-        if (!doorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return doorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
+        if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
+            return DoorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
 
         BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
@@ -387,7 +385,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             return;
         }
 
-        doorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
+        DoorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
                                                                   responsible, actionType));
     }
 

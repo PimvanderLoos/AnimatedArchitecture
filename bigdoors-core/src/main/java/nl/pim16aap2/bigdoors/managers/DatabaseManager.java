@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collections;
@@ -34,14 +33,10 @@ import java.util.logging.Level;
  */
 public final class DatabaseManager extends Restartable
 {
-    @Nullable
-    private static DatabaseManager INSTANCE;
-
     /**
      * The thread pool to use for storage access.
      */
-    @NotNull
-    private final ExecutorService threadPool;
+    private final @NonNull ExecutorService threadPool;
 
     /**
      * The number of threads to use for storage access if the storage allows multithreaded access as determined by
@@ -49,7 +44,7 @@ public final class DatabaseManager extends Restartable
      */
     private static final int THREADCOUNT = 10;
 
-    private final IStorage db;
+    private final @NonNull IStorage db;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -57,39 +52,25 @@ public final class DatabaseManager extends Restartable
      * @param restartableHolder The object managing restarts for this object.
      * @param dbFile            The name of the database file.
      */
-    private DatabaseManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull File dbFile)
+    public DatabaseManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull File dbFile)
+    {
+        this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
+    }
+
+    /**
+     * Constructs a new {@link DatabaseManager}.
+     *
+     * @param restartableHolder The object managing restarts for this object.
+     * @param storage           The {@link IStorage} to use for all database calls.
+     */
+    public DatabaseManager(final @NonNull IRestartableHolder restartableHolder, final @NotNull IStorage storage)
     {
         super(restartableHolder);
-        db = new SQLiteJDBCDriverConnection(dbFile);
+        db = storage;
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
             threadPool = Executors.newFixedThreadPool(THREADCOUNT);
-    }
-
-    /**
-     * Initializes the {@link DatabaseManager}. If it has already been initialized, it'll return that instance instead.
-     *
-     * @param restartableHolder The object managing restarts for this object.
-     * @param dbFile            The name of the database file.
-     * @return The instance of this {@link DatabaseManager}.
-     */
-    public static @NotNull DatabaseManager init(final @NotNull IRestartableHolder restartableHolder,
-                                                final @NotNull File dbFile)
-    {
-        return (INSTANCE == null) ? INSTANCE = new DatabaseManager(restartableHolder, dbFile) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link DatabaseManager} if it exists.
-     *
-     * @return The instance of the {@link DatabaseManager}.
-     */
-    public static @NotNull DatabaseManager get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
     }
 
     /**
@@ -476,17 +457,6 @@ public final class DatabaseManager extends Restartable
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
-    }
-
-    /**
-     * ONLY used for testing.
-     */
-    private DatabaseManager(final @NotNull IRestartableHolder restartableHolder)
-    {
-        super(restartableHolder);
-        threadPool = Executors.newSingleThreadExecutor();
-        db = null;
-        INSTANCE = this;
     }
 
     /**

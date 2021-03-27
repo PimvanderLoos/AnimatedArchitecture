@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.IRestartableHolder;
@@ -273,7 +274,7 @@ public final class PowerBlockManager extends Restartable
                 final @NonNull PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
-                return DatabaseManager.get().getPowerBlockData(chunkHash).handle(
+                return BigDoors.get().getDatabaseManager().getPowerBlockData(chunkHash).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);
