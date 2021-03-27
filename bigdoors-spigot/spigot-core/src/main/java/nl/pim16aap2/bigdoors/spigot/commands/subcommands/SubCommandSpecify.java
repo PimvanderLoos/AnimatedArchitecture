@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -35,7 +35,7 @@ public class SubCommandSpecify extends SubCommandToggle
 
         final String specified = args[args.length - 1];
 
-        if (!DoorSpecificationManager.get().handleInput(SpigotAdapter.wrapPlayer(player), specified))
+        if (!BigDoors.get().getDoorSpecificationManager().handleInput(SpigotAdapter.wrapPlayer(player), specified))
         {
             // TODO: Localization
             player.sendMessage("We are not currently waiting for your input!");

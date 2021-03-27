@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import java.time.Duration;
@@ -66,7 +66,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     @Override
     protected void init()
     {
-        DoorSpecificationManager.get().placeRequest(player, this);
+        BigDoors.get().getDoorSpecificationManager().placeRequest(player, this);
         // TODO: Localization
         // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
         //       It may also use a GUI or clickable text or whatever.
@@ -78,7 +78,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     @Override
     protected void cleanup()
     {
-        DoorSpecificationManager.get().removeRequest(player);
+        BigDoors.get().getDoorSpecificationManager().removeRequest(player);
     }
 
     private void getDoorInfoList(final @NonNull StringBuilder sb)

@@ -30,6 +30,7 @@ import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -207,6 +208,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     private final DoorActivityManager doorActivityManager = new DoorActivityManager(this);
+
+    @Getter
+    private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
 
     public BigDoorsSpigot()
     {

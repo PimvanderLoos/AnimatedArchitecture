@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,6 +112,16 @@ public final class BigDoors extends RestartableHolder
     public @NotNull AutoCloseScheduler getAutoCloseScheduler()
     {
         return getPlatform().getAutoCloseScheduler();
+    }
+
+    /**
+     * Gets the {@link DoorSpecificationManager} instance.
+     *
+     * @return The {@link DoorSpecificationManager} instance.
+     */
+    public @NotNull DoorSpecificationManager getDoorSpecificationManager()
+    {
+        return getPlatform().getDoorSpecificationManager();
     }
 
     /**
