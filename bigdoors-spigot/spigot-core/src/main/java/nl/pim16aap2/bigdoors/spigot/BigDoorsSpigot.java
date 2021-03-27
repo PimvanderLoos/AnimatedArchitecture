@@ -205,6 +205,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
 
+    @Getter
+    private final DoorActivityManager doorActivityManager = new DoorActivityManager(this);
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -258,7 +261,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 return;
             }
 
-            DoorActivityManager.init(this);
             vaultManager = VaultManager.init(this);
 
             headManager = HeadManager.init(this, getConfigLoader());

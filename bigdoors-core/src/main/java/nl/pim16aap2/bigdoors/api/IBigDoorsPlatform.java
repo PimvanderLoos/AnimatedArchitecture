@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -217,4 +218,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link AutoCloseScheduler} instance.
      */
     @NonNull AutoCloseScheduler getAutoCloseScheduler();
+
+    /**
+     * Gets the {@link DoorActivityManager} instance.
+     *
+     * @return The {@link DoorActivityManager} instance.
+     */
+    @NonNull DoorActivityManager getDoorActivityManager();
 }

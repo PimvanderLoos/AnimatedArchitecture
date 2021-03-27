@@ -57,7 +57,7 @@ public final class DoorOpeningUtility
         // not reset the busy status of this door. However, in every other case it should, because the door is
         // registered as busy before all the other checks take place.
         if (!result.equals(DoorToggleResult.BUSY))
-            BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+            BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
@@ -241,7 +241,7 @@ public final class DoorOpeningUtility
                                            final @NotNull DoorActionCause cause,
                                            final @NotNull DoorActionType actionType)
     {
-        if (!BigDoors.get().getDoorManager().attemptRegisterAsBusy(door.getDoorUID()))
+        if (!BigDoors.get().getDoorActivityManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
 
         if (actionType == DoorActionType.OPEN && !door.isOpenable())
@@ -290,7 +290,7 @@ public final class DoorOpeningUtility
      */
     public void registerBlockMover(final @NotNull BlockMover blockMover)
     {
-        BigDoors.get().getDoorManager().addBlockMover(blockMover);
+        BigDoors.get().getDoorActivityManager().addBlockMover(blockMover);
     }
 
     /**
@@ -316,7 +316,7 @@ public final class DoorOpeningUtility
      */
     public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
-        return BigDoors.get().getDoorManager().getBlockMover(doorUID);
+        return BigDoors.get().getDoorActivityManager().getBlockMover(doorUID);
     }
 
     /**

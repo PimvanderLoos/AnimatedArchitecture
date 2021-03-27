@@ -405,7 +405,7 @@ public abstract class BlockMover implements IRestartable
                     @Override
                     public void run()
                     {
-                        BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+                        BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
                         BigDoors.get().getPlatform()
                                 .callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()

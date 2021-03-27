@@ -98,9 +98,9 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorActivityManager} instance.
      */
-    public @NotNull DoorActivityManager getDoorManager()
+    public @NonNull DoorActivityManager getDoorActivityManager()
     {
-        return DoorActivityManager.get();
+        return getPlatform().getDoorActivityManager();
     }
 
     /**

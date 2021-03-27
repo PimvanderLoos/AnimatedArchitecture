@@ -89,7 +89,7 @@ public final class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     // TODO: Verify that reusing the door object won't result in any issues.
-                    BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+                    BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
                     DoorOpener.get().animateDoorAsync(door, cause, player, speed, skipAnimation, DoorActionType.CLOSE);
                 }
                 deleteTimer(door.getDoorUID());

@@ -126,7 +126,7 @@ public class ChunkListener implements Listener
             Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
 
             // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            BigDoors.get().getDoorManager().getBlockMovers()
+            BigDoors.get().getDoorActivityManager().getBlockMovers()
                     .filter(BM -> BM.getDoor().chunkInRange(world, chunkCoords))
                     .forEach(BlockMover::abort);
         }

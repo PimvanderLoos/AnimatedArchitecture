@@ -380,7 +380,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
                 "BlockMovers must be instantiated on the main thread!");
             BigDoors.get().getPLogger().logThrowableSilently(e);
-            BigDoors.get().getDoorManager().setDoorAvailable(getDoorUID());
+            BigDoors.get().getDoorActivityManager().setDoorAvailable(getDoorUID());
             return;
         }
 

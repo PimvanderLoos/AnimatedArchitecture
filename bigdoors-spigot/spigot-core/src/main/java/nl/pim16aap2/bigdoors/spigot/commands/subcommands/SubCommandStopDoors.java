@@ -25,7 +25,7 @@ public class SubCommandStopDoors extends SubCommand
     public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
                              final @NotNull String label, final @NotNull String[] args)
     {
-        BigDoors.get().getDoorManager().stopDoors();
+        BigDoors.get().getDoorActivityManager().stopDoors();
         return true;
     }
 }
