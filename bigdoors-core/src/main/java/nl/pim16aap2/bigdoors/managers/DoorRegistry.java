@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -24,20 +25,41 @@ public final class DoorRegistry extends Restartable
     public static final int INITIAL_CAPACITY = 100;
     public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
 
-    private static final @NotNull DoorRegistry INSTANCE = new DoorRegistry();
-
     private TimedCache<Long, AbstractDoorBase> doorCache;
 
-    private DoorRegistry()
+    /**
+     * Constructs a new {@link #DoorRegistry}.
+     *
+     * @param maxRegistrySize  The maximum number of entries in the cache.
+     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity  The initial size of the cache to reserve.
+     * @param cacheExpiry      How long to keep stuff in the cache.
+     */
+//    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
+    private DoorRegistry(int maxRegistrySize, int concurrencyLevel, int initialCapacity, @NotNull Duration cacheExpiry)
     {
         super(BigDoors.get());
-
-        init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        init(maxRegistrySize, concurrencyLevel, initialCapacity, cacheExpiry);
     }
 
-    public static @NotNull DoorRegistry get()
+    /**
+     * Constructs a new {@link #DoorRegistry} using the default values.
+     * <p>
+     * See {@link #MAX_REGISTRY_SIZE}, {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}, {@link #CACHE_EXPIRY}.
+     */
+    public DoorRegistry()
     {
-        return INSTANCE;
+        this(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+    }
+
+    /**
+     * Creates a new {@link DoorRegistry} without any caching.
+     *
+     * @return The new {@link DoorRegistry}.
+     */
+    public static @NonNull DoorRegistry uncached()
+    {
+        return new DoorRegistry(-1, -1, -1, Duration.ofMillis(-1));
     }
 
     /**
@@ -112,14 +134,25 @@ public final class DoorRegistry extends Restartable
     /**
      * (Re)initializes the {@link #doorCache}.
      *
+     * @return This {@link DoorRegistry}.
+     */
+    public @NonNull DoorRegistry init(final @NonNull Duration duration)
+    {
+        return init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, duration);
+    }
+
+    /**
+     * (Re)initializes the {@link #doorCache}.
+     *
      * @param maxRegistrySize  The maximum number of entries in the cache.
      * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
      * @param initialCapacity  The initial size of the cache to reserve.
-     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @param cacheExpiry      How long to keep the doors in the cache.
      * @return This {@link DoorRegistry}.
      */
-    public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
-                                      final @NotNull Duration cacheExpiry)
+    // TODO: Implement these parameters. Once implemented, this should be public.
+    private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                       final @NotNull Duration cacheExpiry)
     {
         return init(maxRegistrySize, concurrencyLevel, initialCapacity, cacheExpiry, true);
     }
@@ -130,11 +163,12 @@ public final class DoorRegistry extends Restartable
      * @param maxRegistrySize  The maximum number of entries in the cache.
      * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
      * @param initialCapacity  The initial size of the cache to reserve.
-     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @param cacheExpiry      How long to keep the doors in the cache.
      * @return This {@link DoorRegistry}.
      */
-    public @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
-                                      final @NotNull Duration cacheExpiry, final boolean removalListener)
+    // TODO: Implement these parameters. Once implemented, this should be public.
+    private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                       final @NotNull Duration cacheExpiry, final boolean removalListener)
     {
         if (doorCache != null)
             doorCache.clear();

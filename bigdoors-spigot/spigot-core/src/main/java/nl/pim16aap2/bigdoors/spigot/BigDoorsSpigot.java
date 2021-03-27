@@ -28,6 +28,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -198,6 +199,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private DatabaseManager databaseManager;
 
+    @Getter
+    private final DoorRegistry doorRegistry;
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -205,6 +209,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         MAINTHREADID = Thread.currentThread().getId();
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
+        doorRegistry = new DoorRegistry();
         abortableTaskManager = AbortableTaskManager.init(this);
     }
 

@@ -2,13 +2,11 @@ package nl.pim16aap2.bigdoors;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 
-import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -16,15 +14,6 @@ import java.util.function.Function;
 public class UnitTestUtil
 {
     public final double EPSILON = 1E-6;
-
-    /**
-     * Stubs the map for the {@link DoorRegistry}. No entries can be added to it or retrieved from it after this method
-     * has been called.
-     */
-    public void setFakeDoorRegistry()
-    {
-        DoorRegistry.get().init(0, 1, 0, Duration.ofMillis(-1), false);
-    }
 
     /**
      * Checks if an object and an Optional are the same or if they both don't exist/are null.

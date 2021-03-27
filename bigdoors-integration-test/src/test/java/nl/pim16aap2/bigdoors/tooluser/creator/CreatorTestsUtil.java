@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -26,7 +25,6 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -86,12 +84,6 @@ public class CreatorTestsUtil
     @Mock
     protected IPermissionsManager permissionsManager;
 
-    @BeforeAll
-    public static void beforeall()
-    {
-        UnitTestUtil.setFakeDoorRegistry();
-    }
-
     @BeforeEach
     protected void beforeEach()
     {
@@ -112,6 +104,7 @@ public class CreatorTestsUtil
         Mockito.when(platform.getProtectionCompatManager()).thenReturn(Mockito.mock(IProtectionCompatManager.class));
         Mockito.when(platform.getConfigLoader()).thenReturn(configLoader);
         Mockito.when(platform.getPermissionsManager()).thenReturn(permissionsManager);
+        Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(
@@ -155,7 +148,6 @@ public class CreatorTestsUtil
     public void testCreation(final @NotNull Creator creator, AbstractDoorBase actualDoor,
                              final @NotNull Object... input)
     {
-        DoorRegistry.get().restart();
         setEconomyEnabled(false);
 
         int idx = 0;

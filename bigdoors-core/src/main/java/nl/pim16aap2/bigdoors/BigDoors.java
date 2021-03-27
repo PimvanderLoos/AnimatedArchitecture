@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,6 +70,16 @@ public final class BigDoors extends RestartableHolder
             throw e;
         }
         return platform;
+    }
+
+    /**
+     * Gets the {@link DoorRegistry}.
+     *
+     * @return The {@link DoorRegistry}.
+     */
+    public @NonNull DoorRegistry getDoorRegistry()
+    {
+        return getPlatform().getDoorRegistry();
     }
 
     /**

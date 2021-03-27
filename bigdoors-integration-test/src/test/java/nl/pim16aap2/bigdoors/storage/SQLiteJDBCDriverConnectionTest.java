@@ -15,6 +15,7 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
@@ -84,13 +85,6 @@ public class SQLiteJDBCDriverConnectionTest
     {
         DB_FILE = new File("./tests/test.db");
         dbFileBackup = new File(DB_FILE.toString() + ".BACKUP");
-    }
-
-    // Set up basic stuff.
-    @BeforeAll
-    public static void basicSetup()
-    {
-        UnitTestUtil.setFakeDoorRegistry();
     }
 
     // Initialize mocking.
@@ -166,6 +160,7 @@ public class SQLiteJDBCDriverConnectionTest
         BigDoors.get().setBigDoorsPlatform(platform);
         initStorage();
         Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
+        Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
     }
 
     /**

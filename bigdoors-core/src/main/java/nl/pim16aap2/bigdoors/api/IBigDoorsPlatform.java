@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
@@ -201,4 +202,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link DatabaseManager}.
      */
     @NonNull DatabaseManager getDatabaseManager();
+
+    /**
+     * Gets the {@link DoorRegistry}.
+     *
+     * @return The {@link DoorRegistry}.
+     */
+    @NonNull DoorRegistry getDoorRegistry();
 }

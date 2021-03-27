@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -136,7 +135,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorUID = doorData.getUid();
 
         BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
-        if (doorUID > 0 && !DoorRegistry.get().registerDoor(new Registerable()))
+        if (doorUID > 0 && !BigDoors.get().getDoorRegistry().registerDoor(new Registerable()))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorUID + "\" while it is already registered!");
@@ -260,7 +259,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             throw e;
         }
 
-        if (!DoorRegistry.get().isRegistered(this))
+        if (!BigDoors.get().getDoorRegistry().isRegistered(this))
             return DoorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
 
         if (skipAnimation && !canSkipAnimation())
