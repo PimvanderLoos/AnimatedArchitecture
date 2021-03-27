@@ -157,7 +157,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     @NotNull
-    private AbortableTaskManager abortableTaskManager;
+    private final AbortableTaskManager abortableTaskManager;
 
     @Getter(onMethod = @__({@Override}))
     @NotNull

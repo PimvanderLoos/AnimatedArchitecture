@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
@@ -51,8 +52,14 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     }
 
     @Override
-    public @Nullable ISpigotPlatform getSpigotPlatform()
+    public @NonNull ISpigotPlatform getSpigotPlatform()
     {
+        if (spigotPlatform == null)
+        {
+            IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
+            BigDoors.get().getPLogger().logThrowable(e);
+            throw e;
+        }
         return spigotPlatform;
     }
 

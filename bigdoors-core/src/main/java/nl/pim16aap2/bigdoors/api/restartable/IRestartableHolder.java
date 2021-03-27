@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.api.restartable;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Represents an object that can issue a restart to {@link IRestartable} objects.
+ * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
  *
  * @author Pim
  */

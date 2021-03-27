@@ -11,7 +11,7 @@ import java.util.Set;
  *
  * @author Pim
  */
-public abstract class RestartableHolder implements IRestartableHolder, IRestartable
+public class RestartableHolder implements IRestartableHolder, IRestartable
 {
     protected final @NonNull Set<@NonNull IRestartable> restartables = new HashSet<>();
 

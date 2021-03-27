@@ -54,7 +54,6 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
         }
         scoreboard = scoreBoardManager.getMainScoreboard();
 
-
         final @NotNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
         if (!(platform instanceof BigDoorsSpigotAbstract))
         {

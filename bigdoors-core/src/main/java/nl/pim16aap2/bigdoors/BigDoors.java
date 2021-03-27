@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents the core class of BigDoors.
@@ -25,7 +26,7 @@ public final class BigDoors extends RestartableHolder
     /**
      * The platform to use. e.g. "Spigot".
      */
-    private IBigDoorsPlatform platform;
+    private @Nullable IBigDoorsPlatform platform;
 
     private BigDoors()
     {
@@ -59,8 +60,14 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The platform implementing BigDoor's internal API.
      */
-    public @NotNull IBigDoorsPlatform getPlatform()
+    public @NonNull IBigDoorsPlatform getPlatform()
     {
+        if (platform == null)
+        {
+            IllegalStateException e = new IllegalStateException("No platform currently registered!");
+            getPLogger().logThrowable(e);
+            throw e;
+        }
         return platform;
     }
 
