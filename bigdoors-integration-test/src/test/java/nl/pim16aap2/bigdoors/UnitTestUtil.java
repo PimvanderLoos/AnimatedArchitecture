@@ -10,6 +10,13 @@ import org.junit.jupiter.api.function.Executable;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Class with utility methods to make unit tests easier.
+ * <p>
+ * This class does not test anything on its own.
+ *
+ * @author Pim
+ */
 @UtilityClass
 public class UnitTestUtil
 {
@@ -60,12 +67,28 @@ public class UnitTestUtil
         return opt.get();
     }
 
+    /**
+     * Asserts a specific exception wrapped inside a {@link RuntimeException} is thrown by an {@link Executable}.
+     *
+     * @param expectedType The {@link Throwable} expected to be thrown wrapped inside a {@link RuntimeException}.
+     * @param executable   The {@link Executable} to execute that is expected to throw an exception.
+     * @param <T>          The type of the throwable wrapped inside the RuntimeException.
+     */
     @SuppressWarnings("unused")
     public <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable)
     {
         assertWrappedThrows(expectedType, executable, false);
     }
 
+    /**
+     * Asserts a specific exception wrapped inside a {@link RuntimeException} is thrown by an {@link Executable}.
+     *
+     * @param expectedType The {@link Throwable} expected to be thrown wrapped inside a {@link RuntimeException}.
+     * @param executable   The {@link Executable} to execute that is expected to throw an exception.
+     * @param deepSearch   Whether to keep digging through any number of layered {@link RuntimeException}s until we find
+     *                     a throwable that is not a RuntimeException.
+     * @param <T>          The type of the throwable wrapped inside the RuntimeException.
+     */
     public <T extends Throwable> void assertWrappedThrows(Class<T> expectedType, Executable executable,
                                                           boolean deepSearch)
     {
