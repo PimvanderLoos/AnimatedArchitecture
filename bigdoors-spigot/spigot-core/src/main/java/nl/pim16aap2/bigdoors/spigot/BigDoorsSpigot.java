@@ -26,6 +26,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -193,14 +194,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     @Getter(onMethod = @__({@Override}))
-    @NotNull
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     @Getter
     private DatabaseManager databaseManager;
 
     @Getter
-    private final DoorRegistry doorRegistry;
+    private final DoorRegistry doorRegistry = new DoorRegistry();
+
+    @Getter
+    private final AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
 
     public BigDoorsSpigot()
     {
@@ -209,7 +212,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         MAINTHREADID = Thread.currentThread().getId();
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
-        doorRegistry = new DoorRegistry();
         abortableTaskManager = AbortableTaskManager.init(this);
     }
 

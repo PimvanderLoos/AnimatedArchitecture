@@ -110,7 +110,7 @@ public final class BigDoors extends RestartableHolder
      */
     public @NotNull AutoCloseScheduler getAutoCloseScheduler()
     {
-        return AutoCloseScheduler.get();
+        return getPlatform().getAutoCloseScheduler();
     }
 
     /**

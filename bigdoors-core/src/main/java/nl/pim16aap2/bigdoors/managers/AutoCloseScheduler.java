@@ -23,8 +23,6 @@ import java.util.TimerTask;
  */
 public final class AutoCloseScheduler extends Restartable
 {
-    private static final @NotNull AutoCloseScheduler INSTANCE = new AutoCloseScheduler();
-
     /**
      * A map of {@link TimerTask}s.
      * <p>
@@ -34,21 +32,9 @@ public final class AutoCloseScheduler extends Restartable
      */
     private final @NotNull Map<Long, TimerTask> timers = new HashMap<>();
 
-    private AutoCloseScheduler()
+    public AutoCloseScheduler()
     {
         super(BigDoors.get());
-    }
-
-    /**
-     * Gets the instance of the {@link AutoCloseScheduler} if it exists.
-     *
-     * @return The instance of the {@link AutoCloseScheduler}.
-     */
-    public static @NotNull AutoCloseScheduler get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
     }
 
     /**
