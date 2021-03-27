@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -39,7 +38,7 @@ public class SubCommandNew extends SubCommand
 
     private boolean isPlayerBusy(final @NotNull Player player)
     {
-        boolean isBusy = (ToolUserManager.get().getToolUser(player.getUniqueId()).isPresent() ||
+        boolean isBusy = (BigDoors.get().getToolUserManager().getToolUser(player.getUniqueId()).isPresent() ||
             plugin.getCommandWaiter(player).isPresent());
         if (isBusy)
             SpigotUtil.messagePlayer(player, messages.getString(Message.ERROR_PLAYERISBUSY));
@@ -64,7 +63,7 @@ public class SubCommandNew extends SubCommand
         }
 
         final @NotNull Creator creator = doorType.getCreator(SpigotAdapter.wrapPlayer(player), name);
-        ToolUserManager.get().startToolUser(creator, 120 * 20);
+        BigDoors.get().getToolUserManager().startToolUser(creator, 120 * 20);
     }
 
     /**

@@ -216,6 +216,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final DoorTypeManager doorTypeManager = new DoorTypeManager();
 
+    @Getter
+    private final ToolUserManager toolUserManager = new ToolUserManager(this);
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -560,7 +563,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
         cmdWaiters.remove(player.getUniqueId());
         playerGUIs.remove(player.getUniqueId());
-        ToolUserManager.get().abortToolUser(player.getUniqueId());
+        toolUserManager.abortToolUser(player.getUniqueId());
     }
 
     // Get the logger.

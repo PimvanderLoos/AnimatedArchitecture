@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -241,4 +242,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link DoorTypeManager} instance.
      */
     @NotNull DoorTypeManager getDoorTypeManager();
+
+    /**
+     * Gets the {@link ToolUserManager} instance.
+     *
+     * @return The {@link ToolUserManager} instance.
+     */
+    @NotNull ToolUserManager getToolUserManager();
 }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -54,7 +53,7 @@ public class EventListeners implements Listener
                      .isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
             return;
 
-        ToolUserManager.get().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
+        BigDoors.get().getToolUserManager().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
             toolUser ->
             {
                 event.setCancelled(true);
@@ -107,7 +106,7 @@ public class EventListeners implements Listener
      */
     private boolean isToolUser(final @NotNull Player player)
     {
-        return ToolUserManager.get().isToolUser(player.getUniqueId());
+        return BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
     }
 
     /**

@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -133,6 +134,16 @@ public final class BigDoors extends RestartableHolder
     public @NotNull DoorTypeManager getDoorTypeManager()
     {
         return getPlatform().getDoorTypeManager();
+    }
+
+    /**
+     * Gets the {@link ToolUserManager} instance.
+     *
+     * @return The {@link ToolUserManager} instance.
+     */
+    public @NotNull ToolUserManager getToolUserManager()
+    {
+        return getPlatform().getToolUserManager();
     }
 
     /**

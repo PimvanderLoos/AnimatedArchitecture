@@ -37,7 +37,6 @@ public final class PowerBlockManager extends Restartable
     private final @NotNull DatabaseManager databaseManager;
     private final @NotNull IPLogger pLogger;
 
-
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
      * instead.

@@ -20,18 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ToolUserManager extends Restartable
 {
     @NotNull
-    private static final ToolUserManager INSTANCE = new ToolUserManager(BigDoors.get().getPlatform());
-    @NotNull
     private static final Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
-    private ToolUserManager(final @NotNull IRestartableHolder holder)
+    public ToolUserManager(final @NotNull IRestartableHolder holder)
     {
         super(holder);
-    }
-
-    public static @NotNull ToolUserManager get()
-    {
-        return INSTANCE;
     }
 
     public void registerToolUser(final @NotNull ToolUser toolUser)

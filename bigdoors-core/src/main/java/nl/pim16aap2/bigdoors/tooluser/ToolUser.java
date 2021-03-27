@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -64,7 +63,7 @@ public abstract class ToolUser implements IRestartable
         if (procedureTmp == null)
             return;
 
-        ToolUserManager.get().registerToolUser(this);
+        BigDoors.get().getToolUserManager().registerToolUser(this);
     }
 
     /**
@@ -103,7 +102,7 @@ public abstract class ToolUser implements IRestartable
         isShutDown = true;
         removeTool();
         active = false;
-        ToolUserManager.get().abortToolUser(this);
+        BigDoors.get().getToolUserManager().abortToolUser(this);
     }
 
     @Override

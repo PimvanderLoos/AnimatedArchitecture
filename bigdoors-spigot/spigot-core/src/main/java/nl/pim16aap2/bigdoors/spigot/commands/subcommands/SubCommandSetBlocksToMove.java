@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -93,8 +93,8 @@ public class SubCommandSetBlocksToMove extends SubCommand
 
         if (sender instanceof Player)
         {
-            final @NotNull Optional<ToolUser> toolUser = ToolUserManager.get()
-                                                                        .getToolUser(((Player) sender).getUniqueId());
+            final @NotNull Optional<ToolUser> toolUser = BigDoors.get().getToolUserManager()
+                                                                 .getToolUser(((Player) sender).getUniqueId());
             if (toolUser.isPresent())
             {
                 OptionalInt btm = Util.parseInt(args[1]);
