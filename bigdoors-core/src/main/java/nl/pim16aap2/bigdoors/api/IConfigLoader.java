@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.api.restartable;
 
 import org.jetbrains.annotations.NotNull;
 
