@@ -188,12 +188,12 @@ public class SQLiteJDBCDriverConnectionTest
         if (DB_FILE.exists())
         {
             System.out.println("WARNING! FILE \"dbFile\" STILL EXISTS! Attempting deletion now!");
-            DB_FILE.delete();
+            Assertions.assertTrue(DB_FILE.delete());
         }
         if (dbFileBackup.exists())
         {
             System.out.println("WARNING! FILE \"dbFileBackup\" STILL EXISTS! Attempting deletion now!");
-            dbFileBackup.delete();
+            Assertions.assertTrue(dbFileBackup.delete());
         }
     }
 
@@ -209,9 +209,9 @@ public class SQLiteJDBCDriverConnectionTest
         final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
 
         if (oldDB.exists())
-            oldDB.delete();
+            Assertions.assertTrue(oldDB.delete());
         if (dbFileBackup.exists())
-            dbFileBackup.delete();
+            Assertions.assertTrue(dbFileBackup.delete());
 
         try
         {
@@ -259,7 +259,7 @@ public class SQLiteJDBCDriverConnectionTest
         modifyDoors();
 
         testDoorTypes();
-        testFailures();
+        failures();
     }
 
     /**
@@ -573,7 +573,7 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
-    public void testFailures()
+    public void failures()
         throws NoSuchFieldException, IllegalAccessException
     {
         // Set the enabled status of the database to false.
