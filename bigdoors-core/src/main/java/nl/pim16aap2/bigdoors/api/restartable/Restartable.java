@@ -1,9 +1,12 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.api.restartable;
 
-import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Basic implementation of {@link IRestartable}.
+ *
+ * @author Pim
+ */
 public abstract class Restartable implements IRestartable
 {
     /**

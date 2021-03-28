@@ -3,9 +3,8 @@ package nl.pim16aap2.bigdoors.managers;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -19,18 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class DoorSpecificationManager extends Restartable
 {
-    private static final @NonNull DoorSpecificationManager INSTANCE = new DoorSpecificationManager();
-
     private static final @NonNull Map<@NonNull IPPlayer, @NonNull DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
 
-    private DoorSpecificationManager()
+    public DoorSpecificationManager()
     {
         super(BigDoors.get());
-    }
-
-    public static @NotNull DoorSpecificationManager get()
-    {
-        return INSTANCE;
     }
 
     /**

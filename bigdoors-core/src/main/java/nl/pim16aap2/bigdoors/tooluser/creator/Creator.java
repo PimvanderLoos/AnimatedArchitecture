@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -308,7 +307,7 @@ public abstract class Creator extends ToolUser
             int id = idOpt.getAsInt();
             if (id < 0 || id >= validOpenDirs.size())
             {
-                PLogger.get().debug(
+                BigDoors.get().getPLogger().debug(
                     getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
                         " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
@@ -359,7 +358,7 @@ public abstract class Creator extends ToolUser
     {
         if (world.getWorldName().equals(loc.getWorld().getWorldName()))
             return true;
-        PLogger.get().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
+        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
         return false;
     }
 
@@ -373,11 +372,11 @@ public abstract class Creator extends ToolUser
         // TODO: Don't complete the process until the CompletableFuture has an actual result.
         //       Or maybe just finish it anyway and send whatever message once it is done.
         //       There's nothing that can be done about failure anyway.
-        DatabaseManager.get().addDoorBase(door).whenComplete(
+        BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
             (newDoor, throwable) ->
             {
                 if (newDoor.isEmpty())
-                    PLogger.get().severe("Failed to insert door after creation!");
+                    BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
             }).exceptionally(Util::exceptionally);
     }
 
@@ -480,7 +479,6 @@ public abstract class Creator extends ToolUser
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
             return false;
         }
-
         final @NotNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&

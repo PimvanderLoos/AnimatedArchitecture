@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
-import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -22,11 +21,17 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.logging.PLogger;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
@@ -93,7 +98,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bstats.bukkit.Metrics;
@@ -124,7 +128,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @NotNull
     private static final BigDoors BIGDOORS = BigDoors.get();
 
-    private final PLogger pLogger = PLogger.init(new File(getDataFolder(), "log.txt"));
+    private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
     @Getter(onMethod = @__({@Override}))
     private ConfigLoaderSpigot configLoader;
@@ -157,7 +161,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     @NotNull
-    private AbortableTaskManager abortableTaskManager;
+    private final AbortableTaskManager abortableTaskManager;
 
     @Getter(onMethod = @__({@Override}))
     @NotNull
@@ -192,8 +196,28 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     @Getter(onMethod = @__({@Override}))
-    @NotNull
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
+
+    @Getter
+    private DatabaseManager databaseManager;
+
+    @Getter
+    private final DoorRegistry doorRegistry = new DoorRegistry();
+
+    @Getter
+    private final AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
+
+    @Getter
+    private final DoorActivityManager doorActivityManager = new DoorActivityManager(this);
+
+    @Getter
+    private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
+
+    @Getter
+    private final DoorTypeManager doorTypeManager = new DoorTypeManager();
+
+    @Getter
+    private final ToolUserManager toolUserManager = new ToolUserManager(this);
 
     public BigDoorsSpigot()
     {
@@ -215,7 +239,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             // Register this here so it can check for updates even when loaded on an incorrect version.
             updateManager = new UpdateManager(this, 58669);
 
-            DatabaseManager.init(this, new File(super.getDataFolder(), "doorDB.db"));
+            databaseManager = new DatabaseManager(this, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
 
             Bukkit.getPluginManager().registerEvents(new LoginMessageListener(this), this);
@@ -238,16 +262,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             RedstoneListener.init(this);
             LoginResourcePackListener.init(this, configLoader.resourcePack());
 
-            final IStorage.DatabaseState databaseState = DatabaseManager.get().getDatabaseState();
+            final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
             {
-                PLogger.get().severe("Failed to load database! Found it in the state: " + databaseState.name() +
-                                         ". Plugin initialization has been aborted!");
+                BigDoors.get().getPLogger()
+                        .severe("Failed to load database! Found it in the state: " + databaseState.name() +
+                                    ". Plugin initialization has been aborted!");
                 disablePlugin();
                 return;
             }
 
-            DoorActivityManager.init(this);
             vaultManager = VaultManager.init(this);
 
             headManager = HeadManager.init(this, getConfigLoader());
@@ -258,9 +282,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
             Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
-            DoorOpeningUtility.init(getPLogger(), getGlowingBlockSpawner(), configLoader, protectionCompatManager);
 
-            powerBlockManager = PowerBlockManager.init(this, configLoader, DatabaseManager.get(), getPLogger());
+            powerBlockManager = new PowerBlockManager(this, configLoader, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
             loadCommands();
 
@@ -292,7 +315,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!extensionsDir.exists())
             if (!extensionsDir.mkdirs())
             {
-                PLogger.get().logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
+                BigDoors.get().getPLogger()
+                        .logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
                 return;
             }
 
@@ -539,13 +563,14 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
         cmdWaiters.remove(player.getUniqueId());
         playerGUIs.remove(player.getUniqueId());
-        ToolUserManager.get().abortToolUser(player.getUniqueId());
+        toolUserManager.abortToolUser(player.getUniqueId());
     }
 
     // Get the logger.
-    public @NotNull PLogger getPLogger()
+    @Override
+    public @NotNull IPLogger getPLogger()
     {
-        return PLogger.get();
+        return pLogger;
     }
 
     /**

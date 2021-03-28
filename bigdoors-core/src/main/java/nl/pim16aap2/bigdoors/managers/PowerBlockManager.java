@@ -1,19 +1,19 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -35,51 +35,25 @@ public final class PowerBlockManager extends Restartable
     private final @NotNull Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final @NotNull IConfigLoader config;
     private final @NotNull DatabaseManager databaseManager;
-    private final @NotNull PLogger pLogger;
-
-    private static @Nullable PowerBlockManager INSTANCE;
-    private final @NotNull IRestartableHolder restartableHolder;
-
-    private PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
-                              final @NotNull DatabaseManager databaseManager, final @NotNull PLogger pLogger)
-    {
-        super(restartableHolder);
-        this.restartableHolder = restartableHolder;
-        this.config = config;
-        this.databaseManager = databaseManager;
-        this.pLogger = pLogger;
-
-    }
+    private final @NotNull IPLogger pLogger;
 
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param holder          The {@link IRestartableHolder} that manages this object.
-     * @param config          The configuration of this plugin.
-     * @param databaseManager The database manager to use for power block retrieval.
-     * @param pLogger         The logger used for error logging.
-     * @return The instance of this {@link PowerBlockManager}.
+     * @param restartableHolder The {@link IRestartableHolder} that manages this object.
+     * @param config            The configuration of this plugin.
+     * @param databaseManager   The database manager to use for power block retrieval.
+     * @param pLogger           The logger used for error logging.
      */
-    public static @NotNull PowerBlockManager init(final @NotNull IRestartableHolder holder,
-                                                  final @NotNull IConfigLoader config,
-                                                  final @NotNull DatabaseManager databaseManager,
-                                                  final @NotNull PLogger pLogger)
+    public PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
+                             final @NotNull DatabaseManager databaseManager, final @NotNull IPLogger pLogger)
     {
-        return (INSTANCE == null) ? INSTANCE = new PowerBlockManager(holder, config, databaseManager, pLogger) :
-               INSTANCE;
-    }
+        super(restartableHolder);
+        this.config = config;
+        this.databaseManager = databaseManager;
+        this.pLogger = pLogger;
 
-    /**
-     * Gets the instance of the {@link PowerBlockManager} if it exists.
-     *
-     * @return The instance of the {@link PowerBlockManager}.
-     */
-    public static @NotNull PowerBlockManager get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
     }
 
     /**
@@ -273,7 +247,7 @@ public final class PowerBlockManager extends Restartable
                 final @NonNull PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
-                return DatabaseManager.get().getPowerBlockData(chunkHash).handle(
+                return BigDoors.get().getDatabaseManager().getPowerBlockData(chunkHash).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);

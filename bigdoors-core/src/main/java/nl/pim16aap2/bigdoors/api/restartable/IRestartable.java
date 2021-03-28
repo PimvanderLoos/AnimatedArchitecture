@@ -1,7 +1,7 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.api.restartable;
 
 /**
- * Represents an object with special behavior on plugin restart.
+ * Represents an object what can be restarted and shut down.
  *
  * @author Pim
  */

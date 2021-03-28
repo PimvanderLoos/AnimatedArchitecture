@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.util.PLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
         catch (Throwable t)
         {
             final RuntimeException e = new RuntimeException("Failed to analyze door type: " + getDoorTypeName(), t);
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
     }
@@ -63,7 +63,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
                     UnsupportedOperationException e = new UnsupportedOperationException(
                         String.format("Type %s of field %s for door type %s is not serializable!",
                                       field.getType().getName(), field.getName(), getDoorTypeName()));
-                    PLogger.get().logThrowableSilently(e);
+                    BigDoors.get().getPLogger().logThrowableSilently(e);
                     throw e;
                 }
                 fields.add(field);
@@ -89,7 +89,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
                 RuntimeException ex = new RuntimeException(
                     String.format("Failed to get value of field %s (type %s) for door type %s!",
                                   field.getName(), field.getType().getName(), getDoorTypeName()), e);
-                PLogger.get().logThrowableSilently(ex);
+                BigDoors.get().getPLogger().logThrowableSilently(ex);
                 throw ex;
             }
         return toByteArray(values);
@@ -120,7 +120,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
         catch (Throwable t)
         {
             RuntimeException e = new RuntimeException("Failed to serialize object: " + serializable.toString(), t);
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
     }
@@ -134,7 +134,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
             {
                 IllegalStateException e = new IllegalStateException(
                     "Unexpected deserialization type! Expected ArrayList, but got " + obj.getClass().getName());
-                PLogger.get().logThrowableSilently(e);
+                BigDoors.get().getPLogger().logThrowableSilently(e);
                 throw e;
             }
             return (ArrayList<Object>) obj;
@@ -142,7 +142,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
         catch (Throwable t)
         {
             RuntimeException e = new RuntimeException("Failed to deserialize object!", t);
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
 
@@ -156,7 +156,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
             IllegalStateException e =
                 new IllegalStateException(String.format("Expected %d arguments but received %d for type %s",
                                                         fields.size(), values.size(), getDoorTypeName()));
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
 
@@ -171,7 +171,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
         catch (Throwable t)
         {
             RuntimeException e = new RuntimeException("Failed to create new instance of type: " + getDoorTypeName(), t);
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
     }

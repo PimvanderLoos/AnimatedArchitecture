@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.NonNull;
 import lombok.experimental.Delegate;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -89,7 +89,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
         catch (CloneNotSupportedException e)
         {
             Error er = new Error(e);
-            PLogger.get().logThrowableSilently(er);
+            BigDoors.get().getPLogger().logThrowableSilently(er);
             throw er;
         }
     }

@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,8 +18,6 @@ import java.util.stream.Stream;
  */
 public final class DoorActivityManager extends Restartable
 {
-    @Nullable
-    private static DoorActivityManager INSTANCE = null;
     @NotNull
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
@@ -29,33 +26,9 @@ public final class DoorActivityManager extends Restartable
      *
      * @param holder The {@link IRestartableHolder} that manages this object.
      */
-    private DoorActivityManager(final @NotNull IRestartableHolder holder)
+    public DoorActivityManager(final @NotNull IRestartableHolder holder)
     {
         super(holder);
-    }
-
-    /**
-     * Initializes the {@link DoorActivityManager}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param holder The {@link IRestartableHolder} that manages this object.
-     * @return The instance of this {@link DoorActivityManager}.
-     */
-    public static @NotNull DoorActivityManager init(final @NotNull IRestartableHolder holder)
-    {
-        return (INSTANCE == null) ? INSTANCE = new DoorActivityManager(holder) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link DoorActivityManager} if it exists.
-     *
-     * @return The instance of the {@link DoorActivityManager}.
-     */
-    public static @NotNull DoorActivityManager get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
     }
 
     /**
@@ -77,7 +50,7 @@ public final class DoorActivityManager extends Restartable
      * @param doorUID The UID of the door to register.
      * @return True if the door was not registered before (but is now), otherwise false.
      */
-    public synchronized boolean attemptRegisterAsBusy(final long doorUID)
+    public boolean attemptRegisterAsBusy(final long doorUID)
     {
         return busyDoors.putIfAbsent(doorUID, Optional.empty()) == null;
     }

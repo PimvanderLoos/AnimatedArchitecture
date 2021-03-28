@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.util.messages;
 
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
-import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.Restartable;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.logging.PLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -35,7 +37,7 @@ public final class Messages extends Restartable
     @NotNull
     private static final String DEFAULTFILENAME = "en_US.txt";
     @NotNull
-    private final PLogger plogger;
+    private final IPLogger plogger;
 
     @NotNull
     private static final Pattern matchDots = Pattern.compile("\\.");
@@ -74,7 +76,7 @@ public final class Messages extends Restartable
      * @param plogger  The {@link PLogger} object that will be used for logging.
      */
     public Messages(final @NotNull IRestartableHolder holder, final @NotNull File fileDir,
-                    final @NotNull String fileName, final @NotNull PLogger plogger)
+                    final @NotNull String fileName, final @NotNull IPLogger plogger)
     {
         super(holder);
         this.plogger = plogger;
@@ -285,7 +287,7 @@ public final class Messages extends Restartable
         }
         catch (IllegalStateException e)
         {
-            PLogger.get().warn("Failed to obtain message: \"" + messageName + "\"");
+            BigDoors.get().getPLogger().warn("Failed to obtain message: \"" + messageName + "\"");
             return "";
         }
     }

@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -36,7 +36,7 @@ public class SubCommandConfirm extends SubCommand
         if (!(sender instanceof Player))
             throw new CommandSenderNotPlayerException();
         Player player = (Player) sender;
-        Optional<ToolUser> toolUser = ToolUserManager.get().getToolUser(player.getUniqueId());
+        Optional<ToolUser> toolUser = BigDoors.get().getToolUserManager().getToolUser(player.getUniqueId());
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else

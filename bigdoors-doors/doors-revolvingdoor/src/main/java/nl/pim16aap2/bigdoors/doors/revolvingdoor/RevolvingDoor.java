@@ -5,6 +5,7 @@ import lombok.Setter;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -75,7 +76,7 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
 
-        return new RevolvingDoorMover(this, fixedTime, doorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
+        return new RevolvingDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                       responsible, quarterCircles, cause, newCuboid, actionType);
     }
 

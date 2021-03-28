@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +40,9 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 GREYLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
-                PLogger.get().logMessage(Level.WARNING,
-                                         "Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
+                BigDoors.get().getPLogger().logMessage(Level.WARNING,
+                                                       "Material \"" + mat.name() +
+                                                           "\" is not mapped! Please contact pim16aap2!");
                 BLACKLIST.add(mat);
             }
         }

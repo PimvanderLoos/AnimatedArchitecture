@@ -1,10 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,7 +33,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         }
         catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
             version = Version.ERROR;
             spigotPlatformTmp = null;
         }
@@ -51,8 +52,14 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     }
 
     @Override
-    public @Nullable ISpigotPlatform getSpigotPlatform()
+    public @NonNull ISpigotPlatform getSpigotPlatform()
     {
+        if (spigotPlatform == null)
+        {
+            IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
+            BigDoors.get().getPLogger().logThrowable(e);
+            throw e;
+        }
         return spigotPlatform;
     }
 
@@ -66,8 +73,8 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     {
         if (spigotPlatform == null)
         {
-            PLogger.get().logThrowable(new NullPointerException("Could not load Spigot platform for " +
-                                                                    "version " + spigotVersion.name()));
+            BigDoors.get().getPLogger().logThrowable(new NullPointerException("Could not load Spigot platform for " +
+                                                                                  "version " + spigotVersion.name()));
             return false;
         }
         spigotPlatform.init(bigDoorsSpigot);

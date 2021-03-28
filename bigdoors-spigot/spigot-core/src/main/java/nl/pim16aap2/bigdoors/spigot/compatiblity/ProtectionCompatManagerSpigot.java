@@ -7,12 +7,11 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PLogger;
-import nl.pim16aap2.bigdoors.util.Restartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -279,7 +278,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             Plugin otherPlugin = plugin.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
+                BigDoors.get().getPLogger()
+                        .logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
                 return;
             }
 
@@ -288,11 +288,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                PLogger.get().logMessage(Level.SEVERE,
-                                         "Could not find compatibility class for: \"" +
-                                             ProtectionCompat.getName(compat) +
-                                             "\". " +
-                                             "This most likely means that this version is not supported!");
+                BigDoors.get().getPLogger().logMessage(Level.SEVERE,
+                                                       "Could not find compatibility class for: \"" +
+                                                           ProtectionCompat.getName(compat) +
+                                                           "\". " +
+                                                           "This most likely means that this version is not supported!");
                 return;
             }
 

@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
@@ -14,13 +15,12 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
+import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -29,23 +29,24 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sqlite.SQLiteConfig;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
 
 @ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest
@@ -75,100 +76,92 @@ public class SQLiteJDBCDriverConnectionTest
     private static final File DB_FILE;
     private static final File dbFileBackup;
     private static SQLiteJDBCDriverConnection storage;
-    private static ExecutorService threadPool;
+
+    @Mock
+    protected IBigDoorsPlatform platform;
 
     // Initialize files.
     static
     {
-        DB_FILE = new File(UnitTestUtil.TEST_DIR + "/test.db");
+        DB_FILE = new File("./tests/test.db");
         dbFileBackup = new File(DB_FILE.toString() + ".BACKUP");
-    }
-
-    // Set up basic stuff.
-    @BeforeAll
-    public static void basicSetup()
-        throws NoSuchFieldException, IllegalAccessException
-    {
-        UnitTestUtil.setupStatic();
-        PLogger.get().setConsoleLogLevel(Level.ALL);
-        PLogger.get().setFileLogLevel(Level.SEVERE);
-        UnitTestUtil.setFakeDoorRegistry();
     }
 
     // Initialize mocking.
     @BeforeAll
     public static void setupMocking()
     {
-        DoorOpeningUtility.init(null, null, null, null);
-
-        try
+        AbstractDoorBase.DoorData doorData;
         {
-            AbstractDoorBase.DoorData doorData;
-            {
-                final int doorUID = 1;
-                final int autoOpen = 0;
-                final int autoClose = 0;
-                final boolean isOpen = false;
-                final boolean isLocked = false;
-                final @NotNull String name = "massive1";
-                final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
-                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData1);
+            final int doorUID = 1;
+            final int autoOpen = 0;
+            final int autoClose = 0;
+            final boolean isOpen = false;
+            final boolean isLocked = false;
+            final @NotNull String name = "massive1";
+            final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
+            final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
+            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData1);
 
-                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         isLocked, RotateDirection.EAST, doorOwner);
-                final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
-                door1 = bigDoor;
-            }
-
-            {
-                final int doorUID = 2;
-                final int autoOpen = 10;
-                final int autoClose = -1;
-                final boolean modeUp = true;
-                final boolean isOpen = false;
-                final boolean isLocked = false;
-                final @NotNull String name = "massive2";
-                final @NotNull PBlockFace currentDirection = PBlockFace.DOWN;
-                final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
-                final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
-                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData1);
-
-                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         isLocked, RotateDirection.valueOf(0), doorOwner);
-                final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
-                door2 = drawbridge;
-            }
-
-            {
-                final int doorUID = 3;
-                final int autoOpen = 0;
-                final int autoClose = 10;
-                final int blocksToMove = 8;
-                final boolean isOpen = false;
-                final boolean isLocked = false;
-                final @NotNull String name = "massive2";
-                final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
-                final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
-                final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-                final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-                final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData2);
-
-                doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                         isLocked, RotateDirection.UP, doorOwner);
-                final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
-                door3 = portcullis;
-            }
+            doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
+                                                     isLocked, RotateDirection.EAST, doorOwner);
+            final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
+            door1 = bigDoor;
         }
-        catch (Exception e)
+
         {
-            PLogger.get().logThrowable(e);
-            throw e;
+            final int doorUID = 2;
+            final int autoOpen = 10;
+            final int autoClose = -1;
+            final boolean modeUp = true;
+            final boolean isOpen = false;
+            final boolean isLocked = false;
+            final @NotNull String name = "massive2";
+            final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
+            final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
+            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData1);
+
+            doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
+                                                     isLocked, Objects.requireNonNull(RotateDirection.valueOf(0)),
+                                                     doorOwner);
+            final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
+            door2 = drawbridge;
         }
+
+        {
+            final int doorUID = 3;
+            final int autoOpen = 0;
+            final int autoClose = 10;
+            final int blocksToMove = 8;
+            final boolean isOpen = false;
+            final boolean isLocked = false;
+            final @NotNull String name = "massive2";
+            final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
+            final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
+            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
+            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData2);
+
+            doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
+                                                     isLocked, RotateDirection.UP, doorOwner);
+            final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
+            door3 = portcullis;
+        }
+    }
+
+    @BeforeEach
+    protected void beforeEach()
+    {
+        MockitoAnnotations.openMocks(this);
+        BigDoors.get().setBigDoorsPlatform(platform);
+        initStorage();
+        Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
+        Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
+        Mockito.when(platform.getDoorTypeManager()).thenReturn(new DoorTypeManager());
     }
 
     /**
@@ -178,24 +171,12 @@ public class SQLiteJDBCDriverConnectionTest
     {
         storage = new SQLiteJDBCDriverConnection(DB_FILE);
 
-        try
-        {
-            UnitTestUtil.setDatabaseStorage(storage);
-            threadPool = UnitTestUtil.getDatabaseManagerThreadPool();
-
-            // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
-            // More info:
-            // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
-            // https://www.sqlite.org/pragma.html#pragma_synchronous
-            storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
-            storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
-        }
-        catch (NoSuchFieldException | IllegalAccessException e)
-        {
-            e.printStackTrace();
-            Assertions.fail();
-        }
-        Assertions.assertNotNull(threadPool);
+        // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
+        // More info:
+        // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
+        // https://www.sqlite.org/pragma.html#pragma_synchronous
+        storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+        storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
     }
 
     /**
@@ -207,12 +188,12 @@ public class SQLiteJDBCDriverConnectionTest
         if (DB_FILE.exists())
         {
             System.out.println("WARNING! FILE \"dbFile\" STILL EXISTS! Attempting deletion now!");
-            DB_FILE.delete();
+            Assertions.assertTrue(DB_FILE.delete());
         }
         if (dbFileBackup.exists())
         {
             System.out.println("WARNING! FILE \"dbFileBackup\" STILL EXISTS! Attempting deletion now!");
-            dbFileBackup.delete();
+            Assertions.assertTrue(dbFileBackup.delete());
         }
     }
 
@@ -222,18 +203,15 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @AfterAll
     public static void cleanup()
-        throws NoSuchFieldException, IllegalAccessException
     {
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
         final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
-        final @NotNull File oldLog = new File(UnitTestUtil.LOG_FILE.toString() + ".FINISHED");
 
-        PLogger.get().setConsoleLogLevel(Level.FINEST);
         if (oldDB.exists())
-            oldDB.delete();
+            Assertions.assertTrue(oldDB.delete());
         if (dbFileBackup.exists())
-            dbFileBackup.delete();
+            Assertions.assertTrue(dbFileBackup.delete());
 
         try
         {
@@ -241,19 +219,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (IOException e)
         {
-            PLogger.get().logThrowable(e);
-        }
-        try
-        {
-            if (oldLog.exists())
-                oldLog.delete();
-            while (!PLogger.get().isEmpty())
-                Thread.sleep(100L);
-            Files.move(UnitTestUtil.LOG_FILE.toPath(), oldLog.toPath());
-        }
-        catch (IOException | InterruptedException e)
-        {
-            e.printStackTrace();
+            BigDoors.get().getPLogger().logThrowable(e);
         }
     }
 
@@ -274,9 +240,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private void registerDoorTypes()
     {
-        DoorTypeManager.get().registerDoorType(DoorTypeBigDoor.get());
-        DoorTypeManager.get().registerDoorType(DoorTypePortcullis.get());
-        DoorTypeManager.get().registerDoorType(DoorTypeDrawbridge.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeBigDoor.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypePortcullis.get());
+        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeDrawbridge.get());
     }
 
     /**
@@ -284,26 +250,16 @@ public class SQLiteJDBCDriverConnectionTest
      */
     @Test
     public void runTests()
-        throws TooManyDoorsException, InvocationTargetException, NoSuchMethodException, IllegalAccessException,
-               NoSuchFieldException, IOException, ExecutionException, InterruptedException
+        throws IllegalAccessException, NoSuchFieldException
     {
         registerDoorTypes();
-        initStorage();
         insertDoors();
         verifyDoors();
         auxiliaryMethods();
         modifyDoors();
-//        insertDoors(); // Insert the doors again to make sure the upgrade went smoothly.
 
         testDoorTypes();
-        // Make sure no errors were logged.
-        UnitTestUtil.waitForLogger();
-        Assertions.assertEquals(0, UnitTestUtil.LOG_FILE.length());
-
-        PLogger.get().setFileLogLevel(Level.ALL);
-
-        PLogger.get().logMessage(Level.INFO, "================================\nStarting failure testing now:");
-        testFailures();
+        failures();
     }
 
     /**
@@ -344,7 +300,6 @@ public class SQLiteJDBCDriverConnectionTest
      * Verifies that the data of all doors that have been added to the database so far is correct.
      */
     public void verifyDoors()
-        throws TooManyDoorsException
     {
         testRetrieval(door1);
         testRetrieval(door2);
@@ -379,7 +334,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
 
         // Check if adding owners works correctly.
-        Assertions.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
 
         // Try adding playerData2 as owner of door 2.
         Assertions.assertTrue(storage.addOwner(2L, playerData2, 1));
@@ -391,14 +346,16 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertFalse(storage.addOwner(2L, playerData2, 0));
 
         // Try adding a player that is not in the database yet as owner.
-        Assertions.assertEquals(1, storage.getDoor(1L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
         Assertions.assertTrue(storage.addOwner(1L, playerData3, 1));
-        Assertions.assertEquals(2, storage.getDoor(1L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
 
         // Verify the permission level of player 2 over door 2.
-        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwner(playerData2.getUUID()).get().getPermission());
+        UnitTestUtil.optionalEquals(1, storage.getDoor(2L),
+                                    (door) -> door.getDoorOwner(playerData2.getUUID()).map(DoorOwner::getPermission)
+                                                  .orElse(-1));
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
-        Assertions.assertEquals(2, storage.getDoor(2L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(2, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 door.
         Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID().toString(), 0).size());
@@ -414,15 +371,17 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, playerData2, 2));
-        Assertions.assertEquals(2, storage.getDoor(2L).get().getDoorOwner(playerData2.getUUID()).get().getPermission());
+        UnitTestUtil.optionalEquals(2, storage.getDoor(2L),
+                                    (door) -> door.getDoorOwner(playerData2.getUUID()).map(DoorOwner::getPermission)
+                                                  .orElse(-1));
 
         // Remove player 2 as owner of door 2.
         Assertions.assertTrue(storage.removeOwner(2L, playerData2.getUUID().toString()));
-        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Try to remove player 1 (creator) of door 2. This is not allowed.
         Assertions.assertFalse(storage.removeOwner(2L, playerData1.getUUID().toString()));
-        Assertions.assertEquals(1, storage.getDoor(2L).get().getDoorOwners().size());
+        UnitTestUtil.optionalEquals(1, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, named "massive2" (door 3).
@@ -515,17 +474,16 @@ public class SQLiteJDBCDriverConnectionTest
             final int door3AutoCloseTime = doorTimeToggle.getAutoCloseTime();
             final int testAutoCloseTime = 20;
 
-
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
             Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
-            Assertions.assertEquals(testAutoCloseTime,
-                                    ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
+            UnitTestUtil.optionalEquals(testAutoCloseTime, storage.getDoor(3L),
+                                        (door) -> ((ITimerToggleableArchetype) door).getAutoCloseTime());
 
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
             Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
 
-            Assertions.assertEquals(door3AutoCloseTime,
-                                    ((ITimerToggleableArchetype) storage.getDoor(3L).get()).getAutoCloseTime());
+            UnitTestUtil.optionalEquals(door3AutoCloseTime, storage.getDoor(3L),
+                                        (door) -> ((ITimerToggleableArchetype) door).getAutoCloseTime());
 
             UnitTestUtil.optionalEquals(door3, storage.getDoor(3L));
         }
@@ -534,11 +492,11 @@ public class SQLiteJDBCDriverConnectionTest
         {
             door3.setLocked(true);
             Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
-            Assertions.assertTrue(storage.getDoor(3L).get().isLocked());
+            UnitTestUtil.optionalEquals(true, storage.getDoor(3L), AbstractDoorBase::isLocked);
 
             door3.setLocked(false);
             Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
-            Assertions.assertFalse(storage.getDoor(3L).get().isLocked());
+            UnitTestUtil.optionalEquals(false, storage.getDoor(3L), AbstractDoorBase::isLocked);
         }
 
         // Test syncing all data.
@@ -582,7 +540,9 @@ public class SQLiteJDBCDriverConnectionTest
 
             Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
 
-            @NotNull Portcullis retrieved = (Portcullis) storage.getDoor(3L).get();
+            Optional<AbstractDoorBase> retrievedOpt = storage.getDoor(3L);
+            Assertions.assertTrue(retrievedOpt.isPresent());
+            @NotNull Portcullis retrieved = (Portcullis) retrievedOpt.get();
 
             // Check base data
             Assertions.assertEquals(!isLocked, retrieved.isLocked());
@@ -611,45 +571,21 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
-     * Verifies that the size of the log file has increased in regards to the previous size.
-     *
-     * @param previousSize The last known size of the log file to compare the current size against.
-     * @return The current size of the log file.
-     */
-    private long verifyLogSizeIncrease(final long previousSize)
-    {
-        UnitTestUtil.waitForLogger();
-        final long currentLogSize = UnitTestUtil.LOG_FILE.length();
-        Assertions.assertTrue(currentLogSize > previousSize);
-        return currentLogSize;
-    }
-
-    /**
      * Runs tests to verify that exceptions are caught when the should be and properly handled.
      */
-    public void testFailures()
+    public void failures()
         throws NoSuchFieldException, IllegalAccessException
     {
-        // Disable console logging of errors as it's the point of this test. This way I won't get scared by errors in the console.
-        PLogger.get().setConsoleLogLevel(Level.OFF);
+        // Set the enabled status of the database to false.
+        final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("databaseState");
+        databaseLock.setAccessible(true);
+        databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
-        long previousLogSize = verifyLogSizeIncrease(-1L);
-        // Verify database disabling works as intended.
-        {
-            // Set the enabled status of the database to false.
-            final Field databaseLock = SQLiteJDBCDriverConnection.class.getDeclaredField("databaseState");
-            databaseLock.setAccessible(true);
-            databaseLock.set(storage, IStorage.DatabaseState.ERROR);
-            storage.getDoor(playerData1.getUUID(), 1L);
+        UnitTestUtil.assertWrappedThrows(IllegalStateException.class,
+                                         () -> storage.getDoor(playerData1.getUUID(), 1L), true);
 
-            // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
-            databaseLock.set(storage, IStorage.DatabaseState.OK);
-            Assertions.assertTrue(storage.getDoor(playerData1.getUUID(), 1L).isPresent());
-        }
-
-        // Make sure new errors were added to the log file.
-        previousLogSize = verifyLogSizeIncrease(previousLogSize);
-
-        PLogger.get().setConsoleLogLevel(Level.FINE); // Enable console logging again after the test.
+        // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
+        databaseLock.set(storage, IStorage.DatabaseState.OK);
+        Assertions.assertTrue(storage.getDoor(playerData1.getUUID(), 1L).isPresent());
     }
 }

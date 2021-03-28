@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.managers;
 
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.Limit;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +20,8 @@ public class LimitsManager
      * @param limit  The {@link Limit} to check.
      * @return The value of the limit for the given player, or an empty OptionalInt if none was found.
      * <p>
-     * If there is a global limit in place (see {@link Limit#getGlobalLimit()}), the returned value cannot exceed this.
-     * Not even admins and OPs can bypass this limit.
+     * If there is a global limit in place (see {@link Limit#getGlobalLimit(IConfigLoader)}), the returned value cannot
+     * exceed this. Not even admins and OPs can bypass this limit.
      * <p>
      * If the player has a player limit as well as a global limit, the lowest value of the two will be used.
      */
@@ -28,7 +29,7 @@ public class LimitsManager
     {
         final boolean hasBypass = BigDoors.get().getPlatform().getPermissionsManager()
                                           .hasPermission(player, limit.getAdminPermission());
-        final @NotNull OptionalInt globalLimit = limit.getGlobalLimit();
+        final @NotNull OptionalInt globalLimit = limit.getGlobalLimit(BigDoors.get().getPlatform().getConfigLoader());
         if (hasBypass)
             return globalLimit;
 

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
-import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -8,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.OptionalInt;
 
@@ -23,7 +23,6 @@ class CreatorPortcullisTest extends CreatorTestsUtil
 
     @Test
     public void createPortcullis()
-        throws InterruptedException
     {
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
@@ -45,18 +44,14 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     public void testBlocksToMove()
     {
         final @NotNull CreatorPortcullis creator = new CreatorPortcullis(PLAYER);
-        final @NotNull TestConfigLoader config = getConfigLoader();
         final int blocksToMoveLimit = blocksToMove - 1;
-        config.maxBlocksToMove = OptionalInt.of(blocksToMoveLimit);
+        Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
         Assertions.assertEquals(String.format("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR %d %d",
                                               blocksToMove, blocksToMoveLimit),
                                 PLAYER.getLastMessage());
-        config.maxBlocksToMove = OptionalInt.of(blocksToMove);
+        Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));
-
-        // Cleanup
-        config.maxBlocksToMove = OptionalInt.empty();
     }
 }

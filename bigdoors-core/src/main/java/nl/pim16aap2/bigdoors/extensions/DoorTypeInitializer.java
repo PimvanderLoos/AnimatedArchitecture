@@ -4,9 +4,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Value;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -89,11 +88,11 @@ final class DoorTypeInitializer
                 final @NotNull LoadResult loadResult = processDependencies(pair.first);
                 if (loadResult.loadResultType != LoadResultType.DEPENDENCIES_AVAILABLE &&
                     (!loadResult.message.isEmpty()))
-                    PLogger.get().warn(loadResult.message);
+                    BigDoors.get().getPLogger().warn(loadResult.message);
             });
 
         sorted = getSortedDoorTypeInfo();
-        PLogger.get().logMessage(Level.FINER, this::sortedDependenciesToString);
+        BigDoors.get().getPLogger().logMessage(Level.FINER, this::sortedDependenciesToString);
     }
 
     /**
@@ -153,7 +152,7 @@ final class DoorTypeInitializer
         }
         catch (Throwable e)
         {
-            PLogger.get().logThrowable(Level.FINE, e);
+            BigDoors.get().getPLogger().logThrowable(Level.FINE, e);
             return false;
         }
         return true;
@@ -167,14 +166,14 @@ final class DoorTypeInitializer
      */
     private @NotNull Optional<DoorType> loadDoorType(final @NotNull TypeInfo typeInfo)
     {
-        PLogger.get().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
+        BigDoors.get().getPLogger().logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
 
         if (!loadJar(typeInfo.jarFile))
         {
-            PLogger.get().logMessage(Level.WARNING,
-                                     "Failed to load file: \"" + typeInfo.getJarFile().toString() +
-                                         "\"! This type (\"" + typeInfo.getTypeName() +
-                                         "\") will not be loaded! See the log for more details.");
+            BigDoors.get().getPLogger().logMessage(Level.WARNING,
+                                                   "Failed to load file: \"" + typeInfo.getJarFile().toString() +
+                                                       "\"! This type (\"" + typeInfo.getTypeName() +
+                                                       "\") will not be loaded! See the log for more details.");
             return Optional.empty();
         }
 
@@ -187,12 +186,13 @@ final class DoorTypeInitializer
         }
         catch (Throwable e)
         {
-            PLogger.get().logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
             return Optional.empty();
         }
 
-        PLogger.get().logMessage(Level.FINE,
-                                 "Loaded BigDoors extension: " + Util.capitalizeFirstLetter(doorType.getSimpleName()));
+        BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                               "Loaded BigDoors extension: " +
+                                                   Util.capitalizeFirstLetter(doorType.getSimpleName()));
         return Optional.of(doorType);
     }
 
@@ -245,7 +245,7 @@ final class DoorTypeInitializer
             final @NotNull String dependencyName = dependency.getDependencyName();
 
             // If the dependency has already been registered, it has already been loaded, obviously.
-            if (DoorTypeManager.get().getDoorType(dependencyName).isPresent())
+            if (BigDoors.get().getDoorTypeManager().getDoorType(dependencyName).isPresent())
             {
                 registrationQueue.replace(currentName, new Pair<>(doorTypeInfo, 0));
                 return new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "");
@@ -354,7 +354,8 @@ final class DoorTypeInitializer
             {
                 final @NotNull Optional<Dependency> dependency = parseDependency(split[idx]);
                 if (dependency.isEmpty())
-                    PLogger.get().severe("Failed to parse dependency \"" + split[idx] + "\" for type: " + typeName);
+                    BigDoors.get().getPLogger()
+                            .severe("Failed to parse dependency \"" + split[idx] + "\" for type: " + typeName);
                 ret.add(idx, dependency);
             }
             return ret;
@@ -365,7 +366,8 @@ final class DoorTypeInitializer
             final @NotNull Matcher nameMatcher = NAME_MATCH.matcher(dependency);
             if (!nameMatcher.find())
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to find the dependency name in: " + dependency);
+                BigDoors.get().getPLogger()
+                        .logMessage(Level.FINE, "Failed to find the dependency name in: " + dependency);
                 return Optional.empty();
             }
             final @NotNull String dependencyName = nameMatcher.group();
@@ -373,7 +375,7 @@ final class DoorTypeInitializer
             final @NotNull Matcher minVersionMatcher = MIN_VERSION_MATCH.matcher(dependency);
             if (!minVersionMatcher.find())
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to find the min version in: " + dependency);
+                BigDoors.get().getPLogger().logMessage(Level.FINE, "Failed to find the min version in: " + dependency);
                 return Optional.empty();
             }
             @NotNull String minVersionStr = minVersionMatcher.group();
@@ -381,14 +383,15 @@ final class DoorTypeInitializer
             final @NotNull OptionalInt minVersionOpt = Util.parseInt(minVersionStr);
             if (minVersionOpt.isEmpty())
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to parse min version from: " + minVersionStr);
+                BigDoors.get().getPLogger()
+                        .logMessage(Level.FINE, "Failed to parse min version from: " + minVersionStr);
                 return Optional.empty();
             }
 
             final @NotNull Matcher maxVersionMatcher = MAX_VERSION_MATCH.matcher(dependency);
             if (!maxVersionMatcher.find())
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to find the max version in: " + dependency);
+                BigDoors.get().getPLogger().logMessage(Level.FINE, "Failed to find the max version in: " + dependency);
                 return Optional.empty();
             }
 
@@ -397,7 +400,8 @@ final class DoorTypeInitializer
             final @NotNull OptionalInt maxVersionOpt = Util.parseInt(maxVersionStr);
             if (maxVersionOpt.isEmpty())
             {
-                PLogger.get().logMessage(Level.FINE, "Failed to parse max version from: " + maxVersionStr);
+                BigDoors.get().getPLogger()
+                        .logMessage(Level.FINE, "Failed to parse max version from: " + maxVersionStr);
                 return Optional.empty();
             }
 

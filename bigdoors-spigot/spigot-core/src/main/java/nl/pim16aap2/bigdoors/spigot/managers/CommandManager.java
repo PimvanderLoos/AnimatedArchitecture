@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.exceptions.NotEnoughDoorsException;
 import nl.pim16aap2.bigdoors.exceptions.TooManyDoorsException;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
@@ -325,7 +325,7 @@ public class CommandManager implements CommandExecutor
 
         if (sender instanceof Player)
         {
-            door = DatabaseManager.get().getDoors(((Player) sender).getUniqueId(), doorArg)
+            door = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
                 .<Optional<AbstractDoorBase>>handleAsync(
                     (doors, ex) ->
                     {
@@ -346,8 +346,8 @@ public class CommandManager implements CommandExecutor
         {
             try
             {
-                door = DatabaseManager.get().getDoor(Long.parseLong(doorArg))
-                                      .exceptionally(Util::exceptionallyOptional);
+                door = BigDoors.get().getDatabaseManager().getDoor(Long.parseLong(doorArg))
+                               .exceptionally(Util::exceptionallyOptional);
             }
             catch (NumberFormatException e)
             {

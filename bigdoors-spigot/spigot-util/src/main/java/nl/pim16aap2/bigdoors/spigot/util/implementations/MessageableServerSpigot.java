@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
+import org.bukkit.ChatColor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
@@ -30,6 +32,6 @@ public final class MessageableServerSpigot implements IMessageable
     @Override
     public void sendMessage(final @NotNull Level level, final @NotNull String message)
     {
-//        PLogger.get().logMessage(ChatColor.stripColor(message), level);
+        BigDoors.get().getPLogger().logMessage(level, ChatColor.stripColor(message));
     }
 }
