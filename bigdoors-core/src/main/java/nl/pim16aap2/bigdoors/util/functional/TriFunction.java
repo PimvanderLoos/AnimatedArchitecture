@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util.Functional;
+package nl.pim16aap2.bigdoors.util.functional;
 
 import org.jetbrains.annotations.NotNull;
 

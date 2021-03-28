@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.util.Functional.CheckedTriConsumer;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.functional.CheckedTriConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
