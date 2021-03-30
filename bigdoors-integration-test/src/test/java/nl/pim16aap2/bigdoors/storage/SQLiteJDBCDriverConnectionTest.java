@@ -465,7 +465,8 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
-        DoorSerializer<?> serializer = new DoorSerializer<>(door3.getDoorType().getDoorClass());
+        DoorSerializer<?> serializer =
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);
 
         // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
@@ -475,12 +476,14 @@ public class SQLiteJDBCDriverConnectionTest
             final int testAutoCloseTime = 20;
 
             doorTimeToggle.setAutoCloseTime(testAutoCloseTime);
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
             UnitTestUtil.optionalEquals(testAutoCloseTime, storage.getDoor(3L),
                                         (door) -> ((ITimerToggleableArchetype) door).getAutoCloseTime());
 
             doorTimeToggle.setAutoCloseTime(door3AutoCloseTime);
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
 
             UnitTestUtil.optionalEquals(door3AutoCloseTime, storage.getDoor(3L),
                                         (door) -> ((ITimerToggleableArchetype) door).getAutoCloseTime());
@@ -491,11 +494,13 @@ public class SQLiteJDBCDriverConnectionTest
         // Test (un)locking (i.e. syncing base data).
         {
             door3.setLocked(true);
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
             UnitTestUtil.optionalEquals(true, storage.getDoor(3L), AbstractDoorBase::isLocked);
 
             door3.setLocked(false);
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
             UnitTestUtil.optionalEquals(false, storage.getDoor(3L), AbstractDoorBase::isLocked);
         }
 
@@ -538,7 +543,8 @@ public class SQLiteJDBCDriverConnectionTest
             Assertions.assertNotSame(0, blocksToMove);
             pc.setBlocksToMove(newBlocksToMove);
 
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
 
             Optional<AbstractDoorBase> retrievedOpt = storage.getDoor(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
@@ -566,7 +572,8 @@ public class SQLiteJDBCDriverConnectionTest
             // Reset type-specific data
             pc.setBlocksToMove(blocksToMove);
 
-            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), serializer.serialize(door3)));
+            Assertions.assertTrue(storage.syncDoorData(door3.getSimpleDoorDataCopy(), Assertions
+                .assertDoesNotThrow(() -> serializer.serialize(door3))));
         }
     }
 

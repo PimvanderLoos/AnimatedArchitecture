@@ -89,6 +89,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
     private final @NotNull DoorOwner primeOwner;
 
+    private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
+
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
      * with.
@@ -162,8 +164,21 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized final void syncData()
     {
-        BigDoors.get().getDatabaseManager()
-                .syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
+        if (serializer == null)
+        {
+            BigDoors.get().getPLogger()
+                    .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
+            return;
+        }
+
+        try
+        {
+            BigDoors.get().getDatabaseManager().syncDoorData(getSimpleDoorDataCopy(), serializer.serialize(this));
+        }
+        catch (Throwable t)
+        {
+            BigDoors.get().getPLogger().logThrowable(t, "Failed to sync data for door: " + getBasicInfo());
+        }
     }
 
     @Override

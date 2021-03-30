@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doortypes;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class represents a type of Door. "Door" in this case, refers to any kind of animated object, so not necessarily
@@ -70,8 +72,7 @@ public abstract class DoorType
     @Getter(onMethod = @__({@NotNull}))
     private final List<RotateDirection> validOpenDirections;
 
-    @Getter
-    private final @NonNull DoorSerializer<?> doorSerializer;
+    private final @Nullable DoorSerializer<?> doorSerializer;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
@@ -91,7 +92,28 @@ public abstract class DoorType
         this.validOpenDirections = validOpenDirections;
         translationName = "DOORTYPE_" + simpleName.toUpperCase();
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
-        doorSerializer = new DoorSerializer<>(getDoorClass());
+
+        DoorSerializer<?> serializer;
+        try
+        {
+            serializer = new DoorSerializer<>(getDoorClass());
+        }
+        catch (Throwable t)
+        {
+            serializer = null;
+            BigDoors.get().getPLogger().logThrowable(t, "Failed to intialize serializer for type: " + getFullName());
+        }
+        doorSerializer = serializer;
+    }
+
+    /**
+     * Gets the {@link DoorSerializer} for this type.
+     *
+     * @return The {@link DoorSerializer}.
+     */
+    public @NonNull Optional<DoorSerializer<?>> getDoorSerializer()
+    {
+        return Optional.ofNullable(doorSerializer);
     }
 
     /**
@@ -133,19 +155,6 @@ public abstract class DoorType
     public final @NotNull String toString()
     {
         return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();
-    }
-
-    /**
-     * Attempts to instantiate an object of a {@link DoorType}.
-     *
-     * @param doorData The base data for the new door.
-     * @param typeData The type-specific data for the door.
-     * @return A new {@link AbstractDoorBase} if one was instantiated successfully.
-     */
-    public final @NotNull AbstractDoorBase constructDoor(final @NotNull AbstractDoorBase.DoorData doorData,
-                                                         final byte[] typeData)
-    {
-        return doorSerializer.deserialize(doorData, typeData);
     }
 
     @Override
