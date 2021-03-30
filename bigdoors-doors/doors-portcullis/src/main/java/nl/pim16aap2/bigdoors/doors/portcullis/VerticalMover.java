@@ -35,6 +35,7 @@ public class VerticalMover extends BlockMover
                          final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
                          final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;

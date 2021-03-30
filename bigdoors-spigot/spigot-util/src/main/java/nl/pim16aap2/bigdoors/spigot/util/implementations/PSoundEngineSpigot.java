@@ -24,7 +24,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     public void playSound(final @NotNull IPLocationConst loc, final @NotNull PSound sound, final float volume,
                           final float pitch)
     {
-        BigDoors.get().getPlatform().newPExecutor().runAsync(() -> SpigotUtil
+        BigDoors.get().getPlatform().getPExecutor().runAsync(() -> SpigotUtil
             .playSound(SpigotAdapter.getBukkitLocation(loc), PSound.getSoundName(sound), volume, pitch));
     }
 

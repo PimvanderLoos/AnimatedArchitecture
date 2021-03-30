@@ -28,6 +28,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     public WindmillMover(final @NotNull T door, final double time, final double multiplier,
                          final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                          final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(time, door, rotateDirection, false, multiplier, player, door.getCuboid().clone(), cause, actionType);
     }

@@ -54,6 +54,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
     public ClockMover(final @NotNull T door, final @NotNull RotateDirection rotateDirection,
                       final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;

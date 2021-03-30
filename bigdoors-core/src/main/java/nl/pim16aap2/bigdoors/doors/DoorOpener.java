@@ -190,7 +190,7 @@ public final class DoorOpener
             return CompletableFuture.completedFuture(door.toggle(cause, messageReceiver, responsible,
                                                                  time, skipAnimation, doorActionType));
 
-        final @NotNull IPExecutor<DoorToggleResult> pExecutor = BigDoors.get().getPlatform().newPExecutor();
+        final @NotNull IPExecutor pExecutor = BigDoors.get().getPlatform().getPExecutor();
         return pExecutor.supplyOnMainThread(() -> door.toggle(cause, messageReceiver, responsible,
                                                               time, skipAnimation, doorActionType))
                         .exceptionally(ex -> Util.exceptionally(ex, DoorToggleResult.ERROR));

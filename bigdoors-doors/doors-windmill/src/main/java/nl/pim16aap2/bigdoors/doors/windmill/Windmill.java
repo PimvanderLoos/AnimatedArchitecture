@@ -73,6 +73,7 @@ public class Windmill extends AbstractDoorBase
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;

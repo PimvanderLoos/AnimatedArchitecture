@@ -97,14 +97,11 @@ public abstract class BlockMover implements IRestartable
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
                          final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
+        throws Exception
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
-        {
-            final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
-                "BlockMovers must be called on the main thread!");
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
+            throw new Exception("BlockMovers must be called on the main thread!");
+
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
         this.door = door;
@@ -153,7 +150,7 @@ public abstract class BlockMover implements IRestartable
     public void abort()
     {
         if (moverTask != null)
-            BigDoors.get().getPlatform().newPExecutor().cancel(moverTask, moverTaskID);
+            BigDoors.get().getPlatform().getPExecutor().cancel(moverTask, moverTaskID);
         putBlocks(true);
     }
 
@@ -196,7 +193,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void applyRotation()
     {
-        BigDoors.get().getPlatform().newPExecutor().runSync(this::applyRotationOnCurrentThread);
+        BigDoors.get().getPlatform().getPExecutor().runSync(this::applyRotationOnCurrentThread);
     }
 
     /**
@@ -213,7 +210,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void respawnBlocks()
     {
-        BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocksOnCurrentThread);
+        BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -268,7 +265,7 @@ public abstract class BlockMover implements IRestartable
         for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-        final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
+        final @NotNull IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
         executor.runSync(() -> putBlocks(false));
         executor.cancel(moverTask, moverTaskID);
     }
@@ -322,7 +319,7 @@ public abstract class BlockMover implements IRestartable
                     executeAnimationStep(counter);
             }
         };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, 1);
+        moverTaskID = BigDoors.get().getPlatform().getPExecutor().runAsyncRepeated(moverTask, 14, 1);
     }
 
     /**
@@ -399,7 +396,7 @@ public abstract class BlockMover implements IRestartable
         {
             int delay = Math
                 .max(Constants.MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
-            BigDoors.get().getPlatform().newPExecutor().runSyncLater(
+            BigDoors.get().getPlatform().getPExecutor().runSyncLater(
                 new TimerTask()
                 {
                     @Override

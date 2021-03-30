@@ -50,6 +50,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
                        final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
                        final double multiplier, final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
@@ -131,7 +132,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         // so delete the current fBlock and replace it by one that's been rotated.
         // Also, this stuff needs to be done on the main thread.
         if (replace)
-            BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocks);
+            BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocks);
 
         for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));

@@ -127,7 +127,7 @@ public class GUIPageDoorInfo implements IGUIPage
             gui.update();
             return;
         }
-        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+        BigDoors.get().getPlatform().getPExecutor().runOnMainThread(
             () -> handleAllowedInput(gui.getDoor(), SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), guiItem,
                                      interactionIDX));
     }

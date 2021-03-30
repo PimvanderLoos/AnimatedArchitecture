@@ -136,7 +136,7 @@ public final class ToolUserManager extends Restartable
         };
 
         pair.second = timerTask;
-        BigDoors.get().getPlatform().newPExecutor().runSyncLater(timerTask, time);
+        BigDoors.get().getPlatform().getPExecutor().runSyncLater(timerTask, time);
     }
 
     /**

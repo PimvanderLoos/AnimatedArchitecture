@@ -77,6 +77,7 @@ public class Flag extends AbstractDoorBase
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         return new FlagMover(60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
     }

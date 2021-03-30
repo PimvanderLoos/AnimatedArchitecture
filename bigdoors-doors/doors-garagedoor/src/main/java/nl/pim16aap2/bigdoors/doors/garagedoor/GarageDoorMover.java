@@ -42,6 +42,7 @@ public class GarageDoorMover extends BlockMover
                            final boolean skipAnimation, final @NotNull RotateDirection rotateDirection,
                            final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
