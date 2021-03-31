@@ -69,21 +69,48 @@ public final class PExecutorSpigot implements IPExecutor
     }
 
     @Override
+    public int runAsyncRepeated(final @NonNull Runnable runnable, long delay, long period)
+    {
+        // This is deprecated only because the name is supposedly confusing
+        // (one might read it as scheduling "a sync" task).
+        //noinspection deprecation
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, runnable, delay, period);
+    }
+
+    @Override
     public int runSyncRepeated(final @NonNull TimerTask timerTask, long delay, long period)
     {
         return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, timerTask, delay, period);
     }
 
     @Override
-    public void runAsyncLater(final @NonNull TimerTask timerTask, long delay)
+    public int runSyncRepeated(final @NonNull Runnable runnable, long delay, long period)
     {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, timerTask, delay);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, runnable, delay, period);
+    }
+
+    @Override
+    public void runAsyncLater(final @NonNull TimerTask runnable, long delay)
+    {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, delay);
+    }
+
+    @Override
+    public void runAsyncLater(final @NonNull Runnable runnable, long delay)
+    {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, runnable, delay);
     }
 
     @Override
     public void runSyncLater(final @NonNull TimerTask timerTask, long delay)
     {
         Bukkit.getScheduler().runTaskLater(plugin, timerTask, delay);
+    }
+
+    @Override
+    public void runSyncLater(final @NonNull Runnable runnable, long delay)
+    {
+        Bukkit.getScheduler().runTaskLater(plugin, runnable, delay);
     }
 
     @Override

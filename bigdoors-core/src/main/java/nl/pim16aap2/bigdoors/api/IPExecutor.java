@@ -63,6 +63,16 @@ public interface IPExecutor
     int runAsyncRepeated(final @NonNull TimerTask timerTask, final long delay, final long period);
 
     /**
+     * Schedules a repeated {@link Runnable} to be run asynchronously.
+     *
+     * @param runnable The task to run.
+     * @param delay    The delay in ticks before the task is to be executed.
+     * @param period   The time in ticks between successive task executions.
+     * @return The ID of the task.
+     */
+    int runAsyncRepeated(final @NonNull Runnable runnable, final long delay, final long period);
+
+    /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
      *
      * @param timerTask The task to run.
@@ -73,6 +83,16 @@ public interface IPExecutor
     int runSyncRepeated(final @NonNull TimerTask timerTask, final long delay, final long period);
 
     /**
+     * Schedules a repeated {@link Runnable} to be run on the main thread.
+     *
+     * @param runnable The task to run.
+     * @param delay    The delay in ticks before the task is to be executed.
+     * @param period   The time in ticks between successive task executions.
+     * @return The ID of the task.
+     */
+    int runSyncRepeated(final @NonNull Runnable runnable, final long delay, final long period);
+
+    /**
      * Schedules a repeated {@link TimerTask} to be run asynchronously.
      *
      * @param timerTask The task to run.
@@ -81,12 +101,28 @@ public interface IPExecutor
     void runAsyncLater(final @NonNull TimerTask timerTask, final long delay);
 
     /**
+     * Schedules a repeated {@link Runnable} to be run asynchronously.
+     *
+     * @param runnable The task to run.
+     * @param delay    The delay in ticks before the task is to be executed.
+     */
+    void runAsyncLater(final @NonNull Runnable runnable, final long delay);
+
+    /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
      *
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      */
     void runSyncLater(final @NonNull TimerTask timerTask, final long delay);
+
+    /**
+     * Schedules a repeated {@link Runnable} to be run on the main thread.
+     *
+     * @param runnable The task to run.
+     * @param delay    The delay in ticks before the task is to be executed.
+     */
+    void runSyncLater(final @NonNull Runnable runnable, final long delay);
 
     /**
      * Cancels a task.

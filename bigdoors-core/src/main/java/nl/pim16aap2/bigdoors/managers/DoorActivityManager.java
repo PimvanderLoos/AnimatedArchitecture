@@ -1,9 +1,13 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -63,6 +67,44 @@ public final class DoorActivityManager extends Restartable
     public void setDoorAvailable(final long doorUID)
     {
         busyDoors.remove(doorUID);
+    }
+
+    /**
+     * Processed a finished {@link BlockMover}.
+     * <p>
+     * The {@link AbstractDoorBase} that was being used by the {@link BlockMover} will be registered as inactive and any
+     * scheduling that is required will be performed.
+     *
+     * @param blockMover      The {@link BlockMover} to postprocess.
+     * @param allowReschedule Whether or not to allow rescheduling (e.g. autoclose).
+     */
+    public void processFinishedBlockMover(@NonNull BlockMover blockMover, boolean allowReschedule)
+    {
+        int delay = Math.max(Constants.MINIMUMDOORDELAY,
+                             BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
+
+        BigDoors.get().getPlatform().getPExecutor()
+                .runSyncLater(() -> handleFinishedBlockMover(blockMover, allowReschedule), delay);
+    }
+
+    private void handleFinishedBlockMover(@NonNull BlockMover blockMover, boolean allowReschedule)
+    {
+        setDoorAvailable(blockMover.getDoor().getDoorUID());
+
+        if (!allowReschedule)
+            return;
+
+        BigDoors.get().getPlatform().callDoorActionEvent(
+            BigDoors.get().getPlatform().getDoorActionEventFactory()
+                    .createEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
+                                    blockMover.getPlayer(), blockMover.getTime(),
+                                    blockMover.isSkipAnimation()));
+
+        if (blockMover.getDoor() instanceof ITimerToggleableArchetype)
+            BigDoors.get().getAutoCloseScheduler()
+                    .scheduleAutoClose(blockMover.getPlayer(),
+                                       (AbstractDoorBase & ITimerToggleableArchetype) blockMover.getDoor(),
+                                       blockMover.getTime(), blockMover.isSkipAnimation());
     }
 
     /**
