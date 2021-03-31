@@ -94,7 +94,7 @@ public class SubCommandRemoveOwner extends SubCommand
                         }
                         catch (InterruptedException e)
                         {
-                            BigDoors.get().getPLogger().logThrowableSilently(e);
+                            BigDoors.get().getPLogger().logThrowable(e);
                             successfulRemoval = false;
                             Thread.currentThread().interrupt();
                         }

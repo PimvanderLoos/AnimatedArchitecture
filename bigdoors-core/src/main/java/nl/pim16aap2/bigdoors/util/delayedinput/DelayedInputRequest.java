@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.Getter;
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -42,13 +41,10 @@ public abstract class DelayedInputRequest<T>
      * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
     protected DelayedInputRequest(final long timeout)
+        throws Exception
     {
         if (timeout < 1)
-        {
-            final IllegalArgumentException e = new IllegalArgumentException("Timeout must be larger than 0!");
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
+            throw new Exception("Timeout must be larger than 0!");
         this.timeout = timeout;
     }
 

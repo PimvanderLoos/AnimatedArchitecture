@@ -17,11 +17,11 @@ class DelayedInputRequestTest
     @Test
     public void testFailure()
     {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DelayedInputRequestImpl(-1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DelayedInputRequestImpl(0));
+        Assertions.assertThrows(Exception.class, () -> new DelayedInputRequestImpl(-1));
+        Assertions.assertThrows(Exception.class, () -> new DelayedInputRequestImpl(0));
         Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(1));
 
-        val request = new DelayedInputRequestImpl(100);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(100));
         Assertions.assertDoesNotThrow(request::waitForInput);
         Assertions.assertThrows(IllegalStateException.class, request::waitForInput);
     }
@@ -34,7 +34,7 @@ class DelayedInputRequestTest
     @Test
     public void testTimeout()
     {
-        val request = new DelayedInputRequestImpl(100);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(100));
         val futureResult = CompletableFuture.supplyAsync(() -> waitForInput(request)).exceptionally(Assertions::fail);
         sleep(10);
         Assertions.assertFalse(futureResult.isDone());
@@ -53,7 +53,7 @@ class DelayedInputRequestTest
     {
         final @NonNull String inputString = Util.randomInsecureString(10);
 
-        val request = new DelayedInputRequestImpl(1000);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(1000));
         val result = CompletableFuture.supplyAsync(() -> waitForInput(request)).exceptionally(Assertions::fail);
         sleep(5); // Give it a bit of time to make sure the request is properly in its waiting state.
         request.set(inputString);
@@ -93,7 +93,7 @@ class DelayedInputRequestTest
     @Test
     public void testStatusWaiting()
     {
-        val request = new DelayedInputRequestImpl(1000);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(1000));
         Assertions.assertEquals(request.getStatus(), DelayedInputRequest.Status.INACTIVE);
         CompletableFuture.runAsync(() -> waitForInput(request)).exceptionally(Assertions::fail);
 
@@ -107,7 +107,7 @@ class DelayedInputRequestTest
     @Test
     public void testStatusTimedOut()
     {
-        val request = new DelayedInputRequestImpl(10);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(10));
         CompletableFuture.runAsync(() -> waitForInput(request)).exceptionally(Assertions::fail);
         sleep(50);
         Assertions.assertEquals(DelayedInputRequest.Status.TIMED_OUT, request.getStatus());
@@ -116,7 +116,7 @@ class DelayedInputRequestTest
     @Test
     public void testStatusCancelled()
     {
-        val request = new DelayedInputRequestImpl(1000);
+        val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(1000));
         val futureResult = CompletableFuture.supplyAsync(() -> waitForInput(request)).exceptionally(Assertions::fail);
         sleep(5);
         request.cancel();
@@ -140,6 +140,7 @@ class DelayedInputRequestTest
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
         public DelayedInputRequestImpl(final long timeout)
+            throws Exception
         {
             super(timeout);
         }
