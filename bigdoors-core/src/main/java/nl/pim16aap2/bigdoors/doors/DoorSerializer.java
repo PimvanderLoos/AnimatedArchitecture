@@ -124,9 +124,8 @@ public class DoorSerializer<T extends AbstractDoorBase>
         }
         this.ctor = ctor;
         if (this.ctor == null && !UNSAFE_AVAILABLE)
-            throw new Exception(
-                "Could not find CTOR for class " + getDoorTypeName() +
-                    " and Unsafe is unavailable! This type cannot be enabled!");
+            throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
+                                    " and Unsafe is unavailable! This type cannot be enabled!");
 
         BigDoors.get().getPLogger().logMessage(Level.FINE, "Using " + (this.ctor == null ? "Unsafe" : "Reflection") +
             " construction method for class " + getDoorTypeName());
@@ -219,10 +218,9 @@ public class DoorSerializer<T extends AbstractDoorBase>
         {
             final Object obj = objectInputStream.readObject();
             if (!(obj instanceof ArrayList))
-            {
                 throw new IllegalStateException(
                     "Unexpected deserialization type! Expected ArrayList, but got " + obj.getClass().getName());
-            }
+
             //noinspection unchecked
             return (ArrayList<Object>) obj;
         }
@@ -237,10 +235,8 @@ public class DoorSerializer<T extends AbstractDoorBase>
         throws Exception
     {
         if (values.size() != fields.size())
-        {
             throw new IllegalStateException(String.format("Expected %d arguments but received %d for type %s",
                                                           fields.size(), values.size(), getDoorTypeName()));
-        }
 
         try
         {
@@ -299,6 +295,41 @@ public class DoorSerializer<T extends AbstractDoorBase>
     public @NonNull String getDoorTypeName()
     {
         return doorClass.getName();
+    }
+
+    /**
+     * Prints the persistent field names and values of a door.
+     * <p>
+     * 1 field per line.
+     *
+     * @param door The {@link AbstractDoorBase} whose {@link PersistentVariable}s to print.
+     * @return A String containing the names and values of the persistent parameters of the provided door.
+     */
+    public String toString(@NonNull AbstractDoorBase door)
+    {
+        if (!doorClass.isAssignableFrom(door.getClass()))
+        {
+            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+                "Expected type " + getDoorTypeName() + " but received type " + door.getClass().getName()));
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Field field : fields)
+        {
+            String value;
+            try
+            {
+                value = field.get(door).toString();
+            }
+            catch (IllegalAccessException e)
+            {
+                BigDoors.get().getPLogger().logThrowable(e);
+                value = "ERROR";
+            }
+            sb.append(field.getName()).append(": ").append(value).append("\n");
+        }
+        return sb.toString();
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
 import lombok.experimental.Accessors;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
@@ -617,7 +618,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
         builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
         builder.append("OpenDir: ").append(openDir.toString()).append("\n");
-        // TODO: Print persistent data
+
+        builder.append("\nType-specific data:\n");
+        val serializer = getDoorType().getDoorSerializer();
+        if (serializer.isEmpty())
+            builder.append("Invalid serializer!\n");
+        else
+            builder.append(serializer.get().toString(this));
 
         return builder.toString();
     }

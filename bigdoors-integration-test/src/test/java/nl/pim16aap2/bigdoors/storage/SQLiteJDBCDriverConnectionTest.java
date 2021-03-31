@@ -88,9 +88,8 @@ public class SQLiteJDBCDriverConnectionTest
         dbFileBackup = new File(DB_FILE.toString() + ".BACKUP");
     }
 
-    // Initialize mocking.
     @BeforeAll
-    public static void setupMocking()
+    public static void baseSetup()
     {
         AbstractDoorBase.DoorData doorData;
         {
