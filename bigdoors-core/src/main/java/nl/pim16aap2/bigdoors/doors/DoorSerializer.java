@@ -58,11 +58,9 @@ public class DoorSerializer<T extends AbstractDoorBase>
             {
                 field.setAccessible(true);
                 if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
-                {
                     throw new UnsupportedOperationException(
                         String.format("Type %s of field %s for door type %s is not serializable!",
                                       field.getType().getName(), field.getName(), getDoorTypeName()));
-                }
                 fields.add(field);
             }
     }

@@ -59,35 +59,24 @@ public abstract class DelayedInputRequest<T>
      * Note that this will block the current thread until either one of the exit conditions is met.
      * <p>
      * Calling this method more than once for the same {@link DelayedInputRequest} instance is not allowed and will
-     * throw a {@link IllegalStateException}.
+     * throw an {@link Exception}.
      *
      * @return The value that was received. If no value was received or if the value was null, an empty optional is
      * returned instead.
      */
     protected final @NonNull Optional<T> waitForInput()
+        throws Exception
     {
         synchronized (guard)
         {
             if (status != Status.INACTIVE)
-            {
-                final IllegalStateException e = new IllegalStateException(
+                throw new IllegalStateException(
                     "Trying to initialize delayed input request while it has status: " + status.name());
-                BigDoors.get().getPLogger().logThrowableSilently(e);
-                throw e;
-            }
 
             init();
 
             status = Status.WAITING;
-            try
-            {
-                guard.wait(timeout);
-            }
-            catch (InterruptedException e)
-            {
-                BigDoors.get().getPLogger().logThrowableSilently(e, "Interrupted while waiting for input!");
-                Thread.currentThread().interrupt();
-            }
+            guard.wait(timeout);
 
             if (status != Status.COMPLETED && status != Status.CANCELLED)
                 status = Status.TIMED_OUT;
