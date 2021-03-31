@@ -164,7 +164,7 @@ public final class BigDoors extends RestartableHolder
      */
     public @NonNull IPLogger getPLogger()
     {
-        if (platform == null || getPlatform().getPLogger() == null)
+        if (platform == null)
             return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
         return getPlatform().getPLogger();
     }

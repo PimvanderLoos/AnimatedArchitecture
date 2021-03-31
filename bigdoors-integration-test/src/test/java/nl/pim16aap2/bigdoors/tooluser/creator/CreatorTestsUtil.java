@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
@@ -107,6 +108,7 @@ public class CreatorTestsUtil
         Mockito.when(platform.getPermissionsManager()).thenReturn(permissionsManager);
         Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
         Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
+        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(

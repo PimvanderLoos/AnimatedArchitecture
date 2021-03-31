@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.extensions;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -120,20 +122,26 @@ public final class DoorTypeLoader extends Restartable
         return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies));
     }
 
-    public void loadDoorTypesFromDirectory()
+    /**
+     * Attempts to load and register all jars in the default directory:
+     * <p>
+     * {@link IBigDoorsPlatform#getDataDirectory()} + {@link Constants#BIGDOORS_EXTENSIONS_FOLDER}.
+     * <p>
+     * See also {@link #loadDoorTypesFromDirectory(String)}.
+     */
+    public @NonNull List<DoorType> loadDoorTypesFromDirectory()
     {
-        final @NotNull List<DoorType> doorTypes =
-            loadDoorTypesFromDirectory(BigDoors.get().getPlatform().getDataDirectory() +
-                                           Constants.BIGDOORS_EXTENSIONS_FOLDER);
-        BigDoors.get().getDoorTypeManager().registerDoorTypes(doorTypes);
+        return loadDoorTypesFromDirectory(
+            BigDoors.get().getPlatform().getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
     }
 
     /**
-     * Attempts to load all jars in a given directory.
+     * Attempts to load and register all jars in a given directory.
      *
      * @param directory The directory.
+     * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    private @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
+    public @NonNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
     {
         final @NotNull List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
 
@@ -147,7 +155,9 @@ public final class DoorTypeLoader extends Restartable
             BigDoors.get().getPLogger().logThrowable(e);
         }
 
-        return new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        List<DoorType> types = new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        BigDoors.get().getDoorTypeManager().registerDoorTypes(types);
+        return types;
     }
 
     @Override

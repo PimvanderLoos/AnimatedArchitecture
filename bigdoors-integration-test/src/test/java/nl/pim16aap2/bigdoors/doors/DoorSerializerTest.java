@@ -117,7 +117,7 @@ class DoorSerializerTest
         public TestDoorType(final @NonNull DoorData doorData, final @NonNull String testName,
                             final boolean isCoolType, final int blockTestCount)
         {
-            this(doorData);
+            super(doorData);
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
