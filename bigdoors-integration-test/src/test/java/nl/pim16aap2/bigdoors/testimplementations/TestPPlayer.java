@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.NonNull;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -98,7 +99,7 @@ public final class TestPPlayer implements IPPlayer
     {
         beforeLastMessage = lastMessage;
         lastMessage = message;
-        TestMessageableServer.get().sendMessage(level, message);
+        BigDoors.get().getPLogger().logMessage(level, message);
     }
 
     public @Nullable String getLastMessage()

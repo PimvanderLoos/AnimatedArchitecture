@@ -2,13 +2,13 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,8 +23,6 @@ import java.util.TimerTask;
  */
 public final class AutoCloseScheduler extends Restartable
 {
-    private static final @NotNull AutoCloseScheduler INSTANCE = new AutoCloseScheduler();
-
     /**
      * A map of {@link TimerTask}s.
      * <p>
@@ -34,21 +32,9 @@ public final class AutoCloseScheduler extends Restartable
      */
     private final @NotNull Map<Long, TimerTask> timers = new HashMap<>();
 
-    private AutoCloseScheduler()
+    public AutoCloseScheduler()
     {
         super(BigDoors.get());
-    }
-
-    /**
-     * Gets the instance of the {@link AutoCloseScheduler} if it exists.
-     *
-     * @return The instance of the {@link AutoCloseScheduler}.
-     */
-    public static @NotNull AutoCloseScheduler get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
     }
 
     /**
@@ -103,7 +89,7 @@ public final class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     // TODO: Verify that reusing the door object won't result in any issues.
-                    BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+                    BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
                     DoorOpener.get().animateDoorAsync(door, cause, player, speed, skipAnimation, DoorActionType.CLOSE);
                 }
                 deleteTimer(door.getDoorUID());

@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -25,7 +25,7 @@ public final class PWorldSpigot implements IPWorld
         this.worldName = worldName;
         final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null)
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("World \"" + worldName + "\" could not be found!"));
         world = bukkitWorld;
     }
@@ -91,9 +91,8 @@ public final class PWorldSpigot implements IPWorld
         }
         catch (CloneNotSupportedException e)
         {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logThrowable(er);
+            BigDoors.get().getPLogger().logThrowableSilently(er);
             throw er;
         }
     }

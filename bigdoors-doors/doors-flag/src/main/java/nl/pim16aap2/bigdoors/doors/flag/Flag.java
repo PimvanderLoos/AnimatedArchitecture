@@ -4,6 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
@@ -77,7 +78,7 @@ public class Flag extends AbstractDoorBase
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
     {
-        return new FlagMover(60, this, doorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
+        return new FlagMover(60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
     }
 
     @Override

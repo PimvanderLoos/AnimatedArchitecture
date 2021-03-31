@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public final class Procedure<T extends ToolUser>
     {
         if (!steps.hasNext())
         {
-            PLogger.get().logThrowable(new IndexOutOfBoundsException(
+            BigDoors.get().getPLogger().logThrowable(new IndexOutOfBoundsException(
                 "Trying to advance to the next step while there is none! Step: " + getCurrentStepName()));
             return;
         }
@@ -54,14 +54,11 @@ public final class Procedure<T extends ToolUser>
      */
     public boolean skipToStep(final @NotNull IStep goalStep)
     {
-        System.out.println("skipToStep: Trying to find step: " + goalStep.getName());
         while (steps.hasNext())
         {
             IStep step = steps.next();
-            System.out.println("skipToStep: Checking step: " + step.getName());
             if (step.equals(goalStep))
             {
-                System.out.println("skipToStep: IS A MATCH! RETURN TRUE!");
                 currentStep = step;
                 return true;
             }

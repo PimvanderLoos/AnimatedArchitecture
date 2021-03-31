@@ -3,11 +3,9 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.Bukkit;
@@ -88,7 +86,7 @@ public class GUI
                 doorList.forEach(
                     doorEntry ->
                     {
-                        if (DoorTypeManager.get().isDoorTypeEnabled(doorEntry.getDoorType()))
+                        if (BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(doorEntry.getDoorType()))
                             doorBases.add(doorEntry);
                     });
                 sort();
@@ -120,7 +118,8 @@ public class GUI
         Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(guiHolder);
         if (bukkitPlayer == null)
         {
-            PLogger.get().logThrowable(new NullPointerException("Player \"" + guiHolder.toString() + "\" is null!"));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new NullPointerException("Player \"" + guiHolder.toString() + "\" is null!"));
             return;
         }
 
@@ -140,7 +139,7 @@ public class GUI
 
         if (door.getDoorOwner(guiHolder).isPresent())
             return true;
-        
+
         doorBases.remove(door);
         door = null;
         setGUIPage(new GUIPageDoorList(plugin, this));

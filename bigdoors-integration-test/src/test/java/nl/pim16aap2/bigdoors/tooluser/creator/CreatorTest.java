@@ -5,8 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.testimplementations.TestConfigLoader;
-import nl.pim16aap2.bigdoors.testimplementations.TestEconomyManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -16,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,13 +60,12 @@ public class CreatorTest extends CreatorTestsUtil
     @Test
     public void testSetSecondPos()
     {
-        final @NotNull TestConfigLoader testConfigLoader = getConfigLoader();
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
         creator.firstPos = min;
         creator.world = world;
         final @NotNull Cuboid cuboid = new Cuboid(min, max);
         final int sizeLimit = cuboid.getVolume() - 1;
-        testConfigLoader.maxDoorSize = OptionalInt.of(sizeLimit);
+        Mockito.when(configLoader.maxDoorSize()).thenReturn(OptionalInt.of(sizeLimit));
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetSecondPos));
 
         Assertions.assertEquals("CREATOR_BIGDOOR_STEP2", creator.getCurrentStepMessage());
@@ -78,12 +76,10 @@ public class CreatorTest extends CreatorTestsUtil
 
         Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetSecondPos);
 
-        testConfigLoader.maxDoorSize = OptionalInt.of(cuboid.getVolume());
+        Mockito.when(configLoader.maxDoorSize()).thenReturn(OptionalInt.of(cuboid.getVolume()));
         Assertions.assertTrue(creator.setSecondPos(max.toLocation(world)));
         Assertions.assertEquals(new Cuboid(min, max), creator.cuboid);
         Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetEnginePos);
-
-        testConfigLoader.maxDoorSize = OptionalInt.empty();
     }
 
     @Test
@@ -109,13 +105,12 @@ public class CreatorTest extends CreatorTestsUtil
     @Test
     public void testSetPowerBlockPos()
     {
-        final @NotNull TestConfigLoader testConfigLoader = getConfigLoader();
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
         creator.world = world;
         creator.cuboid = new Cuboid(min, max);
         final double distance = creator.cuboid.getCenter().getDistance(powerblock);
         final int limit = (int) distance - 1;
-        testConfigLoader.maxPowerBlockDistance = OptionalInt.of(limit);
+        Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.of(limit));
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetPowerBlockPos));
 
         Assertions.assertEquals("CREATOR_GENERAL_SETPOWERBLOCK", creator.getCurrentStepMessage());
@@ -127,7 +122,7 @@ public class CreatorTest extends CreatorTestsUtil
                                 PLAYER.getLastMessage());
 
         Assertions.assertEquals(creator.getCurrentStep(), creator.stepSetPowerBlockPos);
-        testConfigLoader.maxPowerBlockDistance = OptionalInt.of(limit + 2);
+        Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.of(limit + 2));
 
         Assertions.assertTrue(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
         Assertions.assertEquals(powerblock, creator.powerblock);
@@ -161,10 +156,9 @@ public class CreatorTest extends CreatorTestsUtil
     @Test
     public void testSetOpenDir()
     {
-        final @NotNull TestEconomyManager testEconomyManager = getEconomyManager();
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
-        testEconomyManager.isEconomyEnabled = true;
-        testEconomyManager.price = OptionalDouble.of(10d);
+        setEconomyEnabled(true);
+        setEconomyPrice(10d);
         creator.cuboid = new Cuboid(min, max);
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
 
@@ -192,11 +186,6 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertEquals(validDir, creator.opendir);
 
         Assertions.assertEquals(creator.getCurrentStep(), creator.stepConfirmPrice);
-
-
-        // Cleanup
-        testEconomyManager.isEconomyEnabled = false;
-        testEconomyManager.price = OptionalDouble.empty();
     }
 
     @Test
@@ -220,38 +209,33 @@ public class CreatorTest extends CreatorTestsUtil
     @Test
     public void testBuyDoor()
     {
-        final @NotNull TestEconomyManager testEconomyManager = getEconomyManager();
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
         creator.cuboid = new Cuboid(min, max);
-        testEconomyManager.isEconomyEnabled = true;
-        testEconomyManager.buyDoor = true;
+        setEconomyEnabled(true);
+        setBuyDoor(true);
         final double price = 100;
-        testEconomyManager.price = OptionalDouble.of(price);
+        setEconomyPrice(price);
 
         Assertions.assertTrue(creator.buyDoor());
 
-        testEconomyManager.isEconomyEnabled = false;
+        setEconomyEnabled(false);
         Assertions.assertTrue(creator.buyDoor());
 
-        testEconomyManager.isEconomyEnabled = true;
-        testEconomyManager.buyDoor = false;
+        setEconomyEnabled(true);
+        setBuyDoor(false);
         Assertions.assertFalse(creator.buyDoor());
-
-        // Cleanup
-        testEconomyManager.isEconomyEnabled = false;
-        testEconomyManager.buyDoor = true;
-        testEconomyManager.price = OptionalDouble.empty();
     }
 
     @Test
     public void testConfirmPrice()
     {
-        final @NotNull TestEconomyManager testEconomyManager = getEconomyManager();
         final @NotNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
-        testEconomyManager.isEconomyEnabled = true;
-        testEconomyManager.buyDoor = false;
+
         final double price = 100.73462;
-        testEconomyManager.price = OptionalDouble.of(price);
+        setEconomyEnabled(true);
+        setBuyDoor(true);
+        setEconomyPrice(price);
+
         creator.cuboid = new Cuboid(min, max);
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepConfirmPrice));
 
@@ -263,21 +247,10 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertTrue(foundPrice.isPresent());
         Assertions.assertTrue(Math.abs(creator.getPrice().getAsDouble() - price) < UnitTestUtil.EPSILON);
 
-        creator.confirmPrice(false);
-        Assertions.assertEquals("CREATOR_GENERAL_CANCELLED", PLAYER.getLastMessage());
-
+        setBuyDoor(false);
         creator.confirmPrice(true);
         Assertions
             .assertEquals(String.format("CREATOR_GENERAL_INSUFFICIENTFUNDS %.2f", price), PLAYER.getLastMessage());
-
-        testEconomyManager.buyDoor = true;
-        creator.confirmPrice(true);
-        Assertions.assertEquals(creator.stepCompleteProcess, creator.getCurrentStep());
-
-        // Cleanup
-        testEconomyManager.isEconomyEnabled = false;
-        testEconomyManager.buyDoor = true;
-        testEconomyManager.price = OptionalDouble.empty();
     }
 
     private static class CreatorTestImpl extends Creator

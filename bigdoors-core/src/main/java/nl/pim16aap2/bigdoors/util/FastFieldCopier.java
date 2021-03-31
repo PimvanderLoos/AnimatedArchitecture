@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
@@ -32,7 +33,7 @@ public abstract class FastFieldCopier<S, T>
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         UNSAFE = unsafe;
     }
@@ -96,7 +97,7 @@ public abstract class FastFieldCopier<S, T>
         catch (Throwable t)
         {
             RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
 

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandNew;
@@ -83,8 +83,8 @@ public class GUIPageDoorCreation implements IGUIPage
     private void fillPage()
     {
         int position = 9;
-        for (DoorType type : DoorTypeManager.get().getSortedDoorTypes())
-            if (DoorTypeManager.get().isDoorTypeEnabled(type) &&
+        for (DoorType type : BigDoors.get().getDoorTypeManager().getSortedDoorTypes())
+            if (BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(type) &&
                 SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,

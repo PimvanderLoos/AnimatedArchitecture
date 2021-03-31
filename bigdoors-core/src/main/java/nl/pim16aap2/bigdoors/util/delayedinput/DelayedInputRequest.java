@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.Getter;
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -46,7 +46,7 @@ public abstract class DelayedInputRequest<T>
         if (timeout < 1)
         {
             final IllegalArgumentException e = new IllegalArgumentException("Timeout must be larger than 0!");
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
         this.timeout = timeout;
@@ -72,7 +72,7 @@ public abstract class DelayedInputRequest<T>
             {
                 final IllegalStateException e = new IllegalStateException(
                     "Trying to initialize delayed input request while it has status: " + status.name());
-                PLogger.get().logThrowableSilently(e);
+                BigDoors.get().getPLogger().logThrowableSilently(e);
                 throw e;
             }
 
@@ -85,7 +85,7 @@ public abstract class DelayedInputRequest<T>
             }
             catch (InterruptedException e)
             {
-                PLogger.get().logThrowableSilently(e, "Interrupted while waiting for input!");
+                BigDoors.get().getPLogger().logThrowableSilently(e, "Interrupted while waiting for input!");
                 Thread.currentThread().interrupt();
             }
 

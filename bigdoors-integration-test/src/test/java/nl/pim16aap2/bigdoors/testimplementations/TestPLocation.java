@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -96,7 +96,7 @@ public final class TestPLocation implements IPLocation
         {
             // TODO: Only log to file! It's already dumped in the console because it's thrown.
             Error er = new Error(e);
-            PLogger.get().logThrowable(er);
+            BigDoors.get().getPLogger().logThrowable(er);
             throw er;
         }
     }

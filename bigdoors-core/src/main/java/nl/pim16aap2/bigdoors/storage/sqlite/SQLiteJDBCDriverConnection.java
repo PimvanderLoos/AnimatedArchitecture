@@ -8,17 +8,14 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.Functional.CheckedFunction;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.functional.CheckedFunction;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -145,7 +142,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         if (!databaseState.equals(state))
         {
-            PLogger.get().logThrowable(new IllegalStateException(
+            BigDoors.get().getPLogger().logThrowable(new IllegalStateException(
                 "The database is in an incorrect state: " + databaseState.name() +
                     ". All database operations are disabled!"));
             return null;
@@ -159,10 +156,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logThrowable(e, "Failed to open connection!");
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to open connection!");
         }
         if (conn == null)
-            PLogger.get().logThrowable(new NullPointerException("Could not open connection!"));
+            BigDoors.get().getPLogger().logThrowable(new NullPointerException("Could not open connection!"));
         return conn;
     }
 
@@ -214,7 +211,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
                 {
-                    PLogger.get().logThrowable(
+                    BigDoors.get().getPLogger().logThrowable(
                         new IOException(
                             "Failed to create directory \"" + dbFile.getParentFile().toString() + "\""));
                     databaseState = DatabaseState.ERROR;
@@ -222,16 +219,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 }
                 if (!dbFile.createNewFile())
                 {
-                    PLogger.get().logThrowable(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
+                    BigDoors.get().getPLogger()
+                            .logThrowable(new IOException("Failed to create file \"" + dbFile.toString() + "\""));
                     databaseState = DatabaseState.ERROR;
                     return;
                 }
-                PLogger.get().info("New file created at " + dbFile);
+                BigDoors.get().getPLogger().info("New file created at " + dbFile);
             }
             catch (IOException e)
             {
-                PLogger.get().severe("File write error: " + dbFile);
-                PLogger.get().logThrowable(e);
+                BigDoors.get().getPLogger().severe("File write error: " + dbFile);
+                BigDoors.get().getPLogger().logThrowable(e);
                 databaseState = DatabaseState.ERROR;
                 return;
             }
@@ -261,7 +259,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -270,19 +268,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         throws Exception
     {
         final Optional<DoorType> doorType =
-            DoorTypeManager.get().getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
+            BigDoors.get().getDoorTypeManager().getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
 
-        if (!doorType.map(type -> DoorTypeManager.get().isRegistered(type)).orElse(false))
+        if (!doorType.map(type -> BigDoors.get().getDoorTypeManager().isRegistered(type)).orElse(false))
         {
-            PLogger.get().logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
-                                                                     " has not been registered (yet)!"));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                                                                " has not been registered (yet)!"));
             return Optional.empty();
         }
 
         final long doorUID = doorBaseRS.getLong("id");
-        System.out.println("Constructing door with ID: " + doorUID);
 
-        final @NotNull Optional<AbstractDoorBase> registeredDoor = DoorRegistry.get().getRegisteredDoor(doorUID);
+        final @NotNull Optional<AbstractDoorBase> registeredDoor = BigDoors.get().getDoorRegistry()
+                                                                           .getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
             return registeredDoor;
 
@@ -343,7 +342,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                       .setNextString(doorType.getFullName())) > 0, false);
 
         if (removed)
-            DoorTypeManager.get().unregisterDoorType(doorType);
+            BigDoors.get().getDoorTypeManager().unregisterDoorType(doorType);
         return removed;
     }
 
@@ -798,7 +797,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                      rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
-            PLogger.get().logMessage(Level.SEVERE, "Failed to obtain database version!");
+            BigDoors.get().getPLogger().logMessage(Level.SEVERE, "Failed to obtain database version!");
             databaseState = DatabaseState.ERROR;
             return dbVersion;
         }
@@ -810,14 +809,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (dbVersion < MIN_DATABASE_VERSION)
         {
-            PLogger.get().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
+            BigDoors.get().getPLogger().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
                 " while the minimum allowed version is " + MIN_DATABASE_VERSION);
             databaseState = DatabaseState.TOO_OLD;
         }
 
         if (dbVersion > DATABASE_VERSION)
         {
-            PLogger.get().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
+            BigDoors.get().getPLogger().logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
                 " while the maximum allowed version is " + DATABASE_VERSION);
             databaseState = DatabaseState.TOO_NEW;
         }
@@ -859,7 +858,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -875,7 +874,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // Only the most recent backup is kept, so delete the old one if a new one needs to be created.
         if (dbFileBackup.exists() && !dbFileBackup.delete())
         {
-            PLogger.get().logThrowable(new IOException("Failed to delete old backup! Aborting backup creation!"));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IOException("Failed to delete old backup! Aborting backup creation!"));
             return false;
         }
         try
@@ -884,7 +884,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (IOException e)
         {
-            PLogger.get().logThrowable(e, "Failed to create backup of the database! "
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to create backup of the database! "
                 + "Database upgrade aborted and access is disabled!");
             return false;
         }
@@ -905,7 +905,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
     }
 
@@ -923,7 +923,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         try (final PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
              final ResultSet rs1 = ps1.executeQuery())
         {
-            PLogger.get().warn("Upgrading database to V11!");
+            BigDoors.get().getPLogger().warn("Upgrading database to V11!");
 
             while (rs1.next())
             {
@@ -938,7 +938,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
     }
 
@@ -961,7 +961,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return -1;
     }
@@ -982,7 +982,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return -1;
     }
@@ -1007,7 +1007,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return -1;
     }
@@ -1033,12 +1033,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             catch (SQLException ex)
             {
-                PLogger.get().logThrowable(ex);
+                BigDoors.get().getPLogger().logThrowable(ex);
             }
         }
         catch (SQLException e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return -1;
     }
@@ -1081,7 +1081,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return fallback;
     }
@@ -1116,7 +1116,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return fallback;
     }
@@ -1145,7 +1145,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return fallback;
     }
@@ -1192,12 +1192,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
-                PLogger.get().logThrowable(e);
+                BigDoors.get().getPLogger().logThrowable(e);
             }
         }
         catch (Exception e)
         {
-            PLogger.get().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e);
         }
         return fallback;
     }
@@ -1231,7 +1231,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void logStatement(final @NotNull PPreparedStatement pPreparedStatement)
     {
-        PLogger.get().logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
+        BigDoors.get().getPLogger().logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
     }
 
     /**

@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import nl.pim16aap2.bigdoors.util.Functional.CheckedTriConsumer;
-import nl.pim16aap2.bigdoors.util.PLogger;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.functional.CheckedTriConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -306,9 +306,9 @@ public class PPreparedStatement
     {
         if (!IStorage.isValidTableName(obj))
         {
-            PLogger.get()
-                   .logThrowable(new IllegalArgumentException(
-                       "Trying to set table name using an invalid string: " + obj));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IllegalArgumentException(
+                        "Trying to set table name using an invalid string: " + obj));
             return this;
         }
 
@@ -316,9 +316,9 @@ public class PPreparedStatement
         int questionMarkPos = tmp.indexOf('?');
         if (questionMarkPos == -1)
         {
-            PLogger.get()
-                   .logThrowable(new IllegalArgumentException(
-                       "Trying to set table name in a statement without any variables!"));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IllegalArgumentException(
+                        "Trying to set table name in a statement without any variables!"));
             return this;
         }
 

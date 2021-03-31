@@ -7,8 +7,17 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
@@ -184,4 +193,60 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link PowerBlockManager} instance.
      */
     @NonNull PowerBlockManager getPowerBlockManager();
+
+    /**
+     * Gets the {@link IPLogger} for this platform.
+     *
+     * @return The {@link IPLogger} for this platform.
+     */
+    IPLogger getPLogger();
+
+    /**
+     * Gets the {@link DatabaseManager}.
+     *
+     * @return The {@link DatabaseManager}.
+     */
+    @NonNull DatabaseManager getDatabaseManager();
+
+    /**
+     * Gets the {@link DoorRegistry}.
+     *
+     * @return The {@link DoorRegistry}.
+     */
+    @NonNull DoorRegistry getDoorRegistry();
+
+    /**
+     * Gets the {@link AutoCloseScheduler} instance.
+     *
+     * @return The {@link AutoCloseScheduler} instance.
+     */
+    @NonNull AutoCloseScheduler getAutoCloseScheduler();
+
+    /**
+     * Gets the {@link DoorActivityManager} instance.
+     *
+     * @return The {@link DoorActivityManager} instance.
+     */
+    @NonNull DoorActivityManager getDoorActivityManager();
+
+    /**
+     * Gets the {@link DoorSpecificationManager} instance.
+     *
+     * @return The {@link DoorSpecificationManager} instance.
+     */
+    @NotNull DoorSpecificationManager getDoorSpecificationManager();
+
+    /**
+     * Gets the {@link DoorTypeManager} instance.
+     *
+     * @return The {@link DoorTypeManager} instance.
+     */
+    @NotNull DoorTypeManager getDoorTypeManager();
+
+    /**
+     * Gets the {@link ToolUserManager} instance.
+     *
+     * @return The {@link ToolUserManager} instance.
+     */
+    @NotNull ToolUserManager getToolUserManager();
 }

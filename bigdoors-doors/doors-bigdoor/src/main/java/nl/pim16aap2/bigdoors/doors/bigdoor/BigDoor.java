@@ -3,9 +3,11 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -14,7 +16,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -99,7 +100,8 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
         {
-            PLogger.get().severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            BigDoors.get().getPLogger()
+                    .severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
             return Optional.empty();
         }
 
@@ -113,7 +115,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                                       final @NotNull DoorActionType actionType)
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
-                                doorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+                                DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override

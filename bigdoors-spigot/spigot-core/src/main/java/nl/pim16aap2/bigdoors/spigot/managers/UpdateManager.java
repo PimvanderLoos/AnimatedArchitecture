@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -19,7 +19,7 @@ public final class UpdateManager
     @NotNull
     private final BigDoorsSpigot plugin;
     @NotNull
-    private final PLogger logger;
+    private final IPLogger logger;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;

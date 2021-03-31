@@ -1,13 +1,10 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
@@ -15,12 +12,10 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -36,66 +31,9 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@UtilityClass
 public final class DoorOpeningUtility
 {
-    @Nullable
-    private static DoorOpeningUtility INSTANCE;
-
-    @Getter // Temporary until this is a global thing that can be accessed from the core.
-    private final IGlowingBlockSpawner glowingBlockSpawner;
-    private final IConfigLoader config;
-    private final IProtectionCompatManager protectionManager;
-
-    /**
-     * Constructs a new {@link DoorOpeningUtility}.
-     *
-     * @param pLogger             The logger.
-     * @param glowingBlockSpawner The class that
-     * @param config              The configuration of the BigDoors plugin.
-     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
-     */
-    private DoorOpeningUtility(final @NotNull PLogger pLogger,
-                               final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
-                               final @NotNull IConfigLoader config,
-                               final @NotNull IProtectionCompatManager protectionManager)
-    {
-        this.glowingBlockSpawner = glowingBlockSpawner;
-        this.config = config;
-        this.protectionManager = protectionManager;
-    }
-
-    /**
-     * Initializes the {@link DoorOpeningUtility}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param pLogger             The logger.
-     * @param glowingBlockSpawner The class that
-     * @param config              The configuration of the BigDoors plugin.
-     * @param protectionManager   The class used to check with compatibility hooks if it is allowed to be toggled.
-     * @return The instance of this {@link DoorOpeningUtility}.
-     */
-    public static @NotNull DoorOpeningUtility init(final @NotNull PLogger pLogger,
-                                                   final @NotNull IGlowingBlockSpawner glowingBlockSpawner,
-                                                   final @NotNull IConfigLoader config,
-                                                   final @NotNull IProtectionCompatManager protectionManager)
-    {
-        return (INSTANCE == null) ?
-               INSTANCE = new DoorOpeningUtility(pLogger, glowingBlockSpawner, config, protectionManager) :
-               INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link DoorOpeningUtility} if it exists.
-     *
-     * @return The instance of the {@link DoorOpeningUtility}.
-     */
-    public static @NotNull DoorOpeningUtility get()
-    {
-//        Preconditions.checkState(instance != null,
-//                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
-    }
-
     /**
      * Aborts an attempt to toggle a {@link AbstractDoorBase} and cleans up leftover data from this attempt.
      *
@@ -108,20 +46,22 @@ public final class DoorOpeningUtility
     public @NotNull DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
                                            final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
-        PLogger.get().logMessage(Level.FINE,
-                                 String.format("Aborted toggle for door %d because of %s." +
-                                                   " Toggle Reason: %s, Responsible: %s",
-                                               door.getDoorUID(), result.name(), cause.name(), responsible.asString()));
+        BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                               String.format("Aborted toggle for door %d because of %s." +
+                                                                 " Toggle Reason: %s, Responsible: %s",
+                                                             door.getDoorUID(), result.name(), cause.name(),
+                                                             responsible.asString()));
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
         // registered as busy before all the other checks take place.
         if (!result.equals(DoorToggleResult.BUSY))
-            BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+            BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
         if (!result.equals(DoorToggleResult.NOPERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
-                PLogger.get().warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
+                BigDoors.get().getPLogger()
+                        .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
             else
             {
                 BigDoors.get().getMessagingInterface()
@@ -145,13 +85,13 @@ public final class DoorOpeningUtility
                                              final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return protectionManager
-            .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
+        return BigDoors.get().getPlatform().getProtectionCompatManager()
+                       .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
                 PROT ->
                 {
-                    PLogger.get()
-                           .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
-                                     door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
+                    BigDoors.get().getPLogger()
+                            .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
+                                      door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
                     return false;
                 }).orElse(true);
     }
@@ -194,8 +134,8 @@ public final class DoorOpeningUtility
                         if (player == null)
                             return false;
 
-                        glowingBlockSpawner
-                            .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
+                        BigDoors.get().getPlatform().getGlowingBlockSpawner()
+                                .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
                         isEmpty = false;
                     }
                 }
@@ -300,7 +240,7 @@ public final class DoorOpeningUtility
                                            final @NotNull DoorActionCause cause,
                                            final @NotNull DoorActionType actionType)
     {
-        if (!BigDoors.get().getDoorManager().attemptRegisterAsBusy(door.getDoorUID()))
+        if (!BigDoors.get().getDoorActivityManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
 
         if (actionType == DoorActionType.OPEN && !door.isOpenable())
@@ -311,12 +251,12 @@ public final class DoorOpeningUtility
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
 
-        if (!DoorTypeManager.get().isDoorTypeEnabled(door.getDoorType()))
+        if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
         if (!chunksLoaded(door))
         {
-            PLogger.get().warn("Chunks for door " + door.getName() + " could not be not loaded!");
+            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
             return DoorToggleResult.ERROR;
         }
 
@@ -349,7 +289,7 @@ public final class DoorOpeningUtility
      */
     public void registerBlockMover(final @NotNull BlockMover blockMover)
     {
-        BigDoors.get().getDoorManager().addBlockMover(blockMover);
+        BigDoors.get().getDoorActivityManager().addBlockMover(blockMover);
     }
 
     /**
@@ -375,7 +315,7 @@ public final class DoorOpeningUtility
      */
     public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
-        return BigDoors.get().getDoorManager().getBlockMover(doorUID);
+        return BigDoors.get().getDoorActivityManager().getBlockMover(doorUID);
     }
 
     /**
@@ -386,6 +326,6 @@ public final class DoorOpeningUtility
      */
     public double getMultiplier(final @NotNull AbstractDoorBase door)
     {
-        return config.getMultiplier(door.getDoorType());
+        return BigDoors.get().getPlatform().getConfigLoader().getMultiplier(door.getDoorType());
     }
 }

@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.implementations;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -32,7 +32,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return;
         }
@@ -64,7 +64,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return;
         }
@@ -94,7 +94,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            PLogger.get().logThrowable(
+            BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
             return false;
         }

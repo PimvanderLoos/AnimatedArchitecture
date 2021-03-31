@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -40,7 +40,7 @@ public class SubCommandSetName extends SubCommand
             throw new CommandSenderNotPlayerException();
 
         Player player = (Player) sender;
-        Optional<ToolUser> tu = ToolUserManager.get().getToolUser(player.getUniqueId());
+        Optional<ToolUser> tu = BigDoors.get().getToolUserManager().getToolUser(player.getUniqueId());
         if (tu.isPresent() && tu.get() instanceof Creator)
         {
             if (args.length == getMinArgCount() && Util.isValidDoorName(args[getMinArgCount() - 1]))

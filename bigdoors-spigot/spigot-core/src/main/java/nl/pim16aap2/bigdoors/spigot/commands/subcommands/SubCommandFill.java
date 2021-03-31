@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -38,7 +37,8 @@ public class SubCommandFill extends SubCommand
         World bukkitWorld = SpigotAdapter.getBukkitWorld(door.getWorld());
         if (bukkitWorld == null)
         {
-            PLogger.get().logThrowable(new NullPointerException("World " + door.getWorld().toString() + " is null!"));
+            BigDoors.get().getPLogger()
+                    .logThrowable(new NullPointerException("World " + door.getWorld().toString() + " is null!"));
             return true;
         }
 
@@ -54,8 +54,8 @@ public class SubCommandFill extends SubCommand
                              final @NotNull String label, final @NotNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
-        DatabaseManager.get().getDoor(CommandManager.getLongFromArg(args[1]))
-                       .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
+        BigDoors.get().getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))
+                .whenComplete((optionalDoor, throwable) -> optionalDoor.ifPresent(this::execute));
         return true;
     }
 }

@@ -1,10 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
 import com.google.common.base.Preconditions;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -12,7 +13,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @NotNull
     private final BigDoorsSpigot plugin;
     @NotNull
-    private final PLogger logger;
+    private final IPLogger logger;
 
     private static final List<String> DEFAULTPOWERBLOCK = Collections
         .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
@@ -90,7 +90,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param plugin The Spigot core.
      * @param logger The logger used for error logging.
      */
-    private ConfigLoaderSpigot(final @NotNull BigDoorsSpigot plugin, final @NotNull PLogger logger)
+    private ConfigLoaderSpigot(final @NotNull BigDoorsSpigot plugin, final @NotNull IPLogger logger)
     {
         this.plugin = plugin;
         this.logger = logger;
@@ -112,7 +112,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param logger The logger used for error logging.
      * @return The instance of this {@link ConfigLoaderSpigot}.
      */
-    public static @NotNull ConfigLoaderSpigot init(final @NotNull BigDoorsSpigot plugin, final @NotNull PLogger logger)
+    public static @NotNull ConfigLoaderSpigot init(final @NotNull BigDoorsSpigot plugin, final @NotNull IPLogger logger)
     {
         return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
     }
@@ -301,7 +301,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
         String[] usedMulitplierComment = multiplierComment;
         String[] usedPricesComment = pricesComment;
-        for (final @NotNull DoorType type : DoorTypeManager.get().getEnabledDoorTypes())
+        for (final @NotNull DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
         {
             doorMultipliers
                 .put(type, addNewConfigEntry(config, "multiplier_" + type.toString(), 0.0D, usedMulitplierComment));
@@ -636,7 +636,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
-                        PLogger.get().warn("Failed to add material: \"" + str + "\". It was already on the list!");
+                        BigDoors.get().getPLogger()
+                                .warn("Failed to add material: \"" + str + "\". It was already on the list!");
                         it.remove();
                     }
                     else if (mat.isSolid())
@@ -645,14 +646,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     }
                     else
                     {
-                        PLogger.get()
-                               .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
+                        BigDoors.get().getPLogger()
+                                .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
                         it.remove();
                     }
                 }
                 catch (Exception e)
                 {
-                    PLogger.get().warn("Failed to parse material: \"" + str + "\"");
+                    BigDoors.get().getPLogger().warn("Failed to parse material: \"" + str + "\"");
                     it.remove();
                 }
             }

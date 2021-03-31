@@ -8,19 +8,18 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.IRestartable;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import nl.pim16aap2.bigdoors.util.PLogger;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -103,7 +102,7 @@ public abstract class BlockMover implements IRestartable
         {
             final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
                 "BlockMovers must be called on the main thread!");
-            PLogger.get().logThrowableSilently(e);
+            BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
@@ -406,7 +405,7 @@ public abstract class BlockMover implements IRestartable
                     @Override
                     public void run()
                     {
-                        BigDoors.get().getDoorManager().setDoorAvailable(door.getDoorUID());
+                        BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
                         BigDoors.get().getPlatform()
                                 .callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()

@@ -1,39 +1,37 @@
 package nl.pim16aap2.bigdoors;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
-import nl.pim16aap2.bigdoors.api.IRestartable;
-import nl.pim16aap2.bigdoors.api.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Represents the core class of BigDoors.
  *
  * @author Pim
  */
-public final class BigDoors implements IRestartableHolder, IRestartable
+public final class BigDoors extends RestartableHolder
 {
-    @NotNull
-    private static final BigDoors INSTANCE = new BigDoors();
+    private static final @NonNull BigDoors INSTANCE = new BigDoors();
 
-    @Nullable
-    private IMessagingInterface messagingInterface = null;
-
-    @NotNull
-    private final Set<IRestartable> restartables = new HashSet<>();
+    private IPLogger backupLogger;
 
     /**
      * The platform to use. e.g. "Spigot".
      */
-    @NotNull
-    private IBigDoorsPlatform platform;
+    private @Nullable IBigDoorsPlatform platform;
 
     private BigDoors()
     {
@@ -67,9 +65,35 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      *
      * @return The platform implementing BigDoor's internal API.
      */
-    public @NotNull IBigDoorsPlatform getPlatform()
+    public @NonNull IBigDoorsPlatform getPlatform()
     {
+        if (platform == null)
+        {
+            IllegalStateException e = new IllegalStateException("No platform currently registered!");
+            getPLogger().logThrowable(e);
+            throw e;
+        }
         return platform;
+    }
+
+    /**
+     * Gets the {@link DoorRegistry}.
+     *
+     * @return The {@link DoorRegistry}.
+     */
+    public @NonNull DoorRegistry getDoorRegistry()
+    {
+        return getPlatform().getDoorRegistry();
+    }
+
+    /**
+     * Gets the {@link PowerBlockManager}.
+     *
+     * @return The {@link PowerBlockManager}.
+     */
+    public @NonNull PowerBlockManager getPowerBlockManager()
+    {
+        return getPlatform().getPowerBlockManager();
     }
 
     /**
@@ -77,9 +101,9 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      *
      * @return The {@link DoorActivityManager} instance.
      */
-    public @NotNull DoorActivityManager getDoorManager()
+    public @NonNull DoorActivityManager getDoorActivityManager()
     {
-        return DoorActivityManager.get();
+        return getPlatform().getDoorActivityManager();
     }
 
     /**
@@ -89,7 +113,37 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public @NotNull AutoCloseScheduler getAutoCloseScheduler()
     {
-        return AutoCloseScheduler.get();
+        return getPlatform().getAutoCloseScheduler();
+    }
+
+    /**
+     * Gets the {@link DoorSpecificationManager} instance.
+     *
+     * @return The {@link DoorSpecificationManager} instance.
+     */
+    public @NotNull DoorSpecificationManager getDoorSpecificationManager()
+    {
+        return getPlatform().getDoorSpecificationManager();
+    }
+
+    /**
+     * Gets the {@link DoorTypeManager} instance.
+     *
+     * @return The {@link DoorTypeManager} instance.
+     */
+    public @NotNull DoorTypeManager getDoorTypeManager()
+    {
+        return getPlatform().getDoorTypeManager();
+    }
+
+    /**
+     * Gets the {@link ToolUserManager} instance.
+     *
+     * @return The {@link ToolUserManager} instance.
+     */
+    public @NotNull ToolUserManager getToolUserManager()
+    {
+        return getPlatform().getToolUserManager();
     }
 
     /**
@@ -100,53 +154,28 @@ public final class BigDoors implements IRestartableHolder, IRestartable
      */
     public @NotNull IMessagingInterface getMessagingInterface()
     {
-        if (messagingInterface == null)
-            return getPlatform().getMessagingInterface();
-        return messagingInterface;
-    }
-
-    public void setMessagingInterface(final @Nullable IMessagingInterface messagingInterface)
-    {
-        this.messagingInterface = messagingInterface;
+        return getPlatform().getMessagingInterface();
     }
 
     /**
-     * Gets the {@link DatabaseManager} instance.
+     * Gets the currently set {@link IPLogger}.
      *
-     * @return The {@link DatabaseManager} instance.
+     * @return The currently set {@link IPLogger}..
      */
-    public @NotNull DatabaseManager getDatabaseManager()
+    public @NonNull IPLogger getPLogger()
     {
-        return DatabaseManager.get();
+        if (platform == null)
+            return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
+        return getPlatform().getPLogger();
     }
 
-    @Override
-    public void restart()
+    /**
+     * Gets the {@link DatabaseManager}.
+     *
+     * @return The {@link DatabaseManager}.
+     */
+    public @NonNull DatabaseManager getDatabaseManager()
     {
-        restartables.forEach(IRestartable::restart);
-    }
-
-    @Override
-    public void shutdown()
-    {
-        restartables.forEach(IRestartable::shutdown);
-    }
-
-    @Override
-    public void registerRestartable(final @NotNull IRestartable restartable)
-    {
-        restartables.add(restartable);
-    }
-
-    @Override
-    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
-    {
-        return restartables.contains(restartable);
-    }
-
-    @Override
-    public void deregisterRestartable(final @NotNull IRestartable restartable)
-    {
-        restartables.remove(restartable);
+        return getPlatform().getDatabaseManager();
     }
 }
