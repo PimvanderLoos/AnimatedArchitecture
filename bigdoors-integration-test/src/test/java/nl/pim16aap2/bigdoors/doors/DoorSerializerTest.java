@@ -20,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,40 +44,48 @@ class DoorSerializerTest
     @Test
     void instantiate()
     {
-        final DoorSerializer<TestDoorType> instantiator = new DoorSerializer<>(TestDoorType.class);
+        final DoorSerializer<TestDoorType> instantiator =
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType base = new TestDoorType(doorData, "test", true, 42);
 
-        TestDoorType test = instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("test", true, 42)));
+        TestDoorType test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("test", true, 42))));
         Assertions.assertEquals(base, test);
 
-        test = instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("alternativeName", true, 42)));
+        test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("alternativeName", true, 42))));
         Assertions.assertEquals("alternativeName", test.getTestName());
     }
 
     @Test
     void serialize()
     {
-        final DoorSerializer<TestDoorType> instantiator = new DoorSerializer<>(TestDoorType.class);
+        final DoorSerializer<TestDoorType> instantiator =
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType testDoorType1 = new TestDoorType(doorData, "test", true, 42);
 
-        final byte[] serialized = instantiator.serialize(testDoorType1);
-        Assertions.assertEquals(testDoorType1, instantiator.deserialize(doorData, serialized));
+        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorType1));
+        Assertions.assertEquals(testDoorType1,
+                                Assertions.assertDoesNotThrow(() -> instantiator.deserialize(doorData, serialized)));
     }
 
     @Test
     void subclass()
     {
-        final DoorSerializer<TestDoorSubType> instantiator = new DoorSerializer<>(TestDoorSubType.class);
+        final DoorSerializer<TestDoorSubType> instantiator =
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType testDoorSubType1 = new TestDoorSubType(doorData, "test", true, 42, 6);
 
-        final byte[] serialized = instantiator.serialize(testDoorSubType1);
-        final TestDoorSubType testDoorSubType2 = instantiator.deserialize(doorData, serialized);
+        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorSubType1));
+        final TestDoorSubType testDoorSubType2 =
+            Assertions.assertDoesNotThrow(() -> instantiator.deserialize(doorData, serialized));
 
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }
 
     // Don't call super for equals etc, as we don't care about the equality
     // of the parameters that aren't serialized anyway.
+    @SuppressWarnings("ConstantConditions")
     @EqualsAndHashCode(callSuper = false)
     private static class TestDoorType extends AbstractDoorBase
     {
@@ -92,6 +101,19 @@ class DoorSerializerTest
         @Getter
         private int blockTestCount;
 
+        private static final DoorType DOOR_TYPE;
+
+        static
+        {
+            DOOR_TYPE = Mockito.mock(DoorType.class);
+            Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
+        }
+
+        public TestDoorType(final @NonNull DoorData doorData)
+        {
+            super(doorData);
+        }
+
         public TestDoorType(final @NonNull DoorData doorData, final @NonNull String testName,
                             final boolean isCoolType, final int blockTestCount)
         {
@@ -104,7 +126,7 @@ class DoorSerializerTest
         @Override
         public @NotNull DoorType getDoorType()
         {
-            return null;
+            return DOOR_TYPE;
         }
 
         @Override
@@ -148,12 +170,17 @@ class DoorSerializerTest
         }
     }
 
-    @EqualsAndHashCode(callSuper = true)
+    @SuppressWarnings("unused") @EqualsAndHashCode(callSuper = true)
     private static class TestDoorSubType extends TestDoorType
     {
         @PersistentVariable
         @Getter
         private int subclassTestValue = -1;
+
+        TestDoorSubType(final @NonNull DoorData doorData)
+        {
+            super(doorData);
+        }
 
         public TestDoorSubType(final @NonNull DoorData doorData, final @NonNull String testName,
                                final boolean isCoolType, final int blockTestCount, final int subclassTestValue)

@@ -32,6 +32,7 @@ public class BigDoorMover extends BlockMover
                         final double time, final boolean skipAnimation, final double multiplier,
                         @NotNull final IPPlayer player, final @NotNull CuboidConst newCuboid,
                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 

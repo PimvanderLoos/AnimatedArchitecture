@@ -140,7 +140,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
                 kill();
             }
         };
-        BigDoors.get().getPlatform().newPExecutor().runSyncLater(killTask, ticks);
+        BigDoors.get().getPlatform().getPExecutor().runSyncLater(killTask, ticks);
     }
 
     @Override

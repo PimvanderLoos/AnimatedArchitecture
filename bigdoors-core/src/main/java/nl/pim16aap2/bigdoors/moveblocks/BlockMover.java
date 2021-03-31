@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import lombok.Getter;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -15,10 +17,8 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,11 +45,16 @@ public abstract class BlockMover implements IRestartable
     @NotNull
     protected final AbstractDoorBase door;
     @NotNull
+    @Getter
     protected final IPPlayer player;
+    @Getter
     @NotNull final DoorActionCause cause;
+    @Getter
     @NotNull final DoorActionType actionType;
     protected final IFallingBlockFactory fallingBlockFactory;
+    @Getter
     protected double time;
+    @Getter
     protected boolean skipAnimation;
     protected RotateDirection openDirection;
     protected List<PBlockData> savedBlocks;
@@ -97,14 +103,11 @@ public abstract class BlockMover implements IRestartable
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
                          final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
+        throws Exception
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
-        {
-            final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
-                "BlockMovers must be called on the main thread!");
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
+            throw new Exception("BlockMovers must be called on the main thread!");
+
         BigDoors.get().getAutoCloseScheduler().unscheduleAutoClose(door.getDoorUID());
         world = door.getWorld();
         this.door = door;
@@ -153,7 +156,7 @@ public abstract class BlockMover implements IRestartable
     public void abort()
     {
         if (moverTask != null)
-            BigDoors.get().getPlatform().newPExecutor().cancel(moverTask, moverTaskID);
+            BigDoors.get().getPlatform().getPExecutor().cancel(moverTask, moverTaskID);
         putBlocks(true);
     }
 
@@ -162,17 +165,27 @@ public abstract class BlockMover implements IRestartable
      *
      * @param blockData The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
      * @param newBlock  The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
+     * @return True if respawning was successful.
      */
-    private void respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
+    private boolean respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
         final IPLocationConst loc = blockData.getFBlock().getPosition().toLocation(world);
         final Vector3DdConst veloc = blockData.getFBlock().getPVelocity();
 
-        final ICustomCraftFallingBlock fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
-        blockData.getFBlock().remove();
-        blockData.setFBlock(fBlock);
+        try
+        {
+            val fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
+            blockData.getFBlock().remove();
+            blockData.setFBlock(fBlock);
 
-        blockData.getFBlock().setVelocity(veloc);
+            blockData.getFBlock().setVelocity(veloc);
+            return true;
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e);
+            return false;
+        }
     }
 
     /**
@@ -181,13 +194,15 @@ public abstract class BlockMover implements IRestartable
      */
     private void applyRotationOnCurrentThread()
     {
-        for (final PBlockData blockData : savedBlocks)
-            if (blockData.isRotatable())
-            {
-                final INMSBlock newBlock = blockData.getBlock();
-                newBlock.rotateBlock(openDirection);
-                respawnBlock(blockData, newBlock);
-            }
+        ListIterator<PBlockData> iter = savedBlocks.listIterator();
+        while (iter.hasNext())
+        {
+            val blockData = iter.next();
+            final INMSBlock newBlock = blockData.getBlock();
+            newBlock.rotateBlock(openDirection);
+            if (!respawnBlock(blockData, newBlock))
+                iter.remove();
+        }
     }
 
     /**
@@ -196,7 +211,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void applyRotation()
     {
-        BigDoors.get().getPlatform().newPExecutor().runSync(this::applyRotationOnCurrentThread);
+        BigDoors.get().getPlatform().getPExecutor().runSync(this::applyRotationOnCurrentThread);
     }
 
     /**
@@ -204,8 +219,7 @@ public abstract class BlockMover implements IRestartable
      */
     private void respawnBlocksOnCurrentThread()
     {
-        for (final PBlockData blockData : savedBlocks)
-            respawnBlock(blockData, blockData.getBlock());
+        savedBlocks.removeIf(blockData -> !respawnBlock(blockData, blockData.getBlock()));
     }
 
     /**
@@ -213,7 +227,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void respawnBlocks()
     {
-        BigDoors.get().getPlatform().newPExecutor().runSync(this::respawnBlocksOnCurrentThread);
+        BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -224,13 +238,22 @@ public abstract class BlockMover implements IRestartable
      */
     protected synchronized void startAnimation()
     {
-        for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-            for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
-                for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    blockDataFactory
-                        .create(locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5), (yAxis == yMin),
-                                getRadius(xAxis, yAxis, zAxis), getStartAngle(xAxis, yAxis, zAxis))
-                        .ifPresent(savedBlocks::add);
+        try
+        {
+            for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
+                for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
+                    for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
+                        blockDataFactory
+                            .create(locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5), (yAxis == yMin),
+                                    getRadius(xAxis, yAxis, zAxis), getStartAngle(xAxis, yAxis, zAxis))
+                            .ifPresent(savedBlocks::add);
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e);
+            BigDoors.get().getDoorActivityManager().processFinishedBlockMover(this, false);
+            return;
+        }
 
         for (final PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
@@ -268,7 +291,7 @@ public abstract class BlockMover implements IRestartable
         for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-        final @NotNull IPExecutor<Object> executor = BigDoors.get().getPlatform().newPExecutor();
+        final @NotNull IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
         executor.runSync(() -> putBlocks(false));
         executor.cancel(moverTask, moverTaskID);
     }
@@ -322,7 +345,7 @@ public abstract class BlockMover implements IRestartable
                     executeAnimationStep(counter);
             }
         };
-        moverTaskID = BigDoors.get().getPlatform().newPExecutor().runAsyncRepeated(moverTask, 14, 1);
+        moverTaskID = BigDoors.get().getPlatform().getPExecutor().runAsyncRepeated(moverTask, 14, 1);
     }
 
     /**
@@ -378,9 +401,8 @@ public abstract class BlockMover implements IRestartable
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
         // While the blocks have already been placed, the coordinates can still be toggled!
-        if (isFinished.get())
+        if (isFinished.getAndSet(true))
             return;
-        isFinished.set(true);
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
         for (final @NotNull PBlockData savedBlock : savedBlocks)
@@ -395,30 +417,10 @@ public abstract class BlockMover implements IRestartable
 
         savedBlocks.clear();
 
-        if (!onDisable)
-        {
-            int delay = Math
-                .max(Constants.MINIMUMDOORDELAY, BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
-            BigDoors.get().getPlatform().newPExecutor().runSyncLater(
-                new TimerTask()
-                {
-                    @Override
-                    public void run()
-                    {
-                        BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
+        if (onDisable)
+            return;
 
-                        BigDoors.get().getPlatform()
-                                .callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                             .createEndEvent(door, cause, actionType,
-                                                                             player, time, skipAnimation));
-
-                        if (door instanceof ITimerToggleableArchetype)
-                            BigDoors.get().getAutoCloseScheduler()
-                                    .scheduleAutoClose(player, (AbstractDoorBase & ITimerToggleableArchetype) door,
-                                                       time, skipAnimation);
-                    }
-                }, delay);
-        }
+        BigDoors.get().getDoorActivityManager().processFinishedBlockMover(this, true);
     }
 
     /**

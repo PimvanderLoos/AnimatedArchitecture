@@ -61,7 +61,7 @@ public class GUIPageDeleteConfirmation implements IGUIPage
         if (!Util.hasPermissionForAction(gui.getGuiHolder(), gui.getDoor(), DoorAttribute.DELETE))
             return;
 
-        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+        BigDoors.get().getPlatform().getPExecutor().runOnMainThread(
             () ->
             {
                 ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))

@@ -18,7 +18,6 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.TagsBlock;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
@@ -59,6 +58,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
                                              final double d2, final @NotNull IBlockData iblockdata)
+        throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         bukkitWorld = world;
@@ -95,16 +95,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     public void spawn()
+        throws Exception
     {
         ((org.bukkit.craftbukkit.v1_15_R1.CraftWorld) bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
         tracker = worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId());
         if (tracker == null)
-        {
-            IllegalStateException e = new IllegalStateException(
-                "Failed to obtain EntityTracker for FallingBlock: " + getId());
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
+            throw new Exception("Failed to obtain EntityTracker for FallingBlock: " + getId());
     }
 
     private void cyclePositions(@NotNull Vector3DdConst newPosition)

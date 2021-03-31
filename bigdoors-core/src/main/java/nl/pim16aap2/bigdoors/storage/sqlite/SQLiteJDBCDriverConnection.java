@@ -280,6 +280,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final long doorUID = doorBaseRS.getLong("id");
 
+        final Optional<DoorSerializer<?>> serializerOpt = doorType.get().getDoorSerializer();
+        if (serializerOpt.isEmpty())
+        {
+            BigDoors.get().getPLogger()
+                    .severe("Failed to construct door: " + doorUID + "! Reason: Serializer unavailable!");
+            return Optional.empty();
+        }
+
         final @NotNull Optional<AbstractDoorBase> registeredDoor = BigDoors.get().getDoorRegistry()
                                                                            .getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
@@ -330,7 +338,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                                                           primeOwner, doorOwners);
 
         final byte[] rawTypeData = doorBaseRS.getBytes("typeData");
-        return Optional.of(doorType.get().getDoorSerializer().deserialize(doorData, rawTypeData));
+        return Optional.of(serializerOpt.get().deserialize(doorData, rawTypeData));
     }
 
     @Override
@@ -392,16 +400,32 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public @NotNull Optional<AbstractDoorBase> insert(final @NonNull AbstractDoorBase door)
     {
-        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer();
-        final String typeName = door.getDoorType().getFullName();
-        final byte[] typeData = serializer.serialize(door);
+        final Optional<DoorSerializer<?>> serializerOpt = door.getDoorType().getDoorSerializer();
+        if (serializerOpt.isEmpty())
+        {
+            BigDoors.get().getPLogger()
+                    .severe("Failed to insert door: " + door.getBasicInfo() + "! Reason: Serializer unavailable!");
+            return Optional.empty();
+        }
 
-        final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
-        if (doorUID > 0)
-            return Optional.of(serializer.deserialize(
-                new AbstractDoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
-                                              door.getEngine(), door.getPowerBlock(), door.getWorld(), door.isOpen(),
-                                              door.isLocked(), door.getOpenDir(), door.getPrimeOwner()), typeData));
+        final DoorSerializer<?> serializer = serializerOpt.get();
+        final String typeName = door.getDoorType().getFullName();
+        try
+        {
+            final byte[] typeData = serializer.serialize(door);
+
+            final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
+            if (doorUID > 0)
+                return Optional.of(serializer.deserialize(
+                    new AbstractDoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
+                                                  door.getEngine(), door.getPowerBlock(), door.getWorld(),
+                                                  door.isOpen(),
+                                                  door.isLocked(), door.getOpenDir(), door.getPrimeOwner()), typeData));
+        }
+        catch (Throwable t)
+        {
+            BigDoors.get().getPLogger().logThrowable(t);
+        }
         return Optional.empty();
     }
 

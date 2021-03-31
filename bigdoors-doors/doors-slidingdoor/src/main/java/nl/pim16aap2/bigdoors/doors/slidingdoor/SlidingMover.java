@@ -39,6 +39,7 @@ public class SlidingMover extends BlockMover
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
                         final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;

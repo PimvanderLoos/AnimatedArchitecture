@@ -125,6 +125,7 @@ public class SlidingDoor extends AbstractDoorBase
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         final @NotNull RotateDirection currentToggleDir = getCurrentToggleDir();
         return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,

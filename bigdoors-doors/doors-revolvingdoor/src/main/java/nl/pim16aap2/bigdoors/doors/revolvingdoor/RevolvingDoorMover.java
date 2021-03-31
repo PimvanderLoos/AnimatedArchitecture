@@ -43,6 +43,7 @@ public class RevolvingDoorMover extends BlockMover
                               final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                               final int quarterCircles, final @NotNull DoorActionCause cause,
                               final @NotNull CuboidConst newCuboid, final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
 

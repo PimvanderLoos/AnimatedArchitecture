@@ -111,6 +111,7 @@ public class Portcullis extends AbstractDoorBase
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         final int blocksToMove = getOpenDir().equals(RotateDirection.UP) ? getBlocksToMove() : -getBlocksToMove();
         return new VerticalMover(this, time, skipAnimation, blocksToMove, DoorOpeningUtility.getMultiplier(this),

@@ -91,7 +91,7 @@ public class GUI
                     });
                 sort();
                 guiPage = new GUIPageDoorList(plugin, this);
-                BigDoors.get().getPlatform().newPExecutor().runOnMainThread(this::update);
+                BigDoors.get().getPlatform().getPExecutor().runOnMainThread(this::update);
             });
     }
 

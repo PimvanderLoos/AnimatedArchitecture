@@ -139,6 +139,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private boolean validVersion = false;
     private CommandManager commandManager;
+    private IPExecutor pExecutor;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
@@ -224,6 +225,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         INSTANCE = this;
         BIGDOORS.setBigDoorsPlatform(this);
         MAINTHREADID = Thread.currentThread().getId();
+        pExecutor = new PExecutorSpigot(this);
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
         abortableTaskManager = AbortableTaskManager.init(this);
@@ -420,9 +422,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull <T> IPExecutor<T> newPExecutor()
+    public @NotNull IPExecutor getPExecutor()
     {
-        return new PExecutorSpigot<>(INSTANCE);
+        return pExecutor;
     }
 
     public @NotNull ICommand getCommand(final @NotNull CommandData command)
@@ -616,10 +618,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
         final boolean isMainThread = isMainThread(Thread.currentThread().getId());
         if (isMainThread && doorEvent.isAsynchronous())
-            BigDoors.get().getPlatform().newPExecutor()
+            BigDoors.get().getPlatform().getPExecutor()
                     .runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
         else if ((!isMainThread) && (!doorEvent.isAsynchronous()))
-            BigDoors.get().getPlatform().newPExecutor()
+            BigDoors.get().getPlatform().getPExecutor()
                     .runSync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
         else
             Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent);

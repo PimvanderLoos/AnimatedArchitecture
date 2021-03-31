@@ -29,6 +29,7 @@ public class FlagMover extends BlockMover
     public FlagMover(final double time, final @NotNull Flag door, final double multiplier,
                      final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
                      final @NotNull DoorActionType actionType)
+        throws Exception
     {
         super(door, time, false, RotateDirection.NONE, player, door.getCuboid().clone(), cause, actionType);
 

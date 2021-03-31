@@ -151,7 +151,7 @@ public class GUIPageRemoveOwner implements IGUIPage
             futurePlayerHead.whenComplete(
                 (result, throwable) ->
                     result.ifPresent(
-                        HEAD -> BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+                        HEAD -> BigDoors.get().getPlatform().getPExecutor().runOnMainThread(
                             () -> gui.updateItem(currentIDX,
                                                  Optional.of(new GUIItem(HEAD, owner.getPPlayerData().getName(), null,
                                                                          owner.getPermission())))))

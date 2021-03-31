@@ -113,6 +113,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);

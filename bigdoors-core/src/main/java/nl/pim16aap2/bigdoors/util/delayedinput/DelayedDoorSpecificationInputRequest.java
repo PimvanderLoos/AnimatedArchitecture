@@ -25,6 +25,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     private DelayedDoorSpecificationInputRequest(final @NonNull Duration timeout,
                                                  final @NonNull List<AbstractDoorBase> options,
                                                  final @NonNull IPPlayer player)
+        throws Exception
     {
         super(timeout.toMillis());
         this.options = options;
@@ -52,8 +53,16 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         if (options.isEmpty())
             return Optional.empty();
 
-        final @NonNull Optional<String> specification =
-            new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
+        final @NonNull Optional<String> specification;
+        try
+        {
+            specification = new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e);
+            return Optional.empty();
+        }
 
         final @NonNull OptionalLong uidOpt = Util.parseLong(specification);
         if (uidOpt.isEmpty())

@@ -103,7 +103,7 @@ public class SubCommandToggle extends SubCommand
                     }
                     catch (InterruptedException e)
                     {
-                        BigDoors.get().getPLogger().logThrowableSilently(e);
+                        BigDoors.get().getPLogger().logThrowable(e);
                         Thread.currentThread().interrupt();
                     }
                     catch (ExecutionException | NullPointerException e)

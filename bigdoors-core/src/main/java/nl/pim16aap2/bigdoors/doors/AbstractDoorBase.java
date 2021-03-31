@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -87,6 +88,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
     private final @NotNull DoorOwner primeOwner;
+
+    private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
     /**
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
@@ -165,8 +168,21 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized final void syncData()
     {
-        BigDoors.get().getDatabaseManager()
-                .syncDoorData(getSimpleDoorDataCopy(), getDoorType().getDoorSerializer().serialize(this));
+        if (serializer == null)
+        {
+            BigDoors.get().getPLogger()
+                    .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
+            return;
+        }
+
+        try
+        {
+            BigDoors.get().getDatabaseManager().syncDoorData(getSimpleDoorDataCopy(), serializer.serialize(this));
+        }
+        catch (Throwable t)
+        {
+            BigDoors.get().getPLogger().logThrowable(t, "Failed to sync data for door: " + getBasicInfo());
+        }
     }
 
     @Override
@@ -254,13 +270,16 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                                                         boolean skipAnimation, final @NotNull DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
-            throw new IllegalStateException("Doors must be toggled on the main thread!");
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Doors must be toggled on the main thread!"));
+            return DoorToggleResult.ERROR;
+        }
 
         if (openDir == RotateDirection.NONE)
         {
-            IllegalStateException e = new IllegalStateException("OpenDir cannot be NONE!");
-            BigDoors.get().getPLogger().logThrowable(e);
-            throw e;
+            BigDoors.get().getPLogger().logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
+            return DoorToggleResult.ERROR;
         }
 
         if (!BigDoors.get().getDoorRegistry().isRegistered(this))
@@ -297,8 +316,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return DoorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
 
-        BigDoors.get().getPlatform().newPExecutor().runOnMainThread(
+        CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
+
+        if (!scheduled.join())
+            return DoorToggleResult.ERROR;
 
         BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
                                                                  .createStartEvent(this, cause, actionType, responsible,
@@ -357,7 +379,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                                                                final double time, final boolean skipAnimation,
                                                                final @NotNull CuboidConst newCuboid,
                                                                final @NotNull IPPlayer responsible,
-                                                               final @NotNull DoorActionType actionType);
+                                                               final @NotNull DoorActionType actionType)
+        throws Exception;
 
     /**
      * Registers a {@link BlockMover} with the {@link DoorActivityManager}.
@@ -372,24 +395,33 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
+     * @return True when everything went all right, otherwise false.
      */
-    private synchronized void registerBlockMover(final @NotNull DoorActionCause cause,
-                                                 final double time, final boolean skipAnimation,
-                                                 final @NotNull CuboidConst newCuboid,
-                                                 final @NotNull IPPlayer responsible,
-                                                 final @NotNull DoorActionType actionType)
+    private synchronized boolean registerBlockMover(final @NotNull DoorActionCause cause,
+                                                    final double time, final boolean skipAnimation,
+                                                    final @NotNull CuboidConst newCuboid,
+                                                    final @NotNull IPPlayer responsible,
+                                                    final @NotNull DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
-            final @NotNull IllegalThreadStateException e = new IllegalThreadStateException(
-                "BlockMovers must be instantiated on the main thread!");
-            BigDoors.get().getPLogger().logThrowableSilently(e);
             BigDoors.get().getDoorActivityManager().setDoorAvailable(getDoorUID());
-            return;
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalThreadStateException("BlockMovers must be instantiated on the main thread!"));
+            return true;
         }
 
-        DoorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
-                                                                  responsible, actionType));
+        try
+        {
+            DoorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
+                                                                      responsible, actionType));
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e);
+            return false;
+        }
+        return true;
     }
 
     /**

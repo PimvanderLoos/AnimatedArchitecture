@@ -23,5 +23,6 @@ public interface IPBlockDataFactory
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
     @NotNull Optional<PBlockData> create(final @NotNull IPLocationConst loc, final boolean bottom, final float radius,
-                                         final float startAngle);
+                                         final float startAngle)
+        throws Exception;
 }

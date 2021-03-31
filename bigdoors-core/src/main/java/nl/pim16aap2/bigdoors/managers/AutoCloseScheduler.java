@@ -96,7 +96,7 @@ public final class AutoCloseScheduler extends Restartable
             }
         };
         timers.put(door.getDoorUID(), task);
-        BigDoors.get().getPlatform().newPExecutor().runSyncLater(task, delay);
+        BigDoors.get().getPlatform().getPExecutor().runSyncLater(task, delay);
     }
 
     /**

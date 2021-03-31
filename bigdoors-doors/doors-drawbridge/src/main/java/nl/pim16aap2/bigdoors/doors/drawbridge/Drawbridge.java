@@ -139,6 +139,7 @@ public class Drawbridge extends AbstractDoorBase
                                                       final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
+        throws Exception
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
                                  DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
