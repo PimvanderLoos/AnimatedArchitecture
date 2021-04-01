@@ -140,7 +140,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
         Class<?> clazz = doorClass;
         while (!clazz.equals(AbstractDoorBase.class))
         {
-            fieldList.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
             clazz = clazz.getSuperclass();
         }
 
@@ -240,7 +240,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
 
         try
         {
-            T door = instantiate(doorData);
+            @Nullable T door = instantiate(doorData);
             if (door == null)
                 throw new IllegalStateException("Failed to initialize door!");
             for (int idx = 0; idx < fields.size(); ++idx)
