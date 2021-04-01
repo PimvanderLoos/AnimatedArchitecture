@@ -1064,7 +1064,7 @@ public class SQLiteJDBCDriverConnection
         ResultSet rs = ps.executeQuery();
 
         if (rs.next())
-            primeOwner = UUID.fromString(rs.getString(0));
+            primeOwner = UUID.fromString(rs.getString(1));
 
         ps.close();
         rs.close();
