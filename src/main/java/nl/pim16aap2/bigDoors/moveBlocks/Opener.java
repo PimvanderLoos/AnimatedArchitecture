@@ -11,6 +11,7 @@ import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
 import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadMode;
 import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadResult;
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -88,6 +89,8 @@ public interface Opener
 
     default DoorOpenResult abort(DoorOpenResult reason, long doorUID)
     {
+        if (ConfigLoader.DEBUG)
+            BigDoors.get().getMyLogger().info("Aborted toggle for door " + doorUID + ". Reason: " + reason.name());
         // If the door was busy, this new attempt should leave that alone.
         if (reason != DoorOpenResult.BUSY)
             BigDoors.get().getCommander().setDoorAvailable(doorUID);
