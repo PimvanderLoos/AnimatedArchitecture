@@ -31,6 +31,7 @@ import com.google.common.io.Files;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
 import nl.pim16aap2.bigDoors.util.DoorType;
@@ -1014,6 +1015,12 @@ public class SQLiteJDBCDriverConnection
             {
                 permission = 2;
                 DoorOwner doorOwner = getOwnerOfDoor(conn, doorUID);
+                if (doorOwner == null)
+                {
+                    BigDoors.get().getMyLogger().warn("Door retrieval failure: No default DoorOwner for door " + doorUID + "!");
+                    return null;
+                }
+
                 playerUUID = doorOwner.getPlayerUUID();
                 playerName = doorOwner.getPlayerName();
                 primeOwner = playerUUID;
