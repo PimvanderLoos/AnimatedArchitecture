@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -87,7 +88,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
-import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockManager;
+import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
@@ -153,6 +154,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     private VaultManager vaultManager;
+
+    private IGlowingBlockSpawner glowingBlockSpawner;
 
     @Getter
     private HeadManager headManager;
@@ -229,6 +232,15 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
         abortableTaskManager = AbortableTaskManager.init(this);
+
+        try
+        {
+            glowingBlockSpawner = new GlowingBlockSpawner(this);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -515,9 +527,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull IGlowingBlockSpawner getGlowingBlockSpawner()
+    public @NonNull Optional<IGlowingBlockSpawner> getGlowingBlockSpawner()
     {
-        return GlowingBlockManager.get();
+        return Optional.ofNullable(glowingBlockSpawner);
     }
 
     public @NotNull BigDoorsSpigot getPlugin()

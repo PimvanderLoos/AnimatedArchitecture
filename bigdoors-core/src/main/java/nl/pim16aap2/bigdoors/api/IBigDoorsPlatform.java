@@ -22,6 +22,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Optional;
 
 public interface IBigDoorsPlatform extends IRestartableHolder
 {
@@ -185,7 +186,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The {@link IGlowingBlockSpawner} for the current platform.
      */
-    @NotNull IGlowingBlockSpawner getGlowingBlockSpawner();
+    @NonNull Optional<IGlowingBlockSpawner> getGlowingBlockSpawner();
 
     /**
      * Gets the {@link PowerBlockManager} instance.

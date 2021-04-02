@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import net.minecraft.server.v1_15_R1.EntityMagmaCube;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EntityTypes;
@@ -11,9 +12,10 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockManager;
+import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
@@ -178,10 +180,17 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public @NotNull IGlowingBlock createGlowingBlock(final @NotNull Player player, final @NotNull World world,
-                                                         final @NotNull IRestartableHolder restartableHolder)
+        public @NotNull Optional<IGlowingBlock> createGlowingBlock(final @NotNull Player player,
+                                                                   final @NotNull World world,
+                                                                   final @NotNull IRestartableHolder restartableHolder)
         {
-            return new GlowingBlock_V1_15_R1(player, world, GlowingBlockManager.get().getTeams(), restartableHolder);
+            @NonNull Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
+            if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
+                return Optional.empty();
+
+            return Optional.of(new GlowingBlock_V1_15_R1(player, world,
+                                                         ((GlowingBlockSpawner) spawnerOpt.get()).getTeams(),
+                                                         restartableHolder));
         }
     }
 }

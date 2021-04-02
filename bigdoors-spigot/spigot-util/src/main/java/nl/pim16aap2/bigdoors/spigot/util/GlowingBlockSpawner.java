@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -31,84 +32,45 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-public class GlowingBlockManager extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
+public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
 {
-    private static final @NotNull GlowingBlockManager INSTANCE = new GlowingBlockManager();
-    private final @NotNull Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
+    private final @NonNull Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
     @Getter
-    private final @NotNull Map<PColor, Team> teams = new EnumMap<>(PColor.class);
-    private final @Nullable Scoreboard scoreboard;
-    private final @Nullable IGlowingBlockFactory glowingBlockFactory;
+    private final @NonNull Map<PColor, Team> teams = new EnumMap<>(PColor.class);
+    private final @NonNull Scoreboard scoreboard;
+    private final @NonNull IGlowingBlockFactory glowingBlockFactory;
 
-    private GlowingBlockManager()
+    public GlowingBlockSpawner(final @NotNull IRestartableHolder holder)
+        throws Exception
     {
-        super(BigDoors.get());
+        super(holder);
         final @Nullable ScoreboardManager scoreBoardManager = Bukkit.getServer().getScoreboardManager();
         if (scoreBoardManager == null)
-        {
-            BigDoors.get().getPLogger().logThrowable(
-                new IllegalStateException("Could not find a ScoreBoardManager! No glowing blocks can be spawned!"));
-            glowingBlockFactory = null;
-            scoreboard = null;
-            return;
-        }
+            throw new Exception("Could not find a ScoreBoardManager! No glowing blocks can be spawned!");
+
         scoreboard = scoreBoardManager.getMainScoreboard();
 
         final @NotNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
         if (!(platform instanceof BigDoorsSpigotAbstract))
-        {
-            BigDoors.get().getPLogger().logThrowable(
-                new IllegalStateException("Spigot's GlowingBlockManager can only be used with the Spigot Platform!"));
-            glowingBlockFactory = null;
-            return;
-        }
+            throw new Exception("Spigot's GlowingBlockSpawner can only be used with the Spigot Platform!");
 
         final @Nullable ISpigotPlatform spigotPlatform = ((BigDoorsSpigotAbstract) platform).getPlatformManagerSpigot()
                                                                                             .getSpigotPlatform();
         if (spigotPlatform == null)
-        {
-            BigDoors.get().getPLogger().logThrowableSilently(Level.FINE,
-                                                             new NullPointerException(
-                                                                 "No valid Spigot platform was found!"));
-            glowingBlockFactory = null;
-            return;
-        }
+            throw new Exception("No valid Spigot platform was found!");
 
         glowingBlockFactory = spigotPlatform.getGlowingBlockFactory();
-        init();
-    }
 
-    /**
-     * Obtains the instance of this class.
-     *
-     * @return The instance of this class.
-     */
-    public static @NotNull GlowingBlockManager get()
-    {
-        return INSTANCE;
+        registerTeams();
     }
 
     /**
      * Initializes all teams.
      */
-    private void init()
+    private void registerTeams()
     {
-        if (scoreboard == null)
-        {
-            BigDoors.get().getPLogger()
-                    .logMessage(Level.FINE, "Skipping GlowingBlockManager team registration: No ScoreBoard found!");
-            return;
-        }
-
         for (final @NotNull PColor col : PColor.values())
-            try
-            {
-                registerTeam(col, scoreboard);
-            }
-            catch (Exception e)
-            {
-                BigDoors.get().getPLogger().logThrowable(e, "Failed to register color: " + col.name());
-            }
+            registerTeam(col, scoreboard);
     }
 
     /**
@@ -134,7 +96,7 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
     {
         teams.forEach((K, V) -> V.unregister());
         teams.clear();
-        init();
+        registerTeams();
         restartables.forEach((K, V) -> K.restart());
     }
 
@@ -147,17 +109,11 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, @NotNull IPWorld world,
+    public @NonNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, @NotNull IPWorld world,
                                                               final int time, final @NotNull TimeUnit timeUnit,
                                                               final double x, final double y, final double z,
                                                               final @NotNull PColor pColor)
     {
-        if (glowingBlockFactory == null)
-        {
-            // FINER because it will already have been logged on startup.
-            BigDoors.get().getPLogger().logMessage(Level.FINER, "GlowingBlockFactory was not initialized!");
-            return Optional.empty();
-        }
         if (teams.get(pColor) == null)
         {
             // FINER because it will already have been logged on startup.
@@ -190,11 +146,10 @@ public class GlowingBlockManager extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        final @NotNull IGlowingBlock glowingBlock = glowingBlockFactory
-            .createGlowingBlock(spigotPlayer, spigotWorld, this);
-
-        glowingBlock.spawn(pColor, x, y, z, ticks);
-        return Optional.of(glowingBlock);
+        @NotNull Optional<IGlowingBlock> blockOpt =
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this);
+        blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
+        return blockOpt;
     }
 
     @Override

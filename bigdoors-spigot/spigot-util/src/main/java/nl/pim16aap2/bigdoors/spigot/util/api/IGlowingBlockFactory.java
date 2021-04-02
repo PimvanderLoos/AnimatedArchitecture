@@ -6,6 +6,8 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public interface IGlowingBlockFactory
 {
     /**
@@ -17,6 +19,6 @@ public interface IGlowingBlockFactory
      *                          (de)registered when it is (de)spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @NotNull IGlowingBlock createGlowingBlock(final @NotNull Player player, final @NotNull World world,
-                                              final @NotNull IRestartableHolder restartableHolder);
+    @NotNull Optional<IGlowingBlock> createGlowingBlock(final @NotNull Player player, final @NotNull World world,
+                                                        final @NotNull IRestartableHolder restartableHolder);
 }
