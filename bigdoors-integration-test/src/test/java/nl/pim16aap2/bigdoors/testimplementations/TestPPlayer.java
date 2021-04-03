@@ -6,11 +6,13 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public final class TestPPlayer implements IPPlayer
@@ -50,6 +52,18 @@ public final class TestPPlayer implements IPPlayer
     public @NonNull Optional<IPLocation> getLocation()
     {
         return Optional.empty();
+    }
+
+    @Override
+    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission)
+    {
+        return CompletableFuture.completedFuture(false);
+    }
+
+    @Override
+    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command)
+    {
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override

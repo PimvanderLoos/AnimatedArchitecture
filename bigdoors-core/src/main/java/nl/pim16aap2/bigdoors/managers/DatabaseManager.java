@@ -155,22 +155,22 @@ public final class DatabaseManager extends Restartable
      * if one was provided.
      *
      * @param playerUUID The {@link UUID} of the payer.
-     * @param name       The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
+     * @param doorID     The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
      * @return All {@link AbstractDoorBase} owned by a player with a specific name.
      */
     public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
-                                                                       final @NotNull String name)
+                                                                       final @NotNull String doorID)
     {
         // Check if the name is actually the UID of the door.
-        final @NotNull OptionalLong doorID = Util.parseLong(name);
-        if (doorID.isPresent())
+        final @NotNull OptionalLong doorUID = Util.parseLong(doorID);
+        if (doorUID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.getAsLong())
+                .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 

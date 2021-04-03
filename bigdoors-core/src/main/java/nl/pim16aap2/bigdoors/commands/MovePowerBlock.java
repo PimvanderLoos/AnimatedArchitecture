@@ -1,0 +1,13 @@
+package nl.pim16aap2.bigdoors.commands;
+
+import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.ICommandSender;
+
+public class MovePowerBlock extends BaseCommand
+{
+
+    public MovePowerBlock(@NonNull ICommandSender commandSender)
+    {
+        super(commandSender);
+    }
+}

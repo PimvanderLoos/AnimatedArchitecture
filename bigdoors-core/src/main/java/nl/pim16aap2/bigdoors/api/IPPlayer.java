@@ -1,15 +1,17 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a BigDoors player.
  *
  * @author Pim
  */
-public interface IPPlayer extends IPPlayerDataContainer, IMessageable
+public interface IPPlayer extends IPPlayerDataContainer, IMessageable, ICommandSender
 {
     /**
      * Gets the current location of this player.
@@ -17,4 +19,22 @@ public interface IPPlayer extends IPPlayerDataContainer, IMessageable
      * @return The current location of this player.
      */
     @NonNull Optional<IPLocation> getLocation();
+
+    @Override
+    default @NonNull Optional<IPPlayer> getPlayer()
+    {
+        return Optional.of(this);
+    }
+
+    @Override
+    default boolean isPlayer()
+    {
+        return true;
+    }
+
+    @Override
+    @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission);
+
+    @Override
+    @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command);
 }
