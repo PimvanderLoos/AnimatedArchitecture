@@ -57,7 +57,7 @@ public interface IStorage
      * @param doorName   The name of the doors to delete.
      * @return True if at least 1 door was successfully removed.
      */
-    boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName);
+    boolean removeDoors(final @NotNull UUID playerUUID, final @NotNull String doorName);
 
     /**
      * Checks whether or not there are any doors in a given world.
@@ -178,7 +178,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final @NotNull String doorName,
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final @NotNull String doorName,
                                              final int maxPermission);
 
     /**
@@ -188,7 +188,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, final int maxPermission);
+    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final int maxPermission);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -247,7 +247,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to remove as owner of the door.
      * @return True if an owner was removed.
      */
-    boolean removeOwner(final long doorUID, final @NotNull String playerUUID);
+    boolean removeOwner(final long doorUID, final @NotNull UUID playerUUID);
 
     /**
      * Adds a player as owner of a door with at a certain permission level to a door.

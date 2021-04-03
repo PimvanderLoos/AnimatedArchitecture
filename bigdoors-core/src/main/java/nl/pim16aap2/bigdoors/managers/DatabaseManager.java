@@ -212,7 +212,7 @@ public final class DatabaseManager extends Restartable
      *                      AbstractDoorBase}s.
      * @return All {@link AbstractDoorBase} owned by a player with a specific name.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
+    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
                                                                        final @NotNull String name,
                                                                        final int maxPermission)
     {
@@ -410,7 +410,7 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID.toString());
+                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID);
                 if (result)
                     ((FriendDoorAccessor) door).removeOwner(playerUUID);
                 return result;

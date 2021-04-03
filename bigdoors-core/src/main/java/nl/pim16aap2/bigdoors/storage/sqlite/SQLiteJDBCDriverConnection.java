@@ -558,10 +558,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean removeDoors(final @NotNull String playerUUID, final @NotNull String doorName)
+    public boolean removeDoors(final @NotNull UUID playerUUID, final @NotNull String doorName)
     {
         return executeUpdate(SQLStatement.DELETE_NAMED_DOOR_OF_PLAYER.constructPPreparedStatement()
-                                                                     .setString(1, playerUUID)
+                                                                     .setString(1, playerUUID.toString())
                                                                      .setString(2, doorName)) > 0;
     }
 
@@ -607,12 +607,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID,
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID,
                                                     final @NotNull String doorName,
                                                     final int maxPermission)
     {
         return executeQuery(SQLStatement.GET_NAMED_DOORS_OWNED_BY_PLAYER.constructPPreparedStatement()
-                                                                        .setString(1, playerUUID)
+                                                                        .setString(1, playerUUID.toString())
                                                                         .setString(2, doorName)
                                                                         .setInt(3, maxPermission),
                             this::getDoors, Collections.emptyList());
@@ -622,7 +622,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID,
                                                     final @NotNull String name)
     {
-        return getDoors(playerUUID.toString(), name, 0);
+        return getDoors(playerUUID, name, 0);
     }
 
     @Override
@@ -634,10 +634,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull String playerUUID, int maxPermission)
+    public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, int maxPermission)
     {
         return executeQuery(SQLStatement.GET_DOORS_OWNED_BY_PLAYER_WITH_LEVEL.constructPPreparedStatement()
-                                                                             .setString(1, playerUUID)
+                                                                             .setString(1, playerUUID.toString())
                                                                              .setInt(2, maxPermission),
                             this::getDoors, Collections.emptyList());
     }
@@ -645,7 +645,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID)
     {
-        return getDoors(playerUUID.toString(), 0);
+        return getDoors(playerUUID, 0);
     }
 
     @Override
@@ -731,10 +731,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean removeOwner(final long doorUID, final @NotNull String playerUUID)
+    public boolean removeOwner(final long doorUID, final @NotNull UUID playerUUID)
     {
         return executeUpdate(SQLStatement.REMOVE_DOOR_OWNER.constructPPreparedStatement()
-                                                           .setString(1, playerUUID)
+                                                           .setString(1, playerUUID.toString())
                                                            .setLong(2, doorUID)) > 0;
     }
 

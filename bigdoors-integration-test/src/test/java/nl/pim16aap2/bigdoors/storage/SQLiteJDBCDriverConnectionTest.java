@@ -360,16 +360,16 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.optionalEquals(2, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that player 2 is the creator of exactly 1 door.
-        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID().toString(), 0).size());
+        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID(), 0).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors (door 3 (0) and door 2 (1)).
-        Assertions.assertEquals(2, storage.getDoors(playerData2.getUUID().toString(), 1).size());
+        Assertions.assertEquals(2, storage.getDoors(playerData2.getUUID(), 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors, both named "massive2".
-        Assertions.assertEquals(2, storage.getDoors(playerData2.getUUID().toString(), "massive2", 1).size());
+        Assertions.assertEquals(2, storage.getDoors(playerData2.getUUID(), "massive2", 1).size());
 
         // Verify that player 2 is owner with permission level <= 1 of exactly 1 door, named "massive2".
-        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID().toString(), "massive2", 0).size());
+        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID(), "massive2", 0).size());
 
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, playerData2, 2));
@@ -378,16 +378,16 @@ public class SQLiteJDBCDriverConnectionTest
                                                   .orElse(-1));
 
         // Remove player 2 as owner of door 2.
-        Assertions.assertTrue(storage.removeOwner(2L, playerData2.getUUID().toString()));
+        Assertions.assertTrue(storage.removeOwner(2L, playerData2.getUUID()));
         UnitTestUtil.optionalEquals(1, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Try to remove player 1 (creator) of door 2. This is not allowed.
-        Assertions.assertFalse(storage.removeOwner(2L, playerData1.getUUID().toString()));
+        Assertions.assertFalse(storage.removeOwner(2L, playerData1.getUUID()));
         UnitTestUtil.optionalEquals(1, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
         // of exactly 1 door, named "massive2" (door 3).
-        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID().toString(), "massive2", 1).size());
+        Assertions.assertEquals(1, storage.getDoors(playerData2.getUUID(), "massive2", 1).size());
 
         // Verify that player 1 is owner of exactly 1 door named "massive2".
         Assertions.assertEquals(1, storage.getDoors(playerData1.getUUID(), "massive2").size());
@@ -412,7 +412,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(1, storage.getDoors("massive1").size());
 
         // Verify that player 2 cannot delete doors they do not own (door 1 belongs to player 1).
-        Assertions.assertFalse(storage.removeOwner(1L, playerData2.getUUID().toString()));
+        Assertions.assertFalse(storage.removeOwner(1L, playerData2.getUUID()));
         Assertions.assertEquals(1, storage.getDoors("massive1").size());
 
         // Add 10 copies of door3 with a different name to the database.
@@ -428,7 +428,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Remove all 10 doors we just added (owned by player 2) and verify there are exactly 0 entries of the door with
         // the new name after batch removal. Also revert the name change of door 3.
-        Assertions.assertTrue(storage.removeDoors(playerData2.getUUID().toString(), DELETEDOORNAME));
+        Assertions.assertTrue(storage.removeDoors(playerData2.getUUID(), DELETEDOORNAME));
         Assertions.assertEquals(0, storage.getDoors(DELETEDOORNAME).size());
         Assertions.assertTrue(storage.getDoor(3L).isPresent());
         door3.setName(storage.getDoor(3L).get().getName());
