@@ -3,9 +3,11 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 @RequiredArgsConstructor
 public abstract class BaseCommand
@@ -33,6 +35,15 @@ public abstract class BaseCommand
     public CompletableFuture<Boolean> run()
     {
         return CompletableFuture.completedFuture(false);
+    }
+
+    /**
+     * Ensures the command is logged.
+     */
+    protected final void log()
+    {
+        BigDoors.get().getPLogger().dumpStackTrace(Level.FINEST,
+                                                   "Running command " + getCommand().name() + ": " + toString());
     }
 
     protected @NonNull CompletableFuture<Boolean> hasPermission()

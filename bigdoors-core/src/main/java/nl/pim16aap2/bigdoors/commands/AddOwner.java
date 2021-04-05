@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
@@ -17,6 +18,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
+@ToString
 public class AddOwner extends BaseCommand
 {
     private final @NonNull DoorRetriever doorRetriever;
@@ -30,6 +32,7 @@ public class AddOwner extends BaseCommand
         this.doorRetriever = doorRetriever;
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
+        log();
     }
 
     @Override
