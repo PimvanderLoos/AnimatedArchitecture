@@ -32,7 +32,6 @@ public class AddOwner extends BaseCommand
         this.doorRetriever = doorRetriever;
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
-        log();
     }
 
     @Override
@@ -42,39 +41,23 @@ public class AddOwner extends BaseCommand
     }
 
     @Override
-    public @NonNull CompletableFuture<Boolean> run()
+    protected boolean validInput()
     {
-        if (targetPermissionLevel < 1 || targetPermissionLevel > 2)
-            return CompletableFuture.completedFuture(false);
-
-        return hasPermission().thenApplyAsync(
-            hasPermission ->
-            {
-                if (!hasPermission)
-                    return false;
-                return addOwner().join();
-            }).exceptionally(t -> Util.exceptionally(t, false));
+        return targetPermissionLevel == 1 || targetPermissionLevel == 2;
     }
 
-    private @NonNull CompletableFuture<Boolean> addOwner()
+    @Override
+    protected @NonNull CompletableFuture<Boolean> executeCommand()
     {
-        return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
-                            .orElseGet(doorRetriever::getDoor).thenApplyAsync(
-                door ->
-                {
-                    if (door.isEmpty())
-                    {
-                        // TODO: Localization
-                        commandSender.sendMessage("Could not find the provided door!");
-                        return false;
-                    }
+        return getDoor(doorRetriever).thenApply(
+            door ->
+            {
+                if (door.isEmpty() || !isAllowed(door.get()))
+                    return false;
 
-                    if (!isAllowed(door.get()))
-                        return false;
-
-                    return BigDoors.get().getDatabaseManager()
-                                   .addOwner(door.get(), targetPlayer, targetPermissionLevel).join();
-                }).exceptionally(t -> Util.exceptionally(t, false));
+                return BigDoors.get().getDatabaseManager()
+                               .addOwner(door.get(), targetPlayer, targetPermissionLevel).join();
+            }).exceptionally(t -> Util.exceptionally(t, false));
     }
 
     private boolean isAllowed(@NonNull AbstractDoorBase door)

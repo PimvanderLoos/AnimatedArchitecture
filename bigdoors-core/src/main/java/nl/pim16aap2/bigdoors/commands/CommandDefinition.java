@@ -8,22 +8,40 @@ import java.util.Optional;
 
 public enum CommandDefinition
 {
-    ADD_OWNER("bigdoors.user.addowner", "bigdoors.admin.addowner"),
+    ADD_OWNER("bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),
+    MENU("bigdoors.user.base", "bigdoors.admin.bypass.menu"),
+    CANCEL("bigdoors.user.base", null),
+    CONFIRM("bigdoors.user.base", null),
+    DELETE("bigdoors.user.delete", "bigdoors.admin.bypass.delete"),
+    FILL(null, "bigdoors.admin.fill"),
+    INFO("bigdoors.user.info", "bigdoors.admin.bypass.info"),
+    INSPECTPOWERBLOCK("bigdoors.user.inspect", "bigdoors.admin.bypass.inspect"),
+    LISTDOORS("bigdoors.user.listdoors", "bigdoors.admin.bypass.listdoors"),
+    MOVEPOWERBLOCK("bigdoors.user.movepowerblock", "bigdoors.admin.bypass.movepowerblock"),
+    NEWDOOR("bigdoors.user.newdoor", null),
+    REMOVEOWNER("bigdoors.user.removeowner", "bigdoors.admin.bypass.removeowner"),
+    RESTART(null, "bigdoors.admin.restart"),
+    SETAUTOCLOSETIME("bigdoors.user.setautoclosetime", "bigdoors.admin.bypass.setautoclosetime"),
+    SETBLOCKSTOMOVE("bigdoors.user.base", "bigdoors.admin.bypass.setblockstomove"),
+    SETNAME("bigdoors.user.setname", null),
+    SETROTATION("bigdoors.user.base", "bigdoors.admin.bypass.setrotation"),
+    SPECIFY("bigdoors.user.base", null),
+    STOPDOORS(null, "bigdoors.admin.stopdoors"),
+    VERSION(null, "bigdoors.admin.version"),
+
+    TOGGLE("bigdoors.user.toggle", "bigdoors.admin.bypass.toggle"),
+    CLOSE(CommandDefinition.TOGGLE.permission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
+    OPEN(CommandDefinition.TOGGLE.permission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
     ;
 
     @Getter
-    private final @NonNull String permission;
+    private final @NonNull Optional<String> permission;
     @Getter
     private final @NonNull Optional<String> adminPermission;
 
-    CommandDefinition(@NonNull String permission)
+    CommandDefinition(@Nullable String permission, @Nullable String adminPermission)
     {
-        this(permission, null);
-    }
-
-    CommandDefinition(@NonNull String permission, @Nullable String adminPermission)
-    {
-        this.permission = permission;
+        this.permission = Optional.ofNullable(permission);
         this.adminPermission = Optional.ofNullable(adminPermission);
     }
 }

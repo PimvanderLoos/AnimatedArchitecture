@@ -56,7 +56,7 @@ public final class PPlayerSpigot implements IPPlayer
     public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command)
     {
         return CompletableFuture.completedFuture(
-            spigotPlayer.hasPermission(command.getPermission()) ||
+            command.getPermission().map(spigotPlayer::hasPermission).orElse(false) ||
                 command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false));
     }
 
