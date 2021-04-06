@@ -10,4 +10,10 @@ public class NewDoor extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.NEWDOOR;
+    }
 }

@@ -10,4 +10,10 @@ public class SetRotation extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.SETROTATION;
+    }
 }

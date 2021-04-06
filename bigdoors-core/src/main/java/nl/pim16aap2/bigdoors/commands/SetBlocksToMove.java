@@ -10,4 +10,10 @@ public class SetBlocksToMove extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.SETBLOCKSTOMOVE;
+    }
 }

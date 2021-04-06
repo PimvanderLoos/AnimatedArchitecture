@@ -10,4 +10,10 @@ public class StopDoors extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.STOPDOORS;
+    }
 }

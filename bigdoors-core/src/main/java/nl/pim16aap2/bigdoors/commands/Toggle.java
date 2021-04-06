@@ -10,4 +10,10 @@ public class Toggle extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.TOGGLE;
+    }
 }

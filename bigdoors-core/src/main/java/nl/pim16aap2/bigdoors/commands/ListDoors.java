@@ -10,4 +10,10 @@ public class ListDoors extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.LISTDOORS;
+    }
 }

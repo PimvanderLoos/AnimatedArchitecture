@@ -24,11 +24,7 @@ public abstract class BaseCommand
      *
      * @return The {@link CommandDefinition} that contains the definition of this {@link BaseCommand}.
      */
-    // TODO: This should obviously be abstract.
-    public @NonNull CommandDefinition getCommand()
-    {
-        return null;
-    }
+    public abstract @NonNull CommandDefinition getCommand();
 
     /**
      * Checks if the input is valid before starting any potentially expensive tasks.

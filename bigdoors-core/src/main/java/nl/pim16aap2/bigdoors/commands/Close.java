@@ -10,4 +10,10 @@ public class Close extends Toggle
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.CLOSE;
+    }
 }

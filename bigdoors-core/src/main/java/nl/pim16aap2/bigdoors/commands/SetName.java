@@ -10,4 +10,10 @@ public class SetName extends BaseCommand
     {
         super(commandSender);
     }
+
+    @Override
+    public @NonNull CommandDefinition getCommand()
+    {
+        return CommandDefinition.SETNAME;
+    }
 }
