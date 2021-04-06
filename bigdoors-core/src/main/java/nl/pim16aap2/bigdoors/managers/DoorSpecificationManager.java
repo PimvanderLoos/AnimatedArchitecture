@@ -58,19 +58,6 @@ public final class DoorSpecificationManager extends Restartable
     }
 
     /**
-     * Removes any requests for a player.
-     * <p>
-     * Note that any active requests are not cancelled. To cancel requests, use {@link #cancelRequest(IPPlayer)}
-     * instead.
-     *
-     * @param player The player whose requests to remove.
-     */
-    public void removeRequest(final @NonNull IPPlayer player)
-    {
-        requests.remove(player);
-    }
-
-    /**
      * Handles input for a player.
      *
      * @param player The player that provided input.
@@ -89,15 +76,12 @@ public final class DoorSpecificationManager extends Restartable
 
     /**
      * Cancels an active request for a player.
-     * <p>
-     * This does not guarantee that the request will also be removed (depends on {@link DelayedInputRequest}). To fully
-     * remove a request, use {@link #removeRequest(IPPlayer)}.
      *
      * @param player The player whose requests to cancel.
      */
     public void cancelRequest(final @NonNull IPPlayer player)
     {
-        Optional.ofNullable(requests.get(player)).ifPresent(DelayedInputRequest::cancel);
+        Optional.ofNullable(requests.remove(player)).ifPresent(DelayedInputRequest::cancel);
     }
 
     @Override

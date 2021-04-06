@@ -87,7 +87,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     @Override
     protected void cleanup()
     {
-        BigDoors.get().getDoorSpecificationManager().removeRequest(player);
+        BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
     }
 
     private void getDoorInfoList(final @NonNull StringBuilder sb)
