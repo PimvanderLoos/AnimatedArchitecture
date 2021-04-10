@@ -78,12 +78,12 @@ public enum DoorAttribute
     /**
      * Add an owner.
      */
-    ADDOWNER(0),
+    ADDOWNER(1),
 
     /**
      * Remove an owner.
      */
-    REMOVEOWNER(0);
+    REMOVEOWNER(1);
 
     /**
      * The minimum level of ownership (0 = highest) required to access an attribute.
