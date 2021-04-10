@@ -92,6 +92,7 @@ public class CreatorTestsUtil
         MockitoAnnotations.openMocks(this);
         BigDoors.get().setBigDoorsPlatform(platform);
 
+        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
         Messages messages = new Messages(platform, new File("src/test/resources"),
                                          "en_US_TEST", BigDoors.get().getPLogger());
 

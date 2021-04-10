@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,9 +62,9 @@ public final class TestPPlayer implements IPPlayer
     }
 
     @Override
-    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command)
+    public @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
     {
-        return CompletableFuture.completedFuture(false);
+        return CompletableFuture.completedFuture(new BooleanPair(false, false));
     }
 
     @Override

@@ -117,6 +117,36 @@ public final class Util
         return exceptionally(throwable, Optional.empty());
     }
 
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable The {@link Throwable} to log.
+     * @param fallback  The fallback value to return.
+     * @param target    The {@link CompletableFuture} to complete.
+     * @return The fallback value.
+     */
+    public <T, U> T exceptionallyCompletion(@NonNull Throwable throwable, T fallback,
+                                            @NonNull CompletableFuture<U> target)
+    {
+        target.completeExceptionally(throwable);
+        return fallback;
+    }
+
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable The {@link Throwable} to log.
+     * @param target    The {@link CompletableFuture} to complete.
+     * @return Always null;
+     */
+    public <T> Void exceptionallyCompletion(@NonNull Throwable throwable, @NonNull CompletableFuture<T> target)
+    {
+        target.completeExceptionally(throwable);
+        return null;
+    }
+
     public static @NotNull OptionalInt parseInt(final @Nullable String str)
     {
         if (str == null)

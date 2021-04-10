@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -17,7 +18,7 @@ import java.util.logging.Level;
 public abstract class BaseCommand
 {
     @Getter
-    protected final @NonNull ICommandSender commandSender;
+    private final @NonNull ICommandSender commandSender;
 
     /**
      * Gets the {@link CommandDefinition} that contains the definition of this {@link BaseCommand}.
@@ -40,24 +41,48 @@ public abstract class BaseCommand
      * Runs the command if certain criteria are met (i.e. the {@link ICommandSender} has access and {@link
      * #validInput()} returns true).
      *
-     * @return True if the command was executed successfully.
+     * @return True if the command could be executed successfully or if the command execution failed through no fault of
+     * the {@link ICommandSender}.
      */
     public final @NonNull CompletableFuture<Boolean> run()
     {
         log();
         if (!validInput())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Invalid input for command: " + toString());
+            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Invalid input for command: " + this);
             return CompletableFuture.completedFuture(false);
         }
+        // We return true in case of an exception, because it cannot (should not?) be possible
+        // for an exception to be caused be the command sender.
+        return startExecution().exceptionally(throwable -> Util.exceptionally(throwable, true));
+    }
 
-        return hasPermission().thenApplyAsync(
-            hasPermission ->
-            {
-                if (!hasPermission)
-                    return false;
-                return executeCommand().join();
-            }).exceptionally(t -> Util.exceptionally(t, false));
+    /**
+     * Starts the execution of this command. It performs the permission check (See {@link #hasPermission()}) and runs
+     * {@link #executeCommand(BooleanPair)} if the {@link ICommandSender} has access to either the user or the admin
+     * permission.
+     *
+     * @return True if the command could be executed successfully or if the command execution failed through no fault of
+     * the {@link ICommandSender}.
+     */
+    protected final CompletableFuture<Boolean> startExecution()
+    {
+        final CompletableFuture<Boolean> ret = new CompletableFuture<>();
+
+        hasPermission().thenApplyAsync(hasPermission ->
+                                       {
+                                           if (!hasPermission.first && !hasPermission.second)
+                                           {
+                                               // TODO: Localization
+                                               getCommandSender().sendMessage("No permission!");
+                                               ret.complete(true);
+                                           }
+                                           return hasPermission;
+                                       })
+                       .thenCompose(this::executeCommand)
+                       .thenApply(ret::complete)
+                       .exceptionally(throwable -> Util.exceptionallyCompletion(throwable, true, ret));
+        return ret;
     }
 
     /**
@@ -65,10 +90,11 @@ public abstract class BaseCommand
      * <p>
      * Note that this method is called asynchronously.
      *
+     * @param permissions Whether the {@link ICommandSender} has user and/or admin permissions respectively.
      * @return True if the method execution was successful.
      */
     // TODO: This should obviously be abstract.
-    protected @NonNull CompletableFuture<Boolean> executeCommand()
+    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
     {
         return CompletableFuture.completedFuture(false);
     }
@@ -93,14 +119,14 @@ public abstract class BaseCommand
      */
     protected @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(@NonNull DoorRetriever doorRetriever)
     {
-        return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
-                            .orElseGet(doorRetriever::getDoor).thenApplyAsync(
+        return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
+                                 .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
                     if (door.isPresent())
                         return door;
                     // TODO: Localization
-                    commandSender.sendMessage("Could not find the provided door!");
+                    getCommandSender().sendMessage("Could not find the provided door!");
                     return Optional.<AbstractDoorBase>empty();
                 }).exceptionally(Util::exceptionallyOptional);
     }
@@ -110,7 +136,7 @@ public abstract class BaseCommand
      *
      * @return True if the commandsender has access to this command.
      */
-    protected @NonNull CompletableFuture<Boolean> hasPermission()
+    protected @NonNull CompletableFuture<BooleanPair> hasPermission()
     {
         return getCommandSender().hasPermission(getCommand());
     }

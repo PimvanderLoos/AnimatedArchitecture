@@ -4,7 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -68,11 +67,7 @@ public final class BigDoors extends RestartableHolder
     public @NonNull IBigDoorsPlatform getPlatform()
     {
         if (platform == null)
-        {
-            IllegalStateException e = new IllegalStateException("No platform currently registered!");
-            getPLogger().logThrowable(e);
-            throw e;
-        }
+            throw new IllegalStateException("No platform currently registered!");
         return platform;
     }
 
@@ -164,8 +159,6 @@ public final class BigDoors extends RestartableHolder
      */
     public @NonNull IPLogger getPLogger()
     {
-        if (platform == null)
-            return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
         return getPlatform().getPLogger();
     }
 

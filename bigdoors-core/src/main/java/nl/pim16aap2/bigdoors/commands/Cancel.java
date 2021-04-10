@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -29,7 +30,7 @@ public class Cancel extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand()
+    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
     {
         getCommandSender().getPlayer().ifPresent(this::cancelPlayer);
         return CompletableFuture.completedFuture(true);

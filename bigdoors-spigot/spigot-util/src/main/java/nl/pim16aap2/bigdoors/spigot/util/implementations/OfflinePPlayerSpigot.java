@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -54,9 +55,9 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command)
+    public @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
     {
-        return CompletableFuture.completedFuture(isOp());
+        return CompletableFuture.completedFuture(new BooleanPair(isOp(), isOp()));
     }
 
     /**

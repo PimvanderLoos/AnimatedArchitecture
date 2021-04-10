@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -36,5 +37,5 @@ public interface IPPlayer extends IPPlayerDataContainer, IMessageable, ICommandS
     @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission);
 
     @Override
-    @NonNull CompletableFuture<Boolean> hasPermission(@NonNull CommandDefinition command);
+    @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command);
 }

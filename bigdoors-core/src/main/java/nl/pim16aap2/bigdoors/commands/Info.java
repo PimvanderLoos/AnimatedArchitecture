@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,14 +35,14 @@ public class Info extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand()
+    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
     {
         return getDoor(doorRetriever).thenApplyAsync(
             door ->
             {
                 if (door.isEmpty())
                     return false;
-                commandSender.sendMessage(door.get().toString());
+                getCommandSender().sendMessage(door.get().toString());
                 highlightBlocks(door.get());
                 return true;
             }).exceptionally(t -> Util.exceptionally(t, false));
@@ -49,9 +50,9 @@ public class Info extends BaseCommand
 
     private void highlightBlocks(@NonNull AbstractDoorBase doorBase)
     {
-        if (!(commandSender instanceof IPPlayer))
+        if (!(getCommandSender() instanceof IPPlayer))
             return;
         BigDoors.get().getPlatform().getGlowingBlockSpawner().map(
-            spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) commandSender));
+            spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender()));
     }
 }

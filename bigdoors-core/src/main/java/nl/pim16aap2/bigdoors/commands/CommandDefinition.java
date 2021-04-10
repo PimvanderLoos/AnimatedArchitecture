@@ -30,18 +30,18 @@ public enum CommandDefinition
     VERSION(null, "bigdoors.admin.version"),
 
     TOGGLE("bigdoors.user.toggle", "bigdoors.admin.bypass.toggle"),
-    CLOSE(CommandDefinition.TOGGLE.permission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
-    OPEN(CommandDefinition.TOGGLE.permission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
+    CLOSE(CommandDefinition.TOGGLE.userPermission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
+    OPEN(CommandDefinition.TOGGLE.userPermission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
     ;
 
     @Getter
-    private final @NonNull Optional<String> permission;
+    private final @NonNull Optional<String> userPermission;
     @Getter
     private final @NonNull Optional<String> adminPermission;
 
-    CommandDefinition(@Nullable String permission, @Nullable String adminPermission)
+    CommandDefinition(@Nullable String userPermission, @Nullable String adminPermission)
     {
-        this.permission = Optional.ofNullable(permission);
+        this.userPermission = Optional.ofNullable(userPermission);
         this.adminPermission = Optional.ofNullable(adminPermission);
     }
 }

@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -47,43 +48,48 @@ public class AddOwner extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand()
+    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
     {
-        return getDoor(doorRetriever).thenApply(
-            door ->
-            {
-                if (door.isEmpty() || !isAllowed(door.get()))
-                    return false;
+        final CompletableFuture<Boolean> ret = new CompletableFuture<>();
 
-                return BigDoors.get().getDatabaseManager()
-                               .addOwner(door.get(), targetPlayer, targetPermissionLevel).join();
-            }).exceptionally(t -> Util.exceptionally(t, false));
+        getDoor(doorRetriever).thenApply(door ->
+                                         {
+                                             if (door.isEmpty() || !isAllowed(door.get(), permissions.second))
+                                                 ret.complete(false);
+                                             return door.orElse(null);
+                                         })
+                              .thenCompose(door -> BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer,
+                                                                                                targetPermissionLevel))
+                              .thenAccept(ret::complete)
+                              .exceptionally(t -> Util.exceptionallyCompletion(t, null, ret));
+
+        return ret.exceptionally(t -> Util.exceptionally(t, false));
     }
 
-    private boolean isAllowed(@NonNull AbstractDoorBase door)
+    private boolean isAllowed(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
     {
-        if (!commandSender.isPlayer())
+        if (!getCommandSender().isPlayer() || hasBypassPermission)
             return true;
 
-        val doorOwner = commandSender.getPlayer().flatMap(door::getDoorOwner);
+        val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
             // TODO: Localization
-            commandSender.sendMessage("You are not an owner of this door!");
+            getCommandSender().sendMessage("You are not an owner of this door!");
             return false;
         }
 
         if (doorOwner.get().getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.ADDOWNER))
         {
             // TODO: Localization
-            commandSender.sendMessage("Your are not allowed to add co-owners to this door!");
+            getCommandSender().sendMessage("Your are not allowed to add co-owners to this door!");
             return false;
         }
 
         if (doorOwner.get().getPermission() < targetPermissionLevel)
         {
             // TODO: Localization
-            commandSender.sendMessage("You cannot add co-owners with a higher permission level!");
+            getCommandSender().sendMessage("You cannot add co-owners with a higher permission level!");
             return false;
         }
 
