@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -45,10 +44,10 @@ public class Info extends BaseCommand
                 getCommandSender().sendMessage(door.get().toString());
                 highlightBlocks(door.get());
                 return true;
-            }).exceptionally(t -> Util.exceptionally(t, false));
+            });
     }
 
-    private void highlightBlocks(@NonNull AbstractDoorBase doorBase)
+    protected void highlightBlocks(@NonNull AbstractDoorBase doorBase)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;

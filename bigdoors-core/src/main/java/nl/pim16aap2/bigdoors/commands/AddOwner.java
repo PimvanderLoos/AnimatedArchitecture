@@ -62,11 +62,10 @@ public class AddOwner extends BaseCommand
                                                                                                 targetPermissionLevel))
                               .thenAccept(ret::complete)
                               .exceptionally(t -> Util.exceptionallyCompletion(t, null, ret));
-
-        return ret.exceptionally(t -> Util.exceptionally(t, false));
+        return ret;
     }
 
-    private boolean isAllowed(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
+    protected boolean isAllowed(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
     {
         if (!getCommandSender().isPlayer() || hasBypassPermission)
             return true;
@@ -86,10 +85,10 @@ public class AddOwner extends BaseCommand
             return false;
         }
 
-        if (doorOwner.get().getPermission() < targetPermissionLevel)
+        if (doorOwner.get().getPermission() >= targetPermissionLevel)
         {
             // TODO: Localization
-            getCommandSender().sendMessage("You cannot add co-owners with a higher permission level!");
+            getCommandSender().sendMessage("You cannot only add co-owners with a higher permission level!");
             return false;
         }
 

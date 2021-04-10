@@ -5,7 +5,6 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
-import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -25,7 +25,7 @@ import java.util.logging.Level;
 
 class BaseCommandTest
 {
-    @Mock
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
     BaseCommand baseCommand;
 
     @Mock
@@ -36,9 +36,6 @@ class BaseCommandTest
 
     @Mock
     AbstractDoorBase door;
-
-    @Mock
-    IPPlayer player;
 
     @Mock
     ICommandSender commandSender;
@@ -64,7 +61,6 @@ class BaseCommandTest
         Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
         Mockito.when(doorRetriever.getDoor(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-
     }
 
     @Test

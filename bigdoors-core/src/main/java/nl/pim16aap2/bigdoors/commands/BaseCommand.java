@@ -93,11 +93,7 @@ public abstract class BaseCommand
      * @param permissions Whether the {@link ICommandSender} has user and/or admin permissions respectively.
      * @return True if the method execution was successful.
      */
-    // TODO: This should obviously be abstract.
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
-    {
-        return CompletableFuture.completedFuture(false);
-    }
+    protected abstract @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions);
 
     /**
      * Ensures the command is logged.
@@ -128,7 +124,7 @@ public abstract class BaseCommand
                     // TODO: Localization
                     getCommandSender().sendMessage("Could not find the provided door!");
                     return Optional.<AbstractDoorBase>empty();
-                }).exceptionally(Util::exceptionallyOptional);
+                });
     }
 
     /**

@@ -3,6 +3,9 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+
+import java.util.concurrent.CompletableFuture;
 
 public class Toggle extends BaseCommand
 {
@@ -28,5 +31,11 @@ public class Toggle extends BaseCommand
     public @NonNull CommandDefinition getCommand()
     {
         return CommandDefinition.TOGGLE;
+    }
+
+    @Override
+    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    {
+        throw new UnsupportedOperationException("This command has not yet been implemented!");
     }
 }
