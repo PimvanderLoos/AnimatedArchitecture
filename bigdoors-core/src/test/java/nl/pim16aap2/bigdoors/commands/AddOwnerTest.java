@@ -1,13 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -21,28 +19,32 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 class AddOwnerTest
 {
     @Mock
-    IBigDoorsPlatform platform;
+    private IBigDoorsPlatform platform;
 
     @Mock
-    DoorRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
-    AbstractDoorBase door;
+    private AbstractDoorBase door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    IPPlayer commandSender;
+    private IPPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    IPPlayer target;
+    private IPPlayer target;
 
-    @Mock
-    DatabaseManager databaseManager;
+    private static final PPlayerData playerData = Mockito.mock(PPlayerData.class);
+    private static final DoorOwner doorOwner0 = new DoorOwner(0, 0, playerData);
+    private static final DoorOwner doorOwner1 = new DoorOwner(0, 1, playerData);
+    private static final DoorOwner doorOwner2 = new DoorOwner(0, 2, playerData);
+
+    private AddOwner addOwner0;
+    private AddOwner addOwner1;
+    private AddOwner addOwner2;
 
     @BeforeEach
     void init()
@@ -50,10 +52,6 @@ class AddOwnerTest
         MockitoAnnotations.openMocks(this);
         BigDoors.get().setBigDoorsPlatform(platform);
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-
-        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
 
         Mockito.when(commandSender.hasPermission(Mockito.any(String.class)))
                .thenReturn(CompletableFuture.completedFuture(true));
@@ -63,73 +61,68 @@ class AddOwnerTest
         Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
         Mockito.when(doorRetriever.getDoor(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
+
+        addOwner0 = new AddOwner(commandSender, doorRetriever, target, 0);
+        addOwner1 = new AddOwner(commandSender, doorRetriever, target, 1);
+        addOwner2 = new AddOwner(commandSender, doorRetriever, target, 2);
     }
 
     @Test
     void testInputValidity()
     {
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 0).validInput());
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 1).validInput());
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 2).validInput());
+        Assertions.assertFalse(addOwner0.validInput());
+        Assertions.assertTrue(addOwner1.validInput());
+        Assertions.assertTrue(addOwner2.validInput());
         Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 3).validInput());
     }
 
     @Test
     void testIsAllowed()
     {
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 1).isAllowed(door, true));
+        Assertions.assertTrue(addOwner1.isAllowed(door, true));
 
-        PPlayerData playerData = Mockito.mock(PPlayerData.class);
-        DoorOwner doorOwner0 = new DoorOwner(0, 0, playerData);
-        DoorOwner doorOwner1 = new DoorOwner(0, 1, playerData);
-        DoorOwner doorOwner2 = new DoorOwner(0, 2, playerData);
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertFalse(addOwner0.isAllowed(door, false));
+        Assertions.assertTrue(addOwner1.isAllowed(door, false));
+        Assertions.assertTrue(addOwner2.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.of(doorOwner0));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 0).isAllowed(door, false));
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 1).isAllowed(door, false));
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 2).isAllowed(door, false));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner1));
+        Assertions.assertFalse(addOwner0.isAllowed(door, false));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
+        Assertions.assertTrue(addOwner2.isAllowed(door, false));
 
-        Mockito.when(door.getDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.of(doorOwner1));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 0).isAllowed(door, false));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 1).isAllowed(door, false));
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 2).isAllowed(door, false));
-
-        Mockito.when(door.getDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.of(doorOwner2));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 0).isAllowed(door, false));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 1).isAllowed(door, false));
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 2).isAllowed(door, false));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner2));
+        Assertions.assertFalse(addOwner0.isAllowed(door, false));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
+        Assertions.assertFalse(addOwner2.isAllowed(door, false));
     }
 
     @Test
-    @SneakyThrows
-    void testExecutionSuccess()
+    void testIsAllowedExistingTarget()
     {
-        Assertions.assertTrue(new AddOwner(commandSender, doorRetriever, target, 0)
-                                  .executeCommand(new BooleanPair(true, true))
-                                  .get(1, TimeUnit.SECONDS));
-    }
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
+        Assertions.assertTrue(addOwner2.isAllowed(door, false));
 
-    @Test
-    @SneakyThrows
-    void testExecutionFailureNoDoor()
-    {
-        Mockito.when(doorRetriever.getDoorInteractive(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
+        Assertions.assertFalse(addOwner2.isAllowed(door, false));
 
-        Assertions.assertFalse(new AddOwner(commandSender, doorRetriever, target, 0)
-                                   .executeCommand(new BooleanPair(true, true))
-                                   .get(1, TimeUnit.SECONDS));
-    }
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner2));
+        Assertions.assertTrue(addOwner1.isAllowed(door, false));
+        Assertions.assertFalse(addOwner2.isAllowed(door, false));
 
-    @Test
-    @SneakyThrows
-    void testExecutionFailureDatabase()
-    {
-        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenThrow(new IllegalStateException("Generic Database Exception!"));
-        ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-            new AddOwner(commandSender, doorRetriever, target, 0).executeCommand(new BooleanPair(true, true))
-                                                                 .get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(IllegalStateException.class, exception.getCause().getClass());
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
+        Assertions.assertFalse(addOwner2.isAllowed(door, false));
+
+        // It should never be possible to re-assign level 0 ownership, even with bypass enabled.
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertFalse(addOwner1.isAllowed(door, true));
+        Assertions.assertFalse(addOwner2.isAllowed(door, true));
     }
 }

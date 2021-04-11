@@ -1,16 +1,26 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
+import lombok.val;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
 import java.util.concurrent.CompletableFuture;
 
-public class RemoveOwner extends BaseCommand
+public class RemoveOwner extends DoorTargetCommand
 {
-    public RemoveOwner(@NonNull ICommandSender commandSender)
+    private final @NonNull IPPlayer targetPlayer;
+
+    public RemoveOwner(@NonNull ICommandSender commandSender, @NonNull DoorRetriever doorRetriever,
+                       @NonNull IPPlayer targetPlayer)
     {
-        super(commandSender);
+        super(commandSender, doorRetriever);
+        this.targetPlayer = targetPlayer;
     }
 
     @Override
@@ -20,8 +30,49 @@ public class RemoveOwner extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> performAction(@NonNull AbstractDoorBase door)
     {
-        throw new UnsupportedOperationException("This command has not yet been implemented!");
+        return BigDoors.get().getDatabaseManager().removeOwner(door, targetPlayer);
+    }
+
+    @Override
+    protected boolean isAllowed(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
+    {
+        final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
+
+        val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
+        if (doorOwner.isEmpty() && !bypassOwnership)
+        {
+            // TODO: Localization
+            getCommandSender().sendMessage("You are not an owner of this door!");
+            return false;
+        }
+
+        // Assume a permission level of 0 in case the command sender is not an owner but DOES have bypass access.
+        final int ownerPermission = doorOwner.map(DoorOwner::getPermission).orElse(0);
+        if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.REMOVEOWNER))
+        {
+            // TODO: Localization
+            getCommandSender().sendMessage("Your are not allowed to remove co-owners from this door!");
+            return false;
+        }
+
+        val targetDoorOwner = door.getDoorOwner(targetPlayer);
+        if (targetDoorOwner.isEmpty())
+        {
+            // TODO: Localization
+            getCommandSender()
+                .sendMessage(targetPlayer.asString() + " is not a (co-)owner of door " + door.getBasicInfo());
+            return false;
+        }
+
+        if (targetDoorOwner.get().getPermission() <= ownerPermission)
+        {
+            // TODO: Localization
+            getCommandSender()
+                .sendMessage("You can only remove (co)owners with a higher permission level than yourself! ");
+            return false;
+        }
+        return true;
     }
 }

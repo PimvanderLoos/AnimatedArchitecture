@@ -54,7 +54,15 @@ public abstract class BaseCommand
         }
         // We return true in case of an exception, because it cannot (should not?) be possible
         // for an exception to be caused be the command sender.
-        return startExecution().exceptionally(throwable -> Util.exceptionally(throwable, true));
+        return startExecution().exceptionally(
+            throwable ->
+            {
+                BigDoors.get().getPLogger().logThrowable(throwable, "Failed to execute command: " + this);
+                if (getCommandSender().isPlayer())
+                    // TODO: Localization
+                    getCommandSender().sendMessage("Failed to execute command! Please contact an administrator!");
+                return true;
+            });
     }
 
     /**
@@ -69,19 +77,20 @@ public abstract class BaseCommand
     {
         final CompletableFuture<Boolean> ret = new CompletableFuture<>();
 
-        hasPermission().thenApplyAsync(hasPermission ->
-                                       {
-                                           if (!hasPermission.first && !hasPermission.second)
-                                           {
-                                               // TODO: Localization
-                                               getCommandSender().sendMessage("No permission!");
-                                               ret.complete(true);
-                                           }
-                                           return hasPermission;
-                                       })
-                       .thenCompose(this::executeCommand)
-                       .thenApply(ret::complete)
-                       .exceptionally(throwable -> Util.exceptionallyCompletion(throwable, true, ret));
+        hasPermission()
+            .thenApplyAsync(hasPermission ->
+                            {
+                                if (!hasPermission.first && !hasPermission.second)
+                                {
+                                    // TODO: Localization
+                                    getCommandSender().sendMessage("No permission!");
+                                    ret.complete(true);
+                                }
+                                return hasPermission;
+                            })
+            .thenCompose(this::executeCommand)
+            .thenApply(ret::complete)
+            .exceptionally(throwable -> Util.exceptionallyCompletion(throwable, true, ret));
         return ret;
     }
 

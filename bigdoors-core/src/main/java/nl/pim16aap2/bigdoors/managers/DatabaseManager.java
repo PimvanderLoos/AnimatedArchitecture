@@ -382,6 +382,19 @@ public final class DatabaseManager extends Restartable
     /**
      * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
      *
+     * @param door   The {@link AbstractDoorBase}.
+     * @param player The {@link IPPlayer}.
+     * @return True if owner removal was successful.
+     */
+    public @NonNull CompletableFuture<Boolean> removeOwner(final @NonNull AbstractDoorBase door,
+                                                           final @NonNull IPPlayer player)
+    {
+        return removeOwner(door, player.getUUID());
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     *
      * @param door       The {@link AbstractDoorBase}.
      * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
      * @return True if owner removal was successful.
