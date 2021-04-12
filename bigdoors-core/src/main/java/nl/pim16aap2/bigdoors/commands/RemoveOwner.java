@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
@@ -12,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
 import java.util.concurrent.CompletableFuture;
 
+@ToString
 public class RemoveOwner extends DoorTargetCommand
 {
     private final @NonNull IPPlayer targetPlayer;

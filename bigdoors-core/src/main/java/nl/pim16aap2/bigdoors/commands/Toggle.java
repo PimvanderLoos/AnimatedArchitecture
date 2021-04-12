@@ -1,12 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
+@ToString
 public class Toggle extends BaseCommand
 {
     private final @NonNull DoorRetriever[] doorRetrievers;
