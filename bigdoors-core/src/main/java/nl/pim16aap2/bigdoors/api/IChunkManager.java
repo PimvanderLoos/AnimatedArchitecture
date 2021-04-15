@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a class that manages chunks.
@@ -17,7 +17,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return True if the chunk is loaded.
      */
-    boolean isLoaded(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk);
+    boolean isLoaded(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk);
 
     /**
      * Attempts to load a chunk (if it is not already loaded).
@@ -26,7 +26,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return The result of the load attempt.
      */
-    @NotNull ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk);
+    @NonNull ChunkLoadResult load(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk);
 
     /**
      * Represents the result of an attempt to load a chunk.

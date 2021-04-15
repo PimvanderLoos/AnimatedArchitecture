@@ -22,7 +22,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -40,7 +39,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final @NonNull Scoreboard scoreboard;
     private final @NonNull IGlowingBlockFactory glowingBlockFactory;
 
-    public GlowingBlockSpawner(final @NotNull IRestartableHolder holder)
+    public GlowingBlockSpawner(final @NonNull IRestartableHolder holder)
         throws Exception
     {
         super(holder);
@@ -50,7 +49,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
 
         scoreboard = scoreBoardManager.getMainScoreboard();
 
-        final @NotNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
+        final @NonNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
         if (!(platform instanceof BigDoorsSpigotAbstract))
             throw new Exception("Spigot's GlowingBlockSpawner can only be used with the Spigot Platform!");
 
@@ -69,7 +68,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private void registerTeams()
     {
-        for (final @NotNull PColor col : PColor.values())
+        for (final @NonNull PColor col : PColor.values())
             registerTeam(col, scoreboard);
     }
 
@@ -78,9 +77,9 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      *
      * @param color The color to register the team for.
      */
-    private void registerTeam(final @NotNull PColor color, final @NotNull Scoreboard scoreboard)
+    private void registerTeam(final @NonNull PColor color, final @NonNull Scoreboard scoreboard)
     {
-        final @NotNull ChatColor chatColor = SpigotUtil.toBukkitColor(color);
+        final @NonNull ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
         Team team = scoreboard.getTeam(name);
@@ -109,10 +108,10 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public @NonNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, @NotNull IPWorld world,
-                                                              final int time, final @NotNull TimeUnit timeUnit,
+    public @NonNull Optional<IGlowingBlock> spawnGlowingBlock(@NonNull IPPlayer player, @NonNull IPWorld world,
+                                                              final int time, final @NonNull TimeUnit timeUnit,
                                                               final double x, final double y, final double z,
-                                                              final @NotNull PColor pColor)
+                                                              final @NonNull PColor pColor)
     {
         if (teams.get(pColor) == null)
         {
@@ -146,26 +145,26 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        @NotNull Optional<IGlowingBlock> blockOpt =
+        @NonNull Optional<IGlowingBlock> blockOpt =
             glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }
 
     @Override
-    public void registerRestartable(final @NotNull IRestartable restartable)
+    public void registerRestartable(final @NonNull IRestartable restartable)
     {
         restartables.put(restartable, true);
     }
 
     @Override
-    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    public boolean isRestartableRegistered(final @NonNull IRestartable restartable)
     {
         return restartables.containsKey(restartable);
     }
 
     @Override
-    public void deregisterRestartable(@NotNull IRestartable restartable)
+    public void deregisterRestartable(@NonNull IRestartable restartable)
     {
         restartables.remove(restartable);
     }

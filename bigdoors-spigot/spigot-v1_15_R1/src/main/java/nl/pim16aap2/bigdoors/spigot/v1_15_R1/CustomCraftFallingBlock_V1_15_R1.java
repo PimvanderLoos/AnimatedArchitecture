@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.NonNull;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -15,7 +16,6 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.Vector;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * V1_15_R1 implementation of {@link ICustomCraftFallingBlock}.
@@ -25,15 +25,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
-    @NotNull
+    @NonNull
     protected final CustomEntityFallingBlock_V1_15_R1 entity;
-    @NotNull
+    @NonNull
     private Vector3DdConst lastPos;
-    @NotNull
+    @NonNull
     private Vector3DdConst lastGoalPos;
 
-    CustomCraftFallingBlock_V1_15_R1(final @NotNull Server server,
-                                     final @NotNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 entity)
+    CustomCraftFallingBlock_V1_15_R1(final @NonNull Server server,
+                                     final @NonNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 entity)
     {
         super((org.bukkit.craftbukkit.v1_15_R1.CraftServer) server, entity);
         this.entity = entity;
@@ -50,40 +50,40 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     // TODO: The blocks should lag behind 1 tick, so they have 3 variables: LastPos, CurrentPos, FuturePos.
     //       This can be used to set proper velocity as well.
     @Override
-    public boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation,
-                            final @NotNull TeleportMode teleportMode)
+    public boolean teleport(final @NonNull Vector3DdConst newPosition, final @NonNull Vector3DdConst rotation,
+                            final @NonNull TeleportMode teleportMode)
     {
         return entity.teleport(newPosition, rotation);
     }
 
     @Override
-    public void setVelocity(final @NotNull Vector3DdConst vector)
+    public void setVelocity(final @NonNull Vector3DdConst vector)
     {
         entity.setMot(new Vec3D(vector.getX(), vector.getY(), vector.getZ()));
         entity.velocityChanged = true;
     }
 
     @Override
-    public @NotNull IPLocation getPLocation()
+    public @NonNull IPLocation getPLocation()
     {
         return SpigotAdapter.wrapLocation(super.getLocation());
     }
 
     @Override
-    public @NotNull Vector3DdConst getPosition()
+    public @NonNull Vector3DdConst getPosition()
     {
         return ((CustomEntityFallingBlock_V1_15_R1) entity).getCurrentPosition();
     }
 
     @Override
-    public @NotNull Vector3Dd getPVelocity()
+    public @NonNull Vector3Dd getPVelocity()
     {
         Vector bukkitVelocity = super.getVelocity();
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 
     @Override
-    public @NotNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
+    public @NonNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
     {
         return (nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1) entity;
     }
@@ -95,26 +95,26 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "CraftFallingBlock";
     }
 
     @Override
-    public @NotNull EntityType getType()
+    public @NonNull EntityType getType()
     {
         return EntityType.FALLING_BLOCK;
     }
 
     @Override
     @Deprecated
-    public @NotNull Material getMaterial()
+    public @NonNull Material getMaterial()
     {
         return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
     }
 
     @Override
-    public @NotNull BlockData getBlockData()
+    public @NonNull BlockData getBlockData()
     {
         return CraftBlockData.fromData(getHandle().getBlock());
     }
@@ -157,7 +157,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setHeadPose(final @NotNull Vector3DdConst pose)
+    public void setHeadPose(final @NonNull Vector3DdConst pose)
     {
     }
 
@@ -166,7 +166,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
      */
     @Deprecated
     @Override
-    public void setBodyPose(final @NotNull Vector3DdConst eulerAngle)
+    public void setBodyPose(final @NonNull Vector3DdConst eulerAngle)
     {
     }
 }

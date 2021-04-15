@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -39,7 +38,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull Optional<IPLocation> getLocation()
+    public @NonNull Optional<IPLocation> getLocation()
     {
         return Optional.of(SpigotAdapter.wrapLocation(spigotPlayer.getLocation()));
     }
@@ -65,13 +64,13 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return spigotPlayer.getName();
     }
 
     @Override
-    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    public void sendMessage(final @NonNull Level level, final @NonNull String message)
     {
         spigotPlayer.sendMessage(message);
     }
@@ -87,7 +86,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return asString();
     }
@@ -111,7 +110,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull PPlayerSpigot clone()
+    public @NonNull PPlayerSpigot clone()
     {
         try
         {

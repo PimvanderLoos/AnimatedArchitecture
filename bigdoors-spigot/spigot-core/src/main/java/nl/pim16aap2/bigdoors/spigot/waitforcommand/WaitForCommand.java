@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -8,7 +9,6 @@ import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a delayed command.
@@ -17,15 +17,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class WaitForCommand extends AbortableTask
 {
-    @NotNull
+    @NonNull
     protected final BigDoorsSpigot plugin;
-    @NotNull
+    @NonNull
     protected final SubCommand subCommand;
-    @NotNull
+    @NonNull
     protected Player player;
     protected boolean isFinished = false;
 
-    protected WaitForCommand(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommand subCommand)
+    protected WaitForCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommand subCommand)
     {
         this.plugin = plugin;
         this.subCommand = subCommand;
@@ -56,7 +56,7 @@ public abstract class WaitForCommand extends AbortableTask
      *
      * @return The name of the command that this waiter is waiting for.
      */
-    public final @NotNull String getCommand()
+    public final @NonNull String getCommand()
     {
         return subCommand.getName();
     }
@@ -72,7 +72,7 @@ public abstract class WaitForCommand extends AbortableTask
      *                                          action.
      * @throws IllegalArgumentException         If at least one of the provided arguments is illegal.
      */
-    public abstract boolean executeCommand(final @NotNull String[] args)
+    public abstract boolean executeCommand(final @NonNull String[] args)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException;
 
     /**
@@ -80,7 +80,7 @@ public abstract class WaitForCommand extends AbortableTask
      *
      * @return The player that will execute the command.
      */
-    public final @NotNull Player getPlayer()
+    public final @NonNull Player getPlayer()
     {
         return player;
     }

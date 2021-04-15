@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 /**
  * Analyzes blocks to obtain various information.
@@ -19,7 +20,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if this block should be placed on the second pass, false otherwise.
      */
-    boolean placeOnSecondPass(final @NotNull IPLocationConst location);
+    boolean placeOnSecondPass(final @NonNull IPLocationConst location);
 
     /**
      * Check if a block if air or liquid (water, lava).
@@ -27,7 +28,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if it is air or liquid.
      */
-    boolean isAirOrLiquid(final @NotNull IPLocationConst location);
+    boolean isAirOrLiquid(final @NonNull IPLocationConst location);
 
     /**
      * Check if a block is on the blacklist of types/materials that is not allowed for animations.
@@ -35,7 +36,7 @@ public interface IBlockAnalyzer
      * @param location The location of the block.
      * @return True if the block can be used for animations.
      */
-    boolean isAllowedBlock(final @NotNull IPLocationConst location);
+    boolean isAllowedBlock(final @NonNull IPLocationConst location);
 
 
     /**

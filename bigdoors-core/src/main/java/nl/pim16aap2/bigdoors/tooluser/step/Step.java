@@ -3,11 +3,11 @@ package nl.pim16aap2.bigdoors.tooluser.step;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,16 +23,12 @@ import java.util.function.Supplier;
 public class Step<T extends ToolUser> implements IStep
 {
     @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final String name;
-    @NotNull
-    private final StepExecutor stepExecutor;
+    private final @NonNull String name;
+    private final @NonNull StepExecutor stepExecutor;
 
     //    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final Message message;
-    @NotNull
-    private final List<Supplier<String>> messageVariablesRetrievers;
+    private final @NonNull Message message;
+    private final @NonNull List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
@@ -47,7 +43,7 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    public @NotNull Optional<StepExecutor> getStepExecutor()
+    public @NonNull Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
     }
@@ -59,9 +55,9 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    public @NotNull String getLocalizedMessage()
+    public @NonNull String getLocalizedMessage()
     {
-        final @NotNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
+        final @NonNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
 
         String[] variablesArr = new String[variables.size()];
@@ -72,7 +68,7 @@ public class Step<T extends ToolUser> implements IStep
 
     public static class Factory<T extends ToolUser>
     {
-        @NotNull
+        @NonNull
         private final String name;
         private StepExecutor stepExecutor = null;
         private List<Supplier<String>> messageVariablesRetrievers = null;
@@ -80,43 +76,43 @@ public class Step<T extends ToolUser> implements IStep
         private Message message = null;
         private Supplier<Boolean> skipCondition = null;
 
-        public Factory(final @NotNull String name)
+        public Factory(final @NonNull String name)
         {
             this.name = name;
         }
 
-        public @NotNull Factory<T> stepExecutor(final @NotNull StepExecutor stepExecutor)
+        public @NonNull Factory<T> stepExecutor(final @NonNull StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public @NotNull Factory<T> messageVariableRetrievers(
-            final @NotNull List<Supplier<String>> messageVariablesRetrievers)
+        public @NonNull Factory<T> messageVariableRetrievers(
+            final @NonNull List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public @NotNull Factory<T> skipCondition(final @NotNull Supplier<Boolean> skipCondition)
+        public @NonNull Factory<T> skipCondition(final @NonNull Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public @NotNull Factory<T> waitForUserInput(final boolean waitForUserInput)
+        public @NonNull Factory<T> waitForUserInput(final boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public @NotNull Factory<T> message(final @NotNull Message message)
+        public @NonNull Factory<T> message(final @NonNull Message message)
         {
             this.message = message;
             return this;
         }
 
-        public @NotNull Step<T> construct()
+        public @NonNull Step<T> construct()
             throws InstantiationException
         {
             if (stepExecutor == null)

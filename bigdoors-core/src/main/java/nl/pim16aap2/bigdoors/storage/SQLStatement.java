@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an SQL statement.
@@ -296,7 +295,7 @@ public enum SQLStatement
     private final @NonNull String statement;
     private final int variableCount;
 
-    SQLStatement(final @NotNull String statement)
+    SQLStatement(final @NonNull String statement)
     {
         this.statement = statement;
         variableCount = Util.countPatternOccurrences(PPreparedStatement.QUESTION_MARK, statement);
@@ -308,7 +307,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return The statement this {@link SQLStatement} represents.
      */
-    public static @NotNull String getStatement(final @NotNull SQLStatement sqlStatement)
+    public static @NonNull String getStatement(final @NonNull SQLStatement sqlStatement)
     {
         return sqlStatement.statement;
     }
@@ -319,7 +318,7 @@ public enum SQLStatement
      * @param sqlStatement The statement.
      * @return The number of variables in the statement.
      */
-    public static int getVariableCountCount(final @NotNull SQLStatement sqlStatement)
+    public static int getVariableCountCount(final @NonNull SQLStatement sqlStatement)
     {
         return sqlStatement.variableCount;
     }
@@ -330,7 +329,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return A new {@link PPreparedStatement}.
      */
-    public static @NotNull PPreparedStatement constructPPreparedStatement(final @NotNull SQLStatement sqlStatement)
+    public static @NonNull PPreparedStatement constructPPreparedStatement(final @NonNull SQLStatement sqlStatement)
     {
         return sqlStatement.constructPPreparedStatement();
     }
@@ -340,7 +339,7 @@ public enum SQLStatement
      *
      * @return A new {@link PPreparedStatement}.
      */
-    public @NotNull PPreparedStatement constructPPreparedStatement()
+    public @NonNull PPreparedStatement constructPPreparedStatement()
     {
         return new PPreparedStatement(variableCount, statement);
     }

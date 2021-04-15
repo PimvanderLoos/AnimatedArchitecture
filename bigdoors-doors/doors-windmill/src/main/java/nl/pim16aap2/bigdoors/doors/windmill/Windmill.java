@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.windmill;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -14,7 +15,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class Windmill extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    @NotNull
+    @NonNull
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**
@@ -37,19 +37,19 @@ public class Windmill extends AbstractDoorBase
     @PersistentVariable
     private int quarterCircles = 1;
 
-    public Windmill(final @NotNull DoorData doorData, final int quarterCircles)
+    public Windmill(final @NonNull DoorData doorData, final int quarterCircles)
     {
         super(doorData);
         this.quarterCircles = quarterCircles;
     }
 
-    public Windmill(final @NotNull DoorData doorData)
+    public Windmill(final @NonNull DoorData doorData)
     {
         this(doorData, 1);
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public @NonNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -61,7 +61,7 @@ public class Windmill extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public @NonNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
                getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
@@ -69,10 +69,10 @@ public class Windmill extends AbstractDoorBase
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
+                                                      final @NonNull IPPlayer responsible,
+                                                      final @NonNull DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.
@@ -90,7 +90,7 @@ public class Windmill extends AbstractDoorBase
         if (getClass() != o.getClass())
             return false;
 
-        final @NotNull Windmill other = (Windmill) o;
+        final @NonNull Windmill other = (Windmill) o;
         return quarterCircles == other.quarterCircles;
     }
 }

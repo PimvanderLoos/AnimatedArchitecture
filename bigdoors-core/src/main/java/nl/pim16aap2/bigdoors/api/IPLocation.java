@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a mutable position in a world.
@@ -13,17 +13,17 @@ import org.jetbrains.annotations.NotNull;
 public interface IPLocation extends IPLocationConst, Cloneable
 {
     @Override
-    @NotNull IPWorld getWorld();
+    @NonNull IPWorld getWorld();
 
     /**
      * Updates the world of this location.
      *
      * @param other The new world of this location.
      */
-    void setWorld(final @NotNull IPWorld other);
+    void setWorld(final @NonNull IPWorld other);
 
     @Override
-    @NotNull Vector2Di getChunk();
+    @NonNull Vector2Di getChunk();
 
     @Override
     int getBlockX();
@@ -67,7 +67,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param z The value to add to the z coordinate.
      * @return This current IPLocation.
      */
-    @NotNull IPLocation add(final double x, final double y, final double z);
+    @NonNull IPLocation add(final double x, final double y, final double z);
 
     /**
      * Adds values to the coordinates of this location.
@@ -75,7 +75,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull IPLocation add(final @NotNull Vector3DiConst vector);
+    @NonNull IPLocation add(final @NonNull Vector3DiConst vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -83,7 +83,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull IPLocation add(final @NotNull Vector3DdConst vector);
+    @NonNull IPLocation add(final @NonNull Vector3DdConst vector);
 
-    @NotNull IPLocation clone();
+    @NonNull IPLocation clone();
 }

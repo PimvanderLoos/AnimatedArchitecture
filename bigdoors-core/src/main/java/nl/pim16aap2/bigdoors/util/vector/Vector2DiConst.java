@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Represents an integer vector or vertex in 2D space.
@@ -15,19 +15,19 @@ public class Vector2DiConst
     @Getter
     protected int x, y;
 
-    public Vector2DiConst(final @NotNull Vector2DiConst other)
+    public Vector2DiConst(final @NonNull Vector2DiConst other)
     {
         this(other.getX(), other.getY());
     }
 
     @Override
-    public @NotNull Vector2Di clone()
+    public @NonNull Vector2Di clone()
     {
         return new Vector2Di(this);
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "(" + x + ":" + y + ")";
     }

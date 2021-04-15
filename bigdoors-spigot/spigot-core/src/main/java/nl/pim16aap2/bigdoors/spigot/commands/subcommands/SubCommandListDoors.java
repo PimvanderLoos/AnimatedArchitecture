@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -13,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,13 +28,13 @@ public class SubCommandListDoors extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.LISTDOORS;
 
-    public SubCommandListDoors(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandListDoors(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull List<AbstractDoorBase> doors)
     {
         if (doors.isEmpty())
         {
@@ -49,8 +49,8 @@ public class SubCommandListDoors extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         String name = args.length == minArgCount + 1 ? args[minArgCount] : null;

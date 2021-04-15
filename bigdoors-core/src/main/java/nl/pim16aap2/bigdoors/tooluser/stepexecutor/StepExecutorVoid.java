@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -9,8 +9,7 @@ import java.util.function.Supplier;
 @AllArgsConstructor
 public class StepExecutorVoid extends StepExecutor
 {
-    @NotNull
-    private final Supplier<Boolean> fun;
+    private final @NonNull Supplier<Boolean> fun;
 
     @Override
     protected boolean protectedAccept(final @Nullable Object input)
@@ -25,7 +24,7 @@ public class StepExecutorVoid extends StepExecutor
     }
 
     @Override
-    public @NotNull Class<?> getInputClass()
+    public @NonNull Class<?> getInputClass()
     {
         return Object.class;
     }

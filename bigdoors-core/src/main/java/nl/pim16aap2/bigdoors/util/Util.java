@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
@@ -42,29 +41,29 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
-    @NotNull
+    @NonNull
     private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
      */
-    @NotNull
+    @NonNull
     private static final SecureRandom srnd = new SecureRandom();
 
     /**
      * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
      */
-    @NotNull
+    @NonNull
     private static final Random rnd = new Random();
 
-    @NotNull
+    @NonNull
     private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
-    @NotNull
+    @NonNull
     private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
     static
     {
-        for (final @NotNull PBlockFace pbf : PBlockFace.values())
+        for (final @NonNull PBlockFace pbf : PBlockFace.values())
         {
             RotateDirection mappedRotDir;
             try
@@ -117,7 +116,7 @@ public final class Util
         return exceptionally(throwable, Optional.empty());
     }
 
-    public static @NotNull OptionalInt parseInt(final @Nullable String str)
+    public static @NonNull OptionalInt parseInt(final @Nullable String str)
     {
         if (str == null)
             return OptionalInt.empty();
@@ -132,12 +131,12 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalInt parseInt(final @NonNull Optional<String> str)
+    public static @NonNull OptionalInt parseInt(final @NonNull Optional<String> str)
     {
         return str.map(Util::parseInt).orElse(OptionalInt.empty());
     }
 
-    public static @NotNull OptionalDouble parseDouble(final @Nullable String str)
+    public static @NonNull OptionalDouble parseDouble(final @Nullable String str)
     {
         if (str == null)
             return OptionalDouble.empty();
@@ -152,12 +151,12 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalDouble parseDouble(final @NonNull Optional<String> str)
+    public static @NonNull OptionalDouble parseDouble(final @NonNull Optional<String> str)
     {
         return str.map(Util::parseDouble).orElse(OptionalDouble.empty());
     }
 
-    public static @NotNull OptionalLong parseLong(final @Nullable String str)
+    public static @NonNull OptionalLong parseLong(final @Nullable String str)
     {
         if (str == null)
             return OptionalLong.empty();
@@ -172,7 +171,7 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalLong parseLong(final @NonNull Optional<String> str)
+    public static @NonNull OptionalLong parseLong(final @NonNull Optional<String> str)
     {
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
     }
@@ -240,7 +239,7 @@ public final class Util
      * @param statement The String.
      * @return The number of question marks in the String.
      */
-    public static int countPatternOccurrences(final @NotNull Pattern pattern, final @NotNull String statement)
+    public static int countPatternOccurrences(final @NonNull Pattern pattern, final @NonNull String statement)
     {
         int found = 0;
         final Matcher matcher = pattern.matcher(statement);
@@ -256,7 +255,7 @@ public final class Util
      * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
      * RotateDirection#NONE}.
      */
-    public static @NotNull RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
+    public static @NonNull RotateDirection getRotateDirection(final @NonNull PBlockFace pBlockFace)
     {
         return toRotateDirection.get(pBlockFace);
     }
@@ -268,7 +267,7 @@ public final class Util
      * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
      * PBlockFace#NONE}.
      */
-    public static @NotNull PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
+    public static @NonNull PBlockFace getPBlockFace(final @NonNull RotateDirection rotateDirection)
     {
         return toPBlockFace.get(rotateDirection);
     }
@@ -279,7 +278,7 @@ public final class Util
      * @param string The string for which to capitalize the first letter.
      * @return The same string that it received as input, but with a capizalized first letter.
      */
-    public static @NotNull String capitalizeFirstLetter(final @NotNull String string)
+    public static @NonNull String capitalizeFirstLetter(final @NonNull String string)
     {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
@@ -316,7 +315,7 @@ public final class Util
      * @param second Second array.
      * @return A single concatenated array.
      */
-    public static @NotNull <T> T[] concatArrays(final @NotNull T[] first, final @NotNull T[] second)
+    public static @NonNull <T> T[] concatArrays(final @NonNull T[] first, final @NonNull T[] second)
     {
         T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
@@ -330,7 +329,7 @@ public final class Util
      * @param arr Array to be doubled in size
      * @return A copy of the array but with doubled size.
      */
-    public static @NotNull <T> T[] doubleArraySize(final @NotNull T[] arr)
+    public static @NonNull <T> T[] doubleArraySize(final @NonNull T[] arr)
     {
         return Arrays.copyOf(arr, arr.length * 2);
     }
@@ -343,7 +342,7 @@ public final class Util
      * @param newLength The new length of the array.
      * @return A truncated array
      */
-    public static @NotNull <T> T[] truncateArray(final @NotNull T[] arr, final int newLength)
+    public static @NonNull <T> T[] truncateArray(final @NonNull T[] arr, final int newLength)
     {
         return Arrays.copyOf(arr, newLength);
     }
@@ -360,7 +359,7 @@ public final class Util
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(final @NotNull String name)
+    public static boolean isValidDoorName(final @NonNull String name)
     {
         if (name.length() == 0 || name.contains(" "))
             return false;
@@ -383,7 +382,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return An insecure random alphanumeric string.
      */
-    public static @NotNull String randomInsecureString(final int length)
+    public static @NonNull String randomInsecureString(final int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -397,7 +396,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return A secure random alphanumeric string.
      */
-    public static @NotNull String secureRandomString(final int length)
+    public static @NonNull String secureRandomString(final int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -405,16 +404,16 @@ public final class Util
         return sb.toString();
     }
 
-    public static boolean hasPermissionForAction(final @NotNull UUID uuid, final @NotNull AbstractDoorBase door,
-                                                 final @NotNull DoorAttribute attribute)
+    public static boolean hasPermissionForAction(final @NonNull UUID uuid, final @NonNull AbstractDoorBase door,
+                                                 final @NonNull DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
                    .map(doorOwner -> doorOwner.getPermission() <= DoorAttribute.getPermissionLevel(attribute))
                    .orElse(false);
     }
 
-    public static boolean hasPermissionForAction(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door,
-                                                 final @NotNull DoorAttribute attribute)
+    public static boolean hasPermissionForAction(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door,
+                                                 final @NonNull DoorAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), door, attribute);
     }
@@ -443,7 +442,7 @@ public final class Util
      * @param position The position.
      * @return The chunk coordinates.
      */
-    public static @NotNull Vector2Di getChunkCoords(final @NotNull Vector3DiConst position)
+    public static @NonNull Vector2Di getChunkCoords(final @NonNull Vector3DiConst position)
     {
         return new Vector2Di(position.getX() << 4, position.getZ() << 4);
     }
@@ -501,7 +500,7 @@ public final class Util
      * @param position The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static @NotNull Vector3Di getChunkSpacePosition(final @NotNull Vector3DiConst position)
+    public static @NonNull Vector3Di getChunkSpacePosition(final @NonNull Vector3DiConst position)
     {
         return getChunkSpacePosition(position.getX(), position.getY(), position.getZ());
     }
@@ -514,7 +513,7 @@ public final class Util
      * @param z The z coordinate in world space.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static @NotNull Vector3Di getChunkSpacePosition(final int x, final int y, final int z)
+    public static @NonNull Vector3Di getChunkSpacePosition(final int x, final int y, final int z)
     {
         return new Vector3Di(x % 16, y, z % 16);
     }
@@ -541,7 +540,7 @@ public final class Util
      * @param strings Input array of string
      * @return Resulting concatenated string.
      */
-    public static @NotNull String stringFromArray(final @NotNull String[] strings)
+    public static @NonNull String stringFromArray(final @NonNull String[] strings)
     {
         StringBuilder builder = new StringBuilder();
         for (String str : strings)

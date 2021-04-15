@@ -1,19 +1,19 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
 public class PowerBlockInspector extends ToolUser
 {
-    protected PowerBlockInspector(final @NotNull IPPlayer player)
+    protected PowerBlockInspector(final @NonNull IPPlayer player)
     {
         super(player);
     }
@@ -25,7 +25,7 @@ public class PowerBlockInspector extends ToolUser
                  Message.CREATOR_PBINSPECTOR_INIT);
     }
 
-    protected boolean inspectLoc(final @NotNull IPLocationConst loc)
+    protected boolean inspectLoc(final @NonNull IPLocationConst loc)
     {
         // TODO: Implement this.
         // Just return true, otherwise it gets very spammy.
@@ -33,7 +33,7 @@ public class PowerBlockInspector extends ToolUser
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected @NonNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<ToolUser> stepBlocksToMove = new Step.Factory<>("INSPECT_POWER_BLOCK")

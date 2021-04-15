@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -31,7 +30,7 @@ public class UnitTestUtil
      * @return The object inside the Optional.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public <T> T optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
+    public <T> T optionalEquals(final @Nullable T obj, final @NonNull Optional<T> opt)
     {
         if (obj == null)
         {
@@ -54,7 +53,7 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public <T, U> U optionalEquals(final @Nullable T obj, final @NotNull Optional<U> opt, @NonNull Function<U, T> map)
+    public <T, U> U optionalEquals(final @Nullable T obj, final @NonNull Optional<U> opt, @NonNull Function<U, T> map)
     {
         if (obj == null)
         {

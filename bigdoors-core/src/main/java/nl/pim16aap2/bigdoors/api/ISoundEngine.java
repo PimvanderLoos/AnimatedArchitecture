@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an object that can play sounds.
@@ -19,7 +19,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(final @NotNull IPLocationConst loc, final @NotNull PSound sound, final float volume,
+    void playSound(final @NonNull IPLocationConst loc, final @NonNull PSound sound, final float volume,
                    final float pitch);
 
     /**
@@ -31,7 +31,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(final @NotNull Vector3DiConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    void playSound(final @NonNull Vector3DiConst pos, final @NonNull IPWorld world, final @NonNull PSound sound,
                    final float volume, final float pitch);
 
     /**
@@ -43,7 +43,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(final @NotNull Vector3DdConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    void playSound(final @NonNull Vector3DdConst pos, final @NonNull IPWorld world, final @NonNull PSound sound,
                    final float volume, final float pitch);
 
     /**
@@ -57,6 +57,6 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(final double x, final double y, final double z, final @NotNull IPWorld world,
-                   final @NotNull PSound sound, final float volume, final float pitch);
+    void playSound(final double x, final double y, final double z, final @NonNull IPWorld world,
+                   final @NonNull PSound sound, final float volume, final float pitch);
 }

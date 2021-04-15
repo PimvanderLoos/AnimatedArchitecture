@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
@@ -18,7 +19,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -31,13 +31,13 @@ public class SubCommandSetBlocksToMove extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETBLOCKSTOMOVE;
 
-    public SubCommandSetBlocksToMove(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandSetBlocksToMove(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    private void sendResultMessage(final @NotNull CommandSender sender, final int blocksToMove)
+    private void sendResultMessage(final @NonNull CommandSender sender, final int blocksToMove)
     {
         plugin.getPLogger()
               .sendMessageToTarget(sender, Level.INFO,
@@ -47,8 +47,8 @@ public class SubCommandSetBlocksToMove extends SubCommand
                                    messages.getString(Message.COMMAND_BLOCKSTOMOVE_DISABLED));
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
-                           final @NotNull String blocksToMoveArg)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
+                           final @NonNull String blocksToMoveArg)
         throws IllegalArgumentException
     {
         if (!(door instanceof IBlocksToMoveArchetype))
@@ -79,8 +79,8 @@ public class SubCommandSetBlocksToMove extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {
@@ -93,7 +93,7 @@ public class SubCommandSetBlocksToMove extends SubCommand
 
         if (sender instanceof Player)
         {
-            final @NotNull Optional<ToolUser> toolUser = BigDoors.get().getToolUserManager()
+            final @NonNull Optional<ToolUser> toolUser = BigDoors.get().getToolUserManager()
                                                                  .getToolUser(((Player) sender).getUniqueId());
             if (toolUser.isPresent())
             {

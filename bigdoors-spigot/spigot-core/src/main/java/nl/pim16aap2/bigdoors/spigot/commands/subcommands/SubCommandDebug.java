@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -15,7 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class SubCommandDebug extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.DEBUG;
 
-    public SubCommandDebug(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandDebug(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -47,8 +47,8 @@ public class SubCommandDebug extends SubCommand
         if (!(sender instanceof Player))
             return false;
 
-        final @NotNull Player player = (Player) sender;
-        final @NotNull IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
+        final @NonNull Player player = (Player) sender;
+        final @NonNull IPPlayer pPlayer = SpigotAdapter.wrapPlayer(player);
 
         BigDoors.get().getDatabaseManager().getDoors(pPlayer)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()))
@@ -74,8 +74,8 @@ public class SubCommandDebug extends SubCommand
 
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         return execute(sender);

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
@@ -16,7 +17,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -33,9 +33,9 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class SpigotUtil
 {
-    @NotNull
+    @NonNull
     private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
-    @NotNull
+    @NonNull
     private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
     @Getter
     @Setter
@@ -43,9 +43,9 @@ public final class SpigotUtil
 
     static
     {
-        for (final @NotNull PBlockFace pbf : PBlockFace.values())
+        for (final @NonNull PBlockFace pbf : PBlockFace.values())
         {
-            final @NotNull BlockFace mappedBlockFace;
+            final @NonNull BlockFace mappedBlockFace;
             if (pbf.equals(PBlockFace.NONE))
                 mappedBlockFace = BlockFace.SELF;
             else
@@ -55,7 +55,7 @@ public final class SpigotUtil
         }
     }
 
-    @NotNull
+    @NonNull
     private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
 
     static
@@ -70,7 +70,7 @@ public final class SpigotUtil
      * @param pColor The {@link PColor}.
      * @return The bukkit version of the {@link PColor}.
      */
-    public static @NotNull ChatColor toBukkitColor(final @NotNull PColor pColor)
+    public static @NonNull ChatColor toBukkitColor(final @NonNull PColor pColor)
     {
         return toBukkitColor.get(pColor);
     }
@@ -80,7 +80,7 @@ public final class SpigotUtil
      *
      * @param playerUUID The UUID of the player.
      */
-    public static @NotNull OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
+    public static @NonNull OfflinePlayer getOfflinePlayer(final @NonNull UUID playerUUID)
     {
         @Nullable final Player onlinePlayer = Bukkit.getPlayer(playerUUID);
         return onlinePlayer != null ? onlinePlayer : Bukkit.getOfflinePlayer(playerUUID);
@@ -100,8 +100,8 @@ public final class SpigotUtil
      * @param world     The world in which to check.
      * @return The number are available in a given direction. Can be negative depending on the direction.
      */
-    public static int getBlocksInDir(final @NotNull Location min, final @NotNull Location max, int maxDist,
-                                     final @NotNull PBlockFace direction, final @NotNull World world)
+    public static int getBlocksInDir(final @NonNull Location min, final @NonNull Location max, int maxDist,
+                                     final @NonNull PBlockFace direction, final @NonNull World world)
     {
         int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
         Vector3DiConst vec = PBlockFace.getDirection(direction);
@@ -161,8 +161,8 @@ public final class SpigotUtil
      * @param color  Color of the message
      * @param msg    The message to be sent.
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
-                                     final @NotNull String msg)
+    public static void messagePlayer(final @NonNull Player player, final @NonNull ChatColor color,
+                                     final @NonNull String msg)
     {
         player.sendMessage(color + msg);
     }
@@ -174,7 +174,7 @@ public final class SpigotUtil
      * @param explanation Explanation of how to use the command.
      * @return String in the helperformat.
      */
-    public static @NotNull String helpFormat(final @NotNull String command, final @NotNull String explanation)
+    public static @NonNull String helpFormat(final @NonNull String command, final @NonNull String explanation)
     {
         return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
     }
@@ -185,7 +185,7 @@ public final class SpigotUtil
      * @param mbf {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    public static @NotNull BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
+    public static @NonNull BlockFace getBukkitFace(final @NonNull PBlockFace mbf)
     {
         return toBlockFace.get(mbf);
     }
@@ -196,7 +196,7 @@ public final class SpigotUtil
      * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
      */
-    public static @NotNull PBlockFace getPBlockFace(final @NotNull BlockFace bf)
+    public static @NonNull PBlockFace getPBlockFace(final @NonNull BlockFace bf)
     {
         return toPBlockFace.get(bf);
     }
@@ -207,7 +207,7 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    public static @NotNull String locIntToString(final @NotNull Location loc)
+    public static @NonNull String locIntToString(final @NonNull Location loc)
     {
         return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
@@ -218,12 +218,12 @@ public final class SpigotUtil
      * @param loc The location to convert to a string.
      * @return A string of the coordinates of the location.
      */
-    public static @NotNull String locDoubleToString(final @NotNull Location loc)
+    public static @NonNull String locDoubleToString(final @NonNull Location loc)
     {
         return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
     }
 
-    public static @NotNull Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
+    public static @NonNull Optional<String> nameFromUUID(final @NonNull UUID playerUUID)
     {
         Player player = Bukkit.getPlayer(playerUUID);
         return Optional
@@ -240,7 +240,7 @@ public final class SpigotUtil
      * First try to get the UUID from an online player, then try an offline player;
      * the first option is faster.
      */
-    public static @NotNull Optional<UUID> playerUUIDFromString(final @NotNull String playerName)
+    public static @NonNull Optional<UUID> playerUUIDFromString(final @NonNull String playerName)
     {
         Player player = Bukkit.getPlayer(playerName);
         if (player == null)
@@ -281,7 +281,7 @@ public final class SpigotUtil
      * @param volume The volume
      * @param pitch  The pitch
      */
-    public static void playSound(final @NotNull Location loc, final @NotNull String sound, final float volume,
+    public static void playSound(final @NonNull Location loc, final @NonNull String sound, final float volume,
                                  final float pitch)
     {
         if (loc.getWorld() == null)
@@ -297,7 +297,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static @NotNull CompletableFuture<Integer> getMaxDoorsForPlayer(final @NotNull Player player)
+    public static @NonNull CompletableFuture<Integer> getMaxDoorsForPlayer(final @NonNull Player player)
     {
         if (player.isOp())
             return CompletableFuture.completedFuture(-1);
@@ -311,7 +311,7 @@ public final class SpigotUtil
      * @param player The player for whom to retrieve the limit.
      * @return The limit if one was found, or -1 if unlimited.
      */
-    public static @NotNull CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NotNull Player player)
+    public static @NonNull CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NonNull Player player)
     {
         if (player.isOp())
             return CompletableFuture.completedFuture(-1);
@@ -328,9 +328,9 @@ public final class SpigotUtil
      * @param permissionNode The base permission node.
      * @return The highest value of the variable suffix of the permission node or -1 if none was found.
      */
-    private static @NotNull CompletableFuture<Integer> getHighestPermissionSuffix(
-        final @NotNull Set<PermissionAttachmentInfo> permissions,
-        final @NotNull String permissionNode)
+    private static @NonNull CompletableFuture<Integer> getHighestPermissionSuffix(
+        final @NonNull Set<PermissionAttachmentInfo> permissions,
+        final @NonNull String permissionNode)
     {
         return CompletableFuture.supplyAsync(
             () ->
@@ -357,7 +357,7 @@ public final class SpigotUtil
      * @param player Player to receive the message.
      * @param msg    The message.
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull String msg)
+    public static void messagePlayer(final @NonNull Player player, final @NonNull String msg)
     {
         messagePlayer(player, ChatColor.WHITE, msg);
     }
@@ -368,7 +368,7 @@ public final class SpigotUtil
      * @param player The player that will receive the message
      * @param msg    The messages
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull String[] msg)
+    public static void messagePlayer(final @NonNull Player player, final @NonNull String[] msg)
     {
         messagePlayer(player, Util.stringFromArray(msg));
     }
@@ -380,8 +380,8 @@ public final class SpigotUtil
      * @param color  The color of the message
      * @param msg    The messages
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
-                                     final @NotNull String[] msg)
+    public static void messagePlayer(final @NonNull Player player, final @NonNull ChatColor color,
+                                     final @NonNull String[] msg)
     {
         messagePlayer(player, color, Util.stringFromArray(msg));
     }
@@ -392,7 +392,7 @@ public final class SpigotUtil
      * @param block The block to be checked.
      * @return True if it is air or liquid.
      */
-    public static boolean isAirOrLiquid(final @NotNull Block block)
+    public static boolean isAirOrLiquid(final @NonNull Block block)
     {
         // Empty means it's air.
         return block.isLiquid() || block.isEmpty();
@@ -407,7 +407,7 @@ public final class SpigotUtil
      * @deprecated I'm pretty sure this is no longer needed.
      */
     @Deprecated
-    public static boolean needsRefresh(final @NotNull Material mat)
+    public static boolean needsRefresh(final @NonNull Material mat)
     {
         switch (mat)
         {

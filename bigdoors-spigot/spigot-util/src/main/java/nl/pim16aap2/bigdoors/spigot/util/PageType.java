@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a page in a BigDoors GUI.
@@ -56,7 +56,7 @@ public enum PageType
      * @param type The {@link PageType}.
      * @return The {@link Message} associated with the name of the {@link PageType}.
      */
-    public static @NotNull Message getMessage(final @NotNull PageType type)
+    public static @NonNull Message getMessage(final @NonNull PageType type)
     {
         return type.message;
     }

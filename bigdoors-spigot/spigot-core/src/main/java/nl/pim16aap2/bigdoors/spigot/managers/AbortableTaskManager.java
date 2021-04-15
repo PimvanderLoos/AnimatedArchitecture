@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import com.google.common.base.Preconditions;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
@@ -16,15 +17,13 @@ import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForSetTime;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 public final class AbortableTaskManager
 {
     private static AbortableTaskManager INSTANCE;
-    @NotNull
-    private final BigDoorsSpigot plugin;
+private final @NonNull BigDoorsSpigot plugin;
 
-    private AbortableTaskManager(final @NotNull BigDoorsSpigot plugin)
+    private AbortableTaskManager(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -36,7 +35,7 @@ public final class AbortableTaskManager
      * @param plugin The spigot core.
      * @return The instance of this {@link AbortableTaskManager}.
      */
-    public static @NotNull AbortableTaskManager init(final @NotNull BigDoorsSpigot plugin)
+    public static @NonNull AbortableTaskManager init(final @NonNull BigDoorsSpigot plugin)
     {
         return (INSTANCE == null) ? INSTANCE = new AbortableTaskManager(plugin) : INSTANCE;
     }
@@ -46,7 +45,7 @@ public final class AbortableTaskManager
      *
      * @return The instance of the {@link AbortableTaskManager}.
      */
-    public static @NotNull AbortableTaskManager get()
+    public static @NonNull AbortableTaskManager get()
     {
         Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -60,7 +59,7 @@ public final class AbortableTaskManager
      * @param abortableTask The {@link AbortableTask}.
      * @param time          The amount of time (in seconds).
      */
-    public void startTimerForAbortableTask(final @NotNull AbortableTask abortableTask, int time)
+    public void startTimerForAbortableTask(final @NonNull AbortableTask abortableTask, int time)
     {
         BukkitTask task = new BukkitRunnable()
         {
@@ -79,7 +78,7 @@ public final class AbortableTaskManager
      * @param player The player.
      * @param door   The {@link AbstractDoorBase}.
      */
-    public void startTimerSetter(final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public void startTimerSetter(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         startTimerForAbortableTask(
             new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME),
@@ -92,7 +91,7 @@ public final class AbortableTaskManager
      * @param player The player.
      * @param door   The {@link AbstractDoorBase}.
      */
-    public void startBlocksToMoveSetter(final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public void startBlocksToMoveSetter(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         startTimerForAbortableTask(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin
             .getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
@@ -104,7 +103,7 @@ public final class AbortableTaskManager
      * @param player The player.
      * @param door   The {@link AbstractDoorBase}.
      */
-    public void startAddOwner(final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public void startAddOwner(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         startTimerForAbortableTask(
             new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door),
@@ -117,7 +116,7 @@ public final class AbortableTaskManager
      * @param player The player.
      * @param door   The {@link AbstractDoorBase}.
      */
-    public void startRemoveOwner(final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public void startRemoveOwner(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         startTimerForAbortableTask(
             new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER),

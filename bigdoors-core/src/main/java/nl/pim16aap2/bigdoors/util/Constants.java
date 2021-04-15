@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 /**
  * Represents a list of constant variables.
@@ -12,7 +13,7 @@ public final class Constants
     /**
      * The name
      */
-    @NotNull
+    @NonNull
     public static final String BIGDOORSENTITYNAME = "BigDoorsEntity";
 
     /**
@@ -30,17 +31,17 @@ public final class Constants
     /**
      * The permission node that allows a player to bypass all compatibility hooks.
      */
-    @NotNull
+    @NonNull
     public static final String COMPATBYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
     /**
      * The name of this plugin.
      */
-    @NotNull
+    @NonNull
     public static final String PLUGINNAME = "BigDoors";
 
     /**
      * The directory where all the extensions are loaded from.
      */
-    public static final @NotNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
+    public static final @NonNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
 }

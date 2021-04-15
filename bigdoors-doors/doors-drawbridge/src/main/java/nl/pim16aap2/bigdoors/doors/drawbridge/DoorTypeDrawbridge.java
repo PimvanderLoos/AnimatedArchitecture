@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -16,7 +15,7 @@ public final class DoorTypeDrawbridge extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NotNull
+    @NonNull
     private static final DoorTypeDrawbridge INSTANCE = new DoorTypeDrawbridge();
 
     private DoorTypeDrawbridge()
@@ -27,13 +26,13 @@ public final class DoorTypeDrawbridge extends DoorType
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public @NonNull Creator getCreator(final @NonNull IPPlayer player)
     {
         return new CreatorDrawbridge(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NonNull Creator getCreator(final @NonNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorDrawbridge(player, name);
     }
@@ -43,7 +42,7 @@ public final class DoorTypeDrawbridge extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeDrawbridge get()
+    public static @NonNull DoorTypeDrawbridge get()
     {
         return INSTANCE;
     }

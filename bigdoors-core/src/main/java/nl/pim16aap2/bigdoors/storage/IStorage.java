@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +20,7 @@ import java.util.regex.Pattern;
  */
 public interface IStorage
 {
-    @NotNull
+    @NonNull
     Pattern VALID_TABLE_NAME = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
@@ -30,7 +29,7 @@ public interface IStorage
      * @param str The String to check.
      * @return True if this String is valid as a table name.
      */
-    static boolean isValidTableName(final @NotNull String str)
+    static boolean isValidTableName(final @NonNull String str)
     {
         return VALID_TABLE_NAME.matcher(str).find();
     }
@@ -57,7 +56,7 @@ public interface IStorage
      * @param doorName   The name of the doors to delete.
      * @return True if at least 1 door was successfully removed.
      */
-    boolean removeDoors(final @NotNull UUID playerUUID, final @NotNull String doorName);
+    boolean removeDoors(final @NonNull UUID playerUUID, final @NonNull String doorName);
 
     /**
      * Checks whether or not there are any doors in a given world.
@@ -65,7 +64,7 @@ public interface IStorage
      * @param worldName The name of the world.
      * @return True if there are more than 0 doors in the given world.
      */
-    boolean isBigDoorsWorld(final @NotNull String worldName);
+    boolean isBigDoorsWorld(final @NonNull String worldName);
 
     /**
      * Gets the total number of doors own by the given player.
@@ -73,7 +72,7 @@ public interface IStorage
      * @param playerUUID The uuid of the player whose doors to count.
      * @return The total number of doors own by the given player.
      */
-    int getDoorCountForPlayer(final @NotNull UUID playerUUID);
+    int getDoorCountForPlayer(final @NonNull UUID playerUUID);
 
     /**
      * Gets the number of doors own by the given player with the given name.
@@ -82,7 +81,7 @@ public interface IStorage
      * @param doorName   The name of the door to search for.
      * @return The number of doors own by the given player with the given name.
      */
-    int getDoorCountForPlayer(final @NotNull UUID playerUUID, final @NotNull String doorName);
+    int getDoorCountForPlayer(final @NonNull UUID playerUUID, final @NonNull String doorName);
 
     /**
      * Updates the {@link PPlayerData} for a given player.
@@ -117,7 +116,7 @@ public interface IStorage
      * @param doorName The name of the doors to search for.
      * @return The total number of doors with the given name.
      */
-    int getDoorCountByName(final @NotNull String doorName);
+    int getDoorCountByName(final @NonNull String doorName);
 
     /**
      * Gets the total number of owners of a door.
@@ -135,7 +134,7 @@ public interface IStorage
      * @param doorUID    The UID of the door to retrieve.
      * @return The door if it exists and if the player is an owner of it.
      */
-    @NotNull Optional<AbstractDoorBase> getDoor(final @NotNull UUID playerUUID, final long doorUID);
+    @NonNull Optional<AbstractDoorBase> getDoor(final @NonNull UUID playerUUID, final long doorUID);
 
     /**
      * Gets the door with the given doorUID and the original creator as {@link DoorOwner};
@@ -143,7 +142,7 @@ public interface IStorage
      * @param doorUID The UID of the door to retrieve.
      * @return The door with the given doorUID and the original creator.
      */
-    @NotNull Optional<AbstractDoorBase> getDoor(final long doorUID);
+    @NonNull Optional<AbstractDoorBase> getDoor(final long doorUID);
 
     /**
      * Gets all the doors owned by the the given player with the given name.
@@ -152,7 +151,7 @@ public interface IStorage
      * @param name       The name of the doors to search for.
      * @return All doors owned by the given player with the given name.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final @NotNull String name);
+    @NonNull List<AbstractDoorBase> getDoors(final @NonNull UUID playerUUID, final @NonNull String name);
 
     /**
      * Gets all the doors owned by the the given player.
@@ -160,7 +159,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to search for.
      * @return All doors owned by the given player.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID);
+    @NonNull List<AbstractDoorBase> getDoors(final @NonNull UUID playerUUID);
 
     /**
      * Gets all the doors with the given name, regardless of who owns them.
@@ -168,7 +167,7 @@ public interface IStorage
      * @param name The name of the doors to search for.
      * @return All doors with the given name or an empty Optional if none exist.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull String name);
+    @NonNull List<AbstractDoorBase> getDoors(final @NonNull String name);
 
     /**
      * Gets all the doors with the given name, owned by the player with at least a certain permission level.
@@ -178,7 +177,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final @NotNull String doorName,
+    @NonNull List<AbstractDoorBase> getDoors(final @NonNull UUID playerUUID, final @NonNull String doorName,
                                              final int maxPermission);
 
     /**
@@ -188,7 +187,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors owned by the player with at least a certain permission level.
      */
-    @NotNull List<AbstractDoorBase> getDoors(final @NotNull UUID playerUUID, final int maxPermission);
+    @NonNull List<AbstractDoorBase> getDoors(final @NonNull UUID playerUUID, final int maxPermission);
 
     /**
      * Gets a map of location hashes and their connected powerblocks for all doors in a chunk.
@@ -199,7 +198,7 @@ public interface IStorage
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    @NotNull ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash);
+    @NonNull ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(final long chunkHash);
 
     /**
      * Gets a list of door UIDs that have their engine in a given chunk.
@@ -207,7 +206,7 @@ public interface IStorage
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
-    @NotNull List<Long> getDoorsInChunk(final long chunkHash);
+    @NonNull List<Long> getDoorsInChunk(final long chunkHash);
 
     /**
      * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoorBase} will be
@@ -217,7 +216,7 @@ public interface IStorage
      * @return The {@link AbstractDoorBase} that was just inserted if insertion was successful. This is
      * <u><b>NOT!!</b></u> the same object as the one passed to this method.
      */
-    @NotNull Optional<AbstractDoorBase> insert(final @NotNull AbstractDoorBase door);
+    @NonNull Optional<AbstractDoorBase> insert(final @NonNull AbstractDoorBase door);
 
     /**
      * Synchronizes an {@link AbstractDoorBase} door with the database. This will synchronize both the base and the
@@ -227,7 +226,7 @@ public interface IStorage
      * @param typeData       The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncDoorData(final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final byte[] typeData);
+    boolean syncDoorData(final @NonNull AbstractDoorBase.SimpleDoorData simpleDoorData, final byte[] typeData);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoorBase}s of this type from the database.
@@ -238,7 +237,7 @@ public interface IStorage
      * @param doorType The {@link DoorType} to delete.
      * @return True if deletion was successful.
      */
-    boolean deleteDoorType(final @NotNull DoorType doorType);
+    boolean deleteDoorType(final @NonNull DoorType doorType);
 
     /**
      * Removes an owner of a door. Note that the original creator (= permission level 0) can never be removed.
@@ -247,7 +246,7 @@ public interface IStorage
      * @param playerUUID The UUID of the player to remove as owner of the door.
      * @return True if an owner was removed.
      */
-    boolean removeOwner(final long doorUID, final @NotNull UUID playerUUID);
+    boolean removeOwner(final long doorUID, final @NonNull UUID playerUUID);
 
     /**
      * Adds a player as owner of a door with at a certain permission level to a door.
@@ -259,7 +258,7 @@ public interface IStorage
      * @param permission The level of ownership the player will have over the door.
      * @return True if the update was successful.
      */
-    boolean addOwner(final long doorUID, final @NotNull PPlayerData player, final int permission);
+    boolean addOwner(final long doorUID, final @NonNull PPlayerData player, final int permission);
 
     /**
      * Gets the flag value of various boolean properties of a {@link AbstractDoorBase}.
@@ -267,7 +266,7 @@ public interface IStorage
      * @param door The {@link AbstractDoorBase}.
      * @return The flag value of a {@link AbstractDoorBase}.
      */
-    default long getFlag(final @NotNull AbstractDoorBase door)
+    default long getFlag(final @NonNull AbstractDoorBase door)
     {
         long flag = 0;
         flag = IBitFlag.changeFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), door.isOpen(), flag);
@@ -295,7 +294,7 @@ public interface IStorage
      *
      * @return The {@link DatabaseState} the database is in.
      */
-    @NotNull DatabaseState getDatabaseState();
+    @NonNull DatabaseState getDatabaseState();
 
     /**
      * Represents the status of the database.
@@ -338,7 +337,6 @@ public interface IStorage
          * No driver could be found.
          */
         NO_DRIVER,
-        ;
     }
 
     /**
@@ -380,7 +378,7 @@ public interface IStorage
          * @param flag The {@link DoorFlag}.
          * @return The flag value of a {@link DoorFlag}.
          */
-        public static long getFlagValue(final @NotNull DoorFlag flag)
+        public static long getFlagValue(final @NonNull DoorFlag flag)
         {
             return flag.flagValue;
         }

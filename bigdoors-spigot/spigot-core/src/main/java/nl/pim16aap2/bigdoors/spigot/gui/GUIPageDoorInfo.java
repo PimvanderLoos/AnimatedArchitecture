@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -13,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +53,8 @@ public class GUIPageDoorInfo implements IGUIPage
      * @param guiItem        The GUIItem pressed.
      * @param interactionIDX The index of the GUIItem the player interacted with.
      */
-    private void handleAllowedInput(final @NotNull AbstractDoorBase door, final @NotNull Player player,
-                                    final @NotNull GUIItem guiItem, final int interactionIDX)
+    private void handleAllowedInput(final @NonNull AbstractDoorBase door, final @NonNull Player player,
+                                    final @NonNull GUIItem guiItem, final int interactionIDX)
     {
         guiItem.getDoorAttribute().ifPresent(
             attr ->
@@ -177,7 +177,7 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(final @NotNull AbstractDoorBase door, final int index)
+    private void changeOpenDir(final @NonNull AbstractDoorBase door, final int index)
     {
 //        DoorAttribute[] attributes = EDoorType.getAttributes(door.getType());
 //        DoorAttribute openTypeAttribute = null;
@@ -217,8 +217,8 @@ public class GUIPageDoorInfo implements IGUIPage
 //        gui.updateItem(index, createGUIItemOfAttribute(door, openTypeAttribute));
     }
 
-    private @NotNull Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoorBase door,
-                                                                final @NotNull DoorAttribute atr)
+    private @NonNull Optional<GUIItem> createGUIItemOfAttribute(final @NonNull AbstractDoorBase door,
+                                                                final @NonNull DoorAttribute atr)
     {
 //        // If the permission level is higher than the max permission of this action.
 //        if (door.getPermission() > DoorAttribute.getPermissionLevel(atr))

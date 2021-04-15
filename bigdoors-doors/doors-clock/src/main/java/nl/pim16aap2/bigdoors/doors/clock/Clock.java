@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,7 +16,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class Clock extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    @NotNull
+    @NonNull
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
@@ -57,10 +57,10 @@ public class Clock extends AbstractDoorBase
     @Getter
     @Setter
     @PersistentVariable
-    protected @NotNull PBlockFace hourArmSide;
+    protected @NonNull PBlockFace hourArmSide;
 
-    public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,
-                 final @NotNull PBlockFace hourArmSide)
+    public Clock(final @NonNull DoorData doorData, final boolean northSouthAligned,
+                 final @NonNull PBlockFace hourArmSide)
     {
         super(doorData);
         this.northSouthAligned = northSouthAligned;
@@ -68,22 +68,22 @@ public class Clock extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public @NonNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public @NonNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
+                                                      final @NonNull IPPlayer responsible,
+                                                      final @NonNull DoorActionType actionType)
         throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
@@ -97,7 +97,7 @@ public class Clock extends AbstractDoorBase
         if (getClass() != o.getClass())
             return false;
 
-        final @NotNull Clock other = (Clock) o;
+        final @NonNull Clock other = (Clock) o;
         return hourArmSide.equals(other.hourArmSide) && northSouthAligned == other.northSouthAligned;
     }
 }

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -95,7 +94,7 @@ public final class TestPPlayer implements IPPlayer
     }
 
     @Override
-    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    public void sendMessage(final @NonNull Level level, final @NonNull String message)
     {
         beforeLastMessage = lastMessage;
         lastMessage = message;

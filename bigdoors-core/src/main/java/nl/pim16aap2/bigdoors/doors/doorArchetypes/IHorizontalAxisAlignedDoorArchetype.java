@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents all {@link DoorType}s that are aligned on the North/South or East/West axis. e.g. a sliding door.
@@ -22,7 +22,7 @@ public interface IHorizontalAxisAlignedDoorArchetype extends IDoorBase
     boolean isNorthSouthAligned();
 
     @Override
-    default @NotNull RotateDirection cycleOpenDirection()
+    default @NonNull RotateDirection cycleOpenDirection()
     {
         if (isNorthSouthAligned())
             return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;

@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SubCommand implements ICommand
@@ -21,15 +21,15 @@ public abstract class SubCommand implements ICommand
     protected int minArgCount;
     protected CommandData command;
 
-    public SubCommand(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         this.plugin = plugin;
         messages = plugin.getMessages();
         this.commandManager = commandManager;
     }
 
-    protected final void init(final @NotNull String help, final @Nullable String argsHelp, final int minArgCount,
-                              final @NotNull CommandData command)
+    protected final void init(final @NonNull String help, final @Nullable String argsHelp, final int minArgCount,
+                              final @NonNull CommandData command)
     {
         this.help = help;
         this.argsHelp = argsHelp;
@@ -38,7 +38,7 @@ public abstract class SubCommand implements ICommand
     }
 
     @Override
-    public @NotNull String getHelp(final @NotNull CommandSender sender)
+    public @NonNull String getHelp(final @NonNull CommandSender sender)
     {
         return help;
     }
@@ -60,19 +60,19 @@ public abstract class SubCommand implements ICommand
     }
 
     @Override
-    public @NotNull CommandData getCommandData()
+    public @NonNull CommandData getCommandData()
     {
         return command;
     }
 
     @Override
-    public @NotNull String getPermission()
+    public @NonNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return CommandData.getCommandName(command);
     }

@@ -21,7 +21,6 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -34,7 +33,7 @@ import java.util.Optional;
 public class Drawbridge extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    @NotNull
+    @NonNull
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     @Getter(onMethod = @__({@Override}))
@@ -60,7 +59,7 @@ public class Drawbridge extends AbstractDoorBase
     @PersistentVariable
     protected boolean modeUp;
 
-    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+    public Drawbridge(final @NonNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
                       final boolean modeUp)
     {
         super(doorData);
@@ -69,7 +68,7 @@ public class Drawbridge extends AbstractDoorBase
         this.modeUp = modeUp;
     }
 
-    public Drawbridge(final @NotNull DoorData doorData, final boolean modeUp)
+    public Drawbridge(final @NonNull DoorData doorData, final boolean modeUp)
     {
         this(doorData, -1, -1, modeUp);
     }
@@ -80,15 +79,15 @@ public class Drawbridge extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public @NonNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
+    public @NonNull Vector2Di[] calculateChunkRange()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final @NonNull Vector3DiConst dimensions = getDimensions();
 
         final int xLen = dimensions.getX();
         final int yLen = dimensions.getY();
@@ -106,15 +105,15 @@ public class Drawbridge extends AbstractDoorBase
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized @NonNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized @NonNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final @NonNull RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
             angle = -Math.PI / 2;
@@ -127,7 +126,7 @@ public class Drawbridge extends AbstractDoorBase
             return Optional.empty();
         }
 
-        final @NotNull Cuboid cuboid = getCuboid().clone();
+        final @NonNull Cuboid cuboid = getCuboid().clone();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
             return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
         else
@@ -135,10 +134,10 @@ public class Drawbridge extends AbstractDoorBase
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
+                                                      final @NonNull IPPlayer responsible,
+                                                      final @NonNull DoorActionType actionType)
         throws Exception
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
@@ -154,7 +153,7 @@ public class Drawbridge extends AbstractDoorBase
         if (getClass() != o.getClass())
             return false;
 
-        final @NotNull Drawbridge other = (Drawbridge) o;
+        final @NonNull Drawbridge other = (Drawbridge) o;
         return autoCloseTime == other.autoCloseTime &&
             autoOpenTime == other.autoOpenTime &&
             modeUp == other.modeUp;
@@ -163,7 +162,7 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     public boolean isNorthSouthAligned()
     {
-        final @NotNull RotateDirection openDir = getOpenDir();
+        final @NonNull RotateDirection openDir = getOpenDir();
         return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
     }
 }

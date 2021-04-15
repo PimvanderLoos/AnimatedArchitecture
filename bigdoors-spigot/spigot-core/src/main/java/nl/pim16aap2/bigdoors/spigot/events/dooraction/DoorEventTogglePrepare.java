@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -9,7 +10,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventTogglePrepare} for the Spigot platform.
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
-    @NotNull
+    @NonNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter(onMethod = @__({@Override}))
@@ -37,21 +37,21 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param animationSkipped If true, the door will skip the animation and open instantly.
      * @param newCuboid        The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
-    public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                                  final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+    public DoorEventTogglePrepare(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause cause,
+                                  final @NonNull DoorActionType actionType, final @NonNull IPPlayer responsible,
                                   final double time, final boolean animationSkipped,
-                                  final @NotNull CuboidConst newCuboid)
+                                  final @NonNull CuboidConst newCuboid)
     {
         super(door, cause, actionType, responsible, time, animationSkipped, newCuboid);
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public @NonNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static @NonNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }
