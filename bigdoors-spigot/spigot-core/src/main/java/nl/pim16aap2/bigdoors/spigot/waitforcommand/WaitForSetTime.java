@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseT
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a delayed command to change the auto close timer of a {@link AbstractDoorBase}.
@@ -16,13 +16,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForSetTime extends WaitForCommand
 {
-    @NotNull
-    private final AbstractDoorBase door;
-    @NotNull
-    private final SubCommandSetAutoCloseTime subCommand;
+private final @NonNull AbstractDoorBase door;
+private final @NonNull SubCommandSetAutoCloseTime subCommand;
 
-    public WaitForSetTime(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandSetAutoCloseTime subCommand,
-                          final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public WaitForSetTime(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommandSetAutoCloseTime subCommand,
+                          final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
         this.player = player;
@@ -32,7 +30,7 @@ public class WaitForSetTime extends WaitForCommand
     }
 
     @Override
-    public boolean executeCommand(@NotNull String[] args)
+    public boolean executeCommand(@NonNull String[] args)
         throws CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();

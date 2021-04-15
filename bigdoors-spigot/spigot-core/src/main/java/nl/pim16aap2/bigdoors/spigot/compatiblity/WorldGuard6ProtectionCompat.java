@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,16 +19,14 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    @NotNull
+    @NonNull
     private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
-    @NotNull
-    private final BigDoorsSpigot plugin;
-    @NotNull
-    private final WorldGuardPlugin worldGuard;
+    private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull WorldGuardPlugin worldGuard;
     private boolean success = false;
     private Method m;
 
-    public WorldGuard6ProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
@@ -55,7 +53,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc)
     {
         try
         {
@@ -69,8 +67,8 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
+                                             final @NonNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -97,7 +95,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return worldGuard.getName();
     }

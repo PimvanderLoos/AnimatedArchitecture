@@ -100,25 +100,25 @@ interface IPPlayerDataContainer
         ;
 
         @Getter
-        private static final List<PermissionFlag> values = List.of(PermissionFlag.values());
+        private static List<PermissionFlag> values = List.of(PermissionFlag.values());
 
-        private final int val;
-        private final @NonNull Function<IPPlayerDataContainer, Boolean> fun;
+        private int val;
+        private @NonNull Function<IPPlayerDataContainer, Boolean> fun;
 
-        PermissionFlag(final int val, final @NonNull Function<IPPlayerDataContainer, Boolean> fun)
+        PermissionFlag(int val, @NonNull Function<IPPlayerDataContainer, Boolean> fun)
         {
             this.val = val;
             this.fun = fun;
         }
 
-        public static long setFlag(final @NonNull IPPlayerDataContainer playerDataContainer, final long currentValue,
-                                   final @NonNull PermissionFlag flag)
+        public static long setFlag(@NonNull IPPlayerDataContainer playerDataContainer, long currentValue,
+                                   @NonNull PermissionFlag flag)
         {
-            final boolean result = flag.fun.apply(playerDataContainer);
+            boolean result = flag.fun.apply(playerDataContainer);
             return result ? IBitFlag.setFlag(flag.val, currentValue) : IBitFlag.unsetFlag(flag.val, currentValue);
         }
 
-        public static boolean hasFlag(final @NonNull PermissionFlag flag, final long currentValue)
+        public static boolean hasFlag(@NonNull PermissionFlag flag, long currentValue)
         {
             return IBitFlag.hasFlag(flag.val, currentValue);
         }

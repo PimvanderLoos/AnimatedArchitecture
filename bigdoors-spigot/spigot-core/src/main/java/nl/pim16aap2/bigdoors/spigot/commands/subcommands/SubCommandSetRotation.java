@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -17,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -29,14 +29,14 @@ public class SubCommandSetRotation extends SubCommand
     protected static final int minArgCount = 1;
     protected static final CommandData command = CommandData.SETROTATION;
 
-    public SubCommandSetRotation(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandSetRotation(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
 
-    private void sendResultMessage(final @NotNull CommandSender sender, final @NotNull RotateDirection openDir)
+    private void sendResultMessage(final @NonNull CommandSender sender, final @NonNull RotateDirection openDir)
     {
         plugin.getPLogger()
               .sendMessageToTarget(sender, Level.INFO,
@@ -44,8 +44,8 @@ public class SubCommandSetRotation extends SubCommand
                                                       messages.getString(RotateDirection.getMessage(openDir))));
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
-                        final @NotNull RotateDirection openDir)
+    public void execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
+                        final @NonNull RotateDirection openDir)
     {
         if (!(sender instanceof Player))
         {
@@ -64,8 +64,8 @@ public class SubCommandSetRotation extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
                CommandActionNotAllowedException, CommandPlayerNotFoundException
     {

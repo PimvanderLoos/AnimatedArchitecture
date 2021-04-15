@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -17,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a {@link BlockMover} for {@link Drawbridge}s.
@@ -26,10 +26,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
-    @NotNull
-    private final Vector3DdConst rotationCenter;
+private final @NonNull Vector3DdConst rotationCenter;
     protected final boolean NS;
-    @NotNull
+    @NonNull
     protected final TriFunction<Vector3Dd, Vector3DdConst, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
@@ -46,10 +45,10 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final @NotNull T door,
-                       final @NotNull RotateDirection rotateDirection, final boolean skipAnimation,
-                       final double multiplier, final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
-                       final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public BridgeMover(final double time, final @NonNull T door,
+                       final @NonNull RotateDirection rotateDirection, final boolean skipAnimation,
+                       final double multiplier, final @NonNull IPPlayer player, final @NonNull CuboidConst newCuboid,
+                       final @NonNull DoorActionCause cause, final @NonNull DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
@@ -106,18 +105,18 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    protected @NotNull Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
+    protected @NonNull Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
     {
         return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
     }
 
-    protected @NotNull Vector3Dd getGoalPos(final double angle, final @NotNull PBlockData pBlockData)
+    protected @NonNull Vector3Dd getGoalPos(final double angle, final @NonNull PBlockData pBlockData)
     {
         return getGoalPos(angle, pBlockData.getStartX(), pBlockData.getStartY(), pBlockData.getStartZ());
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NonNull Vector3Dd getFinalPosition(final @NonNull PBlockData block)
     {
         return getGoalPos(angle, block);
     }
@@ -149,7 +148,7 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+    protected @NonNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
                                                  final double zAxis)
     {
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));

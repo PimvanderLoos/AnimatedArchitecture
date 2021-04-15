@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import lombok.NonNull;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an abortable BukkitTask.
@@ -51,7 +51,7 @@ public abstract class AbortableTask
      *
      * @param task The BukkitTask.
      */
-    public final void setTask(final @NotNull BukkitTask task)
+    public final void setTask(final @NonNull BukkitTask task)
     {
         bukkitTask = task;
     }

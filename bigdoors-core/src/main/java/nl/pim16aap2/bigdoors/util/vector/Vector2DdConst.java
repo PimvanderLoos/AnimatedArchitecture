@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 /**
  * Represents a double vector or vertex in 2D space.
@@ -15,18 +15,18 @@ public class Vector2DdConst
     @Getter
     protected double x, y;
 
-    public Vector2DdConst(final @NotNull Vector2DdConst other)
+    public Vector2DdConst(final @NonNull Vector2DdConst other)
     {
         this(other.getX(), other.getY());
     }
 
-    public Vector2DdConst(final @NotNull Vector2DiConst other)
+    public Vector2DdConst(final @NonNull Vector2DiConst other)
     {
         this(other.getX(), other.getY());
     }
 
     @Override
-    public @NotNull Vector2Dd clone()
+    public @NonNull Vector2Dd clone()
     {
         return new Vector2Dd(this);
     }
@@ -37,14 +37,14 @@ public class Vector2DdConst
      * @param decimals The number of digits after the dot to display.
      * @return The String representing this object.
      */
-    public @NotNull String toString(final int decimals)
+    public @NonNull String toString(final int decimals)
     {
-        final @NotNull String placeholder = "%." + decimals + "f";
+        final @NonNull String placeholder = "%." + decimals + "f";
         return String.format(placeholder + ", " + placeholder, x, y);
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "(" + x + ":" + y + ")";
     }

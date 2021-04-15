@@ -7,16 +7,15 @@ import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
-    @NotNull
+    @NonNull
     private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
     @Nullable
     private static final ISpigotPlatform spigotPlatform;
-    @NotNull
+    @NonNull
     private static final Version spigotVersion;
 
     static
@@ -46,7 +45,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      *
      * @return The instance of this class.
      */
-    public static @NotNull PlatformManagerSpigot get()
+    public static @NonNull PlatformManagerSpigot get()
     {
         return INSTANCE;
     }
@@ -69,7 +68,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      * @param bigDoorsSpigot The {@link BigDoorsSpigot} instance.
      * @return True if a valid platform was found for the current version.
      */
-    public boolean initPlatform(final @NotNull BigDoorsSpigot bigDoorsSpigot)
+    public boolean initPlatform(final @NonNull BigDoorsSpigot bigDoorsSpigot)
     {
         if (spigotPlatform == null)
         {

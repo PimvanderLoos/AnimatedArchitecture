@@ -1,24 +1,23 @@
 package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 public class GNLHorizontalRotEast implements IGetNewLocation
 {
     private final int xMin;
-    @NotNull
-    private final IPWorld world;
-    @NotNull
-    private final RotateDirection rotDir;
-    @NotNull
-    private final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+    private final @NonNull IPWorld world;
 
-    public GNLHorizontalRotEast(final @NotNull IPWorld world, final int xMin, final int xMax, final int zMin,
-                                final int zMax, final @NotNull RotateDirection rotDir)
+    private final @NonNull RotateDirection rotDir;
+
+    private final @NonNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+
+    public GNLHorizontalRotEast(final @NonNull IPWorld world, final int xMin, final int xMax, final int zMin,
+                                final int zMax, final @NonNull RotateDirection rotDir)
     {
         this.rotDir = rotDir;
         this.world = world;
@@ -26,7 +25,7 @@ public class GNLHorizontalRotEast implements IGetNewLocation
     }
 
     @Override
-    public @NotNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos,
+    public @NonNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos,
                                               final double zPos)
     {
         IPLocation newPos = locationFactory.create(world, xPos, yPos, zPos);

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -22,7 +22,6 @@ public interface IPBlockDataFactory
      * @param radius The radius of the block to an arbitrary point.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    @NotNull Optional<PBlockData> create(final @NotNull IPLocationConst loc, final boolean bottom, final float radius,
-                                         final float startAngle)
+    @NonNull Optional<PBlockData> create(@NonNull IPLocationConst loc, boolean bottom, float radius, float startAngle)
         throws Exception;
 }

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
@@ -24,7 +25,6 @@ import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -40,17 +40,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class BlockMover implements IRestartable
 {
-    @NotNull
-    protected final IPWorld world;
-    @NotNull
-    protected final AbstractDoorBase door;
-    @NotNull
+
+    protected final @NonNull IPWorld world;
+    protected final @NonNull AbstractDoorBase door;
     @Getter
-    protected final IPPlayer player;
-    @Getter
-    @NotNull final DoorActionCause cause;
-    @Getter
-    @NotNull final DoorActionType actionType;
+    protected final @NonNull IPPlayer player;
+    @Getter final @NonNull DoorActionCause cause;
+    @Getter final @NonNull DoorActionType actionType;
     protected final IFallingBlockFactory fallingBlockFactory;
     @Getter
     protected double time;
@@ -60,14 +56,10 @@ public abstract class BlockMover implements IRestartable
     protected List<PBlockData> savedBlocks;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
-    @NotNull
-    private final AtomicBoolean isFinished = new AtomicBoolean(false);
-    @NotNull
-    protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
-    @NotNull
-    protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
-    @Nullable
-    protected TimerTask moverTask = null;
+    private final @NonNull AtomicBoolean isFinished = new AtomicBoolean(false);
+    protected final @NonNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+    protected final @NonNull IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
+    protected @Nullable TimerTask moverTask = null;
     protected int moverTaskID = 0;
 
     /**
@@ -78,16 +70,14 @@ public abstract class BlockMover implements IRestartable
     /**
      * The sound to play while the animation is active.
      */
-    @Nullable
-    protected PSoundDescription soundActive = null;
+    protected @Nullable PSoundDescription soundActive = null;
 
     /**
      * The sound to play upon finishing the animation.
      */
-    @Nullable
-    protected PSoundDescription soundFinish = null;
+    protected @Nullable PSoundDescription soundFinish = null;
 
-    protected final @NotNull CuboidConst newCuboid;
+    protected final @NonNull CuboidConst newCuboid;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -99,10 +89,10 @@ public abstract class BlockMover implements IRestartable
      * @param player        The player who opened this door.
      * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
-    protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
-                         final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
-                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
-                         final @NotNull DoorActionType actionType)
+    protected BlockMover(final @NonNull AbstractDoorBase door, final double time, final boolean skipAnimation,
+                         final @NonNull RotateDirection openDirection, final @NonNull IPPlayer player,
+                         final @NonNull CuboidConst newCuboid, final @NonNull DoorActionCause cause,
+                         final @NonNull DoorActionType actionType)
         throws Exception
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
@@ -134,7 +124,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @param soundDescription The {@link PSoundDescription} containing all the properties of the sound to play.
      */
-    protected void playSound(final @NotNull PSoundDescription soundDescription)
+    protected void playSound(final @NonNull PSoundDescription soundDescription)
     {
         BigDoors.get().getPlatform().getSoundEngine()
                 .playSound(door.getEngine(), door.getWorld(), soundDescription.getSound(), soundDescription.getVolume(),
@@ -167,7 +157,7 @@ public abstract class BlockMover implements IRestartable
      * @param newBlock  The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
      * @return True if respawning was successful.
      */
-    private boolean respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
+    private boolean respawnBlock(final @NonNull PBlockData blockData, final @NonNull INMSBlock newBlock)
     {
         final IPLocationConst loc = blockData.getFBlock().getPosition().toLocation(world);
         final Vector3DdConst veloc = blockData.getFBlock().getPVelocity();
@@ -270,7 +260,7 @@ public abstract class BlockMover implements IRestartable
      * @param block The {@link PBlockData}.
      * @return The final position of a {@link PBlockData}.
      */
-    protected abstract @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block);
+    protected abstract @NonNull Vector3Dd getFinalPosition(final @NonNull PBlockData block);
 
     /**
      * Runs a single step of the animation.
@@ -291,7 +281,7 @@ public abstract class BlockMover implements IRestartable
         for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-        final @NotNull IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
+        final @NonNull IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
         executor.runSync(() -> putBlocks(false));
         executor.cancel(moverTask, moverTaskID);
     }
@@ -380,7 +370,7 @@ public abstract class BlockMover implements IRestartable
      * @param pBlockData The {@link PBlockData}.
      * @param firstPass  Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
-    private void putSavedBlock(final @NotNull PBlockData pBlockData, final boolean firstPass)
+    private void putSavedBlock(final @NonNull PBlockData pBlockData, final boolean firstPass)
     {
         if (pBlockData.isPlacementDeferred() && firstPass)
             return;
@@ -405,11 +395,11 @@ public abstract class BlockMover implements IRestartable
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (final @NotNull PBlockData savedBlock : savedBlocks)
+        for (final @NonNull PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (final @NotNull PBlockData savedBlock : savedBlocks)
+        for (final @NonNull PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.
@@ -428,7 +418,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @param door The {@link AbstractDoorBase}.
      */
-    private synchronized void updateCoords(final @NotNull AbstractDoorBase door)
+    private synchronized void updateCoords(final @NonNull AbstractDoorBase door)
     {
         if (newCuboid.equals(door.getCuboid()))
             return;
@@ -448,7 +438,7 @@ public abstract class BlockMover implements IRestartable
      * @param zAxis  The old z-coordinate of the block.
      * @return The new Location of the block.
      */
-    protected abstract @NotNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
+    protected abstract @NonNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     /**
      * Gets the UID of the {@link AbstractDoorBase} being moved.
@@ -465,7 +455,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @return The {@link AbstractDoorBase} being moved.
      */
-    public final @NotNull AbstractDoorBase getDoor()
+    public final @NonNull AbstractDoorBase getDoor()
     {
         return door;
     }

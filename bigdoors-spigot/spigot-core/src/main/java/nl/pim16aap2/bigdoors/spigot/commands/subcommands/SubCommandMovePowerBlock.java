@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -8,7 +9,6 @@ import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 public class SubCommandMovePowerBlock extends SubCommand
 {
@@ -17,13 +17,13 @@ public class SubCommandMovePowerBlock extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.MOVEPOWERBLOCK;
 
-    public SubCommandMovePowerBlock(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandMovePowerBlock(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public boolean execute(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
 //        BigDoors.get().getDatabaseManager().hasPermissionForAction(SpigotAdapter.wrapPlayer(player), door.getDoorUID(),
 //                                                                   DoorAttribute.RELOCATEPOWERBLOCK)
@@ -39,8 +39,8 @@ public class SubCommandMovePowerBlock extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, IllegalArgumentException
     {
         if (!(sender instanceof Player))

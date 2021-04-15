@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
 import com.google.common.base.Preconditions;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
@@ -15,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -43,29 +43,21 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Nullable
     private static ConfigLoaderSpigot INSTANCE;
 
-    @NotNull
-    private final BigDoorsSpigot plugin;
-    @NotNull
-    private final IPLogger logger;
+    private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull IPLogger logger;
 
     private static final List<String> DEFAULTPOWERBLOCK = Collections
         .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
     private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
     private final Set<Material> powerBlockTypesMap;
-    @NotNull
-    private final Set<Material> materialBlacklist;
-    @NotNull
-    private final Map<ProtectionCompat, Boolean> hooksMap;
-    @NotNull
-    private final List<ConfigEntry<?>> configEntries;
-    @NotNull
-    private final Map<DoorType, String> doorPrices;
-    @NotNull
-    private final Map<DoorType, Double> doorMultipliers;
+    private final @NonNull Set<Material> materialBlacklist;
+    private final @NonNull Map<ProtectionCompat, Boolean> hooksMap;
+    private final @NonNull List<ConfigEntry<?>> configEntries;
+    private final @NonNull Map<DoorType, String> doorPrices;
+    private final @NonNull Map<DoorType, Double> doorMultipliers;
 
-    @NotNull
-    private final String header;
+    private final @NonNull String header;
     private int coolDown;
     private boolean allowStats;
     private OptionalInt maxDoorSize;
@@ -90,7 +82,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param plugin The Spigot core.
      * @param logger The logger used for error logging.
      */
-    private ConfigLoaderSpigot(final @NotNull BigDoorsSpigot plugin, final @NotNull IPLogger logger)
+    private ConfigLoaderSpigot(final @NonNull BigDoorsSpigot plugin, final @NonNull IPLogger logger)
     {
         this.plugin = plugin;
         this.logger = logger;
@@ -112,7 +104,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param logger The logger used for error logging.
      * @return The instance of this {@link ConfigLoaderSpigot}.
      */
-    public static @NotNull ConfigLoaderSpigot init(final @NotNull BigDoorsSpigot plugin, final @NotNull IPLogger logger)
+    public static @NonNull ConfigLoaderSpigot init(final @NonNull BigDoorsSpigot plugin, final @NonNull IPLogger logger)
     {
         return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
     }
@@ -122,7 +114,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      *
      * @return The instance of the {@link ConfigLoaderSpigot}.
      */
-    public static @NotNull ConfigLoaderSpigot get()
+    public static @NonNull ConfigLoaderSpigot get()
     {
         Preconditions.checkState(INSTANCE != null,
                                  "Instance has not yet been initialized. Be sure #init() has been invoked");
@@ -301,7 +293,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
         String[] usedMulitplierComment = multiplierComment;
         String[] usedPricesComment = pricesComment;
-        for (final @NotNull DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        for (final @NonNull DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
         {
             doorMultipliers
                 .put(type, addNewConfigEntry(config, "multiplier_" + type.toString(), 0.0D, usedMulitplierComment));
@@ -348,8 +340,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param comment      The comment to accompany the option in the config.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private @NotNull <T> T addNewConfigEntry(final @NotNull IConfigReader config, final @NotNull String optionName,
-                                             final @NotNull T defaultValue, final @Nullable String[] comment)
+    private @NonNull <T> T addNewConfigEntry(final @NonNull IConfigReader config, final @NonNull String optionName,
+                                             final @NonNull T defaultValue, final @Nullable String[] comment)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -367,9 +359,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private @NotNull <T> T addNewConfigEntry(final @NotNull IConfigReader config, final @NotNull String optionName,
-                                             final @NotNull T defaultValue, final @NotNull String[] comment,
-                                             final @NotNull ConfigEntry.TestValue<T> verifyValue)
+    private @NonNull <T> T addNewConfigEntry(final @NonNull IConfigReader config, final @NonNull String optionName,
+                                             final @NonNull T defaultValue, final @NonNull String[] comment,
+                                             final @NonNull ConfigEntry.TestValue<T> verifyValue)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
                                                   verifyValue);
@@ -446,7 +438,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public @NotNull String flagFormula()
+    public @NonNull String flagFormula()
     {
         return flagFormula;
     }
@@ -464,13 +456,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public @NotNull OptionalInt maxDoorSize()
+    public @NonNull OptionalInt maxDoorSize()
     {
         return maxDoorSize;
     }
 
     @Override
-    public @NotNull OptionalInt maxPowerBlockDistance()
+    public @NonNull OptionalInt maxPowerBlockDistance()
     {
         return maxPowerBlockDistance;
     }
@@ -481,25 +473,25 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return cacheTimeout;
     }
 
-    public @NotNull String resourcePack()
+    public @NonNull String resourcePack()
     {
         return resourcePack;
     }
 
     @Override
-    public @NotNull String languageFile()
+    public @NonNull String languageFile()
     {
         return languageFile;
     }
 
     @Override
-    public @NotNull OptionalInt maxDoorCount()
+    public @NonNull OptionalInt maxDoorCount()
     {
         return maxDoorCount;
     }
 
     @Override
-    public @NotNull OptionalInt maxBlocksToMove()
+    public @NonNull OptionalInt maxBlocksToMove()
     {
         return maxBlocksToMove;
     }
@@ -531,7 +523,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         return enableRedstone;
     }
 
-    public @NotNull Set<Material> powerBlockTypes()
+    public @NonNull Set<Material> powerBlockTypes()
     {
         return powerBlockTypesMap;
     }
@@ -542,7 +534,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param hook The {@link ProtectionCompat}.
      * @return True if this {@link ProtectionCompat} is enabled.
      */
-    public boolean isHookEnabled(final @NotNull ProtectionCompat hook)
+    public boolean isHookEnabled(final @NonNull ProtectionCompat hook)
     {
         return hooksMap.get(hook);
     }
@@ -564,13 +556,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public @NotNull String getPrice(final @NotNull DoorType type)
+    public @NonNull String getPrice(final @NonNull DoorType type)
     {
         return doorPrices.get(type);
     }
 
     @Override
-    public double getMultiplier(final @NotNull DoorType type)
+    public double getMultiplier(final @NonNull DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
     }
@@ -590,7 +582,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     private static class MaterialVerifier implements ConfigEntry.TestValue<List<String>>
     {
-        @NotNull
+        @NonNull
         private final Set<Material> output;
 
         /**
@@ -600,14 +592,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          *
          * @param output The set to write the parsed materials to.
          */
-        private MaterialVerifier(final @NotNull Set<Material> output)
+        private MaterialVerifier(final @NonNull Set<Material> output)
         {
             this.output = output;
             output.clear();
         }
 
         @Override
-        public @NotNull List<String> test(@NotNull List<String> input)
+        public @NonNull List<String> test(@NonNull List<String> input)
         {
             return MaterialVerifier.verifyMaterials(input, output);
         }
@@ -623,8 +615,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * @return The list of names of all valid materials in the list without duplication.
          */
         @Contract(value = "_ -> param1")
-        private static @NotNull List<String> verifyMaterials(final @NotNull List<String> input,
-                                                             final @NotNull Set<Material> output)
+        private static @NonNull List<String> verifyMaterials(final @NonNull List<String> input,
+                                                             final @NonNull Set<Material> output)
         {
             output.clear();
             Iterator<String> it = input.iterator();

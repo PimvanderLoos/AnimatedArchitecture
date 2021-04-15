@@ -6,7 +6,6 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -104,8 +103,9 @@ public class Toggle extends BaseCommand
             return;
         }
 
-        DoorOpener.get().animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
-                                          speedMultiplier, false, getDoorActionType());
+        BigDoors.get().getDoorOpener()
+                .animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
+                                  speedMultiplier, false, getDoorActionType());
     }
 
     private void handleDoorRequest(@NonNull DoorRetriever doorRetriever, @NonNull DoorActionCause doorActionCause,

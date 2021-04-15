@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
@@ -19,7 +20,6 @@ import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Optional;
@@ -31,140 +31,140 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The directory where all data will stored.
      */
-    @NotNull File getDataDirectory();
+    @NonNull File getDataDirectory();
 
     /**
      * Gets the instance of the {@link IPLocationFactory} for this platform.
      *
      * @return The instance of the {@link IPLocationFactory} for this platform.
      */
-    @NotNull IPLocationFactory getPLocationFactory();
+    @NonNull IPLocationFactory getPLocationFactory();
 
     /**
      * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
      *
      * @return The instance of the {@link IBigDoorsToolUtil} for this platform.
      */
-    @NotNull IBigDoorsToolUtil getBigDoorsToolUtil();
+    @NonNull IBigDoorsToolUtil getBigDoorsToolUtil();
 
     /**
      * Gets the instance of the {@link IEconomyManager} for this platform.
      *
      * @return The instance of the {@link IEconomyManager} for this platform.
      */
-    @NotNull IEconomyManager getEconomyManager();
+    @NonNull IEconomyManager getEconomyManager();
 
     /**
      * Gets the instance of the {@link IPermissionsManager} for this platform.
      *
      * @return The instance of the {@link IPermissionsManager} for this platform.
      */
-    @NotNull IPermissionsManager getPermissionsManager();
+    @NonNull IPermissionsManager getPermissionsManager();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.
      *
      * @return The instance of the {@link IProtectionCompatManager} for this platform.
      */
-    @NotNull IProtectionCompatManager getProtectionCompatManager();
+    @NonNull IProtectionCompatManager getProtectionCompatManager();
 
     /**
      * Gets the instance of the {@link IPWorldFactory} for this platform.
      *
      * @return The instance of the {@link IPWorldFactory} for this platform.
      */
-    @NotNull IPWorldFactory getPWorldFactory();
+    @NonNull IPWorldFactory getPWorldFactory();
 
     /**
      * Gets the instance of the {@link IPBlockDataFactory} for this platform.
      *
      * @return The instance of the {@link IPBlockDataFactory} for this platform.
      */
-    @NotNull IPBlockDataFactory getPBlockDataFactory();
+    @NonNull IPBlockDataFactory getPBlockDataFactory();
 
     /**
      * Gets the instance of the {@link IFallingBlockFactory} for this platform.
      *
      * @return The instance of the {@link IFallingBlockFactory} for this platform.
      */
-    @NotNull IFallingBlockFactory getFallingBlockFactory();
+    @NonNull IFallingBlockFactory getFallingBlockFactory();
 
     /**
      * Gets the instance of the {@link IPPlayerFactory} for this platform.
      *
      * @return The instance of the {@link IPPlayerFactory} for this platform.
      */
-    @NotNull IPPlayerFactory getPPlayerFactory();
+    @NonNull IPPlayerFactory getPPlayerFactory();
 
     /**
      * Gets the instance of the {@link IConfigLoader} for this platform.
      *
      * @return The instance of the {@link IConfigLoader} for this platform.
      */
-    @NotNull IConfigLoader getConfigLoader();
+    @NonNull IConfigLoader getConfigLoader();
 
     /**
      * Gets the instance of the {@link ISoundEngine} for this platform.
      *
      * @return The instance of the {@link ISoundEngine} for this platform.
      */
-    @NotNull ISoundEngine getSoundEngine();
+    @NonNull ISoundEngine getSoundEngine();
 
     /**
      * Gets the instance of the {@link IMessagingInterface} for this platform.
      *
      * @return The instance of the {@link IMessagingInterface} for this platform.
      */
-    @NotNull IMessagingInterface getMessagingInterface();
+    @NonNull IMessagingInterface getMessagingInterface();
 
     /**
      * Gets the instance of the {@link Messages} for this platform.
      *
      * @return The instance of the {@link Messages} for this platform.
      */
-    @NotNull Messages getMessages();
+    @NonNull Messages getMessages();
 
     /**
      * Gets the implementation of a {@link IMessageable} for the server.
      *
      * @return The implementation of a {@link IMessageable} for the server.
      */
-    @NotNull IMessageable getMessageableServer();
+    @NonNull IMessageable getMessageableServer();
 
     /**
      * Gets the instance of the {@link IBlockAnalyzer} for this platform.
      *
      * @return The instance of the {@link IBlockAnalyzer} for this platform.
      */
-    @NotNull IBlockAnalyzer getBlockAnalyzer();
+    @NonNull IBlockAnalyzer getBlockAnalyzer();
 
     /**
      * Gets the instance of the {@link IPowerBlockRedstoneManager} for this platform.
      *
      * @return The instance of the {@link IPowerBlockRedstoneManager} for this platform.
      */
-    @NotNull IPowerBlockRedstoneManager getPowerBlockRedstoneManager();
+    @NonNull IPowerBlockRedstoneManager getPowerBlockRedstoneManager();
 
     /**
      * Gets the instance of the {@link IChunkManager} for this platform.
      *
      * @return The instance of the {@link IChunkManager} for this platform.
      */
-    @NotNull IChunkManager getChunkManager();
+    @NonNull IChunkManager getChunkManager();
 
     /**
      * Gets the instance of the {@link IDoorActionEventFactory} for this platform.
      *
      * @return The instance of the {@link IDoorActionEventFactory} for this platform.
      */
-    @NotNull IDoorActionEventFactory getDoorActionEventFactory();
+    @NonNull IDoorActionEventFactory getDoorActionEventFactory();
 
     /**
      * Calls a {@link IDoorEvent}.
      *
      * @param doorActionEvent The {@link IDoorEvent} to call.
      */
-    void callDoorActionEvent(final @NotNull IDoorEvent doorActionEvent);
+    void callDoorActionEvent(@NonNull IDoorEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.
@@ -172,14 +172,14 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @param threadID The ID of the thread to compare.
      * @return True if the thread is the main thread.
      */
-    boolean isMainThread(final long threadID);
+    boolean isMainThread(long threadID);
 
     /**
      * Constructs a new {@link IPExecutor}.
      *
      * @return A new {@link IPExecutor}.
      */
-    @NotNull IPExecutor getPExecutor();
+    @NonNull IPExecutor getPExecutor();
 
     /**
      * Gets the {@link IGlowingBlockSpawner} for the current platform.
@@ -200,7 +200,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The {@link IPLogger} for this platform.
      */
-    IPLogger getPLogger();
+    @NonNull IPLogger getPLogger();
 
     /**
      * Gets the {@link DatabaseManager}.
@@ -235,19 +235,26 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The {@link DoorSpecificationManager} instance.
      */
-    @NotNull DoorSpecificationManager getDoorSpecificationManager();
+    @NonNull DoorSpecificationManager getDoorSpecificationManager();
 
     /**
      * Gets the {@link DoorTypeManager} instance.
      *
      * @return The {@link DoorTypeManager} instance.
      */
-    @NotNull DoorTypeManager getDoorTypeManager();
+    @NonNull DoorTypeManager getDoorTypeManager();
 
     /**
      * Gets the {@link ToolUserManager} instance.
      *
      * @return The {@link ToolUserManager} instance.
      */
-    @NotNull ToolUserManager getToolUserManager();
+    @NonNull ToolUserManager getToolUserManager();
+
+    /**
+     * Gets the {@link DoorOpener}.
+     *
+     * @return The {@link DoorOpener}.
+     */
+    @NonNull DoorOpener getDoorOpener();
 }

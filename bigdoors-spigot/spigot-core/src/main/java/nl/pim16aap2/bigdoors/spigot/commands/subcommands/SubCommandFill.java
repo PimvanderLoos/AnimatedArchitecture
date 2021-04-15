@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -12,7 +13,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 public class SubCommandFill extends SubCommand
 {
@@ -21,7 +21,7 @@ public class SubCommandFill extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.FILLDOOR;
 
-    public SubCommandFill(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandFill(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
@@ -32,7 +32,7 @@ public class SubCommandFill extends SubCommand
      *
      * @param door The {@link AbstractDoorBase}.
      */
-    public boolean execute(final @NotNull AbstractDoorBase door)
+    public boolean execute(final @NonNull AbstractDoorBase door)
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(door.getWorld());
         if (bukkitWorld == null)
@@ -50,8 +50,8 @@ public class SubCommandFill extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException
     {
         BigDoors.get().getDatabaseManager().getDoor(CommandManager.getLongFromArg(args[1]))

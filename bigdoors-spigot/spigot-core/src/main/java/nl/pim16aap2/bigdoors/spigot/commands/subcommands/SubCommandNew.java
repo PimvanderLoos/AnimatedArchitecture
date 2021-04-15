@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -15,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SubCommandNew extends SubCommand
@@ -25,18 +25,18 @@ public class SubCommandNew extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.NEW;
 
-    public SubCommandNew(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandNew(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public static boolean hasCreationPermission(final @NotNull Player player, final @NotNull DoorType type)
+    public static boolean hasCreationPermission(final @NonNull Player player, final @NonNull DoorType type)
     {
         return player.hasPermission(CommandData.getPermission(CommandData.NEW) + type.getSimpleName());
     }
 
-    private boolean isPlayerBusy(final @NotNull Player player)
+    private boolean isPlayerBusy(final @NonNull Player player)
     {
         boolean isBusy = (BigDoors.get().getToolUserManager().getToolUser(player.getUniqueId()).isPresent() ||
             plugin.getCommandWaiter(player).isPresent());
@@ -53,8 +53,8 @@ public class SubCommandNew extends SubCommand
      * @param name     The name of the door, may be null.
      * @param doorType The type of the door to be created.
      */
-    private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull DoorType doorType)
+    private void initiateDoorCreation(final @NonNull Player player, final @Nullable String name,
+                                      final @NonNull DoorType doorType)
     {
         if (name != null && !Util.isValidDoorName(name))
         {
@@ -62,7 +62,7 @@ public class SubCommandNew extends SubCommand
             return;
         }
 
-        final @NotNull Creator creator = doorType.getCreator(SpigotAdapter.wrapPlayer(player), name);
+        final @NonNull Creator creator = doorType.getCreator(SpigotAdapter.wrapPlayer(player), name);
         BigDoors.get().getToolUserManager().startToolUser(creator, 120 * 20);
     }
 
@@ -74,8 +74,8 @@ public class SubCommandNew extends SubCommand
      * @param doorType     The type of the door to be created.
      * @param maxDoorCount The maximum number of doors this player is allowed to create.
      */
-    private void initiateDoorCreation(final @NotNull Player player, final @Nullable String name,
-                                      final @NotNull DoorType doorType, final int maxDoorCount)
+    private void initiateDoorCreation(final @NonNull Player player, final @Nullable String name,
+                                      final @NonNull DoorType doorType, final int maxDoorCount)
     {
         if (maxDoorCount < 0)
             initiateDoorCreation(player, name, doorType);
@@ -92,7 +92,7 @@ public class SubCommandNew extends SubCommand
     }
 
     // Create a new door.
-    public void execute(final @NotNull Player player, final @Nullable String name, final @NotNull DoorType doorType)
+    public void execute(final @NonNull Player player, final @Nullable String name, final @NonNull DoorType doorType)
     {
         if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(doorType))
         {
@@ -116,8 +116,8 @@ public class SubCommandNew extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))
@@ -140,13 +140,13 @@ public class SubCommandNew extends SubCommand
     }
 
     @Override
-    public @NotNull String getHelp(final @NotNull CommandSender sender)
+    public @NonNull String getHelp(final @NonNull CommandSender sender)
     {
         return help;
     }
 
     @Override
-    public @NotNull String getHelpArguments()
+    public @NonNull String getHelpArguments()
     {
         return argsHelp;
     }
@@ -158,19 +158,19 @@ public class SubCommandNew extends SubCommand
     }
 
     @Override
-    public @NotNull CommandData getCommandData()
+    public @NonNull CommandData getCommandData()
     {
         return command;
     }
 
     @Override
-    public @NotNull String getPermission()
+    public @NonNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return CommandData.getCommandName(command);
     }

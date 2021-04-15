@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -7,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,12 +19,12 @@ public class WorldListener implements Listener
 {
     private static @Nullable WorldListener INSTANCE;
 
-    private final @NotNull PowerBlockManager powerBlockManager;
+    private final @NonNull PowerBlockManager powerBlockManager;
 
-    private WorldListener(final @NotNull PowerBlockManager powerBlockManager)
+    private WorldListener(final @NonNull PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;
-        for (final @NotNull World world : Bukkit.getWorlds())
+        for (final @NonNull World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());
     }
 
@@ -34,7 +34,7 @@ public class WorldListener implements Listener
      * @param powerBlockManager The {@link PowerBlockManager}.
      * @return The instance of this {@link WorldListener}.
      */
-    public static WorldListener init(final @NotNull PowerBlockManager powerBlockManager)
+    public static WorldListener init(final @NonNull PowerBlockManager powerBlockManager)
     {
         return INSTANCE == null ? INSTANCE = new WorldListener(powerBlockManager) : INSTANCE;
     }

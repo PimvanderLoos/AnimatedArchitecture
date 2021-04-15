@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -16,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -30,15 +29,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedstoneListener extends Restartable implements Listener
 {
-    @Nullable
-    private static RedstoneListener INSTANCE;
-    @NotNull
-    private final BigDoorsSpigot plugin;
-    @NotNull
-    private final Set<Material> powerBlockTypes = new HashSet<>();
+    private static @Nullable RedstoneListener INSTANCE;
+    private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
-    private RedstoneListener(final @NotNull BigDoorsSpigot plugin)
+    private RedstoneListener(final @NonNull BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
@@ -52,7 +48,7 @@ public class RedstoneListener extends Restartable implements Listener
      * @param plugin The {@link BigDoorsSpigot} plugin.
      * @return The instance of this {@link RedstoneListener}.
      */
-    public static @NotNull RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
+    public static @NonNull RedstoneListener init(final @NonNull BigDoorsSpigot plugin)
     {
         return (INSTANCE == null) ? INSTANCE = new RedstoneListener(plugin) : INSTANCE;
     }
@@ -100,13 +96,14 @@ public class RedstoneListener extends Restartable implements Listener
         unregister();
     }
 
-    private void checkDoors(final @NotNull Location loc)
+    private void checkDoors(final @NonNull Location loc)
     {
         BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getName()).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> DoorOpener.get().animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
-                                                          DoorActionType.TOGGLE)));
+                door -> BigDoors.get().getDoorOpener()
+                                .animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
+                                                  DoorActionType.TOGGLE)));
     }
 
     /**
@@ -114,7 +111,7 @@ public class RedstoneListener extends Restartable implements Listener
      *
      * @param event The event.
      */
-    private void processRedstoneEvent(final @NotNull BlockRedstoneEvent event)
+    private void processRedstoneEvent(final @NonNull BlockRedstoneEvent event)
     {
         try
         {
@@ -153,7 +150,7 @@ public class RedstoneListener extends Restartable implements Listener
      * @param event The {@link BlockRedstoneEvent}.
      */
     @EventHandler
-    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
+    public void onBlockRedstoneChange(final @NonNull BlockRedstoneEvent event)
     {
         // Only boolean status is allowed, so a varying degree of "on" has no effect.
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands;
 
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 public enum CommandData
@@ -38,7 +38,7 @@ public enum CommandData
     private final String permission;
     private final CommandData superCommand;
 
-    CommandData(final @NotNull String commandName, final @NotNull String permission,
+    CommandData(final @NonNull String commandName, final @NonNull String permission,
                 final @Nullable CommandData superCommand)
     {
         this.superCommand = superCommand;
@@ -46,17 +46,17 @@ public enum CommandData
         this.commandName = commandName;
     }
 
-    public static @NotNull String getPermission(final @NotNull CommandData command)
+    public static @NonNull String getPermission(final @NonNull CommandData command)
     {
         return command.permission;
     }
 
-    public static @Nullable CommandData getSuperCommand(final @NotNull CommandData command)
+    public static @Nullable CommandData getSuperCommand(final @NonNull CommandData command)
     {
         return command.superCommand;
     }
 
-    public static @NotNull String getCommandName(final @NotNull CommandData command)
+    public static @NonNull String getCommandName(final @NonNull CommandData command)
     {
         return command.commandName;
     }

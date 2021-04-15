@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util;
 import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -17,19 +16,19 @@ public enum Limit
     ;
 
     @Getter
-    @NotNull final String userPermission;
+    @NonNull final String userPermission;
     @Getter
-    @NotNull final String adminPermission;
-    @NotNull final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
+    @NonNull final String adminPermission;
+    @NonNull final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
 
-    Limit(final @NotNull String permissionName, final @NotNull Function<IConfigLoader, OptionalInt> globalLimitSupplier)
+    Limit(final @NonNull String permissionName, final @NonNull Function<IConfigLoader, OptionalInt> globalLimitSupplier)
     {
         userPermission = "bigdoors.limit." + permissionName + ".";
         adminPermission = "bigdoors.admin.bypass.limit." + permissionName;
         this.globalLimitSupplier = globalLimitSupplier;
     }
 
-    public @NotNull OptionalInt getGlobalLimit(final @NonNull IConfigLoader configLoader)
+    public @NonNull OptionalInt getGlobalLimit(final @NonNull IConfigLoader configLoader)
     {
         return globalLimitSupplier.apply(configLoader);
     }

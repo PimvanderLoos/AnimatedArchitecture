@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -16,7 +15,7 @@ public final class DoorTypeWindmill extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NotNull
+    @NonNull
     private static final DoorTypeWindmill INSTANCE = new DoorTypeWindmill();
 
     private DoorTypeWindmill()
@@ -31,7 +30,7 @@ public final class DoorTypeWindmill extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeWindmill get()
+    public static @NonNull DoorTypeWindmill get()
     {
         return INSTANCE;
     }
@@ -43,13 +42,13 @@ public final class DoorTypeWindmill extends DoorType
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public @NonNull Creator getCreator(final @NonNull IPPlayer player)
     {
         return new CreatorWindMill(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public @NonNull Creator getCreator(final @NonNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorWindMill(player, name);
     }

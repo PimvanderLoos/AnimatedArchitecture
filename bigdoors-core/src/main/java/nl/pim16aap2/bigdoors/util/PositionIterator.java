@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.function.Supplier;
@@ -13,12 +13,9 @@ import java.util.function.Supplier;
  */
 public class PositionIterator implements Iterable<Vector3Di>
 {
-    @NotNull
-    private final Vector3Di posA;
-    @NotNull
-    private final Vector3Di posB;
-    @NotNull
-    private final IterationMode iterationMode;
+private final @NonNull Vector3Di posA;
+private final @NonNull Vector3Di posB;
+private final @NonNull IterationMode iterationMode;
     private final int dx, dy, dz;
 
     /**
@@ -30,8 +27,8 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param posB          The ending values.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
-                            final @NotNull IterationMode iterationMode)
+    public PositionIterator(final @NonNull Vector3Di posA, final @NonNull Vector3Di posB,
+                            final @NonNull IterationMode iterationMode)
     {
         this.posA = posA;
         this.posB = posB;
@@ -42,7 +39,7 @@ public class PositionIterator implements Iterable<Vector3Di>
     }
 
     @Override
-    public @NotNull Iterator<Vector3Di> iterator()
+    public @NonNull Iterator<Vector3Di> iterator()
     {
         return new CustomIterator(this);
     }
@@ -56,7 +53,7 @@ public class PositionIterator implements Iterable<Vector3Di>
         private final Supplier<Boolean> outerLoop, middleLoop, innerLoop;
         private boolean firstValue = true;
 
-        private CustomIterator(final @NotNull PositionIterator locationIterator)
+        private CustomIterator(final @NonNull PositionIterator locationIterator)
         {
             x = posA.getX();
             y = posA.getY();

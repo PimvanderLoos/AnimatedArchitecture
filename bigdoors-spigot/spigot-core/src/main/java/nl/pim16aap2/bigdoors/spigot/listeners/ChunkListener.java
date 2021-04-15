@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -17,7 +17,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,7 +40,7 @@ public class ChunkListener implements Listener
     // 1.14 => method.
     private Method isForceLoaded;
 
-    public ChunkListener(final @NotNull BigDoorsSpigot plugin)
+    public ChunkListener(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
@@ -80,7 +79,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkLoadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChunkLoad(final @NotNull ChunkLoadEvent event)
+    public void onChunkLoad(final @NonNull ChunkLoadEvent event)
     {
         long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
         BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
@@ -91,8 +90,9 @@ public class ChunkListener implements Listener
                             door ->
                             {
                                 if (door instanceof IPerpetualMoverArchetype && door.isPowerBlockActive())
-                                    DoorOpener.get().animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
-                                                                      false, DoorActionType.TOGGLE);
+                                    BigDoors.get().getDoorOpener()
+                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
+                                                              false, DoorActionType.TOGGLE);
                             })
                 )));
     }
@@ -104,7 +104,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkUnloadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChunkUnload(final @NotNull ChunkUnloadEvent event)
+    public void onChunkUnload(final @NonNull ChunkUnloadEvent event)
     {
         BigDoors.get().getPlatform().getPowerBlockManager()
                 .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
@@ -142,7 +142,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkUnloadEvent}.
      * @return The if the {@link ChunkUnloadEvent} is cancelled.
      */
-    private boolean isChunkUnloadCancelled(final @NotNull ChunkUnloadEvent event)
+    private boolean isChunkUnloadCancelled(final @NonNull ChunkUnloadEvent event)
     {
         try
         {

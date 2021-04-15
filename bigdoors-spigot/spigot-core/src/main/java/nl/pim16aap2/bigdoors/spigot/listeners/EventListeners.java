@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -19,7 +20,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -28,9 +28,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class EventListeners implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
-    public EventListeners(final BigDoorsSpigot plugin)
+    public EventListeners(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -104,7 +104,7 @@ public class EventListeners implements Listener
      * @param player The {@link Player}.
      * @return True if a player is a {@link ToolUser}.
      */
-    private boolean isToolUser(final @NotNull Player player)
+    private boolean isToolUser(final @NonNull Player player)
     {
         return BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
     }

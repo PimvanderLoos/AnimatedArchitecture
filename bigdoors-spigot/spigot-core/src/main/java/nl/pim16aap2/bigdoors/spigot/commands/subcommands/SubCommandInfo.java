@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
@@ -14,7 +15,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,25 +32,25 @@ public class SubCommandInfo extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.INFO;
 
-    public SubCommandInfo(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandInfo(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    private void highlightBlock(final @NotNull Vector3DiConst loc, final @NotNull IPWorld world,
-                                final @NotNull IPPlayer player, final @NotNull PColor color)
+    private void highlightBlock(final @NonNull Vector3DiConst loc, final @NonNull IPWorld world,
+                                final @NonNull IPPlayer player, final @NonNull PColor color)
     {
         plugin.getGlowingBlockSpawner().ifPresent(
             spawner -> spawner.spawnGlowingBlock(player, world, 15, loc.getX(), loc.getY(), loc.getZ(), color));
     }
 
-    private void sendDoorInfo(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
+    private void sendDoorInfo(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door)
     {
         plugin.getPLogger().sendMessageToTarget(sender, Level.INFO, door.toString());
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door)
     {
         if (!(sender instanceof Player))
         {
@@ -58,7 +58,7 @@ public class SubCommandInfo extends SubCommand
             return true;
         }
 
-        final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(((Player) sender).getUniqueId());
+        final @NonNull Optional<DoorOwner> doorOwner = door.getDoorOwner(((Player) sender).getUniqueId());
         if (doorOwner.isEmpty() ||
             doorOwner.get().getPermission() > DoorAttribute.getPermissionLevel(DoorAttribute.INFO))
         {
@@ -96,15 +96,15 @@ public class SubCommandInfo extends SubCommand
         return true;
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull List<AbstractDoorBase> doors)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull List<AbstractDoorBase> doors)
     {
         doors.forEach(door -> execute(sender, door));
         return true;
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
     {
         commandManager.getDoorFromArg(sender, args[minArgCount - 1], cmd, args).whenComplete(
             (optionalDoor, throwable) -> optionalDoor.ifPresent(door -> execute(sender, door)));

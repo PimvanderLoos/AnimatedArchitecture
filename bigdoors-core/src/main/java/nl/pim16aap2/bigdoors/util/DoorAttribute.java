@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 /**
  * Represent the possible attributes of a door.
@@ -101,7 +102,7 @@ public enum DoorAttribute
      * @param atr The attribute for which the permission level will be retrieved.
      * @return The minimum level of ownership (0 = highest) required to access a door's attribute.
      */
-    public static int getPermissionLevel(final @NotNull DoorAttribute atr)
+    public static int getPermissionLevel(final @NonNull DoorAttribute atr)
     {
         return atr.permissionLevel;
     }

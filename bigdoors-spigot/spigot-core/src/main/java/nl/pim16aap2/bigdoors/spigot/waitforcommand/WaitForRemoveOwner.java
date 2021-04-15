@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
@@ -8,7 +9,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a delayed command to remove an owner of a {@link AbstractDoorBase}.
@@ -17,13 +17,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForRemoveOwner extends WaitForCommand
 {
-    @NotNull
-    private final AbstractDoorBase door;
-    @NotNull
-    private final SubCommandRemoveOwner subCommand;
+private final @NonNull AbstractDoorBase door;
+private final @NonNull SubCommandRemoveOwner subCommand;
 
-    public WaitForRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull SubCommandRemoveOwner subCommand,
-                              final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public WaitForRemoveOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommandRemoveOwner subCommand,
+                              final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
         this.subCommand = subCommand;
@@ -32,13 +30,13 @@ public class WaitForRemoveOwner extends WaitForCommand
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_INIT));
         SpigotUtil.messagePlayer(player, plugin.getMessages().getString(Message.COMMAND_REMOVEOWNER_LIST));
 
-        final @NotNull StringBuilder builder = new StringBuilder();
+        final @NonNull StringBuilder builder = new StringBuilder();
         door.getDoorOwners().forEach((owner) -> builder.append(owner.getPPlayerData().getName()).append(", "));
         SpigotUtil.messagePlayer(player, builder.toString());
     }
 
     @Override
-    public boolean executeCommand(final @NotNull String[] args)
+    public boolean executeCommand(final @NonNull String[] args)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();

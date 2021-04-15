@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Contains all details needed about a doorOwner.
@@ -37,7 +36,7 @@ public class DoorOwner
      * Get a basic overview of this door owner. Useful for debugging.
      */
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "doorUID: " + doorUID + ". player: " + getPPlayerData().toString() + ". Permission: " + permission;
     }
@@ -64,7 +63,7 @@ public class DoorOwner
     }
 
     @Override
-    public @NotNull DoorOwner clone()
+    public @NonNull DoorOwner clone()
     {
         // TODO: Clone player as well?
         return new DoorOwner(doorUID, getPermission(), getPPlayerData());

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -33,26 +32,27 @@ public class SubCommandToggle extends SubCommand
     protected final CommandData command = CommandData.TOGGLE;
     protected DoorActionType actionType = DoorActionType.TOGGLE;
 
-    public SubCommandToggle(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandToggle(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door)
+    public void execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door)
     {
         execute(sender, door, 0.0D);
     }
 
-    private void toggleDoor(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
+    private void toggleDoor(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
                             final double time)
     {
         final @Nullable IPPlayer player = sender instanceof Player ? SpigotAdapter.wrapPlayer((Player) sender) : null;
-        final @NotNull DoorActionCause cause = player == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
-        DoorOpener.get().animateDoorAsync(door, cause, player, time, false, DoorActionType.TOGGLE);
+        final @NonNull DoorActionCause cause = player == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
+        BigDoors.get().getDoorOpener()
+                .animateDoorAsync(door, cause, player, time, false, DoorActionType.TOGGLE);
     }
 
-    public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door, final double time)
+    public void execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door, final double time)
     {
         if (!(sender instanceof Player))
         {
@@ -66,9 +66,9 @@ public class SubCommandToggle extends SubCommand
             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
     }
 
-    private @NotNull CompletableFuture<Double> parseDoorsAndTime(final @NotNull CommandSender sender,
-                                                                 final @NotNull String[] args,
-                                                                 final @NotNull List<AbstractDoorBase> doors)
+    private @NonNull CompletableFuture<Double> parseDoorsAndTime(final @NonNull CommandSender sender,
+                                                                 final @NonNull String[] args,
+                                                                 final @NonNull List<AbstractDoorBase> doors)
         throws IllegalArgumentException
     {
         final String lastStr = args[args.length - 1];
@@ -78,7 +78,7 @@ public class SubCommandToggle extends SubCommand
         double time = 0.0d;
         if (Util.parseLong(lastStr).isEmpty())
         {
-            final @NotNull OptionalDouble timeVal = Util.parseDouble(lastStr);
+            final @NonNull OptionalDouble timeVal = Util.parseDouble(lastStr);
             if (timeVal.isPresent())
                 time = timeVal.getAsDouble();
         }
@@ -116,8 +116,8 @@ public class SubCommandToggle extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws IllegalArgumentException
     {
         final List<AbstractDoorBase> doors = new ArrayList<>();

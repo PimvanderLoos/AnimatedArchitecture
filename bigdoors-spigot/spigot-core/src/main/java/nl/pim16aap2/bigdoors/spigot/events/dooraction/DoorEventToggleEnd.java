@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventToggleEnd} for the Spigot platform.
@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
-    @NotNull
+    @NonNull
     private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
@@ -29,20 +29,20 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
-    public DoorEventToggleEnd(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
-                              final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+    public DoorEventToggleEnd(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause cause,
+                              final @NonNull DoorActionType actionType, final @NonNull IPPlayer responsible,
                               final double time, final boolean skipAnimation)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public @NonNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static @NonNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

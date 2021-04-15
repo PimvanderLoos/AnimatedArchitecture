@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a command and its execution.
@@ -30,8 +30,8 @@ public interface ICommand
      * @throws CommandPlayerNotFoundException   When a {@link Player} specified in the arguments was not found.
      * @throws CommandActionNotAllowedException When the action associated with the command was not allowed.
      */
-    boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd, final @NotNull String label,
-                      final @NotNull String[] args)
+    boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd, final @NonNull String label,
+                      final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
                CommandPlayerNotFoundException, CommandActionNotAllowedException;
 
@@ -41,15 +41,15 @@ public interface ICommand
      * @param sender The {@link CommandSender}.
      * @return The help message of the command if the {@link CommandSender} has access to it.
      */
-    @NotNull
-    String getHelp(final @NotNull CommandSender sender);
+    @NonNull
+    String getHelp(final @NonNull CommandSender sender);
 
     /**
      * Gets the permission node of the command.
      *
      * @return The permission node of the command.
      */
-    @NotNull
+    @NonNull
     String getPermission();
 
     /**
@@ -57,7 +57,7 @@ public interface ICommand
      *
      * @return The name node of the command.
      */
-    @NotNull
+    @NonNull
     String getName();
 
     /**
@@ -72,6 +72,6 @@ public interface ICommand
      *
      * @return The {@link CommandData} of the command.
      */
-    @NotNull
+    @NonNull
     CommandData getCommandData();
 }

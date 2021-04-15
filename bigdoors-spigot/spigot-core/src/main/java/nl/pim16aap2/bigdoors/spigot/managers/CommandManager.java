@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -21,7 +22,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -38,11 +38,10 @@ import java.util.logging.Level;
  */
 public class CommandManager implements CommandExecutor
 {
-    @NotNull
+    @NonNull
     private static final String helpMessage = ChatColor.BLUE
         + "{}: Not required when used from GUI, <>: always required, []: optional\n";
-    @NotNull
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
     private Map<String, ICommand> commands;
     private Map<CommandData, ICommand> commandsShortcut;
 
@@ -61,7 +60,7 @@ public class CommandManager implements CommandExecutor
      *
      * @throws CommandPlayerNotFoundException If no player was found.
      */
-    public static @NotNull UUID getPlayerFromArg(final @NotNull String playerArg)
+    public static @NonNull UUID getPlayerFromArg(final @NonNull String playerArg)
         throws CommandPlayerNotFoundException
     {
         Optional<UUID> playerUUID = SpigotUtil.playerUUIDFromString(playerArg);
@@ -77,7 +76,7 @@ public class CommandManager implements CommandExecutor
      * @param command The {@link ICommand}.
      * @return True if the {@link CommandSender} has access to the {@link ICommand}.
      */
-    public static boolean permissionForCommand(@NotNull CommandSender sender, @NotNull ICommand command)
+    public static boolean permissionForCommand(@NonNull CommandSender sender, @NonNull ICommand command)
     {
         return (sender instanceof Player ?
                 ((Player) sender).hasPermission(command.getPermission()) || ((Player) sender).isOp() : true);
@@ -91,7 +90,7 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not a long.
      */
-    public static long getLongFromArg(@NotNull String testLong)
+    public static long getLongFromArg(@NonNull String testLong)
         throws IllegalArgumentException
     {
         try
@@ -112,7 +111,7 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not an integer.
      */
-    public static int getIntegerFromArg(@NotNull String testInt)
+    public static int getIntegerFromArg(@NonNull String testInt)
         throws IllegalArgumentException
     {
         try
@@ -133,7 +132,7 @@ public class CommandManager implements CommandExecutor
      *
      * @throws IllegalArgumentException If the input argument was not a float.
      */
-    public static float getFloatFromArg(@NotNull String testFloat)
+    public static float getFloatFromArg(@NonNull String testFloat)
         throws IllegalArgumentException
     {
         try
@@ -151,7 +150,7 @@ public class CommandManager implements CommandExecutor
      *
      * @return The help message.
      */
-    public static @NotNull String getHelpMessage()
+    public static @NonNull String getHelpMessage()
     {
         return helpMessage;
     }
@@ -161,7 +160,7 @@ public class CommandManager implements CommandExecutor
      *
      * @param command The {@link ICommand}.
      */
-    public void registerCommand(final @NotNull ICommand command)
+    public void registerCommand(final @NonNull ICommand command)
     {
         commands.put(command.getName().toLowerCase(), command);
         commandsShortcut.put(command.getCommandData(), command);
@@ -174,7 +173,7 @@ public class CommandManager implements CommandExecutor
      *
      * @param subCommand The {@link SubCommand}.
      */
-    public void registerCommandShortcut(final @NotNull SubCommand subCommand)
+    public void registerCommandShortcut(final @NonNull SubCommand subCommand)
     {
         commandsShortcut.put(subCommand.getCommandData(), subCommand);
     }
@@ -185,7 +184,7 @@ public class CommandManager implements CommandExecutor
      * @param command The {@link CommandData} of the {@link ICommand}.
      * @return The {@link ICommand}.
      */
-    public @NotNull ICommand getCommand(final @NotNull CommandData command)
+    public @NonNull ICommand getCommand(final @NonNull CommandData command)
     {
         return commandsShortcut.get(command);
     }
@@ -198,9 +197,9 @@ public class CommandManager implements CommandExecutor
      * @param cmd       The command.
      * @param args      The arguments of the command.
      */
-    // TODO: Don't violate NotNull, or change to Nullable.
-    public void handleException(final @NotNull Exception exception, final @NotNull CommandSender sender,
-                                final @NotNull Command cmd, final @NotNull String[] args)
+    // TODO: Don't violate NonNull, or change to Nullable.
+    public void handleException(final @NonNull Exception exception, final @NonNull CommandSender sender,
+                                final @NonNull Command cmd, final @NonNull String[] args)
     {
         if (exception instanceof CommandSenderNotPlayerException)
         {
@@ -254,8 +253,8 @@ public class CommandManager implements CommandExecutor
      * @return True if execution of the command was successful.
      */
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
     {
         ICommand command = commands.get(cmd.getName().toLowerCase());
         try
@@ -278,8 +277,8 @@ public class CommandManager implements CommandExecutor
      * @param commandName The name of the {@link ICommand}.
      * @return The {@link WaitForCommand} of a {@link CommandSender} for a command if one exists.
      */
-    public @NotNull Optional<WaitForCommand> isCommandWaiter(final @NotNull CommandSender sender,
-                                                             final @NotNull String commandName)
+    public @NonNull Optional<WaitForCommand> isCommandWaiter(final @NonNull CommandSender sender,
+                                                             final @NonNull String commandName)
     {
         if (!(sender instanceof Player))
             return Optional.empty();
@@ -297,7 +296,7 @@ public class CommandManager implements CommandExecutor
      * @throws CommandPlayerNotFoundException   When a {@link Player} specified in the arguments was not found.
      * @throws CommandActionNotAllowedException When the action associated with the command was not allowed.
      */
-    public boolean commandWaiterExecute(final @NotNull WaitForCommand commandWaiter, final @NotNull String args[],
+    public boolean commandWaiterExecute(final @NonNull WaitForCommand commandWaiter, final @NonNull String args[],
                                         final int minArgCount)
         throws CommandActionNotAllowedException, CommandPlayerNotFoundException
     {
@@ -316,31 +315,31 @@ public class CommandManager implements CommandExecutor
      * @param doorArg The name or UID of the  {@link AbstractDoorBase}.
      * @return The {@link AbstractDoorBase} if exactly 1 door was found.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoorFromArg(final @NotNull CommandSender sender,
-                                                                                 final @NotNull String doorArg,
-                                                                                 final @NotNull Command cmd,
-                                                                                 final @NotNull String[] args)
+    public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoorFromArg(final @NonNull CommandSender sender,
+                                                                                 final @NonNull String doorArg,
+                                                                                 final @NonNull Command cmd,
+                                                                                 final @NonNull String[] args)
     {
         CompletableFuture<Optional<AbstractDoorBase>> door = null;
 
         if (sender instanceof Player)
         {
             door = BigDoors.get().getDatabaseManager().getDoors(((Player) sender).getUniqueId(), doorArg)
-                .<Optional<AbstractDoorBase>>handleAsync(
-                    (doors, ex) ->
-                    {
-                        if (doors.isEmpty())
-                        {
-                            handleException(new NotEnoughDoorsException(), sender, cmd, args);
-                            return Optional.empty();
-                        }
-                        else if (doors.size() > 1)
-                        {
-                            handleException(new TooManyDoorsException(), sender, cmd, args);
-                            return Optional.empty();
-                        }
-                        return Optional.of(doors.get(0));
-                    }).exceptionally(Util::exceptionallyOptional);
+                           .<Optional<AbstractDoorBase>>handleAsync(
+                               (doors, ex) ->
+                               {
+                                   if (doors.isEmpty())
+                                   {
+                                       handleException(new NotEnoughDoorsException(), sender, cmd, args);
+                                       return Optional.empty();
+                                   }
+                                   else if (doors.size() > 1)
+                                   {
+                                       handleException(new TooManyDoorsException(), sender, cmd, args);
+                                       return Optional.empty();
+                                   }
+                                   return Optional.of(doors.get(0));
+                               }).exceptionally(Util::exceptionallyOptional);
         }
         else
         {

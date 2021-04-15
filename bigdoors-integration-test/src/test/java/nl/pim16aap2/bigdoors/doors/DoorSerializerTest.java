@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -137,17 +136,17 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NotNull DoorType getDoorType()
+        public @NonNull DoorType getDoorType()
         {
             return DOOR_TYPE;
         }
 
         @Override
-        protected @NotNull BlockMover constructBlockMover(@NotNull DoorActionCause cause,
+        protected @NonNull BlockMover constructBlockMover(@NonNull DoorActionCause cause,
                                                           double time, boolean skipAnimation,
-                                                          @NotNull CuboidConst newCuboid,
-                                                          @NotNull IPPlayer responsible,
-                                                          @NotNull DoorActionType actionType)
+                                                          @NonNull CuboidConst newCuboid,
+                                                          @NonNull IPPlayer responsible,
+                                                          @NonNull DoorActionType actionType)
         {
             return null;
         }
@@ -159,25 +158,25 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NotNull RotateDirection getCurrentToggleDir()
+        public @NonNull RotateDirection getCurrentToggleDir()
         {
             return null;
         }
 
         @Override
-        public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+        public @NonNull Optional<Cuboid> getPotentialNewCoordinates()
         {
             return Optional.empty();
         }
 
         @Override
-        public @NotNull RotateDirection cycleOpenDirection()
+        public @NonNull RotateDirection cycleOpenDirection()
         {
             return null;
         }
 
         @Override
-        public @NotNull Vector2Di[] calculateChunkRange()
+        public @NonNull Vector2Di[] calculateChunkRange()
         {
             return new Vector2Di[0];
         }
