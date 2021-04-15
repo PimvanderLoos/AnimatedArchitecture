@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 
+import lombok.Getter;
 import lombok.NonNull;
 
 /**
@@ -89,6 +90,7 @@ public enum DoorAttribute
     /**
      * The minimum level of ownership (0 = highest) required to access an attribute.
      */
+    @Getter
     private final int permissionLevel;
 
     DoorAttribute(final int permissionLevel)

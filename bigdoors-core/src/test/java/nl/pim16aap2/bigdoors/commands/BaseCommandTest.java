@@ -5,7 +5,9 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +55,27 @@ class BaseCommandTest
 
         initCommandSenderPermissions(commandSender, true, true);
         initDoorRetriever(doorRetriever, door);
+    }
+
+    @Test
+    @SneakyThrows
+    void testHasAccess()
+    {
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
+
+        val player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        Mockito.when(baseCommand.getCommandSender()).thenReturn(player);
+
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner3));
+        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
+
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner1));
+        Assertions.assertFalse(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
+
+        Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
     }
 
     @Test

@@ -62,26 +62,6 @@ public class Toggle extends BaseCommand
     }
 
     /**
-     * Checks if the {@link #getCommandSender()} has access to the toggle attribute for the given door.
-     *
-     * @param door                The {@link AbstractDoorBase} for which to check access.
-     * @param hasBypassPermission Whether or not the {@link #getCommandSender()} has the admin/bypass permission. See
-     *                            {@link CommandDefinition#getAdminPermission()}.
-     * @return True if the command sender has access to the toggle attribute for the provided door, otherwise false.
-     */
-    protected final boolean hasAccess(final @NonNull AbstractDoorBase door, final boolean hasBypassPermission)
-    {
-        if (hasBypassPermission || !getCommandSender().isPlayer())
-            return true;
-
-        return getCommandSender()
-            .getPlayer()
-            .flatMap(door::getDoorOwner)
-            .map(doorOwner -> doorOwner.getPermission() <= DoorAttribute.getPermissionLevel(DoorAttribute.TOGGLE))
-            .orElse(false);
-    }
-
-    /**
      * Checks if the provided {@link AbstractDoorBase} can be toggled with the action provided by {@link
      * #getDoorActionType()}.
      * <p>
@@ -108,7 +88,7 @@ public class Toggle extends BaseCommand
     private void toggleDoor(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause doorActionCause,
                             final boolean hasBypassPermission)
     {
-        if (!hasAccess(door, hasBypassPermission))
+        if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
         {
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);

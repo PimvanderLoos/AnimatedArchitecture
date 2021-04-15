@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,14 +17,11 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @ToString
-public class Info extends BaseCommand
+public class Info extends DoorTargetCommand
 {
-    private final @NonNull DoorRetriever doorRetriever;
-
-    public Info(@NonNull ICommandSender commandSender, @NonNull DoorRetriever doorRetriever)
+    public Info(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
-        super(commandSender);
-        this.doorRetriever = doorRetriever;
+        super(commandSender, doorRetriever);
     }
 
     @Override
@@ -33,25 +30,26 @@ public class Info extends BaseCommand
         return CommandDefinition.INFO;
     }
 
+
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
     {
-        return getDoor(doorRetriever).thenApplyAsync(
-            door ->
-            {
-                if (door.isEmpty())
-                    return false;
-                getCommandSender().sendMessage(door.get().toString());
-                highlightBlocks(door.get());
-                return true;
-            });
+        return hasAccessToAttribute(door, DoorAttribute.INFO, bypassPermission);
     }
 
-    protected void highlightBlocks(@NonNull AbstractDoorBase doorBase)
+    @Override
+    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    {
+        getCommandSender().sendMessage(door.toString());
+        highlightBlocks(door);
+        return CompletableFuture.completedFuture(true);
+    }
+
+    protected void highlightBlocks(final @NonNull AbstractDoorBase doorBase)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;
-        BigDoors.get().getPlatform().getGlowingBlockSpawner().map(
-            spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender()));
+        BigDoors.get().getPlatform().getGlowingBlockSpawner()
+                .map(spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender()));
     }
 }

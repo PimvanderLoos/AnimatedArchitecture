@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -35,6 +36,27 @@ public abstract class BaseCommand
     protected boolean validInput()
     {
         return true;
+    }
+
+    /**
+     * Checks if the {@link #commandSender} has access to a given {@link DoorAttribute} for a given door.
+     *
+     * @param door                The door to check.
+     * @param doorAttribute       The {@link DoorAttribute} to check.
+     * @param hasBypassPermission Whether the {@link #commandSender} has bypass permission or not.
+     * @return True if the command sender has access to the provided attribute for the given door.
+     */
+    protected boolean hasAccessToAttribute(final @NonNull AbstractDoorBase door,
+                                           final @NonNull DoorAttribute doorAttribute,
+                                           final boolean hasBypassPermission)
+    {
+        if (hasBypassPermission || !getCommandSender().isPlayer())
+            return true;
+
+        return getCommandSender().getPlayer()
+                                 .flatMap(door::getDoorOwner)
+                                 .map(doorOwner -> doorOwner.getPermission() <= doorAttribute.getPermissionLevel())
+                                 .orElse(false);
     }
 
     /**

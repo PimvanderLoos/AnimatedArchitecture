@@ -32,14 +32,7 @@ public class Delete extends DoorTargetCommand
     @Override
     protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
     {
-        if (!getCommandSender().isPlayer() || bypassPermission)
-            return true;
-
-        return getCommandSender()
-            .getPlayer()
-            .flatMap(door::getDoorOwner)
-            .map(doorOwner -> doorOwner.getPermission() <= DoorAttribute.getPermissionLevel(DoorAttribute.DELETE))
-            .orElse(false);
+        return hasAccessToAttribute(door, DoorAttribute.DELETE, bypassPermission);
     }
 
     @Override

@@ -97,22 +97,6 @@ class ToggleTest
 
     @Test
     @SneakyThrows
-    void testHasAccess()
-    {
-        Toggle toggle = new Toggle(commandSender, doorRetriever);
-
-        Assertions.assertTrue(toggle.hasAccess(door, true));
-        Assertions.assertFalse(toggle.hasAccess(door, false));
-
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner3));
-        Assertions.assertFalse(toggle.hasAccess(door, false));
-
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-        Assertions.assertTrue(toggle.hasAccess(door, false));
-    }
-
-    @Test
-    @SneakyThrows
     void testExecution()
     {
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
