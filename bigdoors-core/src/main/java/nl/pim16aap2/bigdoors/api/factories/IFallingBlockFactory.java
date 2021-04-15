@@ -20,8 +20,8 @@ public interface IFallingBlockFactory
 //     * @param max    The upper bound coordinates.
 //     * @return A list of {@link ICustomCraftFallingBlock}s constructed from the blocks in the area.
 //     */
-//    @NonNull List<PBlockData> constructFBlocks(final @NonNull IPWorld pWorld, final @NonNull Vector3Di min,
-//                                               final @NonNull Vector3Di max);
+//    @NonNull List<PBlockData> constructFBlocks(@NonNull IPWorld pWorld, @NonNull Vector3Di min,
+//                                               @NonNull Vector3Di max);
 
     /**
      * Creates a new {@link ICustomCraftFallingBlock} at the given location made of the provided block.
@@ -30,8 +30,8 @@ public interface IFallingBlockFactory
      * @param block The block that the {@link ICustomCraftFallingBlock} will be made out of.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    @NonNull ICustomCraftFallingBlock fallingBlockFactory(final @NonNull IPLocationConst loc,
-                                                          final @NonNull INMSBlock block)
+    @NonNull ICustomCraftFallingBlock fallingBlockFactory(@NonNull IPLocationConst loc,
+                                                          @NonNull INMSBlock block)
         throws Exception;
 
     /**
@@ -40,6 +40,6 @@ public interface IFallingBlockFactory
      * @param loc The location of the block.
      * @return The {@link INMSBlock} of the block at the provided location.
      */
-    @NonNull INMSBlock nmsBlockFactory(final @NonNull IPLocationConst loc)
+    @NonNull INMSBlock nmsBlockFactory(@NonNull IPLocationConst loc)
         throws Exception;
 }

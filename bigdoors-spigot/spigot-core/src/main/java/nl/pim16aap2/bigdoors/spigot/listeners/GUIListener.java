@@ -18,7 +18,7 @@ import java.util.Optional;
  */
 public class GUIListener implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
     public GUIListener(final @NonNull BigDoorsSpigot plugin)
     {

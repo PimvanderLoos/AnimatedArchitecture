@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public final class LoginMessageListener implements Listener
 {
-    private final @NonNull BigDoorsSpigot plugin;
+private final @NonNull BigDoorsSpigot plugin;
 
     public LoginMessageListener(final @NonNull BigDoorsSpigot plugin)
     {

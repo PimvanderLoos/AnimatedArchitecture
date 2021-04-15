@@ -14,7 +14,7 @@ public interface ISpigotPlatform
      */
     @NonNull String getVersion();
 
-    void init(final @NonNull BigDoorsSpigotAbstract plugin);
+    void init(@NonNull BigDoorsSpigotAbstract plugin);
 
     @NonNull IFallingBlockFactory getFallingBlockFactory();
 

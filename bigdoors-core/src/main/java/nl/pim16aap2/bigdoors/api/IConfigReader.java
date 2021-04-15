@@ -17,5 +17,5 @@ public interface IConfigReader
      * @param def  The default value to return if the actual option in the config was unavailable.
      * @return The value of the config option if possible, otherwise the default value.
      */
-    @NonNull Object get(final @NonNull String path, final @Nullable Object def);
+    @NonNull Object get(@NonNull String path, @Nullable Object def);
 }

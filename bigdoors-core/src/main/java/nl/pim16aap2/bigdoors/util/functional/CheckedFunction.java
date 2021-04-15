@@ -22,7 +22,6 @@ public interface CheckedFunction<T, R, E extends Exception>
      *
      * @throws E
      */
-    @NonNull
-    R apply(T t)
+    @NonNull R apply(T t)
         throws E;
 }

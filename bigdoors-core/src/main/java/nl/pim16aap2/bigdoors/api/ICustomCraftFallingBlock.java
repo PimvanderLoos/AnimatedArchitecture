@@ -19,8 +19,8 @@ public interface ICustomCraftFallingBlock
      * @param teleportMode How to handle the teleport.
      * @return True if the teleport was successful.
      */
-    boolean teleport(final @NonNull Vector3DdConst newPosition, final @NonNull Vector3DdConst rotation,
-                     final @NonNull TeleportMode teleportMode);
+    boolean teleport(@NonNull Vector3DdConst newPosition, @NonNull Vector3DdConst rotation,
+                     @NonNull TeleportMode teleportMode);
 
     /**
      * Teleports the entity to the provided position.
@@ -29,7 +29,7 @@ public interface ICustomCraftFallingBlock
      * @param rotation    The local rotations of the entity.
      * @return True if the teleport was successful.
      */
-    default boolean teleport(final @NonNull Vector3DdConst newPosition, final @NonNull Vector3DdConst rotation)
+    default boolean teleport(@NonNull Vector3DdConst newPosition, @NonNull Vector3DdConst rotation)
     {
         return teleport(newPosition, rotation, TeleportMode.SET_VELOCITY);
     }
@@ -40,7 +40,7 @@ public interface ICustomCraftFallingBlock
      * @param newPosition The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    default boolean teleport(final @NonNull Vector3DdConst newPosition)
+    default boolean teleport(@NonNull Vector3DdConst newPosition)
     {
         return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.SET_VELOCITY);
     }
@@ -76,21 +76,21 @@ public interface ICustomCraftFallingBlock
      *
      * @param vector The new velocity of the entity.
      */
-    void setVelocity(final @NonNull Vector3DdConst vector);
+    void setVelocity(@NonNull Vector3DdConst vector);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param pose The new pose of this entity's head.
      */
-    void setHeadPose(final @NonNull Vector3DdConst pose);
+    void setHeadPose(@NonNull Vector3DdConst pose);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
      */
-    void setBodyPose(final @NonNull Vector3DdConst eulerAngle);
+    void setBodyPose(@NonNull Vector3DdConst eulerAngle);
 
     enum TeleportMode
     {

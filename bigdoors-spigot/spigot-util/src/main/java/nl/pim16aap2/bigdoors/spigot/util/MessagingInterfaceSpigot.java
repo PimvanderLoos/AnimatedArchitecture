@@ -19,7 +19,7 @@ import java.util.logging.Level;
  */
 public class MessagingInterfaceSpigot implements IMessagingInterface
 {
-    private final @NonNull String formattedName;
+private final @NonNull String formattedName;
 
     public MessagingInterfaceSpigot(final @NonNull JavaPlugin plugin)
     {

@@ -71,7 +71,7 @@ public final class UpdateChecker
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
     @NonNull
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
-    private final @NonNull String downloadURL;
+private final @NonNull String downloadURL;
 
     @Nullable
     private static UpdateChecker INSTANCE;
@@ -79,10 +79,10 @@ public final class UpdateChecker
     @Nullable
     private UpdateResult lastResult = null;
 
-    private final @NonNull JavaPlugin plugin;
+private final @NonNull JavaPlugin plugin;
     private final int pluginID;
-    private final @NonNull VersionScheme versionScheme;
-    private final @NonNull IPLogger logger;
+private final @NonNull VersionScheme versionScheme;
+private final @NonNull IPLogger logger;
 
     private UpdateChecker(final @NonNull JavaPlugin plugin, final int pluginID,
                           final @NonNull VersionScheme versionScheme, final @NonNull IPLogger logger)

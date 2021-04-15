@@ -59,14 +59,14 @@ public interface IDoorBase
      *
      * @param bool The new open-status of the door.
      */
-    @NonNull AbstractDoorBase setOpen(final boolean bool);
+    @NonNull AbstractDoorBase setOpen(boolean bool);
 
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
      *
      * @param locked New lock status.
      */
-    @NonNull AbstractDoorBase setLocked(final boolean locked);
+    @NonNull AbstractDoorBase setLocked(boolean locked);
 
     /**
      * Checks if this door can be closed right now.
@@ -80,7 +80,7 @@ public interface IDoorBase
      *
      * @param newCurrent The new current of the powerblock.
      */
-    void onRedstoneChange(final int newCurrent);
+    void onRedstoneChange(int newCurrent);
 
     /**
      * Gets the direction the door would go given its current state..
@@ -140,7 +140,7 @@ public interface IDoorBase
      * @return True if the {@link Vector2DiConst} is in range of the door.
      */
     @Deprecated
-    boolean chunkInRange(final @NonNull IPWorld otherWorld, final @NonNull Vector2DiConst chunk);
+    boolean chunkInRange(@NonNull IPWorld otherWorld, @NonNull Vector2DiConst chunk);
 
     /**
      * Gets the name of this door.
@@ -154,7 +154,7 @@ public interface IDoorBase
      *
      * @param name The new name of this door.
      */
-    @NonNull AbstractDoorBase setName(final @NonNull String name);
+    @NonNull AbstractDoorBase setName(@NonNull String name);
 
     /**
      * Gets the IPWorld this {@link IDoorBase} exists in.
@@ -208,7 +208,7 @@ public interface IDoorBase
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
-    @NonNull Optional<DoorOwner> getDoorOwner(final @NonNull IPPlayer player);
+    @NonNull Optional<DoorOwner> getDoorOwner(@NonNull IPPlayer player);
 
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
@@ -217,7 +217,7 @@ public interface IDoorBase
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
-    @NonNull Optional<DoorOwner> getDoorOwner(final @NonNull UUID player);
+    @NonNull Optional<DoorOwner> getDoorOwner(@NonNull UUID player);
 
     /**
      * Gets the {@link RotateDirection} this {@link IDoorBase} will open if currently closed.
@@ -241,7 +241,7 @@ public interface IDoorBase
      * @param rotateDirection The {@link RotateDirection} this {@link IDoorBase} will open in.
      * @return This {@link AbstractDoorBase}.
      */
-    @NonNull AbstractDoorBase setOpenDir(final @NonNull RotateDirection rotateDirection);
+    @NonNull AbstractDoorBase setOpenDir(@NonNull RotateDirection rotateDirection);
 
     /**
      * Gets the position of power block of this door.
@@ -256,7 +256,7 @@ public interface IDoorBase
      * @param pos The new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NonNull AbstractDoorBase setPowerBlockPosition(final @NonNull Vector3DiConst pos);
+    @NonNull AbstractDoorBase setPowerBlockPosition(@NonNull Vector3DiConst pos);
 
     /**
      * Gets the position of the engine of this door.
@@ -271,7 +271,7 @@ public interface IDoorBase
      * @param pos The new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NonNull AbstractDoorBase setEngine(final @NonNull Vector3DiConst pos);
+    @NonNull AbstractDoorBase setEngine(@NonNull Vector3DiConst pos);
 
     /**
      * Gets the minimum position of this door.
@@ -286,7 +286,7 @@ public interface IDoorBase
      * @param posA The first new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NonNull AbstractDoorBase setCoordinates(final @NonNull Vector3DiConst posA, final @NonNull Vector3DiConst posB);
+    @NonNull AbstractDoorBase setCoordinates(@NonNull Vector3DiConst posA, @NonNull Vector3DiConst posB);
 
     /**
      * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
@@ -294,7 +294,7 @@ public interface IDoorBase
      * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
      * @return This {@link AbstractDoorBase}.
      */
-    @NonNull AbstractDoorBase setCoordinates(final @NonNull CuboidConst newCuboid);
+    @NonNull AbstractDoorBase setCoordinates(@NonNull CuboidConst newCuboid);
 
     /**
      * Gets a copy of the maximum position of this door.

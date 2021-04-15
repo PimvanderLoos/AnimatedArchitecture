@@ -16,8 +16,7 @@ public interface IEconomyManager
      * @param blockCount The number of blocks in the door.
      * @return True if the player bought the door successfully.
      */
-    boolean buyDoor(final @NonNull IPPlayer player, final @NonNull IPWorld world, final @NonNull DoorType type,
-                    final int blockCount);
+    boolean buyDoor(@NonNull IPPlayer player, @NonNull IPWorld world, @NonNull DoorType type, int blockCount);
 
     /**
      * Gets the price of {@link DoorType} for a specific number of blocks.
@@ -26,7 +25,7 @@ public interface IEconomyManager
      * @param blockCount The number of blocks.
      * @return The price of this {@link DoorType} with this number of blocks.
      */
-    @NonNull OptionalDouble getPrice(final @NonNull DoorType type, final int blockCount);
+    @NonNull OptionalDouble getPrice(@NonNull DoorType type, int blockCount);
 
     /**
      * Checks if the economy manager is enabled.

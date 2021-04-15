@@ -19,7 +19,7 @@ interface IProtectionCompat
      * @param loc    The location to check.
      * @return True if the player is allowed to break blocks at the given location.
      */
-    boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc);
+    boolean canBreakBlock(@NonNull Player player, @NonNull Location loc);
 
     /**
      * Check if this compatiblity hook allows a player to break blocks between two locations.
@@ -29,8 +29,7 @@ interface IProtectionCompat
      * @param loc2   The end location to check.
      * @return True if the player is allowed to break all the blocks between (and including) the given locations.
      */
-    boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
-                                      final @NonNull Location loc2);
+    boolean canBreakBlocksBetweenLocs(@NonNull Player player, @NonNull Location loc1, @NonNull Location loc2);
 
     /**
      * Check if the hook initialized properly.

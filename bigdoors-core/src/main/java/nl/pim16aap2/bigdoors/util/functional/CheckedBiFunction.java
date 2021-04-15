@@ -26,7 +26,6 @@ public interface CheckedBiFunction<T, U, R, E extends Exception>
      *
      * @throws E
      */
-    @NonNull
-    R apply(T t, U u)
+    @NonNull R apply(T t, U u)
         throws E;
 }

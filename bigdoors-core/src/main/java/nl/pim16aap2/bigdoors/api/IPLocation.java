@@ -20,7 +20,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      *
      * @param other The new world of this location.
      */
-    void setWorld(final @NonNull IPWorld other);
+    void setWorld(@NonNull IPWorld other);
 
     @Override
     @NonNull Vector2Di getChunk();
@@ -67,7 +67,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param z The value to add to the z coordinate.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(final double x, final double y, final double z);
+    @NonNull IPLocation add(double x, double y, double z);
 
     /**
      * Adds values to the coordinates of this location.
@@ -75,7 +75,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(final @NonNull Vector3DiConst vector);
+    @NonNull IPLocation add(@NonNull Vector3DiConst vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -83,7 +83,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(final @NonNull Vector3DdConst vector);
+    @NonNull IPLocation add(@NonNull Vector3DdConst vector);
 
     @NonNull IPLocation clone();
 }

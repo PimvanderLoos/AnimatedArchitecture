@@ -33,7 +33,7 @@ public interface IPLogger
      * @param str    The message.
      * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
      */
-    void sendMessageToTarget(final @NonNull Object target, final @NonNull Level level, final @NonNull String str);
+    void sendMessageToTarget(@NonNull Object target, @NonNull Level level, @NonNull String str);
 
     /**
      * Dumps the stack trace to the log file at an arbitrary location.

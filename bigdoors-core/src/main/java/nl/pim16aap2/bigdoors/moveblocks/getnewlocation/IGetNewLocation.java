@@ -5,5 +5,5 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 
 public interface IGetNewLocation
 {
-    @NonNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos, final double zPos);
+    @NonNull IPLocation getNewLocation(double radius, double xPos, double yPos, double zPos);
 }

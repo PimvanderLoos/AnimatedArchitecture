@@ -21,7 +21,7 @@ public interface IPPlayerFactory
      * @param playerData The {@link PPlayerData} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NonNull IPPlayer create(final @NonNull PPlayerData playerData);
+    @NonNull IPPlayer create(@NonNull PPlayerData playerData);
 
     /**
      * Creates a new {@link IPPlayer}.
@@ -29,5 +29,5 @@ public interface IPPlayerFactory
      * @param uuid The {@link UUID} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NonNull CompletableFuture<Optional<IPPlayer>> create(final @NonNull UUID uuid);
+    @NonNull CompletableFuture<Optional<IPPlayer>> create(@NonNull UUID uuid);
 }

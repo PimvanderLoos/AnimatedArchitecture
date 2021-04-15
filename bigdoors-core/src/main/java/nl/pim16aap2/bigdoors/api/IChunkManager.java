@@ -17,7 +17,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return True if the chunk is loaded.
      */
-    boolean isLoaded(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk);
+    boolean isLoaded(@NonNull IPWorld world, @NonNull Vector2DiConst chunk);
 
     /**
      * Attempts to load a chunk (if it is not already loaded).
@@ -26,7 +26,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return The result of the load attempt.
      */
-    @NonNull ChunkLoadResult load(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk);
+    @NonNull ChunkLoadResult load(@NonNull IPWorld world, @NonNull Vector2DiConst chunk);
 
     /**
      * Represents the result of an attempt to load a chunk.

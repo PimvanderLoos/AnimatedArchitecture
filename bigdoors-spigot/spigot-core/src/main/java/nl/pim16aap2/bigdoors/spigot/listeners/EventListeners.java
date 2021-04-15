@@ -28,9 +28,9 @@ import org.bukkit.inventory.PlayerInventory;
  */
 public class EventListeners implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
-    public EventListeners(final BigDoorsSpigot plugin)
+    public EventListeners(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }

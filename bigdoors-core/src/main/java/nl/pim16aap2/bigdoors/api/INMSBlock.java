@@ -22,14 +22,14 @@ public interface INMSBlock
      *
      * @param rotDir The {@link RotateDirection} to rotate this block in.
      */
-    void rotateBlock(final @NonNull RotateDirection rotDir);
+    void rotateBlock(@NonNull RotateDirection rotDir);
 
     /**
      * Places the block at a given location.
      *
      * @param loc The location where the block will be placed.
      */
-    void putBlock(final @NonNull IPLocationConst loc);
+    void putBlock(@NonNull IPLocationConst loc);
 
     /**
      * Deletes the block at the original location.

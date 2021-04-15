@@ -19,6 +19,6 @@ public interface IGlowingBlockFactory
      *                          (de)registered when it is (de)spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @NonNull Optional<IGlowingBlock> createGlowingBlock(final @NonNull Player player, final @NonNull World world,
-                                                        final @NonNull IRestartableHolder restartableHolder);
+    @NonNull Optional<IGlowingBlock> createGlowingBlock(@NonNull Player player, @NonNull World world,
+                                                        @NonNull IRestartableHolder restartableHolder);
 }

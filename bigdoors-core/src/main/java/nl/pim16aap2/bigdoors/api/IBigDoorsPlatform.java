@@ -164,7 +164,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @param doorActionEvent The {@link IDoorEvent} to call.
      */
-    void callDoorActionEvent(final @NonNull IDoorEvent doorActionEvent);
+    void callDoorActionEvent(@NonNull IDoorEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.
@@ -172,7 +172,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @param threadID The ID of the thread to compare.
      * @return True if the thread is the main thread.
      */
-    boolean isMainThread(final long threadID);
+    boolean isMainThread(long threadID);
 
     /**
      * Constructs a new {@link IPExecutor}.

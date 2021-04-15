@@ -142,7 +142,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The formula for the door type.
      */
-    @NonNull String getPrice(final @NonNull DoorType type);
+    @NonNull String getPrice(@NonNull DoorType type);
 
     /**
      * Gets the speed multiplier for a specific type of door.
@@ -150,7 +150,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The speed multiplier for the door type.
      */
-    double getMultiplier(final @NonNull DoorType type);
+    double getMultiplier(@NonNull DoorType type);
 
     /**
      * Checks if errors should be logged to the console.

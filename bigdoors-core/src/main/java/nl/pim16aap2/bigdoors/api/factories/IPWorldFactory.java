@@ -16,5 +16,5 @@ public interface IPWorldFactory
      * @param worldName The name of the world.
      * @return A new IPWorld object.
      */
-    @NonNull IPWorld create(final @NonNull String worldName);
+    @NonNull IPWorld create(@NonNull String worldName);
 }

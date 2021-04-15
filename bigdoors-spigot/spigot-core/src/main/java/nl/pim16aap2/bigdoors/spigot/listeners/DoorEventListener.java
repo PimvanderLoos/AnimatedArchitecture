@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DoorEventListener implements Listener
 {
-    @Nullable
-    private static DoorEventListener INSTANCE;
+    private static @Nullable DoorEventListener INSTANCE;
     private final @NonNull DoorOpener doorOpener;
 
     private DoorEventListener(final @NonNull DoorOpener doorOpener)

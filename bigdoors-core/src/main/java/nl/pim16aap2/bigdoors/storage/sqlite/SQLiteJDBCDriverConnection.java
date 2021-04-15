@@ -1199,7 +1199,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Contract(" _, !null, _, _ -> !null")
     private <T> T execute(final @NonNull CheckedFunction<Connection, T, Exception> fun,
-                          final T fallback, @NonNull FailureAction failureAction, final @NonNull ReadMode readMode)
+                          final T fallback, final @NonNull FailureAction failureAction,
+                          final @NonNull ReadMode readMode)
     {
         try (final @Nullable Connection conn = getConnection(readMode))
         {

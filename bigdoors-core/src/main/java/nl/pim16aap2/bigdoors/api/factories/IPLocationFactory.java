@@ -22,7 +22,7 @@ public interface IPLocationFactory
      * @param z     The z coordinate.
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull IPWorld world, final double x, final double y, final double z);
+    @NonNull IPLocation create(@NonNull IPWorld world, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
@@ -31,7 +31,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull IPWorld world, final @NonNull Vector3DiConst position);
+    @NonNull IPLocation create(@NonNull IPWorld world, @NonNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -40,7 +40,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull IPWorld world, final @NonNull Vector3DdConst position);
+    @NonNull IPLocation create(@NonNull IPWorld world, @NonNull Vector3DdConst position);
 
     /**
      * Creates a new IPLocation.
@@ -51,7 +51,7 @@ public interface IPLocationFactory
      * @param z         The z coordinate.
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull String worldName, final double x, final double y, final double z);
+    @NonNull IPLocation create(@NonNull String worldName, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
@@ -60,7 +60,7 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull String worldName, final @NonNull Vector3DiConst position);
+    @NonNull IPLocation create(@NonNull String worldName, @NonNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -69,5 +69,5 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(final @NonNull String worldName, final @NonNull Vector3DdConst position);
+    @NonNull IPLocation create(@NonNull String worldName, @NonNull Vector3DdConst position);
 }

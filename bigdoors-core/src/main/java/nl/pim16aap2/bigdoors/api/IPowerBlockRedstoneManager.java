@@ -18,5 +18,5 @@ public interface IPowerBlockRedstoneManager
      * @return True if the block at the given position is a valid power block that is receiving an active redstone
      * signal.
      */
-    boolean isBlockPowered(final @NonNull IPWorld world, final @NonNull Vector3DiConst position);
+    boolean isBlockPowered(@NonNull IPWorld world, @NonNull Vector3DiConst position);
 }

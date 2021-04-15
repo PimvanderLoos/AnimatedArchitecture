@@ -29,8 +29,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedstoneListener extends Restartable implements Listener
 {
-    @Nullable
-    private static RedstoneListener INSTANCE;
+    private static @Nullable RedstoneListener INSTANCE;
     private final @NonNull BigDoorsSpigot plugin;
     private final @NonNull Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;

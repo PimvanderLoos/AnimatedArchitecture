@@ -12,7 +12,7 @@ public class StepExecutorPLocation extends StepExecutor
     private final @NonNull Function<IPLocationConst, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NonNull Object input)
+    protected boolean protectedAccept(@NonNull Object input)
     {
         return fun.apply((IPLocationConst) input);
     }

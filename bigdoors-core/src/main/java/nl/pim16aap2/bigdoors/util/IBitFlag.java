@@ -16,7 +16,7 @@ public interface IBitFlag
      * @param currentValue The current value of the flag(s).
      * @return The new value of the flag(s).
      */
-    static long changeFlag(final long flagValue, final boolean enabled, final long currentValue)
+    static long changeFlag(long flagValue, boolean enabled, long currentValue)
     {
         return enabled ? setFlag(flagValue, currentValue) : unsetFlag(flagValue, currentValue);
     }
@@ -28,7 +28,7 @@ public interface IBitFlag
      * @param currentValue The current value of the flag(s).
      * @return The new value of the flag(s).
      */
-    static long setFlag(final long flagValue, final long currentValue)
+    static long setFlag(long flagValue, long currentValue)
     {
         return currentValue | flagValue;
     }
@@ -40,7 +40,7 @@ public interface IBitFlag
      * @param currentValue The current value of the flag(s).
      * @return The new value of the flag(s).
      */
-    static long unsetFlag(final long flagValue, final long currentValue)
+    static long unsetFlag(long flagValue, long currentValue)
     {
         return currentValue & ~flagValue;
     }
@@ -52,7 +52,7 @@ public interface IBitFlag
      * @param currentValue The value of the current flag(s).
      * @return True if the flag is enabled.
      */
-    static boolean hasFlag(final long flagValue, final long currentValue)
+    static boolean hasFlag(long flagValue, long currentValue)
     {
         return (currentValue & flagValue) == flagValue;
     }

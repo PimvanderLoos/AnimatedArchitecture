@@ -17,7 +17,7 @@ public interface IGlowingBlock extends IRestartable
      *
      * @param position The new position of the {@link IGlowingBlock}.
      */
-    void teleport(final @NonNull Vector3DdConst position);
+    void teleport(@NonNull Vector3DdConst position);
 
     /**
      * Spawns this {@link IGlowingBlock} for the specified number of ticks.
@@ -28,5 +28,5 @@ public interface IGlowingBlock extends IRestartable
      * @param z      The z-coordiante of the block.
      * @param ticks  The number of ticks to keep this entity visible for the player.
      */
-    void spawn(final @NonNull PColor pColor, final double x, final double y, final double z, final long ticks);
+    void spawn(@NonNull PColor pColor, double x, double y, double z, long ticks);
 }
