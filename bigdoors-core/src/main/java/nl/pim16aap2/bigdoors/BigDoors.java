@@ -25,8 +25,6 @@ public final class BigDoors extends RestartableHolder
 {
     private static final @NonNull BigDoors INSTANCE = new BigDoors();
 
-    private IPLogger backupLogger;
-
     /**
      * The platform to use. e.g. "Spigot".
      */
