@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -17,7 +18,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -31,15 +31,15 @@ public class SubCommandRemoveOwner extends SubCommand
     protected static final CommandData command = CommandData.REMOVEOWNER;
     private int actualMinArgCount;
 
-    public SubCommandRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandRemoveOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
         actualMinArgCount = getMinArgCount();
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
-                           final @NotNull String playerArg)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
+                           final @NonNull String playerArg)
         throws CommandPlayerNotFoundException
     {
 //        UUID playerUUID = CommandManager.getPlayerFromArg(playerArg);
@@ -48,7 +48,7 @@ public class SubCommandRemoveOwner extends SubCommand
         throw new UnsupportedOperationException();
     }
 
-    private boolean execute(final @NotNull CommandSender sender, final long doorUID, final @NotNull IPPlayer target)
+    private boolean execute(final @NonNull CommandSender sender, final long doorUID, final @NonNull IPPlayer target)
     {
         BigDoors.get().getDatabaseManager().getDoor(target, doorUID).whenComplete(
             (optionalDoor, throwable) ->
@@ -60,7 +60,7 @@ public class SubCommandRemoveOwner extends SubCommand
                             hasPermission = true;
                         else
                         {
-                            final @NotNull Player player = (Player) sender;
+                            final @NonNull Player player = (Player) sender;
                             final int executorPermission = door.getDoorOwner(player.getUniqueId())
                                                                .map(DoorOwner::getPermission).orElse(Integer.MAX_VALUE);
                             final int targetPermission = door.getDoorOwner(target.getUUID())
@@ -119,8 +119,8 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws IllegalArgumentException, CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
         Optional<WaitForCommand> commandWaiter = commandManager.isCommandWaiter(sender, getName());
@@ -138,7 +138,7 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     @Override
-    public @NotNull String getHelp(@NotNull CommandSender sender)
+    public @NonNull String getHelp(@NonNull CommandSender sender)
     {
         return help;
     }
@@ -156,19 +156,19 @@ public class SubCommandRemoveOwner extends SubCommand
     }
 
     @Override
-    public @NotNull CommandData getCommandData()
+    public @NonNull CommandData getCommandData()
     {
         return command;
     }
 
     @Override
-    public @NotNull String getPermission()
+    public @NonNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return CommandData.getCommandName(command);
     }

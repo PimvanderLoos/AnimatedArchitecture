@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
+import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
@@ -21,11 +23,11 @@ import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
 import nl.pim16aap2.bigdoors.testimplementations.TestPPlayerFactory;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
+import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,16 +57,16 @@ public class CreatorTestsUtil
         new TestPPlayer(new PPlayerData(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"),
                                         "user", 8, 9, true, true));
 
-    protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);
-    protected @NotNull Vector3Di max = new Vector3Di(20, 25, 30);
-    protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
-    protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected @NotNull String doorName = "testDoor123";
-    protected @NotNull IPWorld world = new TestPWorld("world");
-    protected @NotNull IPWorld world2 = new TestPWorld("world2");
-    protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
+    protected @NonNull Vector3Di min = new Vector3Di(10, 15, 20);
+    protected @NonNull Vector3Di max = new Vector3Di(20, 25, 30);
+    protected @NonNull Vector3Di engine = new Vector3Di(20, 15, 25);
+    protected @NonNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
+    protected @NonNull String doorName = "testDoor123";
+    protected @NonNull IPWorld world = new TestPWorld("world");
+    protected @NonNull IPWorld world2 = new TestPWorld("world2");
+    protected @NonNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
-    protected final @NotNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
+    protected final @NonNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
 
     @Captor ArgumentCaptor<AbstractDoorBase> doorInsertCaptor;
 
@@ -91,6 +93,7 @@ public class CreatorTestsUtil
     {
         MockitoAnnotations.openMocks(this);
         BigDoors.get().setBigDoorsPlatform(platform);
+        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
         Messages messages = new Messages(platform, new File("src/test/resources"),
                                          "en_US_TEST", BigDoors.get().getPLogger());
@@ -108,7 +111,6 @@ public class CreatorTestsUtil
         Mockito.when(platform.getPermissionsManager()).thenReturn(permissionsManager);
         Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
         Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(
@@ -149,17 +151,21 @@ public class CreatorTestsUtil
     }
 
     @SneakyThrows
-    public void testCreation(final @NotNull Creator creator, AbstractDoorBase actualDoor,
-                             final @NotNull Object... input)
+    public void testCreation(final @NonNull Creator creator, @NonNull AbstractDoorBase actualDoor,
+                             final @NonNull Object... input)
     {
         setEconomyEnabled(false);
 
         int idx = 0;
         for (Object obj : input)
+        {
+            val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            Assertions.assertNotNull(stepName);
+
             Assertions.assertTrue(creator.handleInput(obj),
                                   String.format("IDX: %d, Input: %s, Step: %s Error Message: %s",
-                                                (idx++), obj.toString(), creator.getCurrentStep().getName(),
-                                                PLAYER.getBeforeLastMessage()));
+                                                (idx++), obj, stepName, PLAYER.getBeforeLastMessage()));
+        }
 
         Mockito.verify(databaseManager).addDoorBase(doorInsertCaptor.capture());
         AbstractDoorBase resultDoor = doorInsertCaptor.getValue();

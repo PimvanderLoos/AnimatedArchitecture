@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api.restartable;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
@@ -14,7 +15,7 @@ public interface IRestartableHolder
      *
      * @param restartable A {@link IRestartable} object that can be restarted by this object.
      */
-    void registerRestartable(final @NotNull IRestartable restartable);
+    void registerRestartable(@NonNull IRestartable restartable);
 
     /**
      * Checks if a {@link IRestartable} has been registered with this object.
@@ -22,12 +23,12 @@ public interface IRestartableHolder
      * @param restartable The {@link IRestartable} to check.
      * @return True if the {@link IRestartable} has been registered with this object.
      */
-    boolean isRestartableRegistered(final @NotNull IRestartable restartable);
+    boolean isRestartableRegistered(@NonNull IRestartable restartable);
 
     /**
      * Deregisters an {@link IRestartable} if it is currently registered.
      *
      * @param restartable The {@link IRestartable} to deregister.
      */
-    void deregisterRestartable(final @NotNull IRestartable restartable);
+    void deregisterRestartable(@NonNull IRestartable restartable);
 }

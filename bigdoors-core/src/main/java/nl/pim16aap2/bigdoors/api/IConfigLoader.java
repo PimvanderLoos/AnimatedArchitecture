@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
 
@@ -39,7 +39,7 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The formula of a flag.
      */
-    @NotNull String flagFormula();
+    @NonNull String flagFormula();
 
 //    /**
 //     * Gets the name of the database file.
@@ -69,7 +69,7 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The global maximum number of blocks that can be in a door.
      */
-    @NotNull OptionalInt maxDoorSize();
+    @NonNull OptionalInt maxDoorSize();
 
     /**
      * Gets the amount of time (in minutes) power blocks should be kept in cache.
@@ -83,28 +83,28 @@ public interface IConfigLoader extends IRestartable
      *
      * @return The name of the language file to use.
      */
-    @NotNull String languageFile();
+    @NonNull String languageFile();
 
     /**
      * Gets the global maximum number of doors a player can own.
      *
      * @return The global maximum number of doors a player can own.
      */
-    @NotNull OptionalInt maxDoorCount();
+    @NonNull OptionalInt maxDoorCount();
 
     /**
      * Gets the global maximum distance (in blocks) a powerblock can be from the door.
      *
      * @return The global maximum distance (in blocks) a powerblock can be from the door.
      */
-    @NotNull OptionalInt maxPowerBlockDistance();
+    @NonNull OptionalInt maxPowerBlockDistance();
 
     /**
      * Gets the global maximum number of blocks a door can move for applicable types (e.g. sliding door).
      *
      * @return The global maximum number of blocks a door can move for applicable types (e.g. sliding door).
      */
-    @NotNull OptionalInt maxBlocksToMove();
+    @NonNull OptionalInt maxBlocksToMove();
 
     /**
      * Checks if updates should be downloaded automatically.
@@ -142,7 +142,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The formula for the door type.
      */
-    @NotNull String getPrice(final @NotNull DoorType type);
+    @NonNull String getPrice(@NonNull DoorType type);
 
     /**
      * Gets the speed multiplier for a specific type of door.
@@ -150,7 +150,7 @@ public interface IConfigLoader extends IRestartable
      * @param type The door type.
      * @return The speed multiplier for the door type.
      */
-    double getMultiplier(final @NotNull DoorType type);
+    double getMultiplier(@NonNull DoorType type);
 
     /**
      * Checks if errors should be logged to the console.

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.windmill;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -12,7 +13,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a {@link BlockMover} for {@link Windmill}s.
@@ -25,9 +25,9 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
 
     private double step;
 
-    public WindmillMover(final @NotNull T door, final double time, final double multiplier,
-                         final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
-                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public WindmillMover(final @NonNull T door, final double time, final double multiplier,
+                         final @NonNull RotateDirection rotateDirection, final @NonNull IPPlayer player,
+                         final @NonNull DoorActionCause cause, final @NonNull DoorActionType actionType)
         throws Exception
     {
         super(time, door, rotateDirection, false, multiplier, player, door.getCuboid().clone(), cause, actionType);
@@ -41,14 +41,14 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+    protected @NonNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
                                                  final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected @NonNull Vector3Dd getFinalPosition(final @NonNull PBlockData block)
     {
         return block.getStartPosition();
     }
@@ -57,7 +57,7 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     protected void executeAnimationStep(final int ticks)
     {
         final double stepSum = step * ticks;
-        for (final @NotNull PBlockData block : savedBlocks)
+        for (final @NonNull PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 

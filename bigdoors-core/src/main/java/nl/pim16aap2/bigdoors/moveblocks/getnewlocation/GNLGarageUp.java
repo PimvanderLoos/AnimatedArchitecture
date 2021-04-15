@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks.getnewlocation;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import org.jetbrains.annotations.NotNull;
 
 public class GNLGarageUp implements IGetNewLocation
 {
@@ -11,7 +11,7 @@ public class GNLGarageUp implements IGetNewLocation
     }
 
     @Override
-    public @NotNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos,
+    public @NonNull IPLocation getNewLocation(final double radius, final double xPos, final double yPos,
                                               final double zPos)
     {
         // TODO: Implement this.

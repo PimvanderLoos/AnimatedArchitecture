@@ -1,18 +1,19 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
 public class DoorTypeClassLoader extends URLClassLoader
 {
-    public DoorTypeClassLoader(final @NotNull URL[] urls, final @NotNull ClassLoader parent)
+    public DoorTypeClassLoader(final @NonNull URL[] urls, final @NonNull ClassLoader parent)
     {
         super(urls, parent);
     }
 
-    public DoorTypeClassLoader(final @NotNull ClassLoader parent)
+    public DoorTypeClassLoader(final @NonNull ClassLoader parent)
     {
         super(new URL[]{}, parent);
     }

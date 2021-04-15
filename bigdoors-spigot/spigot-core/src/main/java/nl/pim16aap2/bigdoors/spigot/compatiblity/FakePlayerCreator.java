@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.mojang.authlib.GameProfile;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -43,7 +43,7 @@ class FakePlayerCreator
     private Field uuid;
     private boolean success = false;
 
-    FakePlayerCreator(final @NotNull BigDoorsSpigot plugin)
+    FakePlayerCreator(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
@@ -90,13 +90,13 @@ class FakePlayerCreator
         success = true;
     }
 
-    private @NotNull Class<?> getNMSClass(final @NotNull String name)
+    private @NonNull Class<?> getNMSClass(final @NonNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private @NotNull Class<?> getCraftClass(final @NotNull String name)
+    private @NonNull Class<?> getCraftClass(final @NonNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
@@ -109,7 +109,7 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    @NotNull Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
+    @NonNull Optional<Player> getFakePlayer(final @NonNull OfflinePlayer oPlayer, final @NonNull World world)
     {
         if (!success)
             return Optional.empty();

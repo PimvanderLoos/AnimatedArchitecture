@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a consumer with 3 input arguments.
@@ -22,7 +21,6 @@ public interface CheckedTriConsumer<T, U, V, E extends Exception>
      * @param v The third function argument.
      * @throws E
      */
-    @NotNull
     void accept(T t, U u, V v)
         throws E;
 }

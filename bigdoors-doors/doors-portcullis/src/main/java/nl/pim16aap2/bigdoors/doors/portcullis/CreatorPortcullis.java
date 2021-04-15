@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -21,12 +21,11 @@ import java.util.OptionalInt;
 public class CreatorPortcullis extends Creator
 {
     @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final DoorType doorType = DoorTypePortcullis.get();
+    private final @NonNull DoorType doorType = DoorTypePortcullis.get();
 
     protected int blocksToMove;
 
-    public CreatorPortcullis(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorPortcullis(final @NonNull IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name != null)
@@ -34,13 +33,13 @@ public class CreatorPortcullis extends Creator
         prepareCurrentStep();
     }
 
-    public CreatorPortcullis(final @NotNull IPPlayer player)
+    public CreatorPortcullis(final @NonNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected @NonNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step<CreatorPortcullis> stepBlocksToMove = new Step.Factory<CreatorPortcullis>("SET_BLOCKS_TO_MOVE")
@@ -63,7 +62,7 @@ public class CreatorPortcullis extends Creator
         if (blocksToMove < 1)
             return false;
 
-        final @NotNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
+        final @NonNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_BLOCKSTOMOVETOOFAR,
@@ -85,7 +84,7 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NonNull AbstractDoorBase constructDoor()
     {
         engine = cuboid.getCenterBlock();
         return new Portcullis(constructDoorData(), blocksToMove);

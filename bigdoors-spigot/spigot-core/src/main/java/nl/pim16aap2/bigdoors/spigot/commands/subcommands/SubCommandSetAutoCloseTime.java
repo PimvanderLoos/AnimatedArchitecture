@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
@@ -18,7 +19,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -30,14 +30,14 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETAUTOCLOSETIME;
 
-    public SubCommandSetAutoCloseTime(final @NotNull BigDoorsSpigot plugin,
-                                      final @NotNull CommandManager commandManager)
+    public SubCommandSetAutoCloseTime(final @NonNull BigDoorsSpigot plugin,
+                                      final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    private void sendResultMessage(final @NotNull CommandSender sender, final int time)
+    private void sendResultMessage(final @NonNull CommandSender sender, final int time)
     {
         plugin.getPLogger()
               .sendMessageToTarget(sender, Level.INFO,
@@ -46,8 +46,8 @@ public class SubCommandSetAutoCloseTime extends SubCommand
                                    messages.getString(Message.COMMAND_SETTIME_DISABLED));
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
-                           final @NotNull String timeArg)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
+                           final @NonNull String timeArg)
         throws IllegalArgumentException
     {
         if (!(door instanceof ITimerToggleableArchetype))
@@ -83,8 +83,8 @@ public class SubCommandSetAutoCloseTime extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {

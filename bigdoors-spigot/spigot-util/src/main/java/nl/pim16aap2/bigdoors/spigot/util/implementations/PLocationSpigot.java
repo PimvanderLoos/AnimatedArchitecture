@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -23,15 +23,15 @@ import java.util.Objects;
  */
 public final class PLocationSpigot implements IPLocation
 {
-    @NotNull
+    @NonNull
     private Location location;
 
     @Getter(onMethod = @__({@Override}))
     @Setter(onMethod = @__({@Override}))
-    @NotNull
+    @NonNull
     private IPWorld world;
 
-    public PLocationSpigot(final @NotNull IPWorld world, final double x, final double y, final double z)
+    public PLocationSpigot(final @NonNull IPWorld world, final double x, final double y, final double z)
     {
         final @Nullable World bukkitWorld = world instanceof PWorldSpigot ?
                                             ((PWorldSpigot) world).getBukkitWorld() :
@@ -40,7 +40,7 @@ public final class PLocationSpigot implements IPLocation
         this.world = world;
     }
 
-    public PLocationSpigot(final @NotNull Location location)
+    public PLocationSpigot(final @NonNull Location location)
     {
         Objects.requireNonNull(location.getWorld());
         this.location = location.clone();
@@ -48,7 +48,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public @NotNull Vector2Di getChunk()
+    public @NonNull Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
@@ -108,20 +108,20 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public @NotNull IPLocation add(final double x, final double y, final double z)
+    public @NonNull IPLocation add(final double x, final double y, final double z)
     {
         location.add(x, y, z);
         return this;
     }
 
     @Override
-    public @NotNull IPLocation add(final @NotNull Vector3DiConst vector)
+    public @NonNull IPLocation add(final @NonNull Vector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
-    public @NotNull IPLocation add(final @NotNull Vector3DdConst vector)
+    public @NonNull IPLocation add(final @NonNull Vector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -131,7 +131,7 @@ public final class PLocationSpigot implements IPLocation
      *
      * @return The Bukkit location.
      */
-    public @NotNull Location getBukkitLocation()
+    public @NonNull Location getBukkitLocation()
     {
         return location;
     }
@@ -162,7 +162,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public @NotNull PLocationSpigot clone()
+    public @NonNull PLocationSpigot clone()
     {
         try
         {

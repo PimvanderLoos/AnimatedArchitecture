@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.logging;
 
 import lombok.NonNull;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
@@ -33,7 +32,7 @@ public abstract class LogMessage
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return getFormattedLevel() + getFormattedThreadID() + message;
     }
@@ -44,7 +43,7 @@ public abstract class LogMessage
      * @param str The message to format.
      * @return The formatted message.
      */
-    protected static @NotNull String checkMessage(final @Nullable String str)
+    protected static @NonNull String checkMessage(final @Nullable String str)
     {
         if (str == null || str.equals("\n"))
             return "";
@@ -67,7 +66,7 @@ public abstract class LogMessage
      * @param throwable The {@link Throwable} whose stacktrace to get.
      * @return A string of the stack trace.
      */
-    private static @NotNull String stacktraceToString(final @NotNull Throwable throwable)
+    private static @NonNull String stacktraceToString(final @NonNull Throwable throwable)
     {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -82,7 +81,7 @@ public abstract class LogMessage
      */
     public static class LogMessageThrowable extends LogMessage
     {
-        LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message,
+        LogMessageThrowable(final @NonNull Throwable throwable, final @NonNull String message,
                             final @NonNull Level logLevel)
         {
             super(checkMessage(message) + checkMessage(stacktraceToString(throwable)), logLevel);
@@ -96,7 +95,7 @@ public abstract class LogMessage
      */
     public static class LogMessageString extends LogMessage
     {
-        LogMessageString(final @NotNull String message, final @NonNull Level logLevel)
+        LogMessageString(final @NonNull String message, final @NonNull Level logLevel)
         {
             super(checkMessage(message), logLevel);
         }
@@ -104,7 +103,7 @@ public abstract class LogMessage
 
     public static class LogMessageStringSupplier extends LogMessage
     {
-        LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier,
+        LogMessageStringSupplier(final @NonNull String message, final @NonNull Supplier<String> stringSupplier,
                                  final @NonNull Level logLevel)
         {
             super(checkMessage(message) + checkMessage(stringSupplier.get()), logLevel);

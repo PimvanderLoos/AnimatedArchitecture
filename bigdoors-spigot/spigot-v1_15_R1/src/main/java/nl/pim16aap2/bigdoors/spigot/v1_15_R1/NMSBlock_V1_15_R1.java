@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.NonNull;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
@@ -24,7 +25,6 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -52,7 +52,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param y      The y coordinate of the NMS block.
      * @param z      The z coordinate of the NMS block.
      */
-    NMSBlock_V1_15_R1(final @NotNull PWorldSpigot pWorld, final int x, final int y, final int z)
+    NMSBlock_V1_15_R1(final @NonNull PWorldSpigot pWorld, final int x, final int y, final int z)
     {
         super(net.minecraft.server.v1_15_R1.Block.Info
                   .a(((CraftWorld) pWorld.getBukkitWorld()).getHandle().getType(new BlockPosition(x, y, z))
@@ -86,7 +86,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      *
      * @return The IBlockData (NMS) of this block.
      */
-    @NotNull IBlockData getMyBlockData()
+    @NonNull IBlockData getMyBlockData()
     {
         return blockData;
     }
@@ -99,7 +99,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
     }
 
     @Override
-    public void rotateBlock(final @NotNull RotateDirection rotDir)
+    public void rotateBlock(final @NonNull RotateDirection rotDir)
     {
         BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
@@ -124,7 +124,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param loc The location where the block will be placed.
      */
     @Override
-    public void putBlock(@NotNull IPLocationConst loc)
+    public void putBlock(@NonNull IPLocationConst loc)
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)
@@ -149,7 +149,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param bd  The {@link Orientable} blockData that will be rotated.
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
-    private void rotateOrientable(final @NotNull Orientable bd, final @NotNull RotateDirection dir)
+    private void rotateOrientable(final @NonNull Orientable bd, final @NonNull RotateDirection dir)
     {
         rotateOrientable(bd, dir, 1);
     }
@@ -161,7 +161,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param dir   The {@link RotateDirection} the blockData will be rotated in.
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
-    private void rotateOrientable(final @NotNull Orientable bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateOrientable(final @NonNull Orientable bd, final @NonNull RotateDirection dir, int steps)
     {
         Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
@@ -204,7 +204,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param bd  The {@link Directional} blockData that will be rotated.
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
-    private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir)
+    private void rotateDirectional(final @NonNull Directional bd, final @NonNull RotateDirection dir)
     {
         rotateDirectional(bd, dir, 1);
     }
@@ -216,7 +216,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param dir   The {@link RotateDirection} the blockData will be rotated in.
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
-    private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateDirectional(final @NonNull Directional bd, final @NonNull RotateDirection dir, int steps)
     {
         BlockFace newFace = SpigotUtil.getBukkitFace(
             PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, PBlockFace.getDirFun(dir)));
@@ -230,7 +230,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param bd  The {@link MultipleFacing} blockData that will be rotated.
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
-    private void rotateMultiplefacing(final @NotNull MultipleFacing bd, final @NotNull RotateDirection dir)
+    private void rotateMultiplefacing(final @NonNull MultipleFacing bd, final @NonNull RotateDirection dir)
     {
         rotateMultiplefacing(bd, dir, 1);
     }
@@ -242,7 +242,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param dir   The {@link RotateDirection} the blockData will be rotated in.
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
-    private void rotateMultiplefacing(final @NotNull MultipleFacing bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateMultiplefacing(final @NonNull MultipleFacing bd, final @NonNull RotateDirection dir, int steps)
     {
         Set<BlockFace> currentFaces = bd.getFaces();
         Set<BlockFace> allowedFaces = bd.getAllowedFaces();
@@ -263,7 +263,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return blockData.toString();
     }

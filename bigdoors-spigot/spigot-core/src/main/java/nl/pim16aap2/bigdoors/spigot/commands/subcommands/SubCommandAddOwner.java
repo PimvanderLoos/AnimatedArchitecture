@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
@@ -12,7 +13,6 @@ import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -25,14 +25,14 @@ public class SubCommandAddOwner extends SubCommand
     protected final int minArgCount = 3;
     protected CommandData command = CommandData.ADDOWNER;
 
-    public SubCommandAddOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandAddOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
-    public boolean execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door,
-                           final @NotNull String playerArg, final int permission)
+    public boolean execute(final @NonNull CommandSender sender, final @NonNull AbstractDoorBase door,
+                           final @NonNull String playerArg, final int permission)
         throws CommandPlayerNotFoundException, ExecutionException, InterruptedException
     {
         throw new UnsupportedOperationException();
@@ -64,7 +64,7 @@ public class SubCommandAddOwner extends SubCommand
 //        return true;
     }
 
-    public int getPermissionFromArgs(final @NotNull CommandSender sender, final @NotNull String[] args, final int pos)
+    public int getPermissionFromArgs(final @NonNull CommandSender sender, final @NonNull String[] args, final int pos)
     {
         int permission = Integer.MAX_VALUE;
         try
@@ -81,8 +81,8 @@ public class SubCommandAddOwner extends SubCommand
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, CommandPlayerNotFoundException,
                CommandActionNotAllowedException, IllegalArgumentException
     {

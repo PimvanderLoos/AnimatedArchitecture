@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI;
 import org.bukkit.entity.Player;
@@ -7,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -18,9 +18,9 @@ import java.util.Optional;
  */
 public class GUIListener implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
-    public GUIListener(final @NotNull BigDoorsSpigot plugin)
+    public GUIListener(final @NonNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -36,7 +36,7 @@ public class GUIListener implements Listener
      * page switch / update.
      */
     @EventHandler
-    public void onInventoryClose(final @NotNull InventoryCloseEvent event)
+    public void onInventoryClose(final @NonNull InventoryCloseEvent event)
     {
         try
         {
@@ -70,7 +70,7 @@ public class GUIListener implements Listener
      * @param event The {@link InventoryClickEvent}.
      */
     @EventHandler
-    public void onInventoryClick(final @NotNull InventoryClickEvent event)
+    public void onInventoryClick(final @NonNull InventoryClickEvent event)
     {
         try
         {

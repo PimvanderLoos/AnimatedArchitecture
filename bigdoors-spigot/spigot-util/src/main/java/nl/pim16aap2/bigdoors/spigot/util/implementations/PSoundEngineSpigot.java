@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link ISoundEngine} for the Spigot platform.
@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 public class PSoundEngineSpigot implements ISoundEngine
 {
     @Override
-    public void playSound(final @NotNull IPLocationConst loc, final @NotNull PSound sound, final float volume,
+    public void playSound(final @NonNull IPLocationConst loc, final @NonNull PSound sound, final float volume,
                           final float pitch)
     {
         BigDoors.get().getPlatform().getPExecutor().runAsync(() -> SpigotUtil
@@ -29,7 +29,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull Vector3DiConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final @NonNull Vector3DiConst pos, final @NonNull IPWorld world, final @NonNull PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getWorldName()), pos.getX(), pos.getY(), pos.getZ()),
@@ -37,7 +37,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull Vector3DdConst pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final @NonNull Vector3DdConst pos, final @NonNull IPWorld world, final @NonNull PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.getWorldName()), pos.getX(), pos.getY(), pos.getZ()),
@@ -45,7 +45,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(double x, double y, double z, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(double x, double y, double z, final @NonNull IPWorld world, final @NonNull PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil

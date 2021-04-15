@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -13,12 +13,12 @@ import java.util.function.Consumer;
  */
 public class Cuboid extends CuboidConst
 {
-    public Cuboid(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
+    public Cuboid(final @NonNull Vector3DiConst min, final @NonNull Vector3DiConst max)
     {
         super(min, max);
     }
 
-    public Cuboid(final @NotNull CuboidConst cuboidConst)
+    public Cuboid(final @NonNull CuboidConst cuboidConst)
     {
         this(cuboidConst.min, cuboidConst.max);
     }
@@ -32,7 +32,7 @@ public class Cuboid extends CuboidConst
      * @param second The first of the two new coordinates.
      * @return This {@link Cuboid}
      */
-    public @NotNull Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
+    public @NonNull Cuboid updatePositions(final @NonNull Vector3DiConst first, final @NonNull Vector3DiConst second)
     {
         min = new Vector3Di(first);
         max = new Vector3Di(second);
@@ -46,7 +46,7 @@ public class Cuboid extends CuboidConst
      * @param updateFunction The update function used to update both {@link Vector3Di}s.
      * @return This {@link Cuboid}
      */
-    public @NotNull Cuboid updatePositions(final @NotNull Consumer<Vector3Di> updateFunction)
+    public @NonNull Cuboid updatePositions(final @NonNull Consumer<Vector3Di> updateFunction)
     {
         updateFunction.accept(min);
         updateFunction.accept(max);
@@ -62,7 +62,7 @@ public class Cuboid extends CuboidConst
      * @param z The number of blocks to move in the z-axis.
      * @return This {@link Cuboid}
      */
-    public @NotNull Cuboid move(final int x, final int y, final int z)
+    public @NonNull Cuboid move(final int x, final int y, final int z)
     {
         min.add(x, y, z);
         max.add(x, y, z);
@@ -78,7 +78,7 @@ public class Cuboid extends CuboidConst
      * @param z The number of blocks to change in the z-axis.
      * @return This {@link Cuboid}
      */
-    public @NotNull Cuboid changeDimensions(final int x, final int y, final int z)
+    public @NonNull Cuboid changeDimensions(final int x, final int y, final int z)
     {
         min.add(-x, -y, -z);
         max.add(x, y, z);
@@ -88,7 +88,7 @@ public class Cuboid extends CuboidConst
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "{ " + min.toString() + " " + max.toString() + " }";
     }

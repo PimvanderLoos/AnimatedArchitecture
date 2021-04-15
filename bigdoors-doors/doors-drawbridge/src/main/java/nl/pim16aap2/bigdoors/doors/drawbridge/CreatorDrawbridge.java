@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -16,10 +16,9 @@ import java.util.List;
 public class CreatorDrawbridge extends Creator
 {
     @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final DoorType doorType = DoorTypeDrawbridge.get();
+private final @NonNull DoorType doorType = DoorTypeDrawbridge.get();
 
-    public CreatorDrawbridge(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorDrawbridge(final @NonNull IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name != null)
@@ -27,13 +26,13 @@ public class CreatorDrawbridge extends Creator
         prepareCurrentStep();
     }
 
-    public CreatorDrawbridge(final @NotNull IPPlayer player)
+    public CreatorDrawbridge(final @NonNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected @NonNull List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -54,7 +53,7 @@ public class CreatorDrawbridge extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NonNull AbstractDoorBase constructDoor()
     {
         return new Drawbridge(constructDoorData(), true);
     }

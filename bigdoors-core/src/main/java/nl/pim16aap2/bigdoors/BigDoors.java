@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -43,7 +42,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The instance of this class.
      */
-    public static @NotNull BigDoors get()
+    public static @NonNull BigDoors get()
     {
         return INSTANCE;
     }
@@ -53,7 +52,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @param platform The platform implementing BigDoor's internal API.
      */
-    public void setBigDoorsPlatform(final @NotNull IBigDoorsPlatform platform)
+    public void setBigDoorsPlatform(final @NonNull IBigDoorsPlatform platform)
     {
         if (this.platform != null)
             this.platform.deregisterRestartable(this);
@@ -122,7 +121,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link AutoCloseScheduler} instance.
      */
-    public @NotNull AutoCloseScheduler getAutoCloseScheduler()
+    public @NonNull AutoCloseScheduler getAutoCloseScheduler()
     {
         return getPlatform().getAutoCloseScheduler();
     }
@@ -132,7 +131,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorSpecificationManager} instance.
      */
-    public @NotNull DoorSpecificationManager getDoorSpecificationManager()
+    public @NonNull DoorSpecificationManager getDoorSpecificationManager()
     {
         return getPlatform().getDoorSpecificationManager();
     }
@@ -142,7 +141,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorTypeManager} instance.
      */
-    public @NotNull DoorTypeManager getDoorTypeManager()
+    public @NonNull DoorTypeManager getDoorTypeManager()
     {
         return getPlatform().getDoorTypeManager();
     }
@@ -152,7 +151,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link ToolUserManager} instance.
      */
-    public @NotNull ToolUserManager getToolUserManager()
+    public @NonNull ToolUserManager getToolUserManager()
     {
         return getPlatform().getToolUserManager();
     }
@@ -163,7 +162,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The currently used {@link IMessagingInterface}.
      */
-    public @NotNull IMessagingInterface getMessagingInterface()
+    public @NonNull IMessagingInterface getMessagingInterface()
     {
         return getPlatform().getMessagingInterface();
     }

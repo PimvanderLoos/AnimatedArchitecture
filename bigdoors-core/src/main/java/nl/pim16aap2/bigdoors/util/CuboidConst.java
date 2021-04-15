@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a cuboid as described by 2 {@link Vector3Di}s.
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class CuboidConst
 {
-    @NotNull
+    @NonNull
     protected Vector3Di min, max;
 
     /**
@@ -31,16 +31,16 @@ public class CuboidConst
      * @return The dimensions of this door.
      */
     @Getter
-    private @NotNull Vector3DiConst dimensions;
+    private @NonNull Vector3DiConst dimensions;
 
-    public CuboidConst(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
+    public CuboidConst(final @NonNull Vector3DiConst min, final @NonNull Vector3DiConst max)
     {
         this.min = new Vector3Di(min);
         this.max = new Vector3Di(max);
         onCoordsUpdate();
     }
 
-    public CuboidConst(final @NotNull CuboidConst cuboidConst)
+    public CuboidConst(final @NonNull CuboidConst cuboidConst)
     {
         this(cuboidConst.min, cuboidConst.max);
     }
@@ -84,7 +84,7 @@ public class CuboidConst
      *
      * @return The lower bound position.
      */
-    public @NotNull Vector3DiConst getMin()
+    public @NonNull Vector3DiConst getMin()
     {
         return min;
     }
@@ -94,7 +94,7 @@ public class CuboidConst
      *
      * @return The upper bound position.
      */
-    public @NotNull Vector3DiConst getMax()
+    public @NonNull Vector3DiConst getMax()
     {
         return max;
     }
@@ -113,7 +113,7 @@ public class CuboidConst
      * @param pos The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
-    public boolean isPosInsideCuboid(final @NotNull Vector3DiConst pos)
+    public boolean isPosInsideCuboid(final @NonNull Vector3DiConst pos)
     {
         return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
             pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
@@ -125,7 +125,7 @@ public class CuboidConst
      *
      * @return The center point of the cuboid.
      */
-    public @NotNull Vector3Dd getCenter()
+    public @NonNull Vector3Dd getCenter()
     {
         double cX = max.getX() - ((max.getX() - min.getX()) / 2.0f);
         double cY = max.getY() - ((max.getY() - min.getY()) / 2.0f);
@@ -138,7 +138,7 @@ public class CuboidConst
      *
      * @return The center block of the cuboid.
      */
-    public @NotNull Vector3Di getCenterBlock()
+    public @NonNull Vector3Di getCenterBlock()
     {
         int cX = (int) (max.getX() - ((max.getX() - min.getX()) / 2.0f));
         int cY = (int) (max.getY() - ((max.getY() - min.getY()) / 2.0f));
@@ -166,7 +166,7 @@ public class CuboidConst
     }
 
     @Override
-    public @NotNull Cuboid clone()
+    public @NonNull Cuboid clone()
     {
         return new Cuboid(this);
     }

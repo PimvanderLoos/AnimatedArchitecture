@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.util.messages;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,23 +34,21 @@ public final class Messages extends Restartable
     /**
      * The name of the default language file.
      */
-    @NotNull
+    @NonNull
     private static final String DEFAULTFILENAME = "en_US.txt";
-    @NotNull
-    private final IPLogger plogger;
+    private final @NonNull IPLogger plogger;
 
-    @NotNull
+    @NonNull
     private static final Pattern matchDots = Pattern.compile("\\.");
-    @NotNull
+    @NonNull
     private static final Pattern matchNewLines = Pattern.compile("\\\\n");
-    @NotNull
+    @NonNull
     private static final Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
 
     /**
      * The directory of the language file.
      */
-    @NotNull
-    private final File fileDir;
+    private final @NonNull File fileDir;
 
     /**
      * The map of all messages.
@@ -59,7 +57,7 @@ public final class Messages extends Restartable
      * <p>
      * Value: The translated message.
      */
-    @NotNull
+    @NonNull
     private Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
@@ -75,8 +73,8 @@ public final class Messages extends Restartable
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
      * @param plogger  The {@link PLogger} object that will be used for logging.
      */
-    public Messages(final @NotNull IRestartableHolder holder, final @NotNull File fileDir,
-                    final @NotNull String fileName, final @NotNull IPLogger plogger)
+    public Messages(final @NonNull IRestartableHolder holder, final @NonNull File fileDir,
+                    final @NonNull String fileName, final @NonNull IPLogger plogger)
     {
         super(holder);
         this.plogger = plogger;
@@ -164,7 +162,7 @@ public final class Messages extends Restartable
      * @param action The action to take for every message and value combination that is encountered.
      * @throws IOException
      */
-    private void processFile(final @NotNull BufferedReader br, final @NotNull BiConsumer<Message, String> action)
+    private void processFile(final @NonNull BufferedReader br, final @NonNull BiConsumer<Message, String> action)
         throws IOException
     {
         String sCurrentLine;
@@ -197,7 +195,7 @@ public final class Messages extends Restartable
      * @param message The {@link Message}.
      * @param value   The value of the message.
      */
-    private void addMessage(final @NotNull Message message, final @NotNull String value)
+    private void addMessage(final @NonNull Message message, final @NonNull String value)
     {
         messageMap.put(message, value);
     }
@@ -208,7 +206,7 @@ public final class Messages extends Restartable
      * @param message The {@link Message}.
      * @param value   The value of the message.
      */
-    private void addBackupMessage(final @NotNull Message message, final @NotNull String value)
+    private void addBackupMessage(final @NonNull Message message, final @NonNull String value)
     {
         if (messageMap.containsKey(message))
             return;
@@ -267,7 +265,7 @@ public final class Messages extends Restartable
      * @param key The key that could not be resolved.
      * @return The default String to return in case a value could not be found for a given String.
      */
-    private @NotNull String getFailureString(final @NotNull String key)
+    private @NonNull String getFailureString(final @NonNull String key)
     {
         return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
@@ -279,7 +277,7 @@ public final class Messages extends Restartable
      * @param messageName The name of a {@link Message}, see {@link Message#valueOf(String)}.
      * @return The translated String if possible, otherwise an empty String.
      */
-    public @NotNull String getString(final @NotNull String messageName)
+    public @NonNull String getString(final @NonNull String messageName)
     {
         try
         {
@@ -301,7 +299,7 @@ public final class Messages extends Restartable
      * @return The translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      */
-    public @NotNull String getString(final @NotNull Message msg, final @NotNull String... values)
+    public @NonNull String getString(final @NonNull Message msg, final @NonNull String... values)
     {
         if (msg.equals(Message.EMPTY))
             return "";

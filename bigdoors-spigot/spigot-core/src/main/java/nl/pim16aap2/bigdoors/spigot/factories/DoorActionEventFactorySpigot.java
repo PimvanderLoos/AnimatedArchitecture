@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.factories;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -12,38 +13,37 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
-import org.jetbrains.annotations.NotNull;
 
 public class DoorActionEventFactorySpigot implements IDoorActionEventFactory
 {
     @Override
-    public @NotNull IDoorEventTogglePrepare createPrepareEvent(final @NotNull AbstractDoorBase door,
-                                                               final @NotNull DoorActionCause cause,
-                                                               final @NotNull DoorActionType actionType,
-                                                               final @NotNull IPPlayer responsible, final double time,
+    public @NonNull IDoorEventTogglePrepare createPrepareEvent(final @NonNull AbstractDoorBase door,
+                                                               final @NonNull DoorActionCause cause,
+                                                               final @NonNull DoorActionType actionType,
+                                                               final @NonNull IPPlayer responsible, final double time,
                                                                final boolean skipAnimation,
-                                                               final @NotNull CuboidConst newCuboid)
+                                                               final @NonNull CuboidConst newCuboid)
     {
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public @NotNull IDoorEventToggleStart createStartEvent(final @NotNull AbstractDoorBase door,
-                                                           final @NotNull DoorActionCause cause,
-                                                           final @NotNull DoorActionType actionType,
-                                                           final @NotNull IPPlayer responsible, final double time,
+    public @NonNull IDoorEventToggleStart createStartEvent(final @NonNull AbstractDoorBase door,
+                                                           final @NonNull DoorActionCause cause,
+                                                           final @NonNull DoorActionType actionType,
+                                                           final @NonNull IPPlayer responsible, final double time,
                                                            final boolean skipAnimation,
-                                                           final @NotNull CuboidConst newCuboid)
+                                                           final @NonNull CuboidConst newCuboid)
 
     {
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public @NotNull IDoorEventToggleEnd createEndEvent(final @NotNull AbstractDoorBase door,
-                                                       final @NotNull DoorActionCause cause,
-                                                       final @NotNull DoorActionType actionType,
-                                                       final @NotNull IPPlayer responsible, final double time,
+    public @NonNull IDoorEventToggleEnd createEndEvent(final @NonNull AbstractDoorBase door,
+                                                       final @NonNull DoorActionCause cause,
+                                                       final @NonNull DoorActionType actionType,
+                                                       final @NonNull IPPlayer responsible, final double time,
                                                        final boolean skipAnimation)
     {
         return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);

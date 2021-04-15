@@ -7,7 +7,6 @@ import lombok.experimental.NonFinal;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -27,16 +26,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class DoorTypeManager extends Restartable
 {
-    @NotNull
-    private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
-    @NotNull
-    private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
+    private final @NonNull Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
+    private final @NonNull Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final @NonNull Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
     /**
      * Gets all registered AND enabled {@link DoorType}s.
      */
-    @Getter(onMethod = @__({@NotNull}))
+    @Getter(onMethod = @__({@NonNull}))
     private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<>()
     {
         @Override
@@ -58,7 +55,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @return All {@link DoorType}s that are currently registered.
      */
-    public @NotNull Set<DoorType> getRegisteredDoorTypes()
+    public @NonNull Set<DoorType> getRegisteredDoorTypes()
     {
         return Collections.unmodifiableSet(doorTypeStatus.keySet());
     }
@@ -68,7 +65,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @return All {@link DoorType}s that are currently enabled.
      */
-    public @NotNull List<DoorType> getEnabledDoorTypes()
+    public @NonNull List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
         for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
@@ -83,7 +80,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to check.
      * @return True if the {@link DoorType} is enabled, otherwise false.
      */
-    public boolean isRegistered(final @NotNull DoorType doorType)
+    public boolean isRegistered(final @NonNull DoorType doorType)
     {
         return doorTypeStatus.containsKey(doorType);
     }
@@ -95,7 +92,7 @@ public final class DoorTypeManager extends Restartable
      * @param typeName The name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
-    public @NotNull Optional<DoorType> getDoorType(final @NotNull String typeName)
+    public @NonNull Optional<DoorType> getDoorType(final @NonNull String typeName)
     {
         return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase()));
     }
@@ -120,7 +117,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to check.
      * @return True if this {@link DoorType} is both registered and enabled.
      */
-    public boolean isDoorTypeEnabled(final @NotNull DoorType doorType)
+    public boolean isDoorTypeEnabled(final @NonNull DoorType doorType)
     {
         final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeStatus.get(doorType);
         return info != null && info.status;
@@ -132,7 +129,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
-    public void registerDoorType(final @NotNull DoorType doorType)
+    public void registerDoorType(final @NonNull DoorType doorType)
     {
         registerDoorType(doorType, true);
     }
@@ -143,7 +140,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType  The {@link DoorType} to register.
      * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
      */
-    public void registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
+    public void registerDoorType(final @NonNull DoorType doorType, final boolean isEnabled)
     {
         BigDoors.get().getPLogger().info("Registering door type: " + doorType.toString() + "...");
 
@@ -163,7 +160,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @param doorType The type to unregister.
      */
-    public void unregisterDoorType(final @NotNull DoorType doorType)
+    public void unregisterDoorType(final @NonNull DoorType doorType)
     {
         if (doorTypeStatus.remove(doorType) == null)
         {
@@ -183,7 +180,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType  The {@link DoorType} to enabled or disable.
      * @param isEnabled True to enabled this {@link DoorType} (default), or false to disable it.
      */
-    public void setDoorTypeEnabled(final @NotNull DoorType doorType, final boolean isEnabled)
+    public void setDoorTypeEnabled(final @NonNull DoorType doorType, final boolean isEnabled)
     {
         final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeStatus.get(doorType);
         if (info != null)
@@ -199,7 +196,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @param doorTypes The list of {@link DoorType}s to register.
      */
-    public void registerDoorTypes(final @NotNull List<DoorType> doorTypes)
+    public void registerDoorTypes(final @NonNull List<DoorType> doorTypes)
     {
         doorTypes.forEach(this::registerDoorType);
     }

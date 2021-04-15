@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import lombok.Getter;
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -11,16 +12,14 @@ import java.util.List;
 
 public final class Procedure<T extends ToolUser>
 {
-    @NotNull
-    protected IStep currentStep;
+    @Getter
+    private @Nullable IStep currentStep;
 
-    @NotNull
-    protected final T toolUser;
+    protected @NonNull final T toolUser;
 
-    @NotNull
-    Iterator<IStep> steps;
+    final @NonNull Iterator<IStep> steps;
 
-    public Procedure(final @NotNull T toolUser, final @NotNull List<IStep> steps)
+    public Procedure(final @NonNull T toolUser, final @NonNull List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
@@ -52,7 +51,7 @@ public final class Procedure<T extends ToolUser>
      * @param goalStep The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(final @NotNull IStep goalStep)
+    public boolean skipToStep(final @NonNull IStep goalStep)
     {
         while (steps.hasNext())
         {
@@ -74,6 +73,12 @@ public final class Procedure<T extends ToolUser>
      */
     public boolean applyStepExecutor(final @Nullable Object obj)
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot apply step executor because there is no active step!"));
+            return false;
+        }
         return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
     }
 
@@ -82,8 +87,15 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The message for the current step.
      */
-    public @NotNull String getMessage()
+    public @NonNull String getMessage()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot get the current step message because there is no active step!"));
+            // TODO: Localization
+            return "An error occurred!";
+        }
         return currentStep.getLocalizedMessage();
     }
 
@@ -92,8 +104,14 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The name of the current step.
      */
-    public @NotNull String getCurrentStepName()
+    public @NonNull String getCurrentStepName()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot get the name of the current because there is no active step!"));
+            return "ERROR";
+        }
         return currentStep.getName();
     }
 
@@ -104,6 +122,12 @@ public final class Procedure<T extends ToolUser>
      */
     public boolean waitForUserInput()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot wait for user input because there is no active step!"));
+            return false;
+        }
         return currentStep.waitForUserInput();
     }
 }

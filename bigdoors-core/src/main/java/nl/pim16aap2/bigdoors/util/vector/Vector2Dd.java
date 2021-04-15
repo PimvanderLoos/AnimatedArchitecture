@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 /**
  * Represents a double vector or vertex in 2D space.
@@ -14,81 +15,81 @@ public class Vector2Dd extends Vector2DdConst
         super(x, y);
     }
 
-    public Vector2Dd(final @NotNull Vector2DdConst other)
+    public Vector2Dd(final @NonNull Vector2DdConst other)
     {
         super(other);
     }
 
-    public Vector2Dd(final @NotNull Vector2DiConst other)
+    public Vector2Dd(final @NonNull Vector2DiConst other)
     {
         super(other);
     }
 
-    public @NotNull Vector2Dd add(final @NotNull Vector2Dd other)
+    public @NonNull Vector2Dd add(final @NonNull Vector2Dd other)
     {
         add(other.getX(), other.getY());
         return this;
     }
 
-    public @NotNull Vector2Dd subtract(final @NotNull Vector2Dd other)
+    public @NonNull Vector2Dd subtract(final @NonNull Vector2Dd other)
     {
         add(-other.getX(), -other.getY());
         return this;
     }
 
-    public @NotNull Vector2Dd multiply(final @NotNull Vector2Dd other)
+    public @NonNull Vector2Dd multiply(final @NonNull Vector2Dd other)
     {
         x *= other.getX();
         y *= other.getY();
         return this;
     }
 
-    public @NotNull Vector2Dd divide(final @NotNull Vector2Dd other)
+    public @NonNull Vector2Dd divide(final @NonNull Vector2Dd other)
     {
         x /= other.getX();
         y /= other.getY();
         return this;
     }
 
-    public @NotNull Vector2Dd multiply(final double val)
+    public @NonNull Vector2Dd multiply(final double val)
     {
         x *= val;
         y *= val;
         return this;
     }
 
-    public @NotNull Vector2Dd divide(final double val)
+    public @NonNull Vector2Dd divide(final double val)
     {
         x /= val;
         y /= val;
         return this;
     }
 
-    public @NotNull Vector2Dd addX(double val)
+    public @NonNull Vector2Dd addX(double val)
     {
         x += val;
         return this;
     }
 
-    public @NotNull Vector2Dd addY(double val)
+    public @NonNull Vector2Dd addY(double val)
     {
         y += val;
         return this;
     }
 
-    public @NotNull Vector2Dd setX(double newVal)
+    public @NonNull Vector2Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
-    public @NotNull Vector2Dd setY(double newVal)
+    public @NonNull Vector2Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
-    public @NotNull Vector2Dd add(double x, double y)
+    public @NonNull Vector2Dd add(double x, double y)
     {
         this.x += x;
         this.y += y;
@@ -96,12 +97,12 @@ public class Vector2Dd extends Vector2DdConst
     }
 
     @Override
-    public @NotNull Vector2Dd clone()
+    public @NonNull Vector2Dd clone()
     {
         return new Vector2Dd(this);
     }
 
-    public @NotNull Vector2Dd normalize()
+    public @NonNull Vector2Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y);
 

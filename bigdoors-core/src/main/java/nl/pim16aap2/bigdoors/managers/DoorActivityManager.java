@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Constants;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
@@ -22,15 +21,14 @@ import java.util.stream.Stream;
  */
 public final class DoorActivityManager extends Restartable
 {
-    @NotNull
-    private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
+    private final @NonNull Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
     /**
      * Constructs a new {@link DoorActivityManager}.
      *
      * @param holder The {@link IRestartableHolder} that manages this object.
      */
-    public DoorActivityManager(final @NotNull IRestartableHolder holder)
+    public DoorActivityManager(final @NonNull IRestartableHolder holder)
     {
         super(holder);
     }
@@ -112,7 +110,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @param mover The {@link BlockMover}.
      */
-    public void addBlockMover(final @NotNull BlockMover mover)
+    public void addBlockMover(final @NonNull BlockMover mover)
     {
         busyDoors.replace(mover.getDoorUID(), Optional.of(mover));
     }
@@ -122,7 +120,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @return All the currently active {@link BlockMover}s.
      */
-    public @NotNull Stream<BlockMover> getBlockMovers()
+    public @NonNull Stream<BlockMover> getBlockMovers()
     {
         return busyDoors.values().stream().filter(Optional::isPresent).map(Optional::get);
     }
@@ -133,7 +131,7 @@ public final class DoorActivityManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoorBase}.
      * @return The {@link BlockMover} of a busy {@link AbstractDoorBase}.
      */
-    public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
+    public @NonNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
         return busyDoors.containsKey(doorUID) ? busyDoors.get(doorUID) : Optional.empty();
     }

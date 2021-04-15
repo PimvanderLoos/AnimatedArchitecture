@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMo
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a delayed command to change the blocks a {@link AbstractDoorBase} will attempt to move.
@@ -16,14 +16,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class WaitForSetBlocksToMove extends WaitForCommand
 {
-    @NotNull
-    private final AbstractDoorBase door;
-    @NotNull
-    private final SubCommandSetBlocksToMove subCommand;
+private final @NonNull AbstractDoorBase door;
+private final @NonNull SubCommandSetBlocksToMove subCommand;
 
-    public WaitForSetBlocksToMove(final @NotNull BigDoorsSpigot plugin,
-                                  final @NotNull SubCommandSetBlocksToMove subCommand,
-                                  final @NotNull Player player, final @NotNull AbstractDoorBase door)
+    public WaitForSetBlocksToMove(final @NonNull BigDoorsSpigot plugin,
+                                  final @NonNull SubCommandSetBlocksToMove subCommand,
+                                  final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
         this.subCommand = subCommand;
@@ -33,7 +31,7 @@ public class WaitForSetBlocksToMove extends WaitForCommand
     }
 
     @Override
-    public boolean executeCommand(final @NotNull String[] args)
+    public boolean executeCommand(final @NonNull String[] args)
         throws CommandActionNotAllowedException, IllegalArgumentException
     {
 //        abortSilently();

@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import lombok.NonNull;
 
 @AllArgsConstructor
 public class Vector4DdConst
@@ -10,12 +10,12 @@ public class Vector4DdConst
     @Getter
     protected double x, y, z, w;
 
-    public Vector4DdConst(final @NotNull Vector4DdConst other)
+    public Vector4DdConst(final @NonNull Vector4DdConst other)
     {
         this(other.getX(), other.getY(), other.getZ(), other.getW());
     }
 
-    public Vector4DdConst(final @NotNull Vector4DiConst other)
+    public Vector4DdConst(final @NonNull Vector4DiConst other)
     {
         this(other.getX(), other.getY(), other.getZ(), other.getW());
     }
@@ -26,20 +26,20 @@ public class Vector4DdConst
      * @param decimals The number of digits after the dot to display.
      * @return The String representing this object.
      */
-    public @NotNull String toString(final int decimals)
+    public @NonNull String toString(final int decimals)
     {
-        final @NotNull String placeholder = "%." + decimals + "f";
+        final @NonNull String placeholder = "%." + decimals + "f";
         return String.format(placeholder + ", " + placeholder + ", " + placeholder + ", " + placeholder, x, y, z, w);
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return "(" + x + ":" + y + ":" + z + ":" + w + ")";
     }
 
     @Override
-    public @NotNull Vector4Dd clone()
+    public @NonNull Vector4Dd clone()
     {
         return new Vector4Dd(this);
     }

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandSenderNotPlayerException;
@@ -14,7 +15,6 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -25,15 +25,15 @@ public class SubCommandSetName extends SubCommand
     protected static final int minArgCount = 2;
     protected static final CommandData command = CommandData.SETNAME;
 
-    public SubCommandSetName(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    public SubCommandSetName(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         super(plugin, commandManager);
         init(help, argsHelp, minArgCount, command);
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException
     {
         if (!(sender instanceof Player))

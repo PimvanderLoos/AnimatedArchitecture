@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.NonNull;
 
 import java.util.logging.Level;
 
@@ -17,7 +18,7 @@ public interface IMessagingInterface
      * @param level   Level of importance of the message.
      * @param message The message.
      */
-    void writeToConsole(final @NotNull Level level, final @NotNull String message);
+    void writeToConsole(@NonNull Level level, @NonNull String message);
 
     /**
      * Send a message to a player.
@@ -25,7 +26,7 @@ public interface IMessagingInterface
      * @param player  The player.
      * @param message The message.
      */
-    void messagePlayer(final @NotNull IPPlayer player, final @NotNull String message);
+    void messagePlayer(@NonNull IPPlayer player, @NonNull String message);
 
     /**
      * Send a message to whomever or whatever issued a command at a given level (if applicable).
@@ -34,12 +35,12 @@ public interface IMessagingInterface
      * @param level   The level of the message (info, warn, etc). Does not apply to players.
      * @param message The message.
      */
-    void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level, final @NotNull String message);
+    void sendMessageToTarget(@NonNull Object target, @NonNull Level level, @NonNull String message);
 
     /**
      * Broadcasts a server-wide message.
      *
      * @param message The message to broadcast.
      */
-    void broadcastMessage(final @NotNull String message);
+    void broadcastMessage(@NonNull String message);
 }

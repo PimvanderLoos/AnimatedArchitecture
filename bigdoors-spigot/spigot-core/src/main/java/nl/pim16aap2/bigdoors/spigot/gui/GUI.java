@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -12,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -69,7 +69,7 @@ public class GUI
     private int maxPageCount;
     private AbstractDoorBase door = null;
 
-    public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull IPPlayer guiHolder)
+    public GUI(final @NonNull BigDoorsSpigot plugin, final @NonNull IPPlayer guiHolder)
     {
         isRefreshing = false;
         isOpen = true;
@@ -95,12 +95,12 @@ public class GUI
             });
     }
 
-    void updateItem(int index, @NotNull Optional<GUIItem> guiItem)
+    void updateItem(int index, @NonNull Optional<GUIItem> guiItem)
     {
         guiItem.ifPresent(I -> setItem(index, I));
     }
 
-    void setItem(int index, @NotNull GUIItem guiItem)
+    void setItem(int index, @NonNull GUIItem guiItem)
     {
         items.put(index, guiItem);
         getInventory().setItem(index, guiItem.getItemStack());
@@ -146,7 +146,7 @@ public class GUI
         return false;
     }
 
-    void setGUIPage(final @NotNull IGUIPage guiPage)
+    void setGUIPage(final @NonNull IGUIPage guiPage)
     {
         guiPage.kill();
         this.guiPage = guiPage;
@@ -201,7 +201,7 @@ public class GUI
         return door;
     }
 
-    void setDoor(final @NotNull AbstractDoorBase door)
+    void setDoor(final @NonNull AbstractDoorBase door)
     {
         this.door = door;
     }
@@ -238,7 +238,7 @@ public class GUI
         door = null;
     }
 
-    int indexOfDoor(final @NotNull AbstractDoorBase door)
+    int indexOfDoor(final @NonNull AbstractDoorBase door)
     {
         return doorBases.indexOf(door);
     }
@@ -248,7 +248,7 @@ public class GUI
         return doorBases.size();
     }
 
-    void addItem(final int index, final @NotNull GUIItem guiItem)
+    void addItem(final int index, final @NonNull GUIItem guiItem)
     {
         items.put(index, guiItem);
     }
@@ -273,7 +273,7 @@ public class GUI
         return sortType;
     }
 
-    void setSortType(final @NotNull SortType sortType)
+    void setSortType(final @NonNull SortType sortType)
     {
         this.sortType = sortType;
         sort();

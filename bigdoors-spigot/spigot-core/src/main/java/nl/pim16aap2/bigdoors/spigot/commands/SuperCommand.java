@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.commands;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class SuperCommand implements ICommand
     protected int minArgCount;
     protected CommandData command;
 
-    protected SuperCommand(final @NotNull BigDoorsSpigot plugin, final @NotNull CommandManager commandManager)
+    protected SuperCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull CommandManager commandManager)
     {
         this.plugin = plugin;
         this.commandManager = commandManager;
@@ -41,7 +41,7 @@ public class SuperCommand implements ICommand
      * @param minArgCount The minimum number of arguments of the command.
      * @param command     The {@link CommandData} of the command.
      */
-    protected final void init(final int minArgCount, final @NotNull CommandData command)
+    protected final void init(final int minArgCount, final @NonNull CommandData command)
     {
         this.minArgCount = minArgCount;
         this.command = command;
@@ -52,15 +52,15 @@ public class SuperCommand implements ICommand
      *
      * @param subCommand The {@link SubCommand}.
      */
-    public void registerSubCommand(final @NotNull SubCommand subCommand)
+    public void registerSubCommand(final @NonNull SubCommand subCommand)
     {
         subCommands.put(subCommand.getName().toLowerCase(), subCommand);
         commandManager.registerCommandShortcut(subCommand);
     }
 
     @Override
-    public boolean onCommand(final @NotNull CommandSender sender, final @NotNull Command cmd,
-                             final @NotNull String label, final @NotNull String[] args)
+    public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd,
+                             final @NonNull String label, final @NonNull String[] args)
         throws CommandSenderNotPlayerException, CommandPermissionException, IllegalArgumentException,
                CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
@@ -95,7 +95,7 @@ public class SuperCommand implements ICommand
     }
 
     @Override
-    public @NotNull String getHelp(final @NotNull CommandSender sender)
+    public @NonNull String getHelp(final @NonNull CommandSender sender)
     {
         StringBuilder builder = new StringBuilder();
         subCommands.forEach((K, V) ->
@@ -110,8 +110,8 @@ public class SuperCommand implements ICommand
         return builder.toString();
     }
 
-    private @NotNull String getHelpOfSubCommand(final @NotNull CommandSender sender,
-                                                final @NotNull SubCommand subCommand)
+    private @NonNull String getHelpOfSubCommand(final @NonNull CommandSender sender,
+                                                final @NonNull SubCommand subCommand)
     {
         String help = subCommand.getHelp(sender);
         String args = subCommand.getHelpArguments();
@@ -119,13 +119,13 @@ public class SuperCommand implements ICommand
     }
 
     @Override
-    public @NotNull String getPermission()
+    public @NonNull String getPermission()
     {
         return CommandData.getPermission(command);
     }
 
     @Override
-    public @NotNull String getName()
+    public @NonNull String getName()
     {
         return CommandData.getCommandName(command);
     }
@@ -137,7 +137,7 @@ public class SuperCommand implements ICommand
     }
 
     @Override
-    public @NotNull CommandData getCommandData()
+    public @NonNull CommandData getCommandData()
     {
         return command;
     }

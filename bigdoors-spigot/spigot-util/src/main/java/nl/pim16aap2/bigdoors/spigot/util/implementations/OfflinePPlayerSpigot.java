@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -41,7 +40,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    public void sendMessage(final @NonNull Level level, final @NonNull String message)
     {
     }
 
@@ -56,7 +55,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull String toString()
+    public @NonNull String toString()
     {
         return asString();
     }
@@ -80,7 +79,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull OfflinePPlayerSpigot clone()
+    public @NonNull OfflinePPlayerSpigot clone()
     {
         try
         {

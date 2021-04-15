@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
+import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,12 +27,12 @@ public class GUIPageRemoveOwner implements IGUIPage
      * Used to store future player heads before they are retrieved. It is stored in an intermediate step so it can be
      * aborted on an update or something.
      */
-    @NotNull
+    @NonNull
     private List<CompletableFuture<Optional<ItemStack>>> futurePlayerHeads = new ArrayList<>();
 
     private List<DoorOwner> owners;
 
-    protected GUIPageRemoveOwner(final @NotNull BigDoorsSpigot plugin, final @NotNull GUI gui)
+    protected GUIPageRemoveOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
