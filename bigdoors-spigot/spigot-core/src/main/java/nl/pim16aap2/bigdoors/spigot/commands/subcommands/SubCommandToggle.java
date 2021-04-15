@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.commands.subcommands;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
@@ -49,7 +48,8 @@ public class SubCommandToggle extends SubCommand
     {
         final @Nullable IPPlayer player = sender instanceof Player ? SpigotAdapter.wrapPlayer((Player) sender) : null;
         final @NotNull DoorActionCause cause = player == null ? DoorActionCause.SERVER : DoorActionCause.PLAYER;
-        DoorOpener.get().animateDoorAsync(door, cause, player, time, false, DoorActionType.TOGGLE);
+        BigDoors.get().getDoorOpener()
+                .animateDoorAsync(door, cause, player, time, false, DoorActionType.TOGGLE);
     }
 
     public void execute(final @NotNull CommandSender sender, final @NotNull AbstractDoorBase door, final double time)

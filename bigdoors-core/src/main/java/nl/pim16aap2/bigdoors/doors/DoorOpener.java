@@ -22,22 +22,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class DoorOpener
 {
-    private static final DoorOpener INSTANCE = new DoorOpener();
-
-    private DoorOpener()
-    {
-    }
-
-    /**
-     * Gets the instance of the {@link DoorOpener} if it exists.
-     *
-     * @return The instance of the {@link DoorOpener}.
-     */
-    public static @NotNull DoorOpener get()
-    {
-        return INSTANCE;
-    }
-
     /**
      * Toggles, opens, or closes a door. Can be called (a)synchronously.
      *

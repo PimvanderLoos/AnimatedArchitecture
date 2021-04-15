@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -105,8 +104,9 @@ public class RedstoneListener extends Restartable implements Listener
         BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getName()).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> DoorOpener.get().animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
-                                                          DoorActionType.TOGGLE)));
+                door -> BigDoors.get().getDoorOpener()
+                                .animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
+                                                  DoorActionType.TOGGLE)));
     }
 
     /**

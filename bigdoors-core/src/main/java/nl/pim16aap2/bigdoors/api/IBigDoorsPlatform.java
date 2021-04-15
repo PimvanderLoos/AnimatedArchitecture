@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
@@ -200,7 +201,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The {@link IPLogger} for this platform.
      */
-    IPLogger getPLogger();
+    @NonNull IPLogger getPLogger();
 
     /**
      * Gets the {@link DatabaseManager}.
@@ -250,4 +251,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link ToolUserManager} instance.
      */
     @NotNull ToolUserManager getToolUserManager();
+
+    /**
+     * Gets the {@link DoorOpener}.
+     *
+     * @return The {@link DoorOpener}.
+     */
+    @NonNull DoorOpener getDoorOpener();
 }

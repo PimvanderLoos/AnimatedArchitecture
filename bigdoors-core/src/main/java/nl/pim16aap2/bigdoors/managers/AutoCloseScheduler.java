@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -90,7 +89,8 @@ public final class AutoCloseScheduler extends Restartable
                 {
                     // TODO: Verify that reusing the door object won't result in any issues.
                     BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
-                    DoorOpener.get().animateDoorAsync(door, cause, player, speed, skipAnimation, DoorActionType.CLOSE);
+                    BigDoors.get().getDoorOpener()
+                            .animateDoorAsync(door, cause, player, speed, skipAnimation, DoorActionType.CLOSE);
                 }
                 deleteTimer(door.getDoorUID());
             }

@@ -4,6 +4,7 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
@@ -84,6 +85,16 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DoorRegistry getDoorRegistry()
     {
         return getPlatform().getDoorRegistry();
+    }
+
+    /**
+     * Gets the {@link DoorOpener}.
+     *
+     * @return The {@link DoorOpener}.
+     */
+    public @NonNull DoorOpener getDoorOpener()
+    {
+        return getPlatform().getDoorOpener();
     }
 
     /**

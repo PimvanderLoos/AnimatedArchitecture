@@ -23,6 +23,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
@@ -206,6 +207,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private DatabaseManager databaseManager;
 
     @Getter
+    private DoorOpener doorOpener;
+
+    @Getter
     private final DoorRegistry doorRegistry = new DoorRegistry();
 
     @Getter
@@ -232,6 +236,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
         abortableTaskManager = AbortableTaskManager.init(this);
+
+        doorOpener = new DoorOpener();
 
         try
         {

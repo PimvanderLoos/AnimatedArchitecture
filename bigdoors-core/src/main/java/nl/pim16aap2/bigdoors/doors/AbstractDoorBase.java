@@ -344,9 +344,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         else
             doorActionType = null;
         if (doorActionType != null)
-            DoorOpener.get().animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                              BigDoors.get().getPlatform().getMessageableServer(),
-                                              player, 0.0D, false, DoorActionType.CLOSE);
+            BigDoors.get().getDoorOpener()
+                    .animateDoorAsync(this, DoorActionCause.REDSTONE,
+                                      BigDoors.get().getPlatform().getMessageableServer(),
+                                      player, 0.0D, false, DoorActionType.CLOSE);
     }
 
     @Override
@@ -770,6 +771,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         }
     }
 
+    // test
     public class Registerable
     {
         private Registerable()
