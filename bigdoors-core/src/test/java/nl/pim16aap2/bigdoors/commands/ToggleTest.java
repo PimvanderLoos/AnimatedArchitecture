@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -21,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
@@ -107,5 +109,32 @@ class ToggleTest
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertTrue(toggle.hasAccess(door, false));
+    }
+
+    @Test
+    @SneakyThrows
+    void testExecution()
+    {
+        // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
+        final int count = 10;
+        val retrievers = new DoorRetriever[count];
+        val doors = new AbstractDoorBase[count];
+        for (int idx = 0; idx < count; ++idx)
+        {
+            doors[idx] = Mockito.mock(AbstractDoorBase.class);
+            retrievers[idx] = Mockito.mock(DoorRetriever.class);
+            initDoorRetriever(retrievers[idx], doors[idx]);
+        }
+
+        val toggle = new Toggle(commandSender, retrievers);
+        toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
+
+        val toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
+                                  .<AbstractDoorBase>map(invocation -> invocation.getArgument(0))
+                                  .collect(Collectors.toSet());
+
+        Assertions.assertEquals(count, toggledDoors.size());
+        for (int idx = 0; idx < count; ++idx)
+            Assertions.assertTrue(toggledDoors.contains(doors[idx]));
     }
 }
