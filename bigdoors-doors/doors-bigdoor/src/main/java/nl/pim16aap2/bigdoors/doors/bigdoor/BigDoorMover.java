@@ -20,7 +20,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 
 public class BigDoorMover extends BlockMover
 {
-private final @NonNull Vector3DdConst rotationCenter;
+    private final @NonNull Vector3DdConst rotationCenter;
     private int halfEndCount;
     private final double angle;
     private final double endSin;
@@ -29,7 +29,7 @@ private final @NonNull Vector3DdConst rotationCenter;
 
     public BigDoorMover(final @NonNull AbstractDoorBase door, final @NonNull RotateDirection rotDirection,
                         final double time, final boolean skipAnimation, final double multiplier,
-                        @NonNull final IPPlayer player, final @NonNull CuboidConst newCuboid,
+                        final @NonNull IPPlayer player, final @NonNull CuboidConst newCuboid,
                         final @NonNull DoorActionCause cause, final @NonNull DoorActionType actionType)
         throws Exception
     {

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -9,10 +11,10 @@ import java.util.Objects;
  */
 public final class Pair<T1, T2>
 {
-    public T1 first;
-    public T2 second;
+    public @Nullable T1 first;
+    public @Nullable T2 second;
 
-    public Pair(final T1 first, final T2 second)
+    public Pair(final @Nullable T1 first, final @Nullable T2 second)
     {
         this.first = first;
         this.second = second;

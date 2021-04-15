@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -64,7 +65,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     // Check if a given player is allowed to build in a given plot.
     // Adapted from:
     // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
-    private boolean canBreakBlock(final @NonNull Player player, final @NonNull PlotArea area, Plot plot,
+    private boolean canBreakBlock(final @NonNull Player player, final @NonNull PlotArea area, @Nullable Plot plot,
                                   final @NonNull Location loc)
     {
         if (plot != null)

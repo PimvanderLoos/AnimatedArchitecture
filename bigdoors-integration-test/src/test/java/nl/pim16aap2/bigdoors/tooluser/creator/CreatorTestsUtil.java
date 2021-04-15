@@ -151,7 +151,7 @@ public class CreatorTestsUtil
     }
 
     @SneakyThrows
-    public void testCreation(final @NonNull Creator creator, AbstractDoorBase actualDoor,
+    public void testCreation(final @NonNull Creator creator, @NonNull AbstractDoorBase actualDoor,
                              final @NonNull Object... input)
     {
         setEconomyEnabled(false);

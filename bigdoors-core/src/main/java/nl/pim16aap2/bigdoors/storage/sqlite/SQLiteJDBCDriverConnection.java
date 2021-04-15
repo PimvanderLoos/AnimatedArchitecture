@@ -65,12 +65,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * The database file.
      */
-private final @NonNull File dbFile;
+    private final @NonNull File dbFile;
 
     /**
      * The URL of the database.
      */
-private final @NonNull String url;
+    private final @NonNull String url;
 
     /**
      * The {@link DatabaseState} the database is in.
@@ -352,7 +352,7 @@ private final @NonNull String url;
     }
 
     private Long insert(final @NonNull Connection conn, final @NonNull AbstractDoorBase door,
-                        final String doorType, final byte[] typeSpecificData)
+                        final @NonNull String doorType, final byte[] typeSpecificData)
     {
         final @NonNull PPlayerData playerData = door.getPrimeOwner().getPPlayerData();
         insertOrIgnorePlayer(conn, playerData);
@@ -1197,9 +1197,9 @@ private final @NonNull String url;
      * @param <T>           The type of the result to return.
      * @return The result of the Function.
      */
-    @Contract(" _, _, !null, _ -> !null")
+    @Contract(" _, !null, _, _ -> !null")
     private <T> T execute(final @NonNull CheckedFunction<Connection, T, Exception> fun,
-                          final T fallback, final FailureAction failureAction, final @NonNull ReadMode readMode)
+                          final T fallback, @NonNull FailureAction failureAction, final @NonNull ReadMode readMode)
     {
         try (final @Nullable Connection conn = getConnection(readMode))
         {
