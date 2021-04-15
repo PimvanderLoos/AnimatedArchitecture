@@ -27,7 +27,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         final CompletableFuture<Boolean> ret = new CompletableFuture<>();
 
