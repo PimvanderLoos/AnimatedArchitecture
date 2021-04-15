@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -17,18 +16,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
+import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
 
 class BaseCommandTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     BaseCommand baseCommand;
 
-    @Mock
     IBigDoorsPlatform platform;
 
     @Mock
@@ -43,24 +42,16 @@ class BaseCommandTest
     @BeforeEach
     void init()
     {
+        platform = initPlatform();
         MockitoAnnotations.openMocks(this);
-
-        BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
         Mockito.when(baseCommand.getCommandSender()).thenReturn(commandSender);
         Mockito.when(baseCommand.getCommand()).thenReturn(CommandDefinition.ADD_OWNER);
         Mockito.when(baseCommand.validInput()).thenCallRealMethod();
         Mockito.when(baseCommand.hasPermission()).thenCallRealMethod();
 
-        Mockito.when(commandSender.hasPermission(Mockito.any(String.class)))
-               .thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new BooleanPair(true, true)));
-
-        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-        Mockito.when(doorRetriever.getDoor(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
+        initCommandSenderPermissions(commandSender, true, true);
+        initDoorRetriever(doorRetriever, door);
     }
 
     @Test

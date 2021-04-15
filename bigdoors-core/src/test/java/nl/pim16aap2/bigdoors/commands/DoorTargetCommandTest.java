@@ -1,11 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -21,9 +19,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
+
 class DoorTargetCommandTest
 {
-    @Mock
     IBigDoorsPlatform platform;
 
     @Mock
@@ -44,18 +43,11 @@ class DoorTargetCommandTest
     @BeforeEach
     void init()
     {
+        platform = initPlatform();
         MockitoAnnotations.openMocks(this);
-        BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
-        Mockito.when(commandSender.hasPermission(Mockito.any(String.class)))
-               .thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new BooleanPair(true, true)));
-
-        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-        Mockito.when(doorRetriever.getDoor(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
+        initCommandSenderPermissions(commandSender, true, true);
+        initDoorRetriever(doorRetriever, door);
 
         Mockito.when(doorTargetCommand.getDoorRetriever()).thenReturn(doorRetriever);
         Mockito.when(doorTargetCommand.isAllowed(Mockito.any(), Mockito.anyBoolean())).thenReturn(true);

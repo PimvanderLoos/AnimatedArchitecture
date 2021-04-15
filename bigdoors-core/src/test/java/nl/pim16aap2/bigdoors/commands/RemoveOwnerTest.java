@@ -1,14 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,11 +13,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
+
+import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
 
 class RemoveOwnerTest
 {
+    @Mock
     private static DoorRetriever doorRetriever;
+    @Mock
     private static AbstractDoorBase door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
@@ -32,38 +29,22 @@ class RemoveOwnerTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer target;
 
-    private static final PPlayerData playerData = Mockito.mock(PPlayerData.class);
-    private static final DoorOwner doorOwner0 = new DoorOwner(0, 0, playerData);
-    private static final DoorOwner doorOwner1 = new DoorOwner(0, 1, playerData);
-    private static final DoorOwner doorOwner2 = new DoorOwner(0, 2, playerData);
-
     private RemoveOwner removeOwner;
 
     @BeforeAll
     static void init()
     {
-        IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
+        initPlatform();
         doorRetriever = Mockito.mock(DoorRetriever.class);
         door = Mockito.mock(AbstractDoorBase.class);
-
-        BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-
-        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-        Mockito.when(doorRetriever.getDoor(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
+        initDoorRetriever(doorRetriever, door);
     }
 
     @BeforeEach
     void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
-
-        Mockito.when(commandSender.hasPermission(Mockito.any(String.class)))
-               .thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new BooleanPair(true, true)));
-
+        initCommandSenderPermissions(commandSender, true, true);
         removeOwner = new RemoveOwner(commandSender, doorRetriever, target);
     }
 
