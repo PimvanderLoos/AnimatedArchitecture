@@ -14,7 +14,7 @@ import org.mockito.Mockito;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-class CommanTestingUtil
+class CommandTestingUtil
 {
     public static final PPlayerData playerData = Mockito.mock(PPlayerData.class);
     public static final DoorOwner doorOwner0 = new DoorOwner(0, 0, playerData);

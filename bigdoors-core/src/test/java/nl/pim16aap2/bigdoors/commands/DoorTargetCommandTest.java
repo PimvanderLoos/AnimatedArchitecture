@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class DoorTargetCommandTest
 {

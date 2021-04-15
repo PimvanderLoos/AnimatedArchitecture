@@ -15,15 +15,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class ToggleTest
 {
@@ -39,15 +38,7 @@ class ToggleTest
     @Mock
     AbstractDoorBase door;
 
-    @Mock
     DoorOpener doorOpener;
-
-    @Captor ArgumentCaptor<AbstractDoorBase> captureDoorOpenerDoor;
-    @Captor ArgumentCaptor<DoorActionCause> captureDoorOpenerCause;
-    @Captor ArgumentCaptor<IPPlayer> captureDoorOpenerResponsible;
-    @Captor ArgumentCaptor<Double> captureDoorOpenerTime;
-    @Captor ArgumentCaptor<Boolean> captureDoorOpenerSkip;
-    @Captor ArgumentCaptor<DoorActionType> captureDoorOpenerActionType;
 
     @BeforeEach
     void init()
@@ -55,6 +46,7 @@ class ToggleTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
+        doorOpener = Mockito.mock(DoorOpener.class);
         Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
         initCommandSenderPermissions(commandSender, true, true);
         initDoorRetriever(doorRetriever, door);
@@ -67,31 +59,57 @@ class ToggleTest
         Assertions.assertFalse(new Toggle(commandSender, new DoorRetriever[0]).validInput());
     }
 
-    private void verifyDoorOpenerCall(AbstractDoorBase door, DoorActionCause doorActionCause,
-                                      ICommandSender commandSender, double time, boolean skip,
-                                      DoorActionType doorActionType)
+    private static void verifyDoorOpenerCall(int times, DoorOpener doorOpener, AbstractDoorBase door,
+                                             DoorActionCause doorActionCause,
+                                             ICommandSender commandSender, double time, boolean skip,
+                                             DoorActionType doorActionType)
     {
-        Mockito.verify(doorOpener).animateDoorAsync(captureDoorOpenerDoor.capture(),
-                                                    captureDoorOpenerCause.capture(),
-                                                    captureDoorOpenerResponsible.capture(),
-                                                    captureDoorOpenerTime.capture(),
-                                                    captureDoorOpenerSkip.capture(),
-                                                    captureDoorOpenerActionType.capture());
+        Mockito.verify(doorOpener, Mockito.times(times))
+               .animateDoorAsync(door, doorActionCause, (IPPlayer) commandSender, time, skip, doorActionType);
+    }
 
-        Assertions.assertEquals(door, captureDoorOpenerDoor.getValue());
-        Assertions.assertEquals(doorActionCause, captureDoorOpenerCause.getValue());
-        Assertions.assertEquals(commandSender, captureDoorOpenerResponsible.getValue());
-        Assertions.assertEquals(time, captureDoorOpenerTime.getValue());
-        Assertions.assertEquals(skip, captureDoorOpenerSkip.getValue());
-        Assertions.assertEquals(doorActionType, captureDoorOpenerActionType.getValue());
+    private void verifyDoorOpenerNeverCalled()
+    {
+        Mockito.verify(doorOpener, Mockito.never())
+               .animateDoorAsync(Mockito.any(AbstractDoorBase.class), Mockito.any(), Mockito.any(), Mockito.anyDouble(),
+                                 Mockito.anyBoolean(), Mockito.any());
     }
 
     @Test
     @SneakyThrows
     void testSuccess()
     {
+        DoorOpener doorOpener = Mockito.mock(DoorOpener.class);
+        Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
+
         Toggle toggle = new Toggle(commandSender, doorRetriever);
-        Assertions.assertTrue(toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS));
-        verifyDoorOpenerCall(door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
+        toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
+        Thread.sleep(10);
+        verifyDoorOpenerCall(1, doorOpener,
+                             door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS);
+        Thread.sleep(10);
+        verifyDoorOpenerCall(2, doorOpener,
+                             door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
+    }
+
+    @Test
+    @SneakyThrows
+    void testHasAccess()
+    {
+        Toggle toggle = new Toggle(commandSender, doorRetriever);
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.empty());
+        Assertions.assertTrue(toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS));
+        Thread.sleep(10);
+        verifyDoorOpenerNeverCalled();
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertTrue(toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS));
+        Thread.sleep(10);
+
+
     }
 }

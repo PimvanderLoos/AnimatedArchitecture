@@ -14,7 +14,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
-import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class AddOwnerTest
 {

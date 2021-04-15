@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static nl.pim16aap2.bigdoors.commands.CommanTestingUtil.*;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class BaseCommandTest
 {
