@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class DoorOpener
 {
+    // TODO: Desingletonify
     private static final DoorOpener INSTANCE = new DoorOpener();
 
     private DoorOpener()
