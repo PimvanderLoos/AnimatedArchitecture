@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
@@ -24,7 +25,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import java.io.File;
 import java.util.Optional;
 
-public interface IBigDoorsPlatform extends IRestartableHolder
+public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
 {
     /**
      * Gets the directory where all data will stored.

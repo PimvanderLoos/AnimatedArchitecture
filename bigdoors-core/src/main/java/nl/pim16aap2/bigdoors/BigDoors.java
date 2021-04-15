@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -52,10 +52,7 @@ public final class BigDoors extends RestartableHolder
      */
     public void setBigDoorsPlatform(final @NonNull IBigDoorsPlatform platform)
     {
-        if (this.platform != null)
-            this.platform.deregisterRestartable(this);
         this.platform = platform;
-        this.platform.registerRestartable(this);
     }
 
     /**
@@ -179,5 +176,21 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DatabaseManager getDatabaseManager()
     {
         return getPlatform().getDatabaseManager();
+    }
+
+    /**
+     * Handles a restart.
+     */
+    public void restart()
+    {
+        restartables.forEach(IRestartable::restart);
+    }
+
+    /**
+     * Handles a shutdown.
+     */
+    public void shutdown()
+    {
+        restartables.forEach(IRestartable::shutdown);
     }
 }

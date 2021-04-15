@@ -126,8 +126,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
-    @NonNull
-    private static final BigDoors BIGDOORS = BigDoors.get();
 
     private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
@@ -220,7 +218,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public BigDoorsSpigot()
     {
         INSTANCE = this;
-        BIGDOORS.setBigDoorsPlatform(this);
+        BigDoors.get().setBigDoorsPlatform(this);
+        BigDoors.get().registerRestartable(this);
         MAINTHREADID = Thread.currentThread().getId();
         pExecutor = new PExecutorSpigot(this);
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
@@ -471,6 +470,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         restartables.remove(restartable);
     }
 
+    @Override
     public void restart()
     {
         if (!validVersion)
@@ -491,18 +491,18 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public void onDisable()
-    {
-        shutdown();
-        restartables.forEach(IRestartable::shutdown);
-    }
-
-    private void shutdown()
+    public void shutdown()
     {
         if (!validVersion)
             return;
 
         cmdWaiters.clear();
+    }
+
+    public void onDisable()
+    {
+        shutdown();
+        restartables.forEach(IRestartable::shutdown);
     }
 
     @Override
