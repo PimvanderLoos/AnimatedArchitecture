@@ -84,13 +84,11 @@ class ToggleTest
 
         Toggle toggle = new Toggle(commandSender, doorRetriever);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
-        Thread.sleep(10);
         verifyDoorOpenerCall(1, doorOpener,
                              door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS);
-        Thread.sleep(10);
         verifyDoorOpenerCall(2, doorOpener,
                              door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
     }
@@ -101,15 +99,13 @@ class ToggleTest
     {
         Toggle toggle = new Toggle(commandSender, doorRetriever);
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.empty());
-        Assertions.assertTrue(toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS));
-        Thread.sleep(10);
-        verifyDoorOpenerNeverCalled();
+        Assertions.assertTrue(toggle.hasAccess(door, true));
+        Assertions.assertFalse(toggle.hasAccess(door, false));
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner3));
+        Assertions.assertFalse(toggle.hasAccess(door, false));
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-        Assertions.assertTrue(toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS));
-        Thread.sleep(10);
-
-
+        Assertions.assertTrue(toggle.hasAccess(door, false));
     }
 }

@@ -69,7 +69,7 @@ public class Toggle extends BaseCommand
      *                            {@link CommandDefinition#getAdminPermission()}.
      * @return True if the command sender has access to the toggle attribute for the provided door, otherwise false.
      */
-    private boolean hasAccess(final @NonNull AbstractDoorBase door, final boolean hasBypassPermission)
+    protected final boolean hasAccess(final @NonNull AbstractDoorBase door, final boolean hasBypassPermission)
     {
         if (hasBypassPermission || !getCommandSender().isPlayer())
             return true;
@@ -91,7 +91,7 @@ public class Toggle extends BaseCommand
      * @param door The door for which to check whether it can be toggled.
      * @return True if the toggle action is possible, otherwise false.
      */
-    private boolean canToggle(final @NonNull AbstractDoorBase door)
+    protected final boolean canToggle(final @NonNull AbstractDoorBase door)
     {
         switch (getDoorActionType())
         {
@@ -126,11 +126,11 @@ public class Toggle extends BaseCommand
                                   speedMultiplier, false, getDoorActionType());
     }
 
-    private void handleDoorRequest(final @NonNull DoorRetriever doorRetriever,
-                                   final @NonNull DoorActionCause doorActionCause,
-                                   final boolean hasBypassPermission)
+    private CompletableFuture<Void> handleDoorRequest(final @NonNull DoorRetriever doorRetriever,
+                                                      final @NonNull DoorActionCause doorActionCause,
+                                                      final boolean hasBypassPermission)
     {
-        getDoor(doorRetriever)
+        return getDoor(doorRetriever)
             .thenAccept(doorOpt -> doorOpt.ifPresent(door -> toggleDoor(door, doorActionCause, hasBypassPermission)));
     }
 
@@ -138,8 +138,9 @@ public class Toggle extends BaseCommand
     protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         val actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
-        for (val doorRetriever : doorRetrievers)
-            handleDoorRequest(doorRetriever, actionCause, permissions.second);
-        return CompletableFuture.completedFuture(true);
+        val actions = new CompletableFuture[doorRetrievers.length];
+        for (int idx = 0; idx < actions.length; ++idx)
+            actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.second);
+        return CompletableFuture.allOf(actions).thenApply(ignored -> true);
     }
 }

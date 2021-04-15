@@ -20,6 +20,7 @@ class CommandTestingUtil
     public static final DoorOwner doorOwner0 = new DoorOwner(0, 0, playerData);
     public static final DoorOwner doorOwner1 = new DoorOwner(0, 1, playerData);
     public static final DoorOwner doorOwner2 = new DoorOwner(0, 2, playerData);
+    public static final DoorOwner doorOwner3 = new DoorOwner(0, 3, playerData);
 
     /**
      * Sets up a {@link DoorRetriever} with a specific {@link AbstractDoorBase} such that requesting the door from the
