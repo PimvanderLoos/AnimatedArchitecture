@@ -24,8 +24,8 @@ public class AddOwner extends DoorTargetCommand
     private final @NonNull IPPlayer targetPlayer;
     private final int targetPermissionLevel;
 
-    public AddOwner(@NonNull ICommandSender commandSender, @NonNull DoorRetriever doorRetriever,
-                    @NonNull IPPlayer targetPlayer, int targetPermissionLevel)
+    public AddOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+                    final @NonNull IPPlayer targetPlayer, final int targetPermissionLevel)
     {
         super(commandSender, doorRetriever);
         this.targetPlayer = targetPlayer;
@@ -45,13 +45,13 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(@NonNull AbstractDoorBase door)
+    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
         return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel);
     }
 
     @Override
-    protected boolean isAllowed(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
+    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean hasBypassPermission)
     {
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::getPermission)
                                            .orElse(Integer.MAX_VALUE);

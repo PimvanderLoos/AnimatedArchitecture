@@ -122,7 +122,7 @@ public abstract class BaseCommand
      * @param doorRetriever The {@link DoorRetriever} to use
      * @return The {@link AbstractDoorBase} if one could be retrieved.
      */
-    protected @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(@NonNull DoorRetriever doorRetriever)
+    protected @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NonNull DoorRetriever doorRetriever)
     {
         return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
                                  .orElseGet(doorRetriever::getDoor).thenApplyAsync(

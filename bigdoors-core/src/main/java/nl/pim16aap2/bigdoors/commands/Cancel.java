@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Cancel extends BaseCommand
 {
-    public Cancel(@NonNull ICommandSender commandSender)
+    public Cancel(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -30,13 +30,13 @@ public class Cancel extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         getCommandSender().getPlayer().ifPresent(this::cancelPlayer);
         return CompletableFuture.completedFuture(true);
     }
 
-    private void cancelPlayer(@NonNull IPPlayer player)
+    private void cancelPlayer(final @NonNull IPPlayer player)
     {
         BigDoors.get().getToolUserManager().getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
         BigDoors.get().getDoorSpecificationManager().cancelRequest(player);

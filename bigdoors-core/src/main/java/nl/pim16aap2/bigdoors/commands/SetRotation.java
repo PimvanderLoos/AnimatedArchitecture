@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetRotation extends BaseCommand
 {
-    public SetRotation(@NonNull ICommandSender commandSender)
+    public SetRotation(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -22,7 +22,7 @@ public class SetRotation extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         throw new UnsupportedOperationException("This command has not yet been implemented!");
     }

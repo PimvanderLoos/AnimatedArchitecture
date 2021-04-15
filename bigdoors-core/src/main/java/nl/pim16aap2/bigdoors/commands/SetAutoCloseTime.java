@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetAutoCloseTime extends BaseCommand
 {
-    public SetAutoCloseTime(@NonNull ICommandSender commandSender)
+    public SetAutoCloseTime(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -22,7 +22,7 @@ public class SetAutoCloseTime extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         throw new UnsupportedOperationException("This command has not yet been implemented!");
     }

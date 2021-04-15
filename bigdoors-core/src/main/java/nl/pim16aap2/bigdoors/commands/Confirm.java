@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Confirm extends BaseCommand
 {
-    public Confirm(@NonNull ICommandSender commandSender)
+    public Confirm(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -22,7 +22,7 @@ public class Confirm extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         throw new UnsupportedOperationException("This command has not yet been implemented!");
     }

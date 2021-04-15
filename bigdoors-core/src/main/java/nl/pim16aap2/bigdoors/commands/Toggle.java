@@ -28,15 +28,15 @@ public class Toggle extends BaseCommand
     private final @NonNull DoorRetriever[] doorRetrievers;
     private final double speedMultiplier;
 
-    public Toggle(@NonNull ICommandSender commandSender, double speedMultiplier,
-                  @NonNull DoorRetriever... doorRetrievers)
+    public Toggle(final @NonNull ICommandSender commandSender, final double speedMultiplier,
+                  final @NonNull DoorRetriever... doorRetrievers)
     {
         super(commandSender);
         this.speedMultiplier = speedMultiplier;
         this.doorRetrievers = doorRetrievers;
     }
 
-    public Toggle(@NonNull ICommandSender commandSender, @NonNull DoorRetriever... doorRetrievers)
+    public Toggle(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever... doorRetrievers)
     {
         this(commandSender, 0D, doorRetrievers);
     }
@@ -61,7 +61,15 @@ public class Toggle extends BaseCommand
         return CommandDefinition.TOGGLE;
     }
 
-    private boolean hasAccess(@NonNull AbstractDoorBase door, boolean hasBypassPermission)
+    /**
+     * Checks if the {@link #getCommandSender()} has access to the toggle attribute for the given door.
+     *
+     * @param door                The {@link AbstractDoorBase} for which to check access.
+     * @param hasBypassPermission Whether or not the {@link #getCommandSender()} has the admin/bypass permission. See
+     *                            {@link CommandDefinition#getAdminPermission()}.
+     * @return True if the command sender has access to the toggle attribute for the provided door, otherwise false.
+     */
+    private boolean hasAccess(final @NonNull AbstractDoorBase door, final boolean hasBypassPermission)
     {
         if (hasBypassPermission || !getCommandSender().isPlayer())
             return true;
@@ -73,7 +81,17 @@ public class Toggle extends BaseCommand
             .orElse(false);
     }
 
-    private boolean canToggle(@NonNull AbstractDoorBase door)
+    /**
+     * Checks if the provided {@link AbstractDoorBase} can be toggled with the action provided by {@link
+     * #getDoorActionType()}.
+     * <p>
+     * For example, if the action is {@link DoorActionType#CLOSE} and the door is already closed, the action is not
+     * possible.
+     *
+     * @param door The door for which to check whether it can be toggled.
+     * @return True if the toggle action is possible, otherwise false.
+     */
+    private boolean canToggle(final @NonNull AbstractDoorBase door)
     {
         switch (getDoorActionType())
         {
@@ -87,8 +105,8 @@ public class Toggle extends BaseCommand
         return false;
     }
 
-    private void toggleDoor(@NonNull AbstractDoorBase door, @NonNull DoorActionCause doorActionCause,
-                            boolean hasBypassPermission)
+    private void toggleDoor(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause doorActionCause,
+                            final boolean hasBypassPermission)
     {
         if (!hasAccess(door, hasBypassPermission))
         {
@@ -108,15 +126,16 @@ public class Toggle extends BaseCommand
                                   speedMultiplier, false, getDoorActionType());
     }
 
-    private void handleDoorRequest(@NonNull DoorRetriever doorRetriever, @NonNull DoorActionCause doorActionCause,
-                                   boolean hasBypassPermission)
+    private void handleDoorRequest(final @NonNull DoorRetriever doorRetriever,
+                                   final @NonNull DoorActionCause doorActionCause,
+                                   final boolean hasBypassPermission)
     {
         getDoor(doorRetriever)
             .thenAccept(doorOpt -> doorOpt.ifPresent(door -> toggleDoor(door, doorActionCause, hasBypassPermission)));
     }
 
     @Override
-    protected final @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         val actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
         for (val doorRetriever : doorRetrievers)

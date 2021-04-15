@@ -34,7 +34,7 @@ public class Info extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions)
+    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
         return getDoor(doorRetriever).thenApplyAsync(
             door ->

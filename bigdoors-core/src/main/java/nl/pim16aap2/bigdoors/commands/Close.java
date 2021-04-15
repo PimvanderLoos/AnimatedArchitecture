@@ -9,13 +9,13 @@ import nl.pim16aap2.bigdoors.util.DoorRetriever;
 @ToString
 public class Close extends Toggle
 {
-    public Close(@NonNull ICommandSender commandSender, double speedMultiplier,
-                 @NonNull DoorRetriever... doorRetrievers)
+    public Close(final @NonNull ICommandSender commandSender, final double speedMultiplier,
+                 final @NonNull DoorRetriever... doorRetrievers)
     {
         super(commandSender, speedMultiplier, doorRetrievers);
     }
 
-    public Close(@NonNull ICommandSender commandSender, @NonNull DoorRetriever[] doorRetrievers)
+    public Close(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever[] doorRetrievers)
     {
         super(commandSender, doorRetrievers);
     }

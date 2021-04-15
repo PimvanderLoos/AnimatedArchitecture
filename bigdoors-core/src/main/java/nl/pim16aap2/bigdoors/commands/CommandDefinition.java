@@ -39,7 +39,7 @@ public enum CommandDefinition
     @Getter
     private final @NonNull Optional<String> adminPermission;
 
-    CommandDefinition(@Nullable String userPermission, @Nullable String adminPermission)
+    CommandDefinition(final @Nullable String userPermission, final @Nullable String adminPermission)
     {
         this.userPermission = Optional.ofNullable(userPermission);
         this.adminPermission = Optional.ofNullable(adminPermission);
