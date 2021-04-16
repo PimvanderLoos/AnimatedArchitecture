@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorDeletedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -16,9 +16,9 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
-import nl.pim16aap2.bigdoors.spigot.events.DoorDeletedEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareCreateEvent;
+import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
@@ -45,10 +45,10 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     }
 
     @Override
-    public @NonNull IDoorDeletedEvent createDoorDeletedEvent(final @NonNull AbstractDoorBase door,
-                                                             final @Nullable IPPlayer responsible)
+    public @NonNull IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final @NonNull AbstractDoorBase door,
+                                                                         final @Nullable IPPlayer responsible)
     {
-        return new DoorDeletedEvent(door, responsible);
+        return new DoorPrepareDeleteEvent(door, responsible);
     }
 
     @Override

@@ -5,9 +5,9 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorDeletedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -71,25 +71,25 @@ public interface IBigDoorsEventFactory
     }
 
     /**
-     * Constructs a new {@link IDoorDeletedEvent}.
+     * Constructs a new {@link IDoorPrepareDeleteEvent}.
      *
      * @param door        The {@link AbstractDoorBase} that will be deleted.
      * @param responsible The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    @NonNull IDoorDeletedEvent createDoorDeletedEvent(final @NonNull AbstractDoorBase door,
-                                                      final @Nullable IPPlayer responsible);
+    @NonNull IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final @NonNull AbstractDoorBase door,
+                                                                  final @Nullable IPPlayer responsible);
 
     /**
-     * Constructs a new {@link IDoorDeletedEvent} and assumes it was not deleted by an {@link IPPlayer}.
+     * Constructs a new {@link IDoorPrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
      * <p>
-     * When the door is deleted by an {@link IPPlayer}, consider using {@link #createDoorDeletedEvent(AbstractDoorBase,
+     * When the door is deleted by an {@link IPPlayer}, consider using {@link #createPrepareDeleteDoorEvent(AbstractDoorBase,
      * IPPlayer)} instead.
      *
      * @param door The {@link AbstractDoorBase} that will be deleted.
      */
-    default @NonNull IDoorDeletedEvent createDoorDeletedEvent(final @NonNull AbstractDoorBase door)
+    default @NonNull IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final @NonNull AbstractDoorBase door)
     {
-        return createDoorDeletedEvent(door, null);
+        return createPrepareDeleteDoorEvent(door, null);
     }
 
     /**

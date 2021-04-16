@@ -10,6 +10,8 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -145,6 +147,14 @@ public final class DatabaseManager extends Restartable
         return ret;
     }
 
+    /**
+     * Calls the {@link IDoorPrepareCreateEvent}.
+     *
+     * @param newDoor     The door that is about to be added to the database.
+     * @param responsible The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for
+     *                    it. If not, this is null.
+     * @return True if the create event was cancelled, otherwise false.
+     */
     private @NonNull CompletableFuture<Boolean> callDoorPrepareCreateEvent(final @NonNull AbstractDoorBase newDoor,
                                                                            final @Nullable IPPlayer responsible)
     {
@@ -160,6 +170,13 @@ public final class DatabaseManager extends Restartable
             });
     }
 
+    /**
+     * Calls the {@link IDoorCreatedEvent}.
+     *
+     * @param result      The result of trying to add a door to the database.
+     * @param responsible The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for
+     *                    it. If not, this is null.
+     */
     private void callDoorCreatedEvent(final @NonNull Pair<Boolean, Optional<AbstractDoorBase>> result,
                                       final @Nullable IPPlayer responsible)
     {
@@ -177,26 +194,67 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Removes a {@link AbstractDoorBase} from the database.
+     * Removes a {@link AbstractDoorBase} from the database and assumes that the door was NOT deleted by an {@link
+     * IPPlayer}. See {@link #deleteDoor(AbstractDoorBase, IPPlayer)}.
      *
      * @param door The door.
-     * @return The future result of the operation. If the operation was successful this will be true.
+     * @return The future result of the operation.
      */
-    public @NonNull CompletableFuture<Boolean> deleteDoor(final @NonNull AbstractDoorBase door)
+    public @NonNull CompletableFuture<ActionResult> deleteDoor(final @NonNull AbstractDoorBase door)
     {
-        BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
-        return CompletableFuture.supplyAsync(
-            () ->
+        return deleteDoor(door, null);
+    }
+
+    /**
+     * Removes a {@link AbstractDoorBase} from the database.
+     *
+     * @param door        The door that will be deleted
+     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
+     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @return The future result of the operation.
+     */
+    public @NonNull CompletableFuture<ActionResult> deleteDoor(final @NonNull AbstractDoorBase door,
+                                                               final @Nullable IPPlayer responsible)
+    {
+        return callDoorPrepareDeleteEvent(door, responsible).thenApplyAsync(
+            cancelled ->
             {
-                boolean result = db.removeDoor(door.getDoorUID());
+                if (cancelled)
+                    return ActionResult.CANCELLED;
+
+                BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
+                final boolean result = db.removeDoor(door.getDoorUID());
                 if (result)
                     BigDoors.get().getPlatform().getPowerBlockManager()
                             .onDoorAddOrRemove(door.getWorld().getWorldName(),
                                                new Vector3Di(door.getPowerBlock().getX(),
                                                              door.getPowerBlock().getY(),
                                                              door.getPowerBlock().getZ()));
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                return result ? ActionResult.SUCCESS : ActionResult.FAIL;
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+    }
+
+    /**
+     * Calls the {@link IDoorPrepareDeleteEvent}.
+     *
+     * @param newDoor     The door that is about to be deleted.
+     * @param responsible The {@link IPPlayer} responsible for deleting it, if an {@link IPPlayer} was responsible for
+     *                    it. If not, this is null.
+     * @return True if the delete event was cancelled, otherwise false.
+     */
+    private @NonNull CompletableFuture<Boolean> callDoorPrepareDeleteEvent(final @NonNull AbstractDoorBase newDoor,
+                                                                           final @Nullable IPPlayer responsible)
+    {
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                final @NonNull IDoorPrepareDeleteEvent prepareDeleteEvent =
+                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                            .createPrepareDeleteDoorEvent(newDoor, responsible);
+
+                BigDoors.get().getPlatform().callDoorEvent(prepareDeleteEvent);
+                return prepareDeleteEvent.isCancelled();
+            });
     }
 
     /**
@@ -518,6 +576,27 @@ public final class DatabaseManager extends Restartable
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
+    }
+
+    /**
+     * Represents the result of an action requested from the database. E.g. deleting a door.
+     */
+    public enum ActionResult
+    {
+        /**
+         * The request was cancelled. E.g. by an {@link IPCancellable} event.
+         */
+        CANCELLED,
+
+        /**
+         * Success! Everything went as expected.
+         */
+        SUCCESS,
+
+        /**
+         * Something went wrong. Check the logs?
+         */
+        FAIL
     }
 
     /**
