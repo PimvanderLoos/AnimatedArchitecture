@@ -166,24 +166,28 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     /**
      * Synchronizes all data of this door with the database.
+     *
+     * @return True if the synchronization was successful.
      */
-    public synchronized final void syncData()
+    public synchronized final @NonNull CompletableFuture<Boolean> syncData()
     {
         if (serializer == null)
         {
             BigDoors.get().getPLogger()
                     .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
-            return;
+            return CompletableFuture.completedFuture(false);
         }
 
         try
         {
-            BigDoors.get().getDatabaseManager().syncDoorData(getSimpleDoorDataCopy(), serializer.serialize(this));
+            return BigDoors.get().getDatabaseManager()
+                           .syncDoorData(getSimpleDoorDataCopy(), serializer.serialize(this));
         }
         catch (Throwable t)
         {
             BigDoors.get().getPLogger().logThrowable(t, "Failed to sync data for door: " + getBasicInfo());
         }
+        return CompletableFuture.completedFuture(false);
     }
 
     @Override
