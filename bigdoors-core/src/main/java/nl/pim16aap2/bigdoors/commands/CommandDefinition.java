@@ -14,7 +14,6 @@ public enum CommandDefinition
     CONFIRM("bigdoors.user.base", null),
     DEBUG(null, "bigdoors.admin.debug"),
     DELETE("bigdoors.user.delete", "bigdoors.admin.bypass.delete"),
-    FILL(null, "bigdoors.admin.fill"),
     INFO("bigdoors.user.info", "bigdoors.admin.bypass.info"),
     INSPECTPOWERBLOCK("bigdoors.user.inspect", "bigdoors.admin.bypass.inspect"),
     LISTDOORS("bigdoors.user.listdoors", "bigdoors.admin.bypass.listdoors"),
