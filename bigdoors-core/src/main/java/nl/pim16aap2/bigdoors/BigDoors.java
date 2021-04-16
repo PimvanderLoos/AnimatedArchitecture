@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
@@ -176,6 +177,16 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DatabaseManager getDatabaseManager()
     {
         return getPlatform().getDatabaseManager();
+    }
+
+    /**
+     * Gets the {@link DebugReporter}.
+     *
+     * @return The {@link DebugReporter}.
+     */
+    public @NonNull DebugReporter getDebugReporter()
+    {
+        return getPlatform().getDebugReporter();
     }
 
     /**

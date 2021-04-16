@@ -258,4 +258,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      * @return The {@link DoorOpener}.
      */
     @NonNull DoorOpener getDoorOpener();
+
+    /**
+     * Gets the {@link DebugReporter}.
+     *
+     * @return The {@link DebugReporter}.
+     */
+    @NonNull DebugReporter getDebugReporter();
 }

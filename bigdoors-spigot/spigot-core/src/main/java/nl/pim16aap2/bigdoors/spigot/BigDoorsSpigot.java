@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot;
 import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -89,6 +90,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
+import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
@@ -126,7 +128,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
-    private static final @NonNull BigDoors BIGDOORS = BigDoors.get();
 
     private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
@@ -221,6 +222,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         INSTANCE = this;
         BigDoors.get().setBigDoorsPlatform(this);
         BigDoors.get().registerRestartable(this);
+
         MAINTHREADID = Thread.currentThread().getId();
         pExecutor = new PExecutorSpigot(this);
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
@@ -500,6 +502,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         cmdWaiters.clear();
     }
 
+    @Override
     public void onDisable()
     {
         shutdown();
@@ -575,6 +578,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         cmdWaiters.remove(player.getUniqueId());
         playerGUIs.remove(player.getUniqueId());
         toolUserManager.abortToolUser(player.getUniqueId());
+    }
+
+    @Override
+    public @NonNull DebugReporter getDebugReporter()
+    {
+        return new DebugReporterSpigot();
     }
 
     // Get the logger.

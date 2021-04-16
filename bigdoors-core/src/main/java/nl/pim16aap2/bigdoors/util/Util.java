@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -561,17 +562,58 @@ public final class Util
     }
 
     /**
-     * Convert an array of strings to a single string.
+     * Convert a collection of objects into a single string.
      *
-     * @param strings Input array of string
+     * @param entries Input collection of objects.
+     * @param mapper  The function to map objects to strings.
      * @return Resulting concatenated string.
      */
-    public static @NonNull String stringFromArray(final @NonNull String[] strings)
+    public static <T> @NonNull String toString(final @NonNull T[] entries, final @NonNull Function<T, String> mapper)
     {
-        StringBuilder builder = new StringBuilder();
-        for (String str : strings)
-            builder.append(str);
-        return builder.toString();
+        return toString(Arrays.asList(entries), mapper);
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @return Resulting concatenated string.
+     */
+    public static @NonNull String toString(final @NonNull Object[] entries)
+    {
+        return toString(Arrays.asList(entries));
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @return Resulting concatenated string.
+     */
+    public static @NonNull String toString(final @NonNull Collection<?> entries)
+    {
+        return toString(entries, Object::toString);
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @param mapper  The function to map objects to strings.
+     * @return Resulting concatenated string.
+     */
+    public static <T> @NonNull String toString(final @NonNull Collection<T> entries,
+                                               final @NonNull Function<T, String> mapper)
+    {
+        StringBuilder builder = new StringBuilder("[");
+        for (val obj : entries)
+            builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
+
+        String result = builder.toString();
+        final int len = result.length();
+
+        // If 1 or more entries exist, the output will end with ', ', so remove the last 2 characters in that case.
+        return (len > 2 ? result.substring(0, len - 2) : result) + "]";
     }
 
     /**

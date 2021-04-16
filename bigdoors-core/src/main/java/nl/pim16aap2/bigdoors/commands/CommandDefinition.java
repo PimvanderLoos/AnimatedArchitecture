@@ -12,6 +12,7 @@ public enum CommandDefinition
     MENU("bigdoors.user.base", "bigdoors.admin.bypass.menu"),
     CANCEL("bigdoors.user.base", null),
     CONFIRM("bigdoors.user.base", null),
+    DEBUG(null, "bigdoors.admin.debug"),
     DELETE("bigdoors.user.delete", "bigdoors.admin.bypass.delete"),
     FILL(null, "bigdoors.admin.fill"),
     INFO("bigdoors.user.info", "bigdoors.admin.bypass.info"),
