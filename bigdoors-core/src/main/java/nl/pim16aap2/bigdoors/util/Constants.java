@@ -41,4 +41,9 @@ public final class Constants
      * The directory where all the extensions are loaded from.
      */
     public static final @NonNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
+
+    /**
+     * The amount of time (in seconds) a user has to complete the door creation process.
+     */
+    public static final int DOOR_CREATOR_TIME_LIMIT = 120 * 20;
 }

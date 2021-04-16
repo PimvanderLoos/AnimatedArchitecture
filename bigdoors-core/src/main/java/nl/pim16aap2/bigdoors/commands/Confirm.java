@@ -25,14 +25,14 @@ public class Confirm extends BaseCommand
     }
 
     @Override
+    protected boolean availableForNonPlayers()
+    {
+        return false;
+    }
+
+    @Override
     protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
-        if (!(getCommandSender() instanceof IPPlayer))
-        {
-            getCommandSender().sendMessage("Only players can use this command!");
-            return CompletableFuture.completedFuture(true);
-        }
-
         val toolUser = BigDoors.get().getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);

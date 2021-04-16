@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -61,6 +62,26 @@ public abstract class BaseCommand
     }
 
     /**
+     * Checks if this {@link BaseCommand} is available for {@link IPPlayer}s.
+     *
+     * @return True if an {@link IPPlayer} can execute this command.
+     */
+    protected boolean availableForPlayers()
+    {
+        return true;
+    }
+
+    /**
+     * Checks if this {@link BaseCommand} is available for non-{@link IPPlayer}s (e.g. the server).
+     *
+     * @return True if an non-{@link IPPlayer} can execute this command.
+     */
+    protected boolean availableForNonPlayers()
+    {
+        return true;
+    }
+
+    /**
      * Runs the command if certain criteria are met (i.e. the {@link ICommandSender} has access and {@link
      * #validInput()} returns true).
      *
@@ -75,6 +96,21 @@ public abstract class BaseCommand
             BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Invalid input for command: " + this);
             return CompletableFuture.completedFuture(false);
         }
+
+        final boolean isPlayer = getCommandSender() instanceof IPPlayer;
+        if (isPlayer && !availableForPlayers())
+        {
+            // TODO: Localization
+            getCommandSender().sendMessage("No permission!");
+            return CompletableFuture.completedFuture(true);
+        }
+        if (!isPlayer && !availableForNonPlayers())
+        {
+            getCommandSender().sendMessage("Only players can use this command!");
+            return CompletableFuture.completedFuture(true);
+        }
+
+
         // We return true in case of an exception, because it cannot (should not?) be possible
         // for an exception to be caused be the command sender.
         return startExecution().exceptionally(

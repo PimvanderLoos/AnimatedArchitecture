@@ -24,14 +24,14 @@ public class InspectPowerBlock extends BaseCommand
     }
 
     @Override
+    protected boolean availableForNonPlayers()
+    {
+        return false;
+    }
+
+    @Override
     protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
-        if (!(getCommandSender() instanceof IPPlayer))
-        {
-            getCommandSender().sendMessage("Only players can use this command!");
-            return CompletableFuture.completedFuture(true);
-        }
-
         new PowerBlockInspector((IPPlayer) getCommandSender(), permissions.second);
         return CompletableFuture.completedFuture(true);
     }
