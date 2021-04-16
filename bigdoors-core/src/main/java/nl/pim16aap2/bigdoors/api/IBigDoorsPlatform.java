@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
@@ -153,11 +153,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
     @NonNull IChunkManager getChunkManager();
 
     /**
-     * Gets the instance of the {@link IDoorActionEventFactory} for this platform.
+     * Gets the instance of the {@link IBigDoorsEventFactory} for this platform.
      *
-     * @return The instance of the {@link IDoorActionEventFactory} for this platform.
+     * @return The instance of the {@link IBigDoorsEventFactory} for this platform.
      */
-    @NonNull IDoorActionEventFactory getDoorActionEventFactory();
+    @NonNull IBigDoorsEventFactory getDoorActionEventFactory();
 
     /**
      * Calls a {@link IDoorToggleEvent}.

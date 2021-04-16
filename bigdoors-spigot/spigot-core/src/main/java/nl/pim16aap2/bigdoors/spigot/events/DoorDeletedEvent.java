@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.events.IDoorDeleteEvent;
+import nl.pim16aap2.bigdoors.events.IDoorDeletedEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public class DoorDeleteEvent extends DoorEvent implements IDoorDeleteEvent
+public class DoorDeletedEvent extends DoorEvent implements IDoorDeletedEvent
 {
     private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
@@ -22,8 +22,8 @@ public class DoorDeleteEvent extends DoorEvent implements IDoorDeleteEvent
     @Setter
     private boolean isCancelled = false;
 
-    public DoorDeleteEvent(final @NonNull AbstractDoorBase door,
-                           final @Nullable IPPlayer responsible)
+    public DoorDeletedEvent(final @NonNull AbstractDoorBase door,
+                            final @Nullable IPPlayer responsible)
     {
         super(door, responsible);
     }

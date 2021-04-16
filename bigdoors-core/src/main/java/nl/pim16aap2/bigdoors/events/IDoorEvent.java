@@ -11,7 +11,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
-public interface IDoorEvent extends IPEvent
+public interface IDoorEvent extends IBigDoorsEvent
 {
     /**
      * Gets the {@link AbstractDoorBase} that was created.
