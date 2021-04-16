@@ -109,7 +109,8 @@ public abstract class DoorRetriever
     }
 
     /**
-     * Gets all doors referenced by this {@link DoorRetriever} owned by the provided player.
+     * Gets all doors referenced by this {@link DoorRetriever} where the provided player is a (co)owner of with any
+     * permission level.
      *
      * @param player The {@link IPPlayer} that owns all matching doors.
      * @return All doors referenced by this {@link DoorRetriever}.
