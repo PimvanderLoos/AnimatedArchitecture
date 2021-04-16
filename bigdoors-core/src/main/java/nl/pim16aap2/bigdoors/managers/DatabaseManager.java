@@ -1,17 +1,22 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collections;
@@ -93,16 +98,38 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Inserts a {@link AbstractDoorBase} into the database.
+     * Inserts a {@link AbstractDoorBase} into the database and assumes that the door was NOT created by an {@link
+     * IPPlayer}. See {@link #addDoorBase(AbstractDoorBase, IPPlayer)}.
      *
      * @param newDoor The new {@link AbstractDoorBase}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NonNull CompletableFuture<Optional<AbstractDoorBase>> addDoorBase(final @NonNull AbstractDoorBase newDoor)
+    public @NonNull CompletableFuture<Pair<Boolean, Optional<AbstractDoorBase>>> addDoorBase(
+        final @NonNull AbstractDoorBase newDoor)
     {
-        return CompletableFuture.supplyAsync(
-            () ->
+        return addDoorBase(newDoor, null);
+    }
+
+    /**
+     * Inserts a {@link AbstractDoorBase} into the database.
+     *
+     * @param newDoor     The new {@link AbstractDoorBase}.
+     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
+     *                    IDoorPrepareCreateEvent} and the {@link IDoorCreatedEvent}. This may be null.
+     * @return The future result of the operation. The result contains a pair of a boolean and an optional door. The
+     * boolean flag indicates if the addition was cancelled by {@link IDoorPrepareCreateEvent} (true) or not (false).
+     * The optional {@link AbstractDoorBase} contains the door that was added to the database if the addition was
+     * successful.
+     */
+    public @NonNull CompletableFuture<Pair<Boolean, Optional<AbstractDoorBase>>> addDoorBase(
+        final @NonNull AbstractDoorBase newDoor, final @Nullable IPPlayer responsible)
+    {
+        val ret = callDoorPrepareCreateEvent(newDoor, responsible).thenApplyAsync(
+            cancelled ->
             {
+                if (cancelled)
+                    return new Pair<>(true, Optional.<AbstractDoorBase>empty());
+
                 final @NonNull Optional<AbstractDoorBase> result = db.insert(newDoor);
                 result.ifPresent(
                     (door) -> BigDoors.get().getPlatform().getPowerBlockManager()
@@ -110,8 +137,43 @@ public final class DatabaseManager extends Restartable
                                           door.getPowerBlock().getX(),
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
-                return result;
-            }, threadPool).exceptionally(Util::exceptionallyOptional);
+                return new Pair<>(false, result);
+            }, threadPool).exceptionally(thrown -> Util.exceptionally(thrown, new Pair<>(false, Optional.empty())));
+
+        ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
+
+        return ret;
+    }
+
+    private @NonNull CompletableFuture<Boolean> callDoorPrepareCreateEvent(final @NonNull AbstractDoorBase newDoor,
+                                                                           final @Nullable IPPlayer responsible)
+    {
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                final @NonNull IDoorPrepareCreateEvent prepareCreateEvent =
+                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                            .createPrepareDoorCreateEvent(newDoor, responsible);
+
+                BigDoors.get().getPlatform().callDoorEvent(prepareCreateEvent);
+                return prepareCreateEvent.isCancelled();
+            });
+    }
+
+    private void callDoorCreatedEvent(final @NonNull Pair<Boolean, Optional<AbstractDoorBase>> result,
+                                      final @Nullable IPPlayer responsible)
+    {
+        CompletableFuture.runAsync(
+            () ->
+            {
+                if (result.first || result.second.isEmpty())
+                    return;
+
+                final @NonNull IDoorCreatedEvent doorCreatedEvent =
+                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                            .createDoorCreatedEvent(result.second.get(), responsible);
+                BigDoors.get().getPlatform().callDoorEvent(doorCreatedEvent);
+            });
     }
 
     /**

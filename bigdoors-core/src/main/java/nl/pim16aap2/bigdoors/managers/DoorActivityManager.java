@@ -92,7 +92,7 @@ public final class DoorActivityManager extends Restartable
         if (!allowReschedule)
             return;
 
-        BigDoors.get().getPlatform().callDoorActionEvent(
+        BigDoors.get().getPlatform().callDoorEvent(
             BigDoors.get().getPlatform().getDoorActionEventFactory()
                     .createEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
                                     blockMover.getPlayer(), blockMover.getTime(),

@@ -24,7 +24,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
@@ -612,7 +612,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public void callDoorActionEvent(final @NonNull IDoorToggleEvent doorEvent)
+    public void callDoorEvent(final @NonNull IBigDoorsEvent doorEvent)
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
         {

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.events;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareRemoveOwnerEvent;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@ToString
 public class DoorPrepareRemoveOwnerEvent extends DoorEvent implements IDoorPrepareRemoveOwnerEvent
 {
     private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
