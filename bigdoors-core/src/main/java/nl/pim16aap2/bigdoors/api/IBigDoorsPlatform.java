@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -153,18 +153,18 @@ public interface IBigDoorsPlatform extends IRestartableHolder
     @NonNull IChunkManager getChunkManager();
 
     /**
-     * Gets the instance of the {@link IDoorActionEventFactory} for this platform.
+     * Gets the instance of the {@link IBigDoorsEventFactory} for this platform.
      *
-     * @return The instance of the {@link IDoorActionEventFactory} for this platform.
+     * @return The instance of the {@link IBigDoorsEventFactory} for this platform.
      */
-    @NonNull IDoorActionEventFactory getDoorActionEventFactory();
+    @NonNull IBigDoorsEventFactory getDoorActionEventFactory();
 
     /**
-     * Calls a {@link IDoorEvent}.
+     * Calls a {@link IBigDoorsEvent}.
      *
-     * @param doorActionEvent The {@link IDoorEvent} to call.
+     * @param doorActionEvent The {@link IBigDoorsEvent} to call.
      */
-    void callDoorActionEvent(@NonNull IDoorEvent doorActionEvent);
+    void callDoorEvent(@NonNull IBigDoorsEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.

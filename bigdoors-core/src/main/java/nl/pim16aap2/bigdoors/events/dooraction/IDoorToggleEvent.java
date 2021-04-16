@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.events.dooraction;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.events.IPEvent;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 
-public interface IDoorEvent extends IPEvent
+public interface IDoorToggleEvent extends IBigDoorsEvent
 {
     /**
      * Gets the door that is the subject of this event.

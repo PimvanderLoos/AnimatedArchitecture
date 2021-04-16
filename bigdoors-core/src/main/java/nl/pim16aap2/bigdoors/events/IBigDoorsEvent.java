@@ -8,7 +8,7 @@ import lombok.NonNull;
  *
  * @author Pim
  */
-public interface IPEvent
+public interface IBigDoorsEvent
 {
     /**
      * Gets the name of this event.

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import nl.pim16aap2.bigdoors.events.IPCancellable;
+import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 
 /**
  * Represents a toggle action that might be applied to a door. Note that not cancelling this event does not mean that
@@ -10,6 +10,6 @@ import nl.pim16aap2.bigdoors.events.IPCancellable;
  *
  * @author Pim
  */
-public interface IDoorEventTogglePrepare extends IDoorEventToggleStart, IPCancellable
+public interface IDoorEventTogglePrepare extends IDoorEventToggleStart, ICancellableBigDoorsEvent
 {
 }

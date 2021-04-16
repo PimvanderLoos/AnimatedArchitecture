@@ -302,11 +302,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
         final @NonNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                                      .createPrepareEvent(this, cause, actionType,
-                                                                                          responsible, time,
-                                                                                          skipAnimation,
-                                                                                          newCuboid.get());
-        BigDoors.get().getPlatform().callDoorActionEvent(prepareEvent);
+                                                                      .createTogglePrepareEvent(this, cause, actionType,
+                                                                                                responsible, time,
+                                                                                                skipAnimation,
+                                                                                                newCuboid.get());
+        BigDoors.get().getPlatform().callDoorEvent(prepareEvent);
         if (prepareEvent.isCancelled())
             return DoorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
 
@@ -323,8 +323,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
-        BigDoors.get().getPlatform().callDoorActionEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
-                                                                 .createStartEvent(this, cause, actionType, responsible,
+        BigDoors.get().getPlatform().callDoorEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
+                                                           .createToggleStartEvent(this, cause, actionType, responsible,
                                                                                    time, skipAnimation,
                                                                                    newCuboid.get()));
         return DoorToggleResult.SUCCESS;
