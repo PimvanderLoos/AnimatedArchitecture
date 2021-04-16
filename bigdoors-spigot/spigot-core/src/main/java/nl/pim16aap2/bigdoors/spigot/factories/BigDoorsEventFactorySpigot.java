@@ -74,34 +74,35 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
     }
 
     @Override
-    public @NonNull IDoorEventTogglePrepare createPrepareEvent(final @NonNull AbstractDoorBase door,
-                                                               final @NonNull DoorActionCause cause,
-                                                               final @NonNull DoorActionType actionType,
-                                                               final @NonNull IPPlayer responsible, final double time,
-                                                               final boolean skipAnimation,
-                                                               final @NonNull CuboidConst newCuboid)
+    public @NonNull IDoorEventTogglePrepare createTogglePrepareEvent(final @NonNull AbstractDoorBase door,
+                                                                     final @NonNull DoorActionCause cause,
+                                                                     final @NonNull DoorActionType actionType,
+                                                                     final @NonNull IPPlayer responsible,
+                                                                     final double time,
+                                                                     final boolean skipAnimation,
+                                                                     final @NonNull CuboidConst newCuboid)
     {
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public @NonNull IDoorEventToggleStart createStartEvent(final @NonNull AbstractDoorBase door,
-                                                           final @NonNull DoorActionCause cause,
-                                                           final @NonNull DoorActionType actionType,
-                                                           final @NonNull IPPlayer responsible, final double time,
-                                                           final boolean skipAnimation,
-                                                           final @NonNull CuboidConst newCuboid)
+    public @NonNull IDoorEventToggleStart createToggleStartEvent(final @NonNull AbstractDoorBase door,
+                                                                 final @NonNull DoorActionCause cause,
+                                                                 final @NonNull DoorActionType actionType,
+                                                                 final @NonNull IPPlayer responsible, final double time,
+                                                                 final boolean skipAnimation,
+                                                                 final @NonNull CuboidConst newCuboid)
 
     {
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public @NonNull IDoorEventToggleEnd createEndEvent(final @NonNull AbstractDoorBase door,
-                                                       final @NonNull DoorActionCause cause,
-                                                       final @NonNull DoorActionType actionType,
-                                                       final @NonNull IPPlayer responsible, final double time,
-                                                       final boolean skipAnimation)
+    public @NonNull IDoorEventToggleEnd createToggleEndEvent(final @NonNull AbstractDoorBase door,
+                                                             final @NonNull DoorActionCause cause,
+                                                             final @NonNull DoorActionType actionType,
+                                                             final @NonNull IPPlayer responsible, final double time,
+                                                             final boolean skipAnimation)
     {
         return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);
     }

@@ -94,9 +94,9 @@ public final class DoorActivityManager extends Restartable
 
         BigDoors.get().getPlatform().callDoorEvent(
             BigDoors.get().getPlatform().getDoorActionEventFactory()
-                    .createEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
-                                    blockMover.getPlayer(), blockMover.getTime(),
-                                    blockMover.isSkipAnimation()));
+                    .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
+                                          blockMover.getPlayer(), blockMover.getTime(),
+                                          blockMover.isSkipAnimation()));
 
         if (blockMover.getDoor() instanceof ITimerToggleableArchetype)
             BigDoors.get().getAutoCloseScheduler()

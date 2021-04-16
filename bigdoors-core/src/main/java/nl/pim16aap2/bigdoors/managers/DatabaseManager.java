@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.events.IPCancellable;
@@ -475,18 +476,39 @@ public final class DatabaseManager extends Restartable
      * @param door       The {@link AbstractDoorBase}.
      * @param player     The {@link IPPlayer}.
      * @param permission The level of ownership.
-     * @return True if owner addition was successful.
+     * @return The future result of the operation.
      */
-    public @NonNull CompletableFuture<Boolean> addOwner(final @NonNull AbstractDoorBase door,
-                                                        final @NonNull IPPlayer player,
-                                                        final int permission)
+    public @NonNull CompletableFuture<ActionResult> addOwner(final @NonNull AbstractDoorBase door,
+                                                             final @NonNull IPPlayer player,
+                                                             final int permission)
+    {
+        return addOwner(door, player, permission, null);
+    }
+
+    /**
+     * Adds a player as owner to a {@link AbstractDoorBase} at a given level of ownership.
+     *
+     * @param door       The {@link AbstractDoorBase}.
+     * @param player     The {@link IPPlayer}.
+     * @param permission The level of ownership.
+     * @return The future result of the operation.
+     */
+    public @NonNull CompletableFuture<ActionResult> addOwner(final @NonNull AbstractDoorBase door,
+                                                             final @NonNull IPPlayer player,
+                                                             final int permission,
+                                                             final @Nullable IPPlayer responsible)
     {
         if (permission < 1 || permission > 2)
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        return CompletableFuture.supplyAsync(
-            () ->
+        val newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
+
+        return callDoorPrepareAddOwnerEvent(door, newOwner, responsible).thenApplyAsync(
+            cancelled ->
             {
+                if (cancelled)
+                    return ActionResult.CANCELLED;
+
                 final @NonNull PPlayerData playerData = player.getPPlayerData();
 
                 final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
@@ -494,8 +516,33 @@ public final class DatabaseManager extends Restartable
                     ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
                                                                                          permission,
                                                                                          playerData));
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                return result ? ActionResult.SUCCESS : ActionResult.FAIL;
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+    }
+
+    /**
+     * Calls the {@link IDoorPrepareAddOwnerEvent}.
+     *
+     * @param newDoor     The door to which a new {@link DoorOwner} will be added.
+     * @param newOwner    The new {@link DoorOwner} that is to be added to the door.
+     * @param responsible The {@link IPPlayer} responsible for this action, if an {@link IPPlayer} was responsible for
+     *                    it. If not, this is null.
+     * @return True if the create event was cancelled, otherwise false.
+     */
+    private @NonNull CompletableFuture<Boolean> callDoorPrepareAddOwnerEvent(final @NonNull AbstractDoorBase newDoor,
+                                                                             final @NonNull DoorOwner newOwner,
+                                                                             final @Nullable IPPlayer responsible)
+    {
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                final @NonNull IDoorPrepareAddOwnerEvent prepareAddOwnerEvent =
+                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                            .createDoorPrepareAddOwnerEvent(newDoor, newOwner, responsible);
+
+                BigDoors.get().getPlatform().callDoorEvent(prepareAddOwnerEvent);
+                return prepareAddOwnerEvent.isCancelled();
+            });
     }
 
     /**

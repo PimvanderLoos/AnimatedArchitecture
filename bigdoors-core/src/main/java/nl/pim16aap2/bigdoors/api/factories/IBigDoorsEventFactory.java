@@ -185,12 +185,12 @@ public interface IBigDoorsEventFactory
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
-    @NonNull IDoorEventTogglePrepare createPrepareEvent(@NonNull AbstractDoorBase door,
-                                                        @NonNull DoorActionCause cause,
-                                                        @NonNull DoorActionType actionType,
-                                                        @NonNull IPPlayer responsible, double time,
-                                                        boolean skipAnimation,
-                                                        @NonNull CuboidConst newCuboid);
+    @NonNull IDoorEventTogglePrepare createTogglePrepareEvent(@NonNull AbstractDoorBase door,
+                                                              @NonNull DoorActionCause cause,
+                                                              @NonNull DoorActionType actionType,
+                                                              @NonNull IPPlayer responsible, double time,
+                                                              boolean skipAnimation,
+                                                              @NonNull CuboidConst newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
@@ -205,11 +205,11 @@ public interface IBigDoorsEventFactory
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
-    @NonNull IDoorEventToggleStart createStartEvent(@NonNull AbstractDoorBase door,
-                                                    @NonNull DoorActionCause cause,
-                                                    @NonNull DoorActionType actionType,
-                                                    @NonNull IPPlayer responsible, double time,
-                                                    boolean skipAnimation, @NonNull CuboidConst newCuboid);
+    @NonNull IDoorEventToggleStart createToggleStartEvent(@NonNull AbstractDoorBase door,
+                                                          @NonNull DoorActionCause cause,
+                                                          @NonNull DoorActionType actionType,
+                                                          @NonNull IPPlayer responsible, double time,
+                                                          boolean skipAnimation, @NonNull CuboidConst newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.
@@ -223,9 +223,9 @@ public interface IBigDoorsEventFactory
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
-    @NonNull IDoorEventToggleEnd createEndEvent(@NonNull AbstractDoorBase door,
-                                                @NonNull DoorActionCause cause,
-                                                @NonNull DoorActionType actionType,
-                                                @NonNull IPPlayer responsible, double time,
-                                                boolean skipAnimation);
+    @NonNull IDoorEventToggleEnd createToggleEndEvent(@NonNull AbstractDoorBase door,
+                                                      @NonNull DoorActionCause cause,
+                                                      @NonNull DoorActionType actionType,
+                                                      @NonNull IPPlayer responsible, double time,
+                                                      boolean skipAnimation);
 }
