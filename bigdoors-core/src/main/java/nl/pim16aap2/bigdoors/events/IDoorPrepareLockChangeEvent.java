@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
  *
  * @author Pim
  */
-public interface IDoorPrepareLockChangeEvent extends IDoorEvent, IPCancellable
+public interface IDoorPrepareLockChangeEvent extends IDoorEvent, ICancellableBigDoorsEvent
 {
     /**
      * The new lock status of the {@link AbstractDoorBase} that will be applied if this event is not cancelled.

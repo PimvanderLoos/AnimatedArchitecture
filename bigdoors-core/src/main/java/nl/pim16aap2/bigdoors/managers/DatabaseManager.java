@@ -5,14 +5,14 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
-import nl.pim16aap2.bigdoors.events.IDoorPrepareAddOwnerEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.events.IPCancellable;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -31,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -127,7 +128,7 @@ public final class DatabaseManager extends Restartable
     public @NonNull CompletableFuture<Pair<Boolean, Optional<AbstractDoorBase>>> addDoorBase(
         final @NonNull AbstractDoorBase newDoor, final @Nullable IPPlayer responsible)
     {
-        val ret = callDoorPrepareCreateEvent(newDoor, responsible).thenApplyAsync(
+        val ret = callCancellableEvent(fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
@@ -146,29 +147,6 @@ public final class DatabaseManager extends Restartable
         ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
 
         return ret;
-    }
-
-    /**
-     * Calls the {@link IDoorPrepareCreateEvent}.
-     *
-     * @param newDoor     The door that is about to be added to the database.
-     * @param responsible The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for
-     *                    it. If not, this is null.
-     * @return True if the create event was cancelled, otherwise false.
-     */
-    private @NonNull CompletableFuture<Boolean> callDoorPrepareCreateEvent(final @NonNull AbstractDoorBase newDoor,
-                                                                           final @Nullable IPPlayer responsible)
-    {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                final @NonNull IDoorPrepareCreateEvent prepareCreateEvent =
-                    BigDoors.get().getPlatform().getDoorActionEventFactory()
-                            .createPrepareDoorCreateEvent(newDoor, responsible);
-
-                BigDoors.get().getPlatform().callDoorEvent(prepareCreateEvent);
-                return prepareCreateEvent.isCancelled();
-            });
     }
 
     /**
@@ -217,7 +195,7 @@ public final class DatabaseManager extends Restartable
     public @NonNull CompletableFuture<ActionResult> deleteDoor(final @NonNull AbstractDoorBase door,
                                                                final @Nullable IPPlayer responsible)
     {
-        return callDoorPrepareDeleteEvent(door, responsible).thenApplyAsync(
+        return callCancellableEvent(fact -> fact.createPrepareDeleteDoorEvent(door, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
@@ -225,37 +203,15 @@ public final class DatabaseManager extends Restartable
 
                 BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
                 final boolean result = db.removeDoor(door.getDoorUID());
-                if (result)
-                    BigDoors.get().getPlatform().getPowerBlockManager()
-                            .onDoorAddOrRemove(door.getWorld().getWorldName(),
-                                               new Vector3Di(door.getPowerBlock().getX(),
-                                                             door.getPowerBlock().getY(),
-                                                             door.getPowerBlock().getZ()));
-                return result ? ActionResult.SUCCESS : ActionResult.FAIL;
+                if (!result)
+                    return ActionResult.FAIL;
+
+                BigDoors.get().getPlatform().getPowerBlockManager()
+                        .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(door.getPowerBlock().getX(),
+                                                                                         door.getPowerBlock().getY(),
+                                                                                         door.getPowerBlock().getZ()));
+                return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
-    }
-
-    /**
-     * Calls the {@link IDoorPrepareDeleteEvent}.
-     *
-     * @param newDoor     The door that is about to be deleted.
-     * @param responsible The {@link IPPlayer} responsible for deleting it, if an {@link IPPlayer} was responsible for
-     *                    it. If not, this is null.
-     * @return True if the delete event was cancelled, otherwise false.
-     */
-    private @NonNull CompletableFuture<Boolean> callDoorPrepareDeleteEvent(final @NonNull AbstractDoorBase newDoor,
-                                                                           final @Nullable IPPlayer responsible)
-    {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                final @NonNull IDoorPrepareDeleteEvent prepareDeleteEvent =
-                    BigDoors.get().getPlatform().getDoorActionEventFactory()
-                            .createPrepareDeleteDoorEvent(newDoor, responsible);
-
-                BigDoors.get().getPlatform().callDoorEvent(prepareDeleteEvent);
-                return prepareDeleteEvent.isCancelled();
-            });
     }
 
     /**
@@ -503,45 +459,40 @@ public final class DatabaseManager extends Restartable
 
         val newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
 
-        return callDoorPrepareAddOwnerEvent(door, newOwner, responsible).thenApplyAsync(
-            cancelled ->
-            {
-                if (cancelled)
-                    return ActionResult.CANCELLED;
+        return callCancellableEvent(fact -> fact.createDoorPrepareAddOwnerEvent(door, newOwner, responsible))
+            .thenApplyAsync(
+                cancelled ->
+                {
+                    if (cancelled)
+                        return ActionResult.CANCELLED;
 
-                final @NonNull PPlayerData playerData = player.getPPlayerData();
+                    final @NonNull PPlayerData playerData = player.getPPlayerData();
 
-                final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
-                if (result)
+                    final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
+                    if (!result)
+                        return ActionResult.FAIL;
+
                     ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
-                                                                                         permission,
-                                                                                         playerData));
-                return result ? ActionResult.SUCCESS : ActionResult.FAIL;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+                                                                                         permission, playerData));
+                    return ActionResult.SUCCESS;
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Calls the {@link IDoorPrepareAddOwnerEvent}.
+     * Calls an {@link ICancellableBigDoorsEvent} and checks if it was cancelled or not.
      *
-     * @param newDoor     The door to which a new {@link DoorOwner} will be added.
-     * @param newOwner    The new {@link DoorOwner} that is to be added to the door.
-     * @param responsible The {@link IPPlayer} responsible for this action, if an {@link IPPlayer} was responsible for
-     *                    it. If not, this is null.
+     * @param factoryMethod The method to use to construct the event.
      * @return True if the create event was cancelled, otherwise false.
      */
-    private @NonNull CompletableFuture<Boolean> callDoorPrepareAddOwnerEvent(final @NonNull AbstractDoorBase newDoor,
-                                                                             final @NonNull DoorOwner newOwner,
-                                                                             final @Nullable IPPlayer responsible)
+    private @NonNull CompletableFuture<Boolean> callCancellableEvent(
+        final @NonNull Function<IBigDoorsEventFactory, ICancellableBigDoorsEvent> factoryMethod)
     {
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final @NonNull IDoorPrepareAddOwnerEvent prepareAddOwnerEvent =
-                    BigDoors.get().getPlatform().getDoorActionEventFactory()
-                            .createDoorPrepareAddOwnerEvent(newDoor, newOwner, responsible);
-
-                BigDoors.get().getPlatform().callDoorEvent(prepareAddOwnerEvent);
-                return prepareAddOwnerEvent.isCancelled();
+                val event = factoryMethod.apply(BigDoors.get().getPlatform().getDoorActionEventFactory());
+                BigDoors.get().getPlatform().callDoorEvent(event);
+                return event.isCancelled();
             });
     }
 
@@ -631,7 +582,7 @@ public final class DatabaseManager extends Restartable
     public enum ActionResult
     {
         /**
-         * The request was cancelled. E.g. by an {@link IPCancellable} event.
+         * The request was cancelled. E.g. by an {@link ICancellableBigDoorsEvent} event.
          */
         CANCELLED,
 

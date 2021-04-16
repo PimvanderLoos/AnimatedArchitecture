@@ -5,6 +5,6 @@ package nl.pim16aap2.bigdoors.events;
  *
  * @author Pim
  */
-public interface IDoorPrepareDeleteEvent extends IDoorEvent, IPCancellable
+public interface IDoorPrepareDeleteEvent extends IDoorEvent, ICancellableBigDoorsEvent
 {
 }

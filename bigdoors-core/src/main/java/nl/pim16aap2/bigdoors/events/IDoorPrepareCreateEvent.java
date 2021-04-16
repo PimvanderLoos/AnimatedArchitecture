@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
  *
  * @author Pim
  */
-public interface IDoorPrepareCreateEvent extends IDoorEvent, IPCancellable
+public interface IDoorPrepareCreateEvent extends IDoorEvent, ICancellableBigDoorsEvent
 {
     /**
      * Gets the {@link AbstractDoorBase} that was created.

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
  *
  * @author Pim
  */
-public interface IDoorPrepareRemoveOwnerEvent extends IDoorEvent, IPCancellable
+public interface IDoorPrepareRemoveOwnerEvent extends IDoorEvent, ICancellableBigDoorsEvent
 {
     /**
      * Gets the {@link DoorOwner} that will be removed from the door.

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
  *
  * @author Pim
  */
-public interface IDoorPrepareAddOwnerEvent extends IDoorEvent, IPCancellable
+public interface IDoorPrepareAddOwnerEvent extends ICancellableBigDoorsEvent
 {
     /**
      * Gets the new {@link DoorOwner} that will be added to the door.

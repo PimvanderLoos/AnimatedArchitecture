@@ -6,7 +6,7 @@ package nl.pim16aap2.bigdoors.events;
  * @author Pim
  * @see IBigDoorsEvent
  */
-public interface IPCancellable
+public interface ICancellableBigDoorsEvent extends IBigDoorsEvent
 {
     /**
      * Checks if this event has been cancelled or not.
