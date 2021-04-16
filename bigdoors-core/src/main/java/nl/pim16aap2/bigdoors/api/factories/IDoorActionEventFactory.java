@@ -5,14 +5,14 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 
 /**
- * Represents a class that can create {@link IDoorEvent}s.
+ * Represents a class that can create {@link IDoorToggleEvent}s.
  *
  * @author Pim
  */

@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -160,11 +160,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder
     @NonNull IDoorActionEventFactory getDoorActionEventFactory();
 
     /**
-     * Calls a {@link IDoorEvent}.
+     * Calls a {@link IDoorToggleEvent}.
      *
-     * @param doorActionEvent The {@link IDoorEvent} to call.
+     * @param doorActionEvent The {@link IDoorToggleEvent} to call.
      */
-    void callDoorActionEvent(@NonNull IDoorEvent doorActionEvent);
+    void callDoorActionEvent(@NonNull IDoorToggleEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.

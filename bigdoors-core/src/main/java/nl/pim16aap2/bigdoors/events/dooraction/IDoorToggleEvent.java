@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IPEvent;
 
-public interface IDoorEvent extends IPEvent
+public interface IDoorToggleEvent extends IPEvent
 {
     /**
      * Gets the door that is the subject of this event.

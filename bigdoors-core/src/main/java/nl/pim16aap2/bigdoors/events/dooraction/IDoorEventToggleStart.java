@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
  *
  * @author Pim
  */
-public interface IDoorEventToggleStart extends IDoorEvent
+public interface IDoorEventToggleStart extends IDoorToggleEvent
 {
     /**
      * Gets the new coordinates of the door after the toggle.
