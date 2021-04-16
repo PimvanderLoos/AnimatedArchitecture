@@ -15,8 +15,7 @@ public final class DoorTypeClock extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeClock INSTANCE = new DoorTypeClock();
+    private static final @NonNull DoorTypeClock INSTANCE = new DoorTypeClock();
 
     private DoorTypeClock()
     {

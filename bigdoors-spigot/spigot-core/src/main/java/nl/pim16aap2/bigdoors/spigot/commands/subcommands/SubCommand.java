@@ -16,8 +16,7 @@ public abstract class SubCommand implements ICommand
     protected final Messages messages;
 
     protected String help;
-    @Nullable
-    protected String argsHelp;
+    protected @Nullable String argsHelp;
     protected int minArgCount;
     protected CommandData command;
 

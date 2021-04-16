@@ -33,10 +33,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class SpigotUtil
 {
-    @NonNull
-    private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
-    @NonNull
-    private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
+    private static final @NonNull Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
+    private static final @NonNull Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
     @Getter
     @Setter
     private static boolean printDebugMessages = false;
@@ -55,8 +53,7 @@ public final class SpigotUtil
         }
     }
 
-    @NonNull
-    private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
+    private static final @NonNull Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
 
     static
     {

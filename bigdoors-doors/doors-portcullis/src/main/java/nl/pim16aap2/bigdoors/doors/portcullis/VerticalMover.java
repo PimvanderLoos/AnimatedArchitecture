@@ -26,8 +26,7 @@ public class VerticalMover extends BlockMover
 {
     private double step;
 
-    @Nullable
-    private PBlockData firstBlockData = null;
+    private @Nullable PBlockData firstBlockData = null;
 
     protected final int blocksToMove;
 

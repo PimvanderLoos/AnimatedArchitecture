@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CreatorRevolvingDoor extends CreatorBigDoor
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull DoorType doorType = DoorTypeRevolvingDoor.get();
 
     public CreatorRevolvingDoor(final @NonNull IPPlayer player, final @Nullable String name)

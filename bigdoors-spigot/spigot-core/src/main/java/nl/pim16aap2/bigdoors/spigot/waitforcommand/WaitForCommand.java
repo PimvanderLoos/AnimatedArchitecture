@@ -17,12 +17,9 @@ import org.bukkit.entity.Player;
  */
 public abstract class WaitForCommand extends AbortableTask
 {
-    @NonNull
-    protected final BigDoorsSpigot plugin;
-    @NonNull
-    protected final SubCommand subCommand;
-    @NonNull
-    protected Player player;
+    protected final @NonNull BigDoorsSpigot plugin;
+    protected final @NonNull SubCommand subCommand;
+    protected @NonNull Player player;
     protected boolean isFinished = false;
 
     protected WaitForCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommand subCommand)

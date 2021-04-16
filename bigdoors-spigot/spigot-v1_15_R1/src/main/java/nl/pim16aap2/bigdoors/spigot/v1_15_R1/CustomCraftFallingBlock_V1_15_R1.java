@@ -25,12 +25,9 @@ import org.bukkit.util.Vector;
  */
 public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
-    @NonNull
-    protected final CustomEntityFallingBlock_V1_15_R1 entity;
-    @NonNull
-    private Vector3DdConst lastPos;
-    @NonNull
-    private Vector3DdConst lastGoalPos;
+    protected final @NonNull CustomEntityFallingBlock_V1_15_R1 entity;
+    private @NonNull Vector3DdConst lastPos;
+    private @NonNull Vector3DdConst lastGoalPos;
 
     CustomCraftFallingBlock_V1_15_R1(final @NonNull Server server,
                                      final @NonNull nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 entity)

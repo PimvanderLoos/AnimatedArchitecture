@@ -36,17 +36,13 @@ import java.util.Set;
  */
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
-    @NonNull
-    private static final VaultManager INSTANCE = new VaultManager();
+    private static final @NonNull VaultManager INSTANCE = new VaultManager();
     private final @NonNull Map<DoorType, Double> flatPrices;
     private boolean economyEnabled = false;
     private boolean permissionsEnabled = false;
-    @Nullable
-    private Economy economy = null;
-    @Nullable
-    private Permission perms = null;
-    @NonNull
-    private BigDoorsSpigot plugin;
+    private @Nullable Economy economy = null;
+    private @Nullable Permission perms = null;
+    private @NonNull BigDoorsSpigot plugin;
 
     private VaultManager()
     {

@@ -18,8 +18,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     @SuppressWarnings("unused")
     private final @NonNull BigDoorsSpigot plugin;
     private boolean success = false;
-    @NonNull
-    private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private static final @NonNull ProtectionCompat compat = ProtectionCompat.TOWNY;
 
     public TownyOldProtectionCompat(final @NonNull BigDoorsSpigot plugin)
     {

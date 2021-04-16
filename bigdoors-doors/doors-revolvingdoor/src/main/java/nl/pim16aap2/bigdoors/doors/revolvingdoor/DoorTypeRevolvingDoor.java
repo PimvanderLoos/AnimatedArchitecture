@@ -15,8 +15,7 @@ public final class DoorTypeRevolvingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeRevolvingDoor INSTANCE = new DoorTypeRevolvingDoor();
+    private static final @NonNull DoorTypeRevolvingDoor INSTANCE = new DoorTypeRevolvingDoor();
 
     private DoorTypeRevolvingDoor()
     {

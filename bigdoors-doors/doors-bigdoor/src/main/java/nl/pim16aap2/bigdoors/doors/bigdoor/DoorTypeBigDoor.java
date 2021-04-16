@@ -15,8 +15,7 @@ public final class DoorTypeBigDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeBigDoor INSTANCE = new DoorTypeBigDoor();
+    private static final @NonNull DoorTypeBigDoor INSTANCE = new DoorTypeBigDoor();
 
     private DoorTypeBigDoor()
     {

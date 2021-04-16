@@ -24,8 +24,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.

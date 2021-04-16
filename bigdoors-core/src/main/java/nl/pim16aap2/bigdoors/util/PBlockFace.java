@@ -24,10 +24,8 @@ public enum PBlockFace
     DOWN(5, new Vector3Di(0, -1, 0)),
     NONE(6, new Vector3Di(0, 0, 0)),
     ;
-    @NonNull
-    private static Map<Vector3DiConst, PBlockFace> dirs = new HashMap<>();
-    @NonNull
-    private static Map<Integer, PBlockFace> vals = new HashMap<>();
+    private static @NonNull Map<Vector3DiConst, PBlockFace> dirs = new HashMap<>();
+    private static @NonNull Map<Integer, PBlockFace> vals = new HashMap<>();
 
     static
     {

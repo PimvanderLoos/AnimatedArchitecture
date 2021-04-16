@@ -23,13 +23,11 @@ import java.util.Objects;
  */
 public final class PLocationSpigot implements IPLocation
 {
-    @NonNull
-    private Location location;
+    private @NonNull Location location;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
-    @NonNull
-    private IPWorld world;
+    private @NonNull IPWorld world;
 
     public PLocationSpigot(final @NonNull IPWorld world, final double x, final double y, final double z)
     {

@@ -18,10 +18,8 @@ public final class ConfigEntry<V>
     private final @NonNull IConfigReader config;
     private final @NonNull String optionName;
     private final @NonNull V defaultValue;
-    @Nullable
-    private final String[] comment;
-    @Nullable
-    private final ConfigEntry.TestValue<V> verifyValue;
+    private final @Nullable String[] comment;
+    private final @Nullable ConfigEntry.TestValue<V> verifyValue;
     private V value;
 
     /**

@@ -15,8 +15,7 @@ import org.bukkit.event.HandlerList;
  */
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
-    @NonNull
-    private static final HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
      * Constructs a door action event.

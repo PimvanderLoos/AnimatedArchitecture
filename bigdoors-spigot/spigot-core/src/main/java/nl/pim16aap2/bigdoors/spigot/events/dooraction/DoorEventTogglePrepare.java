@@ -18,10 +18,9 @@ import org.bukkit.event.HandlerList;
  */
 public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
-    @NonNull
-    private static final HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     private boolean isCancelled = false;
 

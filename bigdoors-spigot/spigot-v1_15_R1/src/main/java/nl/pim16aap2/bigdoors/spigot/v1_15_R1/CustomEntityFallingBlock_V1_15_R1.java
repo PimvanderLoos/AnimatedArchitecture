@@ -33,9 +33,8 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements ICustomEntityFallingBlock
 {
-    @NonNull
-    protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
-                                                                              DataWatcherRegistry.l);
+    protected static final @NonNull DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
+                                                                                       DataWatcherRegistry.l);
     public int ticksLived;
     public boolean dropItem;
     public boolean hurtEntities;

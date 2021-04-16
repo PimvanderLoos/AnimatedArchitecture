@@ -17,10 +17,9 @@ import org.bukkit.event.HandlerList;
  */
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
-    @NonNull
-    private static final HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull CuboidConst newCuboid;
 
     /**

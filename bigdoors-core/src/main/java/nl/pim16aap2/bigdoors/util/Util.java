@@ -41,25 +41,20 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
-    @NonNull
-    private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final @NonNull String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
      */
-    @NonNull
-    private static final SecureRandom srnd = new SecureRandom();
+    private static final @NonNull SecureRandom srnd = new SecureRandom();
 
     /**
      * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
      */
-    @NonNull
-    private static final Random rnd = new Random();
+    private static final @NonNull Random rnd = new Random();
 
-    @NonNull
-    private static final Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
-    @NonNull
-    private static final Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
+    private static final @NonNull Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
+    private static final @NonNull Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
 
     static
     {

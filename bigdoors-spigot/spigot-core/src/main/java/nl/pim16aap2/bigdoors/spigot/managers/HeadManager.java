@@ -27,8 +27,7 @@ import java.util.function.Function;
  */
 public final class HeadManager extends Restartable
 {
-    @Nullable
-    private static HeadManager INSTANCE;
+    private static @Nullable HeadManager INSTANCE;
 
     /**
      * Timed cache of player heads.
@@ -37,8 +36,8 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-private final @NonNull TimedCache<UUID, Optional<ItemStack>> headMap;
-private final @NonNull ConfigLoaderSpigot config;
+    private final @NonNull TimedCache<UUID, Optional<ItemStack>> headMap;
+    private final @NonNull ConfigLoaderSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.

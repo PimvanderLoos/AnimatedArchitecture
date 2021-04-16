@@ -22,19 +22,17 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step<T extends ToolUser> implements IStep
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull String name;
     private final @NonNull StepExecutor stepExecutor;
 
-    //    @Getter(onMethod = @__({@Override}))
+    //    @Getter
     private final @NonNull Message message;
     private final @NonNull List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
-    @Nullable
-    private final Supplier<Boolean> skipCondition;
-
+    private final @Nullable Supplier<Boolean> skipCondition;
 
     @Override
     public boolean waitForUserInput()
@@ -68,8 +66,7 @@ public class Step<T extends ToolUser> implements IStep
 
     public static class Factory<T extends ToolUser>
     {
-        @NonNull
-        private final String name;
+        private final @NonNull String name;
         private StepExecutor stepExecutor = null;
         private List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;

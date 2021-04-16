@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CreatorWindMill extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeWindmill.get();
 
     public CreatorWindMill(final @NonNull IPPlayer player, final @Nullable String name)

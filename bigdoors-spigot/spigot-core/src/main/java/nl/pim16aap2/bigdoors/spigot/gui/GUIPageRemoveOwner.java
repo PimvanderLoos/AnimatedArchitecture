@@ -27,8 +27,7 @@ public class GUIPageRemoveOwner implements IGUIPage
      * Used to store future player heads before they are retrieved. It is stored in an intermediate step so it can be
      * aborted on an update or something.
      */
-    @NonNull
-    private List<CompletableFuture<Optional<ItemStack>>> futurePlayerHeads = new ArrayList<>();
+    private @NonNull List<CompletableFuture<Optional<ItemStack>>> futurePlayerHeads = new ArrayList<>();
 
     private List<DoorOwner> owners;
 

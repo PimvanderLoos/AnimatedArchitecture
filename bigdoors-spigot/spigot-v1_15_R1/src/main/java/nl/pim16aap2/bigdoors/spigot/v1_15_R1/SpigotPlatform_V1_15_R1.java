@@ -11,21 +11,19 @@ import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 {
-    @NonNull
-    private static final String VERSION = "v1_15_R1";
-    @NonNull
-    private static final SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
+    private static final @NonNull String VERSION = "v1_15_R1";
+    private static final @NonNull SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private IFallingBlockFactory fallingBlockFactory;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private IPBlockDataFactory pBlockDataFactory;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private IBlockAnalyzer blockAnalyzer;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private IGlowingBlockFactory glowingBlockFactory;
 
     private SpigotPlatform_V1_15_R1()

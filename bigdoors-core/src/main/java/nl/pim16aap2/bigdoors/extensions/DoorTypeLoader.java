@@ -55,8 +55,7 @@ public final class DoorTypeLoader extends Restartable
         }
     }
 
-    @NonNull
-    public static DoorTypeLoader get()
+    public static @NonNull DoorTypeLoader get()
     {
         return INSTANCE;
     }
