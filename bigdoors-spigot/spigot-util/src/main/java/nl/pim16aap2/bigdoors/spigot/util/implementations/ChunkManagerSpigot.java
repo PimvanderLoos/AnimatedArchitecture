@@ -12,8 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
  */
 public final class ChunkManagerSpigot implements IChunkManager
 {
-    @NonNull
-    private static final ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
+    private static final @NonNull ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
 
     private ChunkManagerSpigot()
     {

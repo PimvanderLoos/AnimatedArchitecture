@@ -36,8 +36,7 @@ import java.util.Optional;
 public class GarageDoor extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**
      * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -50,17 +49,17 @@ public class GarageDoor extends AbstractDoorBase
      *
      * @return True if this door is animated along the North/South axis.
      */
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable

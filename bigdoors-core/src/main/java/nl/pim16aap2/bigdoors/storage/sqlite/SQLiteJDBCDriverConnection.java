@@ -46,8 +46,7 @@ import java.util.logging.Level;
  */
 public final class SQLiteJDBCDriverConnection implements IStorage
 {
-    @NonNull
-    private static final String DRIVER = "org.sqlite.JDBC";
+    private static final @NonNull String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION = 11;
     private static final int MIN_DATABASE_VERSION = 10;
 
@@ -59,8 +58,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
      */
-    @NonNull
-    private static final String FAKEUUID = "0000";
+    private static final @NonNull String FAKEUUID = "0000";
 
     /**
      * The database file.
@@ -75,8 +73,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * The {@link DatabaseState} the database is in.
      */
-    @NonNull
-    private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
+    private volatile @NonNull DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
     /**
      * Constructor of the SQLite driver connection.

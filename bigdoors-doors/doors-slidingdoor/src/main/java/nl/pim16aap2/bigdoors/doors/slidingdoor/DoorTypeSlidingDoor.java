@@ -15,8 +15,7 @@ public final class DoorTypeSlidingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeSlidingDoor INSTANCE = new DoorTypeSlidingDoor();
+    private static final @NonNull DoorTypeSlidingDoor INSTANCE = new DoorTypeSlidingDoor();
 
     private DoorTypeSlidingDoor()
     {

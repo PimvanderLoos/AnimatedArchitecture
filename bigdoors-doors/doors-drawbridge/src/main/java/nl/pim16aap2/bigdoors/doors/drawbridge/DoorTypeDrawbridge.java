@@ -15,8 +15,7 @@ public final class DoorTypeDrawbridge extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeDrawbridge INSTANCE = new DoorTypeDrawbridge();
+    private static final @NonNull DoorTypeDrawbridge INSTANCE = new DoorTypeDrawbridge();
 
     private DoorTypeDrawbridge()
     {

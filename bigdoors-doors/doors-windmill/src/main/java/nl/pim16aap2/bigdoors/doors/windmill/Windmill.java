@@ -25,8 +25,7 @@ import org.jetbrains.annotations.Nullable;
 public class Windmill extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.

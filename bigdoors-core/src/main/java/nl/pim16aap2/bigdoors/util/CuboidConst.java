@@ -13,8 +13,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
  */
 public class CuboidConst
 {
-    @NonNull
-    protected Vector3Di min, max;
+    protected @NonNull Vector3Di min, max;
 
     /**
      * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of

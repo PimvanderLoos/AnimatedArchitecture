@@ -39,8 +39,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 {
     private final @NonNull List<IProtectionCompat> protectionCompats;
     private final @NonNull BigDoorsSpigot plugin;
-    @NonNull
-    private FakePlayerCreator fakePlayerCreator;
+    private @NonNull FakePlayerCreator fakePlayerCreator;
     private ConfigLoaderSpigot config;
 
     private static ProtectionCompatManagerSpigot INSTANCE;
@@ -272,8 +271,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
         try
         {
-            @Nullable
-            Plugin otherPlugin = plugin.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+            @Nullable Plugin otherPlugin = plugin.getServer().getPluginManager()
+                                                 .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
                 BigDoors.get().getPLogger()
@@ -281,8 +280,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                 return;
             }
 
-            @Nullable
-            Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getDescription().getVersion());
+            @Nullable Class<? extends IProtectionCompat> compatClass =
+                compat.getClass(plugin.getDescription().getVersion());
 
             if (compatClass == null)
             {

@@ -34,16 +34,12 @@ public final class Messages extends Restartable
     /**
      * The name of the default language file.
      */
-    @NonNull
-    private static final String DEFAULTFILENAME = "en_US.txt";
+    private static final @NonNull String DEFAULTFILENAME = "en_US.txt";
     private final @NonNull IPLogger plogger;
 
-    @NonNull
-    private static final Pattern matchDots = Pattern.compile("\\.");
-    @NonNull
-    private static final Pattern matchNewLines = Pattern.compile("\\\\n");
-    @NonNull
-    private static final Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
+    private static final @NonNull Pattern matchDots = Pattern.compile("\\.");
+    private static final @NonNull Pattern matchNewLines = Pattern.compile("\\\\n");
+    private static final @NonNull Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
 
     /**
      * The directory of the language file.
@@ -57,8 +53,7 @@ public final class Messages extends Restartable
      * <p>
      * Value: The translated message.
      */
-    @NonNull
-    private Map<Message, String> messageMap = new EnumMap<>(Message.class);
+    private @NonNull Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
      * The selected language file.

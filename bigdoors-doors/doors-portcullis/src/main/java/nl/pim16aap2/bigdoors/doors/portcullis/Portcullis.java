@@ -35,22 +35,21 @@ import java.util.Optional;
 public class Portcullis extends AbstractDoorBase
     implements IMovingDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int blocksToMove;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable

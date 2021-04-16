@@ -34,22 +34,21 @@ import java.util.Optional;
 public class SlidingDoor extends AbstractDoorBase
     implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int blocksToMove;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable

@@ -26,8 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class Flag extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**
      * Describes if the {@link Flag} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West axis
@@ -38,7 +37,7 @@ public class Flag extends AbstractDoorBase
      *
      * @return True if this door is animated along the North/South axis.
      */
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @PersistentVariable
     protected final boolean northSouthAligned;
 

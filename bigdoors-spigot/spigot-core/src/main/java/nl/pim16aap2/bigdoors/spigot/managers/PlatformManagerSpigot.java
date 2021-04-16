@@ -11,12 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
-    @NonNull
-    private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
-    @Nullable
-    private static final ISpigotPlatform spigotPlatform;
-    @NonNull
-    private static final Version spigotVersion;
+    private static final @NonNull PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
+    private static final @Nullable ISpigotPlatform spigotPlatform;
+    private static final @NonNull Version spigotVersion;
 
     static
     {

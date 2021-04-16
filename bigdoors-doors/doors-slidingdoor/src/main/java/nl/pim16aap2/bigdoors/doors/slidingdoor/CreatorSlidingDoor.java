@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 
 public class CreatorSlidingDoor extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeSlidingDoor.get();
 
     protected int blocksToMove;

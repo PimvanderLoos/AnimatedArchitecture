@@ -126,16 +126,15 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
-    @NonNull
-    private static final BigDoors BIGDOORS = BigDoors.get();
+    private static final @NonNull BigDoors BIGDOORS = BigDoors.get();
 
     private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private Messages messages;
 
     private boolean validVersion = false;
@@ -145,7 +144,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private ProtectionCompatManagerSpigot protectionCompatManager;
     private LoginResourcePackListener rPackHandler;
 
@@ -166,31 +165,31 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final @NonNull AbortableTaskManager abortableTaskManager;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull ISoundEngine soundEngine = new PSoundEngineSpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IChunkManager chunkManager = ChunkManagerSpigot.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     @Getter

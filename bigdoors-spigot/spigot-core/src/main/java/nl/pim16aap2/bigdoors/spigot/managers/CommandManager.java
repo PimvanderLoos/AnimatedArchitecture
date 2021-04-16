@@ -38,8 +38,7 @@ import java.util.logging.Level;
  */
 public class CommandManager implements CommandExecutor
 {
-    @NonNull
-    private static final String helpMessage = ChatColor.BLUE
+    private static final @NonNull String helpMessage = ChatColor.BLUE
         + "{}: Not required when used from GUI, <>: always required, []: optional\n";
     private final @NonNull BigDoorsSpigot plugin;
     private Map<String, ICommand> commands;

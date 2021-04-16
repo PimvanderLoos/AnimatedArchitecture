@@ -45,8 +45,7 @@ import java.util.regex.Pattern;
  */
 public final class UpdateChecker
 {
-    @NonNull
-    public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
+    public static final @NonNull VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
         String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
         if (firstSplit == null || secondSplit == null)
@@ -65,24 +64,19 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
-    @NonNull
-    private static final String USER_AGENT = "BigDoors-update-checker";
-    @NonNull
-    private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
-    @NonNull
-    private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
-private final @NonNull String downloadURL;
+    private static final @NonNull String USER_AGENT = "BigDoors-update-checker";
+    private static final @NonNull String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
+    private static final @NonNull Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
+    private final @NonNull String downloadURL;
 
-    @Nullable
-    private static UpdateChecker INSTANCE;
+    private static @Nullable UpdateChecker INSTANCE;
 
-    @Nullable
-    private UpdateResult lastResult = null;
+    private @Nullable UpdateResult lastResult = null;
 
-private final @NonNull JavaPlugin plugin;
+    private final @NonNull JavaPlugin plugin;
     private final int pluginID;
-private final @NonNull VersionScheme versionScheme;
-private final @NonNull IPLogger logger;
+    private final @NonNull VersionScheme versionScheme;
+    private final @NonNull IPLogger logger;
 
     private UpdateChecker(final @NonNull JavaPlugin plugin, final int pluginID,
                           final @NonNull VersionScheme versionScheme, final @NonNull IPLogger logger)
@@ -409,10 +403,8 @@ private final @NonNull IPLogger logger;
      */
     public final class UpdateResult
     {
-        @NonNull
-        private final UpdateReason reason;
-        @NonNull
-        private final String newestVersion;
+        private final @NonNull UpdateReason reason;
+        private final @NonNull String newestVersion;
         private final long age;
 
         { // An actual use for initializer blocks. This is madness!

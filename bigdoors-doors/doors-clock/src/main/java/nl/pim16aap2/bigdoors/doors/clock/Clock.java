@@ -26,8 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class Clock extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeClock.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
      * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -40,7 +39,7 @@ public class Clock extends AbstractDoorBase
      *
      * @return True if this clock is situated along the north/south axis.
      */
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @PersistentVariable
     protected final boolean northSouthAligned;
 

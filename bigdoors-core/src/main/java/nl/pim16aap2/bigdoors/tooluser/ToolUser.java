@@ -19,12 +19,9 @@ import java.util.Optional;
 public abstract class ToolUser implements IRestartable
 {
     @Getter
-    @NonNull
-    protected final IPPlayer player;
-    @NonNull
-    protected final Messages messages = BigDoors.get().getPlatform().getMessages();
-    @NonNull
-    protected final Procedure<?> procedure;
+    protected final @NonNull IPPlayer player;
+    protected final @NonNull Messages messages = BigDoors.get().getPlatform().getMessages();
+    protected final @NonNull Procedure<?> procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.

@@ -15,8 +15,7 @@ public final class DoorTypeGarageDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeGarageDoor INSTANCE = new DoorTypeGarageDoor();
+    private static final @NonNull DoorTypeGarageDoor INSTANCE = new DoorTypeGarageDoor();
 
     private DoorTypeGarageDoor()
     {

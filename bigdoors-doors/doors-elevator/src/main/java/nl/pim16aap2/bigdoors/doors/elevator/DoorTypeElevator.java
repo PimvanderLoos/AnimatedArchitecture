@@ -15,8 +15,7 @@ public final class DoorTypeElevator extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeElevator INSTANCE = new DoorTypeElevator();
+    private static final @NonNull DoorTypeElevator INSTANCE = new DoorTypeElevator();
 
     private DoorTypeElevator()
     {

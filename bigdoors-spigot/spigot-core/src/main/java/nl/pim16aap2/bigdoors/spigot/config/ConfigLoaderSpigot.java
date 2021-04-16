@@ -40,8 +40,7 @@ import java.util.Set;
  */
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
-    @Nullable
-    private static ConfigLoaderSpigot INSTANCE;
+    private static @Nullable ConfigLoaderSpigot INSTANCE;
 
     private final @NonNull BigDoorsSpigot plugin;
     private final @NonNull IPLogger logger;
@@ -582,8 +581,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     private static class MaterialVerifier implements ConfigEntry.TestValue<List<String>>
     {
-        @NonNull
-        private final Set<Material> output;
+        private final @NonNull Set<Material> output;
 
         /**
          * Constructs a new MaterialVerifier.

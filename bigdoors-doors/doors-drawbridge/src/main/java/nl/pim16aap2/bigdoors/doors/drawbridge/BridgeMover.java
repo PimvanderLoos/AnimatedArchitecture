@@ -26,10 +26,9 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
-private final @NonNull Vector3DdConst rotationCenter;
+    private final @NonNull Vector3DdConst rotationCenter;
     protected final boolean NS;
-    @NonNull
-    protected final TriFunction<Vector3Dd, Vector3DdConst, Double, Vector3Dd> rotator;
+    protected final @NonNull TriFunction<Vector3Dd, Vector3DdConst, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
     private double step;

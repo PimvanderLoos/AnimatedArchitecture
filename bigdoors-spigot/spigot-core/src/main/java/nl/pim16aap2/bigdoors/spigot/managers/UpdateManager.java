@@ -16,16 +16,14 @@ import org.bukkit.scheduler.BukkitTask;
  */
 public final class UpdateManager
 {
-private final @NonNull BigDoorsSpigot plugin;
-private final @NonNull IPLogger logger;
+    private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull IPLogger logger;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
 
-    @NonNull
-    private UpdateChecker updater;
-    @NonNull
-    private BukkitTask updateRunner = null;
+    private @NonNull UpdateChecker updater;
+    private @NonNull BukkitTask updateRunner = null;
 
     public UpdateManager(final @NonNull BigDoorsSpigot plugin, final int pluginID)
     {

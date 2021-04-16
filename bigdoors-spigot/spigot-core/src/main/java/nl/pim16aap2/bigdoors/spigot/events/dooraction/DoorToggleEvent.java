@@ -13,25 +13,21 @@ import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 @AllArgsConstructor
 abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorEvent
 {
-    @Getter(onMethod = @__({@Override}))
-    @NonNull
-    protected final AbstractDoorBase door;
+    @Getter
+    protected final @NonNull AbstractDoorBase door;
 
-    @Getter(onMethod = @__({@Override}))
-    @NonNull
-    protected final DoorActionCause cause;
+    @Getter
+    protected final @NonNull DoorActionCause cause;
 
-    @Getter(onMethod = @__({@Override}))
-    @NonNull
-    protected final DoorActionType actionType;
+    @Getter
+    protected final @NonNull DoorActionType actionType;
 
-    @Getter(onMethod = @__({@Override}))
-    @NonNull
-    protected final IPPlayer responsible;
+    @Getter
+    protected final @NonNull IPPlayer responsible;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     protected final double time;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     protected final boolean animationSkipped;
 }

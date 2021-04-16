@@ -14,8 +14,7 @@ import org.bukkit.Location;
  */
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
-    @NonNull
-    private static final PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
+    private static final @NonNull PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
 
     private PowerBlockRedstoneManagerSpigot()
     {

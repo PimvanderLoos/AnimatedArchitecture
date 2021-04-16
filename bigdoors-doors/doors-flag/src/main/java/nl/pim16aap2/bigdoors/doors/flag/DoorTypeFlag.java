@@ -14,8 +14,7 @@ public final class DoorTypeFlag extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeFlag INSTANCE = new DoorTypeFlag();
+    private static final @NonNull DoorTypeFlag INSTANCE = new DoorTypeFlag();
 
     private DoorTypeFlag()
     {

@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CreatorFlag extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 

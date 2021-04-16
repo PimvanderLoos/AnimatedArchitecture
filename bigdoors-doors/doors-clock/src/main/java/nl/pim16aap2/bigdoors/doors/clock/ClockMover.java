@@ -27,8 +27,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      * Method to determine if a given {@link PBlockData} is part of the little hand or the big hand of a clock.
      * Represented as a {@link Function} becuase
      */
-    @NonNull
-    protected final Function<PBlockData, Boolean> isHourArm;
+    protected final @NonNull Function<PBlockData, Boolean> isHourArm;
 
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.

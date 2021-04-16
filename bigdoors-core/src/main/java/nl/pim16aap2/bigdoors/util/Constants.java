@@ -13,8 +13,7 @@ public final class Constants
     /**
      * The name
      */
-    @NonNull
-    public static final String BIGDOORSENTITYNAME = "BigDoorsEntity";
+    public static final @NonNull String BIGDOORSENTITYNAME = "BigDoorsEntity";
 
     /**
      * Whether or not the current build is a dev build. Certain options are enabled, disabled, or overridden depending
@@ -31,14 +30,12 @@ public final class Constants
     /**
      * The permission node that allows a player to bypass all compatibility hooks.
      */
-    @NonNull
-    public static final String COMPATBYPASSPERMISSION = "bigdoors.admin.bypasscompat";
+    public static final @NonNull String COMPATBYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
     /**
      * The name of this plugin.
      */
-    @NonNull
-    public static final String PLUGINNAME = "BigDoors";
+    public static final @NonNull String PLUGINNAME = "BigDoors";
 
     /**
      * The directory where all the extensions are loaded from.
