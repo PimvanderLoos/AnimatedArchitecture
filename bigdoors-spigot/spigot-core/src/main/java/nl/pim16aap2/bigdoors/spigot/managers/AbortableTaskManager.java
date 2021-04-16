@@ -21,7 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 public final class AbortableTaskManager
 {
     private static AbortableTaskManager INSTANCE;
-private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
     private AbortableTaskManager(final @NonNull BigDoorsSpigot plugin)
     {
