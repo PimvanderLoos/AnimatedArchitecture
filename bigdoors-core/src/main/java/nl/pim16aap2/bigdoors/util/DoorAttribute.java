@@ -45,7 +45,7 @@ public enum DoorAttribute
     /**
      * The auto close timer of this door. i.e. the amount of time it will wait before automatically closing.
      */
-    CHANGETIMER(1),
+    AUTOCLOSETIMER(1),
 
     /**
      * The direction of a vertical and straight animation (e.g. portcullis).

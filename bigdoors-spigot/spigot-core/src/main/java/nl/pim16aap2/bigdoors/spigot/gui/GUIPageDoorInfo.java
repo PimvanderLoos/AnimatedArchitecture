@@ -87,7 +87,7 @@ public class GUIPageDoorInfo implements IGUIPage
                     case DIRECTION_ROTATE_VERTICAL:
                         changeOpenDir(door, interactionIDX);
                         break;
-                    case CHANGETIMER:
+                    case AUTOCLOSETIMER:
                         plugin.getAbortableTaskManager().startTimerSetter(player, door);
                         gui.close();
                         break;

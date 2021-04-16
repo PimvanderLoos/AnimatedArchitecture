@@ -69,7 +69,7 @@ public class SubCommandSetAutoCloseTime extends SubCommand
             throw new UnsupportedOperationException();
         }
 
-        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.CHANGETIMER))
+        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.AUTOCLOSETIMER))
         {
             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
             return true;
