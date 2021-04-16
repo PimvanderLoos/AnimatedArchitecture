@@ -142,7 +142,7 @@ public final class DatabaseManager extends Restartable
                                           door.getPowerBlock().getY(),
                                           door.getPowerBlock().getZ())));
                 return new Pair<>(false, result);
-            }, threadPool).exceptionally(thrown -> Util.exceptionally(thrown, new Pair<>(false, Optional.empty())));
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
 
         ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
 
@@ -187,7 +187,7 @@ public final class DatabaseManager extends Restartable
     /**
      * Removes a {@link AbstractDoorBase} from the database.
      *
-     * @param door        The door that will be deleted
+     * @param door        The door that will be deleted.
      * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
      *                    IDoorPrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
@@ -427,7 +427,8 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractDoorBase} at a given level of ownership.
+     * Adds a player as owner to a {@link AbstractDoorBase} at a given level of ownership and assumes that the door was
+     * NOT deleted by an {@link * IPPlayer}. See {@link #addOwner(AbstractDoorBase, IPPlayer, int, IPPlayer)}.
      *
      * @param door       The {@link AbstractDoorBase}.
      * @param player     The {@link IPPlayer}.
@@ -497,14 +498,31 @@ public final class DatabaseManager extends Restartable
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase} and assumes that the door was NOT deleted by an
+     * {@link IPPlayer}. See {@link #removeOwner(AbstractDoorBase, UUID, IPPlayer)}.
      *
      * @param door       The {@link AbstractDoorBase}.
      * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
-     * @return True if owner removal was successful.
+     * @return The future result of the operation.
      */
-    public @NonNull CompletableFuture<Boolean> removeOwner(final @NonNull AbstractDoorBase door,
-                                                           final @NonNull UUID playerUUID)
+    public @NonNull CompletableFuture<ActionResult> removeOwner(final @NonNull AbstractDoorBase door,
+                                                                final @NonNull UUID playerUUID)
+    {
+        return removeOwner(door, playerUUID, null);
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     *
+     * @param door        The {@link AbstractDoorBase}.
+     * @param playerUUID  The {@link UUID} of the {@link IPPlayer}.
+     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
+     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @return The future result of the operation.
+     */
+    public @NonNull CompletableFuture<ActionResult> removeOwner(final @NonNull AbstractDoorBase door,
+                                                                final @NonNull UUID playerUUID,
+                                                                final @Nullable IPPlayer responsible)
     {
         final @NonNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
@@ -513,7 +531,7 @@ public final class DatabaseManager extends Restartable
                                                    "Trying to remove player: " + playerUUID + " from door: " +
                                                        door.getDoorUID() +
                                                        ", but the player is not an owner!");
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (doorOwner.get().getPermission() == 0)
         {
@@ -521,17 +539,23 @@ public final class DatabaseManager extends Restartable
                                                    "Trying to remove player: " + playerUUID + " from door: " +
                                                        door.getDoorUID() +
                                                        ", but the player is the prime owner! This is not allowed!");
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID);
-                if (result)
+        return callCancellableEvent(fact -> fact.createDoorPrepareRemoveOwnerEvent(door, doorOwner.get()))
+            .thenApplyAsync(
+                cancelled ->
+                {
+                    if (cancelled)
+                        return ActionResult.CANCELLED;
+
+                    final boolean result = db.removeOwner(door.getDoorUID(), playerUUID);
+                    if (!result)
+                        return ActionResult.FAIL;
+
                     ((FriendDoorAccessor) door).removeOwner(playerUUID);
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                    return ActionResult.SUCCESS;
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
