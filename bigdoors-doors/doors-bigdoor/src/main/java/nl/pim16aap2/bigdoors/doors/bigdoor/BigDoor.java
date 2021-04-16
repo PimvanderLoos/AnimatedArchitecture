@@ -32,16 +32,15 @@ import java.util.Optional;
  */
 public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable

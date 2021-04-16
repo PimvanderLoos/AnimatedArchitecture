@@ -63,8 +63,7 @@ public class SQLiteJDBCDriverConnectionTest
     private static final @NonNull PPlayerData playerData3 =
         new PPlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
 
-    @NonNull
-    private static final IPWorld world = new TestPWorld(worldName);
+    private static final @NonNull IPWorld world = new TestPWorld(worldName);
 
     private static AbstractDoorBase door1;
     private static AbstractDoorBase door2;

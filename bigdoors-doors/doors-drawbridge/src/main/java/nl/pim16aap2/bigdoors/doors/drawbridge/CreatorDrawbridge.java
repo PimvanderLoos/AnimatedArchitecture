@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CreatorDrawbridge extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeDrawbridge.get();
 
     public CreatorDrawbridge(final @NonNull IPPlayer player, final @Nullable String name)

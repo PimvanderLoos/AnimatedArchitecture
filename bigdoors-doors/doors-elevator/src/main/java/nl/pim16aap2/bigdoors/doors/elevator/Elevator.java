@@ -13,8 +13,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class Elevator extends Portcullis
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeElevator.get();
 
     public Elevator(final @NonNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
                     final int autoOpenTime)

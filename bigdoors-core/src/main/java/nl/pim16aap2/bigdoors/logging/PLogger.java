@@ -30,7 +30,7 @@ public final class PLogger implements IPLogger
     /**
      * The queue of {@link LogMessage}s that will be written to the log.
      */
-private final @NonNull BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
+    private final @NonNull BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
 
     /**
      * Check if the log file could be initialized properly.
@@ -44,16 +44,13 @@ private final @NonNull BlockingQueue<LogMessage> messageQueue = new LinkedBlocki
      * @param fileLogLevel The new log {@link Level} for logging to the logFile.
      */
     @Getter
-    @NonNull
-    private Level fileLogLevel = Level.FINEST;
+    private @NonNull Level fileLogLevel = Level.FINEST;
 
     @Getter
-    @NonNull
-    private Level consoleLogLevel = Level.CONFIG;
+    private @NonNull Level consoleLogLevel = Level.CONFIG;
 
     @Getter
-    @NonNull
-    private Level lowestLevel = Level.CONFIG;
+    private @NonNull Level lowestLevel = Level.CONFIG;
 
     public PLogger(@NonNull File logFile)
     {

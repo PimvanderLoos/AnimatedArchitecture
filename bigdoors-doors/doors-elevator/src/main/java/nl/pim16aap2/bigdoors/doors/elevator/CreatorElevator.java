@@ -17,7 +17,7 @@ import java.util.List;
 
 public class CreatorElevator extends CreatorPortcullis
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeElevator.get();
 
     public CreatorElevator(final @NonNull IPPlayer player, final @Nullable String name)

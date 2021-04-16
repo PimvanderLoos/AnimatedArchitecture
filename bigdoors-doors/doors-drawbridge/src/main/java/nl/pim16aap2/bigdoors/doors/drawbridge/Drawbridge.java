@@ -33,17 +33,16 @@ import java.util.Optional;
 public class Drawbridge extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    @NonNull
-    private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
+    private static final @NonNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 //    @Setter(onMethod = @__({@Override, @Synchronized("readLock")}))
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     @Accessors(chain = true)
     @PersistentVariable

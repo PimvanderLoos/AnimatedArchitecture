@@ -15,7 +15,7 @@ import java.util.List;
 
 public class CreatorBigDoor extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull DoorType doorType = DoorTypeBigDoor.get();
 
     public CreatorBigDoor(final @NonNull IPPlayer player, final @Nullable String name)

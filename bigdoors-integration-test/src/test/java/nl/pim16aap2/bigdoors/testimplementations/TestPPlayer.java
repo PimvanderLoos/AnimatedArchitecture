@@ -17,8 +17,7 @@ import java.util.logging.Level;
 
 public final class TestPPlayer implements IPPlayer
 {
-    @Nullable
-    private String lastMessage, beforeLastMessage;
+    private @Nullable String lastMessage, beforeLastMessage;
 
     private @NonNull final PPlayerData playerData;
 

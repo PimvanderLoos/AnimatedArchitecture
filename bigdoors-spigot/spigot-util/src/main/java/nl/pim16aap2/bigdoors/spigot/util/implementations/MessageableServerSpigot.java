@@ -14,8 +14,7 @@ import java.util.logging.Level;
  */
 public final class MessageableServerSpigot implements IMessageable
 {
-    @NonNull
-    private static final MessageableServerSpigot INSTANCE = new MessageableServerSpigot();
+    private static final @NonNull MessageableServerSpigot INSTANCE = new MessageableServerSpigot();
 
     private MessageableServerSpigot()
     {

@@ -21,11 +21,9 @@ import org.bukkit.plugin.Plugin;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
-    @NonNull
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
-    @NonNull
+    private static final @NonNull ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
     @SuppressWarnings("unused")
-    private final BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
     private final @NonNull WorldGuard worldGuard;
     private final @NonNull WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;

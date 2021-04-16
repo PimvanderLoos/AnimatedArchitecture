@@ -15,8 +15,7 @@ public final class DoorTypeWindmill extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypeWindmill INSTANCE = new DoorTypeWindmill();
+    private static final @NonNull DoorTypeWindmill INSTANCE = new DoorTypeWindmill();
 
     private DoorTypeWindmill()
     {

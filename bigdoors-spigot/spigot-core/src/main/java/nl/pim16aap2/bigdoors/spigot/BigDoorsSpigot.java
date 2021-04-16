@@ -16,7 +16,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
-import nl.pim16aap2.bigdoors.api.factories.IDoorActionEventFactory;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
@@ -24,7 +24,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEvent;
+import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
@@ -69,7 +69,7 @@ import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
-import nl.pim16aap2.bigdoors.spigot.factories.DoorActionEventFactorySpigot;
+import nl.pim16aap2.bigdoors.spigot.factories.BigDoorsEventFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PWorldFactorySpigot;
@@ -126,14 +126,15 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
+    private static final @NonNull BigDoors BIGDOORS = BigDoors.get();
 
     private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private Messages messages;
 
     private boolean validVersion = false;
@@ -143,7 +144,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private ProtectionCompatManagerSpigot protectionCompatManager;
     private LoginResourcePackListener rPackHandler;
 
@@ -164,31 +165,31 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final @NonNull AbortableTaskManager abortableTaskManager;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull ISoundEngine soundEngine = new PSoundEngineSpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IChunkManager chunkManager = ChunkManagerSpigot.get();
 
-    @Getter(onMethod = @__({@Override}))
-    private final @NonNull IDoorActionEventFactory doorActionEventFactory = new DoorActionEventFactorySpigot();
+    @Getter
+    private final @NonNull IBigDoorsEventFactory doorActionEventFactory = new BigDoorsEventFactorySpigot();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     @Getter
@@ -613,7 +614,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public void callDoorActionEvent(final @NonNull IDoorEvent doorEvent)
+    public void callDoorEvent(final @NonNull IBigDoorsEvent doorEvent)
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
         {

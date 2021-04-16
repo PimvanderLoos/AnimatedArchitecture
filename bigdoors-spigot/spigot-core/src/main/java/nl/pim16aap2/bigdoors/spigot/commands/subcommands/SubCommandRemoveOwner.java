@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPermissionException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
 import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
@@ -90,7 +91,7 @@ public class SubCommandRemoveOwner extends SubCommand
                             // TODO: Make sure this doesn't run on the main thread. I don't think it will, but
                             //       it's good to check.
                             successfulRemoval = BigDoors.get().getDatabaseManager().removeOwner(door, target.getUUID())
-                                                        .get();
+                                                        .get() == DatabaseManager.ActionResult.SUCCESS;
                         }
                         catch (InterruptedException e)
                         {

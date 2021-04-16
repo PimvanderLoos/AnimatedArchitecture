@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.util.WorldTime;
 
 public final class TestPWorld implements IPWorld
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final String worldName;
     private final boolean exists;
     private final WorldTime time;

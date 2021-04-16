@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -13,10 +14,10 @@ import org.bukkit.event.HandlerList;
  *
  * @author Pim
  */
+@ToString
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
-    @NonNull
-    private static final HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
      * Constructs a door action event.

@@ -41,24 +41,21 @@ public interface ICommand
      * @param sender The {@link CommandSender}.
      * @return The help message of the command if the {@link CommandSender} has access to it.
      */
-    @NonNull
-    String getHelp(final @NonNull CommandSender sender);
+    @NonNull String getHelp(final @NonNull CommandSender sender);
 
     /**
      * Gets the permission node of the command.
      *
      * @return The permission node of the command.
      */
-    @NonNull
-    String getPermission();
+    @NonNull String getPermission();
 
     /**
      * Gets the name node of the command.
      *
      * @return The name node of the command.
      */
-    @NonNull
-    String getName();
+    @NonNull String getName();
 
     /**
      * Gets the minimum number of arguments of the command.
@@ -72,6 +69,5 @@ public interface ICommand
      *
      * @return The {@link CommandData} of the command.
      */
-    @NonNull
-    CommandData getCommandData();
+    @NonNull CommandData getCommandData();
 }

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PWorldSpigot implements IPWorld
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull String worldName;
     private final @Nullable World world;
 

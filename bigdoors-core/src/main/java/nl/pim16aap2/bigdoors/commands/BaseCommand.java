@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -88,6 +89,27 @@ public abstract class BaseCommand
     }
 
     /**
+     * Handles the results of a database action by informing the user of any non-success states.
+     *
+     * @param result The result obtained from the database.
+     * @return True in all cases, as it is assumed that this is not user error.
+     */
+    protected @NonNull Boolean handleDatabaseActionResult(final @NonNull DatabaseManager.ActionResult result)
+    {
+        // TODO: Localization
+        switch (result)
+        {
+            case CANCELLED:
+                commandSender.sendMessage("Action was cancelled!");
+            case SUCCESS:
+                break;
+            case FAIL:
+                commandSender.sendMessage("An error occurred! Please contact a server administrator.");
+        }
+        return true;
+    }
+
+    /**
      * Starts the execution of this command. It performs the permission check (See {@link #hasPermission()}) and runs
      * {@link #executeCommand(BooleanPair)} if the {@link ICommandSender} has access to either the user or the admin
      * permission.
@@ -95,7 +117,7 @@ public abstract class BaseCommand
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.
      */
-    protected final CompletableFuture<Boolean> startExecution()
+    protected final @NonNull CompletableFuture<Boolean> startExecution()
     {
         final CompletableFuture<Boolean> ret = new CompletableFuture<>();
 
@@ -124,7 +146,7 @@ public abstract class BaseCommand
      * @param permissions Whether the {@link ICommandSender} has user and/or admin permissions respectively.
      * @return True if the method execution was successful.
      */
-    protected abstract @NonNull CompletableFuture<Boolean> executeCommand(@NonNull BooleanPair permissions);
+    protected abstract @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions);
 
     /**
      * Ensures the command is logged.

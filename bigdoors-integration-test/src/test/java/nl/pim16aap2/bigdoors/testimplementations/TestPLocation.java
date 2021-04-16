@@ -12,20 +12,19 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 
 public final class TestPLocation implements IPLocation
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
-    @NonNull
-    private IPWorld world;
+    private @NonNull IPWorld world;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     private double x;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     private double y;
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     private double z;
 

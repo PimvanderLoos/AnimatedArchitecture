@@ -25,7 +25,7 @@ import java.util.List;
 
 public class CreatorClock extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
 private final @NonNull DoorType doorType = DoorTypeClock.get();
 
     protected PBlockFace hourArmSide;
@@ -33,15 +33,13 @@ private final @NonNull DoorType doorType = DoorTypeClock.get();
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    @NonNull
-    private static final List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
+    private static final @NonNull List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    @NonNull
-    private static final List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
+    private static final @NonNull List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
     private boolean northSouthAligned;

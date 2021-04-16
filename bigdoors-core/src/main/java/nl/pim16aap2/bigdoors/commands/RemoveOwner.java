@@ -34,7 +34,8 @@ public class RemoveOwner extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        return BigDoors.get().getDatabaseManager().removeOwner(door, targetPlayer);
+        return BigDoors.get().getDatabaseManager().removeOwner(door, targetPlayer)
+                       .thenApply(this::handleDatabaseActionResult);
     }
 
     @Override

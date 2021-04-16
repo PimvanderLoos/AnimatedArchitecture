@@ -15,8 +15,7 @@ public final class DoorTypePortcullis extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NonNull
-    private static final DoorTypePortcullis INSTANCE = new DoorTypePortcullis();
+    private static final @NonNull DoorTypePortcullis INSTANCE = new DoorTypePortcullis();
 
     private DoorTypePortcullis()
     {

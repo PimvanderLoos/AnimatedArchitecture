@@ -20,12 +20,9 @@ import java.util.logging.Level;
  */
 public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 {
-    @NonNull
-    private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
-    @NonNull
-    private static final Set<Material> GREYLIST = EnumSet.noneOf(Material.class);
-    @NonNull
-    private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
+    private static final @NonNull Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
+    private static final @NonNull Set<Material> GREYLIST = EnumSet.noneOf(Material.class);
+    private static final @NonNull Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
 
     static
     {

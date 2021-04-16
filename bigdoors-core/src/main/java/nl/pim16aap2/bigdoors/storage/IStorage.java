@@ -20,8 +20,7 @@ import java.util.regex.Pattern;
  */
 public interface IStorage
 {
-    @NonNull
-    Pattern VALID_TABLE_NAME = Pattern.compile("^[a-zA-Z0-9_]*$");
+    @NonNull Pattern VALID_TABLE_NAME = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
      * Checks if a specific String would make for a valid name for a table.

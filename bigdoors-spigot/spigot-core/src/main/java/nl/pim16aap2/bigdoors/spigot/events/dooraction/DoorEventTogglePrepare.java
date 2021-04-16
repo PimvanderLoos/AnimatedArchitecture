@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -16,12 +17,12 @@ import org.bukkit.event.HandlerList;
  *
  * @author Pim
  */
+@ToString
 public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
-    @NonNull
-    private static final HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
 
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @Setter(onMethod = @__({@Override}))
     private boolean isCancelled = false;
 

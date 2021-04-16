@@ -47,7 +47,8 @@ public class AddOwner extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel);
+        return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel)
+                       .thenApply(this::handleDatabaseActionResult);
     }
 
     @Override

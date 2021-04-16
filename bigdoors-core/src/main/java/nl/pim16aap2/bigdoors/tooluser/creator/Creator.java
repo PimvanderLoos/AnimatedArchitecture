@@ -373,9 +373,16 @@ public abstract class Creator extends ToolUser
         //       Or maybe just finish it anyway and send whatever message once it is done.
         //       There's nothing that can be done about failure anyway.
         BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
-            (newDoor, throwable) ->
+            (result, throwable) ->
             {
-                if (newDoor.isEmpty())
+                if (result.first)
+                {
+                    // TODO: Localization
+                    player.sendMessage("Door creation was cancelled!");
+                    return;
+                }
+
+                if (result.second.isEmpty())
                     BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
             }).exceptionally(Util::exceptionally);
     }

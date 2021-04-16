@@ -676,11 +676,9 @@ public class PPreparedStatement
 
     private static final class Action
     {
-        @NonNull
-        private final CheckedTriConsumer<PreparedStatement, Integer, Object, SQLException> fun;
+        private final @NonNull CheckedTriConsumer<PreparedStatement, Integer, Object, SQLException> fun;
         private final int idx;
-        @NonNull
-        private final Object obj;
+        private final @NonNull Object obj;
 
         private Action(final @NonNull CheckedTriConsumer<PreparedStatement, Integer, Object, SQLException> fun,
                        final int idx, final @NonNull Object obj)
@@ -700,8 +698,7 @@ public class PPreparedStatement
             return idx;
         }
 
-        @NonNull
-        private CheckedTriConsumer<PreparedStatement, Integer, Object, SQLException> getFun()
+        private @NonNull CheckedTriConsumer<PreparedStatement, Integer, Object, SQLException> getFun()
         {
             return fun;
         }

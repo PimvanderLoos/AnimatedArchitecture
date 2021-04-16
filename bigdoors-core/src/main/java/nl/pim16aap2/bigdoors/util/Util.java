@@ -42,7 +42,7 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
-    private static final  @NonNull String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final @NonNull String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.

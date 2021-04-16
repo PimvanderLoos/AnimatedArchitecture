@@ -20,8 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 {
-    @NonNull
-    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
+    private static final @NonNull ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
     private final @NonNull BigDoorsSpigot plugin;
     private final @NonNull PlotAPI plotSquared;
     private final @NonNull JavaPlugin plotSquaredPlugin;

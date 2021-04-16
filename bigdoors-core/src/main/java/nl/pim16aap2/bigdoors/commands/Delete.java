@@ -38,6 +38,6 @@ public class Delete extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        return BigDoors.get().getDatabaseManager().deleteDoor(door);
+        return BigDoors.get().getDatabaseManager().deleteDoor(door).thenApply(this::handleDatabaseActionResult);
     }
 }

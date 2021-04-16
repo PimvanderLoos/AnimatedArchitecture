@@ -19,8 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ToolUserManager extends Restartable
 {
-    @NonNull
-    private static final Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private static final @NonNull Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
     public ToolUserManager(final @NonNull IRestartableHolder holder)
     {

@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 
 public class CreatorPortcullis extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     private final @NonNull DoorType doorType = DoorTypePortcullis.get();
 
     protected int blocksToMove;
