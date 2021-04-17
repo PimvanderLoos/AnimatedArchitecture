@@ -190,6 +190,16 @@ public final class BigDoors extends RestartableHolder
     }
 
     /**
+     * Gets the version of BigDoors that is currently running.
+     *
+     * @return The version of BigDoors that is currently running.
+     */
+    public @NonNull String getVersion()
+    {
+        return getPlatform().getVersion();
+    }
+
+    /**
      * Handles a restart.
      */
     public void restart()

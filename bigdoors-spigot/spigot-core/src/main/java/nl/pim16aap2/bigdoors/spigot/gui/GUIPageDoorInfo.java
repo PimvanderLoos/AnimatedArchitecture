@@ -76,26 +76,26 @@ public class GUIPageDoorInfo implements IGUIPage
                     case DELETE:
                         gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
                         break;
-                    case RELOCATEPOWERBLOCK:
+                    case RELOCATE_POWERBLOCK:
 //                        plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
 //                        gui.close();
                         break;
                     case OPEN_DIRECTION:
                         changeOpenDir(door, interactionIDX);
                         break;
-                    case AUTOCLOSETIMER:
+                    case AUTO_CLOSE_TIMER:
                         plugin.getAbortableTaskManager().startTimerSetter(player, door);
                         gui.close();
                         break;
-                    case BLOCKSTOMOVE:
+                    case BLOCKS_TO_MOVE:
                         plugin.getAbortableTaskManager().startBlocksToMoveSetter(player, door);
                         gui.close();
                         break;
-                    case ADDOWNER:
+                    case ADD_OWNER:
                         plugin.getAbortableTaskManager().startAddOwner(player, door);
                         gui.close();
                         break;
-                    case REMOVEOWNER:
+                    case REMOVE_OWNER:
                         switchToRemoveOwner();
                 }
             });

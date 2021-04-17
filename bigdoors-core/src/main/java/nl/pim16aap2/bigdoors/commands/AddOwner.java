@@ -77,7 +77,7 @@ public class AddOwner extends DoorTargetCommand
         }
 
         final int ownerPermission = doorOwner.get().getPermission();
-        if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.ADDOWNER))
+        if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.ADD_OWNER))
         {
             // TODO: Localization
             getCommandSender().sendMessage("Your are not allowed to add co-owners to this door!");

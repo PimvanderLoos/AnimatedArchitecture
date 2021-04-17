@@ -76,7 +76,7 @@ public class SubCommandRemoveOwner extends SubCommand
 
                             hasPermission = executorPermission < targetPermission &&
                                 Util.hasPermissionForAction(((Player) sender).getUniqueId(), door,
-                                                            DoorAttribute.REMOVEOWNER);
+                                                            DoorAttribute.REMOVE_OWNER);
                         }
 
                         if (!hasPermission)

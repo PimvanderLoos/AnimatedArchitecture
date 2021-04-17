@@ -40,12 +40,12 @@ public enum DoorAttribute
     /**
      * Relocate the power block.
      */
-    RELOCATEPOWERBLOCK(1),
+    RELOCATE_POWERBLOCK(1),
 
     /**
      * The auto close timer of this door. i.e. the amount of time it will wait before automatically closing.
      */
-    AUTOCLOSETIMER(1),
+    AUTO_CLOSE_TIMER(1),
 
     /**
      * The open direction of a door.
@@ -55,17 +55,17 @@ public enum DoorAttribute
     /**
      * The number of blocks an animated will try to move.
      */
-    BLOCKSTOMOVE(1),
+    BLOCKS_TO_MOVE(1),
 
     /**
      * Add an owner.
      */
-    ADDOWNER(1),
+    ADD_OWNER(1),
 
     /**
      * Remove an owner.
      */
-    REMOVEOWNER(1);
+    REMOVE_OWNER(1);
 
     /**
      * The minimum level of ownership (0 = highest) required to access an attribute.

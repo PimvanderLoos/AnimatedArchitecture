@@ -36,7 +36,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
     @Override
     protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
     {
-        return hasAccessToAttribute(door, DoorAttribute.AUTOCLOSETIMER, bypassPermission);
+        return hasAccessToAttribute(door, DoorAttribute.AUTO_CLOSE_TIMER, bypassPermission);
     }
 
     @Override

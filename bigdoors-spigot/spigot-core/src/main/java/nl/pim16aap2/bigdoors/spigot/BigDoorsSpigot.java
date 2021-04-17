@@ -581,9 +581,15 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
+    public @NonNull String getVersion()
+    {
+        return BigDoorsSpigot.get().getDescription().getVersion();
+    }
+
+    @Override
     public @NonNull DebugReporter getDebugReporter()
     {
-        return new DebugReporterSpigot();
+        return new DebugReporterSpigot(this);
     }
 
     // Get the logger.

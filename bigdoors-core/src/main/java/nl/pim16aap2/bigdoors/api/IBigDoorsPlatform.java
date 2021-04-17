@@ -265,4 +265,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      * @return The {@link DebugReporter}.
      */
     @NonNull DebugReporter getDebugReporter();
+
+    /**
+     * Gets the build id of BigDoors that is currently running.
+     *
+     * @return The build id of BigDoors that is currently running.
+     */
+    @NonNull String getVersion();
 }

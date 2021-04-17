@@ -54,7 +54,7 @@ public class SubCommandSetRotation extends SubCommand
             return;
         }
 
-        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.BLOCKSTOMOVE))
+        if (!Util.hasPermissionForAction(((Player) sender).getUniqueId(), door, DoorAttribute.BLOCKS_TO_MOVE))
         {
             commandManager.handleException(new CommandActionNotAllowedException(), sender, null, null);
             return;

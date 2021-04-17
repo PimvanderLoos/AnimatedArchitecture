@@ -36,7 +36,7 @@ public class SetBlocksToMove extends DoorTargetCommand
     @Override
     protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
     {
-        return hasAccessToAttribute(door, DoorAttribute.BLOCKSTOMOVE, bypassPermission);
+        return hasAccessToAttribute(door, DoorAttribute.BLOCKS_TO_MOVE, bypassPermission);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -19,14 +20,18 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
+import org.bukkit.plugin.java.JavaPlugin;
 
+@AllArgsConstructor
 public class DebugReporterSpigot extends DebugReporter
 {
+    private final @NonNull JavaPlugin plugin;
+
     @Override
     public @NonNull String getDump()
     {
         final StringBuilder sb = new StringBuilder();
-        sb.append("BigDoors version: ").append(BigDoorsSpigot.get().getDescription().getVersion()).append("\n");
+        sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append("\n");
         sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append("\n");
         sb.append("Java version: ").append(System.getProperty("java.version")).append("\n");
 
