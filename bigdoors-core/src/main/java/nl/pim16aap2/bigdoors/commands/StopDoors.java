@@ -18,7 +18,7 @@ public class StopDoors extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.STOPDOORS;
+        return CommandDefinition.STOP_DOORS;
     }
 
     @Override

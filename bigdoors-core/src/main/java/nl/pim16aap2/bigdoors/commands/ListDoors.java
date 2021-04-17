@@ -32,7 +32,7 @@ public class ListDoors extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.LISTDOORS;
+        return CommandDefinition.LIST_DOORS;
     }
 
     @Override

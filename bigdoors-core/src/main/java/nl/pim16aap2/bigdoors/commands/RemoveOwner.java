@@ -28,7 +28,7 @@ public class RemoveOwner extends DoorTargetCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.REMOVEOWNER;
+        return CommandDefinition.REMOVE_OWNER;
     }
 
     @Override

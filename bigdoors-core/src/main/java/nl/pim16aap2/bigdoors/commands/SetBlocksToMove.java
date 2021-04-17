@@ -30,7 +30,7 @@ public class SetBlocksToMove extends DoorTargetCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.SETBLOCKSTOMOVE;
+        return CommandDefinition.SET_BLOCKS_TO_MOVE;
     }
 
     @Override

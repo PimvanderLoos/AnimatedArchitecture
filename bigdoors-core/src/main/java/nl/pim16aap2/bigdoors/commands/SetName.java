@@ -26,7 +26,7 @@ public class SetName extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.SETNAME;
+        return CommandDefinition.SET_NAME;
     }
 
     @Override

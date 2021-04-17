@@ -18,7 +18,7 @@ public class MovePowerBlock extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.MOVEPOWERBLOCK;
+        return CommandDefinition.MOVE_POWERBLOCK;
     }
 
     @Override

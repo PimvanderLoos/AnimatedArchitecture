@@ -10,6 +10,11 @@ import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Implements the command that changes the auto-close-timer for doors.
+ *
+ * @author Pim
+ */
 @ToString
 public class SetAutoCloseTime extends DoorTargetCommand
 {
@@ -25,7 +30,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.SETAUTOCLOSETIME;
+        return CommandDefinition.SET_AUTO_CLOSE_TIME;
     }
 
     @Override

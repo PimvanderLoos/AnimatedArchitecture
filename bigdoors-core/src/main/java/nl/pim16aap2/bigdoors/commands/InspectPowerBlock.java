@@ -20,7 +20,7 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.INSPECTPOWERBLOCK;
+        return CommandDefinition.INSPECT_POWERBLOCK;
     }
 
     @Override

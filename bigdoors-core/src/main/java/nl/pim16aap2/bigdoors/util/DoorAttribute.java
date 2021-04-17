@@ -48,29 +48,9 @@ public enum DoorAttribute
     AUTOCLOSETIMER(1),
 
     /**
-     * The direction of a vertical and straight animation (e.g. portcullis).
+     * The open direction of a door.
      */
-    DIRECTION_STRAIGHT_VERTICAL(1),
-
-    /**
-     * The direction of a a vertical and straight animation (e.g. sliding door).
-     */
-    DIRECTION_STRAIGHT_HORIZONTAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
-
-    /**
-     * The direction of a vertical rotaion animation (e.g. the drawbridge).
-     */
-    DIRECTION_ROTATE_VERTICAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
-
-    /**
-     * This is stupid. Needs to be removed.
-     */
-    DIRECTION_ROTATE_VERTICAL2(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel), // TODO: REMOVE
-
-    /**
-     * The direction of a horizonta rotating aniamtion (e.g. the bigdoor).
-     */
-    DIRECTION_ROTATE_HORIZONTAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
+    OPEN_DIRECTION(2),
 
     /**
      * The number of blocks an animated will try to move.

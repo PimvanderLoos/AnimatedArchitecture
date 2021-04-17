@@ -80,11 +80,7 @@ public class GUIPageDoorInfo implements IGUIPage
 //                        plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
 //                        gui.close();
                         break;
-                    case DIRECTION_ROTATE_VERTICAL2:
-                    case DIRECTION_STRAIGHT_HORIZONTAL:
-                    case DIRECTION_STRAIGHT_VERTICAL:
-                    case DIRECTION_ROTATE_HORIZONTAL:
-                    case DIRECTION_ROTATE_VERTICAL:
+                    case OPEN_DIRECTION:
                         changeOpenDir(door, interactionIDX);
                         break;
                     case AUTOCLOSETIMER:

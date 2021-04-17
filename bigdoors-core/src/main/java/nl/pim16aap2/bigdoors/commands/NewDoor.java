@@ -65,7 +65,7 @@ public class NewDoor extends BaseCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.NEWDOOR;
+        return CommandDefinition.NEW_DOOR;
     }
 
     @Override
