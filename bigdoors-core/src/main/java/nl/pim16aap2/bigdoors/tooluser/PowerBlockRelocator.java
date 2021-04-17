@@ -25,7 +25,7 @@ public class PowerBlockRelocator extends ToolUser
     private final @NonNull AbstractDoorBase door;
     private @Nullable IPLocationConst newLoc;
 
-    protected PowerBlockRelocator(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
+    public PowerBlockRelocator(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
     {
         super(player);
         this.door = door;

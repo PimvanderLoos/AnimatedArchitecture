@@ -2,13 +2,22 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the command to initiate the process to move the powerblock of a door to a different location.
+ *
+ * @author Pim
+ */
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
@@ -38,6 +47,10 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        throw new UnsupportedOperationException("This command has not yet been implemented!");
+        BigDoors.get().getToolUserManager()
+                .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),
+                               Constants.DOOR_CREATOR_TIME_LIMIT);
+        return CompletableFuture.completedFuture(true);
+
     }
 }
