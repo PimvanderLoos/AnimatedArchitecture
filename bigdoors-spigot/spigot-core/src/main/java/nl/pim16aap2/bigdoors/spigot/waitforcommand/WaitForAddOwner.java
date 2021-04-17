@@ -1,17 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.waitforcommand;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
-
-import java.util.concurrent.ExecutionException;
 
 /**
  * Represents a delayed command to add another owner to a {@link AbstractDoorBase}.
@@ -20,10 +16,10 @@ import java.util.concurrent.ExecutionException;
  */
 public class WaitForAddOwner extends WaitForCommand
 {
-private final @NonNull AbstractDoorBase door;
-private final @NonNull SubCommandAddOwner subCommand;
+    private final @NonNull AbstractDoorBase door;
+    private final @NonNull Object subCommand;
 
-    public WaitForAddOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommandAddOwner subCommand,
+    public WaitForAddOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull Object subCommand,
                            final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
@@ -37,15 +33,6 @@ private final @NonNull SubCommandAddOwner subCommand;
     public boolean executeCommand(final @NonNull String[] args)
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException
     {
-        abortSilently();
-        try
-        {
-            return subCommand.execute(player, door, args[1], subCommand.getPermissionFromArgs(player, args, 2));
-        }
-        catch (ExecutionException | InterruptedException e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-        }
-        return false;
+        throw new UnsupportedOperationException("Deprecated!");
     }
 }

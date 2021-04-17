@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
@@ -17,10 +16,10 @@ import org.bukkit.entity.Player;
  */
 public class WaitForRemoveOwner extends WaitForCommand
 {
-private final @NonNull AbstractDoorBase door;
-private final @NonNull SubCommandRemoveOwner subCommand;
+    private final @NonNull AbstractDoorBase door;
+    private final @NonNull Object subCommand;
 
-    public WaitForRemoveOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommandRemoveOwner subCommand,
+    public WaitForRemoveOwner(final @NonNull BigDoorsSpigot plugin, final @NonNull Object subCommand,
                               final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
@@ -40,6 +39,7 @@ private final @NonNull SubCommandRemoveOwner subCommand;
         throws CommandPlayerNotFoundException, CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();
-        return subCommand.execute(player, door, args[2]);
+//        return subCommand.execute(player, door, args[2]);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 }

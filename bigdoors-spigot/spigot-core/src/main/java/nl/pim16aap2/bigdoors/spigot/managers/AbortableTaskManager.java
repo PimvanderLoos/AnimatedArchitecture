@@ -4,11 +4,6 @@ import com.google.common.base.Preconditions;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForAddOwner;
 import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForRemoveOwner;
@@ -80,9 +75,7 @@ public final class AbortableTaskManager
      */
     public void startTimerSetter(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
-        startTimerForAbortableTask(
-            new WaitForSetTime(plugin, (SubCommandSetAutoCloseTime) plugin.getCommand(CommandData.SETAUTOCLOSETIME),
-                               player, door), 20 * 20);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 
     /**
@@ -93,8 +86,7 @@ public final class AbortableTaskManager
      */
     public void startBlocksToMoveSetter(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
-        startTimerForAbortableTask(new WaitForSetBlocksToMove(plugin, (SubCommandSetBlocksToMove) plugin
-            .getCommand(CommandData.SETBLOCKSTOMOVE), player, door), 20 * 20);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 
     /**
@@ -105,9 +97,7 @@ public final class AbortableTaskManager
      */
     public void startAddOwner(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
-        startTimerForAbortableTask(
-            new WaitForAddOwner(plugin, (SubCommandAddOwner) plugin.getCommand(CommandData.ADDOWNER), player, door),
-            20 * 20);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 
     /**
@@ -118,8 +108,6 @@ public final class AbortableTaskManager
      */
     public void startRemoveOwner(final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
-        startTimerForAbortableTask(
-            new WaitForRemoveOwner(plugin, (SubCommandRemoveOwner) plugin.getCommand(CommandData.REMOVEOWNER),
-                                   player, door), 20 * 20);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 }

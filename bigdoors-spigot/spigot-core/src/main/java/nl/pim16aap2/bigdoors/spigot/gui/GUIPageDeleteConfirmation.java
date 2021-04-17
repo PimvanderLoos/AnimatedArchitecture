@@ -2,10 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDelete;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -58,14 +55,17 @@ public class GUIPageDeleteConfirmation implements IGUIPage
 
     private void deleteDoor()
     {
+        if (true)
+            throw new UnsupportedOperationException("Deprecated!");
+
         if (!Util.hasPermissionForAction(gui.getGuiHolder(), gui.getDoor(), DoorAttribute.DELETE))
             return;
 
         BigDoors.get().getPlatform().getPExecutor().runOnMainThread(
             () ->
             {
-                ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
-                    .execute(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), gui.getDoor());
+//                ((SubCommandDelete) plugin.getCommand(CommandData.DELETE))
+//                    .execute(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), gui.getDoor());
                 gui.removeSelectedDoor();
             });
 

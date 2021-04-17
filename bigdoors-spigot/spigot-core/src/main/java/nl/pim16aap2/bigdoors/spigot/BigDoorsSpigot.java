@@ -37,36 +37,6 @@ import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandBigDoors;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandMenu;
-import nl.pim16aap2.bigdoors.spigot.commands.ICommand;
-import nl.pim16aap2.bigdoors.spigot.commands.SuperCommand;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandAddOwner;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandCancel;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandClose;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandConfirm;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDebug;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandDelete;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandFill;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandInfo;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandInspectPowerBlock;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandListDoors;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandListPlayerDoors;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandMenu;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandMovePowerBlock;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandNew;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandOpen;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRemoveOwner;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandRestart;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetName;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetRotation;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSpecify;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandStopDoors;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandVersion;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
@@ -84,7 +54,6 @@ import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.AbortableTaskManager;
-import nl.pim16aap2.bigdoors.spigot.managers.CommandManager;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
@@ -139,7 +108,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Messages messages;
 
     private boolean validVersion = false;
-    private CommandManager commandManager;
     private IPExecutor pExecutor;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, GUI> playerGUIs;
@@ -297,7 +265,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             powerBlockManager = new PowerBlockManager(this, configLoader, databaseManager, getPLogger());
             Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
-            loadCommands();
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
@@ -360,41 +327,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
     }
 
-    private void loadCommands()
-    {
-        commandManager = new CommandManager(this);
-        SuperCommand commandBigDoors = new CommandBigDoors(this, commandManager);
-        {
-            commandBigDoors.registerSubCommand(new SubCommandAddOwner(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandCancel(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandConfirm(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandMovePowerBlock(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandClose(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandDebug(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandDelete(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandFill(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandInfo(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandInspectPowerBlock(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandListDoors(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandListPlayerDoors(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandMenu(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandSetName(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandNew(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandOpen(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandRemoveOwner(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandRestart(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandSetAutoCloseTime(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandSetBlocksToMove(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandSetRotation(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandStopDoors(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandToggle(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandVersion(this, commandManager));
-            commandBigDoors.registerSubCommand(new SubCommandSpecify(this, commandManager));
-        }
-        commandManager.registerCommand(commandBigDoors);
-        commandManager.registerCommand(new CommandMenu(this, commandManager));
-    }
-
     @Override
     public @NonNull File getDataDirectory()
     {
@@ -435,11 +367,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public @NonNull IPExecutor getPExecutor()
     {
         return pExecutor;
-    }
-
-    public @NonNull ICommand getCommand(final @NonNull CommandData command)
-    {
-        return commandManager.getCommand(command);
     }
 
     public @NonNull Optional<String> canBreakBlock(final @NonNull IPPlayer player, final @NonNull IPLocationConst loc)

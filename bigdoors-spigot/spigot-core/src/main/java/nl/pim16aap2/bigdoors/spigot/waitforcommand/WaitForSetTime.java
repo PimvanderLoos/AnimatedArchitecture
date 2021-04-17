@@ -4,7 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetAutoCloseTime;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
@@ -16,10 +15,10 @@ import org.bukkit.entity.Player;
  */
 public class WaitForSetTime extends WaitForCommand
 {
-private final @NonNull AbstractDoorBase door;
-private final @NonNull SubCommandSetAutoCloseTime subCommand;
+    private final @NonNull AbstractDoorBase door;
+    private final @NonNull Object subCommand;
 
-    public WaitForSetTime(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommandSetAutoCloseTime subCommand,
+    public WaitForSetTime(final @NonNull BigDoorsSpigot plugin, final @NonNull Object subCommand,
                           final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
@@ -34,6 +33,7 @@ private final @NonNull SubCommandSetAutoCloseTime subCommand;
         throws CommandActionNotAllowedException, IllegalArgumentException
     {
         abortSilently();
-        return subCommand.execute(player, door, args[1]);
+//        return subCommand.execute(player, door, args[1]);
+        throw new UnsupportedOperationException("Deprecated!");
     }
 }

@@ -4,7 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandSetBlocksToMove;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
@@ -16,11 +15,11 @@ import org.bukkit.entity.Player;
  */
 public class WaitForSetBlocksToMove extends WaitForCommand
 {
-private final @NonNull AbstractDoorBase door;
-private final @NonNull SubCommandSetBlocksToMove subCommand;
+    private final @NonNull AbstractDoorBase door;
+    private final @NonNull Object subCommand;
 
     public WaitForSetBlocksToMove(final @NonNull BigDoorsSpigot plugin,
-                                  final @NonNull SubCommandSetBlocksToMove subCommand,
+                                  final @NonNull Object subCommand,
                                   final @NonNull Player player, final @NonNull AbstractDoorBase door)
     {
         super(plugin, subCommand);
@@ -34,7 +33,8 @@ private final @NonNull SubCommandSetBlocksToMove subCommand;
     public boolean executeCommand(final @NonNull String[] args)
         throws CommandActionNotAllowedException, IllegalArgumentException
     {
+        throw new UnsupportedOperationException("Deprecated!");
 //        abortSilently();
-        return subCommand.execute(player, door, args[1]);
+//        return subCommand.execute(player, door, args[1]);
     }
 }

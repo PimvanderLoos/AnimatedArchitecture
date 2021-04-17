@@ -4,9 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandInfo;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandToggle;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -66,12 +63,12 @@ public class GUIPageDoorInfo implements IGUIPage
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;
                     case TOGGLE:
-                        ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
+//                        ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
                         break;
                     case SWITCH: // TODO: Implement door pausing.
                         break;
                     case INFO:
-                        ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
+//                        ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
                         break;
                     case DELETE:
                         gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));

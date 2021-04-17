@@ -4,7 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.exceptions.CommandActionNotAllowedException;
 import nl.pim16aap2.bigdoors.exceptions.CommandPlayerNotFoundException;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommand;
 import nl.pim16aap2.bigdoors.spigot.util.AbortableTask;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -18,11 +17,11 @@ import org.bukkit.entity.Player;
 public abstract class WaitForCommand extends AbortableTask
 {
     protected final @NonNull BigDoorsSpigot plugin;
-    protected final @NonNull SubCommand subCommand;
+    protected final @NonNull Object subCommand;
     protected @NonNull Player player;
     protected boolean isFinished = false;
 
-    protected WaitForCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull SubCommand subCommand)
+    protected WaitForCommand(final @NonNull BigDoorsSpigot plugin, final @NonNull Object subCommand)
     {
         this.plugin = plugin;
         this.subCommand = subCommand;
@@ -55,7 +54,7 @@ public abstract class WaitForCommand extends AbortableTask
      */
     public final @NonNull String getCommand()
     {
-        return subCommand.getName();
+        return "";
     }
 
     /**
