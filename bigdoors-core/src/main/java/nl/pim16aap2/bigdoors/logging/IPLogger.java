@@ -45,6 +45,7 @@ public interface IPLogger
     /**
      * Dumps the stack trace to the log file at an arbitrary location.
      *
+     * @param level   The level at which to log the stacktrace.
      * @param message An optional message to be printed along with the stack trace.
      */
     void dumpStackTrace(@NonNull Level level, @NonNull String message);

@@ -61,17 +61,25 @@ public abstract class LogMessage
     }
 
     /**
-     * Converts a stacktrace to a string.
+     * Converts the stack trace of a {@link Throwable} to a string.
      *
-     * @param throwable The {@link Throwable} whose stacktrace to get.
+     * @param throwable The {@link Throwable} whose stack trace to retrieve as String.
      * @return A string of the stack trace.
      */
-    private static @NonNull String stacktraceToString(final @NonNull Throwable throwable)
+    private static @NonNull String throwableStackTraceToString(final @NonNull Throwable throwable)
     {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
         throwable.printStackTrace(pw);
         return sw.toString();
+    }
+
+    private static @NonNull String stackTraceToString(final @NonNull StackTraceElement[] stackTrace, final int skip)
+    {
+        final StringBuilder sb = new StringBuilder();
+        for (int idx = skip; idx < stackTrace.length; ++idx)
+            sb.append("\tat ").append(stackTrace[idx]).append("\n");
+        return sb.toString();
     }
 
     /**
@@ -84,7 +92,35 @@ public abstract class LogMessage
         LogMessageThrowable(final @NonNull Throwable throwable, final @NonNull String message,
                             final @NonNull Level logLevel)
         {
-            super(checkMessage(message) + checkMessage(stacktraceToString(throwable)), logLevel);
+            super(checkMessage(message) + checkMessage(throwableStackTraceToString(throwable)), logLevel);
+        }
+    }
+
+    /**
+     * Represents a {@link LogMessage} that logs a stack trace.
+     *
+     * @author Pim
+     */
+    public static class LogMessageStackTrace extends LogMessage
+    {
+        /**
+         * Logs a new stack trace.
+         *
+         * @param stackTrace The stack trace to log.
+         * @param message    The message to log as the header.
+         * @param logLevel   The level at which to log the resulting message.
+         * @param skip       The number of elements in the stack trace to skip.
+         */
+        LogMessageStackTrace(final @NonNull StackTraceElement[] stackTrace, final @NonNull String message,
+                             final @NonNull Level logLevel, final int skip)
+        {
+            super(checkMessage(message) + checkMessage(stackTraceToString(stackTrace, skip)), logLevel);
+        }
+
+        LogMessageStackTrace(final @NonNull StackTraceElement[] stackTrace, final @NonNull String message,
+                             final @NonNull Level logLevel)
+        {
+            this(stackTrace, message, logLevel, 0);
         }
     }
 

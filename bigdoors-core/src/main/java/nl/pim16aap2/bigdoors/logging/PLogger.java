@@ -196,13 +196,17 @@ public final class PLogger implements IPLogger
     @Override
     public void dumpStackTrace(final @NonNull String message)
     {
-        dumpStackTrace(Level.SEVERE, message);
+        addToMessageQueue(Level.SEVERE,
+                          () -> new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
+                                                                    message, Level.SEVERE, 4));
     }
 
     @Override
     public void dumpStackTrace(final @NonNull Level level, final @NonNull String message)
     {
-        addToMessageQueue(level, () -> new LogMessage.LogMessageThrowable(new Exception(), message, level));
+        addToMessageQueue(level,
+                          () -> new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
+                                                                    message, level, 4));
     }
 
     /**

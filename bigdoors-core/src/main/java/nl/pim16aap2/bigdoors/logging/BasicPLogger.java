@@ -63,13 +63,15 @@ public class BasicPLogger implements IPLogger
     @Override
     public void dumpStackTrace(@NonNull String message)
     {
-        dumpStackTrace(Level.SEVERE, message);
+        writeMessage(Level.SEVERE, new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
+                                                                       message, Level.SEVERE, 2));
     }
 
     @Override
     public void dumpStackTrace(@NonNull Level level, @NonNull String message)
     {
-        writeMessage(level, new LogMessage.LogMessageThrowable(new Exception(), message, level));
+        writeMessage(level, new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
+                                                                message, level, 2));
     }
 
     @Override
