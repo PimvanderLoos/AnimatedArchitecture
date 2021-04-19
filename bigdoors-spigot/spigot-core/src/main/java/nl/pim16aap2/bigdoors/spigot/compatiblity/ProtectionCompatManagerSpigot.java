@@ -106,7 +106,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
     /**
      * Check if a player is allowed to bypass the compatibility checks. Players can bypass the check if they are OP or
-     * if they have the {@link Constants#COMPATBYPASSPERMISSION} permission node.
+     * if they have the {@link Constants#COMPAT_BYPASS_PERMISSION} permission node.
      *
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
@@ -118,8 +118,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
         // offline players don't have permissions, so use Vault if that's the case.
         if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
-            return player.hasPermission(Constants.COMPATBYPASSPERMISSION);
-        return plugin.getVaultManager().hasPermission(player, Constants.COMPATBYPASSPERMISSION);
+            return player.hasPermission(Constants.COMPAT_BYPASS_PERMISSION);
+        return plugin.getVaultManager().hasPermission(player, Constants.COMPAT_BYPASS_PERMISSION);
     }
 
     /**

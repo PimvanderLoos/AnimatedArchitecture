@@ -84,7 +84,7 @@ public final class UpdateManager
             return true;
 
         // The plugin is "up-to-date", but this is a dev-build, so it must be newer.
-        return Constants.DEVBUILD && updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
+        return Constants.DEV_BUILD && updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
     }
 
     /**
@@ -106,7 +106,7 @@ public final class UpdateManager
                         logger.info("Update downloaded! Restart to apply it! " +
                                         "New version is " + updater.getLastResult().getNewestVersion() +
                                         ", Currently running " + plugin.getDescription().getVersion() +
-                                        (Constants.DEVBUILD ? " (but a DEV-build)" : ""));
+                                        (Constants.DEV_BUILD ? " (but a DEV-build)" : ""));
                     else
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());

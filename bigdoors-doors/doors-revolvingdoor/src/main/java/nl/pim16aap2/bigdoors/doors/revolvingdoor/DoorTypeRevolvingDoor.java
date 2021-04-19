@@ -19,7 +19,7 @@ public final class DoorTypeRevolvingDoor extends DoorType
 
     private DoorTypeRevolvingDoor()
     {
-        super(Constants.PLUGINNAME, "RevolvingDoor", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "RevolvingDoor", TYPE_VERSION,
               Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 

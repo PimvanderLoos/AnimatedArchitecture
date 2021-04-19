@@ -17,7 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public final class LoginMessageListener implements Listener
 {
-private final @NonNull BigDoorsSpigot plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
     public LoginMessageListener(final @NonNull BigDoorsSpigot plugin)
     {
@@ -38,7 +38,7 @@ private final @NonNull BigDoorsSpigot plugin;
             // Normally, only send to those with permission, so they can disable it.
             // But when it's a devbuild, also send it to everyone who's OP, to make it
             // a bit harder to get around the message.
-            if (player.hasPermission("bigdoors.admin") || (player.isOp() && Constants.DEVBUILD))
+            if (player.hasPermission("bigdoors.admin") || (player.isOp() && Constants.DEV_BUILD))
                 // Slight delay so the player actually receives the message;
                 new BukkitRunnable()
                 {

@@ -19,7 +19,7 @@ public final class DoorTypeBigDoor extends DoorType
 
     private DoorTypeBigDoor()
     {
-        super(Constants.PLUGINNAME, "BigDoor", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "BigDoor", TYPE_VERSION,
               Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
     }
 
