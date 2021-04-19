@@ -536,7 +536,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     public @NonNull String getLoginMessage()
     {
         String ret = "";
-        if (Constants.DEVBUILD)
+        if (Constants.DEV_BUILD)
             ret += "[BigDoors] Warning: You are running a devbuild!\n";
         if (!validVersion)
             ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!\n";

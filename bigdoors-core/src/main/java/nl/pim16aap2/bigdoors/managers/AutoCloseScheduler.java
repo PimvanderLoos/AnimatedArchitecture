@@ -78,7 +78,7 @@ public final class AutoCloseScheduler extends Restartable
         // First delete any old timers that might still be running.
         deleteTimer(door.getDoorUID());
         // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door available again.
-        final int delay = Math.min(Constants.MINIMUMDOORDELAY + 2, autoCloseTimer * 20);
+        final int delay = Math.min(Constants.MINIMUM_DOOR_DELAY + 2, autoCloseTimer * 20);
 
         final @NonNull TimerTask task = new TimerTask()
         {

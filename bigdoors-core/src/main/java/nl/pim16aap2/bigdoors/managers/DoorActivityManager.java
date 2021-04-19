@@ -78,7 +78,7 @@ public final class DoorActivityManager extends Restartable
      */
     public void processFinishedBlockMover(@NonNull BlockMover blockMover, boolean allowReschedule)
     {
-        int delay = Math.max(Constants.MINIMUMDOORDELAY,
+        int delay = Math.max(Constants.MINIMUM_DOOR_DELAY,
                              BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
 
         BigDoors.get().getPlatform().getPExecutor()

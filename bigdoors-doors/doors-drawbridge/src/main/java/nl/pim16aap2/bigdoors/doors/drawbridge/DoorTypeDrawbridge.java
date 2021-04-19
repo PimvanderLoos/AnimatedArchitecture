@@ -19,7 +19,7 @@ public final class DoorTypeDrawbridge extends DoorType
 
     private DoorTypeDrawbridge()
     {
-        super(Constants.PLUGINNAME, "DrawBridge", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "DrawBridge", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
                             RotateDirection.SOUTH, RotateDirection.WEST));
     }

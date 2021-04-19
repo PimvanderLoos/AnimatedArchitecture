@@ -19,7 +19,7 @@ public final class DoorTypePortcullis extends DoorType
 
     private DoorTypePortcullis()
     {
-        super(Constants.PLUGINNAME, "Portcullis", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "Portcullis", TYPE_VERSION,
               Arrays.asList(RotateDirection.UP, RotateDirection.DOWN));
     }
 

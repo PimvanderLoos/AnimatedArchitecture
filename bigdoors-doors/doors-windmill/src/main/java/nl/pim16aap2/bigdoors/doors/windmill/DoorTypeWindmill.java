@@ -19,7 +19,7 @@ public final class DoorTypeWindmill extends DoorType
 
     private DoorTypeWindmill()
     {
-        super(Constants.PLUGINNAME, "Windmill", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "Windmill", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
                             RotateDirection.SOUTH, RotateDirection.WEST));
     }

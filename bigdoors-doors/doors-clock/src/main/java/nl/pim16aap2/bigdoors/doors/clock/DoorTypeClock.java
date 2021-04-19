@@ -19,7 +19,7 @@ public final class DoorTypeClock extends DoorType
 
     private DoorTypeClock()
     {
-        super(Constants.PLUGINNAME, "Clock", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "Clock", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
                             RotateDirection.SOUTH, RotateDirection.WEST));
     }

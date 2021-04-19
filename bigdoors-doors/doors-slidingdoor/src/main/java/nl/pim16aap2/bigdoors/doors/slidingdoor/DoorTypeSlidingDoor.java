@@ -19,7 +19,7 @@ public final class DoorTypeSlidingDoor extends DoorType
 
     private DoorTypeSlidingDoor()
     {
-        super(Constants.PLUGINNAME, "SlidingDoor", TYPE_VERSION, Arrays
+        super(Constants.PLUGIN_NAME, "SlidingDoor", TYPE_VERSION, Arrays
             .asList(RotateDirection.NORTH, RotateDirection.EAST,
                     RotateDirection.SOUTH, RotateDirection.WEST));
     }

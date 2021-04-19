@@ -35,7 +35,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 
         val ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
                                                                                              fBlockNMS);
-        ret.setCustomName(Constants.BIGDOORSENTITYNAME);
+        ret.setCustomName(Constants.BIGDOORS_ENTITY_NAME);
         ret.setCustomNameVisible(false);
         return ret;
     }

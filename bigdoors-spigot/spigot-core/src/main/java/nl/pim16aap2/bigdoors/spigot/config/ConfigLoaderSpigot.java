@@ -514,7 +514,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public long downloadDelay()
     {
-        if (Constants.DEVBUILD)
+        if (Constants.DEV_BUILD)
             return 0L;
         return downloadDelay;
     }
