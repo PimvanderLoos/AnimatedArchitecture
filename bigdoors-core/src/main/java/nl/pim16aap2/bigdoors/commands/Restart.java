@@ -8,6 +8,11 @@ import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the command that is used to restart BigDoors.
+ *
+ * @author Pim
+ */
 @ToString
 public class Restart extends BaseCommand
 {

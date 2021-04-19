@@ -6,6 +6,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
+/**
+ * Represents the various commands that are used along with their user/admin permission nodes.
+ *
+ * @author Pim
+ */
 public enum CommandDefinition
 {
     ADD_OWNER("bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),

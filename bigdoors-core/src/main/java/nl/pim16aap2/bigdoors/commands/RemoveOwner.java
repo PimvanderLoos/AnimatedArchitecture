@@ -13,6 +13,11 @@ import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the remove owner command. This command is used to remove owners from a door.
+ *
+ * @author Pim
+ */
 @ToString
 public class RemoveOwner extends DoorTargetCommand
 {

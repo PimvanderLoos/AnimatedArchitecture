@@ -12,6 +12,11 @@ import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the setName command, which is used to provide a name for a {@link ToolUser}.
+ *
+ * @author Pim
+ */
 @ToString
 public class SetName extends BaseCommand
 {
@@ -38,10 +43,13 @@ public class SetName extends BaseCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
-        IPPlayer player = (IPPlayer) getCommandSender();
-        Optional<ToolUser> tu = BigDoors.get().getToolUserManager().getToolUser(player.getUUID());
+        final IPPlayer player = (IPPlayer) getCommandSender();
+        final Optional<ToolUser> tu = BigDoors.get().getToolUserManager().getToolUser(player.getUUID());
         if (tu.isPresent() && tu.get() instanceof Creator)
             tu.get().handleInput(name);
+        else
+            // TODO: Localization
+            getCommandSender().sendMessage("Failed to process input: We are not waiting for any input!");
         return CompletableFuture.completedFuture(true);
     }
 }

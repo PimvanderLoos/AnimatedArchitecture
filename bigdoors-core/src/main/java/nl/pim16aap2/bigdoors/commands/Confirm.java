@@ -10,6 +10,14 @@ import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the confirm command, which is used to confirm actions BigDoors is waiting on.
+ * <p>
+ * For example, when buying something, the process might require the user to confirm that they agree to the
+ * transaction.
+ *
+ * @author Pim
+ */
 @ToString
 public class Confirm extends BaseCommand
 {

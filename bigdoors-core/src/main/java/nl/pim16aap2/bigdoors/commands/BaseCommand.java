@@ -17,6 +17,13 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
+/**
+ * Represents the base BigDoors command.
+ * <p>
+ * This handles all the basics shared by all commands and contains some utility methods for common actions.
+ *
+ * @author Pim
+ */
 @RequiredArgsConstructor
 public abstract class BaseCommand
 {

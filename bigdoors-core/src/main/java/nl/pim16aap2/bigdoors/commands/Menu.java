@@ -9,11 +9,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents the menu command, which is used to open the menu for a user.
+ *
+ * @author Pim
+ */
 @ToString
 public class Menu extends BaseCommand
 {
     final @Nullable IPPlayer target;
 
+    /**
+     * Opens the menu for the commandsender, showing the doors of the target if one is provided.
+     * <p>
+     * If no target is provided, the commandsender itself will be used as the target.
+     *
+     * @param commandSender
+     * @param target
+     */
     public Menu(final @NonNull ICommandSender commandSender, final @Nullable IPPlayer target)
     {
         super(commandSender);
