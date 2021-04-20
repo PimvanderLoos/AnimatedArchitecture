@@ -2,14 +2,17 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
 import lombok.ToString;
+import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.messages.Message;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,11 +24,28 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class AddOwner extends DoorTargetCommand
 {
+    /**
+     * The default value to use for {@link #targetPermissionLevel} when none is specified.
+     */
+    private static final int DEFAULT_PERMISSION_LEVEL = 2;
+
+    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
+
+    /**
+     * The target player that will be added to the {@link #doorRetriever} as co-owner.
+     * <p>
+     * If this player is already an owner of the target door, their permission will be overridden provided that the
+     * command sender is allowed to add/remove co-owners at both the old and the new target permission level.
+     */
     private final @NonNull IPPlayer targetPlayer;
+
+    /**
+     * The permission level of the new owner's ownership. 1 = admin, 2 = user.
+     */
     private final int targetPermissionLevel;
 
-    public AddOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
-                    final @NonNull IPPlayer targetPlayer, final int targetPermissionLevel)
+    AddOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+             final @NonNull IPPlayer targetPlayer, final int targetPermissionLevel)
     {
         super(commandSender, doorRetriever);
         this.targetPlayer = targetPlayer;
@@ -35,7 +55,7 @@ public class AddOwner extends DoorTargetCommand
     @Override
     public @NonNull CommandDefinition getCommand()
     {
-        return CommandDefinition.ADD_OWNER;
+        return COMMAND_DEFINITION;
     }
 
     @Override
@@ -107,5 +127,142 @@ public class AddOwner extends DoorTargetCommand
         }
 
         return true;
+    }
+
+    /**
+     * Runs the {@link AddOwner} command.
+     *
+     * @param commandSender         The entity that sent the command and is held responsible (i.e. permissions,
+     *                              communication) for its execution.
+     * @param doorRetriever         A {@link DoorRetriever} that references the target door.
+     * @param targetPlayer          The target player to add to this door as co-owner.
+     *                              <p>
+     *                              If this player is already an owner of the target door, their permission will be
+     *                              overridden provided that the command sender is allowed to add/remove co-owners at
+     *                              both the old and the new target permission level.
+     * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
+     * @return The result of {@link #run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever,
+                                                          final @NonNull IPPlayer targetPlayer,
+                                                          final int targetPermissionLevel)
+    {
+        return new AddOwner(commandSender, doorRetriever, targetPlayer, targetPermissionLevel).run();
+    }
+
+    /**
+     * See {@link #run(ICommandSender, DoorRetriever, IPPlayer, int)}.
+     * <p>
+     * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever,
+                                                          final @NonNull IPPlayer targetPlayer)
+    {
+        return run(commandSender, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+    }
+
+    /**
+     * Executes the add owner command without a known {@link #targetPlayer} or {@link #targetPermissionLevel}.
+     * <p>
+     * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
+     * use the AddOwner command (again, if needed) to supply the missing data.
+     * <p>
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer, int)}.
+     *
+     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
+     *                      for its execution.
+     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @return True if adding the owner was successful.
+     */
+    public static @NonNull CompletableFuture<Boolean> runDelayed(final @NonNull ICommandSender commandSender,
+                                                                 final @NonNull DoorRetriever doorRetriever)
+    {
+        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
+        return new DelayedCommandInputRequest<DelayedInput>(commandTimeout, commandSender, COMMAND_DEFINITION,
+                                                            delayedInput -> delayedInputExecutor(commandSender,
+                                                                                                 doorRetriever,
+                                                                                                 delayedInput),
+                                                            AddOwner::inputRequestMessage).run();
+    }
+
+    /**
+     * Provides the delayed input if there is currently an active {@link DelayedCommandInputRequest} for the {@link
+     * ICommandSender}.
+     * <p>
+     * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
+     * informed about it.
+     *
+     * @param commandSender         The {@link ICommandSender} for which to look for an active {@link
+     *                              DelayedCommandInputRequest} that can be fulfilled.
+     * @param targetPlayer          The target player to add to this door as co-owner.
+     *                              <p>
+     *                              If this player is already an owner of the target door, their permission will be
+     *                              overridden provided that the command sender is allowed to add/remove co-owners at
+     *                              both the old and the new target permission level.
+     * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
+     */
+    public static @NonNull CompletableFuture<Boolean> provideDelayedInput(final @NonNull ICommandSender commandSender,
+                                                                          final @NonNull IPPlayer targetPlayer,
+                                                                          final int targetPermissionLevel)
+    {
+        // TODO: Implement this!
+        //       We need some kind of manager to keep track of outstanding delayed command input requests.
+        //       The manager would be used here to retrieve the input request, so we can provide the required values (which we just received).
+        throw new UnsupportedOperationException("This part isn't implemented yet! Please come back later :)");
+    }
+
+    /**
+     * See {@link #provideDelayedInput(ICommandSender, IPPlayer, int)}.
+     * <p>
+     * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
+     */
+    public static @NonNull CompletableFuture<Boolean> provideDelayedInput(final @NonNull ICommandSender commandSender,
+                                                                          final @NonNull IPPlayer targetPlayer)
+    {
+        return provideDelayedInput(commandSender, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+    }
+
+    /**
+     * The method that is run once delayed input is received.
+     * <p>
+     * It processes the new input and executes the command using the previously-provided data (see {@link
+     * #runDelayed(ICommandSender, DoorRetriever)}).
+     *
+     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
+     *                      for its execution.
+     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @param delayedInput  The delayed input that was retrieved.
+     * @return The result of running the command. See {@link #run()}.
+     */
+    private static @NonNull CompletableFuture<Boolean> delayedInputExecutor(final @NonNull ICommandSender commandSender,
+                                                                            final @NonNull DoorRetriever doorRetriever,
+                                                                            final @NonNull DelayedInput delayedInput)
+    {
+        return new AddOwner(commandSender, doorRetriever, delayedInput.getTargetPlayer(),
+                            delayedInput.getPermission()).run();
+    }
+
+    /**
+     * Retrieves the message that will be sent to the command sender after initialization of a delayed input request.
+     *
+     * @return The init message for the delayed input request.
+     */
+    private static @NonNull String inputRequestMessage()
+    {
+        return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_ADDOWNER_INIT);
+    }
+
+    /**
+     * Represents the data that can be provided as delayed input for this command. See {@link
+     * #runDelayed(ICommandSender, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender, DoorRetriever,
+     * DelayedInput)}.
+     */
+    @Value
+    private static class DelayedInput
+    {
+        @NonNull IPPlayer targetPlayer;
+        int permission;
     }
 }

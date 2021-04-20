@@ -20,7 +20,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     @Getter
     protected final @NonNull DoorRetriever doorRetriever;
 
-    public DoorTargetCommand(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected DoorTargetCommand(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
         super(commandSender);
         this.doorRetriever = doorRetriever;

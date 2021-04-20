@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -11,10 +12,13 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -27,6 +31,12 @@ import java.util.logging.Level;
 @RequiredArgsConstructor
 public abstract class BaseCommand
 {
+    /**
+     * The entity (e.g. player, server, or command block) that initiated the command.
+     * <p>
+     * This is the entity that is held responsible for the command (i.e. their permissions are checked and they will
+     * receive error/success/information messages when applicable).
+     */
     @Getter
     private final @NonNull ICommandSender commandSender;
 
@@ -95,7 +105,7 @@ public abstract class BaseCommand
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.
      */
-    public final @NonNull CompletableFuture<Boolean> run()
+    protected final @NonNull CompletableFuture<Boolean> run()
     {
         log();
         if (!validInput())
@@ -116,7 +126,6 @@ public abstract class BaseCommand
             getCommandSender().sendMessage("Only players can use this command!");
             return CompletableFuture.completedFuture(true);
         }
-
 
         // We return true in case of an exception, because it cannot (should not?) be possible
         // for an exception to be caused be the command sender.
@@ -194,10 +203,10 @@ public abstract class BaseCommand
     /**
      * Ensures the command is logged.
      */
-    protected final void log()
+    private void log()
     {
-        BigDoors.get().getPLogger().dumpStackTrace(Level.FINEST,
-                                                   "Running command " + getCommand().name() + ": " + toString());
+        BigDoors.get().getPLogger()
+                .dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
     }
 
     /**
@@ -219,17 +228,140 @@ public abstract class BaseCommand
                         return door;
                     // TODO: Localization
                     getCommandSender().sendMessage("Could not find the provided door!");
-                    return Optional.<AbstractDoorBase>empty();
+                    return Optional.empty();
                 });
     }
 
     /**
-     * Checks if the {@link ICommandSender} has access to this command.
+     * Checks if the {@link ICommandSender} has the required permissions to use this command. See {@link
+     * CommandDefinition#getUserPermission()} and {@link CommandDefinition#getAdminPermission()}.
      *
-     * @return True if the commandsender has access to this command.
+     * @return A pair of booleans that indicates whether the user has access to the user and admin permission nodes
+     * respectively. For both, true indicates that they do have access to the node and false that they do not.
      */
     protected @NonNull CompletableFuture<BooleanPair> hasPermission()
     {
         return getCommandSender().hasPermission(getCommand());
+    }
+
+    /**
+     * Represents a request for delayed additional input for a command.
+     * <p>
+     * Taking the {@link AddOwner} command as an example, it could be initialized using a GUI, in which case it is known
+     * who the {@link ICommandSender} is and what the target {@link AbstractDoorBase} is. However, for some GUIs (e.g.
+     * Spigot), it is not yet known who the target player is and what the desired permission level is. This class can
+     * then be used to retrieve the additional data that is required to execute the command.
+     *
+     * @param <T> The type of data that is to be retrieved from the player.
+     */
+    protected static final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
+    {
+        /**
+         * The function to execute after retrieving the delayed input from the command sender.
+         */
+        private final @NonNull Function<T, CompletableFuture<Boolean>> executor;
+
+        /**
+         * See {@link BaseCommand#commandSender}.
+         */
+        private final @NonNull ICommandSender commandSender;
+
+        /**
+         * The {@link CommandDefinition} for which the delayed input will be retrieved.
+         */
+        private final @NonNull CommandDefinition commandDefinition;
+
+        /**
+         * The supplier used to retrieve the message that will be sent to the command sender when this request is
+         * initialized (after calling {@link #run()}).
+         * <p>
+         * If the resulting message is blank, nothing will be sent to the user.
+         */
+        private final @NonNull Supplier<String> initMessageSupplier;
+
+        /**
+         * Constructs a new delayed command input request.
+         *
+         * @param timeout             The amount of time (in ms)
+         * @param commandSender       See {@link BaseCommand#commandSender}.
+         * @param commandDefinition   The {@link CommandDefinition} for which the delayed input will be retrieved.
+         * @param executor            The function to execute after retrieving the delayed input from the command
+         *                            sender.
+         * @param initMessageSupplier The supplier used to retrieve the message that will be sent to the commandsender
+         *                            when this request is initialized (after calling {@link #run()}).
+         *                            <p>
+         *                            If the resulting message is blank, nothing will be sent to the user.
+         */
+        protected DelayedCommandInputRequest(final long timeout, final @NonNull ICommandSender commandSender,
+                                             final @NonNull CommandDefinition commandDefinition,
+                                             final @NonNull Function<T, CompletableFuture<Boolean>> executor,
+                                             final @NonNull Supplier<String> initMessageSupplier)
+        {
+            super(timeout);
+            this.commandSender = commandSender;
+            this.commandDefinition = commandDefinition;
+            this.executor = executor;
+            this.initMessageSupplier = initMessageSupplier;
+        }
+
+        @Override
+        protected void cleanup()
+        {
+            if (getStatus() == Status.TIMED_OUT)
+                // TODO: Localization
+                commandSender.sendMessage("Timed out waiting for input for command: " +
+                                              commandDefinition.name().toLowerCase());
+        }
+
+        /**
+         * Wrapper for {@link DelayedInputRequest#waitForInput()} that rethrows any checked exceptions that may occur as
+         * {@link RuntimeException}s (so, unchecked).
+         *
+         * @return The result of {@link DelayedInputRequest#waitForInput()}.
+         */
+        private @NonNull Optional<T> waitForInputUnchecked()
+        {
+            try
+            {
+                return super.waitForInput();
+            }
+            catch (Exception e)
+            {
+                throw new RuntimeException("Failed to retrieve data for command: " + commandDefinition, e);
+            }
+        }
+
+        /**
+         * Ensures the input request is logged.
+         */
+        private void log()
+        {
+            BigDoors.get().getPLogger()
+                    .dumpStackTrace(Level.FINEST,
+                                    "Started delayed input request for command: " + commandDefinition.name());
+        }
+
+        /**
+         * Attempts to retrieve the delayed input from the {@link #commandSender} and applies the obtained output to the
+         * {@link #executor} if retrieval was successful.
+         *
+         * @return The result of {@link #executor}.
+         */
+        public final @NonNull CompletableFuture<Boolean> run()
+        {
+            log();
+            return CompletableFuture
+                .supplyAsync(this::waitForInputUnchecked)
+                .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
+                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+        }
+
+        @Override
+        protected void init()
+        {
+            val initMessage = initMessageSupplier.get();
+            if (initMessage != null && !initMessage.isBlank())
+                commandSender.sendMessage(initMessage);
+        }
     }
 }

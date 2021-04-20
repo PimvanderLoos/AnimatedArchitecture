@@ -41,10 +41,9 @@ public abstract class DelayedInputRequest<T>
      * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
     protected DelayedInputRequest(final long timeout)
-        throws Exception
     {
         if (timeout < 1)
-            throw new Exception("Timeout must be larger than 0!");
+            throw new RuntimeException("Timeout must be larger than 0!");
         this.timeout = timeout;
     }
 
@@ -93,9 +92,8 @@ public abstract class DelayedInputRequest<T>
             if (status == Status.WAITING)
             {
                 value = null;
-                guard.notify();
                 status = Status.CANCELLED;
-                cleanup();
+                guard.notify();
             }
         }
     }
@@ -110,8 +108,8 @@ public abstract class DelayedInputRequest<T>
         synchronized (guard)
         {
             this.value = value;
-            guard.notify();
             status = Status.COMPLETED;
+            guard.notify();
         }
     }
 

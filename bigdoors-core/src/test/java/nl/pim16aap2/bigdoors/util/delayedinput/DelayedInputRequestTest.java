@@ -140,7 +140,6 @@ class DelayedInputRequestTest
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
         public DelayedInputRequestImpl(final long timeout)
-            throws Exception
         {
             super(timeout);
         }

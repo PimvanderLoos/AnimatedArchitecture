@@ -43,8 +43,8 @@ public interface ICommandSender extends IMessageable
      * CommandDefinition#getAdminPermission()} are checked.
      *
      * @param command The {@link CommandDefinition} of a command to check.
-     * @return A {@link BooleanPair} that is true if the player has access to the provided permission, otherwise false
-     * for both the user and the admin permission node respectively.
+     * @return A {@link BooleanPair} that is true if the player has access to the provided permissions, otherwise false
+     * for the user and the admin permission nodes respectively.
      */
     default @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
     {

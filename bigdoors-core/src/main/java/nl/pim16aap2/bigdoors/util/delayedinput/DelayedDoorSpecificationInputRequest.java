@@ -25,7 +25,6 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     private DelayedDoorSpecificationInputRequest(final @NonNull Duration timeout,
                                                  final @NonNull List<AbstractDoorBase> options,
                                                  final @NonNull IPPlayer player)
-        throws Exception
     {
         super(timeout.toMillis());
         this.options = options;
