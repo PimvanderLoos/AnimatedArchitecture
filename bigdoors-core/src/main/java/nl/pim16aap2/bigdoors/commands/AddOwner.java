@@ -27,7 +27,7 @@ public class AddOwner extends DoorTargetCommand
     /**
      * The default value to use for {@link #targetPermissionLevel} when none is specified.
      */
-    private static final int DEFAULT_PERMISSION_LEVEL = 2;
+    protected static final int DEFAULT_PERMISSION_LEVEL = 2;
 
     private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
 

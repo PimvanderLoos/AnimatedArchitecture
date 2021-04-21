@@ -1,9 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.SneakyThrows;
+import lombok.val;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +18,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
@@ -107,5 +115,30 @@ class AddOwnerTest
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertFalse(addOwner1.isAllowed(door, true));
         Assertions.assertFalse(addOwner2.isAllowed(door, true));
+    }
+
+    @Test
+    @SneakyThrows
+    void testDelayedInput()
+    {
+        BigDoors.get().getPLogger().setConsoleLogLevel(Level.ALL);
+
+        Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
+        val databaseManager = Mockito.mock(DatabaseManager.class);
+        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
+
+        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+
+        val first = AddOwner.runDelayed(commandSender, doorRetriever);
+        val second = AddOwner.provideDelayedInput(commandSender, target);
+
+        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
+        Assertions.assertEquals(first, second);
+
+        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL);
     }
 }
