@@ -35,15 +35,37 @@ public class DelayedCommandInputManager
     }
 
     /**
-     * Deregisters a registered {@link DelayedCommandInputRequest} for an {@link ICommandSender}.
+     * Deregisters all registered {@link DelayedCommandInputRequest}s for an {@link ICommandSender}.
      *
-     * @param commandSender The {@link ICommandSender} for which to deregister the input request.
+     * @param commandSender The {@link ICommandSender} for which to deregister the input requests.
+     * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
+     * When nothing was registered and nothing was removed, this method will return false.
+     */
+    public boolean deregisterAll(final @NonNull ICommandSender commandSender)
+    {
+        return requests.remove(commandSender) != null;
+    }
+
+    /**
+     * Deregisters a registered {@link DelayedCommandInputRequest} for an {@link ICommandSender} if the registered input
+     * request 1) exists and 2) is the same (reference equality) as the provided input request.
+     * <p>
+     * This method is useful if the goal is to remove the exact request and not any new requests that may have
+     * overridden it.
+     *
+     * @param commandSender              The {@link ICommandSender} for which to deregister the input request.
+     * @param delayedCommandInputRequest The {@link DelayedCommandInputRequest} instance to compare any registered
+     *                                   requests to. If the reference of the registered request and this one are the
+     *                                   same, it will be deregistered.
      * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
      * When false, nothing was registered and nothing was removed.
      */
-    public boolean deregister(final @NonNull ICommandSender commandSender)
+    public boolean deregister(final @NonNull ICommandSender commandSender,
+                              final @NonNull DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
-        return requests.remove(commandSender) != null;
+        requests.computeIfPresent(commandSender,
+                                  (sender, request) -> request == delayedCommandInputRequest ? null : request);
+        return true;
     }
 
     /**

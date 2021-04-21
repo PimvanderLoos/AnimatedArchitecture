@@ -11,9 +11,6 @@ import java.util.concurrent.CompletableFuture;
 
 class DelayedInputRequestTest
 {
-    /**
-     * Makes sure invalid operations properly throw errors.
-     */
     @Test
     public void testFailure()
     {
@@ -23,7 +20,6 @@ class DelayedInputRequestTest
 
         val request = Assertions.assertDoesNotThrow(() -> new DelayedInputRequestImpl(100));
         Assertions.assertDoesNotThrow(request::waitForInput);
-        Assertions.assertThrows(IllegalStateException.class, request::waitForInput);
     }
 
     /**

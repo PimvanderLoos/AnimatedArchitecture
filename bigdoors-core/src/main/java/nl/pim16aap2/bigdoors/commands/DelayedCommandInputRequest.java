@@ -115,7 +115,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
             BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                    "Trying to supply object of type " + input.getClass().getName()
                                                        + " for request: " + this);
-            CompletableFuture.completedFuture(Boolean.FALSE);
+            return CompletableFuture.completedFuture(Boolean.FALSE);
         }
 
         //noinspection unchecked
@@ -126,6 +126,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @Override
     protected void cleanup()
     {
+        BigDoors.get().getDelayedCommandInputManager().deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
             // TODO: Localization
             commandSender.sendMessage("Timed out waiting for input for command: " +

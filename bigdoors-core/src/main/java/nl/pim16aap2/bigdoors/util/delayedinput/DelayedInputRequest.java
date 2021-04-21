@@ -2,9 +2,11 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a request for delayed input. E.g. by waiting for user input.
@@ -52,9 +54,6 @@ public abstract class DelayedInputRequest<T>
      * received.
      * <p>
      * Note that this will block the current thread until either one of the exit conditions is met.
-     * <p>
-     * Calling this method more than once for the same {@link DelayedInputRequest} instance is not allowed and will
-     * throw an {@link Exception}.
      *
      * @return The value that was received. If no value was received or if the value was null, an empty optional is
      * returned instead.
@@ -65,8 +64,12 @@ public abstract class DelayedInputRequest<T>
         synchronized (guard)
         {
             if (status != Status.INACTIVE)
-                throw new IllegalStateException(
-                    "Trying to initialize delayed input request while it has status: " + status.name());
+            {
+                BigDoors.get().getPLogger()
+                        .logMessage(Level.FINER,
+                                    "Trying to initialize delayed input request while it has status: " + status.name());
+                return Optional.ofNullable(value);
+            }
 
             init();
 
@@ -107,9 +110,12 @@ public abstract class DelayedInputRequest<T>
     {
         synchronized (guard)
         {
-            this.value = value;
-            status = Status.COMPLETED;
-            guard.notify();
+            if (status == Status.WAITING || status == Status.INACTIVE)
+            {
+                this.value = value;
+                status = Status.COMPLETED;
+                guard.notify();
+            }
         }
     }
 
