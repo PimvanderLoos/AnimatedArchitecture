@@ -1,15 +1,18 @@
 package nl.pim16aap2.bigdoors;
 
+import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -26,6 +29,12 @@ import org.jetbrains.annotations.Nullable;
 public final class BigDoors extends RestartableHolder
 {
     private static final @NonNull BigDoors INSTANCE = new BigDoors();
+
+    /**
+     * Gets the {@link DelayedCommandInputManager} to manage {@link BaseCommand.DelayedCommandInputRequest}s.
+     */
+    @Getter
+    private final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
     /**
      * The platform to use. e.g. "Spigot".

@@ -254,7 +254,7 @@ public abstract class BaseCommand
      *
      * @param <T> The type of data that is to be retrieved from the player.
      */
-    protected static final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
+    public static final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         /**
          * The function to execute after retrieving the delayed input from the command sender.
@@ -311,6 +311,10 @@ public abstract class BaseCommand
                 // TODO: Localization
                 commandSender.sendMessage("Timed out waiting for input for command: " +
                                               commandDefinition.name().toLowerCase());
+            if (getStatus() == Status.CANCELLED)
+                // TODO: Localization
+                commandSender.sendMessage("Cancelled waiting for command:  " +
+                                              commandDefinition.name().toLowerCase());
         }
 
         /**
@@ -347,7 +351,7 @@ public abstract class BaseCommand
          *
          * @return The result of {@link #executor}.
          */
-        public final @NonNull CompletableFuture<Boolean> run()
+        protected final @NonNull CompletableFuture<Boolean> run()
         {
             log();
             return CompletableFuture
@@ -359,6 +363,7 @@ public abstract class BaseCommand
         @Override
         protected void init()
         {
+            BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
             val initMessage = initMessageSupplier.get();
             if (initMessage != null && !initMessage.isBlank())
                 commandSender.sendMessage(initMessage);
