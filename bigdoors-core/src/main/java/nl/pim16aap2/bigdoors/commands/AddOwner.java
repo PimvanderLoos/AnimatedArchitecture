@@ -50,12 +50,6 @@ public class AddOwner extends DoorTargetCommand
         super(commandSender, doorRetriever);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
-
-        new DelayedCommandInputRequest<>(1, commandSender, COMMAND_DEFINITION,
-                                         delayedInput -> delayedInputExecutor(commandSender,
-                                                                              doorRetriever,
-                                                                              delayedInput),
-                                         AddOwner::inputRequestMessage, DelayedInput.class);
     }
 
     @Override
