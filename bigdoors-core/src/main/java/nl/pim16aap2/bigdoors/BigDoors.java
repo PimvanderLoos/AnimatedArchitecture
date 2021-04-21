@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.commands.BaseCommand;
+import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
@@ -31,7 +31,7 @@ public final class BigDoors extends RestartableHolder
     private static final @NonNull BigDoors INSTANCE = new BigDoors();
 
     /**
-     * Gets the {@link DelayedCommandInputManager} to manage {@link BaseCommand.DelayedCommandInputRequest}s.
+     * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
      */
     @Getter
     private final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
