@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
@@ -254,13 +256,9 @@ public abstract class BaseCommand
      *
      * @param <T> The type of data that is to be retrieved from the player.
      */
+    @ToString
     public static final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
-        /**
-         * The function to execute after retrieving the delayed input from the command sender.
-         */
-        private final @NonNull Function<T, CompletableFuture<Boolean>> executor;
-
         /**
          * See {@link BaseCommand#commandSender}.
          */
@@ -277,7 +275,20 @@ public abstract class BaseCommand
          * <p>
          * If the resulting message is blank, nothing will be sent to the user.
          */
+        @ToString.Exclude
         private final @NonNull Supplier<String> initMessageSupplier;
+
+        /**
+         * The class of the input object that is expected.
+         */
+        private final @NonNull Class<T> inputClass;
+
+        /**
+         * The output of the command. See {@link BaseCommand#run()}.
+         */
+        @ToString.Exclude
+        @Getter(AccessLevel.PROTECTED)
+        private final @NonNull CompletableFuture<Boolean> output;
 
         /**
          * Constructs a new delayed command input request.
@@ -287,21 +298,58 @@ public abstract class BaseCommand
          * @param commandDefinition   The {@link CommandDefinition} for which the delayed input will be retrieved.
          * @param executor            The function to execute after retrieving the delayed input from the command
          *                            sender.
-         * @param initMessageSupplier The supplier used to retrieve the message that will be sent to the commandsender
+         * @param initMessageSupplier The supplier used to retrieve the message that will be sent to the command sender
          *                            when this request is initialized (after calling {@link #run()}).
          *                            <p>
          *                            If the resulting message is blank, nothing will be sent to the user.
+         * @param inputClass          The class of the input object that is expected.
          */
         protected DelayedCommandInputRequest(final long timeout, final @NonNull ICommandSender commandSender,
                                              final @NonNull CommandDefinition commandDefinition,
                                              final @NonNull Function<T, CompletableFuture<Boolean>> executor,
-                                             final @NonNull Supplier<String> initMessageSupplier)
+                                             final @NonNull Supplier<String> initMessageSupplier,
+                                             final @NonNull Class<T> inputClass)
         {
             super(timeout);
             this.commandSender = commandSender;
             this.commandDefinition = commandDefinition;
-            this.executor = executor;
             this.initMessageSupplier = initMessageSupplier;
+            this.inputClass = inputClass;
+            log();
+            output = constructOutput(executor);
+        }
+
+        private @NonNull CompletableFuture<Boolean> constructOutput(
+            final @NonNull Function<T, CompletableFuture<Boolean>> executor)
+        {
+            return CompletableFuture
+                .supplyAsync(this::waitForInputUnchecked)
+                .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
+                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+        }
+
+        /**
+         * Provides the input object as input for this input request. See {@link DelayedInputRequest#set(Object)}.
+         * <p>
+         * If the provided input is not of the correct type as defined by {@link #inputClass}, a future containing a
+         * false boolean is returned to indicate incorrect command usage.
+         *
+         * @param input The input object to provide.
+         * @return When the input is of the correct type, {@link #output} is returned, otherwise false.
+         */
+        protected @NonNull CompletableFuture<Boolean> provide(final @NonNull Object input)
+        {
+            if (!inputClass.isInstance(input))
+            {
+                BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                       "Trying to supply object of type " + input.getClass().getName()
+                                                           + " for request: " + this);
+                CompletableFuture.completedFuture(Boolean.FALSE);
+            }
+
+            //noinspection unchecked
+            super.set((T) input);
+            return output;
         }
 
         @Override
@@ -311,6 +359,7 @@ public abstract class BaseCommand
                 // TODO: Localization
                 commandSender.sendMessage("Timed out waiting for input for command: " +
                                               commandDefinition.name().toLowerCase());
+
             if (getStatus() == Status.CANCELLED)
                 // TODO: Localization
                 commandSender.sendMessage("Cancelled waiting for command:  " +
@@ -341,23 +390,7 @@ public abstract class BaseCommand
         private void log()
         {
             BigDoors.get().getPLogger()
-                    .dumpStackTrace(Level.FINEST,
-                                    "Started delayed input request for command: " + commandDefinition.name());
-        }
-
-        /**
-         * Attempts to retrieve the delayed input from the {@link #commandSender} and applies the obtained output to the
-         * {@link #executor} if retrieval was successful.
-         *
-         * @return The result of {@link #executor}.
-         */
-        protected final @NonNull CompletableFuture<Boolean> run()
-        {
-            log();
-            return CompletableFuture
-                .supplyAsync(this::waitForInputUnchecked)
-                .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                    .dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
         }
 
         @Override

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@ToString
 public enum CommandDefinition
 {
     ADD_OWNER("bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),

@@ -50,6 +50,12 @@ public class AddOwner extends DoorTargetCommand
         super(commandSender, doorRetriever);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
+
+        new DelayedCommandInputRequest<>(1, commandSender, COMMAND_DEFINITION,
+                                         delayedInput -> delayedInputExecutor(commandSender,
+                                                                              doorRetriever,
+                                                                              delayedInput),
+                                         AddOwner::inputRequestMessage, DelayedInput.class);
     }
 
     @Override
@@ -180,11 +186,11 @@ public class AddOwner extends DoorTargetCommand
                                                                  final @NonNull DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return new DelayedCommandInputRequest<DelayedInput>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                            delayedInput -> delayedInputExecutor(commandSender,
-                                                                                                 doorRetriever,
-                                                                                                 delayedInput),
-                                                            AddOwner::inputRequestMessage).run();
+        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
+                                                delayedInput -> delayedInputExecutor(commandSender,
+                                                                                     doorRetriever,
+                                                                                     delayedInput),
+                                                AddOwner::inputRequestMessage, DelayedInput.class).getOutput();
     }
 
     /**
@@ -202,15 +208,15 @@ public class AddOwner extends DoorTargetCommand
      *                              overridden provided that the command sender is allowed to add/remove co-owners at
      *                              both the old and the new target permission level.
      * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
+     * @return See {@link BaseCommand#run()}.
      */
     public static @NonNull CompletableFuture<Boolean> provideDelayedInput(final @NonNull ICommandSender commandSender,
                                                                           final @NonNull IPPlayer targetPlayer,
                                                                           final int targetPermissionLevel)
     {
-        // TODO: Implement this!
-        //       We need some kind of manager to keep track of outstanding delayed command input requests.
-        //       The manager would be used here to retrieve the input request, so we can provide the required values (which we just received).
-        throw new UnsupportedOperationException("This part isn't implemented yet! Please come back later :)");
+        return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
+                       .map(request -> request.provide(new DelayedInput(targetPlayer, targetPermissionLevel)))
+                       .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
