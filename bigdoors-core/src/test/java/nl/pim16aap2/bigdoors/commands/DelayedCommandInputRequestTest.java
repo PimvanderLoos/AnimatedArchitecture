@@ -6,11 +6,13 @@ import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.UUID;
@@ -35,6 +37,7 @@ class DelayedCommandInputRequestTest
     {
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
+        Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
     }
 
     @Test

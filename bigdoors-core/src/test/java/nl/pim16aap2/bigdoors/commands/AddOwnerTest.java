@@ -154,7 +154,7 @@ class AddOwnerTest
 
     @Test
     @SneakyThrows
-    void testStaticMethods()
+    void testStaticRunners()
     {
         val databaseManager = mockDatabaseManager();
         Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));

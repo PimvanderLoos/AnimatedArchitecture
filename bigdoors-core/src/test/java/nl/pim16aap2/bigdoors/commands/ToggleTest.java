@@ -57,8 +57,12 @@ class ToggleTest
     @Test
     void testValidInput()
     {
-        Assertions.assertTrue(new Toggle(commandSender, doorRetriever).validInput());
-        Assertions.assertFalse(new Toggle(commandSender, new DoorRetriever[0]).validInput());
+        Assertions.assertTrue(new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                         Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever).validInput());
+
+        //noinspection RedundantArrayCreation
+        Assertions.assertFalse(new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                          Toggle.DEFAULT_SPEED_MULTIPLIER, new DoorRetriever[0]).validInput());
     }
 
     private static void verifyDoorOpenerCall(int times, DoorOpener doorOpener, AbstractDoorBase door,
@@ -70,13 +74,6 @@ class ToggleTest
                .animateDoorAsync(door, doorActionCause, (IPPlayer) commandSender, time, skip, doorActionType);
     }
 
-    private void verifyDoorOpenerNeverCalled()
-    {
-        Mockito.verify(doorOpener, Mockito.never())
-               .animateDoorAsync(Mockito.any(AbstractDoorBase.class), Mockito.any(), Mockito.any(), Mockito.anyDouble(),
-                                 Mockito.anyBoolean(), Mockito.any());
-    }
-
     @Test
     @SneakyThrows
     void testSuccess()
@@ -84,7 +81,8 @@ class ToggleTest
         DoorOpener doorOpener = Mockito.mock(DoorOpener.class);
         Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
 
-        Toggle toggle = new Toggle(commandSender, doorRetriever);
+        Toggle toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                   Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
         verifyDoorOpenerCall(1, doorOpener,
                              door, DoorActionCause.PLAYER, commandSender, 0.0D, false, DoorActionType.TOGGLE);
@@ -110,7 +108,8 @@ class ToggleTest
             initDoorRetriever(retrievers[idx], doors[idx]);
         }
 
-        val toggle = new Toggle(commandSender, retrievers);
+        val toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
 
         val toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
@@ -120,5 +119,25 @@ class ToggleTest
         Assertions.assertEquals(count, toggledDoors.size());
         for (int idx = 0; idx < count; ++idx)
             Assertions.assertTrue(toggledDoors.contains(doors[idx]));
+    }
+
+    @Test
+    @SneakyThrows
+    void testStaticRunners()
+    {
+        Mockito.when(door.isCloseable()).thenReturn(true);
+        Mockito.when(door.isOpenable()).thenReturn(true);
+
+        Assertions.assertTrue(Toggle.run(commandSender, doorRetriever).get(1, TimeUnit.SECONDS));
+        verifyDoorOpenerCall(1, doorOpener, door, DoorActionCause.PLAYER, commandSender,
+                             Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.TOGGLE);
+
+        Assertions.assertTrue(Toggle.run(commandSender, 3.141592653589793D, doorRetriever).get(1, TimeUnit.SECONDS));
+        verifyDoorOpenerCall(1, doorOpener, door, DoorActionCause.PLAYER, commandSender,
+                             3.141592653589793D, false, DoorActionType.TOGGLE);
+
+        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.CLOSE, doorRetriever).get(1, TimeUnit.SECONDS));
+        verifyDoorOpenerCall(1, doorOpener, door, DoorActionCause.PLAYER, commandSender,
+                             Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.CLOSE);
     }
 }

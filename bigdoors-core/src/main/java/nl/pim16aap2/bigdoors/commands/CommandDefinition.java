@@ -36,8 +36,6 @@ public enum CommandDefinition
     STOP_DOORS(null, "bigdoors.admin.stopdoors"),
     VERSION(null, "bigdoors.admin.version"),
     TOGGLE("bigdoors.user.toggle", "bigdoors.admin.bypass.toggle"),
-    CLOSE(CommandDefinition.TOGGLE.userPermission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
-    OPEN(CommandDefinition.TOGGLE.userPermission.orElse(null), CommandDefinition.TOGGLE.adminPermission.orElse(null)),
     ;
 
     @Getter
