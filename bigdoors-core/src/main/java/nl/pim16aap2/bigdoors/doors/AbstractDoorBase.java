@@ -80,6 +80,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Setter(onMethod = @__({@Override}))
     private volatile @NonNull RotateDirection openDir;
 
+    /**
+     * Represents the locked status of this door. True = locked, False = unlocked.
+     */
     @Getter
     @Setter(onMethod = @__({@Override}))
     private volatile boolean locked;

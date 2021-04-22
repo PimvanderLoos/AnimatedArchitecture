@@ -180,7 +180,7 @@ public abstract class BaseCommand
                                 }
                                 return hasPermission;
                             })
-            .thenCompose(this::executeCommand)
+            .thenComposeAsync(this::executeCommand)
             .thenApply(ret::complete)
             .exceptionally(throwable -> Util.exceptionallyCompletion(throwable, true, ret));
         return ret;
