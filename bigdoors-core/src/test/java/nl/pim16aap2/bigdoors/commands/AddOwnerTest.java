@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.junit.jupiter.api.Assertions;
@@ -52,6 +53,7 @@ class AddOwnerTest
 
         initCommandSenderPermissions(commandSender, true, true);
         initDoorRetriever(doorRetriever, door);
+        Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
 
         addOwner0 = new AddOwner(commandSender, doorRetriever, target, 0);
         addOwner1 = new AddOwner(commandSender, doorRetriever, target, 1);

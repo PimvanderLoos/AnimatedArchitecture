@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -98,7 +99,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
 
-    private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
+    private final @NonNull PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
     @Getter
     private ConfigLoaderSpigot configLoader;
@@ -108,7 +109,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private Messages messages;
 
     private boolean validVersion = false;
-    private IPExecutor pExecutor;
+    private final @NonNull IPExecutor pExecutor;
     private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
@@ -159,31 +160,34 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final @NonNull IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     @Getter
-    private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
+    private final @NonNull BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     @Getter
     private DatabaseManager databaseManager;
 
     @Getter
-    private DoorOpener doorOpener;
+    private final @NonNull DoorOpener doorOpener;
 
     @Getter
-    private final DoorRegistry doorRegistry = new DoorRegistry();
+    private final @NonNull DoorRegistry doorRegistry = new DoorRegistry();
 
     @Getter
-    private final AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
+    private final @NonNull AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
 
     @Getter
-    private final DoorActivityManager doorActivityManager = new DoorActivityManager(this);
+    private final @NonNull DoorActivityManager doorActivityManager = new DoorActivityManager(this);
 
     @Getter
-    private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
+    private final @NonNull DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
 
     @Getter
-    private final DoorTypeManager doorTypeManager = new DoorTypeManager();
+    private final @NonNull DoorTypeManager doorTypeManager = new DoorTypeManager();
 
     @Getter
-    private final ToolUserManager toolUserManager = new ToolUserManager(this);
+    private final @NonNull ToolUserManager toolUserManager = new ToolUserManager(this);
+
+    @Getter
+    private final @NonNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
     public BigDoorsSpigot()
     {
@@ -295,7 +299,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             if (!extensionsDir.mkdirs())
             {
                 BigDoors.get().getPLogger()
-                        .logThrowable(new IOException("Failed to create folder: " + extensionsDir.toString()));
+                        .logThrowable(new IOException("Failed to create folder: " + extensionsDir));
                 return;
             }
 

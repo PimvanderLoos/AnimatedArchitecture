@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -32,9 +31,13 @@ public final class BigDoors extends RestartableHolder
 
     /**
      * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
+     *
+     * @return The {@link DelayedCommandInputManager} registered by the platform.
      */
-    @Getter
-    private final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
+    public @NonNull DelayedCommandInputManager getDelayedCommandInputManager()
+    {
+        return getPlatform().getDelayedCommandInputManager();
+    }
 
     /**
      * The platform to use. e.g. "Spigot".
