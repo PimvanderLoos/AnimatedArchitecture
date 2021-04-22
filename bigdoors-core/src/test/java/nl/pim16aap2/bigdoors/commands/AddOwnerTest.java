@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -21,7 +22,6 @@ import org.mockito.MockitoAnnotations;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
@@ -73,6 +73,7 @@ class AddOwnerTest
     void testIsAllowed()
     {
         Assertions.assertTrue(addOwner1.isAllowed(door, true));
+        Assertions.assertFalse(addOwner1.isAllowed(door, false));
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertFalse(addOwner0.isAllowed(door, false));
@@ -88,6 +89,19 @@ class AddOwnerTest
         Assertions.assertFalse(addOwner0.isAllowed(door, false));
         Assertions.assertFalse(addOwner1.isAllowed(door, false));
         Assertions.assertFalse(addOwner2.isAllowed(door, false));
+    }
+
+    @Test
+    void nonPlayer()
+    {
+        val server = Mockito.mock(ICommandSender.class, Answers.CALLS_REAL_METHODS);
+        val addOwner = new AddOwner(server, doorRetriever, target, 0);
+
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
+        Assertions.assertFalse(addOwner.isAllowed(door, false));
+
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Assertions.assertTrue(addOwner.isAllowed(door, false));
     }
 
     @Test
@@ -123,14 +137,8 @@ class AddOwnerTest
     @SneakyThrows
     void testDelayedInput()
     {
-        BigDoors.get().getPLogger().setConsoleLogLevel(Level.ALL);
-
         Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
-        val databaseManager = Mockito.mock(DatabaseManager.class);
-        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
-
-        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+        val databaseManager = mockDatabaseManager();
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
@@ -142,5 +150,30 @@ class AddOwnerTest
         Assertions.assertEquals(first, second);
 
         Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL);
+    }
+
+    @Test
+    @SneakyThrows
+    void testStaticMethods()
+    {
+        val databaseManager = mockDatabaseManager();
+        Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
+
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+
+        val result = AddOwner.run(commandSender, doorRetriever, target);
+        Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
+        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL);
+    }
+
+    private @NonNull DatabaseManager mockDatabaseManager()
+    {
+        val databaseManager = Mockito.mock(DatabaseManager.class);
+        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
+
+        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+        return databaseManager;
     }
 }
