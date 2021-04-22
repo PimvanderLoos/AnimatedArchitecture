@@ -133,7 +133,8 @@ class RemoveOwnerTest
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
 
-        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target);
+        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
+                                                                      commandSender.getPlayer().orElse(null));
     }
 
     @Test
@@ -149,7 +150,8 @@ class RemoveOwnerTest
 
         val result = RemoveOwner.run(commandSender, doorRetriever, target);
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target);
+        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
+                                                                      commandSender.getPlayer().orElse(null));
     }
 
     private @NonNull DatabaseManager mockDatabaseManager()
@@ -157,7 +159,8 @@ class RemoveOwnerTest
         final @NonNull DatabaseManager databaseManager = Mockito.mock(DatabaseManager.class);
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
 
-        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoorBase.class), Mockito.any(IPPlayer.class)))
+        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoorBase.class), Mockito.any(IPPlayer.class),
+                                                 Mockito.any(IPPlayer.class)))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
         return databaseManager;
     }

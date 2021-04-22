@@ -132,8 +132,8 @@ public class RemoveOwner extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        // TODO: Pass the commandsender here as well.
-        return BigDoors.get().getDatabaseManager().removeOwner(door, targetPlayer)
+        return BigDoors.get().getDatabaseManager()
+                       .removeOwner(door, targetPlayer, getCommandSender().getPlayer().orElse(null))
                        .thenApply(this::handleDatabaseActionResult);
     }
 

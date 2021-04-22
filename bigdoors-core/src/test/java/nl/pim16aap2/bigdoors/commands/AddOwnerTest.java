@@ -149,7 +149,8 @@ class AddOwnerTest
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
 
-        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL);
+        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL,
+                                                                   commandSender.getPlayer().orElse(null));
     }
 
     @Test
@@ -164,7 +165,8 @@ class AddOwnerTest
 
         val result = AddOwner.run(commandSender, doorRetriever, target);
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
-        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL);
+        Mockito.verify(databaseManager, Mockito.times(1)).addOwner(door, target, AddOwner.DEFAULT_PERMISSION_LEVEL,
+                                                                   commandSender.getPlayer().orElse(null));
     }
 
     private @NonNull DatabaseManager mockDatabaseManager()
@@ -172,7 +174,7 @@ class AddOwnerTest
         val databaseManager = Mockito.mock(DatabaseManager.class);
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
 
-        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt()))
+        Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
         return databaseManager;
     }
