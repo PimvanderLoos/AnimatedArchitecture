@@ -54,7 +54,6 @@ import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
-import nl.pim16aap2.bigdoors.spigot.managers.AbortableTaskManager;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigot;
@@ -64,12 +63,12 @@ import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.MessagingInterfaceSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PExecutorSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.MessageableServerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
-import nl.pim16aap2.bigdoors.spigot.waitforcommand.WaitForCommand;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -110,7 +109,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private boolean validVersion = false;
     private final @NonNull IPExecutor pExecutor;
-    private Map<UUID, WaitForCommand> cmdWaiters;
     private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
@@ -131,9 +129,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private UpdateManager updateManager;
 
     private boolean successfulInit = true;
-
-    @Getter
-    private final @NonNull AbortableTaskManager abortableTaskManager;
 
     @Getter
     private final @NonNull IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
@@ -198,8 +193,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         MAINTHREADID = Thread.currentThread().getId();
         pExecutor = new PExecutorSpigot(this);
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
-
-        abortableTaskManager = AbortableTaskManager.init(this);
 
         doorOpener = new DoorOpener();
 
@@ -326,7 +319,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         configLoader.restart();
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         playerGUIs = new HashMap<>();
-        cmdWaiters = new HashMap<>();
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
     }
@@ -427,10 +419,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public void shutdown()
     {
-        if (!validVersion)
-            return;
-
-        cmdWaiters.clear();
     }
 
     @Override
@@ -486,27 +474,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         playerGUIs.remove(gui.getGuiHolder().getUUID());
     }
 
-    public @NonNull Optional<WaitForCommand> getCommandWaiter(final @NonNull Player player)
-    {
-        if (cmdWaiters.containsKey(player.getUniqueId()))
-            return Optional.of(cmdWaiters.get(player.getUniqueId()));
-        return Optional.empty();
-    }
-
-    public void addCommandWaiter(final @NonNull WaitForCommand cmdWaiter)
-    {
-        cmdWaiters.put(cmdWaiter.getPlayer().getUniqueId(), cmdWaiter);
-    }
-
-    public void removeCommandWaiter(final @NonNull WaitForCommand cmdWaiter)
-    {
-        cmdWaiters.remove(cmdWaiter.getPlayer().getUniqueId());
-    }
-
     public void onPlayerLogout(final @NonNull Player player)
     {
-        getCommandWaiter(player).ifPresent(WaitForCommand::abortSilently);
-        cmdWaiters.remove(player.getUniqueId());
+        getDelayedCommandInputManager().cancelAll(SpigotAdapter.wrapPlayer(player));
         playerGUIs.remove(player.getUniqueId());
         toolUserManager.abortToolUser(player.getUniqueId());
     }

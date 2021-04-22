@@ -47,6 +47,20 @@ public class DelayedCommandInputManager
     }
 
     /**
+     * Deregisters and cancels all registered {@link DelayedCommandInputRequest}s for an {@link ICommandSender}.
+     *
+     * @param commandSender The {@link ICommandSender} for which to deregister the input requests.
+     */
+    public void cancelAll(final @NonNull ICommandSender commandSender)
+    {
+        requests.computeIfPresent(commandSender, (k, v) ->
+        {
+            v.cancel();
+            return null;
+        });
+    }
+
+    /**
      * Deregisters a registered {@link DelayedCommandInputRequest} for an {@link ICommandSender} if the registered input
      * request 1) exists and 2) is the same (reference equality) as the provided input request.
      * <p>

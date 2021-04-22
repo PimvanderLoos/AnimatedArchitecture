@@ -2,11 +2,18 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.commands.AddOwner;
+import nl.pim16aap2.bigdoors.commands.Info;
+import nl.pim16aap2.bigdoors.commands.MovePowerBlock;
+import nl.pim16aap2.bigdoors.commands.SetAutoCloseTime;
+import nl.pim16aap2.bigdoors.commands.SetBlocksToMove;
+import nl.pim16aap2.bigdoors.commands.Toggle;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
+import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -63,33 +70,33 @@ public class GUIPageDoorInfo implements IGUIPage
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;
                     case TOGGLE:
-//                        ((SubCommandToggle) plugin.getCommand(CommandData.TOGGLE)).execute(player, door);
+                        Toggle.run(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
                         break;
                     case SWITCH: // TODO: Implement door pausing.
                         break;
                     case INFO:
-//                        ((SubCommandInfo) plugin.getCommand(CommandData.INFO)).execute(player, door);
+                        Info.run(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
                         break;
                     case DELETE:
                         gui.setGUIPage(new GUIPageDeleteConfirmation(plugin, gui));
                         break;
                     case RELOCATE_POWERBLOCK:
-//                        plugin.getAbortableTaskManager().startPowerBlockRelocator(player, door);
-//                        gui.close();
+                        MovePowerBlock.run(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
+                        gui.close();
                         break;
                     case OPEN_DIRECTION:
                         changeOpenDir(door, interactionIDX);
                         break;
                     case AUTO_CLOSE_TIMER:
-                        plugin.getAbortableTaskManager().startTimerSetter(player, door);
+                        SetAutoCloseTime.runDelayed(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
                         gui.close();
                         break;
                     case BLOCKS_TO_MOVE:
-                        plugin.getAbortableTaskManager().startBlocksToMoveSetter(player, door);
+                        SetBlocksToMove.runDelayed(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
                         gui.close();
                         break;
                     case ADD_OWNER:
-                        plugin.getAbortableTaskManager().startAddOwner(player, door);
+                        AddOwner.runDelayed(SpigotAdapter.wrapPlayer(player), DoorRetriever.of(door));
                         gui.close();
                         break;
                     case REMOVE_OWNER:
