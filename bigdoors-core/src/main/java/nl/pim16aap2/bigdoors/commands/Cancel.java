@@ -18,9 +18,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Cancel extends BaseCommand
 {
-    public Cancel(final @NonNull ICommandSender commandSender)
+    protected Cancel(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link Cancel} command.
+     *
+     * @param commandSender The {@link ICommandSender} for which to cancel any active processes.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new Cancel(commandSender).run();
     }
 
     @Override
