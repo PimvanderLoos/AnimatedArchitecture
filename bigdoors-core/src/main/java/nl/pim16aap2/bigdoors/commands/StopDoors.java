@@ -16,9 +16,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class StopDoors extends BaseCommand
 {
-    public StopDoors(final @NonNull ICommandSender commandSender)
+    protected StopDoors(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link StopDoors} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for stopping all active doors.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new StopDoors(commandSender).run();
     }
 
     @Override

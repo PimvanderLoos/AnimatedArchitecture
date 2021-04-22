@@ -18,9 +18,20 @@ import java.util.logging.Level;
 @ToString
 public class Debug extends BaseCommand
 {
-    public Debug(final @NonNull ICommandSender commandSender)
+    protected Debug(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link Debug} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for the execution of this command.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new Debug(commandSender).run();
     }
 
     @Override

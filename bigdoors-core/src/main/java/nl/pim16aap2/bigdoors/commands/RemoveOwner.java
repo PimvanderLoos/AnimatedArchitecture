@@ -23,11 +23,27 @@ public class RemoveOwner extends DoorTargetCommand
 {
     private final @NonNull IPPlayer targetPlayer;
 
-    public RemoveOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
-                       final @NonNull IPPlayer targetPlayer)
+    protected RemoveOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+                          final @NonNull IPPlayer targetPlayer)
     {
         super(commandSender, doorRetriever);
         this.targetPlayer = targetPlayer;
+    }
+
+    /**
+     * Runs the {@link RemoveOwner} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for removing a co-owner of the door.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which a co-owner is
+     *                      requested to be removed.
+     * @param targetPlayer  The co-owner that is requested to be removed.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever,
+                                                          final @NonNull IPPlayer targetPlayer)
+    {
+        return new RemoveOwner(commandSender, doorRetriever, targetPlayer).run();
     }
 
     @Override

@@ -21,9 +21,23 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    public MovePowerBlock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected MovePowerBlock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever);
+    }
+
+    /**
+     * Runs the {@link MovePowerBlock} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for moving the powerblock for the door.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the powerblock
+     *                      will be moved.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever)
+    {
+        return new MovePowerBlock(commandSender, doorRetriever).run();
     }
 
     @Override

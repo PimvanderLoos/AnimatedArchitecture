@@ -386,21 +386,12 @@ public final class Util
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(final @NonNull String name)
+    public static boolean isValidDoorName(final @Nullable String name)
     {
-        if (name.length() == 0 || name.contains(" "))
+        if (name == null || name.isBlank())
             return false;
 
-        try
-        {
-            Long.parseLong(name);
-            return false;
-        }
-        catch (NumberFormatException e)
-        {
-            return true;
-        }
-
+        return Util.parseLong(name).isEmpty() && Util.parseDouble(name).isEmpty();
     }
 
     /**

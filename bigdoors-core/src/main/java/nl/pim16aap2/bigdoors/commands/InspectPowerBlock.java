@@ -5,6 +5,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -19,9 +20,23 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class InspectPowerBlock extends BaseCommand
 {
-    public InspectPowerBlock(final @NonNull ICommandSender commandSender)
+    protected InspectPowerBlock(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link InspectPowerBlock} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for inspecting the powerblocks.
+     *                      <p>
+     *                      They can only discover {@link AbstractDoorBase}s attached to specific locations if they both
+     *                      have access to the specific location and access to the specific door(s).
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new InspectPowerBlock(commandSender).run();
     }
 
     @Override

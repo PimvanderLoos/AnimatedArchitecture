@@ -18,9 +18,23 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    public Delete(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected Delete(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever);
+    }
+
+    /**
+     * Runs the {@link Delete} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for deleting the door.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} which will be targeted for
+     *                      deletion.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever)
+    {
+        return new Delete(commandSender, doorRetriever).run();
     }
 
     @Override

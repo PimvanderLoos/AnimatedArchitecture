@@ -19,9 +19,24 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    public Info(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected Info(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever);
+    }
+
+    /**
+     * Runs the {@link Info} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for retrieving the door info and the receiver of the
+     *                      door's information.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the information
+     *                      will be retrieved.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever)
+    {
+        return new Info(commandSender, doorRetriever).run();
     }
 
     @Override

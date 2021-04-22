@@ -16,9 +16,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Restart extends BaseCommand
 {
-    public Restart(final @NonNull ICommandSender commandSender)
+    protected Restart(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link Restart} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for restarting BigDoors.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new Restart(commandSender).run();
     }
 
     @Override

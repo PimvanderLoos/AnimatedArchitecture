@@ -20,11 +20,28 @@ public class SetBlocksToMove extends DoorTargetCommand
 {
     private final int blocksToMove;
 
-    public SetBlocksToMove(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
-                           final int blocksToMove)
+    protected SetBlocksToMove(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+                              final int blocksToMove)
     {
         super(commandSender, doorRetriever);
         this.blocksToMove = blocksToMove;
+    }
+
+    /**
+     * Runs the {@link SetBlocksToMove} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for changing the blocks-to-move distance of the
+     *                      door.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the
+     *                      blocks-to-move distance will be modified.
+     * @param blocksToMove  The new blocks-to-move distance.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever,
+                                                          final int blocksToMove)
+    {
+        return new SetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
     }
 
     @Override

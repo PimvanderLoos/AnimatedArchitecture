@@ -23,10 +23,25 @@ public class ListDoors extends BaseCommand
 {
     final @NonNull DoorRetriever doorRetriever;
 
-    public ListDoors(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected ListDoors(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
         super(commandSender);
         this.doorRetriever = doorRetriever;
+    }
+
+    /**
+     * Runs the {@link ListDoors} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for retrieving the information for the doors.
+     *                      <p>
+     *                      This is also the entity that will be informed about the doors that were found.
+     * @param doorRetriever A {@link DoorRetriever} representing any number of {@link AbstractDoorBase}s.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorRetriever doorRetriever)
+    {
+        return new ListDoors(commandSender, doorRetriever).run();
     }
 
     @Override

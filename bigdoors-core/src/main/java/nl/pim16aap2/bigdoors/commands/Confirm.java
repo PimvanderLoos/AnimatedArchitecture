@@ -21,9 +21,20 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Confirm extends BaseCommand
 {
-    public Confirm(final @NonNull ICommandSender commandSender)
+    protected Confirm(final @NonNull ICommandSender commandSender)
     {
         super(commandSender);
+    }
+
+    /**
+     * Runs the {@link Confirm} command.
+     *
+     * @param commandSender The {@link ICommandSender} for which to confirm any active processes.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    {
+        return new Confirm(commandSender).run();
     }
 
     @Override

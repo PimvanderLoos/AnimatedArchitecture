@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -22,10 +23,23 @@ public class SetName extends BaseCommand
 {
     private final @NonNull String name;
 
-    public SetName(final @NonNull ICommandSender commandSender, final @NonNull String name)
+    protected SetName(final @NonNull ICommandSender commandSender, final @NonNull String name)
     {
         super(commandSender);
         this.name = name;
+    }
+
+    /**
+     * Runs the {@link SetName} command.
+     *
+     * @param commandSender The {@link ICommandSender} responsible for providing the name.
+     * @param name          The new name specified by the command sender.
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull String name)
+    {
+        return new SetName(commandSender, name).run();
     }
 
     @Override
@@ -37,6 +51,17 @@ public class SetName extends BaseCommand
     @Override
     protected boolean availableForNonPlayers()
     {
+        return false;
+    }
+
+    @Override
+    protected boolean validInput()
+    {
+        if (Util.isValidDoorName(name))
+            return true;
+        
+        // TODO: Localization
+        getCommandSender().sendMessage("The name \"" + name + "\" is not valid! Please select a different name");
         return false;
     }
 

@@ -21,39 +21,57 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class NewDoor extends BaseCommand
 {
-    final @NonNull DoorType doorType;
-    final @Nullable String doorName;
+    private final @NonNull DoorType doorType;
+    private final @Nullable String doorName;
 
-    public NewDoor(final @NonNull ICommandSender commandSender, final @NonNull DoorType doorType)
-    {
-        this(commandSender, doorType, null);
-    }
-
-    public NewDoor(final @NonNull ICommandSender commandSender, final @NonNull DoorType doorType,
-                   final @Nullable String doorName)
+    protected NewDoor(final @NonNull ICommandSender commandSender, final @NonNull DoorType doorType,
+                      final @Nullable String doorName)
     {
         super(commandSender);
         this.doorType = doorType;
-        this.doorName = verifyDoorName(doorName);
+        this.doorName = doorName;
     }
 
     /**
-     * Ensures that the provided {@link #doorName} is valid (see {@link Util#isValidDoorName(String)}).
-     * <p>
-     * If the provided input is not a valid door name, null is returned and the user is informed. However, in the
-     * special situation where the provided name is simply null, the user will not be informed, as it is assumed that
-     * this is on purpose.
+     * Runs the {@link NewDoor} command.
      *
-     * @param doorName The input name to check. May be null.
-     * @return The input name if it is a valid name.
+     * @param commandSender The {@link ICommandSender} responsible for creating a new door.
+     * @param doorType      The type of door that will be created.
+     * @param doorName      The name of the door, if it has been specified already.
+     *                      <p>
+     *                      When this is null, the creator will start at the first step (specifying the name). If it has
+     *                      been specified, this step will be skipped.
+     * @return See {@link BaseCommand#run()}.
      */
-    private @Nullable String verifyDoorName(final @Nullable String doorName)
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorType doorType,
+                                                          final @Nullable String doorName)
+    {
+        return new NewDoor(commandSender, doorType, doorName).run();
+    }
+
+    /**
+     * Runs the {@link NewDoor} command without a specified name for the door.
+     * <p>
+     * See {@link #run(ICommandSender, DoorType, String)}.
+     *
+     * @return See {@link BaseCommand#run()}.
+     */
+    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+                                                          final @NonNull DoorType doorType)
+    {
+        return run(commandSender, doorType, null);
+    }
+
+    @Override
+    protected boolean validInput()
     {
         if (doorName == null || Util.isValidDoorName(doorName))
-            return doorName;
+            return true;
 
+        // TODO: Localization
         getCommandSender().sendMessage("The name \"" + doorName + "\" is not valid! Please select a different name");
-        return null;
+        return false;
     }
 
     @Override
