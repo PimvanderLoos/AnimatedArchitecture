@@ -24,6 +24,7 @@ public enum CommandDefinition
     INFO("bigdoors.user.info", "bigdoors.admin.bypass.info"),
     INSPECT_POWERBLOCK("bigdoors.user.inspect", "bigdoors.admin.bypass.inspect"),
     LIST_DOORS("bigdoors.user.listdoors", "bigdoors.admin.bypass.listdoors"),
+    LOCK("bigdoors.user.lock", "bigdoors.admin.bypass.lock"),
     MOVE_POWERBLOCK("bigdoors.user.movepowerblock", "bigdoors.admin.bypass.movepowerblock"),
     NEW_DOOR("bigdoors.user.newdoor", null),
     REMOVE_OWNER("bigdoors.user.removeowner", "bigdoors.admin.bypass.removeowner"),
