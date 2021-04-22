@@ -61,7 +61,13 @@ public class AddOwner extends DoorTargetCommand
     @Override
     protected boolean validInput()
     {
-        return targetPermissionLevel == 1 || targetPermissionLevel == 2;
+        if (targetPermissionLevel == 1 || targetPermissionLevel == 2)
+            return true;
+
+        //TODO: Localization
+        getCommandSender().sendMessage("Target permission level " + targetPermissionLevel + " is invalid! " +
+                                           "It must be either 1 (admin) or 2 (user).");
+        return false;
     }
 
     @Override

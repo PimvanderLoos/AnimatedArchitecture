@@ -101,7 +101,12 @@ public class Toggle extends BaseCommand
     @Override
     protected boolean validInput()
     {
-        return doorRetrievers.length > 0;
+        if (doorRetrievers.length > 0)
+            return true;
+
+        // TODO: Localization
+        getCommandSender().sendMessage("At least 1 door must be specified!");
+        return false;
     }
 
     @Override
