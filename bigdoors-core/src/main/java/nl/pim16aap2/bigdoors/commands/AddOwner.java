@@ -171,10 +171,10 @@ public class AddOwner extends DoorTargetCommand
     }
 
     /**
-     * Executes the add owner command without a known {@link #targetPlayer} or {@link #targetPermissionLevel}.
+     * Executes the {@link AddOwner} command without a known {@link #targetPlayer} or {@link #targetPermissionLevel}.
      * <p>
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
-     * use the AddOwner command (again, if needed) to supply the missing data.
+     * use the {@link AddOwner} command (again, if needed) to supply the missing data.
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer, int)}.
      *

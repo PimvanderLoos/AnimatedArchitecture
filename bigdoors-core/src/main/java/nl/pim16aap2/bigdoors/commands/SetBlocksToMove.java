@@ -76,10 +76,10 @@ public class SetBlocksToMove extends DoorTargetCommand
     }
 
     /**
-     * Executes the add owner command without a known {@link #blocksToMove}.
+     * Executes the {@link SetBlocksToMove} command without a known {@link #blocksToMove}.
      * <p>
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
-     * use the SetBlocksToMove command (again, if needed) to supply the missing data.
+     * use the {@link SetBlocksToMove} command (again, if needed) to supply the missing data.
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, int)}.
      *
@@ -93,9 +93,9 @@ public class SetBlocksToMove extends DoorTargetCommand
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                blocksToMove -> delayedInputExecutor(commandSender,
+                                                delayedInput -> delayedInputExecutor(commandSender,
                                                                                      doorRetriever,
-                                                                                     blocksToMove),
+                                                                                     delayedInput),
                                                 SetBlocksToMove::inputRequestMessage, Integer.class)
             .getCommandOutput();
     }

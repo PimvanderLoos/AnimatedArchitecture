@@ -51,10 +51,10 @@ public class RemoveOwner extends DoorTargetCommand
     }
 
     /**
-     * Executes the remove owner command without a known {@link #targetPlayer}.
+     * Executes the {@link RemoveOwner} command without a known {@link #targetPlayer}.
      * <p>
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
-     * use the RemoveOwner command (again, if needed) to supply the missing data.
+     * use the  {@link RemoveOwner} command (again, if needed) to supply the missing data.
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer}.
      *

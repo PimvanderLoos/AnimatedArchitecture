@@ -14,7 +14,7 @@ public interface ITimerToggleableArchetype extends IDoorBase
     /**
      * Changes the autoCloseTimer value. See {@link #getAutoCloseTime()}.
      *
-     * @param newValue The new value of the autoCloseTimer.
+     * @param newValue The new value of the autoCloseTimer (in seconds).
      * @return The instance of this door.
      */
     @NonNull AbstractDoorBase setAutoCloseTime(final int newValue);
