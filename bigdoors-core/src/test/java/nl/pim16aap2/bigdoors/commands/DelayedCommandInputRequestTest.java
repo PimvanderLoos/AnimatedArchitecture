@@ -49,7 +49,7 @@ class DelayedCommandInputRequestTest
                                                             input -> verifyInput(delayedInput, input),
                                                             () -> "", DelayedInput.class);
 
-        val first = inputRequest.getOutput();
+        val first = inputRequest.getCommandOutput();
         val second = inputRequest.provide(delayedInput);
 
         Assertions.assertTrue(second.get(1, TimeUnit.SECONDS));
@@ -65,7 +65,7 @@ class DelayedCommandInputRequestTest
                                                             input -> verifyInput(delayedInput, input),
                                                             () -> "", DelayedInput.class);
 
-        val first = inputRequest.getOutput();
+        val first = inputRequest.getCommandOutput();
         val second = inputRequest.provide("Invalid!");
 
         Assertions.assertFalse(second.get(1, TimeUnit.SECONDS));

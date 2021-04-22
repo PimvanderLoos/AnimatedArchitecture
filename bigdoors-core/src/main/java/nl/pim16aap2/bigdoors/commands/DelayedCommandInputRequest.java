@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -60,7 +59,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     @ToString.Exclude
     @Getter(AccessLevel.PROTECTED)
-    private final @NonNull CompletableFuture<Boolean> output;
+    private final @NonNull CompletableFuture<Boolean> commandOutput;
 
     /**
      * Constructs a new delayed command input request.
@@ -87,14 +86,22 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
         log();
-        output = constructOutput(executor);
+        commandOutput = constructOutput(executor);
+        init();
+    }
+
+    private void init()
+    {
+        BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
+        val initMessage = initMessageSupplier.get();
+        if (initMessage != null && !initMessage.isBlank())
+            commandSender.sendMessage(initMessage);
     }
 
     private @NonNull CompletableFuture<Boolean> constructOutput(
         final @NonNull Function<T, CompletableFuture<Boolean>> executor)
     {
-        return CompletableFuture
-            .supplyAsync(this::waitForInputUnchecked)
+        return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
             .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
@@ -106,7 +113,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * boolean is returned to indicate incorrect command usage.
      *
      * @param input The input object to provide.
-     * @return When the input is of the correct type, {@link #output} is returned, otherwise false.
+     * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise false.
      */
     protected @NonNull CompletableFuture<Boolean> provide(final @NonNull Object input)
     {
@@ -120,7 +127,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
         //noinspection unchecked
         super.set((T) input);
-        return output;
+        return commandOutput;
     }
 
     @Override
@@ -139,38 +146,11 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     }
 
     /**
-     * Wrapper for {@link DelayedInputRequest#waitForInput()} that rethrows any checked exceptions that may occur as
-     * {@link RuntimeException}s (so, unchecked).
-     *
-     * @return The result of {@link DelayedInputRequest#waitForInput()}.
-     */
-    private @NonNull Optional<T> waitForInputUnchecked()
-    {
-        try
-        {
-            return super.waitForInput();
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Failed to retrieve data for command: " + commandDefinition, e);
-        }
-    }
-
-    /**
      * Ensures the input request is logged.
      */
     private void log()
     {
         BigDoors.get().getPLogger()
                 .dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
-    }
-
-    @Override
-    protected void init()
-    {
-        BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
-        val initMessage = initMessageSupplier.get();
-        if (initMessage != null && !initMessage.isBlank())
-            commandSender.sendMessage(initMessage);
     }
 }

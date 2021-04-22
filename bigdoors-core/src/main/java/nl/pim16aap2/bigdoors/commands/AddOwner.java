@@ -184,7 +184,7 @@ public class AddOwner extends DoorTargetCommand
                                                 delayedInput -> delayedInputExecutor(commandSender,
                                                                                      doorRetriever,
                                                                                      delayedInput),
-                                                AddOwner::inputRequestMessage, DelayedInput.class).getOutput();
+                                                AddOwner::inputRequestMessage, DelayedInput.class).getCommandOutput();
     }
 
     /**

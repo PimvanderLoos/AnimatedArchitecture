@@ -193,13 +193,15 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoorInteractive(final @NonNull IPPlayer player)
         {
-            return getDoors(player).<Optional<AbstractDoorBase>>thenApplyAsync(
+            return getDoors(player).thenCompose(
                 doorList ->
                 {
                     if (doorList.size() == 1)
-                        return Optional.of(doorList.get(0));
+                        return CompletableFuture.completedFuture(Optional.of(doorList.get(0)));
+
                     if (doorList.isEmpty())
-                        return Optional.empty();
+                        return CompletableFuture.completedFuture(Optional.empty());
+
                     return DelayedDoorSpecificationInputRequest
                         .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
                              doorList, player);

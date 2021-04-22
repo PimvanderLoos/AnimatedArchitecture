@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a {@link DelayedInputRequest} to specify which door was meant out of a list of multiple.
@@ -29,6 +30,18 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         super(timeout.toMillis());
         this.options = options;
         this.player = player;
+        init();
+    }
+
+    private void init()
+    {
+        BigDoors.get().getDoorSpecificationManager().placeRequest(player, this);
+        // TODO: Localization
+        // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
+        //       It may also use a GUI or clickable text or whatever.
+        final StringBuilder sb = new StringBuilder("Please specify a door you using \"/bigdoors specify <ID>\"");
+        getDoorInfoList(sb);
+        player.sendMessage(sb.toString());
     }
 
     /**
@@ -43,44 +56,25 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
      * @param player  The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static @NonNull Optional<AbstractDoorBase> get(final @NonNull Duration timeout,
-                                                          final @NonNull List<AbstractDoorBase> options,
-                                                          final @NonNull IPPlayer player)
+    public static @NonNull CompletableFuture<Optional<AbstractDoorBase>> get(final @NonNull Duration timeout,
+                                                                             final @NonNull List<AbstractDoorBase> options,
+                                                                             final @NonNull IPPlayer player)
     {
         if (options.size() == 1)
-            return Optional.of(options.get(0));
+            return CompletableFuture.completedFuture(Optional.of(options.get(0)));
         if (options.isEmpty())
-            return Optional.empty();
+            return CompletableFuture.completedFuture(Optional.empty());
 
-        final @NonNull Optional<String> specification;
-        try
-        {
-            specification = new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-            return Optional.empty();
-        }
+        return new DelayedDoorSpecificationInputRequest(timeout, options, player).getInputResult().thenApply(
+            input ->
+            {
+                final @NonNull OptionalLong uidOpt = Util.parseLong(input);
+                if (uidOpt.isEmpty())
+                    return Optional.empty();
 
-        final @NonNull OptionalLong uidOpt = Util.parseLong(specification);
-        if (uidOpt.isEmpty())
-            return Optional.empty();
-
-        final long uid = uidOpt.getAsLong();
-        return Util.searchIterable(options, (door) -> door.getDoorUID() == uid);
-    }
-
-    @Override
-    protected void init()
-    {
-        BigDoors.get().getDoorSpecificationManager().placeRequest(player, this);
-        // TODO: Localization
-        // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
-        //       It may also use a GUI or clickable text or whatever.
-        final StringBuilder sb = new StringBuilder("Please specify a door you using \"/bigdoors specify <ID>\"");
-        getDoorInfoList(sb);
-        player.sendMessage(sb.toString());
+                final long uid = uidOpt.getAsLong();
+                return Util.searchIterable(options, (door) -> door.getDoorUID() == uid);
+            });
     }
 
     @Override
