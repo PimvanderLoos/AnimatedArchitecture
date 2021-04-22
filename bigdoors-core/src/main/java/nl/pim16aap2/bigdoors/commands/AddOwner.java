@@ -147,7 +147,7 @@ public class AddOwner extends DoorTargetCommand
      *                              overridden provided that the command sender is allowed to add/remove co-owners at
      *                              both the old and the new target permission level.
      * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
-     * @return The result of {@link #run()}.
+     * @return See {@link BaseCommand#run()}.
      */
     public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
                                                           final @NonNull DoorRetriever doorRetriever,
@@ -180,7 +180,7 @@ public class AddOwner extends DoorTargetCommand
      * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
      *                      for its execution.
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
-     * @return True if adding the owner was successful.
+     * @return See {@link BaseCommand#run()}.
      */
     public static @NonNull CompletableFuture<Boolean> runDelayed(final @NonNull ICommandSender commandSender,
                                                                  final @NonNull DoorRetriever doorRetriever)
@@ -240,7 +240,7 @@ public class AddOwner extends DoorTargetCommand
      *                      for its execution.
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
      * @param delayedInput  The delayed input that was retrieved.
-     * @return The result of running the command. See {@link #run()}.
+     * @return See {@link BaseCommand#run()}.
      */
     private static @NonNull CompletableFuture<Boolean> delayedInputExecutor(final @NonNull ICommandSender commandSender,
                                                                             final @NonNull DoorRetriever doorRetriever,
