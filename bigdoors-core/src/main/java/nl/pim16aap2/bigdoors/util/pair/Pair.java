@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util.pair;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Represents a name-value pair.
@@ -10,6 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode
 @AllArgsConstructor
+@ToString
 public final class Pair<T1, T2>
 {
     public T1 first;

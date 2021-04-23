@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -23,6 +24,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@ToString
 @RequiredArgsConstructor
 public abstract class BaseCommand
 {
@@ -112,12 +114,14 @@ public abstract class BaseCommand
         final boolean isPlayer = getCommandSender() instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
+            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
             // TODO: Localization
             getCommandSender().sendMessage("No permission!");
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
+            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
             getCommandSender().sendMessage("Only players can use this command!");
             return CompletableFuture.completedFuture(true);
         }
@@ -153,6 +157,9 @@ public abstract class BaseCommand
             case FAIL:
                 commandSender.sendMessage("An error occurred! Please contact a server administrator.");
         }
+        BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                               () -> "Handling database action result: " + result.name() +
+                                                   " for command: " + this);
         return true;
     }
 
@@ -173,6 +180,8 @@ public abstract class BaseCommand
                             {
                                 if (!hasPermission.first && !hasPermission.second)
                                 {
+                                    BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+                                        "No permission for command: " + hasPermission);
                                     // TODO: Localization
                                     getCommandSender().sendMessage("No permission!");
                                     ret.complete(true);
@@ -219,6 +228,8 @@ public abstract class BaseCommand
                                  .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
+                    BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                           () -> "Retrieved door " + door + " for command: " + this);
                     if (door.isPresent())
                         return door;
                     // TODO: Localization
