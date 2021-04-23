@@ -35,7 +35,7 @@ class LockTest
     private IPPlayer commandSender;
 
     @Mock
-    IDoorPrepareLockChangeEvent event;
+    private IDoorPrepareLockChangeEvent event;
 
     @BeforeEach
     void init()

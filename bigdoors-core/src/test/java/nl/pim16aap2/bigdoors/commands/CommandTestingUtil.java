@@ -45,10 +45,12 @@ class CommandTestingUtil
     public static void initCommandSenderPermissions(final ICommandSender commandSender,
                                                     final boolean userPerm, final boolean adminPerm)
     {
-        Mockito.when(commandSender.hasPermission(Mockito.any(String.class)))
-               .thenReturn(CompletableFuture.completedFuture(userPerm));
-        Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new BooleanPair(userPerm, adminPerm)));
+        Mockito.doReturn(CompletableFuture.completedFuture(userPerm))
+               .when(commandSender).hasPermission(Mockito.anyString());
+
+
+        Mockito.doReturn(CompletableFuture.completedFuture(new BooleanPair(userPerm, adminPerm)))
+               .when(commandSender).hasPermission(Mockito.any(CommandDefinition.class));
     }
 
     /**

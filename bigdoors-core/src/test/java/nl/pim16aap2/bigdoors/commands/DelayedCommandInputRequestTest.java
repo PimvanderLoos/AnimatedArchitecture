@@ -24,12 +24,12 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initPlatform;
 class DelayedCommandInputRequestTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    CommandDefinition commandDefinition;
+    private CommandDefinition commandDefinition;
 
-    IBigDoorsPlatform platform;
+    private IBigDoorsPlatform platform;
 
     @Mock
-    ICommandSender commandSender;
+    private ICommandSender commandSender;
 
     @BeforeEach
     void init()

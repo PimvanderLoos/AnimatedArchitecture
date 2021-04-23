@@ -30,6 +30,7 @@ class DeleteTest
 
     @Mock
     private DoorRetriever doorRetriever;
+    
     @Mock
     private AbstractDoorBase door;
 
@@ -49,14 +50,14 @@ class DeleteTest
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
     }
 
-//    @Test
-//    @SneakyThrows
-//    void testServer()
-//    {
-//        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-//        Assertions.assertTrue(Delete.run(server, doorRetriever).get(1, TimeUnit.SECONDS));
-//        Mockito.verify(databaseManager).deleteDoor(door, null);
-//    }
+    @Test
+    @SneakyThrows
+    void testServer()
+    {
+        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        Assertions.assertTrue(Delete.run(server, doorRetriever).get(1, TimeUnit.SECONDS));
+        Mockito.verify(databaseManager).deleteDoor(door, null);
+    }
 
     @Test
     @SneakyThrows

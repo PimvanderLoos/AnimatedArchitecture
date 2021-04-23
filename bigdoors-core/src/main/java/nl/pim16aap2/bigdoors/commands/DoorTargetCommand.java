@@ -8,7 +8,9 @@ import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -30,38 +32,50 @@ public abstract class DoorTargetCommand extends BaseCommand
     @Override
     protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
     {
-        final CompletableFuture<Boolean> ret = new CompletableFuture<>();
+        return getDoor(getDoorRetriever())
+            .thenApplyAsync(door -> processDoorResult(door, permissions))
+            .exceptionally(t -> Util.exceptionally(t, false));
+    }
 
-        getDoor(getDoorRetriever())
-            .thenApplyAsync(
-                door ->
-                {
-                    if (door.isEmpty())
-                    {
-                        BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
-                            "Failed to find door " + getDoorRetriever() + " for command: " + this);
+    /**
+     * Handles the result of retrieving the door.
+     *
+     * @param door        The result of trying to retrieve the door.
+     * @param permissions Whether the ICommandSender has user and/or admin permissions respectively.
+     * @return The result of running the command, see {@link BaseCommand#run()}.
+     */
+    private boolean processDoorResult(final @NonNull Optional<AbstractDoorBase> door,
+                                      final @NonNull BooleanPair permissions)
+    {
+        if (door.isEmpty())
+        {
+            BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+                "Failed to find door " + getDoorRetriever() + " for command: " + this);
 
-                        // TODO: Localization
-                        getCommandSender().sendMessage("Failed to find the specified door!");
-                        ret.complete(false);
-                        return null;
-                    }
-                    if (!isAllowed(door.get(), permissions.second))
-                    {
-                        BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
-                            getCommandSender() + " does not have access to door " + door + " for command " + this);
+            // TODO: Localization
+            getCommandSender().sendMessage("Failed to find the specified door!");
+            return false;
+        }
 
-                        // TODO: Localization
-                        getCommandSender().sendMessage("You do not have access to this action for this door!");
-                        ret.complete(true);
-                        return null;
-                    }
-                    return door.get();
-                })
-            .thenComposeAsync(this::performAction)
-            .thenAccept(ret::complete)
-            .exceptionally(t -> Util.exceptionallyCompletion(t, null, ret));
-        return ret;
+        if (!isAllowed(door.get(), permissions.second))
+        {
+            BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                   () -> getCommandSender() + " does not have access to door " + door +
+                                                       " for command " + this);
+
+            // TODO: Localization
+            getCommandSender().sendMessage("You do not have access to this action for this door!");
+            return true;
+        }
+
+        try
+        {
+            return performAction(door.get()).get(30, TimeUnit.MINUTES);
+        }
+        catch (Throwable t)
+        {
+            throw new RuntimeException(t);
+        }
     }
 
     /**

@@ -10,11 +10,11 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 /**
@@ -173,25 +173,27 @@ public abstract class BaseCommand
      */
     protected final @NonNull CompletableFuture<Boolean> startExecution()
     {
-        final CompletableFuture<Boolean> ret = new CompletableFuture<>();
+        return hasPermission().thenApplyAsync(this::handlePermissionResult);
+    }
 
-        hasPermission()
-            .thenApplyAsync(hasPermission ->
-                            {
-                                if (!hasPermission.first && !hasPermission.second)
-                                {
-                                    BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
-                                        "No permission for command: " + hasPermission);
-                                    // TODO: Localization
-                                    getCommandSender().sendMessage("No permission!");
-                                    ret.complete(true);
-                                }
-                                return hasPermission;
-                            })
-            .thenComposeAsync(this::executeCommand)
-            .thenApply(ret::complete)
-            .exceptionally(throwable -> Util.exceptionallyCompletion(throwable, true, ret));
-        return ret;
+    private boolean handlePermissionResult(final @NonNull BooleanPair permissionResult)
+    {
+        if (!permissionResult.first && !permissionResult.second)
+        {
+            BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                   () -> "Permission for command: " + this + ": " + permissionResult);
+            // TODO: Localization
+            getCommandSender().sendMessage("No permission!");
+            return true;
+        }
+        try
+        {
+            return executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
+        }
+        catch (Throwable t)
+        {
+            throw new RuntimeException("Encountered issue running command: " + this, t);
+        }
     }
 
     /**

@@ -28,6 +28,7 @@ class RemoveOwnerTest
 {
     @Mock
     private DoorRetriever doorRetriever;
+    
     @Mock
     private AbstractDoorBase door;
 

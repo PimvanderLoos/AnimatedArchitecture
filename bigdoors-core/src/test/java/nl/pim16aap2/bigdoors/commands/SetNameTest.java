@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import lombok.val;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -30,12 +29,10 @@ class SetNameTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private IBigDoorsPlatform platform;
-
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        val platform = initPlatform();
         MockitoAnnotations.openMocks(this);
         initCommandSenderPermissions(commandSender, true, true);
 

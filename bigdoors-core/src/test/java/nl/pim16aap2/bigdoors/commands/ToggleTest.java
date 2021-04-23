@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -31,16 +30,15 @@ class ToggleTest
     @Mock
     private DoorRetriever doorRetriever;
 
-    @Getter
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
-    IBigDoorsPlatform platform;
+    private IBigDoorsPlatform platform;
 
     @Mock
-    AbstractDoorBase door;
+    private AbstractDoorBase door;
 
-    DoorOpener doorOpener;
+    private DoorOpener doorOpener;
 
     @BeforeEach
     void init()

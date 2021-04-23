@@ -28,18 +28,18 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 class BaseCommandTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    BaseCommand baseCommand;
+    private BaseCommand baseCommand;
 
-    IBigDoorsPlatform platform;
-
-    @Mock
-    DoorRetriever doorRetriever;
+    private IBigDoorsPlatform platform;
 
     @Mock
-    AbstractDoorBase door;
+    private DoorRetriever doorRetriever;
 
     @Mock
-    ICommandSender commandSender;
+    private AbstractDoorBase door;
+
+    @Mock
+    private ICommandSender commandSender;
 
     @BeforeEach
     void init()
@@ -122,6 +122,7 @@ class BaseCommandTest
         BigDoors.get().getPLogger().setConsoleLogLevel(Level.OFF);
 
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
+
         final CompletableFuture<BooleanPair> exceptional = new CompletableFuture<>();
         exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
 
@@ -147,6 +148,6 @@ class BaseCommandTest
         ExecutionException exception =
             Assertions.assertThrows(ExecutionException.class,
                                     () -> baseCommand.startExecution().get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(IllegalStateException.class, exception.getCause().getClass());
+        Assertions.assertEquals(IllegalStateException.class, exception.getCause().getCause().getCause().getClass());
     }
 }

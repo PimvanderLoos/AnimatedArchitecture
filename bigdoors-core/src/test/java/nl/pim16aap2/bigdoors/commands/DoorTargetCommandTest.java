@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -23,22 +24,22 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class DoorTargetCommandTest
 {
-    IBigDoorsPlatform platform;
+    private IBigDoorsPlatform platform;
 
     @Mock
-    DoorRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
-    AbstractDoorBase door;
+    private AbstractDoorBase door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    IPPlayer commandSender;
+    private IPPlayer commandSender;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
-    IPPlayer target;
+    private DoorTargetCommand doorTargetCommand;
 
-    @Mock(answer = Answers.CALLS_REAL_METHODS)
-    DoorTargetCommand doorTargetCommand;
+    @Mock
+    private ToolUserManager toolUserManager;
 
     @BeforeEach
     void init()
@@ -98,6 +99,8 @@ class DoorTargetCommandTest
         ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
             doorTargetCommand.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS));
 
-        Assertions.assertEquals(IllegalStateException.class, exception.getCause().getClass());
+        // "We need to go deeper"
+        Assertions.assertEquals(IllegalStateException.class,
+                                exception.getCause().getCause().getCause().getCause().getClass());
     }
 }
