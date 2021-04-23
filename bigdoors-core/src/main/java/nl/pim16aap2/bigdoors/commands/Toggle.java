@@ -146,12 +146,16 @@ public class Toggle extends BaseCommand
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
         {
+            // TODO: Localization
+            getCommandSender().sendMessage("You do not have access to the command for this door!");
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
             return;
         }
         if (!canToggle(door))
         {
+            // TODO: Localization
+            getCommandSender().sendMessage("Door can not be toggled because it is not openable/closeable.");
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
             return;
