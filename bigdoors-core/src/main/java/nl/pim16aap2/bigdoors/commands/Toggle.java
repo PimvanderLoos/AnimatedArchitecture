@@ -134,8 +134,11 @@ public class Toggle extends BaseCommand
                 return door.isCloseable();
             case CLOSE:
                 return door.isOpenable();
+            default:
+                BigDoors.get().getPLogger()
+                        .logThrowable(new IllegalStateException("Reached unregistered case: " + doorActionType.name()));
+                return false;
         }
-        return false;
     }
 
     private void toggleDoor(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause doorActionCause,
