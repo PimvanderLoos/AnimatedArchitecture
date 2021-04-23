@@ -308,7 +308,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (newCuboid.isEmpty())
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NonNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getDoorActionEventFactory()
+        final @NonNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                                                                       .createTogglePrepareEvent(this, cause, actionType,
                                                                                                 responsible, time,
                                                                                                 skipAnimation,
@@ -330,7 +330,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
-        BigDoors.get().getPlatform().callDoorEvent(BigDoors.get().getPlatform().getDoorActionEventFactory()
+        BigDoors.get().getPlatform().callDoorEvent(BigDoors.get().getPlatform().getBigDoorsEventFactory()
                                                            .createToggleStartEvent(this, cause, actionType, responsible,
                                                                                    time, skipAnimation,
                                                                                    newCuboid.get()));

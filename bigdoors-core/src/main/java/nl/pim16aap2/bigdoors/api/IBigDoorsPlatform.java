@@ -161,7 +161,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      *
      * @return The instance of the {@link IBigDoorsEventFactory} for this platform.
      */
-    @NonNull IBigDoorsEventFactory getDoorActionEventFactory();
+    @NonNull IBigDoorsEventFactory getBigDoorsEventFactory();
 
     /**
      * Calls a {@link IBigDoorsEvent}.

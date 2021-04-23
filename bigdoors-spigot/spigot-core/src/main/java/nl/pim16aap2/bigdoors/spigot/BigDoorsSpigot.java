@@ -154,7 +154,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final @NonNull IChunkManager chunkManager = ChunkManagerSpigot.get();
 
     @Getter
-    private final @NonNull IBigDoorsEventFactory doorActionEventFactory = new BigDoorsEventFactorySpigot();
+    private final @NonNull IBigDoorsEventFactory bigDoorsEventFactory = new BigDoorsEventFactorySpigot();
 
     @Getter
     private final @NonNull IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();

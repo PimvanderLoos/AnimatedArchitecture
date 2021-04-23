@@ -59,7 +59,7 @@ public class Lock extends DoorTargetCommand
     @Override
     protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
     {
-        val event = BigDoors.get().getPlatform().getDoorActionEventFactory()
+        val event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorPrepareLockChangeEvent(door, lock, getCommandSender().getPlayer().orElse(null));
         BigDoors.get().getPlatform().callDoorEvent(event);
 

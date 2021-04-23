@@ -166,7 +166,7 @@ public final class DatabaseManager extends Restartable
                     return;
 
                 final @NonNull IDoorCreatedEvent doorCreatedEvent =
-                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                    BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorCreatedEvent(result.second.get(), responsible);
                 BigDoors.get().getPlatform().callDoorEvent(doorCreatedEvent);
             });
@@ -491,7 +491,7 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                val event = factoryMethod.apply(BigDoors.get().getPlatform().getDoorActionEventFactory());
+                val event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
                 BigDoors.get().getPlatform().callDoorEvent(event);
                 return event.isCancelled();
             });
