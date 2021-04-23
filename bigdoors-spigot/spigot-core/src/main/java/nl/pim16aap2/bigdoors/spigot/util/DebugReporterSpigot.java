@@ -29,10 +29,9 @@ public class DebugReporterSpigot extends DebugReporter
     @Override
     public @NonNull String getDump()
     {
-        final StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder(super.getDump());
         sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append("\n");
         sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append("\n");
-        sb.append("Java version: ").append(System.getProperty("java.version")).append("\n");
 
         sb.append("Registered door types: ")
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
@@ -43,7 +42,7 @@ public class DebugReporterSpigot extends DebugReporter
           .append("\n");
 
         val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-        sb.append("Platform: Spigot (").append(platform == null ? "NULL" : platform.getClass().getName()).append(")\n");
+        sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append("\n");
 
         // TODO: Implement this:
 //        sb.append("Enabled protection hooks: ")
