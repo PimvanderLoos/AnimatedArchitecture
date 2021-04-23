@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initPlatform;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class StopDoorsTest
 {

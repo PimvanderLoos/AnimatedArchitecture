@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initPlatform;
 
 class ListDoorsTest
 {

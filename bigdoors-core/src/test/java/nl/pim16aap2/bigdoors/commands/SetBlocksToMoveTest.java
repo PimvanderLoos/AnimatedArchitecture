@@ -20,7 +20,9 @@ import org.mockito.MockitoAnnotations;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetriever;
 
 class SetBlocksToMoveTest
 {
@@ -77,7 +79,6 @@ class SetBlocksToMoveTest
         Mockito.verify((IBlocksToMoveArchetype) door).setBlocksToMove(blocksToMove);
         Mockito.verify(door).syncData();
     }
-
 
     @Test
     @SneakyThrows

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -28,7 +29,7 @@ class RemoveOwnerTest
 {
     @Mock
     private DoorRetriever doorRetriever;
-    
+
     @Mock
     private AbstractDoorBase door;
 
@@ -45,7 +46,7 @@ class RemoveOwnerTest
     @BeforeEach
     void beforeEach()
     {
-        platform = initPlatform();
+        platform = UnitTestUtil.initPlatform();
         door = Mockito.mock(AbstractDoorBase.class);
         doorRetriever = Mockito.mock(DoorRetriever.class);
 

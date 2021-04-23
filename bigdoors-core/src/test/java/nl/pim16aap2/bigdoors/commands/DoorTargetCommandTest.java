@@ -20,7 +20,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetriever;
 
 class DoorTargetCommandTest
 {
@@ -56,7 +58,6 @@ class DoorTargetCommandTest
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(true));
     }
-
 
     @Test
     @SneakyThrows

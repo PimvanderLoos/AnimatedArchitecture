@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -44,7 +45,7 @@ class BaseCommandTest
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        platform = UnitTestUtil.initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(baseCommand.getCommandSender()).thenReturn(commandSender);

@@ -17,8 +17,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initPlatform;
 
 class ConfirmTest
 {

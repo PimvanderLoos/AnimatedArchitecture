@@ -21,7 +21,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetriever;
 
 class MovePowerBlockTest
 {
@@ -51,7 +53,7 @@ class MovePowerBlockTest
         initCommandSenderPermissions(commandSender, true, true);
         initDoorRetriever(doorRetriever, door);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-        
+
         val messages = Mockito.mock(Messages.class);
         Mockito.when(messages.getString(Mockito.any())).thenReturn("A");
         Mockito.when(messages.getString(Mockito.any(), Mockito.any())).thenReturn("B");
