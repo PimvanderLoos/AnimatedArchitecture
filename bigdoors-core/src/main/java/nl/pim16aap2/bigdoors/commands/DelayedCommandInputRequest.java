@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.ToString;
@@ -27,6 +28,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
+@EqualsAndHashCode(callSuper = false)
 public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 {
     /**

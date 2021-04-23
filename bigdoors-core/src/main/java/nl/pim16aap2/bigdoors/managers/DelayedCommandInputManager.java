@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Represents a manager for outstanding {@link DelayedCommandInputRequest}s for {@link BaseCommand}.
+ * Represents a manager for outstanding {@link DelayedCommandInputRequest}s for {@link BaseCommand}s.
  *
  * @author Pim
  */
@@ -41,9 +41,9 @@ public class DelayedCommandInputManager
      * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
      * When nothing was registered and nothing was removed, this method will return false.
      */
-    public boolean deregisterAll(final @NonNull ICommandSender commandSender)
+    public void deregisterAll(final @NonNull ICommandSender commandSender)
     {
-        return requests.remove(commandSender) != null;
+        requests.remove(commandSender);
     }
 
     /**
@@ -71,15 +71,12 @@ public class DelayedCommandInputManager
      * @param delayedCommandInputRequest The {@link DelayedCommandInputRequest} instance to compare any registered
      *                                   requests to. If the reference of the registered request and this one are the
      *                                   same, it will be deregistered.
-     * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
-     * When false, nothing was registered and nothing was removed.
      */
-    public boolean deregister(final @NonNull ICommandSender commandSender,
-                              final @NonNull DelayedCommandInputRequest<?> delayedCommandInputRequest)
+    public void deregister(final @NonNull ICommandSender commandSender,
+                           final @NonNull DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
         requests.computeIfPresent(commandSender,
                                   (sender, request) -> request == delayedCommandInputRequest ? null : request);
-        return true;
     }
 
     /**
