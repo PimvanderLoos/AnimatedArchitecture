@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
-public interface IPPlayer extends IPPlayerDataContainer, IMessageable, ICommandSender
+public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
 {
     /**
      * Gets the current location of this player.
