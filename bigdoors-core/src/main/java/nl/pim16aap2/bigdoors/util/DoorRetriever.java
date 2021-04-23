@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -159,6 +160,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorNameRetriever extends DoorRetriever
     {
@@ -216,6 +218,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorUIDRetriever extends DoorRetriever
     {
@@ -241,6 +244,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorObjectRetriever extends DoorRetriever
     {

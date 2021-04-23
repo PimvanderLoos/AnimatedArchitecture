@@ -63,6 +63,7 @@ class DoorTargetCommandTest
     {
         Assertions.assertTrue(doorTargetCommand.executeCommand(new BooleanPair(true, true))
                                                .get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorTargetCommand).performAction(Mockito.any());
     }
 
     @Test
@@ -82,8 +83,9 @@ class DoorTargetCommandTest
     {
         Mockito.when(doorTargetCommand.isAllowed(Mockito.any(), Mockito.anyBoolean())).thenReturn(false);
 
-        Assertions.assertFalse(doorTargetCommand.executeCommand(new BooleanPair(true, true))
-                                                .get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(doorTargetCommand.executeCommand(new BooleanPair(true, true))
+                                               .get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorTargetCommand, Mockito.never()).performAction(Mockito.any());
     }
 
     @Test

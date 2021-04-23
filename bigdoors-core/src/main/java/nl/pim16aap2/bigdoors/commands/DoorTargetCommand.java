@@ -2,12 +2,14 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Represents a command that relates to an existing door.
@@ -31,13 +33,32 @@ public abstract class DoorTargetCommand extends BaseCommand
         final CompletableFuture<Boolean> ret = new CompletableFuture<>();
 
         getDoor(getDoorRetriever())
-            .thenApply(door ->
-                       {
-                           if (door.isEmpty() || !isAllowed(door.get(), permissions.second))
-                               ret.complete(false);
-                           return door.orElse(null);
-                       })
-            .thenCompose(this::performAction)
+            .thenApplyAsync(
+                door ->
+                {
+                    if (door.isEmpty())
+                    {
+                        BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+                            "Failed to find door " + getDoorRetriever() + " for command: " + this);
+
+                        // TODO: Localization
+                        getCommandSender().sendMessage("Failed to find the specified door!");
+                        ret.complete(false);
+                        return null;
+                    }
+                    if (!isAllowed(door.get(), permissions.second))
+                    {
+                        BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+                            getCommandSender() + " does not have access to door " + door + " for command " + this);
+
+                        // TODO: Localization
+                        getCommandSender().sendMessage("You do not have access to this action for this door!");
+                        ret.complete(true);
+                        return null;
+                    }
+                    return door.get();
+                })
+            .thenComposeAsync(this::performAction)
             .thenAccept(ret::complete)
             .exceptionally(t -> Util.exceptionallyCompletion(t, null, ret));
         return ret;
