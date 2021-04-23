@@ -20,12 +20,11 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
-import org.bukkit.plugin.java.JavaPlugin;
 
 @AllArgsConstructor
 public class DebugReporterSpigot extends DebugReporter
 {
-    private final @NonNull JavaPlugin plugin;
+    private final @NonNull BigDoorsSpigot plugin;
 
     @Override
     public @NonNull String getDump()
@@ -42,6 +41,9 @@ public class DebugReporterSpigot extends DebugReporter
         sb.append("Enabled door types:    ")
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
           .append("\n");
+
+        val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
+        sb.append("Platform: Spigot (").append(platform == null ? "NULL" : platform.getClass().getName()).append(")\n");
 
         // TODO: Implement this:
 //        sb.append("Enabled protection hooks: ")
