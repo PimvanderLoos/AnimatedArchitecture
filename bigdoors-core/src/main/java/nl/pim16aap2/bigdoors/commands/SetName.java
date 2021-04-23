@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
@@ -59,7 +58,7 @@ public class SetName extends BaseCommand
     {
         if (Util.isValidDoorName(name))
             return true;
-        
+
         // TODO: Localization
         getCommandSender().sendMessage("The name \"" + name + "\" is not valid! Please select a different name");
         return false;

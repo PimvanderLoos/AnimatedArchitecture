@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;

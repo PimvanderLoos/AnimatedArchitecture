@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
@@ -281,4 +282,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      * @return The {@link DelayedCommandInputManager} registered by the platform.
      */
     @NonNull DelayedCommandInputManager getDelayedCommandInputManager();
+
+    /**
+     * Gets the {@link IPServer} instance.
+     *
+     * @return The {@link IPServer} instance.
+     */
+    @NonNull IPServer getPServer();
 }

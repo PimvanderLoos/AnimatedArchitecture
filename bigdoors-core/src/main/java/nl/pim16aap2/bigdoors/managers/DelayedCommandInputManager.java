@@ -2,9 +2,9 @@ package nl.pim16aap2.bigdoors.managers;
 
 import lombok.NonNull;
 import lombok.val;
-import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;

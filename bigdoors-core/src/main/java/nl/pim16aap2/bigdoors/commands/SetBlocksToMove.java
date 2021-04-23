@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
 import nl.pim16aap2.bigdoors.util.Constants;

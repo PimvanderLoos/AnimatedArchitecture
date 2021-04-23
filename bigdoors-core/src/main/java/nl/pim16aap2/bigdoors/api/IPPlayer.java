@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;

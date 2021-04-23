@@ -4,7 +4,6 @@ import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.ICommandSender;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;

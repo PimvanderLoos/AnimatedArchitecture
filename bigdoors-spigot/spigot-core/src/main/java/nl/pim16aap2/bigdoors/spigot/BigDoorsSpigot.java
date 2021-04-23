@@ -24,6 +24,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -68,6 +69,7 @@ import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ChunkManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.MessageableServerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PServer;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -129,6 +131,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private UpdateManager updateManager;
 
     private boolean successfulInit = true;
+
+    @Getter
+    private final @NonNull IPServer pServer = new PServer(this);
 
     @Getter
     private final @NonNull IPLocationFactory pLocationFactory = new PLocationFactorySpigot();

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
@@ -148,6 +149,16 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DoorTypeManager getDoorTypeManager()
     {
         return getPlatform().getDoorTypeManager();
+    }
+
+    /**
+     * Gets the {@link IPServer} instance.
+     *
+     * @return The {@link IPServer} instance.
+     */
+    public @NonNull IPServer getPServer()
+    {
+        return getPlatform().getPServer();
     }
 
     /**

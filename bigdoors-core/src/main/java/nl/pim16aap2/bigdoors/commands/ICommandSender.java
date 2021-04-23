@@ -1,7 +1,8 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.commands;
 
 import lombok.NonNull;
-import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.api.IMessageable;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
