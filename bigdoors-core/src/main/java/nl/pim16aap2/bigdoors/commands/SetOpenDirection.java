@@ -70,6 +70,7 @@ public class SetOpenDirection extends DoorTargetCommand
             return CompletableFuture.completedFuture(true);
         }
 
+        System.out.println("Setting open dir now!");
         return door.setOpenDir(rotateDirection).syncData().thenApply(x -> true);
     }
 
