@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
@@ -21,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initPlatform;
 
-class CancelTest
+class ConfirmTest
 {
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -30,33 +29,47 @@ class CancelTest
     private ToolUser toolUser;
 
     @Mock
-    private DoorSpecificationManager doorSpecificationManager;
+    private ToolUserManager toolUserManager;
+
+    private UUID uuid;
 
     @BeforeEach
     void init()
     {
         val platform = initPlatform();
-        val uuid = UUID.randomUUID();
+        uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
 
-        val toolUserManager = Mockito.mock(ToolUserManager.class);
         Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
-        Mockito.when(platform.getDoorSpecificationManager()).thenReturn(doorSpecificationManager);
-
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+    }
+
+    @Test
+    @SneakyThrows
+    void testServer()
+    {
+        Assertions.assertTrue(Confirm.run(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS))
+                                     .get(1, TimeUnit.SECONDS));
+        Mockito.verify(toolUserManager, Mockito.never()).getToolUser(Mockito.any(UUID.class));
     }
 
     @Test
     @SneakyThrows
     void test()
     {
-        Assertions.assertTrue(Cancel.run(commandSender).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(Confirm.run(commandSender).get(1, TimeUnit.SECONDS));
+        Mockito.verify(toolUserManager).getToolUser(uuid);
+        Mockito.verify(toolUser).handleInput(true);
+        Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
 
-        Mockito.verify(toolUser).shutdown();
-        Mockito.verify(doorSpecificationManager).cancelRequest(commandSender);
+        Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
+        Assertions.assertTrue(Confirm.run(commandSender).get(1, TimeUnit.SECONDS));
+        Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
+        Mockito.verify(toolUser).handleInput(true);
+        Mockito.verify(commandSender).sendMessage(Mockito.any());
     }
 }
