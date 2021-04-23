@@ -5,6 +5,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,22 @@ class SetNameTest
         Assertions.assertTrue(SetName.run(commandSender, name).get(1, TimeUnit.SECONDS));
 
         Mockito.verify(toolUser).handleInput(name);
+    }
+
+    @Test
+    @SneakyThrows
+    void testIncorrectToolUser()
+    {
+        val uuid = UUID.randomUUID();
+        val name = "newDoor";
+
+        val toolUser = Mockito.mock(ToolUser.class);
+        Mockito.when(commandSender.getUUID()).thenReturn(uuid);
+        Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+
+        Assertions.assertTrue(SetName.run(commandSender, name).get(1, TimeUnit.SECONDS));
+
+        Mockito.verify(toolUser, Mockito.never()).handleInput(name);
     }
 
     @Test
