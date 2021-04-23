@@ -22,7 +22,7 @@ public class MovePowerBlock extends DoorTargetCommand
 {
     protected MovePowerBlock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
     }
 
     /**
@@ -49,12 +49,6 @@ public class MovePowerBlock extends DoorTargetCommand
     protected boolean availableForNonPlayers()
     {
         return false;
-    }
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.RELOCATE_POWERBLOCK, bypassPermission);
     }
 
     @Override

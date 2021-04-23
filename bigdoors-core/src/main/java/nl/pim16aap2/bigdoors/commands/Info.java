@@ -20,7 +20,7 @@ public class Info extends DoorTargetCommand
 {
     protected Info(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.INFO);
     }
 
     /**
@@ -42,13 +42,6 @@ public class Info extends DoorTargetCommand
     public @NonNull CommandDefinition getCommand()
     {
         return CommandDefinition.INFO;
-    }
-
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.INFO, bypassPermission);
     }
 
     @Override

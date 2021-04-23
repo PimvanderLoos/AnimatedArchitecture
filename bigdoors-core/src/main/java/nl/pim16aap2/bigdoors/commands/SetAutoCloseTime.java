@@ -27,7 +27,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
     protected SetAutoCloseTime(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
                                final int autoCloseTime)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
     }
 
@@ -51,12 +51,6 @@ public class SetAutoCloseTime extends DoorTargetCommand
     public @NonNull CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
-    }
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.AUTO_CLOSE_TIMER, bypassPermission);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class SetBlocksToMove extends DoorTargetCommand
     protected SetBlocksToMove(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
                               final int blocksToMove)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -52,12 +52,6 @@ public class SetBlocksToMove extends DoorTargetCommand
     public @NonNull CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
-    }
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.BLOCKS_TO_MOVE, bypassPermission);
     }
 
     @Override

@@ -46,7 +46,7 @@ public class AddOwner extends DoorTargetCommand
     AddOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
              final @NonNull IPPlayer targetPlayer, final int targetPermissionLevel)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
     }

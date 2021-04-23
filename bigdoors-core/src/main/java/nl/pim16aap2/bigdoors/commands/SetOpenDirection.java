@@ -27,7 +27,7 @@ public class SetOpenDirection extends DoorTargetCommand
     protected SetOpenDirection(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
                                final @NonNull RotateDirection rotateDirection)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.OPEN_DIRECTION);
         this.rotateDirection = rotateDirection;
     }
 
@@ -51,12 +51,6 @@ public class SetOpenDirection extends DoorTargetCommand
     public @NonNull CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
-    }
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.OPEN_DIRECTION, bypassPermission);
     }
 
     @Override

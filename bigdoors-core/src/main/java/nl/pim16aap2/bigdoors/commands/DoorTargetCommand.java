@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -23,10 +24,14 @@ public abstract class DoorTargetCommand extends BaseCommand
     @Getter
     protected final @NonNull DoorRetriever doorRetriever;
 
-    protected DoorTargetCommand(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    private final @NonNull DoorAttribute doorAttribute;
+
+    protected DoorTargetCommand(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+                                final @NonNull DoorAttribute doorAttribute)
     {
         super(commandSender);
         this.doorRetriever = doorRetriever;
+        this.doorAttribute = doorAttribute;
     }
 
     @Override
@@ -85,7 +90,12 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param bypassPermission Whether or not the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected abstract boolean isAllowed(@NonNull AbstractDoorBase door, boolean bypassPermission);
+    protected boolean isAllowed(final AbstractDoorBase door, final boolean bypassPermission)
+    {
+        if (door == null)
+            return false;
+        return hasAccessToAttribute(door, doorAttribute, bypassPermission);
+    }
 
     /**
      * Performs the action of this command on the {@link AbstractDoorBase}.
@@ -93,5 +103,5 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param door The {@link AbstractDoorBase} to perform the action on.
      * @return True if everything was successful.
      */
-    protected abstract @NonNull CompletableFuture<Boolean> performAction(@NonNull AbstractDoorBase door);
+    protected abstract @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door);
 }

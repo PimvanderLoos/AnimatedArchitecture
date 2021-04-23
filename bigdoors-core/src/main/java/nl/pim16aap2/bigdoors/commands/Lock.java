@@ -24,7 +24,7 @@ public class Lock extends DoorTargetCommand
     protected Lock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
                    final boolean lock)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.LOCK);
         this.lock = lock;
     }
 
@@ -48,12 +48,6 @@ public class Lock extends DoorTargetCommand
     public @NonNull CommandDefinition getCommand()
     {
         return CommandDefinition.LOCK;
-    }
-
-    @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
-    {
-        return hasAccessToAttribute(door, DoorAttribute.LOCK, bypassPermission);
     }
 
     @Override

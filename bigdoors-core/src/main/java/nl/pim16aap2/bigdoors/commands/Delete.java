@@ -19,7 +19,7 @@ public class Delete extends DoorTargetCommand
 {
     protected Delete(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.DELETE);
     }
 
     /**

@@ -29,7 +29,7 @@ public class RemoveOwner extends DoorTargetCommand
     protected RemoveOwner(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
                           final @NonNull IPPlayer targetPlayer)
     {
-        super(commandSender, doorRetriever);
+        super(commandSender, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
     }
 
