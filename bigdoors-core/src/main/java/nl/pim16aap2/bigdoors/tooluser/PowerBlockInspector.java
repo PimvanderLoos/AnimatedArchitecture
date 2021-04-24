@@ -11,11 +11,29 @@ import nl.pim16aap2.bigdoors.util.messages.Message;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents a type of {@link ToolUser} that tries to find powerblocks based on the locations provided by the user.
+ *
+ * @author Pim
+ */
 public class PowerBlockInspector extends ToolUser
 {
-    protected PowerBlockInspector(final @NonNull IPPlayer player)
+    /**
+     * Whether or not this user has the bypass permission.
+     * <p>
+     * When this is true, the user does not have to be an owner of the door to retrieve its location.
+     */
+    private final boolean bypassPermission;
+
+    public PowerBlockInspector(final @NonNull IPPlayer player, final boolean bypassPermission)
     {
         super(player);
+        this.bypassPermission = bypassPermission;
+    }
+
+    public PowerBlockInspector(final @NonNull IPPlayer player)
+    {
+        this(player, false);
     }
 
     @Override
@@ -27,9 +45,7 @@ public class PowerBlockInspector extends ToolUser
 
     protected boolean inspectLoc(final @NonNull IPLocationConst loc)
     {
-        // TODO: Implement this.
-        // Just return true, otherwise it gets very spammy.
-        return true;
+        throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
 
     @Override

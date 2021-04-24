@@ -360,30 +360,6 @@ public final class SpigotUtil
     }
 
     /**
-     * Send a number message to a player.
-     *
-     * @param player The player that will receive the message
-     * @param msg    The messages
-     */
-    public static void messagePlayer(final @NonNull Player player, final @NonNull String[] msg)
-    {
-        messagePlayer(player, Util.stringFromArray(msg));
-    }
-
-    /**
-     * Send a number of messages to a player.
-     *
-     * @param player The player that will receive the message
-     * @param color  The color of the message
-     * @param msg    The messages
-     */
-    public static void messagePlayer(final @NonNull Player player, final @NonNull ChatColor color,
-                                     final @NonNull String[] msg)
-    {
-        messagePlayer(player, color, Util.stringFromArray(msg));
-    }
-
-    /**
      * Check if a block if air or liquid (water, lava).
      *
      * @param block The block to be checked.

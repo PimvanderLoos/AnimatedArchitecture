@@ -19,7 +19,7 @@ public final class DoorTypeElevator extends DoorType
 
     private DoorTypeElevator()
     {
-        super(Constants.PLUGINNAME, "Elevator", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "Elevator", TYPE_VERSION,
               Arrays.asList(RotateDirection.UP, RotateDirection.DOWN));
     }
 

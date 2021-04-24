@@ -22,7 +22,7 @@ import java.util.List;
 public class CreatorGarageDoor extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeGarageDoor.get();
+    private final @NonNull DoorType doorType = DoorTypeGarageDoor.get();
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.

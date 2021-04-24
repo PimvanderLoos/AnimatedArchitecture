@@ -7,12 +7,16 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -24,7 +28,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import java.io.File;
 import java.util.Optional;
 
-public interface IBigDoorsPlatform extends IRestartableHolder
+public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
 {
     /**
      * Gets the directory where all data will stored.
@@ -157,7 +161,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      *
      * @return The instance of the {@link IBigDoorsEventFactory} for this platform.
      */
-    @NonNull IBigDoorsEventFactory getDoorActionEventFactory();
+    @NonNull IBigDoorsEventFactory getBigDoorsEventFactory();
 
     /**
      * Calls a {@link IBigDoorsEvent}.
@@ -257,4 +261,32 @@ public interface IBigDoorsPlatform extends IRestartableHolder
      * @return The {@link DoorOpener}.
      */
     @NonNull DoorOpener getDoorOpener();
+
+    /**
+     * Gets the {@link DebugReporter}.
+     *
+     * @return The {@link DebugReporter}.
+     */
+    @NonNull DebugReporter getDebugReporter();
+
+    /**
+     * Gets the build id of BigDoors that is currently running.
+     *
+     * @return The build id of BigDoors that is currently running.
+     */
+    @NonNull String getVersion();
+
+    /**
+     * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
+     *
+     * @return The {@link DelayedCommandInputManager} registered by the platform.
+     */
+    @NonNull DelayedCommandInputManager getDelayedCommandInputManager();
+
+    /**
+     * Gets the {@link IPServer} instance.
+     *
+     * @return The {@link IPServer} instance.
+     */
+    @NonNull IPServer getPServer();
 }

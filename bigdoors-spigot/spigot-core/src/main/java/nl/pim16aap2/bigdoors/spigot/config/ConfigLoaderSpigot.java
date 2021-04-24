@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.config;
 
 import com.google.common.base.Preconditions;
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
@@ -38,20 +39,22 @@ import java.util.Set;
  *
  * @author Pim
  */
+@ToString
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
     private static @Nullable ConfigLoaderSpigot INSTANCE;
-
     private final @NonNull BigDoorsSpigot plugin;
+    @ToString.Exclude
     private final @NonNull IPLogger logger;
 
     private static final List<String> DEFAULTPOWERBLOCK = Collections
         .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
     private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
-    private final Set<Material> powerBlockTypesMap;
+    private final Set<Material> powerBlockTypes;
     private final @NonNull Set<Material> materialBlacklist;
     private final @NonNull Map<ProtectionCompat, Boolean> hooksMap;
+    @ToString.Exclude
     private final @NonNull List<ConfigEntry<?>> configEntries;
     private final @NonNull Map<DoorType, String> doorPrices;
     private final @NonNull Map<DoorType, Double> doorMultipliers;
@@ -86,7 +89,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         this.plugin = plugin;
         this.logger = logger;
         configEntries = new ArrayList<>();
-        powerBlockTypesMap = EnumSet.noneOf(Material.class);
+        powerBlockTypes = EnumSet.noneOf(Material.class);
         materialBlacklist = EnumSet.noneOf(Material.class);
         hooksMap = new EnumMap<>(ProtectionCompat.class);
         doorPrices = new HashMap<>();
@@ -139,7 +142,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     {
         plugin.reloadConfig();
         configEntries.clear();
-        powerBlockTypesMap.clear();
+        powerBlockTypes.clear();
         doorPrices.clear();
         doorMultipliers.clear();
         makeConfig();
@@ -244,7 +247,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
         addNewConfigEntry(config, "powerBlockTypes", DEFAULTPOWERBLOCK, powerBlockTypeComment,
-                          new MaterialVerifier(powerBlockTypesMap));
+                          new MaterialVerifier(powerBlockTypes));
         addNewConfigEntry(config, "materialBlacklist", DEFAULTBLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
@@ -318,7 +321,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private void printInfo()
     {
         logger.info("Power Block Types:");
-        powerBlockTypesMap.forEach(mat -> logger.info(" - " + mat.toString()));
+        powerBlockTypes.forEach(mat -> logger.info(" - " + mat.toString()));
 
         if (materialBlacklist.isEmpty())
             logger.info("No materials are blacklisted!");
@@ -524,7 +527,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
     public @NonNull Set<Material> powerBlockTypes()
     {
-        return powerBlockTypesMap;
+        return powerBlockTypes;
     }
 
     /**

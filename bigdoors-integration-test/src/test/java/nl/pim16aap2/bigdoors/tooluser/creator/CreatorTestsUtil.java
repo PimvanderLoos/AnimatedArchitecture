@@ -30,16 +30,12 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 import java.io.File;
@@ -48,9 +44,8 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class CreatorTestsUtil
 {
     protected static final TestPPlayer PLAYER =
@@ -95,6 +90,7 @@ public class CreatorTestsUtil
         BigDoors.get().setBigDoorsPlatform(platform);
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
+        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
         Messages messages = new Messages(platform, new File("src/test/resources"),
                                          "en_US_TEST", BigDoors.get().getPLogger());
 
@@ -154,17 +150,18 @@ public class CreatorTestsUtil
     public void testCreation(final @NonNull Creator creator, @NonNull AbstractDoorBase actualDoor,
                              final @NonNull Object... input)
     {
+        BigDoors.get().getPLogger().setConsoleLogLevel(Level.OFF);
         setEconomyEnabled(false);
 
-        int idx = 0;
-        for (Object obj : input)
+        for (int idx = 0; idx < input.length; ++idx)
         {
+            val obj = input[idx];
             val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),
-                                  String.format("IDX: %d, Input: %s, Step: %s Error Message: %s",
-                                                (idx++), obj, stepName, PLAYER.getBeforeLastMessage()));
+                                  String.format("IDX: %d, Input: %s, Step: %s, Error Message: %s",
+                                                idx, obj, stepName, PLAYER.getBeforeLastMessage()));
         }
 
         Mockito.verify(databaseManager).addDoorBase(doorInsertCaptor.capture());
@@ -172,5 +169,4 @@ public class CreatorTestsUtil
         Assertions.assertNotNull(resultDoor);
         Assertions.assertEquals(actualDoor, resultDoor);
     }
-
 }

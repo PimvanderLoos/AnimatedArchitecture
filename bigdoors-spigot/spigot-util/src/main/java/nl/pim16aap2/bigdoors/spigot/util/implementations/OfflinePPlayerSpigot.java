@@ -6,11 +6,14 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -42,6 +45,18 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     @Deprecated
     public void sendMessage(final @NonNull Level level, final @NonNull String message)
     {
+    }
+
+    @Override
+    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission)
+    {
+        return CompletableFuture.completedFuture(isOp());
+    }
+
+    @Override
+    public @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
+    {
+        return CompletableFuture.completedFuture(new BooleanPair(isOp(), isOp()));
     }
 
     /**

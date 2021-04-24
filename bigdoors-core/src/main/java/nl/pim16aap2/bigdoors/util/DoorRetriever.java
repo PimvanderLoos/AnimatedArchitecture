@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -109,7 +110,8 @@ public abstract class DoorRetriever
     }
 
     /**
-     * Gets all doors referenced by this {@link DoorRetriever} owned by the provided player.
+     * Gets all doors referenced by this {@link DoorRetriever} where the provided player is a (co)owner of with any
+     * permission level.
      *
      * @param player The {@link IPPlayer} that owns all matching doors.
      * @return All doors referenced by this {@link DoorRetriever}.
@@ -158,6 +160,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorNameRetriever extends DoorRetriever
     {
@@ -192,13 +195,15 @@ public abstract class DoorRetriever
         @Override
         public @NonNull CompletableFuture<Optional<AbstractDoorBase>> getDoorInteractive(final @NonNull IPPlayer player)
         {
-            return getDoors(player).<Optional<AbstractDoorBase>>thenApplyAsync(
+            return getDoors(player).thenCompose(
                 doorList ->
                 {
                     if (doorList.size() == 1)
-                        return Optional.of(doorList.get(0));
+                        return CompletableFuture.completedFuture(Optional.of(doorList.get(0)));
+
                     if (doorList.isEmpty())
-                        return Optional.empty();
+                        return CompletableFuture.completedFuture(Optional.empty());
+
                     return DelayedDoorSpecificationInputRequest
                         .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
                              doorList, player);
@@ -213,6 +218,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorUIDRetriever extends DoorRetriever
     {
@@ -238,6 +244,7 @@ public abstract class DoorRetriever
      *
      * @author Pim
      */
+    @ToString
     @AllArgsConstructor
     private static class DoorObjectRetriever extends DoorRetriever
     {

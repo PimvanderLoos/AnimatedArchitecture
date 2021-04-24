@@ -1,8 +1,11 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -120,6 +123,30 @@ public interface IGlowingBlockSpawner
                                                                @NonNull IPLocationConst location)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, location.getX(), location.getY(), location.getZ());
+    }
+
+    /**
+     * Spawns the glowing blocks required to highlight a door.
+     *
+     * @param doorBase The door to highlight.
+     * @param player   The {@link IPPlayer} for whom to highlight the door.
+     * @return The list of {@link IGlowingBlock}s that were spawned.
+     */
+    default @NonNull List<IGlowingBlock> spawnGlowingBlocks(@NonNull AbstractDoorBase doorBase,
+                                                            @NonNull IPPlayer player)
+    {
+        List<IGlowingBlock> ret = new ArrayList<>(4);
+        IPWorld world = doorBase.getWorld();
+
+        spawnGlowingBlock(player, world, 15, doorBase.getPowerBlock().getX(), doorBase.getPowerBlock().getY(),
+                          doorBase.getPowerBlock().getZ(), PColor.GOLD);
+        spawnGlowingBlock(player, world, 15, doorBase.getEngine().getX(), doorBase.getEngine().getY(),
+                          doorBase.getEngine().getZ(), PColor.DARK_PURPLE);
+        spawnGlowingBlock(player, world, 15, doorBase.getMinimum().getX(), doorBase.getMinimum().getY(),
+                          doorBase.getMinimum().getZ(), PColor.BLUE);
+        spawnGlowingBlock(player, world, 15, doorBase.getMaximum().getX(), doorBase.getMaximum().getY(),
+                          doorBase.getMaximum().getZ(), PColor.RED);
+        return ret;
     }
 
     /**

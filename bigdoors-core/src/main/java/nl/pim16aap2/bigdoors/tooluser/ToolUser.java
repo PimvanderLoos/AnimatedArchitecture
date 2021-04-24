@@ -152,12 +152,22 @@ public abstract class ToolUser implements IRestartable
 
     /**
      * Prepares the next step. For example by sending the player some instructions about what they should do.
+     * <p>
+     * This should be used after proceeding to the next step.
      */
     protected void prepareCurrentStep()
     {
         sendMessage();
+
         if (!procedure.waitForUserInput())
-            procedure.applyStepExecutor(null);
+        {
+            final boolean stepResult = procedure.applyStepExecutor(null);
+            if (stepResult && procedure.implicitNextStep())
+            {
+                procedure.goToNextStep();
+                prepareCurrentStep();
+            }
+        }
     }
 
     /**
@@ -180,8 +190,7 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean handleInput(final @NonNull Object obj)
     {
-        BigDoors.get().getPLogger()
-                .debug("Handling input: " + obj.toString() + " for step: " + procedure.getCurrentStepName());
+        BigDoors.get().getPLogger().debug("Handling input: " + obj + " for step: " + procedure.getCurrentStepName());
         BigDoors.get().getPLogger().debug("Class of input object: " + obj.getClass().getSimpleName());
 
         if (!active)
@@ -192,8 +201,13 @@ public abstract class ToolUser implements IRestartable
             if (procedure.applyStepExecutor(obj))
             {
                 // The process may have been cancelled, so check to make sure.
-                if (active)
-                    prepareCurrentStep();
+                if (!active)
+                    return true;
+
+                if (procedure.implicitNextStep())
+                    procedure.goToNextStep();
+
+                prepareCurrentStep();
                 return true;
             }
             // Repeat the instruction for the current step if the input was incorrect.

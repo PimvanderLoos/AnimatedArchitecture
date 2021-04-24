@@ -1,10 +1,18 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Represents a request for delayed input. E.g. by waiting for user input.
@@ -13,112 +21,119 @@ import java.util.Optional;
  */
 public abstract class DelayedInputRequest<T>
 {
-    /**
-     * Object used for waiting/notifying.
-     */
-    private final Object guard = new Object();
+    private final @NonNull AtomicBoolean timedOut = new AtomicBoolean(false);
+    private final @NonNull AtomicBoolean exceptionally = new AtomicBoolean(false);
 
     /**
-     * Gets the current {@link Status} of the request.
+     * The result of this input request.
      */
-    @Getter
-    private volatile Status status = Status.INACTIVE;
+    @Getter(AccessLevel.PROTECTED)
+    private final @NonNull CompletableFuture<Optional<T>> inputResult;
 
     /**
-     * The input that may be received in the future.
+     * The completable future that waits for the delayed input.
      */
-    private @Nullable T value = null;
+    private final @NonNull CompletableFuture<T> input = new CompletableFuture<>();
 
     /**
-     * The amount of time (in ms) to wait for input.
+     * Instantiates a new {@link DelayedInputRequest}.
+     *
+     * @param timeout  The timeout to wait before giving up. Must be larger than 0.
+     * @param timeUnit The unit of time.
      */
-    protected final long timeout;
+    protected DelayedInputRequest(final long timeout, final @NonNull TimeUnit timeUnit)
+    {
+        final long timeoutMillis = timeUnit.toMillis(timeout);
+        if (timeoutMillis < 1)
+            throw new RuntimeException("Timeout must be larger than 0!");
+        inputResult = waitForResult(timeoutMillis);
+    }
 
     /**
-     * Instantiates a new {@link DelayedInputRequest}. The request itself is not placed until {@link #waitForInput()} is
-     * called.
+     * Instantiates a new {@link DelayedInputRequest}.
+     *
+     * @param timeout The amount of time to wait before cancelling the request.
+     */
+    public DelayedInputRequest(final @NonNull Duration timeout)
+    {
+        this(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Instantiates a new {@link DelayedInputRequest}.
      *
      * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
-    protected DelayedInputRequest(final long timeout)
-        throws Exception
+    public DelayedInputRequest(final long timeout)
     {
-        if (timeout < 1)
-            throw new Exception("Timeout must be larger than 0!");
-        this.timeout = timeout;
+        this(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    private @NonNull CompletableFuture<Optional<T>> waitForResult(final long timeout)
+    {
+        return CompletableFuture
+            .supplyAsync(
+                () ->
+                {
+                    try
+                    {
+                        return Optional.ofNullable(input.get(timeout, TimeUnit.MILLISECONDS));
+                    }
+                    catch (TimeoutException e)
+                    {
+                        timedOut.set(true);
+                        return Optional.<T>empty();
+                    }
+                    catch (CancellationException e)
+                    {
+                        return Optional.<T>empty();
+                    }
+                    catch (Throwable t)
+                    {
+                        exceptionally.set(true);
+                        throw new RuntimeException(t);
+                    }
+                })
+            .thenApply(
+                result ->
+                {
+                    cleanup();
+                    return result;
+                })
+            .exceptionally(
+                ex ->
+                {
+                    BigDoors.get().getPLogger().logThrowable(ex);
+                    exceptionally.set(true);
+                    return Optional.empty();
+                });
     }
 
     /**
-     * Initializes the request (see {@link #init()}) and waits until either {@link #timeout} is reached or input is
-     * received.
+     * Cancels the request if it is still waiting for input.
      * <p>
-     * Note that this will block the current thread until either one of the exit conditions is met.
+     * Calling this method after the request has already completed has not effect.
      * <p>
-     * Calling this method more than once for the same {@link DelayedInputRequest} instance is not allowed and will
-     * throw an {@link Exception}.
-     *
-     * @return The value that was received. If no value was received or if the value was null, an empty optional is
-     * returned instead.
+     * See {@link #completed()}.
      */
-    protected final @NonNull Optional<T> waitForInput()
-        throws Exception
+    public synchronized final void cancel()
     {
-        synchronized (guard)
-        {
-            if (status != Status.INACTIVE)
-                throw new IllegalStateException(
-                    "Trying to initialize delayed input request while it has status: " + status.name());
-
-            init();
-
-            status = Status.WAITING;
-            guard.wait(timeout);
-
-            if (status != Status.COMPLETED && status != Status.CANCELLED)
-                status = Status.TIMED_OUT;
-
-            cleanup();
-
-            return Optional.ofNullable(value);
-        }
-    }
-
-    /**
-     * Cancels the request.
-     */
-    public final void cancel()
-    {
-        synchronized (guard)
-        {
-            if (status == Status.WAITING)
-            {
-                value = null;
-                guard.notify();
-                status = Status.CANCELLED;
-                cleanup();
-            }
-        }
+        inputResult.cancel(true);
     }
 
     /**
      * Provides the value that this object is waiting for.
+     * <p>
+     * Calling this method after the request has already completed has not effect.
+     * <p>
+     * See {@link #completed()}.
      *
      * @param value The new value.
      */
-    public final void set(final @Nullable T value)
+    public synchronized final void set(final @Nullable T value)
     {
-        synchronized (guard)
-        {
-            this.value = value;
-            guard.notify();
-            status = Status.COMPLETED;
-        }
+        input.complete(value);
     }
-
-    /**
-     * Initializes a process that may result in providing input to fulfill this request.
-     */
-    protected abstract void init();
 
     /**
      * Runs after the request has closed. Either because input was provided or because the request timed out.
@@ -130,15 +145,76 @@ public abstract class DelayedInputRequest<T>
     }
 
     /**
+     * Checks if the input request was cancelled.
+     *
+     * @return True if the input request was cancelled.
+     */
+    public boolean cancelled()
+    {
+        return inputResult.isCancelled();
+    }
+
+    /**
+     * Checks if the input request was completed. This includes via timing out / cancellation / exception / success.
+     *
+     * @return True if the input request was completed.
+     */
+    public boolean completed()
+    {
+        return inputResult.isDone();
+    }
+
+    /**
+     * Check if the request timed out while waiting for input.
+     *
+     * @return True if the request timed out.
+     */
+    public boolean timedOut()
+    {
+        return timedOut.get();
+    }
+
+    /**
+     * Checks if the request was completed with an exception.
+     *
+     * @return True  if the request was completed with an exception.
+     */
+    public boolean exceptionally()
+    {
+        return exceptionally.get();
+    }
+
+    /**
+     * Checks if the request was fulfilled successfully.
+     *
+     * @return True if the request was completed successfully.
+     */
+    public boolean success()
+    {
+        return completed() && !cancelled() && !timedOut() && !exceptionally();
+    }
+
+    /**
+     * Gets the current status of this request.
+     *
+     * @return The current status of this request.
+     */
+    public synchronized @NonNull Status getStatus()
+    {
+        if (cancelled())
+            return Status.CANCELLED;
+        if (timedOut())
+            return Status.TIMED_OUT;
+        if (exceptionally())
+            return Status.EXCEPTION;
+        return completed() ? Status.COMPLETED : Status.WAITING;
+    }
+
+    /**
      * Represents the various different stages of a request.
      */
     public enum Status
     {
-        /**
-         * The request has not been made yet.
-         */
-        INACTIVE,
-
         /**
          * The request is waiting for input.
          */
@@ -157,6 +233,11 @@ public abstract class DelayedInputRequest<T>
         /**
          * The request was cancelled.
          */
-        CANCELLED
+        CANCELLED,
+
+        /**
+         * An exception occurred while trying to complete the request.
+         */
+        EXCEPTION
     }
 }

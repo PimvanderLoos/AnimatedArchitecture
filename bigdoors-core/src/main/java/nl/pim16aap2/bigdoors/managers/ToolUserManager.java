@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.pair.Pair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -29,7 +29,7 @@ public final class ToolUserManager extends Restartable
     public void registerToolUser(final @NonNull ToolUser toolUser)
     {
         final @Nullable Pair<ToolUser, TimerTask> result =
-            toolUsers.putIfAbsent(toolUser.getPlayer().getUUID(), new Pair<>(toolUser, null));
+            toolUsers.put(toolUser.getPlayer().getUUID(), new Pair<>(toolUser, null));
 
         if (result != null)
         {

@@ -18,7 +18,7 @@ import java.util.List;
 public class CreatorElevator extends CreatorPortcullis
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeElevator.get();
+    private final @NonNull DoorType doorType = DoorTypeElevator.get();
 
     public CreatorElevator(final @NonNull IPPlayer player, final @Nullable String name)
     {

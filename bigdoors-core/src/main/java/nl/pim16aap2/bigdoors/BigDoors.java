@@ -1,14 +1,18 @@
 package nl.pim16aap2.bigdoors;
 
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
+import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
@@ -26,7 +30,15 @@ public final class BigDoors extends RestartableHolder
 {
     private static final @NonNull BigDoors INSTANCE = new BigDoors();
 
-    private IPLogger backupLogger;
+    /**
+     * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
+     *
+     * @return The {@link DelayedCommandInputManager} registered by the platform.
+     */
+    public @NonNull DelayedCommandInputManager getDelayedCommandInputManager()
+    {
+        return getPlatform().getDelayedCommandInputManager();
+    }
 
     /**
      * The platform to use. e.g. "Spigot".
@@ -54,10 +66,7 @@ public final class BigDoors extends RestartableHolder
      */
     public void setBigDoorsPlatform(final @NonNull IBigDoorsPlatform platform)
     {
-        if (this.platform != null)
-            this.platform.deregisterRestartable(this);
         this.platform = platform;
-        this.platform.registerRestartable(this);
     }
 
     /**
@@ -68,11 +77,7 @@ public final class BigDoors extends RestartableHolder
     public @NonNull IBigDoorsPlatform getPlatform()
     {
         if (platform == null)
-        {
-            IllegalStateException e = new IllegalStateException("No platform currently registered!");
-            getPLogger().logThrowable(e);
-            throw e;
-        }
+            throw new IllegalStateException("No platform currently registered!");
         return platform;
     }
 
@@ -147,6 +152,16 @@ public final class BigDoors extends RestartableHolder
     }
 
     /**
+     * Gets the {@link IPServer} instance.
+     *
+     * @return The {@link IPServer} instance.
+     */
+    public @NonNull IPServer getPServer()
+    {
+        return getPlatform().getPServer();
+    }
+
+    /**
      * Gets the {@link ToolUserManager} instance.
      *
      * @return The {@link ToolUserManager} instance.
@@ -174,8 +189,6 @@ public final class BigDoors extends RestartableHolder
      */
     public @NonNull IPLogger getPLogger()
     {
-        if (platform == null)
-            return backupLogger == null ? backupLogger = new BasicPLogger() : backupLogger;
         return getPlatform().getPLogger();
     }
 
@@ -187,5 +200,41 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DatabaseManager getDatabaseManager()
     {
         return getPlatform().getDatabaseManager();
+    }
+
+    /**
+     * Gets the {@link DebugReporter}.
+     *
+     * @return The {@link DebugReporter}.
+     */
+    public @NonNull DebugReporter getDebugReporter()
+    {
+        return getPlatform().getDebugReporter();
+    }
+
+    /**
+     * Gets the version of BigDoors that is currently running.
+     *
+     * @return The version of BigDoors that is currently running.
+     */
+    public @NonNull String getVersion()
+    {
+        return getPlatform().getVersion();
+    }
+
+    /**
+     * Handles a restart.
+     */
+    public void restart()
+    {
+        restartables.forEach(IRestartable::restart);
+    }
+
+    /**
+     * Handles a shutdown.
+     */
+    public void shutdown()
+    {
+        restartables.forEach(IRestartable::shutdown);
     }
 }

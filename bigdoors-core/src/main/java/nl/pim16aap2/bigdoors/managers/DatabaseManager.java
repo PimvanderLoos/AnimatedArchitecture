@@ -16,8 +16,8 @@ import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.Pair;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -166,7 +166,7 @@ public final class DatabaseManager extends Restartable
                     return;
 
                 final @NonNull IDoorCreatedEvent doorCreatedEvent =
-                    BigDoors.get().getPlatform().getDoorActionEventFactory()
+                    BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorCreatedEvent(result.second.get(), responsible);
                 BigDoors.get().getPlatform().callDoorEvent(doorCreatedEvent);
             });
@@ -231,22 +231,22 @@ public final class DatabaseManager extends Restartable
      * if one was provided.
      *
      * @param playerUUID The {@link UUID} of the payer.
-     * @param name       The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
+     * @param doorID     The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
      * @return All {@link AbstractDoorBase} owned by a player with a specific name.
      */
     public @NonNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NonNull UUID playerUUID,
-                                                                       final @NonNull String name)
+                                                                       final @NonNull String doorID)
     {
         // Check if the name is actually the UID of the door.
-        final @NonNull OptionalLong doorID = Util.parseLong(name);
-        if (doorID.isPresent())
+        final @NonNull OptionalLong doorUID = Util.parseLong(doorID);
+        if (doorUID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.getAsLong())
+                .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
@@ -491,10 +491,39 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                val event = factoryMethod.apply(BigDoors.get().getPlatform().getDoorActionEventFactory());
+                val event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
                 BigDoors.get().getPlatform().callDoorEvent(event);
                 return event.isCancelled();
             });
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     *
+     * @param door   The {@link AbstractDoorBase}.
+     * @param player The {@link IPPlayer}.
+     * @return True if owner removal was successful.
+     */
+    public @NonNull CompletableFuture<ActionResult> removeOwner(final @NonNull AbstractDoorBase door,
+                                                                final @NonNull IPPlayer player)
+    {
+        return removeOwner(door, player, null);
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     *
+     * @param door        The {@link AbstractDoorBase}.
+     * @param player      The {@link IPPlayer}.
+     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
+     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @return The future result of the operation.
+     */
+    public @NonNull CompletableFuture<ActionResult> removeOwner(final @NonNull AbstractDoorBase door,
+                                                                final @NonNull IPPlayer player,
+                                                                final @Nullable IPPlayer responsible)
+    {
+        return removeOwner(door, player.getUUID(), responsible);
     }
 
     /**
@@ -542,7 +571,7 @@ public final class DatabaseManager extends Restartable
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
-        return callCancellableEvent(fact -> fact.createDoorPrepareRemoveOwnerEvent(door, doorOwner.get()))
+        return callCancellableEvent(fact -> fact.createDoorPrepareRemoveOwnerEvent(door, doorOwner.get(), responsible))
             .thenApplyAsync(
                 cancelled ->
                 {

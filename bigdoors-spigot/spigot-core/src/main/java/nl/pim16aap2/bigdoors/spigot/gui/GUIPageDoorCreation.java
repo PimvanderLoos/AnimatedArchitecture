@@ -4,8 +4,6 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.commands.CommandData;
-import nl.pim16aap2.bigdoors.spigot.commands.subcommands.SubCommandNew;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -18,13 +16,13 @@ public class GUIPageDoorCreation implements IGUIPage
 {
     protected final BigDoorsSpigot plugin;
     protected final GUI gui;
-    protected final SubCommandNew subCommand;
+    protected final Object subCommand;
 
     GUIPageDoorCreation(final @NonNull BigDoorsSpigot plugin, final @NonNull GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
-        subCommand = (SubCommandNew) plugin.getCommand(CommandData.NEW);
+        subCommand = null;
         refresh();
     }
 
@@ -84,8 +82,8 @@ public class GUIPageDoorCreation implements IGUIPage
     {
         int position = 9;
         for (DoorType type : BigDoors.get().getDoorTypeManager().getSortedDoorTypes())
-            if (BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(type) &&
-                SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
+            if (BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(type))
+//                SubCommandNew.hasCreationPermission(SpigotAdapter.getBukkitPlayer(gui.getGuiHolder()), type))
             {
                 String initMessage = plugin.getMessages().getString(Message.GUI_DESCRIPTION_INITIATION,
                                                                     plugin.getMessages()
@@ -99,6 +97,6 @@ public class GUIPageDoorCreation implements IGUIPage
     private void startCreationProcess(final @NonNull Player player, final @NonNull DoorType type)
     {
         player.closeInventory();
-        subCommand.execute(player, null, type);
+//        subCommand.execute(player, null, type);
     }
 }

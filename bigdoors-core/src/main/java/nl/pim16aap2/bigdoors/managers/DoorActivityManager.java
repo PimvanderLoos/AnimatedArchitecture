@@ -93,7 +93,7 @@ public final class DoorActivityManager extends Restartable
             return;
 
         BigDoors.get().getPlatform().callDoorEvent(
-            BigDoors.get().getPlatform().getDoorActionEventFactory()
+            BigDoors.get().getPlatform().getBigDoorsEventFactory()
                     .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
                                           blockMover.getPlayer(), blockMover.getTime(),
                                           blockMover.isSkipAnimation()));

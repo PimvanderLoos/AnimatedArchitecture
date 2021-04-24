@@ -39,8 +39,9 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertNull(creator.name);
         UnitTestUtil.optionalEquals(creator.stepSetName, creator.getCurrentStep());
 
-        Assertions.assertTrue(creator.completeNamingStep(doorName));
+        Assertions.assertTrue(creator.handleInput(doorName));
         Assertions.assertEquals(doorName, creator.name);
+
         UnitTestUtil.optionalEquals(creator.stepSetFirstPos, creator.getCurrentStep());
     }
 
@@ -52,8 +53,9 @@ public class CreatorTest extends CreatorTestsUtil
 
         Assertions.assertEquals("CREATOR_BIGDOOR_STEP1", creator.getCurrentStepMessage());
 
-        Assertions.assertTrue(creator.setFirstPos(min.toLocation(world)));
+        Assertions.assertTrue(creator.handleInput(min.toLocation(world)));
         Assertions.assertEquals(min, creator.firstPos);
+
         UnitTestUtil.optionalEquals(creator.stepSetSecondPos, creator.getCurrentStep());
     }
 
@@ -77,8 +79,9 @@ public class CreatorTest extends CreatorTestsUtil
         UnitTestUtil.optionalEquals(creator.stepSetSecondPos, creator.getCurrentStep());
 
         Mockito.when(configLoader.maxDoorSize()).thenReturn(OptionalInt.of(cuboid.getVolume()));
-        Assertions.assertTrue(creator.setSecondPos(max.toLocation(world)));
+        Assertions.assertTrue(creator.handleInput(max.toLocation(world)));
         Assertions.assertEquals(new Cuboid(min, max), creator.cuboid);
+
         UnitTestUtil.optionalEquals(creator.stepSetEnginePos, creator.getCurrentStep());
     }
 
@@ -97,8 +100,9 @@ public class CreatorTest extends CreatorTestsUtil
 
         UnitTestUtil.optionalEquals(creator.stepSetEnginePos, creator.getCurrentStep());
 
-        Assertions.assertTrue(creator.completeSetEngineStep(engine.toLocation(world)));
+        Assertions.assertTrue(creator.handleInput(engine.toLocation(world)));
         Assertions.assertEquals(engine, creator.engine);
+
         UnitTestUtil.optionalEquals(creator.stepSetPowerBlockPos, creator.getCurrentStep());
     }
 
@@ -124,8 +128,9 @@ public class CreatorTest extends CreatorTestsUtil
         UnitTestUtil.optionalEquals(creator.stepSetPowerBlockPos, creator.getCurrentStep());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.of(limit + 2));
 
-        Assertions.assertTrue(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
+        Assertions.assertTrue(creator.handleInput(powerblock.toLocation(world)));
         Assertions.assertEquals(powerblock, creator.powerblock);
+
         UnitTestUtil.optionalEquals(creator.stepSetOpenDir, creator.getCurrentStep());
     }
 
@@ -182,7 +187,7 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertNull(creator.opendir);
         UnitTestUtil.optionalEquals(creator.stepSetOpenDir, creator.getCurrentStep());
 
-        Assertions.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
+        Assertions.assertTrue(creator.handleInput(validDir.name()));
         Assertions.assertEquals(validDir, creator.opendir);
 
         UnitTestUtil.optionalEquals(creator.stepConfirmPrice, creator.getCurrentStep());
@@ -202,7 +207,7 @@ public class CreatorTest extends CreatorTestsUtil
                 break;
             }
         Assertions.assertNotNull(validDir);
-        Assertions.assertTrue(creator.completeSetOpenDirStep(validDir.name()));
+        Assertions.assertTrue(creator.handleInput(validDir.name()));
         UnitTestUtil.optionalEquals(creator.stepCompleteProcess, creator.getCurrentStep());
     }
 

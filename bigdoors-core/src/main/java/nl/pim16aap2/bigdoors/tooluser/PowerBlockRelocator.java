@@ -25,7 +25,7 @@ public class PowerBlockRelocator extends ToolUser
     private final @NonNull AbstractDoorBase door;
     private @Nullable IPLocationConst newLoc;
 
-    protected PowerBlockRelocator(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
+    public PowerBlockRelocator(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
     {
         super(player);
         this.door = door;
@@ -62,12 +62,20 @@ public class PowerBlockRelocator extends ToolUser
     private boolean completeProcess()
     {
         if (newLoc == null)
+        {
             BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("newLoc is null, which should not be possible at this point!"));
+            // TODO: Localization
+            player.sendMessage("An error occurred! Please contact a server admin!");
+        }
+        else if (door.getPowerBlock().equals(newLoc.getPosition()))
+            // TODO: Localization
+            player.sendMessage("New location is the same as the old position! Nothing changed!");
         else
+        {
             door.setPowerBlockPosition(newLoc.getPosition()).syncData();
-
-        player.sendMessage(messages.getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
+            player.sendMessage(messages.getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
+        }
         return true;
     }
 

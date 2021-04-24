@@ -4,11 +4,14 @@ import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -41,6 +44,20 @@ public final class PPlayerSpigot implements IPPlayer
     public @NonNull Optional<IPLocation> getLocation()
     {
         return Optional.of(SpigotAdapter.wrapLocation(spigotPlayer.getLocation()));
+    }
+
+    @Override
+    public @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission)
+    {
+        return CompletableFuture.completedFuture(spigotPlayer.hasPermission(permission));
+    }
+
+    @Override
+    public @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
+    {
+        return CompletableFuture.completedFuture(new BooleanPair(
+            command.getUserPermission().map(spigotPlayer::hasPermission).orElse(false),
+            command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false)));
     }
 
     @Override

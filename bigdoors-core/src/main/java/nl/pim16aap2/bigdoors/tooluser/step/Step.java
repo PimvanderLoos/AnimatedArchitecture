@@ -26,13 +26,15 @@ public class Step<T extends ToolUser> implements IStep
     private final @NonNull String name;
     private final @NonNull StepExecutor stepExecutor;
 
-    //    @Getter
     private final @NonNull Message message;
     private final @NonNull List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
     private final @Nullable Supplier<Boolean> skipCondition;
+
+    @Getter
+    private final boolean implicitNextStep;
 
     @Override
     public boolean waitForUserInput()
@@ -72,10 +74,17 @@ public class Step<T extends ToolUser> implements IStep
         private boolean waitForUserInput = true;
         private Message message = null;
         private Supplier<Boolean> skipCondition = null;
+        private boolean implicitNextStep = true;
 
         public Factory(final @NonNull String name)
         {
             this.name = name;
+        }
+
+        public @NonNull Factory<T> implicitNextStep(final boolean implicitNextStep)
+        {
+            this.implicitNextStep = implicitNextStep;
+            return this;
         }
 
         public @NonNull Factory<T> stepExecutor(final @NonNull StepExecutor stepExecutor)
@@ -125,7 +134,8 @@ public class Step<T extends ToolUser> implements IStep
                                                      Message.getVariableCount(message) + " but received: " +
                                                      messageVariablesRetrievers.size());
 
-            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers, waitForUserInput, skipCondition);
+            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers,
+                              waitForUserInput, skipCondition, implicitNextStep);
         }
     }
 }

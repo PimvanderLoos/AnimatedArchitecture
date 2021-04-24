@@ -10,7 +10,7 @@ import java.util.Set;
  *
  * @author Pim
  */
-public class RestartableHolder implements IRestartableHolder, IRestartable
+public class RestartableHolder implements IRestartableHolder
 {
     protected final @NonNull Set<@NonNull IRestartable> restartables = new HashSet<>();
 
@@ -31,17 +31,4 @@ public class RestartableHolder implements IRestartableHolder, IRestartable
     {
         restartables.remove(restartable);
     }
-
-    @Override
-    public void restart()
-    {
-        restartables.forEach(IRestartable::restart);
-    }
-
-    @Override
-    public void shutdown()
-    {
-        restartables.forEach(IRestartable::shutdown);
-    }
-
 }

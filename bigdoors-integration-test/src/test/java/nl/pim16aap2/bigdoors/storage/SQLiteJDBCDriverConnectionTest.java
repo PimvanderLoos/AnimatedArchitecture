@@ -31,11 +31,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.sqlite.SQLiteConfig;
 
 import java.io.File;
@@ -48,7 +46,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ExtendWith(MockitoExtension.class)
 public class SQLiteJDBCDriverConnectionTest
 {
     private static final @NonNull String DELETEDOORNAME = "deletemeh";

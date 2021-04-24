@@ -27,6 +27,16 @@ public final class Procedure<T extends ToolUser>
     }
 
     /**
+     * Checks if another step exists after the current one.
+     *
+     * @return True if the current step is followed by another one. When false, the current step is the final step.
+     */
+    public boolean hasNextStep()
+    {
+        return steps.hasNext();
+    }
+
+    /**
      * Advances to the next step.
      */
     public void goToNextStep()
@@ -129,5 +139,29 @@ public final class Procedure<T extends ToolUser>
             return false;
         }
         return currentStep.waitForUserInput();
+    }
+
+    /**
+     * Whether the current step should continue to the next step if execution was successful.
+     * <p>
+     * If no next step (see {@link #hasNextStep()}) is available, this will always return false.
+     * <p>
+     * If this is false, the procedure should not be moved to the next step automatically, as this is supposed to be
+     * handled explicitly by the step executor itself.
+     *
+     * @return True if the current step should continue to the next step if execution was successful.
+     */
+    public boolean implicitNextStep()
+    {
+        if (!hasNextStep())
+            return false;
+
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot check for implicit next step as there is no current step!"));
+            return false;
+        }
+        return currentStep.isImplicitNextStep();
     }
 }

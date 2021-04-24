@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -58,7 +60,7 @@ public final class Util
 
     static
     {
-        for (final @NonNull PBlockFace pbf : PBlockFace.values())
+        for (val pbf : PBlockFace.values())
         {
             RotateDirection mappedRotDir;
             try
@@ -109,6 +111,36 @@ public final class Util
     public <T> Optional<T> exceptionallyOptional(final @NonNull Throwable throwable)
     {
         return exceptionally(throwable, Optional.empty());
+    }
+
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable The {@link Throwable} to log.
+     * @param fallback  The fallback value to return.
+     * @param target    The {@link CompletableFuture} to complete.
+     * @return The fallback value.
+     */
+    public <T, U> T exceptionallyCompletion(@NonNull Throwable throwable, T fallback,
+                                            @NonNull CompletableFuture<U> target)
+    {
+        target.completeExceptionally(throwable);
+        return fallback;
+    }
+
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable The {@link Throwable} to log.
+     * @param target    The {@link CompletableFuture} to complete.
+     * @return Always null;
+     */
+    public <T> Void exceptionallyCompletion(@NonNull Throwable throwable, @NonNull CompletableFuture<T> target)
+    {
+        target.completeExceptionally(throwable);
+        return null;
     }
 
     public static @NonNull OptionalInt parseInt(final @Nullable String str)
@@ -354,21 +386,12 @@ public final class Util
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(final @NonNull String name)
+    public static boolean isValidDoorName(final @Nullable String name)
     {
-        if (name.length() == 0 || name.contains(" "))
+        if (name == null || name.isBlank())
             return false;
 
-        try
-        {
-            Long.parseLong(name);
-            return false;
-        }
-        catch (NumberFormatException e)
-        {
-            return true;
-        }
-
+        return Util.parseLong(name).isEmpty() && Util.parseDouble(name).isEmpty();
     }
 
     /**
@@ -530,17 +553,58 @@ public final class Util
     }
 
     /**
-     * Convert an array of strings to a single string.
+     * Convert a collection of objects into a single string.
      *
-     * @param strings Input array of string
+     * @param entries Input collection of objects.
+     * @param mapper  The function to map objects to strings.
      * @return Resulting concatenated string.
      */
-    public static @NonNull String stringFromArray(final @NonNull String[] strings)
+    public static <T> @NonNull String toString(final @NonNull T[] entries, final @NonNull Function<T, String> mapper)
     {
-        StringBuilder builder = new StringBuilder();
-        for (String str : strings)
-            builder.append(str);
-        return builder.toString();
+        return toString(Arrays.asList(entries), mapper);
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @return Resulting concatenated string.
+     */
+    public static @NonNull String toString(final @NonNull Object[] entries)
+    {
+        return toString(Arrays.asList(entries));
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @return Resulting concatenated string.
+     */
+    public static @NonNull String toString(final @NonNull Collection<?> entries)
+    {
+        return toString(entries, Object::toString);
+    }
+
+    /**
+     * Convert a collection of objects into a single string.
+     *
+     * @param entries Input collection of objects.
+     * @param mapper  The function to map objects to strings.
+     * @return Resulting concatenated string.
+     */
+    public static <T> @NonNull String toString(final @NonNull Collection<T> entries,
+                                               final @NonNull Function<T, String> mapper)
+    {
+        StringBuilder builder = new StringBuilder("[");
+        for (val obj : entries)
+            builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
+
+        String result = builder.toString();
+        final int len = result.length();
+
+        // If 1 or more entries exist, the output will end with ', ', so remove the last 2 characters in that case.
+        return (len > 2 ? result.substring(0, len - 2) : result) + "]";
     }
 
     /**
