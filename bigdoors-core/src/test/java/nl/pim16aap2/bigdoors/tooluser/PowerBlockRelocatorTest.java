@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.val;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -22,7 +21,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
-import java.util.logging.Level;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
@@ -122,7 +120,6 @@ class PowerBlockRelocatorTest
     @Test
     void testExecution()
     {
-        BigDoors.get().getPLogger().setConsoleLogLevel(Level.ALL);
         val relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
@@ -136,7 +133,6 @@ class PowerBlockRelocatorTest
     @Test
     void testExecutionUnchanged()
     {
-        BigDoors.get().getPLogger().setConsoleLogLevel(Level.ALL);
         val relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
