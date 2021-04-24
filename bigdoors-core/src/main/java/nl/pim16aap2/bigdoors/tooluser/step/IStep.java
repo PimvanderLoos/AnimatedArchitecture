@@ -47,4 +47,15 @@ public interface IStep
      * @return True if this step should be skipped.
      */
     boolean skip();
+
+    /**
+     * Checks if this step should 'automatically' proceed to the next step if the result of running the {@link
+     * #getStepExecutor()} is true.
+     * <p>
+     * See {@link StepExecutor#apply(Object)}.
+     *
+     * @return True if the successful execution of this step's executor should cause it to go to the next step
+     * automatically.
+     */
+    boolean isImplicitNextStep();
 }

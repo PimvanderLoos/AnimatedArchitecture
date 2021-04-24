@@ -21,7 +21,7 @@ import java.util.OptionalInt;
 public class CreatorSlidingDoor extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeSlidingDoor.get();
+    private final @NonNull DoorType doorType = DoorTypeSlidingDoor.get();
 
     protected int blocksToMove;
 
@@ -72,7 +72,6 @@ private final @NonNull DoorType doorType = DoorTypeSlidingDoor.get();
         }
 
         this.blocksToMove = blocksToMove;
-        procedure.goToNextStep();
         return true;
     }
 

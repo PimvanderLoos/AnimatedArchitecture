@@ -138,7 +138,8 @@ public abstract class Creator extends ToolUser
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageVariableRetrievers(
-                    Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))));
+                    Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
+                .implicitNextStep(false);
 
         factoryCompleteProcess =
             new Step.Factory<Creator>("COMPLETE_CREATION_PROCESS")
@@ -197,7 +198,6 @@ public abstract class Creator extends ToolUser
             return false; // TODO: Inform the user.
 
         name = str;
-        procedure.goToNextStep();
         giveTool();
         return true;
     }
@@ -215,7 +215,6 @@ public abstract class Creator extends ToolUser
 
         world = loc.getWorld();
         firstPos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        procedure.goToNextStep();
         return true;
     }
 
@@ -245,11 +244,7 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
-        if (!playerHasAccessToCuboid(cuboid, world))
-            return false;
-
-        procedure.goToNextStep();
-        return true;
+        return playerHasAccessToCuboid(cuboid, world);
     }
 
     /**
@@ -336,7 +331,6 @@ public abstract class Creator extends ToolUser
             foundOpenDir ->
             {
                 opendir = foundOpenDir;
-                procedure.goToNextStep();
                 return true;
             }).orElse(false);
     }
@@ -499,7 +493,6 @@ public abstract class Creator extends ToolUser
 
         powerblock = pos;
 
-        procedure.goToNextStep();
         removeTool();
         return true;
     }
@@ -527,7 +520,6 @@ public abstract class Creator extends ToolUser
         }
 
         engine = pos;
-        procedure.goToNextStep();
         return true;
     }
 }

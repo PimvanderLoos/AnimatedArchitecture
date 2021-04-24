@@ -72,7 +72,6 @@ public class CreatorPortcullis extends Creator
         }
 
         this.blocksToMove = blocksToMove;
-        procedure.goToNextStep();
         return true;
     }
 

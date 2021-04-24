@@ -45,9 +45,7 @@ public class PowerBlockInspector extends ToolUser
 
     protected boolean inspectLoc(final @NonNull IPLocationConst loc)
     {
-        // TODO: Implement this.
-        // Just return true, otherwise it gets very spammy.
-        return true;
+        throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
 
     @Override

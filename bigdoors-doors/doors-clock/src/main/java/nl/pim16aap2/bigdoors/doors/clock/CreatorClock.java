@@ -26,7 +26,7 @@ import java.util.List;
 public class CreatorClock extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeClock.get();
+    private final @NonNull DoorType doorType = DoorTypeClock.get();
 
     protected PBlockFace hourArmSide;
 
@@ -94,10 +94,7 @@ private final @NonNull DoorType doorType = DoorTypeClock.get();
             hourArmSide = loc.getBlockX() == cuboid.getMin().getX() ? PBlockFace.WEST :
                           loc.getBlockX() == cuboid.getMax().getX() ? PBlockFace.EAST : null;
 
-        boolean result = hourArmSide != null;
-        if (result)
-            procedure.goToNextStep();
-        return result;
+        return hourArmSide != null;
     }
 
     @Override
@@ -191,8 +188,7 @@ private final @NonNull DoorType doorType = DoorTypeClock.get();
     }
 
     @Override
-    protected @NonNull
-    AbstractDoorBase constructDoor()
+    protected @NonNull AbstractDoorBase constructDoor()
     {
         setEngine();
         setOpenDirection();

@@ -21,6 +21,7 @@ public abstract class StepExecutor
     public final boolean apply(final @Nullable Object input)
     {
         if (validInput(input))
+            //noinspection ConstantConditions
             return protectedAccept(input);
         else
         {
@@ -46,7 +47,6 @@ public abstract class StepExecutor
      */
     public boolean validInput(final @Nullable Object obj)
     {
-//        return obj != null && getInputClass().isAssignableFrom(obj.getClass());
         return getInputClass().isInstance(obj);
     }
 

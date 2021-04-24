@@ -28,7 +28,6 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 
-
         final @NonNull Portcullis actualDoor = new Portcullis(constructDoorData(), blocksToMove);
         final @NonNull CreatorPortcullis creator = new CreatorPortcullis(PLAYER);
         testCreation(creator, actualDoor,
