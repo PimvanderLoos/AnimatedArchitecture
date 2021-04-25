@@ -56,50 +56,50 @@ public abstract class Creator extends ToolUser
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetName;
+    protected Step.Factory factorySetName;
     /**
      * Factory for the {@link IStep} that sets the first position of the area of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetFirstPos;
+    protected Step.Factory factorySetFirstPos;
     /**
      * Factory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
      * Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetSecondPos;
+    protected Step.Factory factorySetSecondPos;
     /**
      * Factory for the {@link IStep} that sets the position of the door's engine.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetEnginePos;
+    protected Step.Factory factorySetEnginePos;
     /**
      * Factory for the {@link IStep} that sets the position of the door's power block.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetPowerBlockPos;
+    protected Step.Factory factorySetPowerBlockPos;
     /**
      * Factory for the {@link IStep} that sets the open direction of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factorySetOpenDir;
+    protected Step.Factory factorySetOpenDir;
     /**
      * Factory for the {@link IStep} that allows the player to confirm or reject the price of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factoryConfirmPrice;
+    protected Step.Factory factoryConfirmPrice;
     /**
      * Factory for the {@link IStep} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
-    protected Step.Factory<Creator> factoryCompleteProcess;
+    protected Step.Factory factoryCompleteProcess;
 
     protected Creator(final @NonNull IPPlayer player)
     {
@@ -110,32 +110,32 @@ public abstract class Creator extends ToolUser
     protected void init()
     {
         factorySetName =
-            new Step.Factory<Creator>("SET_NAME")
+            new Step.Factory("SET_NAME")
                 .stepExecutor(new StepExecutorString(this::completeNamingStep));
 
         factorySetFirstPos =
-            new Step.Factory<Creator>("SET_FIRST_POST")
+            new Step.Factory("SET_FIRST_POST")
                 .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
         factorySetSecondPos =
-            new Step.Factory<Creator>("SET_SECOND_POS")
+            new Step.Factory("SET_SECOND_POS")
                 .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
         factorySetEnginePos =
-            new Step.Factory<Creator>("SET_ENGINE_POS")
+            new Step.Factory("SET_ENGINE_POS")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
-            new Step.Factory<Creator>("SET_POWER_BLOCK_POS")
+            new Step.Factory("SET_POWER_BLOCK_POS")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
-            new Step.Factory<Creator>("SET_OPEN_DIRECTION")
+            new Step.Factory("SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
-            new Step.Factory<Creator>("CONFIRM_DOOR_PRICE")
+            new Step.Factory("CONFIRM_DOOR_PRICE")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageVariableRetrievers(
@@ -143,7 +143,7 @@ public abstract class Creator extends ToolUser
                 .implicitNextStep(false);
 
         factoryCompleteProcess =
-            new Step.Factory<Creator>("COMPLETE_CREATION_PROCESS")
+            new Step.Factory("COMPLETE_CREATION_PROCESS")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
                 .waitForUserInput(false);
     }

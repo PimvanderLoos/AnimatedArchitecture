@@ -10,16 +10,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
-public final class Procedure<T extends ToolUser>
+public final class Procedure
 {
     @Getter
     private @Nullable IStep currentStep;
 
-    protected @NonNull final T toolUser;
+    protected final @NonNull ToolUser toolUser;
 
     final @NonNull Iterator<IStep> steps;
 
-    public Procedure(final @NonNull T toolUser, final @NonNull List<IStep> steps)
+    public Procedure(final @NonNull ToolUser toolUser, final @NonNull List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();

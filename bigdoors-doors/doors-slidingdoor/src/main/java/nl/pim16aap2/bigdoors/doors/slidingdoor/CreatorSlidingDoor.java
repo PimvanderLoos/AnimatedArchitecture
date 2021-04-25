@@ -42,7 +42,7 @@ public class CreatorSlidingDoor extends Creator
     protected @NonNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step<CreatorSlidingDoor> stepBlocksToMove = new Step.Factory<CreatorSlidingDoor>("SET_BLOCKS_TO_MOVE")
+        Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
             .message(Message.CREATOR_SLIDINGDOOR_BLOCKSTOMOVE)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();

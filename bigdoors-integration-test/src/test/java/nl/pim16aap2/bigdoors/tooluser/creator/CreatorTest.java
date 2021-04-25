@@ -261,14 +261,14 @@ public class CreatorTest extends CreatorTestsUtil
     private static class CreatorTestImpl extends Creator
     {
         public boolean isFinished = false;
-        private Step<Creator> stepSetName;
-        private Step<Creator> stepSetFirstPos;
-        private Step<Creator> stepSetSecondPos;
-        private Step<Creator> stepSetEnginePos;
-        private Step<Creator> stepSetPowerBlockPos;
-        private Step<Creator> stepSetOpenDir;
-        private Step<Creator> stepConfirmPrice;
-        private Step<Creator> stepCompleteProcess;
+        private Step stepSetName;
+        private Step stepSetFirstPos;
+        private Step stepSetSecondPos;
+        private Step stepSetEnginePos;
+        private Step stepSetPowerBlockPos;
+        private Step stepSetOpenDir;
+        private Step stepConfirmPrice;
+        private Step stepCompleteProcess;
 
         protected CreatorTestImpl(final @NonNull IPPlayer player)
         {

@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +19,7 @@ import java.util.function.Supplier;
 //       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if the door is free.
 // TODO: Look into https://projectlombok.org/features/Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Step<T extends ToolUser> implements IStep
+public class Step implements IStep
 {
     @Getter
     private final @NonNull String name;
@@ -66,7 +65,7 @@ public class Step<T extends ToolUser> implements IStep
         return BigDoors.get().getPlatform().getMessages().getString(message, variablesArr);
     }
 
-    public static class Factory<T extends ToolUser>
+    public static class Factory
     {
         private final @NonNull String name;
         private StepExecutor stepExecutor = null;
@@ -81,44 +80,44 @@ public class Step<T extends ToolUser> implements IStep
             this.name = name;
         }
 
-        public @NonNull Factory<T> implicitNextStep(final boolean implicitNextStep)
+        public @NonNull Factory implicitNextStep(final boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
             return this;
         }
 
-        public @NonNull Factory<T> stepExecutor(final @NonNull StepExecutor stepExecutor)
+        public @NonNull Factory stepExecutor(final @NonNull StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public @NonNull Factory<T> messageVariableRetrievers(
+        public @NonNull Factory messageVariableRetrievers(
             final @NonNull List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public @NonNull Factory<T> skipCondition(final @NonNull Supplier<Boolean> skipCondition)
+        public @NonNull Factory skipCondition(final @NonNull Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public @NonNull Factory<T> waitForUserInput(final boolean waitForUserInput)
+        public @NonNull Factory waitForUserInput(final boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public @NonNull Factory<T> message(final @NonNull Message message)
+        public @NonNull Factory message(final @NonNull Message message)
         {
             this.message = message;
             return this;
         }
 
-        public @NonNull Step<T> construct()
+        public @NonNull Step construct()
             throws InstantiationException
         {
             if (stepExecutor == null)
@@ -134,8 +133,8 @@ public class Step<T extends ToolUser> implements IStep
                                                      Message.getVariableCount(message) + " but received: " +
                                                      messageVariablesRetrievers.size());
 
-            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers,
-                              waitForUserInput, skipCondition, implicitNextStep);
+            return new Step(name, stepExecutor, message, messageVariablesRetrievers,
+                            waitForUserInput, skipCondition, implicitNextStep);
         }
     }
 }

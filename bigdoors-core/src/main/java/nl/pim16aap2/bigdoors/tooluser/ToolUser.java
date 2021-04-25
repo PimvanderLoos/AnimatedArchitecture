@@ -21,7 +21,7 @@ public abstract class ToolUser implements IRestartable
     @Getter
     protected final @NonNull IPPlayer player;
     protected final @NonNull Messages messages = BigDoors.get().getPlatform().getMessages();
-    protected final @NonNull Procedure<?> procedure;
+    protected final @NonNull Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
@@ -41,10 +41,10 @@ public abstract class ToolUser implements IRestartable
         this.player = player;
         init();
 
-        Procedure<?> procedureTmp = null;
+        Procedure procedureTmp = null;
         try
         {
-            procedureTmp = new Procedure<>(this, generateSteps());
+            procedureTmp = new Procedure(this, generateSteps());
         }
         catch (InstantiationException e)
         {
@@ -82,7 +82,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The {@link Procedure} for this {@link ToolUser}.
      */
-    public @NonNull Procedure<?> getProcedure()
+    public @NonNull Procedure getProcedure()
     {
         return procedure;
     }
