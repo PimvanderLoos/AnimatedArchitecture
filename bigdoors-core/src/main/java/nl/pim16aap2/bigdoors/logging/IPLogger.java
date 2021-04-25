@@ -26,16 +26,6 @@ public interface IPLogger
     }
 
     /**
-     * Sends a message to whomever or whatever issued a command at a given level (if applicable).
-     *
-     * @param target The recipient of this message of unspecified type (console, player, whatever).
-     * @param level  The level of the message (info, warn, etc). Does not apply to players.
-     * @param str    The message.
-     * @see IMessagingInterface#sendMessageToTarget(Object, Level, String)
-     */
-    void sendMessageToTarget(@NonNull Object target, @NonNull Level level, @NonNull String str);
-
-    /**
      * Dumps the stack trace to the log file at an arbitrary location.
      *
      * @param message An optional message to be printed along with the stack trace.
@@ -82,8 +72,7 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowableSilently(@NonNull Level level, @NonNull Throwable throwable,
-                              @NonNull String message);
+    void logThrowableSilently(@NonNull Level level, @NonNull Throwable throwable, @NonNull String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -107,8 +96,7 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowable(@NonNull Level level, @NonNull Throwable throwable,
-                      @NonNull String message);
+    void logThrowable(@NonNull Level level, @NonNull Throwable throwable, @NonNull String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -143,8 +131,7 @@ public interface IPLogger
      *                        loglevel doesn't allow to log it at the provided <code>level</code>, this won't be
      *                        retrieved at all.
      */
-    void logMessage(@NonNull Level level, @NonNull String message,
-                    @NonNull Supplier<String> messageSupplier);
+    void logMessage(@NonNull Level level, @NonNull String message, @NonNull Supplier<String> messageSupplier);
 
     /**
      * Logs a message at a certain log {@link Level}.
@@ -158,32 +145,55 @@ public interface IPLogger
     void logMessage(@NonNull Level level, @NonNull Supplier<String> messageSupplier);
 
     /**
+     * Checks if a given {@link Level} is loggable.
+     * <p>
+     * This may be false when the provided log level (e.g. {@link Level#FINE}) is lower than the selected minimum value
+     * (e.g. {@link Level#WARNING}).
+     *
+     * @param level The {@link Level} to check.
+     * @return True if the levels can be logged.
+     */
+    boolean loggable(@NonNull Level level);
+
+    /**
      * Logs a message at info level.
      *
      * @param str The message to log.
      */
-    void info(@NonNull String str);
+    default void info(@NonNull String str)
+    {
+        logMessage(Level.INFO, str);
+    }
 
     /**
      * Logs a message at warning level.
      *
      * @param str The message to log.
      */
-    void warn(@NonNull String str);
+    default void warn(@NonNull String str)
+    {
+        logMessage(Level.WARNING, str);
+    }
 
     /**
      * Logs a message at severe level.
      *
      * @param str The message to log.
      */
-    void severe(@NonNull String str);
+    default void severe(@NonNull String str)
+    {
+        logMessage(Level.SEVERE, str);
+    }
 
     /**
      * Logs a message at debug level.
      *
      * @param str The message to log.
      */
-    void debug(@NonNull String str);
+    default void debug(@NonNull String str)
+    {
+        logMessage(Level.FINEST, str);
+    }
 
     /**
      * Determines the log {@link Level} for this logger considering the log file. {@link Level}s with a {@link

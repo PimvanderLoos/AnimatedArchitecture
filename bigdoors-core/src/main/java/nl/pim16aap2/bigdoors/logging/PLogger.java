@@ -40,8 +40,6 @@ public final class PLogger implements IPLogger
     /**
      * Determines the log {@link Level} for this logger considering the log file. {@link Level}s with a {@link
      * Level#intValue()} lower than that of the current {@link Level} will be ignored.
-     *
-     * @param fileLogLevel The new log {@link Level} for logging to the logFile.
      */
     @Getter
     private @NonNull Level fileLogLevel = Level.FINEST;
@@ -99,25 +97,12 @@ public final class PLogger implements IPLogger
     }
 
     @Override
-    public void sendMessageToTarget(final @NonNull Object target, final @NonNull Level level,
-                                    final @NonNull String str)
-    {
-        BigDoors.get().getMessagingInterface().sendMessageToTarget(target, level, str);
-    }
-
-    /**
-     * Checks if this {@link PLogger} is in a valid state and if a message at a given level should be logged at all
-     * (either console or file).
-     *
-     * @param level The level to compare against the allowed levels.
-     * @return True if the provided level should be skipped by the {@link PLogger}.
-     */
-    private boolean ignoreLogLevel(final @NonNull Level level)
+    public boolean loggable(@NonNull Level level)
     {
         if (!success)
             throw new IllegalStateException("PLogger was not initialized successfully!");
 
-        return level.intValue() < lowestLevel.intValue();
+        return level.intValue() >= lowestLevel.intValue();
     }
 
     /**
@@ -130,7 +115,7 @@ public final class PLogger implements IPLogger
      */
     private void addToMessageQueue(final @NonNull Level level, final @NonNull Supplier<LogMessage> logMessageSupplier)
     {
-        if (ignoreLogLevel(level))
+        if (!loggable(level))
             return;
 
         final @NonNull LogMessage logMessage = logMessageSupplier.get();
@@ -154,7 +139,7 @@ public final class PLogger implements IPLogger
     private void addToSilentMessageQueue(final @NonNull Level level,
                                          final @NonNull Supplier<LogMessage> logMessageSupplier)
     {
-        if (ignoreLogLevel(level))
+        if (!loggable(level))
             return;
 
         if (level.intValue() >= fileLogLevel.intValue())
@@ -169,16 +154,14 @@ public final class PLogger implements IPLogger
         if (!logFile.exists())
             try
             {
-                if (!logFile.getParentFile().exists())
-                    if (!logFile.getParentFile().mkdirs())
-                    {
-                        writeToConsole(Level.SEVERE,
-                                       "Failed to create folder: \"" + logFile.getParentFile().toString() + "\"");
-                        return;
-                    }
+                if (!logFile.getParentFile().exists() && !logFile.getParentFile().mkdirs())
+                {
+                    writeToConsole(Level.SEVERE, "Failed to create folder: \"" + logFile.getParentFile() + "\"");
+                    return;
+                }
                 if (!logFile.createNewFile())
                 {
-                    writeToConsole(Level.SEVERE, "Failed to create file: \"" + logFile.toString() + "\"");
+                    writeToConsole(Level.SEVERE, "Failed to create file: \"" + logFile + "\"");
                     return;
                 }
                 writeToConsole(Level.INFO, "New file created at " + logFile);
@@ -328,30 +311,6 @@ public final class PLogger implements IPLogger
     public void logMessage(final @NonNull Level level, final @NonNull Supplier<String> messageSupplier)
     {
         logMessage(level, "", messageSupplier);
-    }
-
-    @Override
-    public void info(final @NonNull String str)
-    {
-        logMessage(Level.INFO, str);
-    }
-
-    @Override
-    public void warn(final @NonNull String str)
-    {
-        logMessage(Level.WARNING, str);
-    }
-
-    @Override
-    public void severe(final @NonNull String str)
-    {
-        logMessage(Level.SEVERE, str);
-    }
-
-    @Override
-    public void debug(final @NonNull String str)
-    {
-        logMessage(Level.FINEST, str);
     }
 
     @Override

@@ -17,11 +17,11 @@ import java.util.logging.Level;
  */
 public class BasicPLogger implements IPLogger
 {
-    private Level logLevel = Level.CONFIG;
+    private @NonNull Level logLevel = Level.CONFIG;
 
-    private Consumer<String> stringConsumer;
+    private final @NonNull Consumer<String> stringConsumer;
 
-    public BasicPLogger(Consumer<String> stringConsumer)
+    public BasicPLogger(final @NonNull Consumer<String> stringConsumer)
     {
         this.stringConsumer = stringConsumer;
     }
@@ -31,7 +31,8 @@ public class BasicPLogger implements IPLogger
         this(System.out::println);
     }
 
-    private boolean loggable(@NonNull Level level)
+    @Override
+    public boolean loggable(@NonNull Level level)
     {
         return level.intValue() >= logLevel.intValue();
     }
@@ -52,12 +53,6 @@ public class BasicPLogger implements IPLogger
     {
         if (loggable(level))
             writeMessage(level, new LogMessage.LogMessageString(msg, level));
-    }
-
-    @Override
-    public void sendMessageToTarget(@NonNull Object target, @NonNull Level level, @NonNull String str)
-    {
-        writeMessage(level, str);
     }
 
     @Override
@@ -150,30 +145,6 @@ public class BasicPLogger implements IPLogger
     {
         if (loggable(level))
             writeMessage(level, messageSupplier.get());
-    }
-
-    @Override
-    public void info(@NonNull String str)
-    {
-        writeMessage(Level.INFO, str);
-    }
-
-    @Override
-    public void warn(@NonNull String str)
-    {
-        writeMessage(Level.WARNING, str);
-    }
-
-    @Override
-    public void severe(@NonNull String str)
-    {
-        writeMessage(Level.SEVERE, str);
-    }
-
-    @Override
-    public void debug(@NonNull String str)
-    {
-        writeMessage(Level.FINEST, str);
     }
 
     @Override
