@@ -50,7 +50,7 @@ abstract class AbstractTimedValue<T>
     /**
      * Refreshes the insertion time of this timed value. This updates the {@link #insertTime} to the current time.
      */
-    public void refresh()
+    protected void refresh()
     {
         insertTime = clock.millis();
     }
@@ -61,9 +61,10 @@ abstract class AbstractTimedValue<T>
      * If this value is not accessible (e.g. exceeds {@link #timeOut} or the value itself has become invalid), null is
      * returned.
      *
+     * @param refresh Whether or not to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
-    public abstract @Nullable T getValue();
+    public abstract @Nullable T getValue(boolean refresh);
 
     /**
      * Check if this {@link AbstractTimedValue} was inserted more than milliseconds ago. If so, it's considered "timed

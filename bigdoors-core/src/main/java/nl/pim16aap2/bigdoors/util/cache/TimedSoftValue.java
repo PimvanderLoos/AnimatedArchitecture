@@ -54,10 +54,12 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     }
 
     @Override
-    public @Nullable T getValue()
+    public @Nullable T getValue(final boolean refresh)
     {
         if (timedOut())
             return null;
+        if (refresh)
+            refresh();
         return value.get();
     }
 
@@ -70,7 +72,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     /**
      * Gets the raw {@link SoftReference}-wrapped value.
      *
-     * @return The raw value, warpped in a {@link SoftReference}.
+     * @return The raw value, wrapped in a {@link SoftReference}.
      */
     public @NonNull SoftReference<T> getRawValue()
     {

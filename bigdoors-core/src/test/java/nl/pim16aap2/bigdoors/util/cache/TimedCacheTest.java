@@ -43,7 +43,7 @@ class TimedCacheTest
     private final MockClock clock = new MockClock(0);
 
     /**
-     * Make sure that expired values cannot be retreived.
+     * Make sure that expired values cannot be retrieved.
      */
     @Test
     void testExpiry()
@@ -54,18 +54,18 @@ class TimedCacheTest
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(80);
+        clock.addMillis(80);
         timedCache.put("key2", "value2");
         Assertions.assertTrue(timedCache.get("key2").isPresent());
         Assertions.assertEquals(2, timedCache.getSize());
 
-        clock.setCurrentMillis(150);
+        clock.addMillis(70);
         Assertions.assertEquals(2, timedCache.getSize());
         Assertions.assertFalse(timedCache.get("key").isPresent());
         Assertions.assertTrue(timedCache.get("key2").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(200);
+        clock.addMillis(50);
         timedCache.cleanupCache();
         Assertions.assertEquals(0, timedCache.getSize());
     }
@@ -92,7 +92,7 @@ class TimedCacheTest
         Assertions.assertEquals(0, timedCache.getSize());
 
 
-        // Now test that setting softreference to false doesn't wrap values in them.
+        // Now test that setting soft-reference to false doesn't wrap values in them.
         timedCache = new TimedCache<>(clock, Duration.ofMillis(100), null, false, false);
         timedCache.put("key2", "value");
         retrieved = timedCache.getRaw("key2");
@@ -115,17 +115,25 @@ class TimedCacheTest
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(90);
+        clock.addMillis(90);
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(110);
+        clock.addMillis(20);
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(220);
+        clock.addMillis(110);
         Assertions.assertFalse(timedCache.get("key").isPresent());
         Assertions.assertEquals(0, timedCache.getSize());
+
+
+        timedCache.put("key", "value");
+        Assertions.assertEquals(1, timedCache.getSize());
+        clock.addMillis(70);
+        timedCache.putIfPresent("key", "updatedValue");
+        clock.addMillis(70);
+        optionalEquals(timedCache.get("key"), "updatedValue");
     }
 
     /**
@@ -154,7 +162,7 @@ class TimedCacheTest
         optionalEquals(timedCache.computeIfAbsent("key", (k) -> "newVal"), "value");
 
         // Make sure that we can insert new values again once the entry has timed out.
-        clock.setCurrentMillis(110);
+        clock.addMillis(110);
         Assertions.assertFalse(timedCache.computeIfAbsent("key", (k) -> "newVal").isPresent());
         optionalEquals(timedCache.get("key"), "newVal");
     }
@@ -170,7 +178,7 @@ class TimedCacheTest
 
         Assertions.assertFalse(timedCache.computeIfPresent("key2", (k, v) -> "newValue").isPresent());
 
-        clock.setCurrentMillis(110);
+        clock.addMillis(110);
 
         Assertions.assertFalse(timedCache.computeIfPresent("key", (k, v) -> "newValue").isPresent());
     }
@@ -188,7 +196,7 @@ class TimedCacheTest
         returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
         Assertions.assertEquals("valuevalue", returned);
 
-        clock.setCurrentMillis(110);
+        clock.addMillis(110);
         returned = timedCache.compute("key", (k, v) -> v == null ? "newVal" : (v + v));
         Assertions.assertEquals("newVal", returned);
     }
@@ -204,7 +212,7 @@ class TimedCacheTest
         optionalEquals(timedCache.putIfAbsent("key", "value"), "value");
 
 
-        clock.setCurrentMillis(110);
+        clock.addMillis(110);
 
         Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
     }
@@ -221,7 +229,7 @@ class TimedCacheTest
 
         Assertions.assertFalse(timedCache.putIfPresent("key2", "value").isPresent());
 
-        clock.setCurrentMillis(110);
+        clock.addMillis(110);
 
         Assertions.assertFalse(timedCache.putIfPresent("key", "value").isPresent());
     }
@@ -242,6 +250,7 @@ class TimedCacheTest
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("value", result.get());
         Assertions.assertEquals(0, timedCache.getSize());
+        Assertions.assertFalse(timedCache.containsKey("key"));
 
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -265,7 +274,7 @@ class TimedCacheTest
         sleep(10);
         Assertions.assertEquals(1, timedCache.getSize());
 
-        clock.setCurrentMillis(200);
+        clock.addMillis(200);
         sleep(10);
         Assertions.assertEquals(0, timedCache.getSize());
     }
@@ -313,6 +322,11 @@ class TimedCacheTest
         @Setter
         private long currentMillis;
 
+        public void addMillis(final long millis)
+        {
+            currentMillis += millis;
+        }
+
         public MockClock(final long currentMillis)
         {
             this.currentMillis = currentMillis;
@@ -322,11 +336,6 @@ class TimedCacheTest
         public long millis()
         {
             return currentMillis;
-        }
-
-        public void realTime()
-        {
-            currentMillis = System.currentTimeMillis();
         }
 
         @Override

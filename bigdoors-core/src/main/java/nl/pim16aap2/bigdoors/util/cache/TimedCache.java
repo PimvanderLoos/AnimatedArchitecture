@@ -26,6 +26,7 @@ package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.val;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -55,7 +56,7 @@ import java.util.function.Function;
 public class TimedCache<K, V>
 {
     /**
-     * The actual datastructure all values are cached in.
+     * The actual data structure all values are cached in.
      */
     private final @NonNull ConcurrentHashMap<K, AbstractTimedValue<V>> cache = new ConcurrentHashMap<>();
 
@@ -152,11 +153,8 @@ public class TimedCache<K, V>
         {
             if (tValue == null || tValue.timedOut())
                 return null;
-
-            if (refresh)
-                tValue.refresh();
             return timedValueCreator.apply(value);
-        })).map(AbstractTimedValue::getValue);
+        })).map(entry -> entry.getValue(refresh));
     }
 
     /**
@@ -174,9 +172,7 @@ public class TimedCache<K, V>
             if (tValue == null || tValue.timedOut())
                 return timedValueCreator.apply(value);
 
-            returnValue.set(tValue.getValue());
-            if (refresh)
-                tValue.refresh();
+            returnValue.set(tValue.getValue(refresh));
             return null;
         });
 
@@ -199,9 +195,7 @@ public class TimedCache<K, V>
             if (tValue == null || tValue.timedOut())
                 return timedValueCreator.apply(mappingFunction.apply(k));
 
-            returnValue.set(tValue.getValue());
-            if (refresh)
-                tValue.refresh();
+            returnValue.set(tValue.getValue(refresh));
             return tValue;
         }));
         return Optional.ofNullable(returnValue.get());
@@ -217,11 +211,9 @@ public class TimedCache<K, V>
         {
             if (timedValue == null || timedValue.timedOut())
                 return null;
-            V value = timedValue.getValue();
-            if (refresh)
-                timedValue.refresh();
+            val value = timedValue.getValue(refresh);
             return timedValueCreator.apply(remappingFunction.apply(k, value));
-        })).map(AbstractTimedValue::getValue);
+        })).map(entry -> entry.getValue(refresh));
     }
 
     /**
@@ -237,14 +229,10 @@ public class TimedCache<K, V>
             if (timedValue == null || timedValue.timedOut())
                 value = null;
             else
-            {
-                value = timedValue.getValue();
-                if (refresh)
-                    timedValue.refresh();
-            }
+                value = timedValue.getValue(refresh);
 
             return timedValueCreator.apply(mappingFunction.apply(k, value));
-        }).getValue());
+        }).getValue(refresh));
     }
 
     /**
@@ -270,14 +258,12 @@ public class TimedCache<K, V>
         if (entry == null)
             return Optional.empty();
 
-        final @Nullable V value = entry.getValue();
+        @Nullable val value = entry.getValue(refresh);
         if (value == null)
         {
             cache.remove(key);
             return Optional.empty();
         }
-        if (refresh)
-            entry.refresh();
         return Optional.of(value);
     }
 
@@ -298,14 +284,14 @@ public class TimedCache<K, V>
      * Wraps a value in an {@link Optional}. If the provided entry is not null, it will retrieve the value wrapped
      * inside it.
      * <p>
-     * See {@link AbstractTimedValue#getValue()}.
+     * See {@link AbstractTimedValue#getValue(boolean)}.
      *
      * @param entry The entry to wrap.
      * @return The value stored in the entry, if any.
      */
     protected @NonNull Optional<V> getValue(final @Nullable AbstractTimedValue<V> entry)
     {
-        return entry == null ? Optional.empty() : Optional.ofNullable(entry.getValue());
+        return entry == null ? Optional.empty() : Optional.ofNullable(entry.getValue(refresh));
     }
 
     /**
@@ -368,13 +354,13 @@ public class TimedCache<K, V>
     /**
      * Removes any entries that have expired from the map.
      * <p>
-     * An entry counts as expired if {@link AbstractTimedValue#getValue()} returns null.
+     * An entry counts as expired if {@link AbstractTimedValue#getValue(boolean)} returns null.
      */
     protected void cleanupCache()
     {
         for (Map.Entry<K, AbstractTimedValue<V>> entry : cache.entrySet())
         {
-            if (entry.getValue().getValue() == null)
+            if (entry.getValue().getValue(false) == null)
                 cache.remove(entry.getKey());
         }
     }
@@ -392,8 +378,8 @@ public class TimedCache<K, V>
         if (period < 1)
             return;
 
-        final @NonNull Timer taskTimer = new Timer(true);
-        final @NonNull TimerTask verifyTask = new TimerTask()
+        @NonNull val taskTimer = new Timer(true);
+        @NonNull val verifyTask = new TimerTask()
         {
             @Override
             public void run()

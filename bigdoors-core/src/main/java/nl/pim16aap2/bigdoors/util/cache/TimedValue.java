@@ -53,10 +53,12 @@ class TimedValue<T> extends AbstractTimedValue<T>
     }
 
     @Override
-    public @Nullable T getValue()
+    public @Nullable T getValue(boolean refresh)
     {
         if (timedOut())
             return null;
+        if (refresh)
+            refresh();
         return value;
     }
 }
