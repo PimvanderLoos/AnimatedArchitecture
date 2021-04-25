@@ -210,8 +210,6 @@ public abstract class ToolUser implements IRestartable
                 prepareCurrentStep();
                 return true;
             }
-            // Repeat the instruction for the current step if the input was incorrect.
-            sendMessage();
         }
         catch (Exception e)
         {

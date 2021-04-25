@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
@@ -156,7 +157,7 @@ public abstract class Creator extends ToolUser
     {
         // TODO: Make sure all variables are set.
         final long doorUID = -1;
-        final @NonNull DoorOwner owner = new DoorOwner(doorUID, 0, player.getPPlayerData());
+        @NonNull val owner = new DoorOwner(doorUID, 0, player.getPPlayerData());
         return new AbstractDoorBase.DoorData(doorUID, name, cuboid, engine, powerblock,
                                              world, isOpen, isLocked, opendir, owner);
     }
@@ -299,11 +300,11 @@ public abstract class Creator extends ToolUser
 
         if (idOpt.isPresent())
         {
-            int id = idOpt.getAsInt();
+            final int id = idOpt.getAsInt();
             if (id < 0 || id >= validOpenDirs.size())
             {
                 BigDoors.get().getPLogger().debug(
-                    getClass().getSimpleName() + ": Player " + player.getUUID().toString() + " selected ID: " + id +
+                    getClass().getSimpleName() + ": Player " + player.getUUID() + " selected ID: " + id +
                         " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
             }
@@ -441,7 +442,7 @@ public abstract class Creator extends ToolUser
      */
     protected @NonNull String getOpenDirections()
     {
-        StringBuilder sb = new StringBuilder();
+        val sb = new StringBuilder();
         int idx = 0;
         for (RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ").append(messages.getString(rotateDirection.getMessage())).append("\n");
