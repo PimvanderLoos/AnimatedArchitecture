@@ -152,10 +152,12 @@ public abstract class BaseCommand
         {
             case CANCELLED:
                 commandSender.sendMessage("Action was cancelled!");
+                break;
             case SUCCESS:
                 break;
             case FAIL:
                 commandSender.sendMessage("An error occurred! Please contact a server administrator.");
+                break;
         }
         BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                () -> "Handling database action result: " + result.name() +
