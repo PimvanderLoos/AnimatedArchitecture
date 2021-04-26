@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.messages.Message;
@@ -18,18 +19,24 @@ import java.util.function.Supplier;
 // TODO: Consider adding another method for PrepareStep or something. For example, the setFirstPos would prepare by
 //       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if the door is free.
 // TODO: Look into https://projectlombok.org/features/Builder
+@ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step implements IStep
 {
     @Getter
     private final @NonNull String name;
+
     private final @NonNull StepExecutor stepExecutor;
 
+    @ToString.Exclude
     private final @NonNull Message message;
+
+    @ToString.Exclude
     private final @NonNull List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
+    @ToString.Exclude
     private final @Nullable Supplier<Boolean> skipCondition;
 
     @Getter

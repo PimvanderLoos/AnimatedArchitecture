@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -16,6 +17,7 @@ import java.util.List;
  *
  * @author Pim
  */
+@ToString
 public class PowerBlockInspector extends ToolUser
 {
     /**

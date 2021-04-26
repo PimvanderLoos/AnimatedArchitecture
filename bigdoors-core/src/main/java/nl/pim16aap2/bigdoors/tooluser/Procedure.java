@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
+@ToString
 public final class Procedure
 {
     @Getter
@@ -44,7 +46,8 @@ public final class Procedure
         if (!steps.hasNext())
         {
             BigDoors.get().getPLogger().logThrowable(new IndexOutOfBoundsException(
-                "Trying to advance to the next step while there is none! Step: " + getCurrentStepName()));
+                "Trying to advance to the next step while there is none! Step: " +
+                    (currentStep == null ? "NULL" : getCurrentStepName())));
             return;
         }
         currentStep = steps.next();
@@ -120,7 +123,7 @@ public final class Procedure
         {
             BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException("Cannot get the name of the current because there is no active step!"));
-            return "ERROR";
+            return "NULL";
         }
         return currentStep.getName();
     }

@@ -2,13 +2,16 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.ToString;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+@ToString
 @AllArgsConstructor
 public class StepExecutorVoid extends StepExecutor
 {
+    @ToString.Exclude
     private final @NonNull Supplier<Boolean> fun;
 
     @Override

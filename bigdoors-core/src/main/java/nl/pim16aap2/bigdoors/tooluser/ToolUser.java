@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,18 +17,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+@ToString
 public abstract class ToolUser implements IRestartable
 {
     @Getter
     protected final @NonNull IPPlayer player;
+    @ToString.Exclude
     protected final @NonNull Messages messages = BigDoors.get().getPlatform().getMessages();
     protected final @NonNull Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
      */
-    private boolean isShutDown = false;
+    private final @NonNull AtomicBoolean isShutDown = new AtomicBoolean(false);
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
@@ -41,22 +46,19 @@ public abstract class ToolUser implements IRestartable
         this.player = player;
         init();
 
-        Procedure procedureTmp = null;
         try
         {
-            procedureTmp = new Procedure(this, generateSteps());
+            procedure = new Procedure(this, generateSteps());
         }
-        catch (InstantiationException e)
+        catch (InstantiationException | IndexOutOfBoundsException e)
         {
-            BigDoors.get().getPLogger()
-                    .logThrowable(e, e.getMessage() + " Failed to instantiate procedure for ToolUser for player: " +
-                        player.asString());
-            active = false;
+            val ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
+                                              player.asString(), e);
+            BigDoors.get().getPLogger().logThrowableSilently(ex);
+            throw ex;
         }
-        // It doesn't really matter if it's set to null here, as the process will be aborted in that case anyway.
-        // At least it satifies the 'final' modifier this way.
-        procedure = procedureTmp;
-        if (procedureTmp == null)
+
+        if (!active)
             return;
 
         BigDoors.get().getToolUserManager().registerToolUser(this);
@@ -93,9 +95,8 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void cleanUpProcess()
     {
-        if (isShutDown)
+        if (isShutDown.getAndSet(true))
             return;
-        isShutDown = true;
         removeTool();
         active = false;
         BigDoors.get().getToolUserManager().abortToolUser(this);
@@ -159,27 +160,35 @@ public abstract class ToolUser implements IRestartable
     {
         sendMessage();
 
-        if (!procedure.waitForUserInput())
+        if (!procedure.waitForUserInput() &&
+            applyInput(null) &&
+            procedure.implicitNextStep())
         {
-            final boolean stepResult = procedure.applyStepExecutor(null);
-            if (stepResult && procedure.implicitNextStep())
-            {
-                procedure.goToNextStep();
-                prepareCurrentStep();
-            }
+            procedure.goToNextStep();
+            prepareCurrentStep();
         }
     }
 
     /**
-     * Sends the localized message of the current step to the player that owns this object.
+     * Applies an input object to the current step in the {@link #procedure}.
+     *
+     * @param obj The object to apply.
+     * @return The result of running the step executor on the provided input.
      */
-    protected void sendMessage()
+    private boolean applyInput(final @Nullable Object obj)
     {
-        final @NonNull String message = procedure.getMessage();
-        if (message.isEmpty())
-            BigDoors.get().getPLogger().warn("Missing translation for step: " + procedure.getCurrentStepName());
-        else
-            player.sendMessage(message);
+        try
+        {
+            return procedure.applyStepExecutor(obj);
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e);
+            // TODO: Localization
+            player.sendMessage("An error occurred! Please contact a server administrator!");
+            shutdown();
+            return false;
+        }
     }
 
     /**
@@ -190,33 +199,33 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean handleInput(final @NonNull Object obj)
     {
-        BigDoors.get().getPLogger().debug("Handling input: " + obj + " for step: " + procedure.getCurrentStepName());
-        BigDoors.get().getPLogger().debug("Class of input object: " + obj.getClass().getSimpleName());
+        BigDoors.get().getPLogger().debug(
+            "Handling input: " + obj + " (" + obj.getClass().getSimpleName() + ") for step: " +
+                procedure.getCurrentStepName() + " in ToolUser: " + this);
 
         if (!active)
             return false;
 
-        try
-        {
-            if (procedure.applyStepExecutor(obj))
-            {
-                // The process may have been cancelled, so check to make sure.
-                if (!active)
-                    return true;
+        if (!applyInput(obj))
+            return false;
 
-                if (procedure.implicitNextStep())
-                    procedure.goToNextStep();
+        if (procedure.implicitNextStep())
+            procedure.goToNextStep();
 
-                prepareCurrentStep();
-                return true;
-            }
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-        }
+        prepareCurrentStep();
+        return true;
+    }
 
-        return false;
+    /**
+     * Sends the localized message of the current step to the player that owns this object.
+     */
+    protected void sendMessage()
+    {
+        @NonNull val message = procedure.getMessage();
+        if (message.isEmpty())
+            BigDoors.get().getPLogger().warn("Missing translation for step: " + procedure.getCurrentStepName());
+        else
+            player.sendMessage(message);
     }
 
     /**

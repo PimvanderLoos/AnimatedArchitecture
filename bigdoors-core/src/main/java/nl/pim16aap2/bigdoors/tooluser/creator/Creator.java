@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -27,6 +28,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,77 +36,135 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-
-// TODO: Store a function that retrieves which step comes after the current one in the IStep implementations.
-//       In most cases, this can be extraordinarily simple (just return currentIDX + 1), but in same cases, it might be
-//       necessary to go to a specific step (e.g. skipping price confirmation). Adding "int getNextStep()" to the IStep
-//       interface would make this a lot easier. It would also circumvent the issue of the awkward "bla bla step is
-//       incremented by 1 if successful". Granted, it would still required a modifier, "bla bla the next step is
-//       selected if successful", but it's still much better.
+/**
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractDoorBase}s.
+ *
+ * @author Pim
+ */
+@ToString
 public abstract class Creator extends ToolUser
 {
-    protected String name;
-    protected Cuboid cuboid;
-    protected Vector3DiConst firstPos, engine, powerblock;
-    protected RotateDirection opendir;
-    protected IPWorld world;
+    /**
+     * The name of the door that is to be created.
+     */
+    protected @Nullable String name;
+
+    /**
+     * The cuboid that defines the location and dimensions of the door.
+     * <p>
+     * This region is defined by {@link #firstPos} and the second position selected by the user.
+     */
+    protected @Nullable Cuboid cuboid;
+
+    /**
+     * The first point that was selected in the process.
+     * <p>
+     * Once a second point has been selected, these two are used to construct the {@link #cuboid}.
+     */
+    protected @Nullable Vector3DiConst firstPos;
+
+    /**
+     * The engine position selected by the user.
+     */
+    protected @Nullable Vector3DiConst engine;
+
+    /**
+     * The powerblock selected by the user.
+     */
+    protected @Nullable Vector3DiConst powerblock;
+
+    /**
+     * The opening direction selected by the user.
+     */
+    protected @Nullable RotateDirection opendir;
+
+    /**
+     * The {@link IPWorld} this door is created in.
+     */
+    protected @Nullable IPWorld world;
+
+    /**
+     * Whether the door is created in the open (true) or closed (false) position.
+     */
     protected boolean isOpen = false;
+
+    /**
+     * Whether the door is created in the locked (true) or unlocked (false) state.
+     */
     protected boolean isLocked = false;
+
 
     /**
      * Factory for the {@link IStep} that sets the name.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetName;
+
     /**
      * Factory for the {@link IStep} that sets the first position of the area of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetFirstPos;
+
     /**
      * Factory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
      * Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetSecondPos;
+
     /**
      * Factory for the {@link IStep} that sets the position of the door's engine.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetEnginePos;
+
     /**
      * Factory for the {@link IStep} that sets the position of the door's power block.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetPowerBlockPos;
+
     /**
      * Factory for the {@link IStep} that sets the open direction of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factorySetOpenDir;
+
     /**
      * Factory for the {@link IStep} that allows the player to confirm or reject the price of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factoryConfirmPrice;
+
     /**
      * Factory for the {@link IStep} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
+    @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
+
 
     protected Creator(final @NonNull IPPlayer player)
     {
         super(player);
     }
+
 
     @Override
     protected void init()
@@ -138,8 +198,7 @@ public abstract class Creator extends ToolUser
             new Step.Factory("CONFIRM_DOOR_PRICE")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
-                .messageVariableRetrievers(
-                    Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
+                .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
                 .implicitNextStep(false);
 
         factoryCompleteProcess =
@@ -370,7 +429,7 @@ public abstract class Creator extends ToolUser
         BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
             (result, throwable) ->
             {
-                if (result.first)
+                if (!result.first)
                 {
                     // TODO: Localization
                     player.sendMessage("Door creation was cancelled!");

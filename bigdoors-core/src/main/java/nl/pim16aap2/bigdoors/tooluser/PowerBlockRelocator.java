@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.NonNull;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author Pim
  */
+@ToString
 public class PowerBlockRelocator extends ToolUser
 {
     private final @NonNull AbstractDoorBase door;

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.val;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -26,8 +25,6 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class PowerBlockRelocatorTest
 {
-    private IBigDoorsPlatform platform;
-
     @Mock
     private AbstractDoorBase door;
 
@@ -49,7 +46,7 @@ class PowerBlockRelocatorTest
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        val platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(door.getWorld()).thenReturn(world);

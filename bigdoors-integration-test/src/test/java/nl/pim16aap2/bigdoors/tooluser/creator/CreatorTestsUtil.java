@@ -30,9 +30,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -62,8 +60,6 @@ public class CreatorTestsUtil
     protected @NonNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected final @NonNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
-
-    @Captor ArgumentCaptor<AbstractDoorBase> doorInsertCaptor;
 
     @Mock
     protected DatabaseManager databaseManager;
@@ -164,9 +160,7 @@ public class CreatorTestsUtil
                                                 idx, obj, stepName, PLAYER.getBeforeLastMessage()));
         }
 
-        Mockito.verify(databaseManager).addDoorBase(doorInsertCaptor.capture());
-        AbstractDoorBase resultDoor = doorInsertCaptor.getValue();
-        Assertions.assertNotNull(resultDoor);
-        Assertions.assertEquals(actualDoor, resultDoor);
+        Mockito.verify(databaseManager).addDoorBase(actualDoor);
+//        Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
     }
 }
