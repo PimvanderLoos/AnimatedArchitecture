@@ -2,9 +2,12 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+
+import java.util.Objects;
 
 /**
  * Represents a cuboid as described by 2 {@link Vector3Di}s.
@@ -119,6 +122,56 @@ public class CuboidConst
             pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ();
     }
 
+    private static int getOuterDistance(final int test, final int min, final int max)
+    {
+        if (Util.between(test, min, max))
+            return 0;
+        if (test <= min)
+            return min - test;
+        return test - max;
+    }
+
+    /**
+     * Checks if a position is within a certain range of the outer edge of the cuboid.
+     * <p>
+     * Any point inside the cuboid will always be within range.
+     * <p>
+     * For example, a range of 1 would include the cuboid itself as well as a 1 deep layer of blocks around it
+     * (including corners).
+     *
+     * @param x     The x-coordinate to check.
+     * @param y     The y-coordinate to check.
+     * @param z     The z-coordinate to check.
+     * @param range The range the position might be in. A range of 0 gives the same result as {@link
+     *              #isPosInsideCuboid(Vector3DiConst)}.
+     * @return True if the provided position lies within the range of this cuboid.
+     */
+    public boolean isInRange(final int x, int y, int z, final int range)
+    {
+        if (range < 0)
+            throw new IllegalArgumentException("Range (" + range + ") cannot be smaller than 0!");
+
+        return getOuterDistance(x, min.getX(), max.getX()) <= range &&
+            getOuterDistance(y, min.getY(), max.getY()) <= range &&
+            getOuterDistance(z, min.getZ(), max.getZ()) <= range;
+    }
+
+    /**
+     * See {@link #isInRange(int, int, int, int)}
+     */
+    public boolean isInRange(final @NonNull Vector3DiConst pos, final int range)
+    {
+        return isInRange(pos.getX(), pos.getY(), pos.getZ(), range);
+    }
+
+    /**
+     * See {@link #isInRange(int, int, int, int)}
+     */
+    public boolean isInRange(final @NonNull IPLocationConst loc, final int range)
+    {
+        return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
+    }
+
     /**
      * Gets the center point of the cuboid.
      *
@@ -148,7 +201,7 @@ public class CuboidConst
     @Override
     public int hashCode()
     {
-        return super.hashCode();
+        return Objects.hash(min, max);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -162,5 +163,21 @@ class CuboidTest
         Assertions.assertTrue(Math.abs(center.getX() - foundCenter.getX()) < EPSILON);
         Assertions.assertTrue(Math.abs(center.getY() - foundCenter.getY()) < EPSILON);
         Assertions.assertTrue(Math.abs(center.getZ() - foundCenter.getZ()) < EPSILON);
+    }
+
+    @Test
+    void testIsInRange()
+    {
+        @NonNull val val1 = new Vector3Di(-10, 0, 10);
+        @NonNull val val2 = new Vector3Di(20, 30, 40);
+        @NonNull val cuboid = new Cuboid(val1, val2);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));
+        Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 0));
+        Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 1));
+
+        Assertions.assertTrue(cuboid.isInRange(new Vector3Di(-11, 31, 10), 1));
+        Assertions.assertFalse(cuboid.isInRange(new Vector3Di(-11, 31, 10), 0));
+        Assertions.assertTrue(cuboid.isInRange(new Vector3Di(-10, 0, 40), 1));
     }
 }
