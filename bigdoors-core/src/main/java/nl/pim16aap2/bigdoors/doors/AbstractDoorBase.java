@@ -618,14 +618,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
         builder.append("Type: ").append(getDoorType().toString()).append("\n");
-        builder.append("Cuboid: ").append(cuboid.toString()).append(", Engine: ").append(engine.toString())
-               .append("\n");
-        builder.append("PowerBlock position: ").append(powerBlock.toString()).append(". Hash: ")
+        builder.append("Cuboid: ").append(cuboid.toString()).append(", Engine: ").append(engine).append("\n");
+        builder.append("PowerBlock position: ").append(powerBlock).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
         builder.append("World: ").append(getWorld().getWorldName()).append("\n");
-        builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ");
-        builder.append("This door is ").append((open ? "Open.\n" : "Closed.\n"));
-        builder.append("OpenDir: ").append(openDir.toString()).append("\n");
+        builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ").append("\n");
+        builder.append("This door is ").append((open ? "open.\n" : "closed.\n"));
+        builder.append("OpenDir: ").append(openDir.name()).append("\n");
 
         builder.append("\nType-specific data:\n");
         val serializer = getDoorType().getDoorSerializer();
@@ -653,7 +652,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             primeOwner.equals(other.primeOwner) && locked == other.locked &&
             world.getWorldName().equals(other.world.getWorldName());
     }
-
 
     /**
      * POD class that stores all the data needed for basic door initialization.

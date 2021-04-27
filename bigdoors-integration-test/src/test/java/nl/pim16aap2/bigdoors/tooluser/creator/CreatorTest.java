@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-public class CreatorTest extends CreatorTestsUtil
+class CreatorTest extends CreatorTestsUtil
 {
     @Test
-    public void testSetName()
+    void testSetName()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
 
         Assertions.assertEquals("CREATOR_GENERAL_GIVENAME", creator.getCurrentStepMessage());
         Assertions.assertFalse(creator.completeNamingStep("0"));
@@ -46,9 +46,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSetFirstPos()
+    void testSetFirstPos()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetFirstPos));
 
         Assertions.assertEquals("CREATOR_BIGDOOR_STEP1", creator.getCurrentStepMessage());
@@ -60,9 +60,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSetSecondPos()
+    void testSetSecondPos()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         creator.firstPos = min;
         creator.world = world;
         final @NonNull Cuboid cuboid = new Cuboid(min, max);
@@ -73,8 +73,7 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertEquals("CREATOR_BIGDOOR_STEP2", creator.getCurrentStepMessage());
         Assertions.assertFalse(creator.setSecondPos(max.toLocation(world2)));
         Assertions.assertFalse(creator.setSecondPos(max.toLocation(world)));
-        Assertions.assertEquals("CREATOR_GENERAL_AREATOOBIG " + cuboid.getVolume() + " " + sizeLimit,
-                                PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage("CREATOR_GENERAL_AREATOOBIG " + cuboid.getVolume() + " " + sizeLimit);
 
         UnitTestUtil.optionalEquals(creator.stepSetSecondPos, creator.getCurrentStep());
 
@@ -86,9 +85,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSetEnginePos()
+    void testSetEnginePos()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         creator.world = world;
         creator.cuboid = new Cuboid(min, max);
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetEnginePos));
@@ -96,7 +95,7 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertEquals("CREATOR_BIGDOOR_STEP3", creator.getCurrentStepMessage());
         Assertions.assertFalse(creator.completeSetEngineStep(engine.toLocation(world2)));
         Assertions.assertFalse(creator.completeSetEngineStep(powerblock.toLocation(world)));
-        Assertions.assertEquals("CREATOR_GENERAL_INVALIDROTATIONPOINT", PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage("CREATOR_GENERAL_INVALIDROTATIONPOINT");
 
         UnitTestUtil.optionalEquals(creator.stepSetEnginePos, creator.getCurrentStep());
 
@@ -107,9 +106,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSetPowerBlockPos()
+    void testSetPowerBlockPos()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         creator.world = world;
         creator.cuboid = new Cuboid(min, max);
         final double distance = creator.cuboid.getCenter().getDistance(powerblock);
@@ -120,10 +119,10 @@ public class CreatorTest extends CreatorTestsUtil
         Assertions.assertEquals("CREATOR_GENERAL_SETPOWERBLOCK", creator.getCurrentStepMessage());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world2)));
         Assertions.assertFalse(creator.completeSetPowerBlockStep(engine.toLocation(world)));
-        Assertions.assertEquals("CREATOR_GENERAL_POWERBLOCKINSIDEDOOR", PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage("CREATOR_GENERAL_POWERBLOCKINSIDEDOOR");
         Assertions.assertFalse(creator.completeSetPowerBlockStep(powerblock.toLocation(world)));
-        Assertions.assertEquals("CREATOR_GENERAL_POWERBLOCKTOOFAR " + String.format("%.2f", distance) + " " + limit,
-                                PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage("CREATOR_GENERAL_POWERBLOCKTOOFAR " +
+                                               String.format("%.2f", distance) + " " + limit);
 
         UnitTestUtil.optionalEquals(creator.stepSetPowerBlockPos, creator.getCurrentStep());
         Mockito.when(configLoader.maxPowerBlockDistance()).thenReturn(OptionalInt.of(limit + 2));
@@ -135,9 +134,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testParseOpenDirection()
+    void testParseOpenDirection()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
 
         final @NonNull List<RotateDirection> validOpenDirections = creator.getDoorType().getValidOpenDirections();
         UnitTestUtil.optionalEquals(null, creator.parseOpenDirection("-1"));
@@ -159,9 +158,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSetOpenDir()
+    void testSetOpenDir()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         setEconomyEnabled(true);
         setEconomyPrice(10d);
         creator.cuboid = new Cuboid(min, max);
@@ -194,9 +193,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testSkipConfirmPrice()
+    void testSkipConfirmPrice()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         Assertions.assertTrue(creator.getProcedure().skipToStep(creator.stepSetOpenDir));
 
         @Nullable RotateDirection validDir = null;
@@ -212,9 +211,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testBuyDoor()
+    void testBuyDoor()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
         creator.cuboid = new Cuboid(min, max);
         setEconomyEnabled(true);
         setBuyDoor(true);
@@ -232,9 +231,9 @@ public class CreatorTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testConfirmPrice()
+    void testConfirmPrice()
     {
-        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(PLAYER);
+        final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
 
         final double price = 100.73462;
         setEconomyEnabled(true);
@@ -254,8 +253,7 @@ public class CreatorTest extends CreatorTestsUtil
 
         setBuyDoor(false);
         creator.confirmPrice(true);
-        Assertions
-            .assertEquals(String.format("CREATOR_GENERAL_INSUFFICIENTFUNDS %.2f", price), PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage(String.format("CREATOR_GENERAL_INSUFFICIENTFUNDS %.2f", price));
     }
 
     private static class CreatorTestImpl extends Creator

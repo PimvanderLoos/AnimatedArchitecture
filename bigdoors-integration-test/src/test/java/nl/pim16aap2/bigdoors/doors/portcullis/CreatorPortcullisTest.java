@@ -22,14 +22,14 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    public void createPortcullis()
+    void createPortcullis()
     {
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 
         final @NonNull Portcullis actualDoor = new Portcullis(constructDoorData(), blocksToMove);
-        final @NonNull CreatorPortcullis creator = new CreatorPortcullis(PLAYER);
+        final @NonNull CreatorPortcullis creator = new CreatorPortcullis(player);
         testCreation(creator, actualDoor,
                      doorName,
                      min.toLocation(world),
@@ -40,16 +40,16 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     }
 
     @Test
-    public void testBlocksToMove()
+    void testBlocksToMove()
     {
-        final @NonNull CreatorPortcullis creator = new CreatorPortcullis(PLAYER);
+        final @NonNull CreatorPortcullis creator = new CreatorPortcullis(player);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 
         Assertions.assertFalse(creator.setBlocksToMove(blocksToMove));
-        Assertions.assertEquals(String.format("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR %d %d",
-                                              blocksToMove, blocksToMoveLimit),
-                                PLAYER.getLastMessage());
+        Mockito.verify(player).sendMessage(String.format("CREATOR_GENERAL_BLOCKSTOMOVETOOFAR %d %d",
+                                                         blocksToMove, blocksToMoveLimit));
+
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMove));
         Assertions.assertTrue(creator.setBlocksToMove(blocksToMove));
     }

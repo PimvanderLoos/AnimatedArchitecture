@@ -8,10 +8,12 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -19,8 +21,6 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
-import nl.pim16aap2.bigdoors.testimplementations.TestPPlayer;
-import nl.pim16aap2.bigdoors.testimplementations.TestPPlayerFactory;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -30,6 +30,7 @@ import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Answers;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -46,10 +47,6 @@ import java.util.logging.Level;
 
 public class CreatorTestsUtil
 {
-    protected static final TestPPlayer PLAYER =
-        new TestPPlayer(new PPlayerData(UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5"),
-                                        "user", 8, 9, true, true));
-
     protected @NonNull Vector3Di min = new Vector3Di(10, 15, 20);
     protected @NonNull Vector3Di max = new Vector3Di(20, 25, 30);
     protected @NonNull Vector3Di engine = new Vector3Di(20, 15, 25);
@@ -59,7 +56,10 @@ public class CreatorTestsUtil
     protected @NonNull IPWorld world2 = new TestPWorld("world2");
     protected @NonNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
-    protected final @NonNull DoorOwner doorOwner = new DoorOwner(-1, 0, PLAYER.getPPlayerData());
+    protected DoorOwner doorOwner;
+
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    protected IPPlayer player;
 
     @Mock
     protected DatabaseManager databaseManager;
@@ -79,6 +79,31 @@ public class CreatorTestsUtil
     @Mock
     protected IPermissionsManager permissionsManager;
 
+    protected PPlayerData playerData;
+
+    private void initPlayer()
+    {
+        val uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
+        val name = "user";
+        var doorSizeLimit = 8;
+        var doorCountLimit = 9;
+
+        playerData = new PPlayerData(uuid, name, doorSizeLimit, doorCountLimit, true, true);
+
+        doorOwner = new DoorOwner(-1, 0, playerData);
+
+        Mockito.when(player.getUUID()).thenReturn(uuid);
+        Mockito.when(player.getName()).thenReturn(name);
+        Mockito.when(player.getDoorCountLimit()).thenReturn(doorCountLimit);
+        Mockito.when(player.getDoorSizeLimit()).thenReturn(doorSizeLimit);
+        Mockito.when(player.isOp()).thenReturn(true);
+        Mockito.when(player.hasProtectionBypassPermission()).thenReturn(true);
+        Mockito.when(player.getDoorSizeLimit()).thenReturn(doorSizeLimit);
+        Mockito.when(player.getLocation()).thenReturn(Optional.empty());
+
+        Mockito.when(player.getPPlayerData()).thenReturn(playerData);
+    }
+
     @BeforeEach
     protected void beforeEach()
     {
@@ -90,13 +115,19 @@ public class CreatorTestsUtil
         Messages messages = new Messages(platform, new File("src/test/resources"),
                                          "en_US_TEST", BigDoors.get().getPLogger());
 
+        initPlayer();
+
+        val playerFactory = Mockito.mock(IPPlayerFactory.class);
+        Mockito.when(playerFactory.create(playerData.getUUID()))
+               .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
+
+        Mockito.when(platform.getPPlayerFactory()).thenReturn(playerFactory);
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
         Mockito.when(platform.getPowerBlockManager()).thenReturn(powerBlockManager);
         Mockito.when(platform.getMessages()).thenReturn(messages);
         Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
         Mockito.when(platform.getPLocationFactory()).thenReturn(new TestPLocationFactory());
-        Mockito.when(platform.getPPlayerFactory()).thenReturn(new TestPPlayerFactory());
         Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
         Mockito.when(platform.getProtectionCompatManager()).thenReturn(Mockito.mock(IProtectionCompatManager.class));
         Mockito.when(platform.getConfigLoader()).thenReturn(configLoader);
@@ -156,11 +187,10 @@ public class CreatorTestsUtil
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),
-                                  String.format("IDX: %d, Input: %s, Step: %s, Error Message: %s",
-                                                idx, obj, stepName, PLAYER.getBeforeLastMessage()));
+                                  String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
         }
 
         Mockito.verify(databaseManager).addDoorBase(actualDoor);
-//        Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
+        Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
     }
 }

@@ -12,20 +12,20 @@ class CreatorElevatorTest extends CreatorTestsUtil
     private static final int blocksToMove = 17;
 
     @BeforeEach
-    public void setup()
+    void setup()
     {
         super.beforeEach();
     }
 
     @Test
-    public void createElevator()
+    void createElevator()
     {
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 
         final @NonNull Elevator actualDoor = new Elevator(constructDoorData(), blocksToMove);
-        final @NonNull CreatorElevator creator = new CreatorElevator(PLAYER);
+        final @NonNull CreatorElevator creator = new CreatorElevator(player);
         testCreation(creator, actualDoor,
                      doorName,
                      min.toLocation(world),

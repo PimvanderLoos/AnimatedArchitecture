@@ -9,19 +9,19 @@ import org.junit.jupiter.api.Test;
 class CreatorBigDoorTest extends CreatorTestsUtil
 {
     @BeforeEach
-    public void setup()
+    void setup()
     {
         super.beforeEach();
     }
 
     @Test
-    public void createBigDoor()
+    void createBigDoor()
     {
         openDirection = RotateDirection.CLOCKWISE;
         String openDirectionName = "0";
 
         final @NonNull BigDoor actualDoor = new BigDoor(constructDoorData());
-        final @NonNull CreatorBigDoor creator = new CreatorBigDoor(PLAYER);
+        final @NonNull CreatorBigDoor creator = new CreatorBigDoor(player);
         testCreation(creator, actualDoor,
                      doorName,
                      min.toLocation(world),
