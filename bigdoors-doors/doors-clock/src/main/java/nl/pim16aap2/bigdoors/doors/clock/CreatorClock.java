@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -46,10 +47,7 @@ public class CreatorClock extends Creator
 
     public CreatorClock(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorClock(final @NonNull IPPlayer player)
@@ -58,8 +56,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NonNull
-    List<IStep> generateSteps()
+    protected @NonNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
@@ -87,6 +84,7 @@ public class CreatorClock extends Creator
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
+        Util.requireNonNull(cuboid, "cuboid");
         if (northSouthAligned)
             hourArmSide = loc.getBlockZ() == cuboid.getMin().getZ() ? PBlockFace.NORTH :
                           loc.getBlockZ() == cuboid.getMax().getZ() ? PBlockFace.SOUTH : null;
@@ -103,6 +101,7 @@ public class CreatorClock extends Creator
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
+        Util.requireNonNull(firstPos, "firstPos");
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
                                                               new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                             loc.getBlockZ())).getDimensions();
@@ -149,8 +148,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NonNull
-    List<RotateDirection> getValidOpenDirections()
+    protected @NonNull List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();

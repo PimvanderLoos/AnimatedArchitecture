@@ -20,10 +20,7 @@ public class CreatorBigDoor extends Creator
 
     public CreatorBigDoor(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorBigDoor(final @NonNull IPPlayer player)

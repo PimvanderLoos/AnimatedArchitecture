@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -41,10 +42,7 @@ public class CreatorGarageDoor extends Creator
 
     public CreatorGarageDoor(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorGarageDoor(final @NonNull IPPlayer player)
@@ -71,6 +69,7 @@ public class CreatorGarageDoor extends Creator
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
+        Util.requireNonNull(firstPos, "firstPos");
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
                                                               new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                             loc.getBlockZ())).getDimensions();

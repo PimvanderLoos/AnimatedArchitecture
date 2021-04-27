@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,6 +59,7 @@ public class CreatorElevator extends CreatorPortcullis
     @Override
     protected @NonNull AbstractDoorBase constructDoor()
     {
+        Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();
         return new Elevator(constructDoorData(), blocksToMove);
     }

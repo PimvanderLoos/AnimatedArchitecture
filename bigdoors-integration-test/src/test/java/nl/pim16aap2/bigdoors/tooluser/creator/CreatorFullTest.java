@@ -64,7 +64,7 @@ class CreatorFullTest extends CreatorTestsUtil
 
         protected CreatorTestImpl(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
         {
-            super(player);
+            super(player, null);
             this.door = door;
         }
 

@@ -16,14 +16,11 @@ import java.util.List;
 public class CreatorDrawbridge extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeDrawbridge.get();
+    private final @NonNull DoorType doorType = DoorTypeDrawbridge.get();
 
     public CreatorDrawbridge(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorDrawbridge(final @NonNull IPPlayer player)

@@ -170,9 +170,11 @@ public abstract class Creator extends ToolUser
         DECIMAL_FORMAT.setMaximumFractionDigits(2);
     }
 
-    protected Creator(final @NonNull IPPlayer player)
+    protected Creator(final @NonNull IPPlayer player, final @Nullable String name)
     {
         super(player);
+        if (name != null)
+            completeNamingStep(name);
         prepareCurrentStep();
     }
 

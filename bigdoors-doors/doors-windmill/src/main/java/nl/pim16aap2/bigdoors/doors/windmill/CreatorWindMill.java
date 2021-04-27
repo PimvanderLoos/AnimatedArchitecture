@@ -16,14 +16,11 @@ import java.util.List;
 public class CreatorWindMill extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeWindmill.get();
+    private final @NonNull DoorType doorType = DoorTypeWindmill.get();
 
     public CreatorWindMill(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorWindMill(final @NonNull IPPlayer player)

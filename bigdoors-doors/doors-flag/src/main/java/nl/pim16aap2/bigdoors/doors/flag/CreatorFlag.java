@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -27,10 +28,7 @@ public class CreatorFlag extends Creator
 
     public CreatorFlag(final @NonNull IPPlayer player, final @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
     public CreatorFlag(final @NonNull IPPlayer player)
@@ -63,6 +61,7 @@ public class CreatorFlag extends Creator
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
+        Util.requireNonNull(firstPos, "firstPos");
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
                                                               new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                             loc.getBlockZ())).getDimensions();
@@ -82,6 +81,7 @@ public class CreatorFlag extends Creator
     @Override
     protected boolean completeSetEngineStep(final @NonNull IPLocationConst loc)
     {
+        Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
         // It doesn't make sense to have it in the middle or something; that's now how flags work.
         if ((loc.getBlockX() == cuboid.getMin().getX() || loc.getBlockX() == cuboid.getMax().getX()) &&
@@ -96,6 +96,8 @@ public class CreatorFlag extends Creator
     @Override
     protected @NonNull AbstractDoorBase constructDoor()
     {
+        Util.requireNonNull(cuboid, "cuboid");
+        Util.requireNonNull(engine, "engine");
         if (northSouthAligned)
             opendir = engine.getZ() == cuboid.getMin().getZ() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
