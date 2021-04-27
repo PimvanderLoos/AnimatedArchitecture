@@ -46,7 +46,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>${dependency.version.maven-jar}</version>
                     <configuration>
                         <outputDirectory>../DoorTypes/</outputDirectory>
                         <archive>

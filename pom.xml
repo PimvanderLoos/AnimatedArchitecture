@@ -12,9 +12,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.11</maven.compiler.source>
         <maven.compiler.target>1.11</maven.compiler.target>
-        <plugin.version.lombok>1.18.20</plugin.version.lombok>
-        <plugin.version.mockito>3.9.0</plugin.version.mockito>
-        <plugin.version.junit>5.8.0-M1</plugin.version.junit>
+
+        <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
+        <dependency.version.annotations>20.1.0</dependency.version.annotations>
+        <dependency.version.lombok>1.18.20</dependency.version.lombok>
+        <dependency.version.mockito>3.9.0</dependency.version.mockito>
+        <dependency.version.junit>5.8.0-M1</dependency.version.junit>
+        <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
+        <dependency.version.jacoco>0.8.6</dependency.version.jacoco>
+        <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
+        <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+        <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
     </properties>
 
     <modules>
@@ -36,7 +44,7 @@
             <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>JCalculator</artifactId>
-                <version>1.7</version>
+                <version>${dependency.version.jcalculator}</version>
                 <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
@@ -47,40 +55,40 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>20.1.0</version>
+            <version>${dependency.version.annotations}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${plugin.version.junit}</version>
+            <version>${dependency.version.junit}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${plugin.version.junit}</version>
+            <version>${dependency.version.junit}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>${plugin.version.mockito}</version>
+            <version>${dependency.version.mockito}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${plugin.version.mockito}</version>
+            <version>${dependency.version.mockito}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${plugin.version.lombok}</version>
+            <version>${dependency.version.lombok}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -91,7 +99,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M5</version>
+                    <version>${dependency.version.surefire}</version>
                     <configuration>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
@@ -101,7 +109,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.4</version>
+                    <version>${dependency.version.maven-shade}</version>
                     <configuration>
                         <relocations>
                             <relocation>
@@ -127,7 +135,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>${dependency.version.jacoco}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -147,7 +155,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>${dependency.version.maven-compiler}</version>
                     <configuration>
                         <source>11</source>
                         <target>11</target>
@@ -155,7 +163,7 @@
                             <path>
                                 <groupId>org.projectlombok</groupId>
                                 <artifactId>lombok</artifactId>
-                                <version>${plugin.version.lombok}</version>
+                                <version>${dependency.version.lombok}</version>
                             </path>
                         </annotationProcessorPaths>
                     </configuration>
