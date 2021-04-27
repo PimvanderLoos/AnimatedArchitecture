@@ -173,6 +173,7 @@ public abstract class Creator extends ToolUser
     protected Creator(final @NonNull IPPlayer player)
     {
         super(player);
+        prepareCurrentStep();
     }
 
 
@@ -245,16 +246,16 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeCreationProcess()
     {
-        // Only insert the door if the ToolUser hasn't been shut down yet.
-        // It'll still call completeProcess() to make sure it's cleaned up properly.
-        // This should've been done already, but just in case...
         if (active)
             insertDoor(constructDoor());
-
-        cleanUpProcess();
         return true;
     }
 
+    /**
+     * Method used to give the BigDoors tool to the user.
+     * <p>
+     * Overriding methods may call {@link #giveTool(Message, Message, Message)}.
+     */
     protected abstract void giveTool();
 
     /**
@@ -455,7 +456,7 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(final @NonNull AbstractDoorBase door)
     {
-        BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
+        BigDoors.get().getDatabaseManager().addDoorBase(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
@@ -519,6 +520,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean skipConfirmPrice()
     {
+
         return getPrice().isEmpty();
     }
 

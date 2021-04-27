@@ -28,6 +28,10 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 
+        setEconomyEnabled(true);
+        setEconomyPrice(12.34);
+        setBuyDoor(true);
+
         final @NonNull Portcullis actualDoor = new Portcullis(constructDoorData(), blocksToMove);
         final @NonNull CreatorPortcullis creator = new CreatorPortcullis(player);
         testCreation(creator, actualDoor,
@@ -36,7 +40,8 @@ class CreatorPortcullisTest extends CreatorTestsUtil
                      max.toLocation(world),
                      powerblock.toLocation(world),
                      openDirectionName,
-                     blocksToMove);
+                     blocksToMove,
+                     true);
     }
 
     @Test

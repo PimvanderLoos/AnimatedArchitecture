@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 
 /**
  * Represents an executor for a single step in a larger procedure.
@@ -26,8 +27,9 @@ public abstract class StepExecutor
         else
         {
             BigDoors.get().getPLogger()
-                    .debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
-                               " into " + getInputClass().getSimpleName());
+                    .logMessage(Level.FINE,
+                                "Trying to pass a(n) " + (input == null ? "null" : input.getClass().getSimpleName()) +
+                                    " into " + getInputClass().getSimpleName());
             return false;
         }
     }

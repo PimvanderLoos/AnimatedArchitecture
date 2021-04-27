@@ -156,14 +156,22 @@ public abstract class ToolUser implements IRestartable
     protected void prepareCurrentStep()
     {
         sendMessage();
+        if (!getProcedure().waitForUserInput())
+            handleInput(null);
+    }
 
-        if (!getProcedure().waitForUserInput() &&
-            applyInput(null) &&
-            getProcedure().implicitNextStep())
-        {
-            getProcedure().goToNextStep();
-            prepareCurrentStep();
-        }
+    /**
+     * See {@link Procedure#skipToStep(IStep)}.
+     * <p>
+     * After successfully skipping to the target step, the newly-selected step will be prepared. See {@link
+     * #prepareCurrentStep()}.
+     */
+    protected boolean skipToStep(final @NonNull IStep goalStep)
+    {
+        if (!getProcedure().skipToStep(goalStep))
+            return false;
+        prepareCurrentStep();
+        return true;
     }
 
     /**
@@ -194,17 +202,25 @@ public abstract class ToolUser implements IRestartable
      * @param obj The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
-    public boolean handleInput(final @NonNull Object obj)
+    public boolean handleInput(final @Nullable Object obj)
     {
         BigDoors.get().getPLogger().debug(
-            "Handling input: " + obj + " (" + obj.getClass().getSimpleName() + ") for step: " +
+            "Handling input: " + obj + " (" + (obj == null ? "null" : obj.getClass().getSimpleName()) + ") for step: " +
                 getProcedure().getCurrentStepName() + " in ToolUser: " + this);
 
         if (!active)
             return false;
 
+        final boolean isLastStep = !getProcedure().hasNextStep();
+
         if (!applyInput(obj))
             return false;
+
+        if (isLastStep)
+        {
+            cleanUpProcess();
+            return true;
+        }
 
         if (getProcedure().implicitNextStep())
             getProcedure().goToNextStep();

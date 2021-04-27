@@ -15,19 +15,16 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
-import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,13 +35,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
-import java.io.File;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
+
+import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
 
 public class CreatorTestsUtil
 {
@@ -53,8 +50,8 @@ public class CreatorTestsUtil
     protected @NonNull Vector3Di engine = new Vector3Di(20, 15, 25);
     protected @NonNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected @NonNull String doorName = "testDoor123";
-    protected @NonNull IPWorld world = new TestPWorld("world");
-    protected @NonNull IPWorld world2 = new TestPWorld("world2");
+    protected @NonNull IPWorld world = getWorld();
+    protected @NonNull IPWorld world2 = getWorld();
     protected @NonNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected DoorOwner doorOwner;
@@ -65,7 +62,6 @@ public class CreatorTestsUtil
     @Mock
     protected DatabaseManager databaseManager;
 
-    @Mock
     protected IBigDoorsPlatform platform;
 
     @Mock
@@ -109,12 +105,9 @@ public class CreatorTestsUtil
     protected void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
+        platform = initPlatform();
         BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-        Messages messages = new Messages(platform, new File("src/test/resources"),
-                                         "en_US_TEST", BigDoors.get().getPLogger());
+        val messages = initMessages();
 
         Mockito.when(platform.getLimitsManager()).thenReturn(new LimitsManager());
 
@@ -140,6 +133,9 @@ public class CreatorTestsUtil
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(
+            (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
+        Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any(), Mockito.any())).thenAnswer(
             (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
                 CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
 
@@ -180,9 +176,6 @@ public class CreatorTestsUtil
     public void testCreation(final @NonNull Creator creator, @NonNull AbstractDoorBase actualDoor,
                              final @NonNull Object... input)
     {
-        BigDoors.get().getPLogger().setConsoleLogLevel(Level.OFF);
-        setEconomyEnabled(false);
-
         for (int idx = 0; idx < input.length; ++idx)
         {
             val obj = input[idx];
@@ -193,7 +186,7 @@ public class CreatorTestsUtil
                                   String.format("IDX: %d, Input: %s, Step: %s", idx, obj, stepName));
         }
 
-        Mockito.verify(databaseManager).addDoorBase(actualDoor);
         Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
+        Mockito.verify(databaseManager).addDoorBase(actualDoor, player);
     }
 }
