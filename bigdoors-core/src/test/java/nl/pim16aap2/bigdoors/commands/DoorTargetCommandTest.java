@@ -53,7 +53,7 @@ class DoorTargetCommandTest
         initDoorRetriever(doorRetriever, door);
 
         Mockito.when(doorTargetCommand.getDoorRetriever()).thenReturn(doorRetriever);
-        Mockito.when(doorTargetCommand.isAllowed(Mockito.any(), Mockito.anyBoolean())).thenReturn(true);
+        Mockito.doReturn(true).when(doorTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
         Mockito.when(doorTargetCommand.getCommandSender()).thenReturn(commandSender);
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(true));
@@ -83,7 +83,7 @@ class DoorTargetCommandTest
     @SneakyThrows
     void testExecutionFailureNoPermission()
     {
-        Mockito.when(doorTargetCommand.isAllowed(Mockito.any(), Mockito.anyBoolean())).thenReturn(false);
+        Mockito.doReturn(false).when(doorTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
         Assertions.assertTrue(doorTargetCommand.executeCommand(new BooleanPair(true, true))
                                                .get(1, TimeUnit.SECONDS));

@@ -90,10 +90,8 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param bypassPermission Whether or not the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected boolean isAllowed(final AbstractDoorBase door, final boolean bypassPermission)
+    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
     {
-        if (door == null)
-            return false;
         return hasAccessToAttribute(door, doorAttribute, bypassPermission);
     }
 
