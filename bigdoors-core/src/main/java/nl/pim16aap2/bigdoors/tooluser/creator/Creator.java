@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
+import java.util.logging.Level;
 
 /**
  * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractDoorBase}s.
@@ -214,9 +215,13 @@ public abstract class Creator extends ToolUser
      */
     protected final @NonNull AbstractDoorBase.DoorData constructDoorData()
     {
-        // TODO: Make sure all variables are set.
         final long doorUID = -1;
         @NonNull val owner = new DoorOwner(doorUID, 0, player.getPPlayerData());
+        // Ignore the @NonNull status here because any value that's null will cause a
+        // detailed (i.e. with the exact name) NPE to be thrown, which is more useful
+        // then for example using a loop to check varargs objects and much easier to
+        // maintain than a list of checks with manually written messages.
+        //noinspection ConstantConditions
         return new AbstractDoorBase.DoorData(doorUID, name, cuboid, engine, powerblock,
                                              world, isOpen, isLocked, opendir, owner);
     }
@@ -292,6 +297,7 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToLocation(loc))
             return false;
 
+        //noinspection ConstantConditions
         cuboid = new Cuboid(new Vector3Di(firstPos),
                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
@@ -304,6 +310,7 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
+        //noinspection ConstantConditions
         return playerHasAccessToCuboid(cuboid, world);
     }
 
@@ -410,9 +417,11 @@ public abstract class Creator extends ToolUser
      */
     protected boolean verifyWorldMatch(final @NonNull IPLocationConst loc)
     {
+        if (world == null)
+            return false;
         if (world.getWorldName().equals(loc.getWorld().getWorldName()))
             return true;
-        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + player.getUUID().toString());
+        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + player.getUUID());
         return false;
     }
 
@@ -461,6 +470,7 @@ public abstract class Creator extends ToolUser
         if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
             return true;
 
+        //noinspection ConstantConditions
         return BigDoors.get().getPlatform().getEconomyManager()
                        .buyDoor(player, world, getDoorType(), cuboid.getVolume());
     }
@@ -528,6 +538,15 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeSetPowerBlockStep(final @NonNull IPLocationConst loc)
     {
+        if (cuboid == null || world == null)
+        {
+            BigDoors.get().getPLogger().logMessage(Level.FINE, "Creator in invalid state: " + this);
+            // TODO: Localization
+            player.sendMessage("And error occurred, please contact a server administrator!");
+            shutdown();
+            return false;
+        }
+
         if (!loc.getWorld().getWorldName().equals(world.getWorldName()))
             return false;
 
@@ -573,6 +592,7 @@ public abstract class Creator extends ToolUser
             return false;
 
         final @NonNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        //noinspection ConstantConditions
         if (!cuboid.clone().changeDimensions(1, 1, 1).isPosInsideCuboid(pos))
         {
             player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
