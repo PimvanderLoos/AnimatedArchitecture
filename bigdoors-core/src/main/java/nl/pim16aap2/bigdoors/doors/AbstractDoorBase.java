@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
@@ -300,7 +299,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (isOpenable != DoorToggleResult.SUCCESS)
             return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
-        if (LimitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
+        if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return DoorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
         final @NonNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();

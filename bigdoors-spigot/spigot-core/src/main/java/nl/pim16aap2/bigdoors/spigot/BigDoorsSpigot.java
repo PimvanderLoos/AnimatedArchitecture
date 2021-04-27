@@ -37,6 +37,7 @@ import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
@@ -125,6 +126,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private VaultManager vaultManager;
 
     private IGlowingBlockSpawner glowingBlockSpawner;
+
+    @Getter
+    private final @NonNull LimitsManager limitsManager = new LimitsManager();
 
     @Getter
     private HeadManager headManager;

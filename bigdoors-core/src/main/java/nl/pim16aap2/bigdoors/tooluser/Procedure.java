@@ -17,6 +17,7 @@ public final class Procedure
     @Getter
     private @Nullable IStep currentStep;
 
+    @ToString.Exclude
     protected final @NonNull ToolUser toolUser;
 
     final @NonNull Iterator<IStep> steps;

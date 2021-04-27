@@ -18,6 +18,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
@@ -114,6 +115,8 @@ public class CreatorTestsUtil
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
         Messages messages = new Messages(platform, new File("src/test/resources"),
                                          "en_US_TEST", BigDoors.get().getPLogger());
+
+        Mockito.when(platform.getLimitsManager()).thenReturn(new LimitsManager());
 
         initPlayer();
 

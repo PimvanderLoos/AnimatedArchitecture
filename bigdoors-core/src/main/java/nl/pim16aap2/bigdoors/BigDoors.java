@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import org.jetbrains.annotations.Nullable;
@@ -99,6 +100,16 @@ public final class BigDoors extends RestartableHolder
     public @NonNull DoorOpener getDoorOpener()
     {
         return getPlatform().getDoorOpener();
+    }
+
+    /**
+     * Gets the {@link LimitsManager}.
+     *
+     * @return The {@link LimitsManager}.
+     */
+    public @NonNull LimitsManager getLimitsManager()
+    {
+        return platform.getLimitsManager();
     }
 
     /**

@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.flag;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -21,7 +22,7 @@ import java.util.List;
 public class CreatorFlag extends Creator
 {
     @Getter
-private final @NonNull DoorType doorType = DoorTypeFlag.get();
+    private final @NonNull DoorType doorType = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
     public CreatorFlag(final @NonNull IPPlayer player, final @Nullable String name)
@@ -59,7 +60,7 @@ private final @NonNull DoorType doorType = DoorTypeFlag.get();
     @Override
     protected boolean setSecondPos(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
@@ -73,7 +74,8 @@ private final @NonNull DoorType doorType = DoorTypeFlag.get();
             return super.setSecondPos(loc);
         }
 
-        player.sendMessage(messages.getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
+        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                        .getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
         return false;
     }
 
@@ -86,7 +88,8 @@ private final @NonNull DoorType doorType = DoorTypeFlag.get();
             (loc.getBlockZ() == cuboid.getMin().getZ() || loc.getBlockZ() == cuboid.getMax().getZ()))
             return super.completeSetEngineStep(loc);
 
-        player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POINTNOTACORNER));
+        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                        .getString(Message.CREATOR_GENERAL_POINTNOTACORNER));
         return false;
     }
 

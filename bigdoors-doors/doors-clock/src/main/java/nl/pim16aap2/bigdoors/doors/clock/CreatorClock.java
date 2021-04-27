@@ -84,7 +84,7 @@ public class CreatorClock extends Creator
      */
     protected boolean completeSelectHourArmStep(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         if (northSouthAligned)
@@ -100,7 +100,7 @@ public class CreatorClock extends Creator
     @Override
     protected boolean setSecondPos(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
@@ -111,7 +111,7 @@ public class CreatorClock extends Creator
         if (cuboidDims.getY() % 2 == 0)
         {
             BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + player.asString() +
+                    .debug("ClockCreator: " + getPlayer().asString() +
                                ": The height of the selected area for the clock is not odd!");
             return false;
         }
@@ -121,7 +121,7 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.getY() != cuboidDims.getZ())
             {
-                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The x-axis is valid.");
                 return false;
             }
@@ -132,7 +132,7 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.getY() != cuboidDims.getX())
             {
-                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The z-axis is valid.");
                 return false;
             }
@@ -141,7 +141,7 @@ public class CreatorClock extends Creator
         else
         {
             BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + player.asString() + ": Selected Clock area is not valid!");
+                    .debug("ClockCreator: " + getPlayer().asString() + ": Selected Clock area is not valid!");
             return false;
         }
 

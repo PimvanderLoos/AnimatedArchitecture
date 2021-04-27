@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -26,7 +25,6 @@ public final class PLocationSpigot implements IPLocation
     private @NonNull Location location;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
     private @NonNull IPWorld world;
 
     public PLocationSpigot(final @NonNull IPWorld world, final double x, final double y, final double z)

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 
 @AllArgsConstructor
@@ -28,16 +29,24 @@ public class Vector3DdConst
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
     }
 
+    public double getDistance(final double x, final double y, final double z)
+    {
+        return Math.sqrt(Math.pow(getX() - x, 2) + Math.pow(getY() - y, 2) + Math.pow(getZ() - z, 2));
+    }
+
     public double getDistance(final @NonNull Vector3DiConst point)
     {
-        return Math.sqrt(Math.pow(getX() - point.getX(), 2) + Math.pow(getY() - point.getY(), 2) +
-                             Math.pow(getZ() - point.getZ(), 2));
+        return getDistance(point.getX(), point.getY(), point.getZ());
     }
 
     public double getDistance(final @NonNull Vector3DdConst point)
     {
-        return Math.sqrt(Math.pow(getX() - point.getX(), 2) + Math.pow(getY() - point.getY(), 2) +
-                             Math.pow(getZ() - point.getZ(), 2));
+        return getDistance(point.getX(), point.getY(), point.getZ());
+    }
+
+    public double getDistance(final @NonNull IPLocationConst loc)
+    {
+        return getDistance(loc.getX(), loc.getY(), loc.getZ());
     }
 
     /**

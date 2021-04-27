@@ -15,13 +15,6 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @Override
     @NonNull IPWorld getWorld();
 
-    /**
-     * Updates the world of this location.
-     *
-     * @param other The new world of this location.
-     */
-    void setWorld(@NonNull IPWorld other);
-
     @Override
     @NonNull Vector2Di getChunk();
 
@@ -43,6 +36,11 @@ public interface IPLocation extends IPLocationConst, Cloneable
     @Override
     double getZ();
 
+    /**
+     * Changes the x coordinate.
+     *
+     * @param newVal The new coordinate.
+     */
     void setX(double newVal);
 
     /**

@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 public final class TestPLocation implements IPLocation
 {
     @Getter
-    @Setter(onMethod = @__({@Override}))
     private @NonNull IPWorld world;
 
     @Getter

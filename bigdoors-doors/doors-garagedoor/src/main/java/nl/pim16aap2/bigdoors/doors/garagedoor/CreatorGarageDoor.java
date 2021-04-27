@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -67,7 +68,7 @@ public class CreatorGarageDoor extends Creator
     @Override
     protected boolean setSecondPos(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
@@ -82,7 +83,8 @@ public class CreatorGarageDoor extends Creator
             return super.setSecondPos(loc);
         }
 
-        player.sendMessage(messages.getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
+        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                        .getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
         return false;
     }
 

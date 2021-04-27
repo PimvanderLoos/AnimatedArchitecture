@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-class CreatorTest extends CreatorTestsUtil
+class CreatorFullTest extends CreatorTestsUtil
 {
     @Test
     void testSetName()
@@ -219,6 +219,7 @@ class CreatorTest extends CreatorTestsUtil
         setBuyDoor(true);
         final double price = 100;
         setEconomyPrice(price);
+        creator.world = world;
 
         Assertions.assertTrue(creator.buyDoor());
 
@@ -234,6 +235,7 @@ class CreatorTest extends CreatorTestsUtil
     void testConfirmPrice()
     {
         final @NonNull CreatorTestImpl creator = new CreatorTestImpl(player);
+        creator.world = world;
 
         final double price = 100.73462;
         setEconomyEnabled(true);

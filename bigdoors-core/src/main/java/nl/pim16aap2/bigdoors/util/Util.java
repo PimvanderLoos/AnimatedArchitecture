@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -74,6 +75,28 @@ public final class Util
             toRotateDirection.put(pbf, mappedRotDir);
             toPBlockFace.put(mappedRotDir, pbf);
         }
+    }
+
+    /**
+     * Ensures an object is not null.
+     * <p>
+     * If the object is null after all, a {@link NullPointerException} will be thrown.
+     * <p>
+     * This is basically the same as {@link Objects#requireNonNull(Object, String)} with the only difference being that
+     * this will create a full "must not be null" message for the provided variable name.
+     *
+     * @param obj  The object to check.
+     * @param name The name of the input object. This is used in the NPE message with the format "{name} must not be
+     *             null!".
+     * @param <T>  The type of the input object.
+     * @return The input object, if it is not null.
+     *
+     * @throws NullPointerException If the input object to check is null.
+     */
+    public <T> @NonNull T requireNonNull(final @Nullable T obj, final @NonNull String name)
+        throws NullPointerException
+    {
+        return Objects.requireNonNull(obj, name + " must not be null!");
     }
 
     /**

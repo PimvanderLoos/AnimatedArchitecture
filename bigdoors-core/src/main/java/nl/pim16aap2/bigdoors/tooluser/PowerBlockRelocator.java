@@ -44,7 +44,8 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
-            player.sendMessage(messages.getString(Message.CREATOR_PBRELOCATOR_LOCATIONNOTINSAMEWORLD));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_PBRELOCATOR_LOCATIONNOTINSAMEWORLD));
             return false;
         }
 
@@ -68,15 +69,16 @@ public class PowerBlockRelocator extends ToolUser
             BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("newLoc is null, which should not be possible at this point!"));
             // TODO: Localization
-            player.sendMessage("An error occurred! Please contact a server admin!");
+            getPlayer().sendMessage("An error occurred! Please contact a server admin!");
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
             // TODO: Localization
-            player.sendMessage("New location is the same as the old position! Nothing changed!");
+            getPlayer().sendMessage("New location is the same as the old position! Nothing changed!");
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition()).syncData();
-            player.sendMessage(messages.getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
         }
         return true;
     }

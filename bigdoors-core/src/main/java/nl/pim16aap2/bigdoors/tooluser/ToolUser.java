@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,10 +22,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class ToolUser implements IRestartable
 {
     @Getter
-    protected final @NonNull IPPlayer player;
-    @ToString.Exclude
-    protected final @NonNull Messages messages = BigDoors.get().getPlatform().getMessages();
-    protected final @NonNull Procedure procedure;
+    private final @NonNull IPPlayer player;
+
+    /**
+     * The {@link Procedure} that this {@link ToolUser} will go through.
+     */
+    @Getter
+    private final @NonNull Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
@@ -39,6 +41,9 @@ public abstract class ToolUser implements IRestartable
     @Getter
     protected boolean active = true;
 
+    /**
+     * Keeps track of whether or not the player has the tool or not.
+     */
     protected boolean playerHasStick = false;
 
     protected ToolUser(final @NonNull IPPlayer player)
@@ -53,7 +58,7 @@ public abstract class ToolUser implements IRestartable
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
             val ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
-                                              player.asString(), e);
+                                              getPlayer().asString(), e);
             BigDoors.get().getPLogger().logThrowableSilently(ex);
             throw ex;
         }
@@ -78,16 +83,6 @@ public abstract class ToolUser implements IRestartable
      */
     protected abstract @NonNull List<IStep> generateSteps()
         throws InstantiationException;
-
-    /**
-     * Gets the {@link Procedure} that this {@link ToolUser} will go through.
-     *
-     * @return The {@link Procedure} for this {@link ToolUser}.
-     */
-    public @NonNull Procedure getProcedure()
-    {
-        return procedure;
-    }
 
     /**
      * Takes care of the final part of the process. This unregisters this {@link ToolUser} and removes the tool from the
@@ -125,11 +120,13 @@ public abstract class ToolUser implements IRestartable
                                   final @Nullable Message message)
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil()
-                .giveToPlayer(player, messages.getString(name), messages.getString(lore));
+                .giveToPlayer(getPlayer(),
+                              BigDoors.get().getPlatform().getMessages().getString(name),
+                              BigDoors.get().getPlatform().getMessages().getString(lore));
         playerHasStick = true;
 
         if (message != null)
-            player.sendMessage(messages.getString(message));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages().getString(message));
     }
 
     /**
@@ -137,7 +134,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void removeTool()
     {
-        BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(player);
+        BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(getPlayer());
         playerHasStick = false;
     }
 
@@ -148,7 +145,7 @@ public abstract class ToolUser implements IRestartable
      */
     public @NonNull String getCurrentStepMessage()
     {
-        return procedure.getMessage();
+        return getProcedure().getMessage();
     }
 
     /**
@@ -160,11 +157,11 @@ public abstract class ToolUser implements IRestartable
     {
         sendMessage();
 
-        if (!procedure.waitForUserInput() &&
+        if (!getProcedure().waitForUserInput() &&
             applyInput(null) &&
-            procedure.implicitNextStep())
+            getProcedure().implicitNextStep())
         {
-            procedure.goToNextStep();
+            getProcedure().goToNextStep();
             prepareCurrentStep();
         }
     }
@@ -179,13 +176,13 @@ public abstract class ToolUser implements IRestartable
     {
         try
         {
-            return procedure.applyStepExecutor(obj);
+            return getProcedure().applyStepExecutor(obj);
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e);
+            BigDoors.get().getPLogger().logThrowable(e, toString());
             // TODO: Localization
-            player.sendMessage("An error occurred! Please contact a server administrator!");
+            getPlayer().sendMessage("An error occurred! Please contact a server administrator!");
             shutdown();
             return false;
         }
@@ -201,7 +198,7 @@ public abstract class ToolUser implements IRestartable
     {
         BigDoors.get().getPLogger().debug(
             "Handling input: " + obj + " (" + obj.getClass().getSimpleName() + ") for step: " +
-                procedure.getCurrentStepName() + " in ToolUser: " + this);
+                getProcedure().getCurrentStepName() + " in ToolUser: " + this);
 
         if (!active)
             return false;
@@ -209,8 +206,8 @@ public abstract class ToolUser implements IRestartable
         if (!applyInput(obj))
             return false;
 
-        if (procedure.implicitNextStep())
-            procedure.goToNextStep();
+        if (getProcedure().implicitNextStep())
+            getProcedure().goToNextStep();
 
         prepareCurrentStep();
         return true;
@@ -221,11 +218,11 @@ public abstract class ToolUser implements IRestartable
      */
     protected void sendMessage()
     {
-        @NonNull val message = procedure.getMessage();
+        @NonNull val message = getProcedure().getMessage();
         if (message.isEmpty())
-            BigDoors.get().getPLogger().warn("Missing translation for step: " + procedure.getCurrentStepName());
+            BigDoors.get().getPLogger().warn("Missing translation for step: " + getProcedure().getCurrentStepName());
         else
-            player.sendMessage(message);
+            getPlayer().sendMessage(message);
     }
 
     /**
@@ -235,7 +232,7 @@ public abstract class ToolUser implements IRestartable
      */
     public @NonNull Optional<IStep> getCurrentStep()
     {
-        return Optional.ofNullable(procedure.getCurrentStep());
+        return Optional.ofNullable(getProcedure().getCurrentStep());
     }
 
     /**
@@ -247,16 +244,17 @@ public abstract class ToolUser implements IRestartable
      * @param loc The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    protected boolean playerHasAccessToLocation(final @NonNull IPLocationConst loc)
+    public boolean playerHasAccessToLocation(final @NonNull IPLocationConst loc)
     {
         final @NonNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                         .canBreakBlock(player, loc);
+                                                         .canBreakBlock(getPlayer(), loc);
 
         result.ifPresent(
             compat ->
             {
                 if (!compat.isEmpty())
-                    player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+                    getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                                    .getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
             });
         return result.isEmpty();
     }
@@ -271,17 +269,18 @@ public abstract class ToolUser implements IRestartable
      * @param world  The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
-    protected boolean playerHasAccessToCuboid(final @NonNull Cuboid cuboid, final @NonNull IPWorld world)
+    public boolean playerHasAccessToCuboid(final @NonNull Cuboid cuboid, final @NonNull IPWorld world)
     {
         final @NonNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                         .canBreakBlocksBetweenLocs(player, cuboid.getMin(),
+                                                         .canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
                                                                                     cuboid.getMax(), world);
 
         result.ifPresent(
             compat ->
             {
                 if (!compat.isEmpty())
-                    player.sendMessage(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+                    getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                                    .getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
             });
         return result.isEmpty();
     }

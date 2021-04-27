@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.NonNull;
-import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -9,7 +8,6 @@ import nl.pim16aap2.bigdoors.util.Limit;
 
 import java.util.OptionalInt;
 
-@UtilityClass
 public class LimitsManager
 {
     /**

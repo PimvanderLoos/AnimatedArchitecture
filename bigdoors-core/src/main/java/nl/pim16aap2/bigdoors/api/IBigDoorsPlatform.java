@@ -21,6 +21,7 @@ import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -289,4 +290,11 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      * @return The {@link IPServer} instance.
      */
     @NonNull IPServer getPServer();
+
+    /**
+     * Gets the {@link LimitsManager}.
+     *
+     * @return The {@link LimitsManager}.
+     */
+    @NonNull LimitsManager getLimitsManager();
 }

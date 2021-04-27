@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.Getter;
 import lombok.NonNull;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -62,12 +62,14 @@ public class CreatorPortcullis extends Creator
         if (blocksToMove < 1)
             return false;
 
-        final @NonNull OptionalInt blocksToMoveLimit = LimitsManager.getLimit(player, Limit.BLOCKS_TO_MOVE);
+        final @NonNull OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
+                                                               .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_BLOCKSTOMOVETOOFAR,
-                                                  Integer.toString(blocksToMove),
-                                                  Integer.toString(blocksToMoveLimit.getAsInt())));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_BLOCKSTOMOVETOOFAR,
+                                                       Integer.toString(blocksToMove),
+                                                       Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;
         }
 

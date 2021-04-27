@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -30,8 +29,11 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -42,7 +44,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-@ToString
+@ToString(callSuper = true)
 public abstract class Creator extends ToolUser
 {
     /**
@@ -160,6 +162,13 @@ public abstract class Creator extends ToolUser
     @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
 
+    private static final DecimalFormat DECIMAL_FORMAT =
+        new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+
+    static
+    {
+        DECIMAL_FORMAT.setMaximumFractionDigits(2);
+    }
 
     protected Creator(final @NonNull IPPlayer player)
     {
@@ -216,7 +225,7 @@ public abstract class Creator extends ToolUser
     protected final @NonNull AbstractDoorBase.DoorData constructDoorData()
     {
         final long doorUID = -1;
-        @NonNull val owner = new DoorOwner(doorUID, 0, player.getPPlayerData());
+        @NonNull val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
         // Ignore the @NonNull status here because any value that's null will cause a
         // detailed (i.e. with the exact name) NPE to be thrown, which is more useful
         // then for example using a loop to check varargs objects and much easier to
@@ -260,7 +269,13 @@ public abstract class Creator extends ToolUser
     protected boolean completeNamingStep(final @NonNull String str)
     {
         if (!Util.isValidDoorName(str))
-            return false; // TODO: Inform the user.
+        {
+            BigDoors.get().getPLogger()
+                    .logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
+            // TODO: Localization
+            getPlayer().sendMessage("\"" + str + "\" is an invalid door name! Please try again!");
+            return false;
+        }
 
         name = str;
         giveTool();
@@ -291,27 +306,28 @@ public abstract class Creator extends ToolUser
      */
     protected boolean setSecondPos(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        //noinspection ConstantConditions
-        cuboid = new Cuboid(new Vector3Di(firstPos),
-                            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        Cuboid newCuboid = new Cuboid(new Vector3Di(Util.requireNonNull(firstPos, "firstPos")),
+                                      new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final @NonNull OptionalInt sizeLimit = LimitsManager.getLimit(player, Limit.DOOR_SIZE);
-        if (sizeLimit.isPresent() && cuboid.getVolume() > sizeLimit.getAsInt())
+        final @NonNull OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
+        if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
-            player.sendMessage(
-                messages.getString(Message.CREATOR_GENERAL_AREATOOBIG, Integer.toString(cuboid.getVolume()),
+            getPlayer().sendMessage(
+                BigDoors.get().getPlatform().getMessages()
+                        .getString(Message.CREATOR_GENERAL_AREATOOBIG, Integer.toString(newCuboid.getVolume()),
                                    Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
-        //noinspection ConstantConditions
-        return playerHasAccessToCuboid(cuboid, world);
+        cuboid = newCuboid;
+
+        return playerHasAccessToCuboid(cuboid, Util.requireNonNull(world, "world"));
     }
 
     /**
@@ -328,19 +344,22 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_CANCELLED));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_CANCELLED));
             shutdown();
             return true;
         }
         if (!buyDoor())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
-                                                  String.format("%.2f", getPrice().orElse(0))));
+
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
+                                                       DECIMAL_FORMAT.format(getPrice().orElse(0))));
             shutdown();
             return true;
         }
 
-        procedure.goToNextStep();
+        getProcedure().goToNextStep();
         return true;
     }
 
@@ -370,7 +389,7 @@ public abstract class Creator extends ToolUser
             if (id < 0 || id >= validOpenDirs.size())
             {
                 BigDoors.get().getPLogger().debug(
-                    getClass().getSimpleName() + ": Player " + player.getUUID() + " selected ID: " + id +
+                    getClass().getSimpleName() + ": Player " + getPlayer().getUUID() + " selected ID: " + id +
                         " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
             }
@@ -399,7 +418,13 @@ public abstract class Creator extends ToolUser
             {
                 opendir = foundOpenDir;
                 return true;
-            }).orElse(false);
+            }).orElseGet(
+            () ->
+            {
+                // TODO: Localization
+                getPlayer().sendMessage("\"" + str + "\" is not a valid option! Please try again.");
+                return false;
+            });
     }
 
     /**
@@ -412,16 +437,14 @@ public abstract class Creator extends ToolUser
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
      *
-     * @param loc The location to check.
-     * @return True if the location is in the same world this door is being created in.
+     * @param targetWorld The world to check.
+     * @return True if the world is the same world this door is being created in.
      */
-    protected boolean verifyWorldMatch(final @NonNull IPLocationConst loc)
+    protected boolean verifyWorldMatch(final @NonNull IPWorld targetWorld)
     {
-        if (world == null)
-            return false;
-        if (world.getWorldName().equals(loc.getWorld().getWorldName()))
+        if (Util.requireNonNull(world, "world").getWorldName().equals(targetWorld.getWorldName()))
             return true;
-        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + player.getUUID());
+        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
         return false;
     }
 
@@ -432,21 +455,22 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(final @NonNull AbstractDoorBase door)
     {
-        // TODO: Don't complete the process until the CompletableFuture has an actual result.
-        //       Or maybe just finish it anyway and send whatever message once it is done.
-        //       There's nothing that can be done about failure anyway.
         BigDoors.get().getDatabaseManager().addDoorBase(door).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
                 {
                     // TODO: Localization
-                    player.sendMessage("Door creation was cancelled!");
+                    getPlayer().sendMessage("Door creation was cancelled!");
                     return;
                 }
 
                 if (result.second.isEmpty())
+                {
+                    // TODO: Localization
+                    getPlayer().sendMessage("An error occurred, please contact a server administrator!");
                     BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
+                }
             }).exceptionally(Util::exceptionally);
     }
 
@@ -464,15 +488,12 @@ public abstract class Creator extends ToolUser
      */
     protected boolean buyDoor()
     {
-        if (cuboid == null)
-            return false;
-
         if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
             return true;
 
-        //noinspection ConstantConditions
         return BigDoors.get().getPlatform().getEconomyManager()
-                       .buyDoor(player, world, getDoorType(), cuboid.getVolume());
+                       .buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
+                                Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -483,10 +504,10 @@ public abstract class Creator extends ToolUser
      */
     protected @NonNull OptionalDouble getPrice()
     {
-        // TODO: Perhaps this should be cached.
-        if (cuboid == null || !BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
+        if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
             return OptionalDouble.empty();
-        return BigDoors.get().getPlatform().getEconomyManager().getPrice(getDoorType(), cuboid.getVolume());
+        return BigDoors.get().getPlatform().getEconomyManager()
+                       .getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -514,7 +535,8 @@ public abstract class Creator extends ToolUser
         val sb = new StringBuilder();
         int idx = 0;
         for (RotateDirection rotateDirection : getValidOpenDirections())
-            sb.append(idx++).append(": ").append(messages.getString(rotateDirection.getMessage())).append("\n");
+            sb.append(idx++).append(": ").append(BigDoors.get().getPlatform().getMessages()
+                                                         .getString(rotateDirection.getMessage())).append("\n");
         return sb.toString();
     }
 
@@ -538,35 +560,29 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeSetPowerBlockStep(final @NonNull IPLocationConst loc)
     {
-        if (cuboid == null || world == null)
-        {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, "Creator in invalid state: " + this);
-            // TODO: Localization
-            player.sendMessage("And error occurred, please contact a server administrator!");
-            shutdown();
-            return false;
-        }
-
-        if (!loc.getWorld().getWorldName().equals(world.getWorldName()))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        final @NonNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        if (cuboid.isPosInsideCuboid(pos))
+        final @NonNull Vector3Di pos = loc.getPosition();
+        if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
             return false;
         }
-        final @NonNull OptionalInt distanceLimit = LimitsManager.getLimit(player, Limit.POWERBLOCK_DISTANCE);
+        final @NonNull OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
+                                                           .getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
-                                                  String.format("%.2f", distance),
-                                                  Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
+                                                       DECIMAL_FORMAT.format(distance),
+                                                       Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -585,21 +601,20 @@ public abstract class Creator extends ToolUser
      */
     protected boolean completeSetEngineStep(final @NonNull IPLocationConst loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        final @NonNull Vector3Di pos = new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        //noinspection ConstantConditions
-        if (!cuboid.clone().changeDimensions(1, 1, 1).isPosInsideCuboid(pos))
+        if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            player.sendMessage(messages.getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
+            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
+                                            .getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
             return false;
         }
 
-        engine = pos;
+        engine = loc.getPosition();
         return true;
     }
 }
