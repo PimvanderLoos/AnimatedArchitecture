@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -19,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class DoorSerializerTest
 {
@@ -39,6 +43,15 @@ class DoorSerializerTest
         final DoorOwner doorOwner = new DoorOwner(1, 0, playerData);
         doorData = new AbstractDoorBase.DoorData(1, name, pos, pos, pos, pos, new TestPWorld("worldName"),
                                                  false, false, RotateDirection.DOWN, doorOwner);
+    }
+
+    @BeforeEach
+    void init()
+    {
+        val platform = initPlatform();
+        val doorRegistry = Mockito.mock(DoorRegistry.class);
+        Mockito.when(platform.getDoorRegistry()).thenReturn(doorRegistry);
+        Mockito.when(doorRegistry.registerDoor(Mockito.any())).thenReturn(true);
     }
 
     @Test
