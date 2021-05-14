@@ -10,8 +10,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
+        <maven.compiler.release>16</maven.compiler.release>
 
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
         <dependency.version.annotations>20.1.0</dependency.version.annotations>
@@ -21,7 +20,7 @@
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
         <dependency.version.jacoco>0.8.6</dependency.version.jacoco>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+        <dependency.version.maven-shade>4878e9b4d2</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
     </properties>
 
@@ -103,11 +102,12 @@
                     <configuration>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
+                        <argLine>--enable-preview</argLine>
                     </configuration>
                 </plugin>
 
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
+                    <groupId>com.github.apache</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
                     <version>${dependency.version.maven-shade}</version>
                     <configuration>
@@ -157,8 +157,10 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${dependency.version.maven-compiler}</version>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
+                        <release>${maven.compiler.release}</release>
+                        <compilerArgs>
+                            --enable-preview
+                        </compilerArgs>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
