@@ -97,7 +97,7 @@
             <artifactId>Towny</artifactId>
             <version>0.95.2.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Towny-0.95.2.0.jar</systemPath>
+            <systemPath>${basedir}/../../lib/Towny-0.95.2.0.jar</systemPath>
         </dependency>
 
         <!-- Old Towny -->
@@ -106,7 +106,7 @@
             <artifactId>Towny</artifactId>
             <version>0.94.0.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Towny_0_94_0_0.jar</systemPath>
+            <systemPath>${basedir}/../../lib/Towny_0_94_0_0.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -143,7 +143,7 @@
             <artifactId>PlotSquared-Legacy</artifactId>
             <scope>system</scope>
             <version>latest</version>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
+            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -151,7 +151,7 @@
             <artifactId>PlotSquared-Breaking</artifactId>
             <scope>system</scope>
             <version>4.347</version>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.347.jar</systemPath>
+            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-4.347.jar</systemPath>
         </dependency>
     </dependencies>
 
