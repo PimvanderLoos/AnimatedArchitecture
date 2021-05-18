@@ -18,7 +18,7 @@
         <dependency.version.mockito>3.9.0</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
-        <dependency.version.jacoco>0.8.6</dependency.version.jacoco>
+        <dependency.version.jacoco>0.8.7</dependency.version.jacoco>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>4878e9b4d2</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
