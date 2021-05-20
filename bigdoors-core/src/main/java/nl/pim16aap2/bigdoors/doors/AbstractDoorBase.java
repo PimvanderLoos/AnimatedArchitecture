@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -48,6 +49,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Accessors(chain = true)
+@EqualsAndHashCode(callSuper = false)
 public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccessor implements IDoorBase
 {
     @Getter
@@ -86,7 +88,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Setter(onMethod = @__({@Override}))
     private volatile boolean locked;
 
+    @EqualsAndHashCode.Exclude
     private final @NonNull Map<@NonNull UUID, @NonNull DoorOwner> doorOwners;
+
+    @EqualsAndHashCode.Exclude
     private final @NonNull Object doorOwnersLock = new Object();
 
     @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
@@ -98,6 +103,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * Min and Max Vector2Di coordinates of the range of Vector2Dis that this {@link AbstractDoorBase} might interact
      * with.
      */
+    @EqualsAndHashCode.Exclude
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
     @Override
@@ -171,7 +177,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return True if the synchronization was successful.
      */
-    public synchronized final @NonNull CompletableFuture<Boolean> syncData()
+    public final synchronized @NonNull CompletableFuture<Boolean> syncData()
     {
         if (serializer == null)
         {
@@ -605,7 +611,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public synchronized @NonNull String getBasicInfo()
     {
-        return doorUID + " (" + getPrimeOwner().toString() + ") - " + getDoorType().getSimpleName() + ": " + name;
+        return doorUID + " (" + getPrimeOwner() + ") - " + getDoorType().getSimpleName() + ": " + name;
     }
 
     /**
@@ -633,23 +639,6 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             builder.append(serializer.get().toString(this));
 
         return builder.toString();
-    }
-
-    // TODO: Hashcode. Just the UID? Or actually calculate it?
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        AbstractDoorBase other = (AbstractDoorBase) o;
-        return doorUID == other.doorUID && name.equals(other.name) && cuboid.equals(other.cuboid) &&
-            engine.equals(other.engine) && getDoorType().equals(other.getDoorType()) && open == other.open &&
-            primeOwner.equals(other.primeOwner) && locked == other.locked &&
-            world.getWorldName().equals(other.world.getWorldName());
     }
 
     /**

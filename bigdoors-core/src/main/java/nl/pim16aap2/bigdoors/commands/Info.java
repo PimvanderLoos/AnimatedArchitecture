@@ -57,6 +57,6 @@ public class Info extends DoorTargetCommand
         if (!(getCommandSender() instanceof IPPlayer))
             return;
         BigDoors.get().getPlatform().getGlowingBlockSpawner()
-                .map(spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender()));
+                .ifPresent(spawner -> spawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender()));
     }
 }

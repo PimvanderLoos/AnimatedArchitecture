@@ -36,4 +36,22 @@ public final class TestPWorld implements IPWorld
     {
         return new TestPWorld(worldName);
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        if (getClass() != o.getClass())
+            return false;
+        return worldName.equals(((IPWorld) o).getWorldName());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return worldName.hashCode();
+    }
 }

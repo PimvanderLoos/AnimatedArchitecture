@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.storage;
 
 import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -86,6 +87,12 @@ public class SQLiteJDBCDriverConnectionTest
     @BeforeAll
     public static void baseSetup()
     {
+        // Setup a temporary platform and logger for the base setup.
+        // This will be overwritten by the foreach method.
+        val tmpPlatform = Mockito.mock(IBigDoorsPlatform.class);
+        BigDoors.get().setBigDoorsPlatform(tmpPlatform);
+        Mockito.when(tmpPlatform.getPLogger()).thenReturn(new BasicPLogger());
+
         AbstractDoorBase.DoorData doorData;
         {
             final int doorUID = 1;
@@ -216,7 +223,7 @@ public class SQLiteJDBCDriverConnectionTest
         }
         catch (IOException e)
         {
-            BigDoors.get().getPLogger().logThrowable(e);
+            throw new RuntimeException(e);
         }
     }
 
