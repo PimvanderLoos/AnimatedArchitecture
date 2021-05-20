@@ -10,11 +10,17 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lombok.encoding>UTF-8</lombok.encoding>
         <maven.compiler.release>16</maven.compiler.release>
+
+        <lombok.inputDir>${project.basedir}</lombok.inputDir>
+        <lombok.outputDir>${project.build.directory}/generated-sources/delombok</lombok.outputDir>
+        <src.dir>${basedir}/src/main/java</src.dir>
 
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
         <dependency.version.annotations>20.1.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
+        <dependency.version.errorprone>2.7.0</dependency.version.errorprone>
         <dependency.version.mockito>3.10.0</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -91,9 +97,17 @@
             <version>${dependency.version.lombok}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>${dependency.version.errorprone}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <sourceDirectory>${src.dir}</sourceDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -103,7 +117,6 @@
                     <configuration>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
-                        <argLine>--enable-preview</argLine>
                     </configuration>
                 </plugin>
 
@@ -120,6 +133,10 @@
                             <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.errorprone</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>
@@ -152,26 +169,109 @@
                         </execution>
                     </executions>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${dependency.version.maven-compiler}</version>
-                    <configuration>
-                        <release>${maven.compiler.release}</release>
-                        <compilerArgs>
-                            --enable-preview
-                        </compilerArgs>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>${dependency.version.lombok}</version>
-                            </path>
-                        </annotationProcessorPaths>
-                    </configuration>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${dependency.version.maven-compiler}</version>
+                            <configuration>
+                                <encoding>UTF-8</encoding>
+                                <release>${maven.compiler.release}</release>
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.projectlombok</groupId>
+                                        <artifactId>lombok</artifactId>
+                                        <version>${dependency.version.lombok}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <profile>
+            <id>errorprone</id>
+
+            <properties>
+                <src.dir>${lombok.outputDir}</src.dir>
+            </properties>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-maven-plugin</artifactId>
+                            <version>1.18.20.0</version>
+                            <executions>
+                                <execution>
+                                    <phase>generate-sources</phase>
+                                    <goals>
+                                        <goal>delombok</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <sourceDirectory>src/main/java</sourceDirectory>
+                                <verbose>true</verbose>
+                                <formatPreferences>
+                                    <generateDelombokComment>skip</generateDelombokComment>
+                                    <javaLangAsFQN>skip</javaLangAsFQN>
+                                    <suppressWarnings>skip</suppressWarnings>
+                                </formatPreferences>
+                            </configuration>
+                        </plugin>
+
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${dependency.version.maven-compiler}</version>
+
+                            <configuration>
+                                <encoding>UTF-8</encoding>
+                                <fork>true</fork>
+                                <release>${maven.compiler.release}</release>
+                                <compilerArgs>
+                                    <arg>-XDcompilePolicy=simple</arg>
+                                    <arg>-Xplugin:ErrorProne -Xep:JavaLangClash -Xep:SameNameButDifferent</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                    <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                    <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                                </compilerArgs>
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>com.google.errorprone</groupId>
+                                        <artifactId>error_prone_core</artifactId>
+                                        <version>${dependency.version.errorprone}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>
