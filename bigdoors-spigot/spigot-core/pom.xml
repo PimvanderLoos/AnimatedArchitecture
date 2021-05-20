@@ -31,7 +31,6 @@
         </repository>
     </repositories>
 
-
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
@@ -175,16 +174,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${dependency.version.maven-shade}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${dependency.version.jacoco}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${dependency.version.maven-compiler}</version>
             </plugin>
         </plugins>
     </build>
