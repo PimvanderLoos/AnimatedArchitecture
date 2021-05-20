@@ -20,7 +20,7 @@
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
         <dependency.version.annotations>20.1.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
-        <dependency.version.errorprone>2.7.1</dependency.version.errorprone>
+        <dependency.version.errorprone>2.7.0</dependency.version.errorprone>
         <dependency.version.mockito>3.10.0</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -179,7 +179,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            
+
             <build>
                 <pluginManagement>
                     <plugins>
