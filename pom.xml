@@ -115,6 +115,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${dependency.version.surefire}</version>
                     <configuration>
+                        <argLine>--enable-preview</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
                     </configuration>
@@ -188,6 +189,7 @@
                             <artifactId>maven-compiler-plugin</artifactId>
                             <version>${dependency.version.maven-compiler}</version>
                             <configuration>
+                                <compilerArgs>--enable-preview</compilerArgs>
                                 <encoding>UTF-8</encoding>
                                 <release>${maven.compiler.release}</release>
                                 <annotationProcessorPaths>
@@ -247,6 +249,7 @@
                                 <fork>true</fork>
                                 <release>${maven.compiler.release}</release>
                                 <compilerArgs>
+                                    <arg>-J--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <arg>-Xplugin:ErrorProne -Xep:JavaLangClash -Xep:SameNameButDifferent</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
