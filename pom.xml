@@ -249,7 +249,7 @@
                                 <fork>true</fork>
                                 <release>${maven.compiler.release}</release>
                                 <compilerArgs>
-                                    <arg>-J--enable-preview</arg>
+                                    <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <arg>-Xplugin:ErrorProne -Xep:JavaLangClash -Xep:SameNameButDifferent</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
