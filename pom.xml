@@ -187,7 +187,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.6</version>
+            <version>1.8</version>
             <scope>compile</scope>
         </dependency>
         

@@ -9,6 +9,7 @@ Alpha 0.1.8.29
 - Added command "/setnotification <doorName || doorUID> <true || false>" to enable/disable notifications for a door. There's also a corresponding GUI option.
 - Added new localizable messages for the notification system.
 - Updated database to v7.
+- Updated JCalculator to 1.8.
 
 Alpha 0.1.8.28
 - Fixed chains not rotating when they should. Thanks, @Sorienrot, for the bug report!
