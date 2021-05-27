@@ -8,6 +8,7 @@ Alpha 0.1.8.29
 - Added permission node "bigdoors.user.receivenotifications" that gives access to both signing up for and receiving notifications. (again, only the original creator of a door has access to this!)
 - Added command "/setnotification <doorName || doorUID> <true || false>" to enable/disable notifications for a door. There's also a corresponding GUI option.
 - Added new localizable messages for the notification system.
+- Reduced update checker frequency to 12h.
 - Updated database to v7.
 - Updated JCalculator to 1.8.
 
