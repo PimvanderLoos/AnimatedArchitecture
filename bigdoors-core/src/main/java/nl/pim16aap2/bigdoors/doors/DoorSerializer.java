@@ -16,6 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -111,23 +112,26 @@ public class DoorSerializer<T extends AbstractDoorBase>
         throws Exception
     {
         this.doorClass = doorClass;
-        Constructor<T> ctor = null;
+        if (Modifier.isAbstract(doorClass.getModifiers()))
+            throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
+
+        Constructor<T> ctorTmp = null;
         try
         {
-            ctor = doorClass.getDeclaredConstructor(AbstractDoorBase.DoorData.class);
-            ctor.setAccessible(true);
+            ctorTmp = doorClass.getDeclaredConstructor(AbstractDoorBase.DoorData.class);
+            ctorTmp.setAccessible(true);
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(Level.FINER, t, "Class " + getDoorTypeName() +
+            BigDoors.get().getPLogger().logThrowable(Level.FINER, e, "Class " + getDoorTypeName() +
                 " does not have DoorData ctor! Using Unsafe instead!");
         }
-        this.ctor = ctor;
-        if (this.ctor == null && !UNSAFE_AVAILABLE)
+        ctor = ctorTmp;
+        if (ctor == null && !UNSAFE_AVAILABLE)
             throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
                                     " and Unsafe is unavailable! This type cannot be enabled!");
 
-        BigDoors.get().getPLogger().logMessage(Level.FINE, "Using " + (this.ctor == null ? "Unsafe" : "Reflection") +
+        BigDoors.get().getPLogger().logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
             " construction method for class " + getDoorTypeName());
 
         findAnnotatedFields();
@@ -173,9 +177,8 @@ public class DoorSerializer<T extends AbstractDoorBase>
             }
             catch (IllegalAccessException e)
             {
-                throw new Exception(
-                    String.format("Failed to get value of field %s (type %s) for door type %s!",
-                                  field.getName(), field.getType().getName(), getDoorTypeName()), e);
+                throw new Exception(String.format("Failed to get value of field %s (type %s) for door type %s!",
+                                                  field.getName(), field.getType().getName(), getDoorTypeName()), e);
             }
         return toByteArray(values);
     }
@@ -204,10 +207,6 @@ public class DoorSerializer<T extends AbstractDoorBase>
             objectOutputStream.writeObject(serializable);
             return byteArrayOutputStream.toByteArray();
         }
-        catch (Throwable t)
-        {
-            throw new Exception(t);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -223,10 +222,6 @@ public class DoorSerializer<T extends AbstractDoorBase>
 
             //noinspection unchecked
             return (ArrayList<Object>) obj;
-        }
-        catch (Throwable t)
-        {
-            throw new Exception(t);
         }
     }
 
@@ -247,7 +242,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
                 fields.get(idx).set(door, values.get(idx));
             return door;
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
             throw new Exception("Failed to create new instance of type: " + getDoorTypeName(), t);
         }
