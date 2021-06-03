@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -12,16 +12,16 @@ import java.util.function.Function;
 public class StepExecutorVector3Di extends StepExecutor
 {
     @ToString.Exclude
-    private final @NonNull Function<Vector3DiConst, Boolean> fun;
+    private final @NotNull Function<Vector3DiConst, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NonNull Object input)
+    protected boolean protectedAccept(final @NotNull Object input)
     {
         return fun.apply((Vector3DiConst) input);
     }
 
     @Override
-    public @NonNull Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return Vector3DiConst.class;
     }

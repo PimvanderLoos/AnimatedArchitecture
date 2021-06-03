@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -46,7 +46,7 @@ public abstract class FastFieldCopier<S, T>
         this.offsetTarget = offsetTarget;
     }
 
-    private static Field getField(@NonNull Class<?> clz, @NonNull String name)
+    private static Field getField(@NotNull Class<?> clz, @NotNull String name)
         throws NoSuchFieldException
     {
         Field f = clz.getDeclaredField(name);
@@ -60,7 +60,7 @@ public abstract class FastFieldCopier<S, T>
      * @param source The source object.
      * @param target The target object.
      */
-    public abstract void copy(@NonNull S source, @NonNull T target);
+    public abstract void copy(@NotNull S source, @NotNull T target);
 
     /**
      * Creates a new {@link FastFieldCopier} for the provided fields.
@@ -73,8 +73,8 @@ public abstract class FastFieldCopier<S, T>
      * @param <T>         The type of the target class.
      * @return A new {@link FastFieldCopier} for the appropriate type.
      */
-    public static @NonNull <S, T> FastFieldCopier<S, T> of(@NonNull Class<S> sourceClass, @NonNull String nameSource,
-                                                           @NonNull Class<T> targetClass, @NonNull String nameTarget)
+    public static @NotNull <S, T> FastFieldCopier<S, T> of(@NotNull Class<S> sourceClass, @NotNull String nameSource,
+                                                           @NotNull Class<T> targetClass, @NotNull String nameTarget)
     {
         final long offsetSource;
         final long offsetTarget;
@@ -104,7 +104,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putInt(target, offsetTarget, UNSAFE.getInt(source, offsetSource));
                 }
@@ -114,7 +114,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putLong(target, offsetTarget, UNSAFE.getLong(source, offsetSource));
                 }
@@ -124,7 +124,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putBoolean(target, offsetTarget, UNSAFE.getBoolean(source, offsetSource));
                 }
@@ -134,7 +134,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putShort(target, offsetTarget, UNSAFE.getShort(source, offsetSource));
                 }
@@ -144,7 +144,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putChar(target, offsetTarget, UNSAFE.getChar(source, offsetSource));
                 }
@@ -154,7 +154,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putFloat(target, offsetTarget, UNSAFE.getFloat(source, offsetSource));
                 }
@@ -164,7 +164,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putDouble(target, offsetTarget, UNSAFE.getDouble(source, offsetSource));
                 }
@@ -174,7 +174,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override
-                public void copy(@NonNull Object source, @NonNull Object target)
+                public void copy(@NotNull Object source, @NotNull Object target)
                 {
                     UNSAFE.putByte(target, offsetTarget, UNSAFE.getByte(source, offsetSource));
                 }
@@ -183,7 +183,7 @@ public abstract class FastFieldCopier<S, T>
         return new FastFieldCopier<>(offsetSource, offsetTarget)
         {
             @Override
-            public void copy(@NonNull Object source, @NonNull Object target)
+            public void copy(@NotNull Object source, @NotNull Object target)
             {
                 UNSAFE.putObject(target, offsetTarget, UNSAFE.getObject(source, offsetSource));
             }

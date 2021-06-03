@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api.restartable;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Basic implementation of {@link IRestartable}.
@@ -14,7 +14,7 @@ public abstract class Restartable implements IRestartable
      *
      * @param holder The {@link IRestartableHolder} to register this {@link Restartable} with.
      */
-    protected Restartable(final @NonNull IRestartableHolder holder)
+    protected Restartable(final @NotNull IRestartableHolder holder)
     {
         holder.registerRestartable(this);
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a double vector or vertex in 3D space.
@@ -15,17 +15,17 @@ public final class Vector3Dd extends Vector3DdConst
         super(x, y, z);
     }
 
-    public Vector3Dd(final @NonNull Vector3DdConst other)
+    public Vector3Dd(final @NotNull Vector3DdConst other)
     {
         super(other);
     }
 
-    public Vector3Dd(final @NonNull Vector3DiConst other)
+    public Vector3Dd(final @NotNull Vector3DiConst other)
     {
         super(other);
     }
 
-    public @NonNull Vector3Dd rotateAroundXAxis(final double radians)
+    public @NotNull Vector3Dd rotateAroundXAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -39,7 +39,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd rotateAroundXAxis(final @NonNull Vector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundXAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -55,7 +55,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd rotateAroundYAxis(final double radians)
+    public @NotNull Vector3Dd rotateAroundYAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -69,7 +69,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd rotateAroundYAxis(final @NonNull Vector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundYAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -85,7 +85,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd rotateAroundZAxis(final double radians)
+    public @NotNull Vector3Dd rotateAroundZAxis(final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -99,7 +99,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd rotateAroundZAxis(final @NonNull Vector3DdConst pivotPoint, final double radians)
+    public @NotNull Vector3Dd rotateAroundZAxis(final @NotNull Vector3DdConst pivotPoint, final double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -115,19 +115,19 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd add(final @NonNull Vector3DdConst other)
+    public @NotNull Vector3Dd add(final @NotNull Vector3DdConst other)
     {
         add(other.getX(), other.getY(), other.getZ());
         return this;
     }
 
-    public @NonNull Vector3Dd subtract(final @NonNull Vector3DdConst other)
+    public @NotNull Vector3Dd subtract(final @NotNull Vector3DdConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ());
         return this;
     }
 
-    public @NonNull Vector3Dd multiply(final @NonNull Vector3DdConst other)
+    public @NotNull Vector3Dd multiply(final @NotNull Vector3DdConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -135,7 +135,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd divide(final @NonNull Vector3DdConst other)
+    public @NotNull Vector3Dd divide(final @NotNull Vector3DdConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -143,7 +143,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd multiply(final double val)
+    public @NotNull Vector3Dd multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -151,7 +151,7 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd divide(final double val)
+    public @NotNull Vector3Dd divide(final double val)
     {
         x /= val;
         y /= val;
@@ -159,43 +159,43 @@ public final class Vector3Dd extends Vector3DdConst
         return this;
     }
 
-    public @NonNull Vector3Dd addX(double val)
+    public @NotNull Vector3Dd addX(double val)
     {
         x += val;
         return this;
     }
 
-    public @NonNull Vector3Dd addY(double val)
+    public @NotNull Vector3Dd addY(double val)
     {
         y += val;
         return this;
     }
 
-    public @NonNull Vector3Dd addZ(double val)
+    public @NotNull Vector3Dd addZ(double val)
     {
         z += val;
         return this;
     }
 
-    public @NonNull Vector3Dd setX(double newVal)
+    public @NotNull Vector3Dd setX(double newVal)
     {
         x = newVal;
         return this;
     }
 
-    public @NonNull Vector3Dd setY(double newVal)
+    public @NotNull Vector3Dd setY(double newVal)
     {
         y = newVal;
         return this;
     }
 
-    public @NonNull Vector3Dd setZ(double newVal)
+    public @NotNull Vector3Dd setZ(double newVal)
     {
         z = newVal;
         return this;
     }
 
-    public @NonNull Vector3Dd add(double x, double y, double z)
+    public @NotNull Vector3Dd add(double x, double y, double z)
     {
         this.x += x;
         this.y += y;
@@ -204,12 +204,12 @@ public final class Vector3Dd extends Vector3DdConst
     }
 
     @Override
-    public @NonNull Vector3Dd clone()
+    public @NotNull Vector3Dd clone()
     {
         return new Vector3Dd(this);
     }
 
-    public @NonNull Vector3Dd normalize()
+    public @NotNull Vector3Dd normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z);
 

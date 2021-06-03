@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -12,15 +12,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ConfigReaderSpigot implements IConfigReader
 {
-private final @NonNull FileConfiguration config;
+    private final @NotNull FileConfiguration config;
 
-    public ConfigReaderSpigot(final @NonNull FileConfiguration config)
+    public ConfigReaderSpigot(final @NotNull FileConfiguration config)
     {
         this.config = config;
     }
 
     @Override
-    public @NonNull Object get(@NonNull String path, @Nullable Object def)
+    public @NotNull Object get(@NotNull String path, @Nullable Object def)
     {
         return config.get(path, def);
     }

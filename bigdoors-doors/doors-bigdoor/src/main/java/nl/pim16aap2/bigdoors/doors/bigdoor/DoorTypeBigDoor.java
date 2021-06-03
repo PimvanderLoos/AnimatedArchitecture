@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ public final class DoorTypeBigDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    private static final @NonNull DoorTypeBigDoor INSTANCE = new DoorTypeBigDoor();
+    private static final @NotNull DoorTypeBigDoor INSTANCE = new DoorTypeBigDoor();
 
     private DoorTypeBigDoor()
     {
@@ -28,25 +28,25 @@ public final class DoorTypeBigDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NonNull DoorTypeBigDoor get()
+    public static @NotNull DoorTypeBigDoor get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    public @NotNull Class<? extends AbstractDoorBase> getDoorClass()
     {
         return BigDoor.class;
     }
 
     @Override
-    public @NonNull Creator getCreator(final @NonNull IPPlayer player)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
     {
         return new CreatorBigDoor(player);
     }
 
     @Override
-    public @NonNull Creator getCreator(final @NonNull IPPlayer player, final @Nullable String name)
+    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         return new CreatorBigDoor(player, name);
     }

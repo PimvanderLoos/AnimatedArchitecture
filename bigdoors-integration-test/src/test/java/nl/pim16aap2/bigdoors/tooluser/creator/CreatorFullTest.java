@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -32,14 +32,14 @@ class CreatorFullTest extends CreatorTestsUtil
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
 
-        @NonNull val doorType = Mockito.mock(DoorType.class);
+        @NotNull val doorType = Mockito.mock(DoorType.class);
         Mockito.when(doorType.getValidOpenDirections())
                .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        @NonNull val door = Mockito.mock(AbstractDoorBase.class);
+        @NotNull val door = Mockito.mock(AbstractDoorBase.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
-        @NonNull val creator = new CreatorTestImpl(player, door);
+        @NotNull val creator = new CreatorTestImpl(player, door);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
@@ -60,16 +60,16 @@ class CreatorFullTest extends CreatorTestsUtil
 
     private static class CreatorTestImpl extends Creator
     {
-        private final @NonNull AbstractDoorBase door;
+        private final @NotNull AbstractDoorBase door;
 
-        protected CreatorTestImpl(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
+        protected CreatorTestImpl(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
         {
             super(player, null);
             this.door = door;
         }
 
         @Override
-        protected @NonNull List<IStep> generateSteps()
+        protected @NotNull List<IStep> generateSteps()
             throws InstantiationException
         {
             return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -88,13 +88,13 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected @NonNull AbstractDoorBase constructDoor()
+        protected @NotNull AbstractDoorBase constructDoor()
         {
             return door;
         }
 
         @Override
-        protected @NonNull DoorType getDoorType()
+        protected @NotNull DoorType getDoorType()
         {
             return door.getDoorType();
         }

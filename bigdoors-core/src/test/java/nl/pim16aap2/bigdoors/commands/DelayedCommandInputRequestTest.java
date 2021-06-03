@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,8 +87,8 @@ class DelayedCommandInputRequestTest
                                                   .get(1, TimeUnit.SECONDS));
     }
 
-    private @NonNull CompletableFuture<Boolean> verifyInput(final @NonNull DelayedInput actualInput,
-                                                            final @NonNull DelayedInput delayedInput)
+    private @NotNull CompletableFuture<Boolean> verifyInput(final @NotNull DelayedInput actualInput,
+                                                            final @NotNull DelayedInput delayedInput)
     {
         Assertions.assertEquals(actualInput, delayedInput);
         return CompletableFuture.completedFuture(true);
@@ -97,7 +97,7 @@ class DelayedCommandInputRequestTest
     @Value
     private static class DelayedInput
     {
-        @NonNull UUID uuid;
-        @NonNull String string;
+        @NotNull UUID uuid;
+        @NotNull String string;
     }
 }

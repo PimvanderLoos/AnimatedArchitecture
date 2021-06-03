@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class DebugReporter
 {
     /**
      * Gets the datadump containing useful information for debugging issues.
      */
-    public @NonNull String getDump()
+    public @NotNull String getDump()
     {
         StringBuilder sb = new StringBuilder();
         sb.append("Java version: ").append(System.getProperty("java.version")).append("\n");

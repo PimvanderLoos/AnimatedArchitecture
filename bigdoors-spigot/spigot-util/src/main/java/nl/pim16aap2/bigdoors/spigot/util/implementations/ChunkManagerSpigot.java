@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link IChunkManager} for the Spigot platform.
@@ -12,7 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
  */
 public final class ChunkManagerSpigot implements IChunkManager
 {
-    private static final @NonNull ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
+    private static final @NotNull ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
 
     private ChunkManagerSpigot()
     {
@@ -23,19 +23,19 @@ public final class ChunkManagerSpigot implements IChunkManager
      *
      * @return The instance of the {@link ChunkManagerSpigot}.
      */
-    public static @NonNull ChunkManagerSpigot get()
+    public static @NotNull ChunkManagerSpigot get()
     {
         return INSTANCE;
     }
 
     @Override
-    public boolean isLoaded(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk)
+    public boolean isLoaded(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk)
     {
         return true;
     }
 
     @Override
-    public @NonNull ChunkLoadResult load(final @NonNull IPWorld world, final @NonNull Vector2DiConst chunk)
+    public @NotNull ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2DiConst chunk)
     {
         return ChunkLoadResult.SUCCESS;
     }

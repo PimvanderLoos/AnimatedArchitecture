@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * V1_15_R1 implementation of {@link IFallingBlockFactory}.
@@ -21,8 +21,8 @@ import org.bukkit.World;
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
     @Override
-    public @NonNull ICustomCraftFallingBlock fallingBlockFactory(final @NonNull IPLocationConst loc,
-                                                                 final @NonNull INMSBlock block)
+    public @NotNull ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
+                                                                 final @NotNull INMSBlock block)
         throws Exception
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
@@ -41,7 +41,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     }
 
     @Override
-    public @NonNull INMSBlock nmsBlockFactory(final @NonNull IPLocationConst loc)
+    public @NotNull INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)
         throws Exception
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))

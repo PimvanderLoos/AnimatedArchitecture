@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.events;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepareLockChangeEvent
 {
-    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
@@ -26,7 +26,7 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
 
     private final boolean newLockStatus;
 
-    public DoorPrepareLockChangeEvent(final @NonNull AbstractDoorBase door,
+    public DoorPrepareLockChangeEvent(final @NotNull AbstractDoorBase door,
                                       final @Nullable IPPlayer responsible,
                                       final boolean newLockStatus)
     {
@@ -35,12 +35,12 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
     }
 
     @Override
-    public @NonNull HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NonNull HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

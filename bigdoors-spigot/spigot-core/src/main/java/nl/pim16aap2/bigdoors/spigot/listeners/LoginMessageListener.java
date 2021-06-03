@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.ChatColor;
@@ -9,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
@@ -17,9 +17,9 @@ import org.bukkit.scheduler.BukkitRunnable;
  */
 public final class LoginMessageListener implements Listener
 {
-    private final @NonNull BigDoorsSpigot plugin;
+    private final @NotNull BigDoorsSpigot plugin;
 
-    public LoginMessageListener(final @NonNull BigDoorsSpigot plugin)
+    public LoginMessageListener(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }

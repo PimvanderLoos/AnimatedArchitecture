@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,6 +14,7 @@ import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,10 +30,10 @@ public class VerticalMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public VerticalMover(final @NonNull AbstractDoorBase door, final double time, final boolean skipAnimation,
-                         final int blocksToMove, final double multiplier, final @NonNull IPPlayer player,
-                         final @NonNull CuboidConst newCuboid, final @NonNull DoorActionCause cause,
-                         final @NonNull DoorActionType actionType)
+    public VerticalMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
+                         final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
+                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
+                         final @NotNull DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -76,10 +76,10 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected @NonNull Vector3Dd getFinalPosition(final @NonNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NonNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NonNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
                                                                  startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
@@ -91,7 +91,7 @@ public class VerticalMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    protected @NonNull Vector3Dd getGoalPos(final @NonNull PBlockData pBlockData, final double stepSum)
+    protected @NotNull Vector3Dd getGoalPos(final @NotNull PBlockData pBlockData, final double stepSum)
     {
         return pBlockData.getStartPosition().add(0, stepSum, 0);
     }
@@ -124,7 +124,7 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected @NonNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
                                                  final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis + blocksToMove, zAxis);

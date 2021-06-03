@@ -1,19 +1,19 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
-    private static final @NonNull PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
+    private static final @NotNull PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
     private static final @Nullable ISpigotPlatform spigotPlatform;
-    private static final @NonNull Version spigotVersion;
+    private static final @NotNull Version spigotVersion;
 
     static
     {
@@ -42,13 +42,13 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      *
      * @return The instance of this class.
      */
-    public static @NonNull PlatformManagerSpigot get()
+    public static @NotNull PlatformManagerSpigot get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NonNull ISpigotPlatform getSpigotPlatform()
+    public @NotNull ISpigotPlatform getSpigotPlatform()
     {
         if (spigotPlatform == null)
         {
@@ -65,7 +65,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      * @param bigDoorsSpigot The {@link BigDoorsSpigot} instance.
      * @return True if a valid platform was found for the current version.
      */
-    public boolean initPlatform(final @NonNull BigDoorsSpigot bigDoorsSpigot)
+    public boolean initPlatform(final @NotNull BigDoorsSpigot bigDoorsSpigot)
     {
         if (spigotPlatform == null)
         {

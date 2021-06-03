@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +18,7 @@ public class Menu extends BaseCommand
 {
     final @Nullable IPPlayer target;
 
-    protected Menu(final @NonNull ICommandSender commandSender, final @Nullable IPPlayer target)
+    protected Menu(final @NotNull ICommandSender commandSender, final @Nullable IPPlayer target)
     {
         super(commandSender);
         this.target = target;
@@ -36,7 +36,7 @@ public class Menu extends BaseCommand
      *                      When this is null (default), the command sender's own doors will be used.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
                                                           final @Nullable IPPlayer target)
     {
         return new Menu(commandSender, target).run();
@@ -49,13 +49,13 @@ public class Menu extends BaseCommand
      *
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender)
     {
         return run(commandSender, null);
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.MENU;
     }
@@ -67,7 +67,7 @@ public class Menu extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
         if (!permissions.second && !getCommandSender().equals(target))

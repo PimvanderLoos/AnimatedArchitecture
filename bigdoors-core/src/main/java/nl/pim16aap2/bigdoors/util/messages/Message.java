@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.messages;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a localizable message.
@@ -232,14 +232,14 @@ public enum Message implements MessageVariable
      * <p>
      * For example: "This door will move %BLOCKSTOMOVE% blocks." Would contain at least "%BLOCKSTOMOVE%".
      */
-    private final @NonNull String[] variableNames;
+    private final @NotNull String[] variableNames;
 
     /**
      * Constructs a message.
      *
      * @param variableNames The names of the variables in the value that can be replaced.
      */
-    Message(final @NonNull String... variableNames)
+    Message(final @NotNull String... variableNames)
     {
         this.variableNames = variableNames;
     }
@@ -251,7 +251,7 @@ public enum Message implements MessageVariable
      * @param idx The index of the variable name.
      * @return The name of the variable at the given position of this message.
      */
-    public static @NonNull String getVariableName(final @NonNull Message msg, final int idx)
+    public static @NotNull String getVariableName(final @NotNull Message msg, final int idx)
     {
         return msg.variableNames[idx];
     }
@@ -262,7 +262,7 @@ public enum Message implements MessageVariable
      * @param msg The message for which to retrieve the variable names.
      * @return The names of the variables of this message.
      */
-    public static @NonNull String[] getVariableNames(final @NonNull Message msg)
+    public static @NotNull String[] getVariableNames(final @NotNull Message msg)
     {
         return msg.variableNames;
     }
@@ -273,7 +273,7 @@ public enum Message implements MessageVariable
      * @param msg The message to retrieve the variable count for.
      * @return The number of variables in this message that can be substituted.
      */
-    public static int getVariableCount(final @NonNull Message msg)
+    public static int getVariableCount(final @NotNull Message msg)
     {
         return msg.variableNames.length;
     }

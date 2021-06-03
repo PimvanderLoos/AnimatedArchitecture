@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public final class AutoCloseScheduler extends Restartable
      * <p>
      * <b>Value:</b> A {@link TimerTask} to toggle this door again after a certain amount of time.
      */
-    private final @NonNull Map<Long, TimerTask> timers = new HashMap<>();
+    private final @NotNull Map<Long, TimerTask> timers = new HashMap<>();
 
     public AutoCloseScheduler()
     {
@@ -68,7 +68,7 @@ public final class AutoCloseScheduler extends Restartable
      * @param skipAnimation Whether the door should be animated or not.
      */
     public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
-        final @NonNull DoorActionCause cause, final @NonNull IPPlayer player,
+        final @NotNull DoorActionCause cause, final @NotNull IPPlayer player,
         final T door, double speed, boolean skipAnimation)
     {
         int autoCloseTimer = door.getAutoCloseTime();
@@ -80,7 +80,7 @@ public final class AutoCloseScheduler extends Restartable
         // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door available again.
         final int delay = Math.min(Constants.MINIMUM_DOOR_DELAY + 2, autoCloseTimer * 20);
 
-        final @NonNull TimerTask task = new TimerTask()
+        final @NotNull TimerTask task = new TimerTask()
         {
             @Override
             public void run()
@@ -108,7 +108,7 @@ public final class AutoCloseScheduler extends Restartable
      * @param skipAnimation Whether the door should be animated or not.
      */
     public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
-        final @NonNull IPPlayer player, final @NonNull T door,
+        final @NotNull IPPlayer player, final @NotNull T door,
         double speed, boolean skipAnimation)
     {
         scheduleAutoClose(DoorActionCause.REDSTONE, player, door, speed, skipAnimation);

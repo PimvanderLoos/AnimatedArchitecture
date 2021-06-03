@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -21,7 +21,7 @@ public class Lock extends DoorTargetCommand
 {
     private final boolean lock;
 
-    protected Lock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+    protected Lock(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                    final boolean lock)
     {
         super(commandSender, doorRetriever, DoorAttribute.LOCK);
@@ -37,21 +37,21 @@ public class Lock extends DoorTargetCommand
      * @param lock          The new lock status.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever,
                                                           final boolean lock)
     {
         return new Lock(commandSender, doorRetriever, lock).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.LOCK;
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
     {
         val event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorPrepareLockChangeEvent(door, lock, getCommandSender().getPlayer().orElse(null));

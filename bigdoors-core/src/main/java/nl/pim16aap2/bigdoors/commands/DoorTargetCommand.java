@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -22,12 +22,12 @@ import java.util.logging.Level;
 public abstract class DoorTargetCommand extends BaseCommand
 {
     @Getter
-    protected final @NonNull DoorRetriever doorRetriever;
+    protected final @NotNull DoorRetriever doorRetriever;
 
-    private final @NonNull DoorAttribute doorAttribute;
+    private final @NotNull DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
-                                final @NonNull DoorAttribute doorAttribute)
+    protected DoorTargetCommand(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
+                                final @NotNull DoorAttribute doorAttribute)
     {
         super(commandSender);
         this.doorRetriever = doorRetriever;
@@ -35,7 +35,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     }
 
     @Override
-    protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected final @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         return getDoor(getDoorRetriever())
             .thenApplyAsync(door -> processDoorResult(door, permissions))
@@ -49,8 +49,8 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param permissions Whether the ICommandSender has user and/or admin permissions respectively.
      * @return The result of running the command, see {@link BaseCommand#run()}.
      */
-    private boolean processDoorResult(final @NonNull Optional<AbstractDoorBase> door,
-                                      final @NonNull BooleanPair permissions)
+    private boolean processDoorResult(final @NotNull Optional<AbstractDoorBase> door,
+                                      final @NotNull BooleanPair permissions)
     {
         if (door.isEmpty())
         {
@@ -90,7 +90,7 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param bypassPermission Whether or not the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean bypassPermission)
     {
         return hasAccessToAttribute(door, doorAttribute, bypassPermission);
     }
@@ -101,5 +101,5 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param door The {@link AbstractDoorBase} to perform the action on.
      * @return True if everything was successful.
      */
-    protected abstract @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door);
+    protected abstract @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door);
 }

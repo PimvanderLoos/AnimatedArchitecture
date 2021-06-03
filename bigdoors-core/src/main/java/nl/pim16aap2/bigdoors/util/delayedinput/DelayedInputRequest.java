@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -21,19 +21,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class DelayedInputRequest<T>
 {
-    private final @NonNull AtomicBoolean timedOut = new AtomicBoolean(false);
-    private final @NonNull AtomicBoolean exceptionally = new AtomicBoolean(false);
+    private final @NotNull AtomicBoolean timedOut = new AtomicBoolean(false);
+    private final @NotNull AtomicBoolean exceptionally = new AtomicBoolean(false);
 
     /**
      * The result of this input request.
      */
     @Getter(AccessLevel.PROTECTED)
-    private final @NonNull CompletableFuture<Optional<T>> inputResult;
+    private final @NotNull CompletableFuture<Optional<T>> inputResult;
 
     /**
      * The completable future that waits for the delayed input.
      */
-    private final @NonNull CompletableFuture<T> input = new CompletableFuture<>();
+    private final @NotNull CompletableFuture<T> input = new CompletableFuture<>();
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -41,7 +41,7 @@ public abstract class DelayedInputRequest<T>
      * @param timeout  The timeout to wait before giving up. Must be larger than 0.
      * @param timeUnit The unit of time.
      */
-    protected DelayedInputRequest(final long timeout, final @NonNull TimeUnit timeUnit)
+    protected DelayedInputRequest(final long timeout, final @NotNull TimeUnit timeUnit)
     {
         final long timeoutMillis = timeUnit.toMillis(timeout);
         if (timeoutMillis < 1)
@@ -54,7 +54,7 @@ public abstract class DelayedInputRequest<T>
      *
      * @param timeout The amount of time to wait before cancelling the request.
      */
-    public DelayedInputRequest(final @NonNull Duration timeout)
+    public DelayedInputRequest(final @NotNull Duration timeout)
     {
         this(timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
@@ -69,7 +69,7 @@ public abstract class DelayedInputRequest<T>
         this(timeout, TimeUnit.MILLISECONDS);
     }
 
-    private @NonNull CompletableFuture<Optional<T>> waitForResult(final long timeout)
+    private @NotNull CompletableFuture<Optional<T>> waitForResult(final long timeout)
     {
         return CompletableFuture
             .supplyAsync(
@@ -199,7 +199,7 @@ public abstract class DelayedInputRequest<T>
      *
      * @return The current status of this request.
      */
-    public synchronized @NonNull Status getStatus()
+    public synchronized @NotNull Status getStatus()
     {
         if (cancelled())
             return Status.CANCELLED;

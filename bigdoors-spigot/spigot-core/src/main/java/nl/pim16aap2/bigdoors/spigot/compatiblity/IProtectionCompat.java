@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a Compatibility hook.
@@ -19,7 +19,7 @@ interface IProtectionCompat
      * @param loc    The location to check.
      * @return True if the player is allowed to break blocks at the given location.
      */
-    boolean canBreakBlock(@NonNull Player player, @NonNull Location loc);
+    boolean canBreakBlock(@NotNull Player player, @NotNull Location loc);
 
     /**
      * Check if this compatiblity hook allows a player to break blocks between two locations.
@@ -29,7 +29,7 @@ interface IProtectionCompat
      * @param loc2   The end location to check.
      * @return True if the player is allowed to break all the blocks between (and including) the given locations.
      */
-    boolean canBreakBlocksBetweenLocs(@NonNull Player player, @NonNull Location loc1, @NonNull Location loc2);
+    boolean canBreakBlocksBetweenLocs(@NotNull Player player, @NotNull Location loc1, @NotNull Location loc2);
 
     /**
      * Check if the hook initialized properly.
@@ -43,5 +43,5 @@ interface IProtectionCompat
      *
      * @return The name of the {@link JavaPlugin} that is being hooked into.
      */
-    @NonNull String getName();
+    @NotNull String getName();
 }

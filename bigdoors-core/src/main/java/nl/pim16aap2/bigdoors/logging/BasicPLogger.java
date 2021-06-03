@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.logging;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -17,11 +17,11 @@ import java.util.logging.Level;
  */
 public class BasicPLogger implements IPLogger
 {
-    private @NonNull Level logLevel = Level.CONFIG;
+    private @NotNull Level logLevel = Level.CONFIG;
 
-    private final @NonNull Consumer<String> stringConsumer;
+    private final @NotNull Consumer<String> stringConsumer;
 
-    public BasicPLogger(final @NonNull Consumer<String> stringConsumer)
+    public BasicPLogger(final @NotNull Consumer<String> stringConsumer)
     {
         this.stringConsumer = stringConsumer;
     }
@@ -32,123 +32,123 @@ public class BasicPLogger implements IPLogger
     }
 
     @Override
-    public boolean loggable(@NonNull Level level)
+    public boolean loggable(@NotNull Level level)
     {
         return level.intValue() >= logLevel.intValue();
     }
 
-    private void writeMessage(@NonNull Level level, @NonNull LogMessage logMessage)
+    private void writeMessage(@NotNull Level level, @NotNull LogMessage logMessage)
     {
         if (loggable(level))
             stringConsumer.accept(logMessage.toString());
     }
 
-    private void writeMessage(@NonNull Level level, @NonNull Supplier<LogMessage> logMessage)
+    private void writeMessage(@NotNull Level level, @NotNull Supplier<LogMessage> logMessage)
     {
         if (loggable(level))
             stringConsumer.accept(logMessage.get().toString());
     }
 
-    private void writeMessage(@NonNull Level level, @NonNull String msg)
+    private void writeMessage(@NotNull Level level, @NotNull String msg)
     {
         if (loggable(level))
             writeMessage(level, new LogMessage.LogMessageString(msg, level));
     }
 
     @Override
-    public void dumpStackTrace(@NonNull String message)
+    public void dumpStackTrace(@NotNull String message)
     {
         writeMessage(Level.SEVERE, new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
                                                                        message, Level.SEVERE, 2));
     }
 
     @Override
-    public void dumpStackTrace(@NonNull Level level, @NonNull String message)
+    public void dumpStackTrace(@NotNull Level level, @NotNull String message)
     {
         writeMessage(level, new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
                                                                 message, level, 2));
     }
 
     @Override
-    public void writeToConsole(@NonNull Level level, @NonNull LogMessage logMessage)
+    public void writeToConsole(@NotNull Level level, @NotNull LogMessage logMessage)
     {
         writeMessage(level, logMessage);
     }
 
     @Override
-    public void logMessage(@NonNull Level level, @NonNull String msg)
+    public void logMessage(@NotNull Level level, @NotNull String msg)
     {
         writeMessage(level, msg);
     }
 
     @Override
-    public void logThrowableSilently(@NonNull Throwable throwable, @NonNull String message)
+    public void logThrowableSilently(@NotNull Throwable throwable, @NotNull String message)
     {
         logThrowableSilently(Level.SEVERE, throwable, message);
     }
 
     @Override
-    public void logThrowableSilently(@NonNull Level level, @NonNull Throwable throwable, @NonNull String message)
+    public void logThrowableSilently(@NotNull Level level, @NotNull Throwable throwable, @NotNull String message)
     {
         writeMessage(level, message + ", " + throwable.getMessage());
     }
 
     @Override
-    public void logThrowableSilently(@NonNull Throwable throwable)
+    public void logThrowableSilently(@NotNull Throwable throwable)
     {
         logThrowableSilently(Level.SEVERE, throwable);
     }
 
     @Override
-    public void logThrowableSilently(@NonNull Level level, @NonNull Throwable throwable)
+    public void logThrowableSilently(@NotNull Level level, @NotNull Throwable throwable)
     {
         writeMessage(level, throwable.getMessage());
     }
 
     @Override
-    public void logThrowable(@NonNull Level level, @NonNull Throwable throwable, @NonNull String message)
+    public void logThrowable(@NotNull Level level, @NotNull Throwable throwable, @NotNull String message)
     {
         if (loggable(level))
             throw new RuntimeException(message, throwable);
     }
 
     @Override
-    public void logThrowable(@NonNull Throwable throwable, @NonNull String message)
+    public void logThrowable(@NotNull Throwable throwable, @NotNull String message)
     {
         if (loggable(Level.SEVERE))
             throw new RuntimeException(message, throwable);
     }
 
     @Override
-    public void logThrowable(@NonNull Level level, @NonNull Throwable throwable)
+    public void logThrowable(@NotNull Level level, @NotNull Throwable throwable)
     {
         if (loggable(level))
             throw new RuntimeException(throwable);
     }
 
     @Override
-    public void logThrowable(@NonNull Throwable throwable)
+    public void logThrowable(@NotNull Throwable throwable)
     {
         if (loggable(Level.SEVERE))
             throw new RuntimeException(throwable);
     }
 
     @Override
-    public void logMessage(@NonNull Level level, @NonNull String message, @NonNull Supplier<String> messageSupplier)
+    public void logMessage(@NotNull Level level, @NotNull String message, @NotNull Supplier<String> messageSupplier)
     {
         if (loggable(level))
             writeMessage(level, message + messageSupplier.get());
     }
 
     @Override
-    public void logMessage(@NonNull Level level, @NonNull Supplier<String> messageSupplier)
+    public void logMessage(@NotNull Level level, @NotNull Supplier<String> messageSupplier)
     {
         if (loggable(level))
             writeMessage(level, messageSupplier.get());
     }
 
     @Override
-    public void setConsoleLogLevel(@NonNull Level consoleLogLevel)
+    public void setConsoleLogLevel(@NotNull Level consoleLogLevel)
     {
         logLevel = consoleLogLevel;
     }
@@ -157,7 +157,7 @@ public class BasicPLogger implements IPLogger
      * Because this is just a basic {@link IPLogger} that cannot log to a file, this method does not do anything.
      */
     @Override
-    public void setFileLogLevel(@NonNull Level fileLogLevel)
+    public void setFileLogLevel(@NotNull Level fileLogLevel)
     {
     }
 }

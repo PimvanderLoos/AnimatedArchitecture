@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.util.Util;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +34,8 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testDoubleInput()
     {
-        final @NonNull String firstInput = Util.randomInsecureString(10);
-        final @NonNull String secondInput = Util.randomInsecureString(10);
+        final @NotNull String firstInput = Util.randomInsecureString(10);
+        final @NotNull String secondInput = Util.randomInsecureString(10);
 
         val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         val output = request.getInputResult();
@@ -58,7 +58,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testInput()
     {
-        final @NonNull String inputString = Util.randomInsecureString(10);
+        final @NotNull String inputString = Util.randomInsecureString(10);
 
         val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         val output = request.getInputResult();
@@ -126,12 +126,12 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusException()
     {
-        @NonNull val f = DelayedInputRequest.class.getDeclaredField("input");
+        @NotNull val f = DelayedInputRequest.class.getDeclaredField("input");
         f.setAccessible(true);
         val request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
 
         @SuppressWarnings("unchecked")
-        @NonNull val input = (CompletableFuture<String>) f.get(request);
+        @NotNull val input = (CompletableFuture<String>) f.get(request);
 
         input.completeExceptionally(new RuntimeException("ExceptionTest!"));
 
@@ -147,7 +147,7 @@ class DelayedInputRequestTest
 
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
-        public DelayedInputRequestImpl(final long timeout, final @NonNull TimeUnit timeUnit)
+        public DelayedInputRequestImpl(final long timeout, final @NotNull TimeUnit timeUnit)
         {
             super(timeout, timeUnit);
         }

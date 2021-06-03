@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -16,13 +16,13 @@ import java.util.Optional;
 public interface IStationaryDoorArchetype extends IDoorBase
 {
     @Override
-    default @NonNull Optional<Cuboid> getPotentialNewCoordinates()
+    default @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboid().clone());
     }
 
     @Override
-    default @NonNull Vector2Di[] calculateChunkRange()
+    default @NotNull Vector2Di[] calculateChunkRange()
     {
         return calculateCurrentChunkRange();
     }
@@ -51,7 +51,7 @@ public interface IStationaryDoorArchetype extends IDoorBase
      * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
      */
     @Override
-    default @NonNull RotateDirection getCurrentToggleDir()
+    default @NotNull RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

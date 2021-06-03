@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.util.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 public class Vector3DdConst
@@ -14,17 +14,17 @@ public class Vector3DdConst
     @Getter
     protected double x, y, z;
 
-    public Vector3DdConst(final @NonNull Vector3DdConst other)
+    public Vector3DdConst(final @NotNull Vector3DdConst other)
     {
         this(other.getX(), other.getY(), other.getZ());
     }
 
-    public Vector3DdConst(final @NonNull Vector3DiConst other)
+    public Vector3DdConst(final @NotNull Vector3DiConst other)
     {
         this(other.getX(), other.getY(), other.getZ());
     }
 
-    public @NonNull IPLocation toLocation(final @NonNull IPWorld world)
+    public @NotNull IPLocation toLocation(final @NotNull IPWorld world)
     {
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, this);
     }
@@ -34,17 +34,17 @@ public class Vector3DdConst
         return Math.sqrt(Math.pow(getX() - x, 2) + Math.pow(getY() - y, 2) + Math.pow(getZ() - z, 2));
     }
 
-    public double getDistance(final @NonNull Vector3DiConst point)
+    public double getDistance(final @NotNull Vector3DiConst point)
     {
         return getDistance(point.getX(), point.getY(), point.getZ());
     }
 
-    public double getDistance(final @NonNull Vector3DdConst point)
+    public double getDistance(final @NotNull Vector3DdConst point)
     {
         return getDistance(point.getX(), point.getY(), point.getZ());
     }
 
-    public double getDistance(final @NonNull IPLocationConst loc)
+    public double getDistance(final @NotNull IPLocationConst loc)
     {
         return getDistance(loc.getX(), loc.getY(), loc.getZ());
     }
@@ -55,20 +55,20 @@ public class Vector3DdConst
      * @param decimals The number of digits after the dot to display.
      * @return The String representing this object.
      */
-    public @NonNull String toString(final int decimals)
+    public @NotNull String toString(final int decimals)
     {
-        final @NonNull String placeholder = "%." + decimals + "f";
+        final @NotNull String placeholder = "%." + decimals + "f";
         return String.format(placeholder + ", " + placeholder + ", " + placeholder, x, y, z);
     }
 
     @Override
-    public @NonNull String toString()
+    public @NotNull String toString()
     {
         return "(" + x + ":" + y + ":" + z + ")";
     }
 
     @Override
-    public @NonNull Vector3Dd clone()
+    public @NotNull Vector3Dd clone()
     {
         return new Vector3Dd(this);
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a set of utility functions around the tool used by {@link ToolUser}s.
@@ -17,14 +17,14 @@ public interface IBigDoorsToolUtil
      * @param name   The itemname of the tool.
      * @param lore   The lore of the tool.
      */
-    void giveToPlayer(@NonNull IPPlayer player, @NonNull String name, @NonNull String lore);
+    void giveToPlayer(@NotNull IPPlayer player, @NotNull String name, @NotNull String lore);
 
     /**
      * Removes any BigDoors tools from a player's inventory.
      *
      * @param player The player whose inventory will be checked.
      */
-    void removeTool(@NonNull IPPlayer player);
+    void removeTool(@NotNull IPPlayer player);
 
     /**
      * Checks if a player is currently holding a BigDoors tool in their main hand.
@@ -32,5 +32,5 @@ public interface IBigDoorsToolUtil
      * @param player The player to check.
      * @return True if they are currently holding a BigDoors tool in their main hand.
      */
-    boolean isPlayerHoldingTool(@NonNull IPPlayer player);
+    boolean isPlayerHoldingTool(@NotNull IPPlayer player);
 }

@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class DoorSpecificationManager extends Restartable
 {
-    private static final @NonNull Map<@NonNull IPPlayer, @NonNull DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
+    private static final @NotNull Map<@NotNull IPPlayer, @NotNull DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
 
     public DoorSpecificationManager()
     {
@@ -31,7 +31,7 @@ public final class DoorSpecificationManager extends Restartable
      * @param player The player to check.
      * @return True if there is an open door specification request for the player.
      */
-    public boolean isActive(final @NonNull IPPlayer player)
+    public boolean isActive(final @NotNull IPPlayer player)
     {
         return requests.containsKey(player);
     }
@@ -45,7 +45,7 @@ public final class DoorSpecificationManager extends Restartable
      * @param player  The player to request.
      * @param request The request.
      */
-    public void placeRequest(final @NonNull IPPlayer player, final @NonNull DelayedInputRequest<String> request)
+    public void placeRequest(final @NotNull IPPlayer player, final @NotNull DelayedInputRequest<String> request)
     {
         requests.compute(
             player, (key, value) ->
@@ -64,7 +64,7 @@ public final class DoorSpecificationManager extends Restartable
      * @param input  The input to handle.
      * @return False if no request could be found for the player.
      */
-    public boolean handleInput(final @NonNull IPPlayer player, final @NonNull String input)
+    public boolean handleInput(final @NotNull IPPlayer player, final @NotNull String input)
     {
         final @Nullable DelayedInputRequest<String> request = requests.get(player);
         if (request == null)
@@ -79,7 +79,7 @@ public final class DoorSpecificationManager extends Restartable
      *
      * @param player The player whose requests to cancel.
      */
-    public void cancelRequest(final @NonNull IPPlayer player)
+    public void cancelRequest(final @NotNull IPPlayer player)
     {
         Optional.ofNullable(requests.remove(player)).ifPresent(DelayedInputRequest::cancel);
     }

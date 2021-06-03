@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a factory for {@link IPLocation} objects.
@@ -22,7 +22,7 @@ public interface IPLocationFactory
      * @param z     The z coordinate.
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull IPWorld world, double x, double y, double z);
+    @NotNull IPLocation create(@NotNull IPWorld world, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
@@ -31,7 +31,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull IPWorld world, @NonNull Vector3DiConst position);
+    @NotNull IPLocation create(@NotNull IPWorld world, @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -40,7 +40,7 @@ public interface IPLocationFactory
      * @param position The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull IPWorld world, @NonNull Vector3DdConst position);
+    @NotNull IPLocation create(@NotNull IPWorld world, @NotNull Vector3DdConst position);
 
     /**
      * Creates a new IPLocation.
@@ -51,7 +51,7 @@ public interface IPLocationFactory
      * @param z         The z coordinate.
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull String worldName, double x, double y, double z);
+    @NotNull IPLocation create(@NotNull String worldName, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
@@ -60,7 +60,7 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull String worldName, @NonNull Vector3DiConst position);
+    @NotNull IPLocation create(@NotNull String worldName, @NotNull Vector3DiConst position);
 
     /**
      * Creates a new IPLocation.
@@ -69,5 +69,5 @@ public interface IPLocationFactory
      * @param position  The position in the world
      * @return A new IPLocation object.
      */
-    @NonNull IPLocation create(@NonNull String worldName, @NonNull Vector3DdConst position);
+    @NotNull IPLocation create(@NotNull String worldName, @NotNull Vector3DdConst position);
 }

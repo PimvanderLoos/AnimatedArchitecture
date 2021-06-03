@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a const position in a world.
@@ -16,14 +16,14 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The world of this location.
      */
-    @NonNull IPWorld getWorld();
+    @NotNull IPWorld getWorld();
 
     /**
      * Gets the chunk coordinates of the chunk this location is in.
      *
      * @return The chunk coordinates of this location.
      */
-    @NonNull Vector2Di getChunk();
+    @NotNull Vector2Di getChunk();
 
     /**
      * Gets the X value of this location.
@@ -67,7 +67,7 @@ public interface IPLocationConst extends Cloneable
      */
     double getZ();
 
-    default @NonNull Vector3Di getPosition()
+    default @NotNull Vector3Di getPosition()
     {
         return new Vector3Di(getBlockX(), getBlockY(), getBlockZ());
     }
@@ -77,7 +77,7 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The position in integers as a String.
      */
-    default @NonNull String toIntPositionString()
+    default @NotNull String toIntPositionString()
     {
         return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
     }
@@ -87,7 +87,7 @@ public interface IPLocationConst extends Cloneable
      *
      * @return The position in double as a String.
      */
-    default @NonNull String toDoublePositionString()
+    default @NotNull String toDoublePositionString()
     {
         return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());
     }

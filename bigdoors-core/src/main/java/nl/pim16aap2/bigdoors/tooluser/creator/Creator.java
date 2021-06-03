@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -27,6 +26,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.DecimalFormat;
@@ -170,7 +170,7 @@ public abstract class Creator extends ToolUser
         DECIMAL_FORMAT.setMaximumFractionDigits(2);
     }
 
-    protected Creator(final @NonNull IPPlayer player, final @Nullable String name)
+    protected Creator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name != null)
@@ -225,11 +225,11 @@ public abstract class Creator extends ToolUser
      *
      * @return The {@link AbstractDoorBase.DoorData} for the current door.
      */
-    protected final @NonNull AbstractDoorBase.DoorData constructDoorData()
+    protected final @NotNull AbstractDoorBase.DoorData constructDoorData()
     {
         final long doorUID = -1;
-        @NonNull val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
-        // Ignore the @NonNull status here because any value that's null will cause a
+        @NotNull val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
+        // Ignore the @NotNull status here because any value that's null will cause a
         // detailed (i.e. with the exact name) NPE to be thrown, which is more useful
         // then for example using a loop to check varargs objects and much easier to
         // maintain than a list of checks with manually written messages.
@@ -269,7 +269,7 @@ public abstract class Creator extends ToolUser
      * @param str The desired name of the door.
      * @return True if the naming step was finished successfully.
      */
-    protected boolean completeNamingStep(final @NonNull String str)
+    protected boolean completeNamingStep(final @NotNull String str)
     {
         if (!Util.isValidDoorName(str))
         {
@@ -291,7 +291,7 @@ public abstract class Creator extends ToolUser
      * @param loc The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setFirstPos(final @NonNull IPLocationConst loc)
+    protected boolean setFirstPos(final @NotNull IPLocationConst loc)
     {
         if (!playerHasAccessToLocation(loc))
             return false;
@@ -307,7 +307,7 @@ public abstract class Creator extends ToolUser
      * @param loc The second location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setSecondPos(final @NonNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -318,7 +318,7 @@ public abstract class Creator extends ToolUser
         Cuboid newCuboid = new Cuboid(new Vector3Di(Util.requireNonNull(firstPos, "firstPos")),
                                       new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final @NonNull OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
+        final @NotNull OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
@@ -379,12 +379,12 @@ public abstract class Creator extends ToolUser
      * @return The selected {@link RotateDirection}, if it exists.
      */
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
-    protected @NonNull Optional<RotateDirection> parseOpenDirection(final @NonNull String str)
+    protected @NotNull Optional<RotateDirection> parseOpenDirection(final @NotNull String str)
     {
-        final @NonNull String openDirName = str.toUpperCase();
-        final @NonNull OptionalInt idOpt = Util.parseInt(str);
+        final @NotNull String openDirName = str.toUpperCase();
+        final @NotNull OptionalInt idOpt = Util.parseInt(str);
 
-        final @NonNull List<RotateDirection> validOpenDirs = getValidOpenDirections();
+        final @NotNull List<RotateDirection> validOpenDirs = getValidOpenDirections();
 
         if (idOpt.isPresent())
         {
@@ -414,7 +414,7 @@ public abstract class Creator extends ToolUser
      * @param str The name or index of the {@link RotateDirection} that was selected by the player.
      * @return True if the {@link #opendir} was set successfully.
      */
-    protected boolean completeSetOpenDirStep(final @NonNull String str)
+    protected boolean completeSetOpenDirStep(final @NotNull String str)
     {
         return parseOpenDirection(str).map(
             foundOpenDir ->
@@ -435,7 +435,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created door.
      */
-    protected abstract @NonNull AbstractDoorBase constructDoor();
+    protected abstract @NotNull AbstractDoorBase constructDoor();
 
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
@@ -443,7 +443,7 @@ public abstract class Creator extends ToolUser
      * @param targetWorld The world to check.
      * @return True if the world is the same world this door is being created in.
      */
-    protected boolean verifyWorldMatch(final @NonNull IPWorld targetWorld)
+    protected boolean verifyWorldMatch(final @NotNull IPWorld targetWorld)
     {
         if (Util.requireNonNull(world, "world").getWorldName().equals(targetWorld.getWorldName()))
             return true;
@@ -456,7 +456,7 @@ public abstract class Creator extends ToolUser
      *
      * @param door The door to send to the {@link DatabaseManager}.
      */
-    protected void insertDoor(final @NonNull AbstractDoorBase door)
+    protected void insertDoor(final @NotNull AbstractDoorBase door)
     {
         BigDoors.get().getDatabaseManager().addDoorBase(door, getPlayer()).whenComplete(
             (result, throwable) ->
@@ -482,7 +482,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The type of door that will be created.
      */
-    protected abstract @NonNull DoorType getDoorType();
+    protected abstract @NotNull DoorType getDoorType();
 
     /**
      * Attempts to buy the door for the current player.
@@ -505,7 +505,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The price of the door if a positive price could be found.
      */
-    protected @NonNull OptionalDouble getPrice()
+    protected @NotNull OptionalDouble getPrice()
     {
         if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
             return OptionalDouble.empty();
@@ -534,7 +534,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type, each on their own line.
      */
-    protected @NonNull String getOpenDirections()
+    protected @NotNull String getOpenDirections()
     {
         val sb = new StringBuilder();
         int idx = 0;
@@ -550,7 +550,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
-    protected @NonNull List<RotateDirection> getValidOpenDirections()
+    protected @NotNull List<RotateDirection> getValidOpenDirections()
     {
         return getDoorType().getValidOpenDirections();
     }
@@ -562,7 +562,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the area was set successfully.
      */
-    protected boolean completeSetPowerBlockStep(final @NonNull IPLocationConst loc)
+    protected boolean completeSetPowerBlockStep(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -570,14 +570,14 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        final @NonNull Vector3Di pos = loc.getPosition();
+        final @NotNull Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
             getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
                                             .getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
             return false;
         }
-        final @NonNull OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
+        final @NotNull OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
                                                            .getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
@@ -603,7 +603,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the engine was set successfully.
      */
-    protected boolean completeSetEngineStep(final @NonNull IPLocationConst loc)
+    protected boolean completeSetEngineStep(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

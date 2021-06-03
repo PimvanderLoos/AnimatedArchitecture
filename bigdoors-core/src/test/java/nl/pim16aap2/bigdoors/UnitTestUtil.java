@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -12,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -30,7 +30,7 @@ public class UnitTestUtil
      *
      * @return The new {@link IBigDoorsPlatform}.
      */
-    public static @NonNull IBigDoorsPlatform initPlatform()
+    public static @NotNull IBigDoorsPlatform initPlatform()
     {
         IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(platform);
@@ -38,7 +38,7 @@ public class UnitTestUtil
         return platform;
     }
 
-    public static @NonNull Messages initMessages()
+    public static @NotNull Messages initMessages()
     {
         val messages = Mockito.mock(Messages.class);
         Mockito.when(messages.getString(Mockito.any()))
@@ -58,40 +58,40 @@ public class UnitTestUtil
         return messages;
     }
 
-    public static @NonNull IPWorld getWorld()
+    public static @NotNull IPWorld getWorld()
     {
         val world = Mockito.mock(IPWorld.class);
         Mockito.when(world.getWorldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
 
-    public static @NonNull IPLocation getLocation(final @NonNull Vector3DdConst vec)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3DdConst vec)
     {
         return getLocation(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public static @NonNull IPLocation getLocation(final @NonNull Vector3DiConst vec)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3DiConst vec)
     {
         return getLocation(vec.getX(), vec.getY(), vec.getZ());
     }
 
-    public static @NonNull IPLocation getLocation(final @NonNull Vector3DdConst vec, final @NonNull IPWorld world)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3DdConst vec, final @NotNull IPWorld world)
     {
         return getLocation(vec.getX(), vec.getY(), vec.getZ(), world);
     }
 
-    public static @NonNull IPLocation getLocation(final @NonNull Vector3DiConst vec, final @NonNull IPWorld world)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3DiConst vec, final @NotNull IPWorld world)
     {
         return getLocation(vec.getX(), vec.getY(), vec.getZ(), world);
     }
 
-    public static @NonNull IPLocation getLocation(final double x, final double y, final double z)
+    public static @NotNull IPLocation getLocation(final double x, final double y, final double z)
     {
         return getLocation(x, y, z, getWorld());
     }
 
-    public static @NonNull IPLocation getLocation(final double x, final double y, final double z,
-                                                  final @NonNull IPWorld world)
+    public static @NotNull IPLocation getLocation(final double x, final double y, final double z,
+                                                  final @NotNull IPWorld world)
     {
         val loc = Mockito.mock(IPLocation.class);
 
@@ -121,7 +121,7 @@ public class UnitTestUtil
      * @return The object inside the Optional.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T optionalEquals(final @Nullable T obj, final @NonNull Optional<T> opt)
+    public static <T> T optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
     {
         if (obj == null)
         {
@@ -144,8 +144,8 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T, U> U optionalEquals(final @Nullable T obj, final @NonNull Optional<U> opt,
-                                          @NonNull Function<U, T> map)
+    public static <T, U> U optionalEquals(final @Nullable T obj, final @NotNull Optional<U> opt,
+                                          @NotNull Function<U, T> map)
     {
         if (obj == null)
         {

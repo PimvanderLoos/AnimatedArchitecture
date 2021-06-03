@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    protected Info(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected Info(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.INFO);
     }
@@ -32,27 +32,27 @@ public class Info extends DoorTargetCommand
      *                      will be retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever)
     {
         return new Info(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.INFO;
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
     {
         getCommandSender().sendMessage(door.toString());
         highlightBlocks(door);
         return CompletableFuture.completedFuture(true);
     }
 
-    protected void highlightBlocks(final @NonNull AbstractDoorBase doorBase)
+    protected void highlightBlocks(final @NotNull AbstractDoorBase doorBase)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;

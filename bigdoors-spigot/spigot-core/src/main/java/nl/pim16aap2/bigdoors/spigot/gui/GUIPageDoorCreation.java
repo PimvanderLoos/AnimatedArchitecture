@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -8,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class GUIPageDoorCreation implements IGUIPage
     protected final GUI gui;
     protected final Object subCommand;
 
-    GUIPageDoorCreation(final @NonNull BigDoorsSpigot plugin, final @NonNull GUI gui)
+    GUIPageDoorCreation(final @NotNull BigDoorsSpigot plugin, final @NotNull GUI gui)
     {
         this.plugin = plugin;
         this.gui = gui;
@@ -33,7 +33,7 @@ public class GUIPageDoorCreation implements IGUIPage
     }
 
     @Override
-    public @NonNull PageType getPageType()
+    public @NotNull PageType getPageType()
     {
         return PageType.DOORCREATION;
     }
@@ -94,7 +94,7 @@ public class GUIPageDoorCreation implements IGUIPage
 
     }
 
-    private void startCreationProcess(final @NonNull Player player, final @NonNull DoorType type)
+    private void startCreationProcess(final @NotNull Player player, final @NotNull DoorType type)
     {
         player.closeInventory();
 //        subCommand.execute(player, null, type);

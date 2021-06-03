@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -22,6 +21,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -35,7 +35,7 @@ import java.util.Optional;
 public class Portcullis extends AbstractDoorBase
     implements IMovingDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
-    private static final @NonNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     @Getter
     @Setter(onMethod = @__({@Override}))
@@ -55,7 +55,7 @@ public class Portcullis extends AbstractDoorBase
     @PersistentVariable
     protected int autoOpenTime;
 
-    public Portcullis(final @NonNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+    public Portcullis(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
                       final int autoOpenTime)
     {
         super(doorData);
@@ -64,52 +64,52 @@ public class Portcullis extends AbstractDoorBase
         this.autoOpenTime = autoOpenTime;
     }
 
-    public Portcullis(final @NonNull DoorData doorData, final int blocksToMove)
+    public Portcullis(final @NotNull DoorData doorData, final int blocksToMove)
     {
         this(doorData, blocksToMove, -1, -1);
     }
 
-    private Portcullis(final @NonNull DoorData doorData)
+    private Portcullis(final @NotNull DoorData doorData)
     {
         this(doorData, -1); // Add tmp/default values
     }
 
     @Override
-    public @NonNull DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NonNull RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.UP) ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
     @Override
-    public @NonNull Vector2Di[] calculateChunkRange()
+    public @NotNull Vector2Di[] calculateChunkRange()
     {
         return calculateCurrentChunkRange();
     }
 
     @Override
-    public synchronized @NonNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.DOWN : RotateDirection.UP;
     }
 
     @Override
-    public synchronized @NonNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NonNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
         return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.getX(), 0, getBlocksToMove() * vec.getZ()));
     }
 
     @Override
-    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
-                                                      final @NonNull IPPlayer responsible,
-                                                      final @NonNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
         throws Exception
     {
         final int blocksToMove = getOpenDir().equals(RotateDirection.UP) ? getBlocksToMove() : -getBlocksToMove();
@@ -126,7 +126,7 @@ public class Portcullis extends AbstractDoorBase
         if (getClass() != o.getClass())
             return false;
 
-        final @NonNull Portcullis other = (Portcullis) o;
+        final @NotNull Portcullis other = (Portcullis) o;
         return blocksToMove == other.blocksToMove &&
             autoOpenTime == other.autoOpenTime &&
             autoCloseTime == other.autoCloseTime;

@@ -24,8 +24,8 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import lombok.NonNull;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class TimedCacheTest
     @Test
     void testExpiry()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -77,7 +77,7 @@ class TimedCacheTest
     @Test
     void testSoftReference()
     {
-        @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                           null, true, false);
         timedCache.put("key", "value");
 
@@ -109,7 +109,7 @@ class TimedCacheTest
     @Test
     void testRefresh()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, true);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -145,7 +145,7 @@ class TimedCacheTest
     @Test
     void computeIfAbsent()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
 
         // Make sure inserting a new item properly returns an empty optional.
@@ -170,7 +170,7 @@ class TimedCacheTest
     @Test
     void computeIfPresent()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
         timedCache.put("key", "value");
 
@@ -186,9 +186,9 @@ class TimedCacheTest
     @Test
     void compute()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
-        @NonNull String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
+        @NotNull String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
         Assertions.assertEquals("value", returned);
@@ -204,7 +204,7 @@ class TimedCacheTest
     @Test
     void putIfAbsent()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
 
         Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
@@ -220,7 +220,7 @@ class TimedCacheTest
     @Test
     void putIfPresent()
     {
-        @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                           null, false, false);
 
         timedCache.put("key", "value");
@@ -240,13 +240,13 @@ class TimedCacheTest
     @Test
     void remove()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 null, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        final @NonNull Optional<String> result = timedCache.remove("key");
+        final @NotNull Optional<String> result = timedCache.remove("key");
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("value", result.get());
         Assertions.assertEquals(0, timedCache.getSize());
@@ -265,7 +265,7 @@ class TimedCacheTest
     @Test
     void cleanupTask()
     {
-        final @NonNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                                 Duration.ofMillis(1), false, false);
 
         timedCache.put("key", "value");
@@ -306,7 +306,7 @@ class TimedCacheTest
      * @param val      The value to compare against the value inside the optional.
      * @param <T>      The type of the values to compare.
      */
-    public static <T> void optionalEquals(final @NonNull Optional<T> optional, final @NonNull T val)
+    public static <T> void optionalEquals(final @NotNull Optional<T> optional, final @NotNull T val)
     {
         Assertions.assertTrue(optional.isPresent());
         Assertions.assertEquals(val, optional.get());

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -16,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -327,9 +327,9 @@ class CreatorTest
     }
 
     @SneakyThrows
-    private void setField(final @NonNull String fieldName, final @Nullable Object obj)
+    private void setField(final @NotNull String fieldName, final @Nullable Object obj)
     {
-        @NonNull val f = Creator.class.getDeclaredField(fieldName);
+        @NotNull val f = Creator.class.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(creator, obj);
     }

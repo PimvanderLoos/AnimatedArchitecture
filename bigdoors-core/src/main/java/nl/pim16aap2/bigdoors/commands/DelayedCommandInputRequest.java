@@ -3,13 +3,13 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -34,12 +34,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     /**
      * See {@link BaseCommand#getCommandSender()}.
      */
-    private final @NonNull ICommandSender commandSender;
+    private final @NotNull ICommandSender commandSender;
 
     /**
      * The {@link CommandDefinition} for which the delayed input will be retrieved.
      */
-    private final @NonNull CommandDefinition commandDefinition;
+    private final @NotNull CommandDefinition commandDefinition;
 
     /**
      * The supplier used to retrieve the message that will be sent to the command sender when this request is
@@ -48,19 +48,19 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * If the resulting message is blank, nothing will be sent to the user.
      */
     @ToString.Exclude
-    private final @NonNull Supplier<String> initMessageSupplier;
+    private final @NotNull Supplier<String> initMessageSupplier;
 
     /**
      * The class of the input object that is expected.
      */
-    private final @NonNull Class<T> inputClass;
+    private final @NotNull Class<T> inputClass;
 
     /**
      * The output of the command. See {@link BaseCommand#run()}.
      */
     @ToString.Exclude
     @Getter(AccessLevel.PROTECTED)
-    private final @NonNull CompletableFuture<Boolean> commandOutput;
+    private final @NotNull CompletableFuture<Boolean> commandOutput;
 
     /**
      * Constructs a new delayed command input request.
@@ -75,11 +75,11 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *                            If the resulting message is blank, nothing will be sent to the user.
      * @param inputClass          The class of the input object that is expected.
      */
-    protected DelayedCommandInputRequest(final long timeout, final @NonNull ICommandSender commandSender,
-                                         final @NonNull CommandDefinition commandDefinition,
-                                         final @NonNull Function<T, CompletableFuture<Boolean>> executor,
-                                         final @NonNull Supplier<String> initMessageSupplier,
-                                         final @NonNull Class<T> inputClass)
+    protected DelayedCommandInputRequest(final long timeout, final @NotNull ICommandSender commandSender,
+                                         final @NotNull CommandDefinition commandDefinition,
+                                         final @NotNull Function<T, CompletableFuture<Boolean>> executor,
+                                         final @NotNull Supplier<String> initMessageSupplier,
+                                         final @NotNull Class<T> inputClass)
     {
         super(timeout);
         this.commandSender = commandSender;
@@ -99,8 +99,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
             commandSender.sendMessage(initMessage);
     }
 
-    private @NonNull CompletableFuture<Boolean> constructOutput(
-        final @NonNull Function<T, CompletableFuture<Boolean>> executor)
+    private @NotNull CompletableFuture<Boolean> constructOutput(
+        final @NotNull Function<T, CompletableFuture<Boolean>> executor)
     {
         return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
@@ -116,7 +116,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * @param input The input object to provide.
      * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise false.
      */
-    protected @NonNull CompletableFuture<Boolean> provide(final @NonNull Object input)
+    protected @NotNull CompletableFuture<Boolean> provide(final @NotNull Object input)
     {
         if (!inputClass.isInstance(input))
         {

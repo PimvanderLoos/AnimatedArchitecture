@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -20,6 +19,7 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    private static final @NonNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     @Getter
     @Setter(onMethod = @__({@Override}))
@@ -46,28 +46,28 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @PersistentVariable
     protected int autoOpenTime;
 
-    public BigDoor(final @NonNull DoorData doorData, final int autoCloseTime, final int autoOpenTime)
+    public BigDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime)
     {
         super(doorData);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public BigDoor(final @NonNull DoorData doorData)
+    public BigDoor(final @NotNull DoorData doorData)
     {
         this(doorData, -1, -1); // Add tmp/default values
     }
 
     @Override
-    public @NonNull DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NonNull Vector2Di[] calculateChunkRange()
+    public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NonNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3DiConst dimensions = getDimensions();
 
         // Yeah, radius might be too big, but it doesn't really matter.
         final int radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
@@ -78,23 +78,23 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     }
 
     @Override
-    public @NonNull RotateDirection cycleOpenDirection()
+    public @NotNull RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
     @Override
-    public @NonNull RotateDirection getCurrentToggleDir()
+    public @NotNull RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NonNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
 
-        final @NonNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
@@ -108,10 +108,10 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     }
 
     @Override
-    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
-                                                      final @NonNull IPPlayer responsible,
-                                                      final @NonNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
         throws Exception
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
@@ -127,7 +127,7 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
         if (!(o instanceof BigDoor))
             return false;
 
-        final @NonNull BigDoor other = (BigDoor) o;
+        final @NotNull BigDoor other = (BigDoor) o;
         return getAutoCloseTime() == other.getAutoCloseTime() &&
             getAutoOpenTime() == other.getAutoOpenTime();
     }

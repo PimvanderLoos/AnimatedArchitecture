@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link IPowerBlockRedstoneManager} for the Spigot platform.
@@ -14,7 +14,7 @@ import org.bukkit.Location;
  */
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
-    private static final @NonNull PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
+    private static final @NotNull PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
 
     private PowerBlockRedstoneManagerSpigot()
     {
@@ -25,19 +25,19 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
      *
      * @return The instance of this {@link PowerBlockRedstoneManagerSpigot}.
      */
-    public static @NonNull PowerBlockRedstoneManagerSpigot get()
+    public static @NotNull PowerBlockRedstoneManagerSpigot get()
     {
         return INSTANCE;
     }
 
-    private boolean isPoweredRedstone(final @NonNull Location loc)
+    private boolean isPoweredRedstone(final @NotNull Location loc)
     {
 //        if (loc.getBlock().isBlockIndirectlyPowered())
         return true;
     }
 
     @Override
-    public boolean isBlockPowered(final @NonNull IPWorld world, final @NonNull Vector3DiConst position)
+    public boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
     {
         final Location loc = new Location(SpigotAdapter.getBukkitWorld(world), position.getX(), position.getY(),
                                           position.getZ());

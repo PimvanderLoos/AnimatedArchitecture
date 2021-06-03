@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
 
@@ -18,7 +18,7 @@ public interface IPermissionsManager
      *                       at the end).
      * @return The highest numerical suffix of the base permission node if it exists, otherwise an empty OptionalInt.
      */
-    @NonNull OptionalInt getMaxPermissionSuffix(@NonNull IPPlayer player, @NonNull String permissionBase);
+    @NotNull OptionalInt getMaxPermissionSuffix(@NotNull IPPlayer player, @NotNull String permissionBase);
 
     /**
      * Checks if a player has a certain permission node or not.
@@ -27,7 +27,7 @@ public interface IPermissionsManager
      * @param permissionNode The permission node to check.
      * @return True if the player has the permission node.
      */
-    boolean hasPermission(@NonNull IPPlayer player, @NonNull String permissionNode);
+    boolean hasPermission(@NotNull IPPlayer player, @NotNull String permissionNode);
 
     /**
      * Checks if the given player is a server operator or not.
@@ -35,5 +35,5 @@ public interface IPermissionsManager
      * @param player The player to check.
      * @return True if the player is a server operator on this server.
      */
-    boolean isOp(@NonNull IPPlayer player);
+    boolean isOp(@NotNull IPPlayer player);
 }

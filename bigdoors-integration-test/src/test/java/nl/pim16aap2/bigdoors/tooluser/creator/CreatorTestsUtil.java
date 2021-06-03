@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -26,6 +25,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
@@ -45,14 +45,14 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
 
 public class CreatorTestsUtil
 {
-    protected @NonNull Vector3Di min = new Vector3Di(10, 15, 20);
-    protected @NonNull Vector3Di max = new Vector3Di(20, 25, 30);
-    protected @NonNull Vector3Di engine = new Vector3Di(20, 15, 25);
-    protected @NonNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected @NonNull String doorName = "testDoor123";
-    protected @NonNull IPWorld world = getWorld();
-    protected @NonNull IPWorld world2 = getWorld();
-    protected @NonNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
+    protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);
+    protected @NotNull Vector3Di max = new Vector3Di(20, 25, 30);
+    protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
+    protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
+    protected @NotNull String doorName = "testDoor123";
+    protected @NotNull IPWorld world = getWorld();
+    protected @NotNull IPWorld world2 = getWorld();
+    protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected DoorOwner doorOwner;
 
@@ -173,8 +173,8 @@ public class CreatorTestsUtil
     }
 
     @SneakyThrows
-    public void testCreation(final @NonNull Creator creator, @NonNull AbstractDoorBase actualDoor,
-                             final @NonNull Object... input)
+    public void testCreation(final @NotNull Creator creator, @NotNull AbstractDoorBase actualDoor,
+                             final @NotNull Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)
         {

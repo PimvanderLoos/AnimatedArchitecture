@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -12,6 +11,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,18 +22,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class ToolUser implements IRestartable
 {
     @Getter
-    private final @NonNull IPPlayer player;
+    private final @NotNull IPPlayer player;
 
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
     @Getter
-    private final @NonNull Procedure procedure;
+    private final @NotNull Procedure procedure;
 
     /**
      * Checks if this {@link ToolUser} has been shut down or not.
      */
-    private final @NonNull AtomicBoolean isShutDown = new AtomicBoolean(false);
+    private final @NotNull AtomicBoolean isShutDown = new AtomicBoolean(false);
 
     /**
      * Keeps track of whether this {@link ToolUser} is active or not.
@@ -46,7 +46,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected boolean playerHasStick = false;
 
-    protected ToolUser(final @NonNull IPPlayer player)
+    protected ToolUser(final @NotNull IPPlayer player)
     {
         this.player = player;
         init();
@@ -81,7 +81,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @throws InstantiationException When a step's factory is incomplete or otherwise invalid.
      */
-    protected abstract @NonNull List<IStep> generateSteps()
+    protected abstract @NotNull List<IStep> generateSteps()
         throws InstantiationException;
 
     /**
@@ -116,7 +116,7 @@ public abstract class ToolUser implements IRestartable
      * @param lore    The lore of the tool.
      * @param message The message to send to the player after giving them the tool.
      */
-    protected final void giveTool(final @NonNull Message name, final @NonNull Message lore,
+    protected final void giveTool(final @NotNull Message name, final @NotNull Message lore,
                                   final @Nullable Message message)
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil()
@@ -143,7 +143,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The message of the current step if possible. Otherwise, an empty String is returned.
      */
-    public @NonNull String getCurrentStepMessage()
+    public @NotNull String getCurrentStepMessage()
     {
         return getProcedure().getMessage();
     }
@@ -166,7 +166,7 @@ public abstract class ToolUser implements IRestartable
      * After successfully skipping to the target step, the newly-selected step will be prepared. See {@link
      * #prepareCurrentStep()}.
      */
-    protected boolean skipToStep(final @NonNull IStep goalStep)
+    protected boolean skipToStep(final @NotNull IStep goalStep)
     {
         if (!getProcedure().skipToStep(goalStep))
             return false;
@@ -234,7 +234,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected void sendMessage()
     {
-        @NonNull val message = getProcedure().getMessage();
+        @NotNull val message = getProcedure().getMessage();
         if (message.isEmpty())
             BigDoors.get().getPLogger().warn("Missing translation for step: " + getProcedure().getCurrentStepName());
         else
@@ -246,7 +246,7 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The current {@link IStep} in the {@link #procedure}.
      */
-    public @NonNull Optional<IStep> getCurrentStep()
+    public @NotNull Optional<IStep> getCurrentStep()
     {
         return Optional.ofNullable(getProcedure().getCurrentStep());
     }
@@ -260,9 +260,9 @@ public abstract class ToolUser implements IRestartable
      * @param loc The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public boolean playerHasAccessToLocation(final @NonNull IPLocationConst loc)
+    public boolean playerHasAccessToLocation(final @NotNull IPLocationConst loc)
     {
-        final @NonNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
+        final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
                                                          .canBreakBlock(getPlayer(), loc);
 
         result.ifPresent(
@@ -285,9 +285,9 @@ public abstract class ToolUser implements IRestartable
      * @param world  The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
-    public boolean playerHasAccessToCuboid(final @NonNull Cuboid cuboid, final @NonNull IPWorld world)
+    public boolean playerHasAccessToCuboid(final @NotNull Cuboid cuboid, final @NotNull IPWorld world)
     {
-        final @NonNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
+        final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
                                                          .canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
                                                                                     cuboid.getMax(), world);
 

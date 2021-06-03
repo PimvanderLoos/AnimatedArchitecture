@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -18,11 +18,11 @@ public final class Procedure
     private @Nullable IStep currentStep;
 
     @ToString.Exclude
-    protected final @NonNull ToolUser toolUser;
+    protected final @NotNull ToolUser toolUser;
 
-    final @NonNull Iterator<IStep> steps;
+    final @NotNull Iterator<IStep> steps;
 
-    public Procedure(final @NonNull ToolUser toolUser, final @NonNull List<IStep> steps)
+    public Procedure(final @NotNull ToolUser toolUser, final @NotNull List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
@@ -65,7 +65,7 @@ public final class Procedure
      * @param goalStep The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(final @NonNull IStep goalStep)
+    public boolean skipToStep(final @NotNull IStep goalStep)
     {
         while (steps.hasNext())
         {
@@ -101,7 +101,7 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public @NonNull String getMessage()
+    public @NotNull String getMessage()
     {
         if (currentStep == null)
         {
@@ -118,7 +118,7 @@ public final class Procedure
      *
      * @return The name of the current step.
      */
-    public @NonNull String getCurrentStepName()
+    public @NotNull String getCurrentStepName()
     {
         if (currentStep == null)
         {

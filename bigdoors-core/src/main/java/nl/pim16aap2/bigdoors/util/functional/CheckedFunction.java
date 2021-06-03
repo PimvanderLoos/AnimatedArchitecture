@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a function that throws an exception.
@@ -22,6 +22,6 @@ public interface CheckedFunction<T, R, E extends Exception>
      *
      * @throws E
      */
-    @NonNull R apply(T t)
+    @NotNull R apply(T t)
         throws E;
 }

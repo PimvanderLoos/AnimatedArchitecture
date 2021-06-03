@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class ListDoors extends BaseCommand
 {
-    final @NonNull DoorRetriever doorRetriever;
+    final @NotNull DoorRetriever doorRetriever;
 
-    protected ListDoors(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected ListDoors(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
     {
         super(commandSender);
         this.doorRetriever = doorRetriever;
@@ -37,22 +37,22 @@ public class ListDoors extends BaseCommand
      * @param doorRetriever A {@link DoorRetriever} representing any number of {@link AbstractDoorBase}s.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever)
     {
         return new ListDoors(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.LIST_DOORS;
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
-        final @NonNull CompletableFuture<List<AbstractDoorBase>> doors;
+        final @NotNull CompletableFuture<List<AbstractDoorBase>> doors;
         if (permissions.second || !(getCommandSender() instanceof IPPlayer))
             doors = doorRetriever.getDoors();
         else
@@ -61,7 +61,7 @@ public class ListDoors extends BaseCommand
         return doors.thenAccept(this::sendDoorList).thenApply(val -> true);
     }
 
-    private void sendDoorList(final @NonNull List<AbstractDoorBase> doors)
+    private void sendDoorList(final @NotNull List<AbstractDoorBase> doors)
     {
         if (doors.isEmpty())
         {

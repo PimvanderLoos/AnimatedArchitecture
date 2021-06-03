@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import lombok.NonNull;
 import me.angeschossen.lands.api.integration.LandsIntegration;
 import me.angeschossen.lands.api.land.LandChunk;
 import me.angeschossen.lands.api.role.enums.RoleSetting;
@@ -8,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -19,12 +19,12 @@ import java.util.UUID;
  */
 public class LandsProtectionCompat implements IProtectionCompat
 {
-    private static final @NonNull ProtectionCompat compat = ProtectionCompat.LANDS;
-    private final @NonNull BigDoorsSpigot plugin;
+    private static final @NotNull ProtectionCompat compat = ProtectionCompat.LANDS;
+    private final @NotNull BigDoorsSpigot plugin;
     private boolean success = false;
-    private final @NonNull LandsIntegration landsAddon;
+    private final @NotNull LandsIntegration landsAddon;
 
-    public LandsProtectionCompat(final @NonNull BigDoorsSpigot plugin)
+    public LandsProtectionCompat(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         landsAddon = new LandsIntegration(plugin, false);
@@ -32,14 +32,14 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         return landsAddon.getLandChunk(loc).canAction(player.getUniqueId(), RoleSetting.BLOCK_BREAK);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
-                                             final @NonNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -72,7 +72,7 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NonNull String getName()
+    public @NotNull String getName()
     {
         return ProtectionCompat.getName(compat);
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a moment in time in hours and minutes.
@@ -81,7 +81,7 @@ public final class WorldTime
     }
 
     @Override
-    public @NonNull String toString()
+    public @NotNull String toString()
     {
         return hours + ":" + minutes;
     }

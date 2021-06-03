@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an int vector or vertex in 4D space.
@@ -15,24 +15,24 @@ public final class Vector4Di extends Vector4DiConst
         super(x, y, z, w);
     }
 
-    public Vector4Di(final @NonNull Vector4DiConst other)
+    public Vector4Di(final @NotNull Vector4DiConst other)
     {
         super(other);
     }
 
-    public @NonNull Vector4Di add(final @NonNull Vector4DiConst other)
+    public @NotNull Vector4Di add(final @NotNull Vector4DiConst other)
     {
         add(other.getX(), other.getY(), other.getZ(), other.getW());
         return this;
     }
 
-    public @NonNull Vector4Di subtract(final @NonNull Vector4DiConst other)
+    public @NotNull Vector4Di subtract(final @NotNull Vector4DiConst other)
     {
         add(-other.getX(), -other.getY(), -other.getZ(), -other.getW());
         return this;
     }
 
-    public @NonNull Vector4Di multiply(final @NonNull Vector4DiConst other)
+    public @NotNull Vector4Di multiply(final @NotNull Vector4DiConst other)
     {
         x *= other.getX();
         y *= other.getY();
@@ -41,7 +41,7 @@ public final class Vector4Di extends Vector4DiConst
         return this;
     }
 
-    public @NonNull Vector4Di divide(final @NonNull Vector4DiConst other)
+    public @NotNull Vector4Di divide(final @NotNull Vector4DiConst other)
     {
         x /= other.getX();
         y /= other.getY();
@@ -50,7 +50,7 @@ public final class Vector4Di extends Vector4DiConst
         return this;
     }
 
-    public @NonNull Vector4Di multiply(final double val)
+    public @NotNull Vector4Di multiply(final double val)
     {
         x *= val;
         y *= val;
@@ -59,7 +59,7 @@ public final class Vector4Di extends Vector4DiConst
         return this;
     }
 
-    public @NonNull Vector4Di divide(final double val)
+    public @NotNull Vector4Di divide(final double val)
     {
         x /= val;
         y /= val;
@@ -68,55 +68,55 @@ public final class Vector4Di extends Vector4DiConst
         return this;
     }
 
-    public @NonNull Vector4Di addX(int val)
+    public @NotNull Vector4Di addX(int val)
     {
         x += val;
         return this;
     }
 
-    public @NonNull Vector4Di addY(int val)
+    public @NotNull Vector4Di addY(int val)
     {
         y += val;
         return this;
     }
 
-    public @NonNull Vector4Di addZ(int val)
+    public @NotNull Vector4Di addZ(int val)
     {
         z += val;
         return this;
     }
 
-    public @NonNull Vector4Di addW(int val)
+    public @NotNull Vector4Di addW(int val)
     {
         w += val;
         return this;
     }
 
-    public @NonNull Vector4Di setX(int newVal)
+    public @NotNull Vector4Di setX(int newVal)
     {
         x = newVal;
         return this;
     }
 
-    public @NonNull Vector4Di setY(int newVal)
+    public @NotNull Vector4Di setY(int newVal)
     {
         y = newVal;
         return this;
     }
 
-    public @NonNull Vector4Di setZ(int newVal)
+    public @NotNull Vector4Di setZ(int newVal)
     {
         z = newVal;
         return this;
     }
 
-    public @NonNull Vector4Di setW(int newVal)
+    public @NotNull Vector4Di setW(int newVal)
     {
         w = newVal;
         return this;
     }
 
-    public @NonNull Vector4Di add(int x, int y, int z, int w)
+    public @NotNull Vector4Di add(int x, int y, int z, int w)
     {
         this.x += x;
         this.y += y;
@@ -126,12 +126,12 @@ public final class Vector4Di extends Vector4DiConst
     }
 
     @Override
-    public @NonNull Vector4Di clone()
+    public @NotNull Vector4Di clone()
     {
         return new Vector4Di(this);
     }
 
-    public @NonNull Vector4Di normalize()
+    public @NotNull Vector4Di normalize()
     {
         double length = Math.sqrt(x * x + y * y + z * z + w * w);
 

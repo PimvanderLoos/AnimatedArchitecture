@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import net.minecraft.server.v1_15_R1.EntityMagmaCube;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EntityTypes;
@@ -24,6 +23,7 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -39,7 +39,7 @@ import java.util.logging.Level;
  */
 public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 {
-private final @NonNull World world;
+    private final @NotNull World world;
 
     private @Nullable TimerTask killTask;
 
@@ -47,13 +47,13 @@ private final @NonNull World world;
 
     private boolean alive = false;
 
-    private final @NonNull Map<PColor, Team> teams;
-    private final @NonNull Player player;
-    private final @NonNull IRestartableHolder restartableHolder;
+    private final @NotNull Map<PColor, Team> teams;
+    private final @NotNull Player player;
+    private final @NotNull IRestartableHolder restartableHolder;
 
-    public GlowingBlock_V1_15_R1(final @NonNull Player player, final @NonNull World world,
-                                 final @NonNull Map<PColor, Team> teams,
-                                 final @NonNull IRestartableHolder restartableHolder)
+    public GlowingBlock_V1_15_R1(final @NotNull Player player, final @NotNull World world,
+                                 final @NotNull Map<PColor, Team> teams,
+                                 final @NotNull IRestartableHolder restartableHolder)
     {
         this.player = player;
         this.world = world;
@@ -62,7 +62,7 @@ private final @NonNull World world;
     }
 
 
-    private @NonNull Optional<PlayerConnection> getConnection()
+    private @NotNull Optional<PlayerConnection> getConnection()
     {
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
@@ -87,7 +87,7 @@ private final @NonNull World world;
     }
 
     @Override
-    public void teleport(final @NonNull Vector3DdConst position)
+    public void teleport(final @NotNull Vector3DdConst position)
     {
         if (!alive)
             return;
@@ -96,9 +96,9 @@ private final @NonNull World world;
     }
 
     @Override
-    public void spawn(final @NonNull PColor pColor, final double x, final double y, final double z, final long ticks)
+    public void spawn(final @NotNull PColor pColor, final double x, final double y, final double z, final long ticks)
     {
-        final @NonNull Optional<PlayerConnection> playerConnectionOpt = getConnection();
+        final @NotNull Optional<PlayerConnection> playerConnectionOpt = getConnection();
         if (playerConnectionOpt.isEmpty())
             return;
 
@@ -178,11 +178,11 @@ private final @NonNull World world;
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public @NonNull Optional<IGlowingBlock> createGlowingBlock(final @NonNull Player player,
-                                                                   final @NonNull World world,
-                                                                   final @NonNull IRestartableHolder restartableHolder)
+        public @NotNull Optional<IGlowingBlock> createGlowingBlock(final @NotNull Player player,
+                                                                   final @NotNull World world,
+                                                                   final @NotNull IRestartableHolder restartableHolder)
         {
-            @NonNull Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
+            @NotNull Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
             if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
                 return Optional.empty();
 

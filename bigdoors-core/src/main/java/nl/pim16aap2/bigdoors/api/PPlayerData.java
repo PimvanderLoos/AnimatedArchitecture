@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.api;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -11,10 +11,10 @@ import java.util.UUID;
 @EqualsAndHashCode
 public final class PPlayerData implements IPPlayerDataContainer
 {
-    private final @NonNull UUID uuid;
+    private final @NotNull UUID uuid;
 
     @Getter
-    private final @NonNull String name;
+    private final @NotNull String name;
 
     @Getter
     private final int doorSizeLimit;
@@ -27,7 +27,7 @@ public final class PPlayerData implements IPPlayerDataContainer
 
     private final boolean hasProtectionBypassPermission;
 
-    public PPlayerData(final @NonNull UUID uuid, final @NonNull String name, final int doorSizeLimit,
+    public PPlayerData(final @NotNull UUID uuid, final @NotNull String name, final int doorSizeLimit,
                        final int doorCountLimit, final long permissionsFlag)
     {
         this.uuid = uuid;
@@ -39,7 +39,7 @@ public final class PPlayerData implements IPPlayerDataContainer
     }
 
     @Override
-    public @NonNull UUID getUUID()
+    public @NotNull UUID getUUID()
     {
         return uuid;
     }

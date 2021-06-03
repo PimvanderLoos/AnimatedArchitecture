@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,6 +14,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -23,21 +23,21 @@ import java.util.List;
 public class CreatorFlag extends Creator
 {
     @Getter
-    private final @NonNull DoorType doorType = DoorTypeFlag.get();
+    private final @NotNull DoorType doorType = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(final @NonNull IPPlayer player, final @Nullable String name)
+    public CreatorFlag(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorFlag(final @NonNull IPPlayer player)
+    public CreatorFlag(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -56,13 +56,13 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NonNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
+        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
                                                               new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                             loc.getBlockZ())).getDimensions();
 
@@ -79,7 +79,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetEngineStep(final @NonNull IPLocationConst loc)
+    protected boolean completeSetEngineStep(final @NotNull IPLocationConst loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
@@ -94,7 +94,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected @NonNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(engine, "engine");

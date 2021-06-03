@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
@@ -16,6 +15,7 @@ import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
@@ -26,8 +26,8 @@ import java.util.function.BiFunction;
  */
 public class RevolvingDoorMover extends BlockMover
 {
-    private final @NonNull BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
-    private final @NonNull RotateDirection rotateDirection;
+    private final @NotNull BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
+    private final @NotNull RotateDirection rotateDirection;
 
     /**
      * The number of quarter circles to turn.
@@ -37,10 +37,10 @@ public class RevolvingDoorMover extends BlockMover
     private double step = 0;
     private double endStepSum = 0;
 
-    public RevolvingDoorMover(final @NonNull AbstractDoorBase door, final double time, final double multiplier,
-                              final @NonNull RotateDirection rotateDirection, final @NonNull IPPlayer player,
-                              final int quarterCircles, final @NonNull DoorActionCause cause,
-                              final @NonNull CuboidConst newCuboid, final @NonNull DoorActionType actionType)
+    public RevolvingDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
+                              final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
+                              final int quarterCircles, final @NotNull DoorActionCause cause,
+                              final @NotNull CuboidConst newCuboid, final @NotNull DoorActionType actionType)
         throws Exception
     {
         super(door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -82,7 +82,7 @@ public class RevolvingDoorMover extends BlockMover
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    private @NonNull Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
+    private @NotNull Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
                                                    final double stepSum)
     {
         final double posX = 0.5 + door.getEngine().getX() - radius * Math.sin(startAngle + stepSum);
@@ -90,12 +90,12 @@ public class RevolvingDoorMover extends BlockMover
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private @NonNull Vector3Dd getGoalPosClockwise(final @NonNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getGoalPosClockwise(final @NotNull PBlockData block, final double stepSum)
     {
         return getGoalPosClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
     }
 
-    private @NonNull Vector3Dd getGoalPosCounterClockwise(final double radius, final double startAngle,
+    private @NotNull Vector3Dd getGoalPosCounterClockwise(final double radius, final double startAngle,
                                                           final double startY,
                                                           final double stepSum)
     {
@@ -104,13 +104,13 @@ public class RevolvingDoorMover extends BlockMover
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private @NonNull Vector3Dd getGoalPosCounterClockwise(final @NonNull PBlockData block, final double stepSum)
+    private @NotNull Vector3Dd getGoalPosCounterClockwise(final @NotNull PBlockData block, final double stepSum)
     {
         return getGoalPosCounterClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
     }
 
     @Override
-    protected @NonNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
                                                  final double zAxis)
     {
         // TODO: Redo all this, it's too hacky.
@@ -124,10 +124,10 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected @NonNull Vector3Dd getFinalPosition(final @NonNull PBlockData block)
+    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NonNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NonNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
                                                                  startLocation.getY(), startLocation.getZ());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }

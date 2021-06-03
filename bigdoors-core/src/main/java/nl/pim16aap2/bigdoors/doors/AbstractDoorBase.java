@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.Synchronized;
 import lombok.experimental.Accessors;
@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -56,20 +57,20 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private final long doorUID;
 
     @Getter
-    protected final @NonNull IPWorld world;
+    private final @NotNull IPWorld world;
 
     @Getter
-    protected volatile @NonNull Vector3DiConst engine;
+    private volatile @NotNull Vector3DiConst engine;
 
     @Getter
-    private volatile @NonNull Vector2DiConst engineChunk;
+    private volatile @NotNull Vector2DiConst engineChunk;
 
     @Getter
-    protected volatile @NonNull Vector3DiConst powerBlock;
+    private volatile @NotNull Vector3DiConst powerBlock;
 
     @Getter
     @Setter(onMethod = @__({@Override}))
-    private volatile @NonNull String name;
+    private volatile @NotNull String name;
 
     private volatile CuboidConst cuboid;
 
@@ -79,7 +80,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
 
     @Getter
     @Setter(onMethod = @__({@Override}))
-    private volatile @NonNull RotateDirection openDir;
+    private volatile @NotNull RotateDirection openDir;
 
     /**
      * Represents the locked status of this door. True = locked, False = unlocked.
@@ -89,13 +90,15 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private volatile boolean locked;
 
     @EqualsAndHashCode.Exclude
-    private final @NonNull Map<@NonNull UUID, @NonNull DoorOwner> doorOwners;
+    @GuardedBy("doorOwnersLock")
+    private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
     @EqualsAndHashCode.Exclude
-    private final @NonNull Object doorOwnersLock = new Object();
+    private final @NotNull Object doorOwnersLock = new Object();
 
     @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
-    private final @NonNull DoorOwner primeOwner;
+    @GuardedBy("doorOwnersLock")
+    private final @NotNull DoorOwner primeOwner;
 
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
@@ -107,7 +110,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
     @Override
-    protected final void addOwner(final @NonNull UUID uuid, final @NonNull DoorOwner doorOwner)
+    protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
     {
         synchronized (doorOwnersLock)
         {
@@ -124,7 +127,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    protected final boolean removeOwner(final @NonNull UUID uuid)
+    protected final boolean removeOwner(final @NotNull UUID uuid)
     {
         synchronized (doorOwnersLock)
         {
@@ -142,7 +145,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     /**
      * Constructs a new {@link AbstractDoorBase}.
      */
-    protected AbstractDoorBase(final @NonNull DoorData doorData)
+    protected AbstractDoorBase(final @NotNull DoorData doorData)
     {
         init(doorData);
         doorUID = doorData.getUid();
@@ -151,12 +154,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorOwners = doorData.getDoorOwners();
     }
 
-    private void init(final @NonNull DoorData doorData)
+    private void init(final @NotNull DoorData doorData)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
         if (doorUID > 0 && !BigDoors.get().getDoorRegistry().registerDoor(new Registerable()))
         {
-            final @NonNull IllegalStateException exception = new IllegalStateException(
+            final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorUID + "\" while it is already registered!");
             BigDoors.get().getPLogger().logThrowableSilently(exception);
             throw exception;
@@ -177,7 +180,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return True if the synchronization was successful.
      */
-    public final synchronized @NonNull CompletableFuture<Boolean> syncData()
+    public final synchronized @NotNull CompletableFuture<Boolean> syncData()
     {
         if (serializer == null)
         {
@@ -199,7 +202,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NonNull CuboidConst getCuboid()
+    public @NotNull CuboidConst getCuboid()
     {
         return cuboid;
     }
@@ -212,7 +215,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
-    public synchronized @NonNull DoorData getDoorDataCopy()
+    public synchronized @NotNull DoorData getDoorDataCopy()
     {
         return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
                             world.clone(), open, locked, openDir, getPrimeOwner().clone(), getDoorOwnersCopy());
@@ -226,7 +229,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return A copy of the {@link DoorData} the describes this door.
      */
-    public synchronized @NonNull SimpleDoorData getSimpleDoorDataCopy()
+    public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
         return new SimpleDoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
                                   world.clone(), open, locked, openDir, getPrimeOwner().clone());
@@ -237,7 +240,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      *
      * @return The {@link DoorType} of this door.
      */
-    public abstract @NonNull DoorType getDoorType();
+    public abstract @NotNull DoorType getDoorType();
 
     @Deprecated
     @Override
@@ -277,10 +280,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
     //       These aren't necessarily the same entity.
-    final synchronized @NonNull DoorToggleResult toggle(final @NonNull DoorActionCause cause,
-                                                        final @NonNull IMessageable messageReceiver,
-                                                        final @NonNull IPPlayer responsible, final double time,
-                                                        boolean skipAnimation, final @NonNull DoorActionType actionType)
+    final synchronized @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
+                                                        final @NotNull IMessageable messageReceiver,
+                                                        final @NotNull IPPlayer responsible, final double time,
+                                                        boolean skipAnimation, final @NotNull DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -301,19 +304,19 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         if (skipAnimation && !canSkipAnimation())
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NonNull DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
+        final @NotNull DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return DoorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
 
-        final @NonNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
+        final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
         if (newCuboid.isEmpty())
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NonNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getBigDoorsEventFactory()
+        final @NotNull IDoorEventTogglePrepare prepareEvent = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                                                                       .createTogglePrepareEvent(this, cause, actionType,
                                                                                                 responsible, time,
                                                                                                 skipAnimation,
@@ -389,11 +392,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return The {@link BlockMover} for this class.
      */
-    protected abstract @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause,
+    protected abstract @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause,
                                                                final double time, final boolean skipAnimation,
-                                                               final @NonNull CuboidConst newCuboid,
-                                                               final @NonNull IPPlayer responsible,
-                                                               final @NonNull DoorActionType actionType)
+                                                               final @NotNull CuboidConst newCuboid,
+                                                               final @NotNull IPPlayer responsible,
+                                                               final @NotNull DoorActionType actionType)
         throws Exception;
 
     /**
@@ -411,11 +414,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
-    private synchronized boolean registerBlockMover(final @NonNull DoorActionCause cause,
+    private synchronized boolean registerBlockMover(final @NotNull DoorActionCause cause,
                                                     final double time, final boolean skipAnimation,
-                                                    final @NonNull CuboidConst newCuboid,
-                                                    final @NonNull IPPlayer responsible,
-                                                    final @NonNull DoorActionType actionType)
+                                                    final @NotNull CuboidConst newCuboid,
+                                                    final @NotNull IPPlayer responsible,
+                                                    final @NotNull DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -443,10 +446,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     @Deprecated
     @Override
-    public @NonNull Vector2Di[] calculateCurrentChunkRange()
+    public @NotNull Vector2Di[] calculateCurrentChunkRange()
     {
-        final @NonNull Vector2Di minChunk = Util.getChunkCoords(cuboid.getMin());
-        final @NonNull Vector2Di maxChunk = Util.getChunkCoords(cuboid.getMax());
+        final @NotNull Vector2Di minChunk = Util.getChunkCoords(cuboid.getMin());
+        final @NotNull Vector2Di maxChunk = Util.getChunkCoords(cuboid.getMax());
 
         return new Vector2Di[]{new Vector2Di(minChunk.getX(), minChunk.getY()),
                                new Vector2Di(maxChunk.getX(), maxChunk.getY())};
@@ -457,7 +460,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     @Deprecated
     @Override
-    public final boolean chunkInRange(final @NonNull IPWorld otherWorld, final @NonNull Vector2DiConst chunk)
+    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk)
     {
         if (!otherWorld.equals(getWorld()))
             return false;
@@ -479,14 +482,14 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     {
         if (maxChunkCoords == null || minChunkCoords == null)
         {
-            final @NonNull Vector2Di[] range = calculateChunkRange();
+            final @NotNull Vector2Di[] range = calculateChunkRange();
             minChunkCoords = range[0];
             maxChunkCoords = range[1];
         }
     }
 
     @Override
-    public @NonNull Collection<@NonNull DoorOwner> getDoorOwners()
+    public @NotNull Collection<@NotNull DoorOwner> getDoorOwners()
     {
         synchronized (doorOwnersLock)
         {
@@ -494,11 +497,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         }
     }
 
-    protected @NonNull Map<@NonNull UUID, @NonNull DoorOwner> getDoorOwnersCopy()
+    protected @NotNull Map<@NotNull UUID, @NotNull DoorOwner> getDoorOwnersCopy()
     {
         synchronized (doorOwnersLock)
         {
-            final @NonNull Map<@NonNull UUID, @NonNull DoorOwner> copy = new HashMap<>(doorOwners.size());
+            final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> copy = new HashMap<>(doorOwners.size());
             doorOwners.forEach(
                 (key, value) -> copy.put(new UUID(key.getMostSignificantBits(), key.getLeastSignificantBits()),
                                          value.clone()));
@@ -507,13 +510,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NonNull Optional<DoorOwner> getDoorOwner(final @NonNull IPPlayer player)
+    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull IPPlayer player)
     {
         return getDoorOwner(player.getUUID());
     }
 
     @Override
-    public @NonNull Optional<DoorOwner> getDoorOwner(final @NonNull UUID uuid)
+    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
         synchronized (doorOwnersLock)
         {
@@ -522,28 +525,28 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NonNull AbstractDoorBase setCoordinates(final @NonNull CuboidConst newCuboid)
+    public @NotNull AbstractDoorBase setCoordinates(final @NotNull CuboidConst newCuboid)
     {
         cuboid = new CuboidConst(newCuboid);
         return this;
     }
 
     @Override
-    public final @NonNull AbstractDoorBase setCoordinates(final @NonNull Vector3DiConst posA,
-                                                          final @NonNull Vector3DiConst posB)
+    public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst posA,
+                                                          final @NotNull Vector3DiConst posB)
     {
         cuboid = new Cuboid(posA, posB);
         return this;
     }
 
     @Override
-    public @NonNull Vector3DiConst getMinimum()
+    public @NotNull Vector3DiConst getMinimum()
     {
         return cuboid.getMin();
     }
 
     @Override
-    public @NonNull Vector3DiConst getMaximum()
+    public @NotNull Vector3DiConst getMaximum()
     {
         return cuboid.getMax();
     }
@@ -568,20 +571,20 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     @Deprecated
     @Override
-    public final @NonNull Vector2Di[] getChunkRange()
+    public final @NotNull Vector2Di[] getChunkRange()
     {
         verifyChunkRange();
         return new Vector2Di[]{minChunkCoords, maxChunkCoords};
     }
 
     @Override
-    public @NonNull Vector3DiConst getDimensions()
+    public @NotNull Vector3DiConst getDimensions()
     {
         return cuboid.getDimensions();
     }
 
     @Override
-    public synchronized final @NonNull AbstractDoorBase setEngine(final @NonNull Vector3DiConst pos)
+    public synchronized final @NotNull AbstractDoorBase setEngine(final @NotNull Vector3DiConst pos)
     {
         engine = new Vector3Di(pos);
         engineChunk = Util.getChunkCoords(pos);
@@ -589,7 +592,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public final @NonNull AbstractDoorBase setPowerBlockPosition(final @NonNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos)
     {
         powerBlock = new Vector3Di(pos);
         invalidateChunkRange();
@@ -609,7 +612,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public synchronized @NonNull String getBasicInfo()
+    public synchronized @NotNull String getBasicInfo()
     {
         return doorUID + " (" + getPrimeOwner() + ") - " + getDoorType().getSimpleName() + ": " + name;
     }
@@ -618,7 +621,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @return String with (almost) all data of this door.
      */
     @Override
-    public synchronized @NonNull String toString()
+    public synchronized @NotNull String toString()
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
@@ -661,28 +664,28 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         /**
          * The name of this door.
          */
-        @NonNull String name;
+        @NotNull String name;
 
         /**
          * The cuboid that describes this door.
          */
-        @NonNull Cuboid cuboid;
+        @NotNull Cuboid cuboid;
 
         /**
          * The location of the engine.
          */
-        @NonNull Vector3DiConst engine;
+        @NotNull Vector3DiConst engine;
 
         /**
          * The location of the powerblock.
          */
 
-        @NonNull Vector3DiConst powerBlock;
+        @NotNull Vector3DiConst powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.
          */
-        @NonNull IPWorld world;
+        @NotNull IPWorld world;
 
         /**
          * Whether or not this door is currently open.
@@ -698,12 +701,12 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          * The open direction of this door.
          */
 
-        @NonNull RotateDirection openDirection;
+        @NotNull RotateDirection openDirection;
 
         /**
          * The {@link DoorOwner} that originally created this door.
          */
-        @NonNull DoorOwner primeOwner;
+        @NotNull DoorOwner primeOwner;
     }
 
     /**
@@ -721,43 +724,43 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          * The list of {@link DoorOwner}s of this door.
          */
         @Getter
-        @NonNull Map<@NonNull UUID, @NonNull DoorOwner> doorOwners;
+        @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
-        public DoorData(final long uid, final @NonNull String name, final @NonNull Cuboid cuboid,
-                        final @NonNull Vector3DiConst engine, final @NonNull Vector3DiConst powerBlock,
-                        final @NonNull IPWorld world, final boolean isOpen, final boolean isLocked,
-                        final @NonNull RotateDirection openDirection, final @NonNull DoorOwner primeOwner)
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
+                        final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
+                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
         {
             super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
             doorOwners = Collections.singletonMap(primeOwner.getPPlayerData().getUUID(), primeOwner);
         }
 
-        public DoorData(final long uid, final @NonNull String name, final @NonNull Vector3DiConst min,
-                        final @NonNull Vector3DiConst max, final @NonNull Vector3DiConst engine,
-                        final @NonNull Vector3DiConst powerBlock, final @NonNull IPWorld world, final boolean isOpen,
-                        final boolean isLocked, final @NonNull RotateDirection openDirection,
-                        final @NonNull DoorOwner primeOwner)
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
+                        final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
+                        final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+                        final boolean isLocked, final @NotNull RotateDirection openDirection,
+                        final @NotNull DoorOwner primeOwner)
         {
             this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
                  primeOwner);
         }
 
-        public DoorData(final long uid, final @NonNull String name, final @NonNull Cuboid cuboid,
-                        final @NonNull Vector3DiConst engine, final @NonNull Vector3DiConst powerBlock,
-                        final @NonNull IPWorld world, final boolean isOpen, final boolean isLocked,
-                        final @NonNull RotateDirection openDirection, final @NonNull DoorOwner primeOwner,
-                        final @NonNull Map<@NonNull UUID, @NonNull DoorOwner> doorOwners)
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
+                        final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
+                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
+                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
+                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
         {
             this(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
             this.doorOwners = doorOwners;
         }
 
-        public DoorData(final long uid, final @NonNull String name, final @NonNull Vector3DiConst min,
-                        final @NonNull Vector3DiConst max, final @NonNull Vector3DiConst engine,
-                        final @NonNull Vector3DiConst powerBlock, final @NonNull IPWorld world, final boolean isOpen,
-                        final boolean isLocked, final @NonNull RotateDirection openDirection,
-                        final @NonNull DoorOwner primeOwner,
-                        final @NonNull Map<@NonNull UUID, @NonNull DoorOwner> doorOwners)
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
+                        final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
+                        final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+                        final boolean isLocked, final @NotNull RotateDirection openDirection,
+                        final @NotNull DoorOwner primeOwner,
+                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
         {
             this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
                  primeOwner, doorOwners);
@@ -776,7 +779,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          *
          * @return The {@link AbstractDoorBase} that is associated with this {@link Registerable}.
          */
-        public @NonNull AbstractDoorBase getAbstractDoorBase()
+        public @NotNull AbstractDoorBase getAbstractDoorBase()
         {
             return AbstractDoorBase.this;
         }

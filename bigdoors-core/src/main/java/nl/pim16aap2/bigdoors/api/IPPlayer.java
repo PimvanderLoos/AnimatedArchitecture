@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -20,10 +20,10 @@ public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
      *
      * @return The current location of this player.
      */
-    @NonNull Optional<IPLocation> getLocation();
+    @NotNull Optional<IPLocation> getLocation();
 
     @Override
-    default @NonNull Optional<IPPlayer> getPlayer()
+    default @NotNull Optional<IPPlayer> getPlayer()
     {
         return Optional.of(this);
     }
@@ -35,8 +35,8 @@ public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
     }
 
     @Override
-    @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission);
+    @NotNull CompletableFuture<Boolean> hasPermission(@NotNull String permission);
 
     @Override
-    @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command);
+    @NotNull CompletableFuture<BooleanPair> hasPermission(@NotNull CommandDefinition command);
 }

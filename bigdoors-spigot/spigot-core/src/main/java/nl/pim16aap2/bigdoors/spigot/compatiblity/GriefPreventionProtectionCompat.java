@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import lombok.NonNull;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
@@ -9,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for GriefPrevention.
@@ -23,7 +23,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     private final GriefPrevention griefPrevention;
     private boolean success = false;
 
-    public GriefPreventionProtectionCompat(final @NonNull BigDoorsSpigot plugin)
+    public GriefPreventionProtectionCompat(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
@@ -41,7 +41,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         Block block = loc.getBlock();
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
@@ -49,8 +49,8 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
-                                             final @NonNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -77,7 +77,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NonNull String getName()
+    public @NotNull String getName()
     {
         return griefPrevention.getName();
     }

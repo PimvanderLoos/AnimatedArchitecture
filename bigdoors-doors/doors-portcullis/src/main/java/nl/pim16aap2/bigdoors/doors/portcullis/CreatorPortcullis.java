@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -22,22 +22,22 @@ import java.util.OptionalInt;
 public class CreatorPortcullis extends Creator
 {
     @Getter
-    private final @NonNull DoorType doorType = DoorTypePortcullis.get();
+    private final @NotNull DoorType doorType = DoorTypePortcullis.get();
 
     protected int blocksToMove;
 
-    public CreatorPortcullis(final @NonNull IPPlayer player, final @Nullable String name)
+    public CreatorPortcullis(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorPortcullis(final @NonNull IPPlayer player)
+    public CreatorPortcullis(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
@@ -60,7 +60,7 @@ public class CreatorPortcullis extends Creator
         if (blocksToMove < 1)
             return false;
 
-        final @NonNull OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
+        final @NotNull OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
                                                                .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
@@ -83,7 +83,7 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected @NonNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();

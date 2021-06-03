@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a function with 3 input arguments.
@@ -19,5 +19,5 @@ public interface TriFunction<T, U, V, R>
      * @param v The third function argument.
      * @return The function result.
      */
-    @NonNull R apply(T t, U u, V v);
+    @NotNull R apply(T t, U u, V v);
 }

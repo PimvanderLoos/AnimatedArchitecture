@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -11,16 +11,16 @@ import java.util.function.Function;
 public class StepExecutorInteger extends StepExecutor
 {
     @ToString.Exclude
-    private final @NonNull Function<Integer, Boolean> fun;
+    private final @NotNull Function<Integer, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @NonNull Object input)
+    protected boolean protectedAccept(final @NotNull Object input)
     {
         return fun.apply((Integer) input);
     }
 
     @Override
-    public @NonNull Class<?> getInputClass()
+    public @NotNull Class<?> getInputClass()
     {
         return Integer.class;
     }
