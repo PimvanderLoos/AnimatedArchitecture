@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.encoding>UTF-8</lombok.encoding>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>16</maven.compiler.release>
 
         <lombok.inputDir>${project.basedir}</lombok.inputDir>
         <lombok.outputDir>${project.build.directory}/generated-sources/delombok</lombok.outputDir>
@@ -230,7 +230,6 @@
                             </executions>
                             <configuration>
                                 <sourceDirectory>src/main/java</sourceDirectory>
-                                <verbose>true</verbose>
                                 <formatPreferences>
                                     <generateDelombokComment>skip</generateDelombokComment>
                                     <javaLangAsFQN>skip</javaLangAsFQN>
