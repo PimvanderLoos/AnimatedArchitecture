@@ -21,6 +21,13 @@ public class Messages
     public Messages(BigDoors plugin)
     {
         this.plugin = plugin;
+        reloadMessages();
+    }
+
+    public void reloadMessages()
+    {
+        messageMap.clear();
+
         locale = plugin.getLocale();
         textFile = new File(plugin.getDataFolder(), locale + ".txt");
         readFile();

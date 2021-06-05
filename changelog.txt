@@ -1,3 +1,7 @@
+Alpha 0.1.8.30
+- Close all open BigDoors menus on plugin shutdown/restart.
+- Fix restarting the plugin causing the GUI to break if different localization is loaded.
+
 Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!
 - Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
