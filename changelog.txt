@@ -1,3 +1,6 @@
+Alpha 0.1.8.30
+- Add support for Minecraft 1.17.
+
 Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!
 - Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
