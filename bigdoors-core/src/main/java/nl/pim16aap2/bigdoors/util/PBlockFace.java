@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -264,9 +265,9 @@ public enum PBlockFace
      * @param dir The {@link PBlockFace#directionVector}.
      * @return The {@link PBlockFace} associated with this {@link PBlockFace#directionVector}.
      */
-    public static @NotNull PBlockFace faceFromDir(final @NotNull Vector3DiConst dir)
+    public static @NotNull Optional<PBlockFace> faceFromDir(final @NotNull Vector3DiConst dir)
     {
-        return dirs.get(dir);
+        return Optional.ofNullable(dirs.get(dir));
     }
 
     /**

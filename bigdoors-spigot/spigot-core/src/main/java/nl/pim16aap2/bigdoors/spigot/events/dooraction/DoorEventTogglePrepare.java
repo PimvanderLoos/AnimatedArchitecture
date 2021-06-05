@@ -23,7 +23,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
     private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private boolean isCancelled = false;
 
     /**

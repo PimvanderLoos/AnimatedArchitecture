@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 public class GUI
 {
     static final Material PAGESWITCHMAT = Material.ARROW;
@@ -65,9 +68,9 @@ public class GUI
     private int page;
     private int doorOwnerPage = 0;
     private SortType sortType = SortType.ID;
-    private Inventory inventory = null;
+    private @Nullable Inventory inventory = null;
     private int maxPageCount;
-    private AbstractDoorBase door = null;
+    private @Nullable AbstractDoorBase door = null;
 
     public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull IPPlayer guiHolder)
     {
@@ -196,7 +199,7 @@ public class GUI
         return guiHolder;
     }
 
-    AbstractDoorBase getDoor()
+    @Nullable AbstractDoorBase getDoor()
     {
         return door;
     }
@@ -258,7 +261,7 @@ public class GUI
         return items.get(index);
     }
 
-    Inventory getInventory()
+    @Nullable Inventory getInventory()
     {
         return inventory;
     }

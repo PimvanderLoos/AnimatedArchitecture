@@ -3,7 +3,9 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -15,8 +17,9 @@ public class StepExecutorPLocation extends StepExecutor
     private final @NotNull Function<IPLocationConst, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(@NotNull Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
+        Util.requireNonNull(input, "Location input");
         return fun.apply((IPLocationConst) input);
     }
 

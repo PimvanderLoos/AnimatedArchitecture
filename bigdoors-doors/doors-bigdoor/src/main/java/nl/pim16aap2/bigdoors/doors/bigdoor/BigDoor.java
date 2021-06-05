@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -20,7 +22,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -30,18 +31,20 @@ import java.util.Optional;
  * @author Pim
  * @see AbstractDoorBase
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
@@ -116,19 +119,5 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (!(o instanceof BigDoor))
-            return false;
-
-        final @NotNull BigDoor other = (BigDoor) o;
-        return getAutoCloseTime() == other.getAutoCloseTime() &&
-            getAutoOpenTime() == other.getAutoOpenTime();
     }
 }

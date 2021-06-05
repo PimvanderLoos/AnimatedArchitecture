@@ -12,6 +12,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 public class GUIPageDoorCreation implements IGUIPage
 {
     protected final BigDoorsSpigot plugin;

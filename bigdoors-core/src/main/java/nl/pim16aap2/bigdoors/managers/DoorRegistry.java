@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
@@ -150,6 +151,7 @@ public final class DoorRegistry extends Restartable
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
+    @Initializer
     private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
                                        final @NotNull Duration cacheExpiry)
     {
@@ -166,6 +168,7 @@ public final class DoorRegistry extends Restartable
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
+    @Initializer
     private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
                                        final @NotNull Duration cacheExpiry, final boolean removalListener)
     {

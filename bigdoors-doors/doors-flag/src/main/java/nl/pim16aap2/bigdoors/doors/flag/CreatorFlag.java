@@ -99,9 +99,9 @@ public class CreatorFlag extends Creator
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(engine, "engine");
         if (northSouthAligned)
-            opendir = engine.getZ() == cuboid.getMin().getZ() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            openDir = engine.getZ() == cuboid.getMin().getZ() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            opendir = engine.getX() == cuboid.getMin().getX() ? RotateDirection.EAST : RotateDirection.WEST;
+            openDir = engine.getX() == cuboid.getMin().getX() ? RotateDirection.EAST : RotateDirection.WEST;
 
         return new Flag(constructDoorData(), northSouthAligned);
     }

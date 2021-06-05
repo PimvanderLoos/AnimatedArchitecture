@@ -37,10 +37,8 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))
-        {
-            worldGuardPlugin = null;
-            return;
-        }
+            throw new IllegalStateException("Plugin " + wgPlugin + " is not the expected WorldGuardPlugin!");
+
         worldGuardPlugin = (WorldGuardPlugin) wgPlugin;
         success = true;
     }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -72,6 +73,7 @@ public abstract class ToolUser implements IRestartable
     /**
      * Basic initialization executed at the start of the constructor.
      */
+    @Initializer
     protected abstract void init();
 
     /**

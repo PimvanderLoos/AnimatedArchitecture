@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class that manages all update-related stuff.
@@ -22,8 +23,8 @@ public final class UpdateManager
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
 
-    private @NotNull UpdateChecker updater;
-    private @NotNull BukkitTask updateRunner = null;
+    private final @NotNull UpdateChecker updater;
+    private @Nullable BukkitTask updateRunner = null;
 
     public UpdateManager(final @NotNull BigDoorsSpigot plugin, final int pluginID)
     {
@@ -102,7 +103,7 @@ public final class UpdateManager
                 if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
-                    if (updateDownloaded)
+                    if (updateDownloaded && updater.getLastResult() != null)
                         logger.info("Update downloaded! Restart to apply it! " +
                                         "New version is " + updater.getLastResult().getNewestVersion() +
                                         ", Currently running " + plugin.getDescription().getVersion() +

@@ -69,24 +69,24 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private volatile @NotNull Vector3DiConst powerBlock;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private volatile @NotNull String name;
 
     private volatile CuboidConst cuboid;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private volatile boolean open;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private volatile @NotNull RotateDirection openDir;
 
     /**
      * Represents the locked status of this door. True = locked, False = unlocked.
      */
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private volatile boolean locked;
 
     @EqualsAndHashCode.Exclude
@@ -107,7 +107,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * with.
      */
     @EqualsAndHashCode.Exclude
-    private Vector2Di minChunkCoords = null, maxChunkCoords = null;
+    private @Nullable Vector2Di minChunkCoords = null, maxChunkCoords = null;
 
     @Override
     protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
@@ -117,7 +117,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             if (doorOwner.getPermission() == 0)
             {
                 BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                    "Failed to add owner: " + doorOwner.getPPlayerData().toString() + " as owner to door: " +
+                    "Failed to add owner: " + doorOwner.getPPlayerData() + " as owner to door: " +
                         getDoorUID() +
                         " because a permission level of 0 is not allowed!"));
                 return;
@@ -134,7 +134,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             if (primeOwner.getPPlayerData().getUUID().equals(uuid))
             {
                 BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                    "Failed to remove owner: " + primeOwner.getPPlayerData().toString() + " as owner from door: " +
+                    "Failed to remove owner: " + primeOwner.getPPlayerData() + " as owner from door: " +
                         getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
                 return false;
             }
@@ -253,7 +253,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             IChunkManager.ChunkLoadResult.FAIL)
         {
             BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk.toString()));
+                    .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk));
             return false;
         }
 
@@ -466,6 +466,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             return false;
 
         verifyChunkRange();
+        Util.requireNonNull(minChunkCoords, "minChunkCoords");
+        Util.requireNonNull(maxChunkCoords, "maxChunkCoords");
         return Util.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
             Util.between(chunk.getY(), minChunkCoords.getY(), maxChunkCoords.getY());
         // It's a Vector2D, so there's no z. Instead of Z, use the second value (Y).
@@ -625,7 +627,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     {
         StringBuilder builder = new StringBuilder();
         builder.append(doorUID).append(": ").append(name).append("\n");
-        builder.append("Type: ").append(getDoorType().toString()).append("\n");
+        builder.append("Type: ").append(getDoorType()).append("\n");
         builder.append("Cuboid: ").append(cuboid.toString()).append(", Engine: ").append(engine).append("\n");
         builder.append("PowerBlock position: ").append(powerBlock).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");

@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -24,7 +26,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -33,6 +34,8 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class GarageDoor extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
@@ -54,13 +57,13 @@ public class GarageDoor extends AbstractDoorBase
     protected final boolean northSouthAligned;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
@@ -214,20 +217,5 @@ public class GarageDoor extends AbstractDoorBase
 
         return new GarageDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull GarageDoor other = (GarageDoor) o;
-        return northSouthAligned == other.northSouthAligned &&
-            autoOpenTime == other.autoOpenTime &&
-            autoCloseTime == other.autoCloseTime;
     }
 }

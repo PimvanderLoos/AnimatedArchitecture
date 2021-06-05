@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -19,7 +20,6 @@ import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -53,12 +53,12 @@ public final class Messages extends Restartable
      * <p>
      * Value: The translated message.
      */
-    private @NotNull Map<Message, String> messageMap = new EnumMap<>(Message.class);
+    private final @NotNull Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
      * The selected language file.
      */
-    private File textFile;
+    private final @NotNull File textFile;
 
     /**
      * Constructs for Messages object.
@@ -75,21 +75,24 @@ public final class Messages extends Restartable
         this.plogger = plogger;
         this.fileDir = fileDir;
 
-        if (!fileDir.exists())
-            if (!fileDir.mkdirs())
-            {
-                plogger.logThrowable(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
-                return;
-            }
-
-        // TODO: Don't add .txt if it already ends with .txt
-        textFile = new File(fileDir, fileName + ".txt");
-        if (!textFile.exists())
+        if (!fileDir.exists() && !fileDir.mkdirs())
         {
-            plogger.warn("Failed to load language file: \"" + textFile
-                             + "\": File not found! Using default file instead!");
-            textFile = new File(fileDir, DEFAULTFILENAME);
-            writeDefaultFile();
+            plogger.logThrowable(new IOException("Failed to create folder: \"" + fileDir + "\""));
+            textFile = new File("");
+        }
+        else
+        {
+            File textFileTmp;
+            // TODO: Don't add .txt if it already ends with .txt
+            textFileTmp = new File(fileDir, fileName + ".txt");
+            if (!textFileTmp.exists())
+            {
+                plogger.warn("Failed to load language file: \"" + textFileTmp
+                                 + "\": File not found! Using default file instead!");
+                textFileTmp = new File(fileDir, DEFAULTFILENAME);
+                writeDefaultFile(textFileTmp);
+            }
+            textFile = textFileTmp;
         }
         populateMessageMap();
     }
@@ -111,7 +114,7 @@ public final class Messages extends Restartable
      * Copies the default language file to the default location. The default location is the directory of the language
      * specified in the config + the {@link #DEFAULTFILENAME}.
      */
-    private void writeDefaultFile()
+    private void writeDefaultFile(final @NotNull File file)
     {
         File defaultFile = new File(fileDir, DEFAULTFILENAME);
 
@@ -133,7 +136,7 @@ public final class Messages extends Restartable
         }
         catch (Exception e)
         {
-            plogger.logThrowable(e, "Failed to write default file to \"" + textFile + "\".");
+            plogger.logThrowable(e, "Failed to write default file to \"" + file + "\".");
         }
         finally
         {
@@ -233,7 +236,8 @@ public final class Messages extends Restartable
 
         try (BufferedReader br = new BufferedReader(
             new InputStreamReader(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME)).openStream())))
+                Util.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME), "File " + DEFAULTFILENAME)
+                    .openStream())))
         {
             processFile(br, this::addBackupMessage);
         }
@@ -276,7 +280,7 @@ public final class Messages extends Restartable
     {
         try
         {
-            return messageMap.get(Message.valueOf(messageName));
+            return messageMap.getOrDefault(Message.valueOf(messageName), "No message found!");
         }
         catch (IllegalStateException e)
         {

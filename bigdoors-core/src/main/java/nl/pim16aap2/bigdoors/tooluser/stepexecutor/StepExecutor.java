@@ -22,7 +22,6 @@ public abstract class StepExecutor
     public final boolean apply(final @Nullable Object input)
     {
         if (validInput(input))
-            //noinspection ConstantConditions
             return protectedAccept(input);
         else
         {
@@ -39,7 +38,7 @@ public abstract class StepExecutor
      *
      * @param obj The object to give to the {@link BiFunction}.
      */
-    protected abstract boolean protectedAccept(final @NotNull Object obj);
+    protected abstract boolean protectedAccept(final @Nullable Object obj);
 
     /**
      * Checks if an object is a valid input type.

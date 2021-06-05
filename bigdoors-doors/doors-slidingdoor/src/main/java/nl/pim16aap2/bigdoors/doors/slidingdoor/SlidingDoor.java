@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -22,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -31,25 +32,27 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class SlidingDoor extends AbstractDoorBase
     implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int blocksToMove;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
@@ -129,17 +132,5 @@ public class SlidingDoor extends AbstractDoorBase
         final @NotNull RotateDirection currentToggleDir = getCurrentToggleDir();
         return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull SlidingDoor other = (SlidingDoor) o;
-        return blocksToMove == other.blocksToMove;
     }
 }

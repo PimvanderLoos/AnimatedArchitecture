@@ -44,49 +44,32 @@ class FakePlayerCreator
     private boolean success = false;
 
     FakePlayerCreator(final @NotNull BigDoorsSpigot plugin)
+        throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
             + ".";
-        try
-        {
-            CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
-            CraftWorld = getCraftClass("CraftWorld");
-            WorldServer = getNMSClass("WorldServer");
-            EntityPlayer = getNMSClass("EntityPlayer");
-            MinecraftServer = getNMSClass("MinecraftServer");
-            PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
-                                                                  PlayerInteractManager);
-            getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
-            getHandle = CraftWorld.getMethod("getHandle");
-            getProfile = CraftOfflinePlayer.getMethod("getProfile");
-            getServer = MinecraftServer.getMethod("getServer");
-            uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
-            uuid.setAccessible(true);
 
-            World = getNMSClass("World");
-            try
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
-            }
-            catch (Exception e)
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
-            }
-        }
-        catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
-        catch (LinkageError e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
+        CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
+        CraftWorld = getCraftClass("CraftWorld");
+        WorldServer = getNMSClass("WorldServer");
+        EntityPlayer = getNMSClass("EntityPlayer");
+        MinecraftServer = getNMSClass("MinecraftServer");
+        PlayerInteractManager = getNMSClass("PlayerInteractManager");
+        EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
+                                                              PlayerInteractManager);
+        getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
+        getHandle = CraftWorld.getMethod("getHandle");
+        getProfile = CraftOfflinePlayer.getMethod("getProfile");
+        getServer = MinecraftServer.getMethod("getServer");
+        uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
+        uuid.setAccessible(true);
+
+        World = getNMSClass("World");
+        PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
+        PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
         success = true;
     }
 

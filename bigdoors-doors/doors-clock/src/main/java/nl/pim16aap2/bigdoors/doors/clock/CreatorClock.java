@@ -29,7 +29,7 @@ public class CreatorClock extends Creator
     @Getter
     private final @NotNull DoorType doorType = DoorTypeClock.get();
 
-    protected PBlockFace hourArmSide;
+    protected @Nullable PBlockFace hourArmSide;
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.
@@ -180,9 +180,9 @@ public class CreatorClock extends Creator
     protected void setOpenDirection()
     {
         if (northSouthAligned)
-            opendir = hourArmSide == PBlockFace.NORTH ? RotateDirection.WEST : RotateDirection.EAST;
+            openDir = hourArmSide == PBlockFace.NORTH ? RotateDirection.WEST : RotateDirection.EAST;
         else
-            opendir = hourArmSide == PBlockFace.EAST ? RotateDirection.NORTH : RotateDirection.SOUTH;
+            openDir = hourArmSide == PBlockFace.EAST ? RotateDirection.NORTH : RotateDirection.SOUTH;
     }
 
     @Override
@@ -190,6 +190,7 @@ public class CreatorClock extends Creator
     {
         setEngine();
         setOpenDirection();
+        Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructDoorData(), northSouthAligned, hourArmSide);
     }
 }

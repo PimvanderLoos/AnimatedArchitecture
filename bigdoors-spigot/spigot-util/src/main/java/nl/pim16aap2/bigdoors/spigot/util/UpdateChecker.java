@@ -47,7 +47,8 @@ public final class UpdateChecker
 {
     public static final @NotNull VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
-        String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
+        String[] firstSplit = splitVersionInfo(first);
+        String[] secondSplit = splitVersionInfo(second);
         if (firstSplit == null || secondSplit == null)
             return null;
 
@@ -175,12 +176,12 @@ public final class UpdateChecker
      *
      * @return the last update check result. null if none.
      */
-    public @NotNull UpdateResult getLastResult()
+    public @Nullable UpdateResult getLastResult()
     {
         return lastResult;
     }
 
-    private static String[] splitVersionInfo(String version)
+    private static @Nullable String[] splitVersionInfo(String version)
     {
         Matcher matcher = DECIMAL_SCHEME_PATTERN.matcher(version);
         if (!matcher.find())
@@ -210,9 +211,8 @@ public final class UpdateChecker
         try
         {
             File updateFolder = Bukkit.getUpdateFolderFile();
-            if (!updateFolder.exists())
-                if (!updateFolder.mkdirs())
-                    throw new RuntimeException("Failed to create update folder!");
+            if (!updateFolder.exists() && !updateFolder.mkdirs())
+                throw new RuntimeException("Failed to create update folder!");
 
             String fileName = plugin.getName() + ".jar";
             File updateFile = new File(updateFolder + "/" + fileName);
@@ -313,9 +313,7 @@ public final class UpdateChecker
      */
     public static @NotNull UpdateChecker get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     /**
@@ -333,9 +331,8 @@ public final class UpdateChecker
      * A functional interface to compare two version Strings with similar version schemes.
      */
     @FunctionalInterface
-    public static interface VersionScheme
+    public interface VersionScheme
     {
-
         /**
          * Compare two versions and return the higher of the two. If null is returned, it is assumed that at least one
          * of the two versions are unsupported by this version scheme parser.
@@ -344,8 +341,7 @@ public final class UpdateChecker
          * @param second the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
-        @NotNull String compareVersions(String first, String second);
-
+        @Nullable String compareVersions(String first, String second);
     }
 
     /**

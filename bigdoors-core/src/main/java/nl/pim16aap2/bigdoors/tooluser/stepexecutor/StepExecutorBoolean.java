@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +18,7 @@ public class StepExecutorBoolean extends StepExecutor
     @Override
     protected boolean protectedAccept(final @Nullable Object input)
     {
+        Util.requireNonNull(input, "Boolean input");
         return fun.apply((Boolean) input);
     }
 

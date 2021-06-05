@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a page in a BigDoors GUI.
@@ -43,9 +44,9 @@ public enum PageType
     /**
      * The {@link Message} associated with the name of the {@link PageType}.
      */
-    private final Message message;
+    private final @Nullable Message message;
 
-    PageType(final Message message)
+    PageType(final @Nullable Message message)
     {
         this.message = message;
     }
@@ -56,7 +57,7 @@ public enum PageType
      * @param type The {@link PageType}.
      * @return The {@link Message} associated with the name of the {@link PageType}.
      */
-    public static @NotNull Message getMessage(final @NotNull PageType type)
+    public static @Nullable Message getMessage(final @NotNull PageType type)
     {
         return type.message;
     }

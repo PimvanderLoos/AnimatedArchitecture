@@ -79,7 +79,7 @@ public abstract class Creator extends ToolUser
     /**
      * The opening direction selected by the user.
      */
-    protected @Nullable RotateDirection opendir;
+    protected @Nullable RotateDirection openDir;
 
     /**
      * The {@link IPWorld} this door is created in.
@@ -178,7 +178,6 @@ public abstract class Creator extends ToolUser
         prepareCurrentStep();
     }
 
-
     @Override
     protected void init()
     {
@@ -229,13 +228,15 @@ public abstract class Creator extends ToolUser
     {
         final long doorUID = -1;
         @NotNull val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
-        // Ignore the @NotNull status here because any value that's null will cause a
-        // detailed (i.e. with the exact name) NPE to be thrown, which is more useful
-        // then for example using a loop to check varargs objects and much easier to
-        // maintain than a list of checks with manually written messages.
-        //noinspection ConstantConditions
-        return new AbstractDoorBase.DoorData(doorUID, name, cuboid, engine, powerblock,
-                                             world, isOpen, isLocked, opendir, owner);
+        return new AbstractDoorBase.DoorData(doorUID,
+                                             Util.requireNonNull(name, "Name"),
+                                             Util.requireNonNull(cuboid, "cuboid"),
+                                             Util.requireNonNull(engine, "engine"),
+                                             Util.requireNonNull(powerblock, "powerblock"),
+                                             Util.requireNonNull(world, "world"),
+                                             isOpen, isLocked,
+                                             Util.requireNonNull(openDir, "openDir"),
+                                             owner);
     }
 
     /**
@@ -406,20 +407,20 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step that sets the {@link #opendir}. It uses the open direction as parsed from a String
+     * Attempts to complete the step that sets the {@link #openDir}. It uses the open direction as parsed from a String
      * using {@link #parseOpenDirection(String)} if possible.
      * <p>
      * If no valid open direction for this type can be found, nothing changes.
      *
      * @param str The name or index of the {@link RotateDirection} that was selected by the player.
-     * @return True if the {@link #opendir} was set successfully.
+     * @return True if the {@link #openDir} was set successfully.
      */
     protected boolean completeSetOpenDirStep(final @NotNull String str)
     {
         return parseOpenDirection(str).map(
             foundOpenDir ->
             {
-                opendir = foundOpenDir;
+                openDir = foundOpenDir;
                 return true;
             }).orElseGet(
             () ->

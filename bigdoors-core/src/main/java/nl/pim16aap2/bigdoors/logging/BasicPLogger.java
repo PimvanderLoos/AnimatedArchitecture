@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.logging;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -49,10 +50,10 @@ public class BasicPLogger implements IPLogger
             stringConsumer.accept(logMessage.get().toString());
     }
 
-    private void writeMessage(@NotNull Level level, @NotNull String msg)
+    private void writeMessage(@NotNull Level level, @Nullable String msg)
     {
         if (loggable(level))
-            writeMessage(level, new LogMessage.LogMessageString(msg, level));
+            writeMessage(level, new LogMessage.LogMessageString(msg == null ? "" : msg, level));
     }
 
     @Override

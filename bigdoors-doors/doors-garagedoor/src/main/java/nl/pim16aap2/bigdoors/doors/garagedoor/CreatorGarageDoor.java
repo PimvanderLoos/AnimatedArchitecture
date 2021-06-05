@@ -111,7 +111,7 @@ public class CreatorGarageDoor extends Creator
             // This may seem counter-intuitive, but if it's positioned along the north/south axis,
             // then it can only open in east/west direction, because there isn't any space in the other
             // directions.
-            if (opendir == RotateDirection.NORTH || opendir == RotateDirection.SOUTH)
+            if (openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH)
                 northSouthAligned = false;
             return true;
         }
@@ -141,13 +141,13 @@ public class CreatorGarageDoor extends Creator
         final @NotNull Vector3Di engineTmp = cuboid.getCenterBlock();
         engineTmp.setY(engineY);
 
-        if (opendir == RotateDirection.NORTH)
+        if (openDir == RotateDirection.NORTH)
             engineTmp.setZ(cuboid.getMax().getZ() + 1);
-        else if (opendir == RotateDirection.EAST)
+        else if (openDir == RotateDirection.EAST)
             engineTmp.setX(cuboid.getMin().getX() - 1);
-        else if (opendir == RotateDirection.SOUTH)
+        else if (openDir == RotateDirection.SOUTH)
             engineTmp.setZ(cuboid.getMin().getZ() - 1);
-        else if (opendir == RotateDirection.WEST)
+        else if (openDir == RotateDirection.WEST)
             engineTmp.setX(cuboid.getMax().getX() + 1);
         engine = engineTmp;
     }

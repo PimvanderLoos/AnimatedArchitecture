@@ -136,6 +136,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          * @param axis The {@link #PositionIterator ::Axis}.
          * @return The supplier that increments an {@link #PositionIterator ::Axis}.
          */
+        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
         private Supplier<Boolean> getIncrementor(final Axis axis)
         {
             return switch (axis)
@@ -203,6 +204,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          * @param axis The {@link #PositionIterator ::Axis}.
          * @return The runnable that increments an {@link #PositionIterator ::Axis}.
          */
+        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
         private Runnable getResetMethod(final Axis axis)
         {
             return switch (axis)

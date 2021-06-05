@@ -45,7 +45,15 @@ final class DoorTypeInitializer
      * before higher values. So if a type "BigDoor" doesn't depend on anything, it will have a weight of 0. If a type
      * "RevolvingDoor" depends on "BigDoor", it will have weight > 0.
      */
-    private final @NotNull Map<@NotNull String, @NotNull Pair<@NotNull TypeInfo, @Nullable Integer>> registrationQueue;
+    private final @NotNull Map<String, Pair<TypeInfo, Integer>> registrationQueue = new HashMap<>()
+    {
+        @Override
+        public @Nullable Pair<TypeInfo, Integer> put(final @NotNull String key,
+                                                     final @NotNull Pair<TypeInfo, Integer> value)
+        {
+            return super.put(key.toLowerCase(), value);
+        }
+    };
 
     /**
      * Gets the list of all {@link TypeInfo}s sorted by their dependency weights. This means that {@link TypeInfo}s at
@@ -67,19 +75,11 @@ final class DoorTypeInitializer
      *
      * @param typeInfoList The list of {@link TypeInfo}s that should be loaded.
      */
+    @SuppressWarnings("NullAway") // Pair doesn't like using null values.
     public DoorTypeInitializer(final @NotNull List<TypeInfo> typeInfoList,
                                final @NotNull DoorTypeClassLoader doorTypeClassLoader)
     {
         this.doorTypeClassLoader = doorTypeClassLoader;
-        registrationQueue = new HashMap<>(typeInfoList.size())
-        {
-            @Override
-            public @Nullable Pair<TypeInfo, Integer> put(final @NotNull String key,
-                                                         final @NotNull Pair<@NotNull TypeInfo, @Nullable Integer> value)
-            {
-                return super.put(key.toLowerCase(), value);
-            }
-        };
 
         typeInfoList.forEach(info -> registrationQueue.put(info.getTypeName(), new Pair<>(info, null)));
         registrationQueue.forEach(
@@ -133,7 +133,7 @@ final class DoorTypeInitializer
                 .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(" ")));
 
             sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
-                                    idx, info.weight, info.getTypeName(), depSB.toString())).append("\n");
+                                    idx, info.weight, info.getTypeName(), depSB)).append("\n");
         }
         return sb.toString();
     }
@@ -150,7 +150,7 @@ final class DoorTypeInitializer
         {
             doorTypeClassLoader.addURL(file.toURI().toURL());
         }
-        catch (Throwable e)
+        catch (Exception e)
         {
             BigDoors.get().getPLogger().logThrowable(Level.FINE, e);
             return false;
@@ -171,7 +171,7 @@ final class DoorTypeInitializer
         if (!loadJar(typeInfo.jarFile))
         {
             BigDoors.get().getPLogger().logMessage(Level.WARNING,
-                                                   "Failed to load file: \"" + typeInfo.getJarFile().toString() +
+                                                   "Failed to load file: \"" + typeInfo.getJarFile() +
                                                        "\"! This type (\"" + typeInfo.getTypeName() +
                                                        "\") will not be loaded! See the log for more details.");
             return Optional.empty();
@@ -184,7 +184,7 @@ final class DoorTypeInitializer
             final @NotNull Method getter = typeClass.getDeclaredMethod("get");
             doorType = (DoorType) getter.invoke(null);
         }
-        catch (Throwable e)
+        catch (Exception e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
             return Optional.empty();

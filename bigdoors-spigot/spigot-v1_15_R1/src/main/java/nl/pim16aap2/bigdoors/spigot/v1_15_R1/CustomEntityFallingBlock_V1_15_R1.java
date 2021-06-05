@@ -23,6 +23,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * V1_15_R1 implementation of {@link ICustomEntityFallingBlock}.
@@ -38,13 +39,14 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public int ticksLived;
     public boolean dropItem;
     public boolean hurtEntities;
-    public NBTTagCompound tileEntityData;
+    public @Nullable NBTTagCompound tileEntityData;
     private IBlockData block;
     private boolean f;
     private int fallHurtMax;
     private float fallHurtAmount;
     private final org.bukkit.World bukkitWorld;
     private boolean g;
+    @SuppressWarnings("NullAway.Init")
     private PlayerChunkMap.EntityTracker tracker;
     private final WorldServer worldServer;
 

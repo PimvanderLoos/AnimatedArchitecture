@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
-import com.google.common.base.Preconditions;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -14,8 +13,8 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,23 +50,23 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
     private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
-    private final Set<Material> powerBlockTypes;
-    private final @NotNull Set<Material> materialBlacklist;
-    private final @NotNull Map<ProtectionCompat, Boolean> hooksMap;
+    private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
+    private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
+    private final Map<ProtectionCompat, Boolean> hooksMap = new EnumMap<>(ProtectionCompat.class);
     @ToString.Exclude
-    private final @NotNull List<ConfigEntry<?>> configEntries;
+    private final @NotNull List<ConfigEntry<?>> configEntries = new ArrayList<>();
     private final @NotNull Map<DoorType, String> doorPrices;
     private final @NotNull Map<DoorType, Double> doorMultipliers;
-
     private final @NotNull String header;
+
     private int coolDown;
     private boolean allowStats;
-    private OptionalInt maxDoorSize;
-    private OptionalInt maxPowerBlockDistance;
-    private String resourcePack;
-    private String languageFile;
-    private OptionalInt maxDoorCount;
-    private OptionalInt maxBlocksToMove;
+    private OptionalInt maxDoorSize = OptionalInt.empty();
+    private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
+    private String resourcePack = "";
+    private String languageFile = "";
+    private OptionalInt maxDoorCount = OptionalInt.empty();
+    private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private int cacheTimeout;
     private boolean autoDLUpdate;
     private long downloadDelay;
@@ -76,7 +75,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private int headCacheTimeout;
     private boolean consoleLogging;
     private boolean debug = false;
-    private String flagFormula;
+    private String flagFormula = "";
 
     /**
      * Constructs a new {@link ConfigLoaderSpigot}.
@@ -88,10 +87,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     {
         this.plugin = plugin;
         this.logger = logger;
-        configEntries = new ArrayList<>();
-        powerBlockTypes = EnumSet.noneOf(Material.class);
-        materialBlacklist = EnumSet.noneOf(Material.class);
-        hooksMap = new EnumMap<>(ProtectionCompat.class);
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
 
@@ -118,9 +113,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     public static @NotNull ConfigLoaderSpigot get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     @Override
@@ -538,7 +531,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     public boolean isHookEnabled(final @NotNull ProtectionCompat hook)
     {
-        return hooksMap.get(hook);
+        return hooksMap.getOrDefault(hook, false);
     }
 
     /**
@@ -560,7 +553,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public @NotNull String getPrice(final @NotNull DoorType type)
     {
-        return doorPrices.get(type);
+        String ret = doorPrices.get(type);
+        if (ret != null)
+            return ret;
+        BigDoors.get().getPLogger().logThrowable(new IllegalStateException("No price found for type: " + type));
+        return "0";
     }
 
     @Override
@@ -615,7 +612,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * @param output The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
-        @Contract(value = "_ -> param1")
         private static @NotNull List<String> verifyMaterials(final @NotNull List<String> input,
                                                              final @NotNull Set<Material> output)
         {

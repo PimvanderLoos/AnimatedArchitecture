@@ -75,11 +75,11 @@ public class Step implements IStep
     public static class Factory
     {
         private final @NotNull String name;
-        private StepExecutor stepExecutor = null;
-        private List<Supplier<String>> messageVariablesRetrievers = null;
+        private @Nullable StepExecutor stepExecutor = null;
+        private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
-        private Message message = null;
-        private Supplier<Boolean> skipCondition = null;
+        private @Nullable Message message = null;
+        private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
         public Factory(final @NotNull String name)

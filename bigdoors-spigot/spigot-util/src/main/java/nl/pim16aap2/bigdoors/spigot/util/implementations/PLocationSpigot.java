@@ -4,6 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -12,8 +13,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * Represents an implementation of {@link IPLocation} for the Spigot platform.
@@ -38,7 +37,7 @@ public final class PLocationSpigot implements IPLocation
 
     public PLocationSpigot(final @NotNull Location location)
     {
-        Objects.requireNonNull(location.getWorld());
+        Util.requireNonNull(location.getWorld(), "world of location " + location);
         this.location = location.clone();
         world = new PWorldSpigot(location.getWorld());
     }

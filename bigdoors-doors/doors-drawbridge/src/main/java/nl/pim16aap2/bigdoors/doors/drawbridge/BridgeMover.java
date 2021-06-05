@@ -81,11 +81,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
                 rotator = Vector3Dd::rotateAroundZAxis;
                 break;
             default:
-                angle = 0;
-                rotator = null;
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                    "RotateDirection \"" + rotateDirection.name() + " is not valid for this type!"));
-                return;
+                throw new IllegalArgumentException("RotateDirection \"" + rotateDirection.name() +
+                                                       " is not valid for this type!");
         }
 
         init();

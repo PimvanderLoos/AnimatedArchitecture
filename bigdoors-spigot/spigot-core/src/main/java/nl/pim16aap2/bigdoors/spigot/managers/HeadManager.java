@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -73,9 +72,7 @@ public final class HeadManager extends Restartable
      */
     public static @NotNull HeadManager get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     /**

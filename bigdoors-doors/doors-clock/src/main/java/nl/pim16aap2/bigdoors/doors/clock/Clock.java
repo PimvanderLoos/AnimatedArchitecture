@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -16,13 +18,14 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Clock doorType.
  *
  * @author Pim
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class Clock extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
@@ -86,17 +89,5 @@ public class Clock extends AbstractDoorBase
         throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull Clock other = (Clock) o;
-        return hourArmSide.equals(other.hourArmSide) && northSouthAligned == other.northSouthAligned;
     }
 }

@@ -109,7 +109,7 @@ public final class BigDoors extends RestartableHolder
      */
     public @NotNull LimitsManager getLimitsManager()
     {
-        return platform.getLimitsManager();
+        return getPlatform().getLimitsManager();
     }
 
     /**

@@ -16,6 +16,8 @@ import java.util.Optional;
 /**
  * Represents an item in a BigDoors GUI.
  */
+@Deprecated
+@SuppressWarnings("NullAway")
 class GUIItem
 {
     private ItemStack is;
@@ -23,10 +25,10 @@ class GUIItem
     private List<String> lore;
     private int count;
     private String name;
-    private DoorOwner doorOwner = null;
+    private @Nullable DoorOwner doorOwner = null;
     private boolean missingHeadTexture;
-    private DoorAttribute attribute = null;
-    private Object specialValue;
+    private @Nullable DoorAttribute attribute = null;
+    private @Nullable Object specialValue;
 
     /**
      * Constructs a new {@link GUIItem}.
@@ -37,7 +39,7 @@ class GUIItem
      * @param count        The number of items on this stack.
      * @param specialValue An unspecified special value that can be used for various purposes.
      */
-    GUIItem(Material mat, String name, List<String> lore, int count, Object specialValue)
+    GUIItem(Material mat, String name, List<String> lore, int count, @Nullable Object specialValue)
     {
         this.name = name;
         this.lore = lore;
@@ -69,7 +71,7 @@ class GUIItem
      * @param count        The number of items on this stack.
      * @param specialValue An unspecified special value that can be used for various purposes.
      */
-    public GUIItem(ItemStack is, String name, List<String> lore, int count, Object specialValue)
+    public GUIItem(ItemStack is, String name, List<String> lore, int count, @Nullable Object specialValue)
     {
         this.name = name;
         this.lore = lore;
@@ -235,7 +237,7 @@ class GUIItem
      *
      * @param specialValue The special value of this {@link GUIItem}.
      */
-    public void setSpecialValue(Object specialValue)
+    public void setSpecialValue(@Nullable Object specialValue)
     {
         this.specialValue = specialValue;
     }

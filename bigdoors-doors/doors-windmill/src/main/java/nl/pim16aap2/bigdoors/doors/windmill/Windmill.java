@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.doors.windmill;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -15,13 +17,14 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Windmill doorType.
  *
  * @author Pim
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class Windmill extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
 {
@@ -79,17 +82,5 @@ public class Windmill extends AbstractDoorBase
 
         return new WindmillMover<>(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                    responsible, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull Windmill other = (Windmill) o;
-        return quarterCircles == other.quarterCircles;
     }
 }

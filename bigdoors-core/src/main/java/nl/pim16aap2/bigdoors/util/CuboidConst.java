@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class CuboidConst
 {
-    protected @NotNull Vector3Di min, max;
+    protected Vector3Di min, max;
 
     /**
      * Gets the total number of blocks in this cuboid. It is inclusive of lower and upper bound. E.g. the volume of
@@ -32,17 +32,17 @@ public class CuboidConst
      *
      * @return The dimensions of this door.
      */
-    @Getter
-    private @NotNull Vector3DiConst dimensions;
+    @SuppressWarnings("NullAway.Init") @Getter
+    private Vector3DiConst dimensions;
 
-    public CuboidConst(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
+    public CuboidConst(final Vector3DiConst min, final Vector3DiConst max)
     {
         this.min = new Vector3Di(min);
         this.max = new Vector3Di(max);
         onCoordsUpdate();
     }
 
-    public CuboidConst(final @NotNull CuboidConst cuboidConst)
+    public CuboidConst(final CuboidConst cuboidConst)
     {
         this(cuboidConst.min, cuboidConst.max);
     }

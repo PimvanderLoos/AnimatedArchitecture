@@ -49,7 +49,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
     /**
      * The {@link Unsafe} instance.
      */
-    private static final Unsafe UNSAFE;
+    private static final @Nullable Unsafe UNSAFE;
 
     private static final FastFieldCopier<AbstractDoorBase.SimpleDoorData, AbstractDoorBase> FIELD_COPIER_UID =
         FastFieldCopier.of(AbstractDoorBase.SimpleDoorData.class, "uid", AbstractDoorBase.class, "doorUID");
@@ -68,7 +68,7 @@ public class DoorSerializer<T extends AbstractDoorBase>
      * <p>
      * See {@link #instantiateUnsafe(AbstractDoorBase.DoorData)}.
      */
-    private static final Method INIT_METHOD;
+    private static final @Nullable Method INIT_METHOD;
 
     /**
      * Checks if the unsafe method is available.
@@ -270,12 +270,13 @@ public class DoorSerializer<T extends AbstractDoorBase>
         return ctor.newInstance(doorData);
     }
 
+    @SuppressWarnings({"unchecked", "NullAway", "ConstantConditions"})
     private @Nullable T instantiateUnsafe(final @NotNull AbstractDoorBase.DoorData doorData)
         throws InstantiationException, IllegalAccessException, InvocationTargetException
     {
         if (!UNSAFE_AVAILABLE)
             return null;
-        @SuppressWarnings("unchecked")
+
         T door = (T) UNSAFE.allocateInstance(doorClass);
 
         FIELD_COPIER_UID.copy(doorData, door);

@@ -3,8 +3,8 @@ main: nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot
 version: ${project.version}
 author: pim16aap2
 api-version: 1.14
-loadbefore: [PlotSquared]
-softdepend: [WorldGuard, Vault, GriefPrevention]
+loadbefore: [ PlotSquared ]
+softdepend: [ WorldGuard, Vault, GriefPrevention ]
 commands:
   bigdoors:
     description: Base command

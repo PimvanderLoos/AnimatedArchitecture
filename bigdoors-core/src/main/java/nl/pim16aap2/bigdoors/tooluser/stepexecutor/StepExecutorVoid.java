@@ -2,10 +2,12 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 @ToString
 @AllArgsConstructor
@@ -17,6 +19,9 @@ public class StepExecutorVoid extends StepExecutor
     @Override
     protected boolean protectedAccept(final @Nullable Object input)
     {
+        if (input != null)
+            BigDoors.get().getPLogger()
+                    .dumpStackTrace(Level.FINE, "Void input should not have a value. Received " + input);
         return fun.get();
     }
 

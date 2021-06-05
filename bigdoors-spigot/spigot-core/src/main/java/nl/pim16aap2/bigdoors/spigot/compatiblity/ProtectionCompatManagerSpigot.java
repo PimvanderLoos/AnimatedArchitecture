@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
@@ -39,9 +38,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 {
     private final @NotNull List<IProtectionCompat> protectionCompats;
     private final @NotNull BigDoorsSpigot plugin;
-    private @NotNull FakePlayerCreator fakePlayerCreator;
-    private ConfigLoaderSpigot config;
+    private final @Nullable FakePlayerCreator fakePlayerCreator;
 
+    @SuppressWarnings({"NullAway.Init", "java:S3008"})
     private static ProtectionCompatManagerSpigot INSTANCE;
 
     /**
@@ -53,7 +52,17 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         super(plugin);
         this.plugin = plugin;
-        fakePlayerCreator = new FakePlayerCreator(plugin);
+        FakePlayerCreator fakePlayerCreatorTmp = null;
+        try
+        {
+            fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
+        }
+        catch (NoSuchMethodException | ClassNotFoundException | NoSuchFieldException e)
+        {
+            BigDoors.get().getPLogger()
+                    .logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
+        }
+        fakePlayerCreator = fakePlayerCreatorTmp;
         protectionCompats = new ArrayList<>();
         restart();
     }
@@ -93,7 +102,6 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         shutdown();
 
-        config = plugin.getConfigLoader();
         for (Plugin p : plugin.getServer().getPluginManager().getPlugins())
             loadFromPluginName(p.getName());
     }
@@ -135,7 +143,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private @NotNull Optional<Player> getPlayer(final @NotNull IPPlayer player, final @NotNull World world)
     {
         Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
-        if (bukkitPlayer == null)
+        if (bukkitPlayer == null && fakePlayerCreator != null)
             bukkitPlayer = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(player.getUUID()), world)
                                             .orElse(null);
         return Optional.ofNullable(bukkitPlayer);
@@ -266,7 +274,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (compat == null)
             return;
 
-        if (!config.isHookEnabled(compat))
+        if (!BigDoorsSpigot.get().getConfigLoader().isHookEnabled(compat))
             return;
 
         try
@@ -299,16 +307,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             addProtectionCompat(compatClass.getConstructor(BigDoorsSpigot.class).newInstance(plugin));
         }
-        catch (NoClassDefFoundError e)
-        {
-            plugin.getPLogger()
-                  .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
-        }
         catch (NullPointerException e)
         {
             plugin.getPLogger().warn("Could not find \"" + compatName + "\"! Hook not enabled!");
         }
-        catch (Exception e)
+        catch (NoClassDefFoundError | Exception e)
         {
             plugin.getPLogger()
                   .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");

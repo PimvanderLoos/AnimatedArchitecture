@@ -82,7 +82,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         ERROR
             {
                 @Override
-                public ISpigotPlatform getPlatform()
+                public @Nullable ISpigotPlatform getPlatform()
                 {
                     return null;
                 }

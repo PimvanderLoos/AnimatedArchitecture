@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -81,7 +80,7 @@ public class SQLiteJDBCDriverConnectionTest
     static
     {
         DB_FILE = new File("./tests/test.db");
-        dbFileBackup = new File(DB_FILE.toString() + ".BACKUP");
+        dbFileBackup = new File(DB_FILE + ".BACKUP");
     }
 
     @BeforeAll
@@ -128,7 +127,7 @@ public class SQLiteJDBCDriverConnectionTest
             final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, playerData1);
 
             doorData = new AbstractDoorBase.DoorData(doorUID, name, min, max, engine, powerBlock, world, isOpen,
-                                                     isLocked, Objects.requireNonNull(RotateDirection.valueOf(0)),
+                                                     isLocked, Util.requireNonNull(RotateDirection.valueOf(0), "Dir0"),
                                                      doorOwner);
             final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
             door2 = drawbridge;

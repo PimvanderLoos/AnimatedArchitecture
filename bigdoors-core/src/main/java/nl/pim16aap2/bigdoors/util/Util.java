@@ -94,6 +94,7 @@ public final class Util
      *
      * @throws NullPointerException If the input object to check is null.
      */
+    @Contract("null, _ -> fail")
     public <T> @NotNull T requireNonNull(final @Nullable T obj, final @NotNull String name)
         throws NullPointerException
     {
@@ -111,6 +112,7 @@ public final class Util
      * @return The fallback value.
      */
     @Contract("_, !null -> !null")
+    @SuppressWarnings("NullAway")
     public <T> T exceptionally(final @NotNull Throwable throwable, final T fallback)
     {
         BigDoors.get().getPLogger().logThrowable(throwable);
@@ -122,6 +124,7 @@ public final class Util
      *
      * @return Always null
      */
+    @SuppressWarnings("NullAway")
     public @Nullable <T> T exceptionally(final @NotNull Throwable throwable)
     {
         return exceptionally(throwable, null);
@@ -308,7 +311,7 @@ public final class Util
      */
     public static @NotNull RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
     {
-        return toRotateDirection.get(pBlockFace);
+        return toRotateDirection.getOrDefault(pBlockFace, RotateDirection.NONE);
     }
 
     /**
@@ -320,7 +323,7 @@ public final class Util
      */
     public static @NotNull PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
     {
-        return toPBlockFace.get(rotateDirection);
+        return toPBlockFace.getOrDefault(rotateDirection, PBlockFace.NONE);
     }
 
     /**

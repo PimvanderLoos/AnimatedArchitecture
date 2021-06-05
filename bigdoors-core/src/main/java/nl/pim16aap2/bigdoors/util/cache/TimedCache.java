@@ -26,6 +26,7 @@ package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Builder;
 import lombok.val;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +34,6 @@ import java.lang.ref.SoftReference;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -190,14 +190,14 @@ public class TimedCache<K, V>
                                                 final @NotNull Function<K, @NotNull V> mappingFunction)
     {
         final @NotNull AtomicReference<V> returnValue = new AtomicReference<>();
-        Objects.requireNonNull(cache.compute(key, (k, tValue) ->
+        Util.requireNonNull(cache.compute(key, (k, tValue) ->
         {
             if (tValue == null || tValue.timedOut())
                 return timedValueCreator.apply(mappingFunction.apply(k));
 
             returnValue.set(tValue.getValue(refresh));
             return tValue;
-        }));
+        }), "Computed TimedCache value for key: \"" + key + "\"");
         return Optional.ofNullable(returnValue.get());
     }
 
@@ -222,7 +222,7 @@ public class TimedCache<K, V>
     public @NotNull V compute(final @NotNull K key,
                               final @NotNull BiFunction<K, V, @NotNull V> mappingFunction)
     {
-        return Objects.requireNonNull(cache.compute(key, (k, timedValue)
+        return Util.requireNonNull(cache.compute(key, (k, timedValue)
             ->
         {
             final @Nullable V value;
@@ -232,7 +232,7 @@ public class TimedCache<K, V>
                 value = timedValue.getValue(refresh);
 
             return timedValueCreator.apply(mappingFunction.apply(k, value));
-        }).getValue(refresh));
+        }).getValue(refresh), "Computed cache value for key: \"" + key + "\"");
     }
 
     /**

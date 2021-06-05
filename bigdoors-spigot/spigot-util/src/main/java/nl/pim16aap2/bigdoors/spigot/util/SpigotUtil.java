@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -69,7 +70,7 @@ public final class SpigotUtil
      */
     public static @NotNull ChatColor toBukkitColor(final @NotNull PColor pColor)
     {
-        return toBukkitColor.get(pColor);
+        return toBukkitColor.getOrDefault(pColor, ChatColor.WHITE);
     }
 
     /**
@@ -184,7 +185,14 @@ public final class SpigotUtil
      */
     public static @NotNull BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
     {
-        return toBlockFace.get(mbf);
+        BlockFace ret = toBlockFace.get(mbf);
+        if (ret != null)
+            return ret;
+
+        IllegalStateException e =
+            new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
+        BigDoors.get().getPLogger().logThrowable(e);
+        return BlockFace.DOWN;
     }
 
     /**
@@ -195,7 +203,14 @@ public final class SpigotUtil
      */
     public static @NotNull PBlockFace getPBlockFace(final @NotNull BlockFace bf)
     {
-        return toPBlockFace.get(bf);
+        PBlockFace ret = toPBlockFace.get(bf);
+        if (ret != null)
+            return ret;
+
+        IllegalStateException e =
+            new IllegalStateException("Failing to find mapping for lockFace: " + bf);
+        BigDoors.get().getPLogger().logThrowable(e);
+        return PBlockFace.NONE;
     }
 
     /**

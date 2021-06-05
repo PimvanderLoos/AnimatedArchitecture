@@ -28,7 +28,7 @@ public final class ToolUserManager extends Restartable
 
     public void registerToolUser(final @NotNull ToolUser toolUser)
     {
-        final @Nullable Pair<ToolUser, TimerTask> result =
+        @SuppressWarnings("NullAway") final @Nullable Pair<ToolUser, TimerTask> result =
             toolUsers.put(toolUser.getPlayer().getUUID(), new Pair<>(toolUser, null));
 
         if (result != null)

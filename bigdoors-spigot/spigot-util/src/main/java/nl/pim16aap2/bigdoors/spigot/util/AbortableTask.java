@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents an abortable BukkitTask.
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class AbortableTask
 {
-    private BukkitTask bukkitTask;
+    private @Nullable BukkitTask bukkitTask;
 
     /**
      * Abort this bukkitTask. Aborting allows the abortable to finish up gracefully.
@@ -26,7 +27,8 @@ public abstract class AbortableTask
      */
     protected final void killTask()
     {
-        bukkitTask.cancel();
+        if (bukkitTask != null)
+            bukkitTask.cancel();
     }
 
     /**

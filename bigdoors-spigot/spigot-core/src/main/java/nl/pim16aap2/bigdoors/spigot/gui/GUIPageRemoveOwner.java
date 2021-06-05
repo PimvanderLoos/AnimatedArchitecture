@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 public class GUIPageRemoveOwner implements IGUIPage
 {
     protected final BigDoorsSpigot plugin;

@@ -3,6 +3,8 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 interface IGUIPage
 {
     void handleInput(int interactionIDX);

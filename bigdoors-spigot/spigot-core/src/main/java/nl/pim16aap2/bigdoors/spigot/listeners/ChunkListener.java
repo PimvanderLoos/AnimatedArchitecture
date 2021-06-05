@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
@@ -17,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,9 +38,9 @@ public class ChunkListener implements Listener
     private final boolean isCancellable;
     private boolean success = false;
     // <1.14 method.
-    private Method isCancelled;
+    private @Nullable Method isCancelled;
     // 1.14 => method.
-    private Method isForceLoaded;
+    private @Nullable Method isForceLoaded;
 
     public ChunkListener(final @NotNull BigDoorsSpigot plugin)
     {
@@ -50,20 +52,16 @@ public class ChunkListener implements Listener
     /**
      * Initializes the listener.
      */
+    @Initializer
     private void init()
     {
         try
         {
             if (isCancellable)
-            {
                 isCancelled = org.bukkit.event.world.ChunkUnloadEvent.class.getMethod("isCancelled");
-                success = true;
-            }
             else
-            {
                 isForceLoaded = org.bukkit.Chunk.class.getMethod("isForceLoaded");
-                success = true;
-            }
+            success = true;
         }
         catch (NoSuchMethodException | SecurityException e)
         {
@@ -146,9 +144,13 @@ public class ChunkListener implements Listener
     {
         try
         {
-            if (isCancellable)
+            if (isCancelled != null)
                 return (boolean) isCancelled.invoke(event);
-            return (boolean) isForceLoaded.invoke(event.getChunk());
+            else if (isForceLoaded != null)
+                return (boolean) isForceLoaded.invoke(event.getChunk());
+            else
+                BigDoors.get().getPLogger().warn("Both isCancelled and isForceLoaded are unavailable!" +
+                                                     "Chunk management is now unreliable!");
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
@@ -156,5 +158,6 @@ public class ChunkListener implements Listener
                   .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
             return false;
         }
+        return false;
     }
 }

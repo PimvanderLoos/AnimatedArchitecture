@@ -1068,6 +1068,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param fun                The function used to process the result of the query.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
+    @SuppressWarnings("NullAway") // NullAway doesn't understand the contract that the fallback can be null.
     private @Nullable <T> T executeQuery(final @NotNull PPreparedStatement pPreparedStatement,
                                          final @NotNull CheckedFunction<ResultSet, T, Exception> fun)
     {

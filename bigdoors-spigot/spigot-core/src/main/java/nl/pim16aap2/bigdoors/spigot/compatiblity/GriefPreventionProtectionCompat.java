@@ -32,10 +32,9 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))
-        {
-            griefPrevention = null;
-            return;
-        }
+            throw new IllegalStateException(
+                "Plugin " + griefPreventionPlugin + " is not the expected GriefPrevention!");
+
         griefPrevention = (GriefPrevention) griefPreventionPlugin;
         success = true;
     }

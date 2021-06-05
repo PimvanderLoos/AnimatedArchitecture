@@ -98,7 +98,7 @@ public enum ProtectionCompat
      * @param compat The compat the get the name of the plugin for.
      * @return The name of the plugin the given compat hooks into.
      */
-    public static @Nullable String getName(final @NotNull ProtectionCompat compat)
+    public static @NotNull String getName(final @NotNull ProtectionCompat compat)
     {
         return compat.name;
     }

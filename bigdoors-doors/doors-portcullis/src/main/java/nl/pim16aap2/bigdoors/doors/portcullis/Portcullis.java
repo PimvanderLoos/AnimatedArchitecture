@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -22,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -32,25 +33,27 @@ import java.util.Optional;
  * @author Pim
  * @see AbstractDoorBase
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractDoorBase
     implements IMovingDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int blocksToMove;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
@@ -115,20 +118,5 @@ public class Portcullis extends AbstractDoorBase
         final int blocksToMove = getOpenDir().equals(RotateDirection.UP) ? getBlocksToMove() : -getBlocksToMove();
         return new VerticalMover(this, time, skipAnimation, blocksToMove, DoorOpeningUtility.getMultiplier(this),
                                  responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull Portcullis other = (Portcullis) o;
-        return blocksToMove == other.blocksToMove &&
-            autoOpenTime == other.autoOpenTime &&
-            autoCloseTime == other.autoCloseTime;
     }
 }

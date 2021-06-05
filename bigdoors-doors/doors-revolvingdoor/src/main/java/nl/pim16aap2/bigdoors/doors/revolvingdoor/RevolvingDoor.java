@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -14,7 +16,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a Revolving Door doorType.
@@ -22,6 +23,8 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see AbstractDoorBase
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
@@ -78,18 +81,5 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
 
         return new RevolvingDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                       responsible, quarterCircles, cause, newCuboid, actionType);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull RevolvingDoor other = (RevolvingDoor) o;
-        return quarterCircles == other.quarterCircles;
     }
 }

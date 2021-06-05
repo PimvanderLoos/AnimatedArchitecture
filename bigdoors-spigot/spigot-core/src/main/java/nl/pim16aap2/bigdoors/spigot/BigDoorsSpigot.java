@@ -80,6 +80,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,6 +97,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@SuppressWarnings("NullAway.Init") // Almost everything is initializer later, because that's how Spigot works.
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     private static BigDoorsSpigot INSTANCE;
@@ -117,7 +119,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     private ProtectionCompatManagerSpigot protectionCompatManager;
-    private LoginResourcePackListener rPackHandler;
+    private @Nullable LoginResourcePackListener rPackHandler;
 
     @Getter
     private PowerBlockManager powerBlockManager;
@@ -326,6 +328,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             return;
 
         configLoader.restart();
+
+        Messages messagesTmp = null;
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         playerGUIs = new HashMap<>();
 

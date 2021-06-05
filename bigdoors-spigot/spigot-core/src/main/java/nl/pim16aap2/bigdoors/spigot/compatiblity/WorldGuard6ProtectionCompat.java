@@ -33,10 +33,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))
-        {
-            worldGuard = null;
-            return;
-        }
+            throw new IllegalStateException("Plugin " + wgPlugin + " is not the expected WorldGuardPlugin!");
 
         worldGuard = (WorldGuardPlugin) wgPlugin;
 
@@ -47,7 +44,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            plugin.getPLogger().logThrowable(e);
+            throw new RuntimeException("Failed to access canBuild method!", e);
         }
     }
 

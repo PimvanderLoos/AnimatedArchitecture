@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -69,11 +68,9 @@ public class GarageDoorMover extends BlockMover
                 getVectorTmp = this::getVectorDownWest;
                 break;
             default:
-                directionVec = null;
-                BigDoors.get().getPLogger().dumpStackTrace("Failed to open garage door \"" + getDoorUID()
-                                                               + "\". Reason: Invalid rotateDirection \"" +
-                                                               rotateDirection.toString() + "\"");
-                return;
+                throw new IllegalStateException("Failed to open garage door \"" + getDoorUID()
+                                                    + "\". Reason: Invalid rotateDirection \"" +
+                                                    rotateDirection + "\"");
         }
 
         xLen = xMax - xMin;

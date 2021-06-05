@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
+import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
@@ -32,27 +33,30 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 /**
  * Represents a class that animates blocks.
  *
  * @author Pim
  */
+@ToString
 public abstract class BlockMover implements IRestartable
 {
-
     protected final @NotNull IPWorld world;
     protected final @NotNull AbstractDoorBase door;
     @Getter
     protected final @NotNull IPPlayer player;
     @Getter final @NotNull DoorActionCause cause;
     @Getter final @NotNull DoorActionType actionType;
+    @ToString.Exclude
     protected final IFallingBlockFactory fallingBlockFactory;
     @Getter
     protected double time;
     @Getter
     protected boolean skipAnimation;
     protected RotateDirection openDirection;
+    @ToString.Exclude
     protected List<PBlockData> savedBlocks;
     protected int xMin, xMax, yMin;
     protected int yMax, zMin, zMax;
@@ -283,6 +287,12 @@ public abstract class BlockMover implements IRestartable
 
         final @NotNull IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
         executor.runSync(() -> putBlocks(false));
+        if (moverTask == null)
+        {
+            BigDoors.get().getPLogger().logMessage(Level.WARNING,
+                                                   "MoverTask unexpectedly null for BlockMover: \n" + this);
+            return;
+        }
         executor.cancel(moverTask, moverTaskID);
     }
 
@@ -305,7 +315,7 @@ public abstract class BlockMover implements IRestartable
         moverTask = new TimerTask()
         {
             int counter = 0;
-            Long startTime = null; // Initialize on the first run.
+            @Nullable Long startTime = null; // Initialize on the first run.
             long lastTime;
             long currentTime = System.nanoTime();
 

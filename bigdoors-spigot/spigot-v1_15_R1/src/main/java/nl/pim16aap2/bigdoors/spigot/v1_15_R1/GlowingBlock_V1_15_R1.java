@@ -43,7 +43,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
     private @Nullable TimerTask killTask;
 
-    private Integer entityID = null;
+    private @Nullable Integer entityID = null;
 
     private boolean alive = false;
 
@@ -98,6 +98,14 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     @Override
     public void spawn(final @NotNull PColor pColor, final double x, final double y, final double z, final long ticks)
     {
+        final @Nullable Team team = teams.get(pColor);
+        if (team == null)
+        {
+            BigDoors.get().getPLogger()
+                    .warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
+            return;
+        }
+
         final @NotNull Optional<PlayerConnection> playerConnectionOpt = getConnection();
         if (playerConnectionOpt.isEmpty())
             return;
@@ -119,7 +127,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         glowingBlockEntity.setFlag(6, true); // Glowing
         glowingBlockEntity.setFlag(5, true); // Invisible
         glowingBlockEntity.setSize(2, true);
-        teams.get(pColor).addEntry(glowingBlockEntity.getName());
+        team.addEntry(glowingBlockEntity.getName());
 
         final PacketPlayOutSpawnEntityLiving spawnGlowingBlock =
             new PacketPlayOutSpawnEntityLiving(glowingBlockEntity);

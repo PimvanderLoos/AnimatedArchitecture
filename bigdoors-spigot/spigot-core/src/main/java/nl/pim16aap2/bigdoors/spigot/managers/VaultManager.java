@@ -42,7 +42,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private boolean permissionsEnabled = false;
     private @Nullable Economy economy = null;
     private @Nullable Permission perms = null;
-    private @NotNull BigDoorsSpigot plugin;
+    @SuppressWarnings("NullAway.Init") // This class needs to be rewritten to avoid this.
+    private BigDoorsSpigot plugin;
 
     private VaultManager()
     {
@@ -136,7 +137,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     public boolean hasPermission(final @NotNull Player player, final @NotNull String permission)
     {
-        return permissionsEnabled && perms.playerHas(player.getWorld().getName(), player, permission);
+        return permissionsEnabled && perms != null && perms.playerHas(player.getWorld().getName(), player, permission);
     }
 
     /**
@@ -182,6 +183,14 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private boolean has(final @NotNull OfflinePlayer player, final double amount)
     {
+        final boolean defaultValue = true;
+        if (economy == null)
+        {
+            BigDoors.get().getPLogger().warn(
+                "Economy not enabled! Could not subtract " + amount + " from the balance of player: " + player);
+            return defaultValue;
+        }
+
         try
         {
             return economy.has(player, amount);
@@ -191,7 +200,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             plugin.getPLogger().logThrowable(e, "Failed to check balance of player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
-        return true;
+        return defaultValue;
     }
 
     /**
@@ -205,6 +214,14 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private boolean withdrawPlayer(final @NotNull OfflinePlayer player, final @NotNull String worldName,
                                    final double amount)
     {
+        final boolean defaultValue = true;
+        if (economy == null)
+        {
+            BigDoors.get().getPLogger().warn("Economy not enabled! Could not subtract " + amount +
+                                                 " from the balance of player: " + player + " in world: " + worldName);
+            return defaultValue;
+        }
+
         try
         {
             if (has(player, amount))
@@ -217,7 +234,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
             plugin.getPLogger().logThrowable(e, "Failed to subtract money from player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
-        return true;
+        return defaultValue;
     }
 
     /**

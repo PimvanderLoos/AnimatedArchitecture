@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -21,7 +22,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -30,20 +30,20 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@EqualsAndHashCode(callSuper = true)
 public class Drawbridge extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     @Getter
-//    @Setter(onMethod = @__({@Override, @Synchronized("readLock")}))
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
@@ -141,21 +141,6 @@ public class Drawbridge extends AbstractDoorBase
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
                                  DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull Drawbridge other = (Drawbridge) o;
-        return autoCloseTime == other.autoCloseTime &&
-            autoOpenTime == other.autoOpenTime &&
-            modeUp == other.modeUp;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -59,11 +58,9 @@ public class RevolvingDoorMover extends BlockMover
                 getGoalPos = this::getGoalPosCounterClockwise;
                 break;
             default:
-                getGoalPos = null;
-                BigDoors.get().getPLogger().dumpStackTrace("Failed to open door \"" + getDoorUID()
-                                                               + "\". Reason: Invalid rotateDirection \"" +
-                                                               rotateDirection.toString() + "\"");
-                return;
+                throw new IllegalStateException("Failed to open door \"" + getDoorUID()
+                                                    + "\". Reason: Invalid rotateDirection \"" +
+                                                    rotateDirection + "\"");
         }
 
         init();

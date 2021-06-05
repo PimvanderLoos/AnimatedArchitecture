@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.val;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
@@ -59,6 +60,9 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
                                                            .getBlock()));
 
         final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
+        if (bukkitWorld == null)
+            throw new NullPointerException("Failed to map world to bukkit world: " + pWorld);
+
         craftWorld = (CraftWorld) bukkitWorld;
         loc = new Location(bukkitWorld, x, y, z);
 
@@ -218,8 +222,17 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      */
     private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir, int steps)
     {
+        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        if (mappedDir == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Failed to get face from vector " + dir +
+                                              ". Rotations will not work as expected!"));
+            return;
+        }
+
         BlockFace newFace = SpigotUtil.getBukkitFace(
-            PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, PBlockFace.getDirFun(dir)));
+            PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, mappedDir));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
     }
@@ -244,6 +257,15 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      */
     private void rotateMultiplefacing(final @NotNull MultipleFacing bd, final @NotNull RotateDirection dir, int steps)
     {
+        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        if (mappedDir == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Failed to get face from vector " + dir +
+                                              ". Rotations will not work as expected!"));
+            return;
+        }
+
         Set<BlockFace> currentFaces = bd.getFaces();
         Set<BlockFace> allowedFaces = bd.getAllowedFaces();
         currentFaces.forEach((blockFace) -> bd.setFace(blockFace, false));
@@ -251,7 +273,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
             (blockFace) ->
             {
                 BlockFace newFace = SpigotUtil.getBukkitFace(
-                    PBlockFace.rotate(SpigotUtil.getPBlockFace(blockFace), steps, PBlockFace.getDirFun(dir)));
+                    PBlockFace.rotate(SpigotUtil.getPBlockFace(blockFace), steps, mappedDir));
                 if (allowedFaces.contains(newFace))
                     bd.setFace(newFace, true);
             });

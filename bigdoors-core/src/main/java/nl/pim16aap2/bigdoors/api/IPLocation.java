@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
@@ -12,30 +11,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IPLocation extends IPLocationConst, Cloneable
 {
-    @Override
-    @NotNull IPWorld getWorld();
-
-    @Override
-    @NotNull Vector2Di getChunk();
-
-    @Override
-    int getBlockX();
-
-    @Override
-    int getBlockY();
-
-    @Override
-    int getBlockZ();
-
-    @Override
-    double getX();
-
-    @Override
-    double getY();
-
-    @Override
-    double getZ();
-
     /**
      * Changes the x coordinate.
      *

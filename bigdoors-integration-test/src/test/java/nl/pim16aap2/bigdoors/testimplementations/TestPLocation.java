@@ -16,15 +16,15 @@ public final class TestPLocation implements IPLocation
     private @NotNull IPWorld world;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double x;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double y;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double z;
 
 
