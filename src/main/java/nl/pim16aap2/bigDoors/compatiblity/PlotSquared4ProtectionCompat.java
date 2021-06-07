@@ -2,11 +2,14 @@ package nl.pim16aap2.bigDoors.compatiblity;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.sk89q.worldedit.world.block.BlockType;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 
@@ -55,20 +58,19 @@ public class PlotSquared4ProtectionCompat implements IProtectionCompat
             if (!plugin.getVaultManager()
                 .hasPermission(player,
                                com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL
-                                   .s()))
+                                   .getTranslated()))
                 return false;
         }
         else if ((height > area.MAX_BUILD_HEIGHT || height < area.MIN_BUILD_HEIGHT) && !plugin.getVaultManager()
             .hasPermission(player,
-                           com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_BUILD_HEIGHTLIMIT
-                               .s()))
+                           com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.getTranslated()))
             return false;
         return true;
     }
 
     // Check if a given player is allowed to build in a given plot.
     // Adapted from:
-    // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
+    // https://github.com/IntellectualSites/PlotSquared/blob/c31c855952fdfa442da3d4a2cf2acbceab4f40c9/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L1064
     private boolean canBreakBlock(Player player, com.github.intellectualsites.plotsquared.plot.object.PlotArea area,
                                   com.github.intellectualsites.plotsquared.plot.object.Plot plot, Location loc)
     {
@@ -81,22 +83,21 @@ public class PlotSquared4ProtectionCompat implements IProtectionCompat
                 return plugin.getVaultManager()
                     .hasPermission(player,
                                    com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_DESTROY_UNOWNED
-                                       .s());
+                                       .getTranslated());
 
             if (!plot.isAdded(player.getUniqueId()))
             {
-                Optional<HashSet<com.github.intellectualsites.plotsquared.plot.object.PlotBlock>> destroy = plot
-                    .getFlag(com.github.intellectualsites.plotsquared.plot.flag.Flags.BREAK);
+                Optional<Set<BlockType>> destroy = plot.getFlag(com.github.intellectualsites.plotsquared.plot.flag.Flags.BREAK);
+                
                 Block block = loc.getBlock();
                 if (destroy.isPresent() &&
-                    destroy.get().contains(com.github.intellectualsites.plotsquared.plot.object.PlotBlock
-                        .get(block.getType().name())))
+                    destroy.get().contains(com.sk89q.worldedit.bukkit.BukkitAdapter.asBlockType(block.getType())))
                     return true;
 
                 if (plugin.getVaultManager()
                     .hasPermission(player,
                                    com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_DESTROY_OTHER
-                                       .s()))
+                                       .getTranslated()))
                     return true;
                 return false;
             }
@@ -106,7 +107,7 @@ public class PlotSquared4ProtectionCompat implements IProtectionCompat
                 if (!plugin.getVaultManager()
                     .hasPermission(player,
                                    com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_BUILD_OTHER
-                                       .s()))
+                                       .getTranslated()))
                     return false;
             }
             return true;
@@ -119,7 +120,7 @@ public class PlotSquared4ProtectionCompat implements IProtectionCompat
         return plugin.getVaultManager()
             .hasPermission(player,
                            com.github.intellectualsites.plotsquared.plot.config.Captions.PERMISSION_ADMIN_DESTROY_ROAD
-                               .s());
+                               .getTranslated());
     }
 
     /**
