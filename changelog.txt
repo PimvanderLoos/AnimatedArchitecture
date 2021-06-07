@@ -1,3 +1,6 @@
+Alpha 0.1.8.31
+- Fix PlotSquared v4.4.495 support. All older versions of v4 aren't supported anymore.
+
 Alpha 0.1.8.30
 - Close all open BigDoors menus on plugin shutdown/restart.
 - Fix restarting the plugin causing the GUI to break if different localization is loaded.
