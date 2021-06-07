@@ -482,7 +482,6 @@ public final class Util
     // same way.
     public static int canRotate(Material mat)
     {
-//        Util.broadcastMessage("Checking conRotate of material: " + mat.toString());
         XMaterial xmat = XMaterial.matchXMaterial(mat.toString()).orElse(null);
         if (xmat == null)
             return 0;
@@ -513,7 +512,7 @@ public final class Util
             xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) || 
             xmat.equals(XMaterial.CHAIN))
             return 6;
-        if (xmat.equals(XMaterial.END_ROD))
+        if (xmat.equals(XMaterial.END_ROD) || xmat.equals(XMaterial.LIGHTNING_ROD))
             return 7;
         return 0;
     }
@@ -534,13 +533,20 @@ public final class Util
         if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))
             return true;
 
+        if (name.contains("POLISHED") || name.contains("SMOOTH") || name.contains("BRICKS") || name.contains("DEEPSLATE"))
+            return true;
+
         if (name.endsWith("TULIP"))
+            return false;
+
+        // TODO: Test if they truly don't work on 1.17. Depends on if they can or cannot float.
+        if (name.endsWith("CANDLE"))
             return false;
 
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
         {
-//            Util.broadcastMessage("Could not determine material of mat: " + name);
+//            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + name);
             return false;
         }
 
@@ -797,7 +803,6 @@ public final class Util
         case SWEET_BERRY_BUSH:
         case LANTERN:
         case BELL:
-
             /* 1.14 end */
 
             /* 1.15 start */
@@ -808,6 +813,26 @@ public final class Util
             /* 1.16 start */
         case BAMBOO_SAPLING:
             /* 1.16 end */
+
+            /* 1.17 start */
+        case CAVE_VINES:
+        case CAVE_VINES_PLANT:
+        case GLOW_ITEM_FRAME:
+        case GLOW_LICHEN:
+        case HANGING_ROOTS:
+        case MOSS_CARPET:
+        case POINTED_DRIPSTONE:
+        case SCULK_SENSOR:
+            /* 1.17 Unsure. These will need to be tested but are currently disabled */
+        case AMETHYST_BUD:
+        case AMETHYST_CLUSTER:
+        case AZALEA:
+        case BIG_DRIPLEAF:
+        case BIG_DRIPLEAF_STEM:
+        case LIGHT:
+        case POWDER_SNOW:
+        case SPORE_BLOSSOM:
+            /* 1.17 end */
 
             return false;
         default:
