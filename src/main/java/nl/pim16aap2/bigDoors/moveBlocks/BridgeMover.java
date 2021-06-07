@@ -544,7 +544,7 @@ public class BridgeMover implements BlockMover
         {
             if (matData >= 0 && matData < 4)
                 return (byte) (matData + 4);
-            if (matData >= 4 && matData < 7)
+            if (matData >= 4 && matData < 8)
                 return (byte) (matData - 4);
             return matData;
         }
