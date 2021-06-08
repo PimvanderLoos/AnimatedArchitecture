@@ -165,6 +165,8 @@ public class BigDoors extends JavaPlugin implements Listener
             return;
         }
 
+        messages = new Messages(this);
+
         Optional<String> disableReason = isCurrentEnvironmentInvalid();
         if (disableReason.isPresent())
         {
@@ -309,7 +311,7 @@ public class BigDoors extends JavaPlugin implements Listener
             readConfigValues();
 
         Util.processConfig(getConfigLoader());
-        messages = new Messages(this);
+        messages.reloadMessages();
         toolUsers = new HashMap<>();
         playerGUIs = new HashMap<>();
         cmdWaiters = new HashMap<>();
@@ -440,6 +442,8 @@ public class BigDoors extends JavaPlugin implements Listener
         if (!validVersion)
             return;
 
+        closeGUIs();
+
         // Stop all toolUsers and take all BigDoor tools from players.
         commander.setCanGo(false);
         commander.stopMovers(true);
@@ -453,6 +457,20 @@ public class BigDoors extends JavaPlugin implements Listener
 
         toolUsers.clear();
         cmdWaiters.clear();
+    }
+
+    private void closeGUIs()
+    {
+        Iterator<UUID> it = playerGUIs.keySet().iterator();
+        while (it.hasNext())
+        {
+            UUID uuid = it.next();
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null)
+                continue;
+            player.closeInventory();
+        }
+        playerGUIs.clear();
     }
 
     private void setupMetrics()
