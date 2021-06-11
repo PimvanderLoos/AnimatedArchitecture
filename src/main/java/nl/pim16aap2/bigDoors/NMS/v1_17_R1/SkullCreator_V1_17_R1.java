@@ -1,11 +1,15 @@
 package nl.pim16aap2.bigDoors.NMS.v1_17_R1;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.Base64;
-import java.util.UUID;
-
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.world.level.World;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.HeadManager;
+import nl.pim16aap2.bigDoors.util.Skull;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
@@ -14,18 +18,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
-
-import net.minecraft.server.v1_17_R1.EntityPlayer;
-import net.minecraft.server.v1_17_R1.MinecraftServer;
-import net.minecraft.server.v1_17_R1.PlayerInteractManager;
-import net.minecraft.server.v1_17_R1.World;
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.HeadManager;
-import nl.pim16aap2.bigDoors.util.Skull;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Base64;
+import java.util.UUID;
 
 public class SkullCreator_V1_17_R1 extends HeadManager
 {
@@ -56,8 +53,7 @@ public class SkullCreator_V1_17_R1 extends HeadManager
 
             profile.getProperties().put("textures", new Property("textures", a[0], a[1]));
 
-            EntityPlayer npc = new EntityPlayer(server, server.getWorldServer(World.OVERWORLD), profile,
-                                                new PlayerInteractManager(server.getWorldServer(World.OVERWORLD)));
+            EntityPlayer npc = new EntityPlayer(server, server.getWorldServer(World.f), profile);
             npc.setPosition(x, y, z);
 
             byte[] dec = Base64.getDecoder().decode(a[0]);

@@ -1,19 +1,18 @@
 package nl.pim16aap2.bigDoors.NMS.v1_17_R1;
 
+import net.minecraft.core.BlockPosition;
+import net.minecraft.world.level.block.state.BlockBase;
+import net.minecraft.world.level.block.state.BlockBase.Info;
+import net.minecraft.world.level.block.state.IBlockData;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
+import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-
-import net.minecraft.server.v1_17_R1.BlockBase;
-import net.minecraft.server.v1_17_R1.BlockBase.Info;
-import net.minecraft.server.v1_17_R1.BlockPosition;
-import net.minecraft.server.v1_17_R1.IBlockData;
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
-import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_Vall;
-import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
 
 public class FallingBlockFactory_V1_17_R1 implements FallingBlockFactory_Vall
 {
@@ -35,9 +34,7 @@ public class FallingBlockFactory_V1_17_R1 implements FallingBlockFactory_Vall
     @Override
     public NMSBlock_Vall nmsBlockFactory(World world, int x, int y, int z)
     {
-
-        Info blockInfo = net.minecraft.server.v1_17_R1.BlockBase.Info
-            .a((BlockBase) ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock());
+        Info blockInfo = BlockBase.Info.a((BlockBase) ((CraftWorld) world).getHandle().getType(new BlockPosition(x, y, z)).getBlock());
         return new NMSBlock_V1_17_R1(world, x, y, z, blockInfo);
     }
 }

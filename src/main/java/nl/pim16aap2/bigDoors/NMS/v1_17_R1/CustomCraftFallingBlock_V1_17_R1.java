@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.NMS.v1_17_R1;
 
+import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
@@ -9,8 +10,6 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 
-import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock_Vall;
-
 public class CustomCraftFallingBlock_V1_17_R1 extends CraftEntity implements FallingBlock, CustomCraftFallingBlock_Vall
 {
     CustomCraftFallingBlock_V1_17_R1(final Server server, final CustomEntityFallingBlock_V1_17_R1 entity)
@@ -18,7 +17,7 @@ public class CustomCraftFallingBlock_V1_17_R1 extends CraftEntity implements Fal
         super((org.bukkit.craftbukkit.v1_17_R1.CraftServer) server, entity);
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
-        entity.noclip = true;
+        entity.P = true;
     }
 
     /**
@@ -82,7 +81,7 @@ public class CustomCraftFallingBlock_V1_17_R1 extends CraftEntity implements Fal
     @Override
     public void setDropItem(final boolean drop)
     {
-        getHandle().dropItem = false;
+        getHandle().c = false;
     }
 
     /**
@@ -100,7 +99,7 @@ public class CustomCraftFallingBlock_V1_17_R1 extends CraftEntity implements Fal
     @Override
     public void setHurtEntities(final boolean hurtEntities)
     {
-        getHandle().hurtEntities = false;
+        getHandle().ap = false;
     }
 
     /**
@@ -112,7 +111,7 @@ public class CustomCraftFallingBlock_V1_17_R1 extends CraftEntity implements Fal
         super.setTicksLived(value);
 
         // Second field for EntityFallingBlock
-        getHandle().ticksLived = value;
+        getHandle().b = value;
     }
 
     @Override

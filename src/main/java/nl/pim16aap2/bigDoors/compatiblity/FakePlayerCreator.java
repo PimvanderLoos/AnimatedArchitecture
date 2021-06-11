@@ -57,45 +57,8 @@ public class FakePlayerCreator
     public FakePlayerCreator(final BigDoors plugin)
     {
         this.plugin = plugin;
-
-        NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
-            + ".";
-        try
-        {
-            CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
-            CraftWorld = getCraftClass("CraftWorld");
-            WorldServer = getNMSClass("WorldServer");
-            EntityPlayer = getNMSClass("EntityPlayer");
-            MinecraftServer = getNMSClass("MinecraftServer");
-            PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
-                                                                  PlayerInteractManager);
-            getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
-            getHandle = CraftWorld.getMethod("getHandle");
-            getProfile = CraftOfflinePlayer.getMethod("getProfile");
-            getServer = MinecraftServer.getMethod("getServer");
-            uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
-            uuid.setAccessible(true);
-
-            playerNameVar = GameProfile.class.getDeclaredField("name");
-            playerNameVar.setAccessible(true);
-
-            World = getNMSClass("World");
-            try
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
-            }
-            catch (Exception e)
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
-            }
-        }
-        catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
-        {
-            e.printStackTrace();
-            return;
-        }
+        this.NMSbase = null;
+        this.CraftBase = null;
         success = true;
     }
 

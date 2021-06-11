@@ -1,7 +1,16 @@
 package nl.pim16aap2.bigDoors.NMS.v1_17_R1;
 
-import java.util.Set;
-
+import net.minecraft.core.BlockPosition;
+import net.minecraft.core.EnumDirection;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BlockRotatable;
+import net.minecraft.world.level.block.EnumBlockRotation;
+import net.minecraft.world.level.block.state.BlockBase;
+import net.minecraft.world.level.block.state.IBlockData;
+import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,18 +21,9 @@ import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 
-import net.minecraft.server.v1_17_R1.Block;
-import net.minecraft.server.v1_17_R1.BlockPosition;
-import net.minecraft.server.v1_17_R1.BlockRotatable;
-import net.minecraft.server.v1_17_R1.EnumBlockRotation;
-import net.minecraft.server.v1_17_R1.EnumDirection.EnumAxis;
-import net.minecraft.server.v1_17_R1.IBlockData;
-import net.minecraft.server.v1_17_R1.Item;
-import nl.pim16aap2.bigDoors.NMS.NMSBlock_Vall;
-import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import java.util.Set;
 
-public class NMSBlock_V1_17_R1 extends net.minecraft.server.v1_17_R1.BlockBase implements NMSBlock_Vall
+public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock_Vall
 {
     private IBlockData blockData;
     private CraftBlockData craftBlockData;
@@ -59,13 +59,13 @@ public class NMSBlock_V1_17_R1 extends net.minecraft.server.v1_17_R1.BlockBase i
         switch (rotDir)
         {
         case CLOCKWISE:
-            rot = EnumBlockRotation.CLOCKWISE_90;
+            rot = EnumBlockRotation.b;
             break;
         case COUNTERCLOCKWISE:
-            rot = EnumBlockRotation.COUNTERCLOCKWISE_90;
+            rot = EnumBlockRotation.d;
             break;
         default:
-            rot = EnumBlockRotation.NONE;
+            rot = EnumBlockRotation.a;
         }
         blockData = blockData.a(rot);
     }
@@ -119,30 +119,30 @@ public class NMSBlock_V1_17_R1 extends net.minecraft.server.v1_17_R1.BlockBase i
     @Override
     public void rotateBlockUpDown(boolean NS)
     {
-        EnumAxis axis = blockData.get(BlockRotatable.AXIS);
-        EnumAxis newAxis = axis;
+        EnumDirection.EnumAxis axis = blockData.get(BlockRotatable.g);
+        EnumDirection.EnumAxis newAxis = axis;
         switch (axis)
         {
-        case X:
-            newAxis = NS ? EnumAxis.X : EnumAxis.Y;
+        case a:
+            newAxis = NS ? EnumDirection.EnumAxis.a : EnumDirection.EnumAxis.b;
             break;
-        case Y:
-            newAxis = NS ? EnumAxis.Z : EnumAxis.X;
+        case b:
+            newAxis = NS ? EnumDirection.EnumAxis.c : EnumDirection.EnumAxis.a;
             break;
-        case Z:
-            newAxis = NS ? EnumAxis.Y : EnumAxis.Z;
+        case c:
+            newAxis = NS ? EnumDirection.EnumAxis.b : EnumDirection.EnumAxis.c;
             break;
         }
-        blockData = blockData.set(BlockRotatable.AXIS, newAxis);
+        blockData = blockData.set(BlockRotatable.g, newAxis);
     }
 
     @Override
     public void rotateCylindrical(RotateDirection rotDir)
     {
         if (rotDir.equals(RotateDirection.CLOCKWISE))
-            blockData = blockData.a(EnumBlockRotation.CLOCKWISE_90);
+            blockData = blockData.a(EnumBlockRotation.b);
         else
-            blockData = blockData.a(EnumBlockRotation.COUNTERCLOCKWISE_90);
+            blockData = blockData.a(EnumBlockRotation.d);
     }
 
     /**
