@@ -28,7 +28,7 @@ public class ProtectionCompatManager implements Listener
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
     private final ArrayList<IProtectionCompat> protectionCompats;
-    private final FakePlayerCreator fakePlayerCreator;
+    private final IFakePlayerCreator IFakePlayerCreator;
     private final BigDoors plugin;
 
     /**
@@ -39,7 +39,7 @@ public class ProtectionCompatManager implements Listener
     public ProtectionCompatManager(final BigDoors plugin)
     {
         this.plugin = plugin;
-        fakePlayerCreator = new FakePlayerCreator(plugin);
+        IFakePlayerCreator = plugin.getFakePlayerCreator();
         protectionCompats = new ArrayList<>();
         restart();
     }
@@ -70,7 +70,7 @@ public class ProtectionCompatManager implements Listener
             return true;
 
         // offline players don't have permissions, so use Vault if that's the case.
-        if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
+        if (!player.hasMetadata(IFakePlayerCreator.FAKEPLAYERMETADATA))
             return player.hasPermission(BYPASSPERMISSION);
         return offlinePlayerHasPermission(player, player.getWorld().getName());
     }
@@ -114,7 +114,7 @@ public class ProtectionCompatManager implements Listener
     {
         Player player = Bukkit.getPlayer(playerUUID);
         if (player == null)
-            player = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), playerName, world);
+            player = IFakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(playerUUID), playerName, world);
         return player;
     }
 
