@@ -512,7 +512,7 @@ public final class Util
             xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) || 
             xmat.equals(XMaterial.CHAIN))
             return 6;
-        if (xmat.equals(XMaterial.END_ROD) || xmat.equals(XMaterial.LIGHTNING_ROD))
+        if (xmat.equals(XMaterial.END_ROD))
             return 7;
         return 0;
     }
