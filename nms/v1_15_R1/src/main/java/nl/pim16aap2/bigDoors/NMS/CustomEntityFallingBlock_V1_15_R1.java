@@ -19,10 +19,10 @@ import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.TagsBlock;
 
 /**
- * V1_15_R1 implementation of {@link ICustomEntityFallingBlock}.
+ * V1_15_R1 implementation of {@link CustomEntityFallingBlock}.
  *
  * @author Pim
- * @see ICustomEntityFallingBlock
+ * @see CustomEntityFallingBlock
  */
 public class CustomEntityFallingBlock_V1_15_R1 extends EntityFallingBlock implements CustomEntityFallingBlock
 {
