@@ -539,14 +539,10 @@ public final class Util
         if (name.endsWith("TULIP"))
             return false;
 
-        // TODO: Test if they truly don't work on 1.17. Depends on if they can or cannot float.
-        if (name.endsWith("CANDLE"))
-            return false;
-
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
         {
-//            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + name);
+            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + name);
             return false;
         }
 
@@ -819,19 +815,10 @@ public final class Util
         case CAVE_VINES_PLANT:
         case GLOW_ITEM_FRAME:
         case GLOW_LICHEN:
-        case HANGING_ROOTS:
         case MOSS_CARPET:
-        case POINTED_DRIPSTONE:
-        case SCULK_SENSOR:
-            /* 1.17 Unsure. These will need to be tested but are currently disabled */
-        case AMETHYST_BUD:
         case AMETHYST_CLUSTER:
-        case AZALEA:
         case BIG_DRIPLEAF:
         case BIG_DRIPLEAF_STEM:
-        case LIGHT:
-        case POWDER_SNOW:
-        case SPORE_BLOSSOM:
             /* 1.17 end */
 
             return false;
