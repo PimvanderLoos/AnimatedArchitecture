@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file -->
+<project name="BigDoors" default="all">
+
+    <buildnumber/>
+    <echo>The version is ${pom.project.version}. The build is ${build.number}.</echo>
+
+    <property name="topDir" location="${basedir}/.."/>
+    <property name="serverDir" location="${topDir}/Servers"/>
+    <property name="jarDir" location="${topDir}/Jars"/>
+    
+    <target name="init">
+        <delete file="${jarDir}/BigDoors-unobf.jar"/>
+
+        <delete file="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.16/plugins/update/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
+        <delete file="${serverDir}/SpigotServer_1.17/plugins/update/BigDoors.jar"/>
+    </target>
+    
+    <target name="CreateJar" description="Create Jar file" depends="init">
+        <copy file="${basedir}/target/BigDoors.jar" tofile="${jarDir}/BigDoors-unobf.jar"/>
+
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
+        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
+    </target>
+
+    <target name="obfuscate" depends="CreateJar">
+        <taskdef name="allatori" classname="com.allatori.ant.ObfuscatorTask" classpath="lib/allatori.jar"/>
+        <allatori config="${basedir}/config.xml"/>
+    </target>
+
+    <target name="checksum" depends="obfuscate">
+    	<checksum file="${jarDir}/BigDoors.jar" algorithm="SHA-256" forceOverwrite="yes"/>
+    </target>
+
+    <target name="all" depends="CreateJar, obfuscate, checksum"/>
+</project>

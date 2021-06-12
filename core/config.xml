@@ -1,6 +1,6 @@
 <config>
     <input>
-        <jar in="/home/pim/Documents/workspace/BigDoors/Servers/SpigotServer_1.13/plugins/BigDoors.jar" out="/home/pim/Documents/workspace/BigDoors/BigDoors_Obf.jar"/>
+        <jar in="/home/pim/Documents/workspace/BigDoors/Jars/BigDoors-unobf.jar" out="/home/pim/Documents/workspace/BigDoors/Jars/BigDoors.jar"/>
     </input>
 
     <keep-names>

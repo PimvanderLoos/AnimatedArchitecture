@@ -15,10 +15,9 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
+        <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
-        <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
+        <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
     </properties>
 
     <repositories>
@@ -224,7 +223,7 @@
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
-            <version>1.8</version>
+            <version>${dependency.version.jcalculator}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -280,6 +279,7 @@
     </dependencies>
 
     <build>
+        <finalName>BigDoors</finalName>
         <resources>
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
@@ -288,6 +288,11 @@
                 <directory>${basedir}/..</directory>
                 <includes>
                     <include>changelog.txt</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
                     <include>build.number</include>
                 </includes>
             </resource>
@@ -332,4 +337,32 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>antrunner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <ant antfile="${basedir}/build.xml" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
