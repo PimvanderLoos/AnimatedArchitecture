@@ -18,12 +18,12 @@ import java.lang.reflect.Method;
  *
  * @author Pim
  */
-public class FakePlayerCreator
+public class FakePlayerCreator implements IFakePlayerCreator
 {
-    public static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
+    private static final String PACKAGE_VERSION_NAME = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+    private static final String NMS_BASE = "net.minecraft.server." + PACKAGE_VERSION_NAME + ".";
+    private static final String CRAFT_BASE = "org.bukkit.craftbukkit." + PACKAGE_VERSION_NAME + ".";
 
-    private final String NMSbase;
-    private final String CraftBase;
     private Class<?> CraftOfflinePlayer;
     private Class<?> CraftWorld;
     private Class<?> World;
@@ -46,21 +46,18 @@ public class FakePlayerCreator
 
     private Class<?> getNMSClass(String name) throws ClassNotFoundException
     {
-        return Class.forName(NMSbase + name);
+        return Class.forName(NMS_BASE + name);
     }
 
     private Class<?> getCraftClass(String name) throws ClassNotFoundException
     {
-        return Class.forName(CraftBase + name);
+        return Class.forName(CRAFT_BASE + name);
     }
 
     public FakePlayerCreator(final BigDoors plugin)
     {
         this.plugin = plugin;
 
-        NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
-            + ".";
         try
         {
             CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
@@ -99,16 +96,7 @@ public class FakePlayerCreator
         success = true;
     }
 
-    /**
-     * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
-     *
-     * @param oPlayer    The {@link OfflinePlayer} to use as base for the fake online
-     *                   {@link Player}.
-     * @param playerName The name of the player.
-     * @param world      The world the fake {@link Player} is supposedly in.
-     * @return The fake-online {@link Player}
-     */
-    public Player getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
+    @Override public Player getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
     {
         if (!success || oPlayer == null || world == null)
             return null;

@@ -482,7 +482,6 @@ public final class Util
     // same way.
     public static int canRotate(Material mat)
     {
-//        Util.broadcastMessage("Checking conRotate of material: " + mat.toString());
         XMaterial xmat = XMaterial.matchXMaterial(mat.toString()).orElse(null);
         if (xmat == null)
             return 0;
@@ -534,13 +533,16 @@ public final class Util
         if (name.endsWith("SLAB") || name.endsWith("STAIRS") || name.endsWith("WALL"))
             return true;
 
+        if (name.contains("POLISHED") || name.contains("SMOOTH") || name.contains("BRICKS") || name.contains("DEEPSLATE"))
+            return true;
+
         if (name.endsWith("TULIP"))
             return false;
 
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
         {
-//            Util.broadcastMessage("Could not determine material of mat: " + name);
+            BigDoors.get().getMyLogger().warn("Could not determine material of mat: " + name);
             return false;
         }
 
@@ -797,7 +799,6 @@ public final class Util
         case SWEET_BERRY_BUSH:
         case LANTERN:
         case BELL:
-
             /* 1.14 end */
 
             /* 1.15 start */
@@ -808,6 +809,17 @@ public final class Util
             /* 1.16 start */
         case BAMBOO_SAPLING:
             /* 1.16 end */
+
+            /* 1.17 start */
+        case CAVE_VINES:
+        case CAVE_VINES_PLANT:
+        case GLOW_ITEM_FRAME:
+        case GLOW_LICHEN:
+        case MOSS_CARPET:
+        case AMETHYST_CLUSTER:
+        case BIG_DRIPLEAF:
+        case BIG_DRIPLEAF_STEM:
+            /* 1.17 end */
 
             return false;
         default:

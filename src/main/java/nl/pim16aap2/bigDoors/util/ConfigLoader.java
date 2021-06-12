@@ -85,6 +85,8 @@ public class ConfigLoader
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
         RESOURCEPACKS.put(MCVersion.v1_16,
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_17,
+                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
     }
 
     public ConfigLoader(BigDoors plugin)
@@ -139,7 +141,10 @@ public class ConfigLoader
                                          "The resource pack for 1.13.x/1.14.x is: \'"
                                              + RESOURCEPACKS.get(MCVersion.v1_13) + "\'",
                                          "The resource pack for 1.15.x/1.16.x is: \'"
-                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "\'" };
+                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "\'",
+                                         "The resource pack for 1.17.x is: \'"
+                                             + RESOURCEPACKS.get(MCVersion.v1_17) + "\'",
+                                             };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
                                        "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",

@@ -20,6 +20,11 @@ public class LoginResourcePackHandler implements Listener
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
+        if (url == null)
+        {
+            plugin.getMyLogger().warn("No resource pack set! Please contact pim16aap2!");
+            return;
+        }
         event.getPlayer().setResourcePack(url);
     }
 }
