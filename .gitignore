@@ -40,3 +40,6 @@ log.xml
 config.xml.resolved
 Jars/
 updateMirror.sh
+*dependency-reduced-pom.xml
+*/target/*
+*/lib/*

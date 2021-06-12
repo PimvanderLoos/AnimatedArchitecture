@@ -4,7 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
+    <packaging>pom</packaging>
     <version>0.1.8.30-ALPHA</version>
+    <modules>
+        <module>core</module>
+        <module>nms</module>
+    </modules>
 
     <repositories>
         <repository>
@@ -17,233 +22,14 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-
-        <!-- bStats -->
-        <repository>
-            <id>bstats-repo</id>
-            <url>http://repo.bstats.org/content/repositories/releases/</url>
-        </repository>
-        
-        <!-- RedProtect -->
-        <repository>  
-            <id>redprotect-repo</id>  
-            <url>https://raw.githubusercontent.com/FabioZumbi12/RedProtect/mvn-repo/</url>  
-        </repository>  
-
-        <repository>
-            <id>sk89q-repo</id>
-            <url>http://maven.sk89q.com/repo/</url>
-        </repository>
-
-        <repository>
-            <id>redprotect-repo2</id>
-            <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
-        </repository>
-
-        <repository>
-            <id>Massive</id>
-            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>
-        </repository>
-        
-        <!-- Vault -->
-        <repository>
-            <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
-        </repository>
-        
-        <!-- Towny -->
-        <repository>
-            <id>articdive-repo</id>
-            <url>https://nexus.articdive.de/repository/maven-releases</url>
-        </repository>
     </repositories>
 
-    <dependencies> <!-- -->
+    <dependencies>
         <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.11</artifactId>
-            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.12</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.13</artifactId>
-            <version>1.13-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.13.1</artifactId>
-            <version>1.13.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.13.2</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.14</artifactId>
-            <version>1.14-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.15.1</artifactId>
-            <version>1.15.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.16.1</artifactId>
-            <version>1.16.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.16.2</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.16.4</artifactId>
-            <version>1.16.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.spigotmc.old</groupId>
-            <artifactId>spigot-1.17</artifactId>
-            <version>1.17-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        
-
-        <!-- bStats -->
-        <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>1.7</version>
-        </dependency>
-        
-        <!-- Towny -->
-        <dependency>
-            <groupId>com.palmergames</groupId>
-            <artifactId>Towny</artifactId>
-            <version>0.94.0.5</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldGuard (OLD) -->
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>6.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldGuard (NEW) -->
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldEdit -->
-        <dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldEdit -->
-        <dependency>
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
-            <artifactId>RedProtect-Spigot-1.13</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- Vault -->
-        <dependency>
-            <groupId>net.milkbowl.vault</groupId>
-            <artifactId>VaultAPI</artifactId>
-            <version>1.7</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- GriefPrevention -->
-        <dependency>
-            <groupId>com.github.TechFortress</groupId>
-            <artifactId>GriefPrevention</artifactId>
-            <version>16.7.1</version>
-        </dependency>
-        
-        <!-- JCalculator -->
-        <dependency>
-            <groupId>com.github.PimvanderLoos</groupId>
-            <artifactId>JCalculator</artifactId>
-            <version>1.8</version>
-            <scope>compile</scope>
-        </dependency>
-        
-        <!-- Lands -->
-        <dependency>
-            <groupId>com.github.Angeschossen</groupId>
-            <artifactId>LandsAPI</artifactId>
-            <version>4.3.3.0</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- RedProtect -->
-        <dependency> 
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>  
-            <artifactId>RedProtect-Core</artifactId>  
-            <version>LATEST</version>  
-            <scope>provided</scope>  
-        </dependency>  
-        <!--<dependency>  
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>  
-            <artifactId>RedProtect-[Check below for dependency names]</artifactId>  
-            <version>LATEST</version>  
-            <scope>provided</scope>  
-        </dependency>  -->
-        
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-shade-plugin</artifactId>
-                <groupId>org.apache.maven.plugins</groupId>
-                <version>3.2.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
