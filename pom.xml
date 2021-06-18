@@ -20,7 +20,8 @@
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
         <dependency.version.annotations>20.1.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
-        <dependency.version.errorprone>2.7.0</dependency.version.errorprone>
+        <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
+        <dependency.version.errorprone>2.7.1</dependency.version.errorprone>
         <dependency.version.mockito>3.10.0</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -42,6 +43,10 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
         </repository>
     </repositories>
 
@@ -102,7 +107,7 @@
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
             <version>${dependency.version.errorprone}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -134,10 +139,6 @@
                             <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
-                            </relocation>
-                            <relocation>
-                                <pattern>com.google.errorprone</pattern>
-                                <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>
@@ -174,7 +175,7 @@
                 <plugin>
                     <groupId>org.projectlombok</groupId>
                     <artifactId>lombok-maven-plugin</artifactId>
-                    <version>1.18.20.0</version>
+                    <version>${dependency.version.lombok-plugin}</version>
                     <executions>
                         <execution>
                             <phase>generate-sources</phase>
@@ -231,10 +232,6 @@
         <profile>
             <id>errorprone</id>
 
-            <properties>
-                <src.dir>${lombok.outputDir}</src.dir>
-            </properties>
-
             <build>
                 <pluginManagement>
                     <plugins>
@@ -250,7 +247,8 @@
                                 <compilerArgs>
                                     <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
-                                    <arg>-Xplugin:ErrorProne -Xep:JavaLangClash -Xep:SameNameButDifferent</arg>
+                                    <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
+                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -XepExcludedPaths:.*/test/.*</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -263,6 +261,11 @@
                                     <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                                 </compilerArgs>
                                 <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.projectlombok</groupId>
+                                        <artifactId>lombok</artifactId>
+                                        <version>${dependency.version.lombok}</version>
+                                    </path>
                                     <path>
                                         <groupId>com.google.errorprone</groupId>
                                         <artifactId>error_prone_core</artifactId>
