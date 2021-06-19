@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the event where an owner is removed from a door.
@@ -15,5 +15,5 @@ public interface IDoorPrepareRemoveOwnerEvent extends IDoorEvent, ICancellableBi
      *
      * @return The {@link DoorOwner}.
      */
-    @NonNull DoorOwner getRemovedDoorOwner();
+    @NotNull DoorOwner getRemovedDoorOwner();
 }

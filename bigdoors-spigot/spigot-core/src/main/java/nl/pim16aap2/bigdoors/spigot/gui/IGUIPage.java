@@ -1,15 +1,17 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
+import org.jetbrains.annotations.NotNull;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 interface IGUIPage
 {
     void handleInput(int interactionIDX);
 
     void refresh();
 
-    @NonNull PageType getPageType();
+    @NotNull PageType getPageType();
 
     /**
      * Kills a GUI page. Any running processes must be killed.

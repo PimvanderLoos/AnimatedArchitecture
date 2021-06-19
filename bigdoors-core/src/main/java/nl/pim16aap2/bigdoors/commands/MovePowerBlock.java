@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    protected MovePowerBlock(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected MovePowerBlock(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
     }
@@ -33,14 +33,14 @@ public class MovePowerBlock extends DoorTargetCommand
      *                      will be moved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever)
     {
         return new MovePowerBlock(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.MOVE_POWERBLOCK;
     }
@@ -52,7 +52,7 @@ public class MovePowerBlock extends DoorTargetCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
     {
         BigDoors.get().getToolUserManager()
                 .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -19,7 +19,7 @@ public interface IProtectionCompatManager
      * @param loc    The {@link IPLocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NonNull Optional<String> canBreakBlock(@NonNull IPPlayer player, @NonNull IPLocationConst loc);
+    @NotNull Optional<String> canBreakBlock(@NotNull IPPlayer player, @NotNull IPLocationConst loc);
 
     /**
      * Check if a player can break all blocks between two locations.
@@ -30,8 +30,8 @@ public interface IProtectionCompatManager
      * @param world  The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NonNull Optional<String> canBreakBlocksBetweenLocs(@NonNull IPPlayer player,
-                                                        @NonNull Vector3DiConst pos1,
-                                                        @NonNull Vector3DiConst pos2,
-                                                        @NonNull IPWorld world);
+    @NotNull Optional<String> canBreakBlocksBetweenLocs(@NotNull IPPlayer player,
+                                                        @NotNull Vector3DiConst pos1,
+                                                        @NotNull Vector3DiConst pos2,
+                                                        @NotNull IPWorld world);
 }

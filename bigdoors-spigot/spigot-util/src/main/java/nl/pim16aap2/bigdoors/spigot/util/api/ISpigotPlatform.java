@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
+import org.jetbrains.annotations.NotNull;
 
 public interface ISpigotPlatform
 {
@@ -12,15 +12,15 @@ public interface ISpigotPlatform
      *
      * @return The version.
      */
-    @NonNull String getVersion();
+    @NotNull String getVersion();
 
-    void init(@NonNull BigDoorsSpigotAbstract plugin);
+    void init(@NotNull BigDoorsSpigotAbstract plugin);
 
-    @NonNull IFallingBlockFactory getFallingBlockFactory();
+    @NotNull IFallingBlockFactory getFallingBlockFactory();
 
-    @NonNull IPBlockDataFactory getPBlockDataFactory();
+    @NotNull IPBlockDataFactory getPBlockDataFactory();
 
-    @NonNull IBlockAnalyzer getBlockAnalyzer();
+    @NotNull IBlockAnalyzer getBlockAnalyzer();
 
-    @NonNull IGlowingBlockFactory getGlowingBlockFactory();
+    @NotNull IGlowingBlockFactory getGlowingBlockFactory();
 }

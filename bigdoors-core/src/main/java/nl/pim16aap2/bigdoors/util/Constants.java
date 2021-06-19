@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a list of constant variables.
@@ -13,7 +13,7 @@ public final class Constants
     /**
      * The name used by all entities created by BigDoors.
      */
-    public static final @NonNull String BIGDOORS_ENTITY_NAME = "BigDoorsEntity";
+    public static final @NotNull String BIGDOORS_ENTITY_NAME = "BigDoorsEntity";
 
     /**
      * The amount of time (in ms) a user gets to complete a command waiter.
@@ -35,17 +35,17 @@ public final class Constants
     /**
      * The permission node that allows a player to bypass all compatibility hooks.
      */
-    public static final @NonNull String COMPAT_BYPASS_PERMISSION = "bigdoors.admin.bypasscompat";
+    public static final @NotNull String COMPAT_BYPASS_PERMISSION = "bigdoors.admin.bypasscompat";
 
     /**
      * The name of this plugin.
      */
-    public static final @NonNull String PLUGIN_NAME = "BigDoors";
+    public static final @NotNull String PLUGIN_NAME = "BigDoors";
 
     /**
      * The directory where all the extensions are loaded from.
      */
-    public static final @NonNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
+    public static final @NotNull String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
 
     /**
      * The amount of time (in seconds) a user has to complete the door creation process.

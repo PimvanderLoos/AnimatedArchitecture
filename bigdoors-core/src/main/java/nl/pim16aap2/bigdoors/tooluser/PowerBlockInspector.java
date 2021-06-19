@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -8,6 +7,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,13 +27,13 @@ public class PowerBlockInspector extends ToolUser
      */
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(final @NonNull IPPlayer player, final boolean bypassPermission)
+    public PowerBlockInspector(final @NotNull IPPlayer player, final boolean bypassPermission)
     {
         super(player);
         this.bypassPermission = bypassPermission;
     }
 
-    public PowerBlockInspector(final @NonNull IPPlayer player)
+    public PowerBlockInspector(final @NotNull IPPlayer player)
     {
         this(player, false);
     }
@@ -45,13 +45,13 @@ public class PowerBlockInspector extends ToolUser
                  Message.CREATOR_PBINSPECTOR_INIT);
     }
 
-    protected boolean inspectLoc(final @NonNull IPLocationConst loc)
+    protected boolean inspectLoc(final @NotNull IPLocationConst loc)
     {
         throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")

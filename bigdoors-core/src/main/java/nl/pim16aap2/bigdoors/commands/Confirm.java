@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Confirm extends BaseCommand
 {
-    protected Confirm(final @NonNull ICommandSender commandSender)
+    protected Confirm(final @NotNull ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -31,13 +31,13 @@ public class Confirm extends BaseCommand
      * @param commandSender The {@link ICommandSender} for which to confirm any active processes.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender)
     {
         return new Confirm(commandSender).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.CONFIRM;
     }
@@ -49,7 +49,7 @@ public class Confirm extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         val toolUser = BigDoors.get().getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())

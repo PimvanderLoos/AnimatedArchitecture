@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
@@ -24,7 +25,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -33,10 +34,12 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class GarageDoor extends AbstractDoorBase
     implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
 {
-    private static final @NonNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**
      * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -54,18 +57,18 @@ public class GarageDoor extends AbstractDoorBase
     protected final boolean northSouthAligned;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
 
-    public GarageDoor(final @NonNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+    public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
                       final boolean northSouthAligned)
     {
         super(doorData);
@@ -74,26 +77,26 @@ public class GarageDoor extends AbstractDoorBase
         this.northSouthAligned = northSouthAligned;
     }
 
-    public GarageDoor(final @NonNull DoorData doorData, final boolean northSouthAligned)
+    public GarageDoor(final @NotNull DoorData doorData, final boolean northSouthAligned)
     {
         this(doorData, -1, -1, northSouthAligned);
     }
 
-    private GarageDoor(final @NonNull DoorData doorData)
+    private GarageDoor(final @NotNull DoorData doorData)
     {
         this(doorData, false); // Add tmp/default values
     }
 
     @Override
-    public @NonNull DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NonNull Vector2Di[] calculateChunkRange()
+    public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NonNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3DiConst dimensions = getDimensions();
         final int radius;
         if (!isOpen())
             radius = dimensions.getY() / 16 + 1;
@@ -107,7 +110,7 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    public synchronized @NonNull RotateDirection getCurrentToggleDir()
+    public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())
@@ -116,14 +119,14 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    public synchronized @NonNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NonNull RotateDirection rotateDirection = getCurrentToggleDir();
-        final @NonNull Cuboid cuboid = getCuboid().clone();
+        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final @NotNull Cuboid cuboid = getCuboid().clone();
 
-        final @NonNull Vector3DiConst dimensions = cuboid.getDimensions();
-        final @NonNull Vector3DiConst minimum = cuboid.getMin();
-        final @NonNull Vector3DiConst maximum = cuboid.getMax();
+        final @NotNull Vector3DiConst dimensions = cuboid.getDimensions();
+        final @NotNull Vector3DiConst minimum = cuboid.getMin();
+        final @NotNull Vector3DiConst maximum = cuboid.getMax();
 
         int minX = minimum.getX();
         int minY = minimum.getY();
@@ -135,7 +138,7 @@ public class GarageDoor extends AbstractDoorBase
         int yLen = dimensions.getY();
         int zLen = dimensions.getZ();
 
-        final @NonNull Vector3DiConst rotateVec;
+        final @NotNull Vector3DiConst rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
@@ -203,10 +206,10 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    protected @NonNull BlockMover constructBlockMover(final @NonNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NonNull CuboidConst newCuboid,
-                                                      final @NonNull IPPlayer responsible,
-                                                      final @NonNull DoorActionType actionType)
+    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
+                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final @NotNull IPPlayer responsible,
+                                                      final @NotNull DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.
@@ -214,20 +217,5 @@ public class GarageDoor extends AbstractDoorBase
 
         return new GarageDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NonNull GarageDoor other = (GarageDoor) o;
-        return northSouthAligned == other.northSouthAligned &&
-            autoOpenTime == other.autoOpenTime &&
-            autoCloseTime == other.autoCloseTime;
     }
 }

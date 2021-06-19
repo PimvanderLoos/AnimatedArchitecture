@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,6 +14,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -24,34 +24,34 @@ import java.util.List;
 public class CreatorGarageDoor extends Creator
 {
     @Getter
-    private final @NonNull DoorType doorType = DoorTypeGarageDoor.get();
+    private final @NotNull DoorType doorType = DoorTypeGarageDoor.get();
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    private static final @NonNull List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
+    private static final @NotNull List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    private static final @NonNull List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
+    private static final @NotNull List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
     private boolean northSouthAligned;
 
-    public CreatorGarageDoor(final @NonNull IPPlayer player, final @Nullable String name)
+    public CreatorGarageDoor(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorGarageDoor(final @NonNull IPPlayer player)
+    public CreatorGarageDoor(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
@@ -64,13 +64,13 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NonNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NonNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
+        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
                                                               new Vector3Di(loc.getBlockX(), loc.getBlockY(),
                                                                             loc.getBlockZ())).getDimensions();
 
@@ -88,7 +88,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected @NonNull List<RotateDirection> getValidOpenDirections()
+    protected @NotNull List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -104,14 +104,14 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean completeSetOpenDirStep(final @NonNull String str)
+    protected boolean completeSetOpenDirStep(final @NotNull String str)
     {
         if (super.completeSetOpenDirStep(str))
         {
             // This may seem counter-intuitive, but if it's positioned along the north/south axis,
             // then it can only open in east/west direction, because there isn't any space in the other
             // directions.
-            if (opendir == RotateDirection.NORTH || opendir == RotateDirection.SOUTH)
+            if (openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH)
                 northSouthAligned = false;
             return true;
         }
@@ -138,22 +138,22 @@ public class CreatorGarageDoor extends Creator
         // are 1 block above the highest point.
         final int moveDistance = northSouthAligned ? cuboid.getDimensions().getX() : cuboid.getDimensions().getZ();
         final int engineY = cuboid.getMin().getY() - moveDistance - 1;
-        final @NonNull Vector3Di engineTmp = cuboid.getCenterBlock();
+        final @NotNull Vector3Di engineTmp = cuboid.getCenterBlock();
         engineTmp.setY(engineY);
 
-        if (opendir == RotateDirection.NORTH)
+        if (openDir == RotateDirection.NORTH)
             engineTmp.setZ(cuboid.getMax().getZ() + 1);
-        else if (opendir == RotateDirection.EAST)
+        else if (openDir == RotateDirection.EAST)
             engineTmp.setX(cuboid.getMin().getX() - 1);
-        else if (opendir == RotateDirection.SOUTH)
+        else if (openDir == RotateDirection.SOUTH)
             engineTmp.setZ(cuboid.getMin().getZ() - 1);
-        else if (opendir == RotateDirection.WEST)
+        else if (openDir == RotateDirection.WEST)
             engineTmp.setX(cuboid.getMax().getX() + 1);
         engine = engineTmp;
     }
 
     @Override
-    protected @NonNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         setEngine();
         return new GarageDoor(constructDoorData(), northSouthAligned);

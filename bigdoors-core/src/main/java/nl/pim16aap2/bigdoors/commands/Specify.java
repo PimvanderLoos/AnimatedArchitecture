@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -18,9 +18,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Specify extends BaseCommand
 {
-    private final @NonNull String input;
+    private final @NotNull String input;
 
-    protected Specify(final @NonNull ICommandSender commandSender, final @NonNull String input)
+    protected Specify(final @NotNull ICommandSender commandSender, final @NotNull String input)
     {
         super(commandSender);
         this.input = input;
@@ -34,14 +34,14 @@ public class Specify extends BaseCommand
      *                      command sender as registered by the {@link DoorSpecificationManager}.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull String name)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull String name)
     {
         return new Specify(commandSender, name).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.SPECIFY;
     }
@@ -54,7 +54,7 @@ public class Specify extends BaseCommand
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         if (!BigDoors.get().getDoorSpecificationManager().handleInput((IPPlayer) getCommandSender(), input))
             // TODO: Localization

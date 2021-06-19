@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,10 +17,10 @@ import org.jetbrains.annotations.Nullable;
 public final class PWorldSpigot implements IPWorld
 {
     @Getter
-    private final @NonNull String worldName;
+    private final @NotNull String worldName;
     private final @Nullable World world;
 
-    public PWorldSpigot(final @NonNull String worldName)
+    public PWorldSpigot(final @NotNull String worldName)
     {
         this.worldName = worldName;
         final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
@@ -30,7 +30,7 @@ public final class PWorldSpigot implements IPWorld
         world = bukkitWorld;
     }
 
-    public PWorldSpigot(final @NonNull World world)
+    public PWorldSpigot(final @NotNull World world)
     {
         worldName = world.getName();
         this.world = world;
@@ -53,13 +53,13 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    public @NonNull WorldTime getTime()
+    public @NotNull WorldTime getTime()
     {
         return new WorldTime(world == null ? 0 : world.getTime());
     }
 
     @Override
-    public @NonNull String toString()
+    public @NotNull String toString()
     {
         return worldName;
     }
@@ -83,7 +83,7 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    public @NonNull PWorldSpigot clone()
+    public @NotNull PWorldSpigot clone()
     {
         try
         {

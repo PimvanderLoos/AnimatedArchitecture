@@ -1,10 +1,11 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public final class DoorRegistry extends Restartable
     public static final int MAX_REGISTRY_SIZE = 1000;
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
-    public static final @NonNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
+    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
 
     private TimedCache<Long, AbstractDoorBase> doorCache;
 
@@ -35,7 +36,7 @@ public final class DoorRegistry extends Restartable
      * @param cacheExpiry      How long to keep stuff in the cache.
      */
 //    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(int maxRegistrySize, int concurrencyLevel, int initialCapacity, @NonNull Duration cacheExpiry)
+    private DoorRegistry(int maxRegistrySize, int concurrencyLevel, int initialCapacity, @NotNull Duration cacheExpiry)
     {
         super(BigDoors.get());
         init(maxRegistrySize, concurrencyLevel, initialCapacity, cacheExpiry);
@@ -56,7 +57,7 @@ public final class DoorRegistry extends Restartable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static @NonNull DoorRegistry uncached()
+    public static @NotNull DoorRegistry uncached()
     {
         return new DoorRegistry(-1, -1, -1, Duration.ofMillis(-1));
     }
@@ -67,7 +68,7 @@ public final class DoorRegistry extends Restartable
      * @param doorUID The UID of the door.
      * @return The {@link AbstractDoorBase} if it has been retrieved from the database.
      */
-    public @NonNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
+    public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
     {
         return doorCache.get(doorUID);
     }
@@ -100,7 +101,7 @@ public final class DoorRegistry extends Restartable
      * @param doorBase The door.
      * @return True if an entry exists for the exact instance of the provided {@link AbstractDoorBase}.
      */
-    public boolean isRegistered(final @NonNull AbstractDoorBase doorBase)
+    public boolean isRegistered(final @NotNull AbstractDoorBase doorBase)
     {
         return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }
@@ -112,9 +113,9 @@ public final class DoorRegistry extends Restartable
      *                     is to be registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final @NonNull AbstractDoorBase.Registerable registerable)
+    public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
     {
-        final @NonNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
+        final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
         return doorCache.putIfAbsent(doorBase.getDoorUID(), doorBase).isEmpty();
     }
 
@@ -135,7 +136,7 @@ public final class DoorRegistry extends Restartable
      *
      * @return This {@link DoorRegistry}.
      */
-    public @NonNull DoorRegistry init(final @NonNull Duration duration)
+    public @NotNull DoorRegistry init(final @NotNull Duration duration)
     {
         return init(MAX_REGISTRY_SIZE, CONCURRENCY_LEVEL, INITIAL_CAPACITY, duration);
     }
@@ -150,8 +151,9 @@ public final class DoorRegistry extends Restartable
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
-    private @NonNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
-                                       final @NonNull Duration cacheExpiry)
+    @Initializer
+    private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                       final @NotNull Duration cacheExpiry)
     {
         return init(maxRegistrySize, concurrencyLevel, initialCapacity, cacheExpiry, true);
     }
@@ -166,8 +168,9 @@ public final class DoorRegistry extends Restartable
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
-    private @NonNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
-                                       final @NonNull Duration cacheExpiry, final boolean removalListener)
+    @Initializer
+    private @NotNull DoorRegistry init(final int maxRegistrySize, final int concurrencyLevel, final int initialCapacity,
+                                       final @NotNull Duration cacheExpiry, final boolean removalListener)
     {
         if (doorCache != null)
             doorCache.clear();

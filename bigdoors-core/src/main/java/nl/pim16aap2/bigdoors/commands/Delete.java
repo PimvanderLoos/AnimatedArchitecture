@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    protected Delete(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever)
+    protected Delete(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.DELETE);
     }
@@ -30,26 +30,26 @@ public class Delete extends DoorTargetCommand
      *                      deletion.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever)
     {
         return new Delete(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.DELETE;
     }
 
     @Override
-    protected boolean isAllowed(final @NonNull AbstractDoorBase door, final boolean bypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean bypassPermission)
     {
         return hasAccessToAttribute(door, DoorAttribute.DELETE, bypassPermission);
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
     {
         return BigDoors.get().getDatabaseManager()
                        .deleteDoor(door, getCommandSender().getPlayer().orElse(null))

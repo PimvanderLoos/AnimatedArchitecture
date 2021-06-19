@@ -24,7 +24,7 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -38,7 +38,7 @@ import java.time.Clock;
  */
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
-    private final @NonNull SoftReference<T> value;
+    private final @NotNull SoftReference<T> value;
 
     /**
      * Constructor of {@link TimedSoftValue}.
@@ -47,7 +47,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      * @param val     The value of this {@link TimedSoftValue}.
      * @param timeOut The amount of time (in milliseconds) before this entry expires.
      */
-    public TimedSoftValue(final @NonNull Clock clock, final @NonNull T val, final long timeOut)
+    public TimedSoftValue(final @NotNull Clock clock, final @NotNull T val, final long timeOut)
     {
         super(clock, timeOut);
         value = new SoftReference<>(val);
@@ -74,7 +74,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      *
      * @return The raw value, wrapped in a {@link SoftReference}.
      */
-    public @NonNull SoftReference<T> getRawValue()
+    public @NotNull SoftReference<T> getRawValue()
     {
         return value;
     }

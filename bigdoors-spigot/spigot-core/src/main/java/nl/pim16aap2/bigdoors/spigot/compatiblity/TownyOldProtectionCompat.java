@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
@@ -16,25 +16,25 @@ import org.bukkit.entity.Player;
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
     @SuppressWarnings("unused")
-    private final @NonNull BigDoorsSpigot plugin;
+    private final @NotNull BigDoorsSpigot plugin;
     private boolean success = false;
-    private static final @NonNull ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private static final @NotNull ProtectionCompat compat = ProtectionCompat.TOWNY;
 
-    public TownyOldProtectionCompat(final @NonNull BigDoorsSpigot plugin)
+    public TownyOldProtectionCompat(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
-                                             final @NonNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -61,7 +61,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NonNull String getName()
+    public @NotNull String getName()
     {
         return ProtectionCompat.getName(compat);
     }

@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -20,15 +20,15 @@ import java.util.logging.Level;
  */
 public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 {
-    private static final @NonNull Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
-    private static final @NonNull Set<Material> GREYLIST = EnumSet.noneOf(Material.class);
-    private static final @NonNull Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
+    private static final @NotNull Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
+    private static final @NotNull Set<Material> GREYLIST = EnumSet.noneOf(Material.class);
+    private static final @NotNull Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
 
     static
     {
-        for (final @NonNull Material mat : Material.values())
+        for (final @NotNull Material mat : Material.values())
         {
-            final @NonNull MaterialStatus result = getMaterialStatus(mat);
+            final @NotNull MaterialStatus result = getMaterialStatus(mat);
             if (result == MaterialStatus.WHITELISTED)
                 WHITELIST.add(mat);
             else if (result == MaterialStatus.BLACKLISTED)
@@ -51,7 +51,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
      * @param mat The material.
      * @return The listing status of the material.
      */
-    private static @NonNull MaterialStatus getMaterialStatus(final @NonNull Material mat)
+    private static @NotNull MaterialStatus getMaterialStatus(final @NotNull Material mat)
     {
         if (!mat.isBlock())
             return MaterialStatus.BLACKLISTED;
@@ -755,7 +755,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
      * @param location The location.
      * @return The material of the block at the location.
      */
-    private static @NonNull Material getMaterial(final @NonNull IPLocationConst location)
+    private static @NotNull Material getMaterial(final @NotNull IPLocationConst location)
     {
         return SpigotAdapter.getBukkitLocation(location).getBlock().getType();
     }
@@ -763,7 +763,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #placeOnSecondPass(IPLocationConst)}.
      */
-    public static boolean placeOnSecondPassStatic(final @NonNull Material mat)
+    public static boolean placeOnSecondPassStatic(final @NotNull Material mat)
     {
         return GREYLIST.contains(mat);
     }
@@ -771,7 +771,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #isAirOrLiquid(IPLocationConst)}.
      */
-    public static boolean isAirOrLiquidStatic(final @NonNull Block block)
+    public static boolean isAirOrLiquidStatic(final @NotNull Block block)
     {
         // Empty means it's air.
         return block.isLiquid() || block.isEmpty();
@@ -780,7 +780,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #isAllowedBlock(IPLocationConst)}.
      */
-    public static boolean isAllowedBlockStatic(final @NonNull Material mat)
+    public static boolean isAllowedBlockStatic(final @NotNull Material mat)
     {
         return WHITELIST.contains(mat);
     }
@@ -788,7 +788,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #placeOnSecondPass(IPLocationConst)}.
      */
-    public static boolean placeOnSecondPassStatic(final @NonNull IPLocationConst location)
+    public static boolean placeOnSecondPassStatic(final @NotNull IPLocationConst location)
     {
         return placeOnSecondPassStatic(getMaterial(location));
     }
@@ -796,7 +796,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #isAirOrLiquid(IPLocationConst)}.
      */
-    public static boolean isAirOrLiquidStatic(final @NonNull IPLocationConst location)
+    public static boolean isAirOrLiquidStatic(final @NotNull IPLocationConst location)
     {
         Block block = SpigotAdapter.getBukkitLocation(location).getBlock();
         // Empty means it's air.
@@ -806,25 +806,25 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * See {@link #isAllowedBlock(IPLocationConst)}.
      */
-    public static boolean isAllowedBlockStatic(final @NonNull IPLocationConst location)
+    public static boolean isAllowedBlockStatic(final @NotNull IPLocationConst location)
     {
         return isAllowedBlockStatic(getMaterial(location));
     }
 
     @Override
-    public boolean placeOnSecondPass(final @NonNull IPLocationConst location)
+    public boolean placeOnSecondPass(final @NotNull IPLocationConst location)
     {
         return placeOnSecondPassStatic(location);
     }
 
     @Override
-    public boolean isAirOrLiquid(final @NonNull IPLocationConst location)
+    public boolean isAirOrLiquid(final @NotNull IPLocationConst location)
     {
         return isAirOrLiquidStatic(location);
     }
 
     @Override
-    public boolean isAllowedBlock(final @NonNull IPLocationConst location)
+    public boolean isAllowedBlock(final @NotNull IPLocationConst location)
     {
         return isAllowedBlockStatic(location);
     }

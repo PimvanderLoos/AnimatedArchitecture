@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -22,7 +22,6 @@ public abstract class StepExecutor
     public final boolean apply(final @Nullable Object input)
     {
         if (validInput(input))
-            //noinspection ConstantConditions
             return protectedAccept(input);
         else
         {
@@ -39,7 +38,7 @@ public abstract class StepExecutor
      *
      * @param obj The object to give to the {@link BiFunction}.
      */
-    protected abstract boolean protectedAccept(final @NonNull Object obj);
+    protected abstract boolean protectedAccept(final @Nullable Object obj);
 
     /**
      * Checks if an object is a valid input type.
@@ -57,5 +56,5 @@ public abstract class StepExecutor
      *
      * @return The {@link Class} of the input object.
      */
-    protected abstract @NonNull Class<?> getInputClass();
+    protected abstract @NotNull Class<?> getInputClass();
 }

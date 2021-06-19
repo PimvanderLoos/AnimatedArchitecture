@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
@@ -17,6 +16,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -33,7 +33,7 @@ public final class SpigotAdapter
      * @param pWorld The BigDoors world.
      * @return The Spigot world.
      */
-    public static @Nullable World getBukkitWorld(final @NonNull IPWorld pWorld)
+    public static @Nullable World getBukkitWorld(final @NotNull IPWorld pWorld)
     {
         if (pWorld instanceof PWorldSpigot)
             return ((PWorldSpigot) pWorld).getBukkitWorld();
@@ -49,7 +49,7 @@ public final class SpigotAdapter
      * @param pLocation The BigDoors location.
      * @return The Spigot location.
      */
-    public static @NonNull Location getBukkitLocation(final @NonNull IPLocationConst pLocation)
+    public static @NotNull Location getBukkitLocation(final @NotNull IPLocationConst pLocation)
     {
         if (pLocation instanceof PLocationSpigot)
             return ((PLocationSpigot) pLocation).getBukkitLocation();
@@ -62,7 +62,7 @@ public final class SpigotAdapter
      * @param vector The BigDoors vector.
      * @return The bukkit vector.
      */
-    public static @NonNull Vector getBukkitVector(final @NonNull Vector3DiConst vector)
+    public static @NotNull Vector getBukkitVector(final @NotNull Vector3DiConst vector)
     {
         return new Vector(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -73,7 +73,7 @@ public final class SpigotAdapter
      * @param pPlayer The {@link IPPlayer}.
      * @return The online bukkit player, if possible.
      */
-    public static @Nullable Player getBukkitPlayer(final @NonNull IPPlayer pPlayer)
+    public static @Nullable Player getBukkitPlayer(final @NotNull IPPlayer pPlayer)
     {
         return Bukkit.getPlayer(pPlayer.getUUID());
     }
@@ -84,7 +84,7 @@ public final class SpigotAdapter
      * @param pPlayer The {@link IPPlayer}.
      * @return The offline bukkit player.
      */
-    public static @NonNull OfflinePlayer getOfflineBukkitPlayer(final @NonNull IPPlayer pPlayer)
+    public static @NotNull OfflinePlayer getOfflineBukkitPlayer(final @NotNull IPPlayer pPlayer)
     {
         return Bukkit.getOfflinePlayer(pPlayer.getUUID());
     }
@@ -95,7 +95,7 @@ public final class SpigotAdapter
      * @param vector The BigDoors vector.
      * @return The bukkit vector.
      */
-    public static @NonNull Vector getBukkitVector(final @NonNull Vector3DdConst vector)
+    public static @NotNull Vector getBukkitVector(final @NotNull Vector3DdConst vector)
     {
         return new Vector(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -106,7 +106,7 @@ public final class SpigotAdapter
      * @param player The Bukkit player.
      * @return The IPPlayer.
      */
-    public static @NonNull IPPlayer wrapPlayer(final @NonNull Player player)
+    public static @NotNull IPPlayer wrapPlayer(final @NotNull Player player)
     {
         return new PPlayerSpigot(player);
     }
@@ -117,7 +117,7 @@ public final class SpigotAdapter
      * @param player The Bukkit player.
      * @return The IPPlayer.
      */
-    public static @NonNull CompletableFuture<Optional<IPPlayer>> wrapPlayer(final @NonNull OfflinePlayer player)
+    public static @NotNull CompletableFuture<Optional<IPPlayer>> wrapPlayer(final @NotNull OfflinePlayer player)
     {
         return BigDoors.get().getPlatform().getPPlayerFactory().create(player.getUniqueId());
     }
@@ -128,7 +128,7 @@ public final class SpigotAdapter
      * @param location The Bukkit location.
      * @return The IPLocation.
      */
-    public static @NonNull IPLocation wrapLocation(final @NonNull Location location)
+    public static @NotNull IPLocation wrapLocation(final @NotNull Location location)
     {
         return new PLocationSpigot(location);
     }
@@ -139,7 +139,7 @@ public final class SpigotAdapter
      * @param world The Bukkit world.
      * @return The IPWorld.
      */
-    public static @NonNull IPWorld wrapWorld(final @NonNull World world)
+    public static @NotNull IPWorld wrapWorld(final @NotNull World world)
     {
         return new PWorldSpigot(world);
     }

@@ -1,9 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a mutable position in a world.
@@ -12,30 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
  */
 public interface IPLocation extends IPLocationConst, Cloneable
 {
-    @Override
-    @NonNull IPWorld getWorld();
-
-    @Override
-    @NonNull Vector2Di getChunk();
-
-    @Override
-    int getBlockX();
-
-    @Override
-    int getBlockY();
-
-    @Override
-    int getBlockZ();
-
-    @Override
-    double getX();
-
-    @Override
-    double getY();
-
-    @Override
-    double getZ();
-
     /**
      * Changes the x coordinate.
      *
@@ -65,7 +40,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param z The value to add to the z coordinate.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(double x, double y, double z);
+    @NotNull IPLocation add(double x, double y, double z);
 
     /**
      * Adds values to the coordinates of this location.
@@ -73,7 +48,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(@NonNull Vector3DiConst vector);
+    @NotNull IPLocation add(@NotNull Vector3DiConst vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -81,7 +56,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NonNull IPLocation add(@NonNull Vector3DdConst vector);
+    @NotNull IPLocation add(@NotNull Vector3DdConst vector);
 
-    @NonNull IPLocation clone();
+    @NotNull IPLocation clone();
 }

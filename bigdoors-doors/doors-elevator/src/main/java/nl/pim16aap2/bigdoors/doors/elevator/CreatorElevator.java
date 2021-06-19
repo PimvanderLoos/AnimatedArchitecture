@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.elevator;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.portcullis.CreatorPortcullis;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -19,20 +19,20 @@ import java.util.List;
 public class CreatorElevator extends CreatorPortcullis
 {
     @Getter
-    private final @NonNull DoorType doorType = DoorTypeElevator.get();
+    private final @NotNull DoorType doorType = DoorTypeElevator.get();
 
-    public CreatorElevator(final @NonNull IPPlayer player, final @Nullable String name)
+    public CreatorElevator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorElevator(final @NonNull IPPlayer player)
+    public CreatorElevator(final @NotNull IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
@@ -57,7 +57,7 @@ public class CreatorElevator extends CreatorPortcullis
     }
 
     @Override
-    protected @NonNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoorBase constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();

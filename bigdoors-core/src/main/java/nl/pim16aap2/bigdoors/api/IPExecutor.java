@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -19,14 +19,14 @@ public interface IPExecutor
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
      * @return The result of the action.
      */
-    @NonNull <T> CompletableFuture<T> supplyOnMainThread(@NonNull Supplier<T> supplier);
+    @NotNull <T> CompletableFuture<T> supplyOnMainThread(@NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run on the main thread.
      *
      * @param runnable The action to run.
      */
-    void runOnMainThread(@NonNull Runnable runnable);
+    void runOnMainThread(@NotNull Runnable runnable);
 
     /**
      * Schedules a task to be run on the main thread.
@@ -34,7 +34,7 @@ public interface IPExecutor
      * @param supplier A function returning the value to be used to complete the returned IMainThreadExecutor.
      * @return The result of the action.
      */
-    @NonNull <T> CompletableFuture<T> supplyAsync(@NonNull Supplier<T> supplier);
+    @NotNull <T> CompletableFuture<T> supplyAsync(@NotNull Supplier<T> supplier);
 
     /**
      * Schedules an action to be run asynchronously.
@@ -42,7 +42,7 @@ public interface IPExecutor
      * @param runnable The action to run.
      * @return The ID of the task.
      */
-    int runAsync(@NonNull Runnable runnable);
+    int runAsync(@NotNull Runnable runnable);
 
     /**
      * Schedules an action to be run on the main thread.
@@ -50,7 +50,7 @@ public interface IPExecutor
      * @param runnable The action to run.
      * @return The ID of the task.
      */
-    int runSync(@NonNull Runnable runnable);
+    int runSync(@NotNull Runnable runnable);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run asynchronously.
@@ -60,7 +60,7 @@ public interface IPExecutor
      * @param period    The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runAsyncRepeated(@NonNull TimerTask timerTask, long delay, long period);
+    int runAsyncRepeated(@NotNull TimerTask timerTask, long delay, long period);
 
     /**
      * Schedules a repeated {@link Runnable} to be run asynchronously.
@@ -70,7 +70,7 @@ public interface IPExecutor
      * @param period   The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runAsyncRepeated(@NonNull Runnable runnable, long delay, long period);
+    int runAsyncRepeated(@NotNull Runnable runnable, long delay, long period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
@@ -80,7 +80,7 @@ public interface IPExecutor
      * @param period    The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runSyncRepeated(@NonNull TimerTask timerTask, long delay, long period);
+    int runSyncRepeated(@NotNull TimerTask timerTask, long delay, long period);
 
     /**
      * Schedules a repeated {@link Runnable} to be run on the main thread.
@@ -90,7 +90,7 @@ public interface IPExecutor
      * @param period   The time in ticks between successive task executions.
      * @return The ID of the task.
      */
-    int runSyncRepeated(@NonNull Runnable runnable, long delay, long period);
+    int runSyncRepeated(@NotNull Runnable runnable, long delay, long period);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run asynchronously.
@@ -98,7 +98,7 @@ public interface IPExecutor
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      */
-    void runAsyncLater(@NonNull TimerTask timerTask, long delay);
+    void runAsyncLater(@NotNull TimerTask timerTask, long delay);
 
     /**
      * Schedules a repeated {@link Runnable} to be run asynchronously.
@@ -106,7 +106,7 @@ public interface IPExecutor
      * @param runnable The task to run.
      * @param delay    The delay in ticks before the task is to be executed.
      */
-    void runAsyncLater(@NonNull Runnable runnable, long delay);
+    void runAsyncLater(@NotNull Runnable runnable, long delay);
 
     /**
      * Schedules a repeated {@link TimerTask} to be run on the main thread.
@@ -114,7 +114,7 @@ public interface IPExecutor
      * @param timerTask The task to run.
      * @param delay     The delay in ticks before the task is to be executed.
      */
-    void runSyncLater(@NonNull TimerTask timerTask, long delay);
+    void runSyncLater(@NotNull TimerTask timerTask, long delay);
 
     /**
      * Schedules a repeated {@link Runnable} to be run on the main thread.
@@ -122,7 +122,7 @@ public interface IPExecutor
      * @param runnable The task to run.
      * @param delay    The delay in ticks before the task is to be executed.
      */
-    void runSyncLater(@NonNull Runnable runnable, long delay);
+    void runSyncLater(@NotNull Runnable runnable, long delay);
 
     /**
      * Cancels a task.
@@ -130,5 +130,5 @@ public interface IPExecutor
      * @param timerTask The task that is to be cancelled.
      * @param taskID    The ID assigned to the task.
      */
-    void cancel(@NonNull TimerTask timerTask, int taskID);
+    void cancel(@NotNull TimerTask timerTask, int taskID);
 }

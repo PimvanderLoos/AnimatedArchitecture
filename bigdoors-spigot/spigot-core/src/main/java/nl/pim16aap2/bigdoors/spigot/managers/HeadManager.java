@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import com.google.common.base.Preconditions;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -12,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -36,8 +35,8 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-    private final @NonNull TimedCache<UUID, Optional<ItemStack>> headMap;
-    private final @NonNull ConfigLoaderSpigot config;
+    private final @NotNull TimedCache<UUID, Optional<ItemStack>> headMap;
+    private final @NotNull ConfigLoaderSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -45,7 +44,7 @@ public final class HeadManager extends Restartable
      * @param holder The {@link IRestartableHolder} that manages this object.
      * @param config The BigDoors configuration.
      */
-    private HeadManager(final @NonNull IRestartableHolder holder, final @NonNull ConfigLoaderSpigot config)
+    private HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoaderSpigot config)
     {
         super(holder);
         this.config = config;
@@ -60,8 +59,8 @@ public final class HeadManager extends Restartable
      * @param config The BigDoors configuration.
      * @return The instance of this {@link HeadManager}.
      */
-    public static @NonNull HeadManager init(final @NonNull IRestartableHolder holder,
-                                            final @NonNull ConfigLoaderSpigot config)
+    public static @NotNull HeadManager init(final @NotNull IRestartableHolder holder,
+                                            final @NotNull ConfigLoaderSpigot config)
     {
         return (INSTANCE == null) ? INSTANCE = new HeadManager(holder, config) : INSTANCE;
     }
@@ -71,11 +70,9 @@ public final class HeadManager extends Restartable
      *
      * @return The instance of the {@link HeadManager}.
      */
-    public static @NonNull HeadManager get()
+    public static @NotNull HeadManager get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     /**
@@ -86,8 +83,8 @@ public final class HeadManager extends Restartable
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    public @NonNull CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NonNull UUID playerUUID,
-                                                                         final @NonNull String displayName)
+    public @NotNull CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NotNull UUID playerUUID,
+                                                                         final @NotNull String displayName)
     {
         return CompletableFuture.supplyAsync(
             () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
@@ -95,8 +92,8 @@ public final class HeadManager extends Restartable
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
-    private @NonNull Optional<ItemStack> createItemStack(final @NonNull UUID playerUUID,
-                                                         final @NonNull String displayName)
+    private @NotNull Optional<ItemStack> createItemStack(final @NotNull UUID playerUUID,
+                                                         final @NotNull String displayName)
     {
         OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);

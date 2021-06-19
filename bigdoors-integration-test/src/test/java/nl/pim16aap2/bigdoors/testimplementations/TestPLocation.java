@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -9,26 +8,27 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 public final class TestPLocation implements IPLocation
 {
     @Getter
-    private @NonNull IPWorld world;
+    private @NotNull IPWorld world;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double x;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double y;
 
     @Getter
-    @Setter(onMethod = @__({@Override}))
+    @Setter
     private double z;
 
 
-    public TestPLocation(final @NonNull IPWorld world, final double x, final double y, final double z)
+    public TestPLocation(final @NotNull IPWorld world, final double x, final double y, final double z)
     {
         this.world = world;
         this.x = x;
@@ -37,7 +37,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NonNull Vector2Di getChunk()
+    public @NotNull Vector2Di getChunk()
     {
         return new Vector2Di(getBlockX() << 4, getBlockZ() << 4);
     }
@@ -61,7 +61,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NonNull IPLocation add(final double x, final double y, final double z)
+    public @NotNull IPLocation add(final double x, final double y, final double z)
     {
         this.x += x;
         this.y += y;
@@ -70,19 +70,19 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NonNull IPLocation add(final @NonNull Vector3DiConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
-    public @NonNull IPLocation add(final @NonNull Vector3DdConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
-    public @NonNull IPLocation clone()
+    public @NotNull IPLocation clone()
     {
         try
         {

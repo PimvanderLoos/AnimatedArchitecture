@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.factories;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -10,6 +9,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
     @Override
-    public @NonNull IPPlayer create(final @NonNull PPlayerData playerData)
+    public @NotNull IPPlayer create(final @NotNull PPlayerData playerData)
     {
         Player player = Bukkit.getPlayer(playerData.getUUID());
         if (player != null)
@@ -32,7 +32,7 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
     }
 
     @Override
-    public @NonNull CompletableFuture<Optional<IPPlayer>> create(final @NonNull UUID uuid)
+    public @NotNull CompletableFuture<Optional<IPPlayer>> create(final @NotNull UUID uuid)
     {
         Player player = Bukkit.getPlayer(uuid);
         if (player != null)

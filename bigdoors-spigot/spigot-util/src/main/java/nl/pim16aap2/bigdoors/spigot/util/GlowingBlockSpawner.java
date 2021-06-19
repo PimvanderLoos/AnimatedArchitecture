@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -22,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -33,13 +33,13 @@ import java.util.logging.Level;
 
 public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
 {
-    private final @NonNull Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
+    private final @NotNull Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
     @Getter
-    private final @NonNull Map<PColor, Team> teams = new EnumMap<>(PColor.class);
-    private final @NonNull Scoreboard scoreboard;
-    private final @NonNull IGlowingBlockFactory glowingBlockFactory;
+    private final @NotNull Map<PColor, Team> teams = new EnumMap<>(PColor.class);
+    private final @NotNull Scoreboard scoreboard;
+    private final @NotNull IGlowingBlockFactory glowingBlockFactory;
 
-    public GlowingBlockSpawner(final @NonNull IRestartableHolder holder)
+    public GlowingBlockSpawner(final @NotNull IRestartableHolder holder)
         throws Exception
     {
         super(holder);
@@ -49,7 +49,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
 
         scoreboard = scoreBoardManager.getMainScoreboard();
 
-        final @NonNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
+        final @NotNull IBigDoorsPlatform platform = BigDoors.get().getPlatform();
         if (!(platform instanceof BigDoorsSpigotAbstract))
             throw new Exception("Spigot's GlowingBlockSpawner can only be used with the Spigot Platform!");
 
@@ -68,7 +68,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private void registerTeams()
     {
-        for (final @NonNull PColor col : PColor.values())
+        for (final @NotNull PColor col : PColor.values())
             registerTeam(col, scoreboard);
     }
 
@@ -77,9 +77,9 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      *
      * @param color The color to register the team for.
      */
-    private void registerTeam(final @NonNull PColor color, final @NonNull Scoreboard scoreboard)
+    private void registerTeam(final @NotNull PColor color, final @NotNull Scoreboard scoreboard)
     {
-        final @NonNull ChatColor chatColor = SpigotUtil.toBukkitColor(color);
+        final @NotNull ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
         Team team = scoreboard.getTeam(name);
@@ -108,10 +108,10 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public @NonNull Optional<IGlowingBlock> spawnGlowingBlock(@NonNull IPPlayer player, @NonNull IPWorld world,
-                                                              final int time, final @NonNull TimeUnit timeUnit,
+    public @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, @NotNull IPWorld world,
+                                                              final int time, final @NotNull TimeUnit timeUnit,
                                                               final double x, final double y, final double z,
-                                                              final @NonNull PColor pColor)
+                                                              final @NotNull PColor pColor)
     {
         if (teams.get(pColor) == null)
         {
@@ -145,26 +145,26 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        @NonNull Optional<IGlowingBlock> blockOpt =
+        @NotNull Optional<IGlowingBlock> blockOpt =
             glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }
 
     @Override
-    public void registerRestartable(final @NonNull IRestartable restartable)
+    public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.put(restartable, true);
     }
 
     @Override
-    public boolean isRestartableRegistered(final @NonNull IRestartable restartable)
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
         return restartables.containsKey(restartable);
     }
 
     @Override
-    public void deregisterRestartable(@NonNull IRestartable restartable)
+    public void deregisterRestartable(@NotNull IRestartable restartable)
     {
         restartables.remove(restartable);
     }

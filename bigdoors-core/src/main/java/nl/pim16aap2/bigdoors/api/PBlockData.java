@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the data of an animated block.
@@ -18,7 +18,7 @@ public final class PBlockData
      * @return The rotated {@link INMSBlock} if it exists.
      */
     @Getter
-    private final @NonNull INMSBlock block;
+    private final @NotNull INMSBlock block;
 
     /**
      * Checks if this block can rotate.
@@ -42,7 +42,7 @@ public final class PBlockData
      */
     @Getter
     @Setter
-    private @NonNull ICustomCraftFallingBlock fBlock;
+    private @NotNull ICustomCraftFallingBlock fBlock;
 
     /**
      * Gets the location the block was first spawned at.
@@ -50,7 +50,7 @@ public final class PBlockData
      * @return The location the block was first spawned at.
      */
     @Getter
-    private final @NonNull IPLocationConst startLocation;
+    private final @NotNull IPLocationConst startLocation;
 
     /**
      * The angle the block had in regards to the rotation point when it was first spawned.
@@ -82,8 +82,8 @@ public final class PBlockData
      * @param placementDeferred Whether or not placement should be deferred until all standalone blocks are placed.
      *                          Useful for torches, for example (so they don't fall off immediately).
      */
-    public PBlockData(final @NonNull ICustomCraftFallingBlock newFBlock, final float radius,
-                      final @NonNull INMSBlock newBlock, final @NonNull IPLocationConst startLocation,
+    public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
+                      final @NotNull INMSBlock newBlock, final @NotNull IPLocationConst startLocation,
                       final float startAngle, final boolean placementDeferred)
     {
         block = newBlock;
@@ -108,7 +108,7 @@ public final class PBlockData
      *
      * @return The starting position of this {@link PBlockData}.
      */
-    public @NonNull Vector3Dd getStartPosition()
+    public @NotNull Vector3Dd getStartPosition()
     {
         return new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
     }

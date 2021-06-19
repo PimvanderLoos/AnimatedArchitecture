@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
@@ -11,6 +10,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -24,10 +24,10 @@ import java.util.List;
 @ToString
 public class PowerBlockRelocator extends ToolUser
 {
-    private final @NonNull AbstractDoorBase door;
+    private final @NotNull AbstractDoorBase door;
     private @Nullable IPLocationConst newLoc;
 
-    public PowerBlockRelocator(final @NonNull IPPlayer player, final @NonNull AbstractDoorBase door)
+    public PowerBlockRelocator(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
     {
         super(player);
         this.door = door;
@@ -40,7 +40,7 @@ public class PowerBlockRelocator extends ToolUser
                  Message.CREATOR_PBRELOCATOR_INIT);
     }
 
-    protected boolean moveToLoc(final @NonNull IPLocationConst loc)
+    protected boolean moveToLoc(final @NotNull IPLocationConst loc)
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
@@ -84,7 +84,7 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @Override
-    protected @NonNull List<IStep> generateSteps()
+    protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")

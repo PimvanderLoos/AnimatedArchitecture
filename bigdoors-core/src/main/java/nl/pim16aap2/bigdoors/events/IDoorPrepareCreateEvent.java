@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the event where a door will be created.
@@ -18,5 +18,5 @@ public interface IDoorPrepareCreateEvent extends IDoorEvent, ICancellableBigDoor
      * @return The {@link AbstractDoorBase} that will be created.
      */
     @Override
-    @NonNull AbstractDoorBase getDoor();
+    @NotNull AbstractDoorBase getDoor();
 }

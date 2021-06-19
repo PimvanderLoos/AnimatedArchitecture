@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.vector;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 public class Vector4DiConst
@@ -10,19 +10,19 @@ public class Vector4DiConst
     @Getter
     protected int x, y, z, w;
 
-    public Vector4DiConst(final @NonNull Vector4DiConst other)
+    public Vector4DiConst(final @NotNull Vector4DiConst other)
     {
         this(other.getX(), other.getY(), other.getZ(), other.getW());
     }
 
     @Override
-    public @NonNull Vector4Di clone()
+    public @NotNull Vector4Di clone()
     {
         return new Vector4Di(this);
     }
 
     @Override
-    public @NonNull String toString()
+    public @NotNull String toString()
     {
         return "(" + x + ":" + y + ":" + z + ":" + w + ")";
     }

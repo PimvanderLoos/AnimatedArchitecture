@@ -1,19 +1,18 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * Represents an implementation of {@link IPLocation} for the Spigot platform.
@@ -22,12 +21,12 @@ import java.util.Objects;
  */
 public final class PLocationSpigot implements IPLocation
 {
-    private @NonNull Location location;
+    private @NotNull Location location;
 
     @Getter
-    private @NonNull IPWorld world;
+    private @NotNull IPWorld world;
 
-    public PLocationSpigot(final @NonNull IPWorld world, final double x, final double y, final double z)
+    public PLocationSpigot(final @NotNull IPWorld world, final double x, final double y, final double z)
     {
         final @Nullable World bukkitWorld = world instanceof PWorldSpigot ?
                                             ((PWorldSpigot) world).getBukkitWorld() :
@@ -36,15 +35,15 @@ public final class PLocationSpigot implements IPLocation
         this.world = world;
     }
 
-    public PLocationSpigot(final @NonNull Location location)
+    public PLocationSpigot(final @NotNull Location location)
     {
-        Objects.requireNonNull(location.getWorld());
+        Util.requireNonNull(location.getWorld(), "world of location " + location);
         this.location = location.clone();
         world = new PWorldSpigot(location.getWorld());
     }
 
     @Override
-    public @NonNull Vector2Di getChunk()
+    public @NotNull Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
@@ -104,20 +103,20 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public @NonNull IPLocation add(final double x, final double y, final double z)
+    public @NotNull IPLocation add(final double x, final double y, final double z)
     {
         location.add(x, y, z);
         return this;
     }
 
     @Override
-    public @NonNull IPLocation add(final @NonNull Vector3DiConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DiConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
 
     @Override
-    public @NonNull IPLocation add(final @NonNull Vector3DdConst vector)
+    public @NotNull IPLocation add(final @NotNull Vector3DdConst vector)
     {
         return add(vector.getX(), vector.getY(), vector.getZ());
     }
@@ -127,7 +126,7 @@ public final class PLocationSpigot implements IPLocation
      *
      * @return The Bukkit location.
      */
-    public @NonNull Location getBukkitLocation()
+    public @NotNull Location getBukkitLocation()
     {
         return location;
     }
@@ -158,7 +157,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    public @NonNull PLocationSpigot clone()
+    public @NotNull PLocationSpigot clone()
     {
         try
         {

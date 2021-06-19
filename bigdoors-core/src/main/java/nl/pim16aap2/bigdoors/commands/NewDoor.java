@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -8,6 +7,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -20,10 +20,10 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class NewDoor extends BaseCommand
 {
-    private final @NonNull DoorType doorType;
+    private final @NotNull DoorType doorType;
     private final @Nullable String doorName;
 
-    protected NewDoor(final @NonNull ICommandSender commandSender, final @NonNull DoorType doorType,
+    protected NewDoor(final @NotNull ICommandSender commandSender, final @NotNull DoorType doorType,
                       final @Nullable String doorName)
     {
         super(commandSender);
@@ -42,8 +42,8 @@ public class NewDoor extends BaseCommand
      *                      been specified, this step will be skipped.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorType doorType,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorType doorType,
                                                           final @Nullable String doorName)
     {
         return new NewDoor(commandSender, doorType, doorName).run();
@@ -56,8 +56,8 @@ public class NewDoor extends BaseCommand
      *
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorType doorType)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorType doorType)
     {
         return run(commandSender, doorType, null);
     }
@@ -80,13 +80,13 @@ public class NewDoor extends BaseCommand
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.NEW_DOOR;
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         BigDoors.get().getToolUserManager().startToolUser(doorType.getCreator((IPPlayer) getCommandSender(), doorName),
                                                           Constants.DOOR_CREATOR_TIME_LIMIT);

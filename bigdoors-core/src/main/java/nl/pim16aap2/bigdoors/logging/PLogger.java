@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.logging;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,12 +25,12 @@ public final class PLogger implements IPLogger
     /**
      * The file to write to.
      */
-    private final @NonNull File logFile;
+    private final @NotNull File logFile;
 
     /**
      * The queue of {@link LogMessage}s that will be written to the log.
      */
-    private final @NonNull BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
+    private final @NotNull BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
 
     /**
      * Check if the log file could be initialized properly.
@@ -42,15 +42,15 @@ public final class PLogger implements IPLogger
      * Level#intValue()} lower than that of the current {@link Level} will be ignored.
      */
     @Getter
-    private @NonNull Level fileLogLevel = Level.FINEST;
+    private @NotNull Level fileLogLevel = Level.FINEST;
 
     @Getter
-    private @NonNull Level consoleLogLevel = Level.CONFIG;
+    private @NotNull Level consoleLogLevel = Level.CONFIG;
 
     @Getter
-    private @NonNull Level lowestLevel = Level.CONFIG;
+    private @NotNull Level lowestLevel = Level.CONFIG;
 
-    public PLogger(@NonNull File logFile)
+    public PLogger(@NotNull File logFile)
     {
         updateLowestLevel();
         this.logFile = logFile;
@@ -97,7 +97,7 @@ public final class PLogger implements IPLogger
     }
 
     @Override
-    public boolean loggable(@NonNull Level level)
+    public boolean loggable(@NotNull Level level)
     {
         if (!success)
             throw new IllegalStateException("PLogger was not initialized successfully!");
@@ -113,12 +113,12 @@ public final class PLogger implements IPLogger
      *                           the log file and the console.
      * @param level              The level of the message (info, warn, etc).
      */
-    private void addToMessageQueue(final @NonNull Level level, final @NonNull Supplier<LogMessage> logMessageSupplier)
+    private void addToMessageQueue(final @NotNull Level level, final @NotNull Supplier<LogMessage> logMessageSupplier)
     {
         if (!loggable(level))
             return;
 
-        final @NonNull LogMessage logMessage = logMessageSupplier.get();
+        final @NotNull LogMessage logMessage = logMessageSupplier.get();
         if (level.intValue() >= consoleLogLevel.intValue())
             writeToConsole(level, logMessage);
 
@@ -136,8 +136,8 @@ public final class PLogger implements IPLogger
      *                           the log file.
      * @param level              The level of the message (info, warn, etc).
      */
-    private void addToSilentMessageQueue(final @NonNull Level level,
-                                         final @NonNull Supplier<LogMessage> logMessageSupplier)
+    private void addToSilentMessageQueue(final @NotNull Level level,
+                                         final @NotNull Supplier<LogMessage> logMessageSupplier)
     {
         if (!loggable(level))
             return;
@@ -177,7 +177,7 @@ public final class PLogger implements IPLogger
     }
 
     @Override
-    public void dumpStackTrace(final @NonNull String message)
+    public void dumpStackTrace(final @NotNull String message)
     {
         addToMessageQueue(Level.SEVERE,
                           () -> new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
@@ -185,7 +185,7 @@ public final class PLogger implements IPLogger
     }
 
     @Override
-    public void dumpStackTrace(final @NonNull Level level, final @NonNull String message)
+    public void dumpStackTrace(final @NotNull Level level, final @NotNull String message)
     {
         addToMessageQueue(level,
                           () -> new LogMessage.LogMessageStackTrace(Thread.currentThread().getStackTrace(),
@@ -199,19 +199,19 @@ public final class PLogger implements IPLogger
      * @param string The message to log
      * @see IMessagingInterface#writeToConsole(Level, String)
      */
-    private void writeToConsole(final @NonNull Level level, final @NonNull String string)
+    private void writeToConsole(final @NotNull Level level, final @NotNull String string)
     {
         BigDoors.get().getMessagingInterface().writeToConsole(level, string);
     }
 
     @Override
-    public void writeToConsole(final @NonNull Level level, final @NonNull LogMessage logMessage)
+    public void writeToConsole(final @NotNull Level level, final @NotNull LogMessage logMessage)
     {
         writeToConsole(level, logMessage.toString());
     }
 
     @Override
-    public void logMessage(final @NonNull Level level, final @NonNull String msg)
+    public void logMessage(final @NotNull Level level, final @NotNull String msg)
     {
         addToMessageQueue(level, () -> new LogMessage.LogMessageString(msg, level));
     }
@@ -221,7 +221,7 @@ public final class PLogger implements IPLogger
      *
      * @param msg The message to be written.
      */
-    private void writeToLog(final @NonNull String msg)
+    private void writeToLog(final @NotNull String msg)
     {
         try (final BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true)))
         {
@@ -235,41 +235,41 @@ public final class PLogger implements IPLogger
         }
     }
 
-    private void addThrowableToQueue(final @NonNull Level level, final @NonNull Throwable throwable,
-                                     final @NonNull String message)
+    private void addThrowableToQueue(final @NotNull Level level, final @NotNull Throwable throwable,
+                                     final @NotNull String message)
     {
         addToMessageQueue(level, () -> new LogMessage.LogMessageThrowable(throwable, message, level));
     }
 
     @Override
-    public void logThrowableSilently(final @NonNull Throwable throwable, final @NonNull String message)
+    public void logThrowableSilently(final @NotNull Throwable throwable, final @NotNull String message)
     {
         final Level level = Level.SEVERE;
         addToSilentMessageQueue(level, () -> new LogMessage.LogMessageThrowable(throwable, message, level));
     }
 
     @Override
-    public void logThrowableSilently(final @NonNull Level level, final @NonNull Throwable throwable,
-                                     final @NonNull String message)
+    public void logThrowableSilently(final @NotNull Level level, final @NotNull Throwable throwable,
+                                     final @NotNull String message)
     {
         addToSilentMessageQueue(level, () -> new LogMessage.LogMessageThrowable(throwable, message, level));
     }
 
     @Override
-    public void logThrowableSilently(final @NonNull Throwable throwable)
+    public void logThrowableSilently(final @NotNull Throwable throwable)
     {
         logThrowableSilently(throwable, "");
     }
 
     @Override
-    public void logThrowableSilently(final @NonNull Level level, final @NonNull Throwable throwable)
+    public void logThrowableSilently(final @NotNull Level level, final @NotNull Throwable throwable)
     {
         logThrowableSilently(level, throwable, "");
     }
 
     @Override
-    public void logThrowable(final @NonNull Level level, final @NonNull Throwable throwable,
-                             final @NonNull String message)
+    public void logThrowable(final @NotNull Level level, final @NotNull Throwable throwable,
+                             final @NotNull String message)
     {
         addThrowableToQueue(level, throwable, message);
 
@@ -283,45 +283,45 @@ public final class PLogger implements IPLogger
     }
 
     @Override
-    public void logThrowable(final @NonNull Throwable throwable, final @NonNull String message)
+    public void logThrowable(final @NotNull Throwable throwable, final @NotNull String message)
     {
         logThrowable(Level.SEVERE, throwable, message);
     }
 
     @Override
-    public void logThrowable(final @NonNull Level level, final @NonNull Throwable throwable)
+    public void logThrowable(final @NotNull Level level, final @NotNull Throwable throwable)
     {
         logThrowable(level, throwable, "");
     }
 
     @Override
-    public void logThrowable(final @NonNull Throwable throwable)
+    public void logThrowable(final @NotNull Throwable throwable)
     {
         logThrowable(throwable, "");
     }
 
     @Override
-    public void logMessage(final @NonNull Level level, final @NonNull String message,
-                           final @NonNull Supplier<String> messageSupplier)
+    public void logMessage(final @NotNull Level level, final @NotNull String message,
+                           final @NotNull Supplier<String> messageSupplier)
     {
         addToMessageQueue(level, () -> new LogMessage.LogMessageStringSupplier(message, messageSupplier, level));
     }
 
     @Override
-    public void logMessage(final @NonNull Level level, final @NonNull Supplier<String> messageSupplier)
+    public void logMessage(final @NotNull Level level, final @NotNull Supplier<String> messageSupplier)
     {
         logMessage(level, "", messageSupplier);
     }
 
     @Override
-    public void setConsoleLogLevel(final @NonNull Level consoleLogLevel)
+    public void setConsoleLogLevel(final @NotNull Level consoleLogLevel)
     {
         this.consoleLogLevel = consoleLogLevel;
         updateLowestLevel();
     }
 
     @Override
-    public void setFileLogLevel(final @NonNull Level fileLogLevel)
+    public void setFileLogLevel(final @NotNull Level fileLogLevel)
     {
         this.fileLogLevel = fileLogLevel;
         updateLowestLevel();

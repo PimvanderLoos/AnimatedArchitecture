@@ -12,6 +12,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 @AllArgsConstructor
 @ToString
+@SuppressWarnings("NullAway")
 public final class Pair<T1, T2>
 {
     public T1 first;

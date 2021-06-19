@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,10 +17,10 @@ class PPlayerDataTest
         final int countLimit = 30;
 
 
-        final @NonNull PPlayerData playerData1 = new PPlayerData(uuid, name, sizeLimit, countLimit, false, false);
-        final @NonNull PPlayerData playerData2 = new PPlayerData(uuid, name, sizeLimit, countLimit, true, false);
-        final @NonNull PPlayerData playerData3 = new PPlayerData(uuid, name, sizeLimit, countLimit, false, true);
-        final @NonNull PPlayerData playerData4 = new PPlayerData(uuid, name, sizeLimit, countLimit, true, true);
+        final @NotNull PPlayerData playerData1 = new PPlayerData(uuid, name, sizeLimit, countLimit, false, false);
+        final @NotNull PPlayerData playerData2 = new PPlayerData(uuid, name, sizeLimit, countLimit, true, false);
+        final @NotNull PPlayerData playerData3 = new PPlayerData(uuid, name, sizeLimit, countLimit, false, true);
+        final @NotNull PPlayerData playerData4 = new PPlayerData(uuid, name, sizeLimit, countLimit, true, true);
 
         Assertions.assertEquals(0, playerData1.getPermissionsFlag());
         Assertions.assertEquals(1, playerData2.getPermissionsFlag());

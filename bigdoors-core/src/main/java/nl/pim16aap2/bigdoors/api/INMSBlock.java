@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an NMS block.
@@ -22,14 +22,14 @@ public interface INMSBlock
      *
      * @param rotDir The {@link RotateDirection} to rotate this block in.
      */
-    void rotateBlock(@NonNull RotateDirection rotDir);
+    void rotateBlock(@NotNull RotateDirection rotDir);
 
     /**
      * Places the block at a given location.
      *
      * @param loc The location where the block will be placed.
      */
-    void putBlock(@NonNull IPLocationConst loc);
+    void putBlock(@NotNull IPLocationConst loc);
 
     /**
      * Deletes the block at the original location.

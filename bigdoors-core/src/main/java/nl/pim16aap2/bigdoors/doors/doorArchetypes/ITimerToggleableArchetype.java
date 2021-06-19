@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.doors.doorArchetypes;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoorBase;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a type of door that can be toggled via a timer. E.g. autoCloseTimer.
@@ -17,7 +17,7 @@ public interface ITimerToggleableArchetype extends IDoorBase
      * @param newValue The new value of the autoCloseTimer (in seconds).
      * @return The instance of this door.
      */
-    @NonNull AbstractDoorBase setAutoCloseTime(final int newValue);
+    @NotNull AbstractDoorBase setAutoCloseTime(final int newValue);
 
     /**
      * Gets the value of the autoCloseTimer. This value describes the number of seconds after a door was opened that a
@@ -33,7 +33,7 @@ public interface ITimerToggleableArchetype extends IDoorBase
      * @param newValue The new value of the autoOpenTimer.
      * @return The instance of this door.
      */
-    @NonNull AbstractDoorBase setAutoOpenTime(final int newValue);
+    @NotNull AbstractDoorBase setAutoOpenTime(final int newValue);
 
     /**
      * Gets the value of the autoOpenTimer. This value describes the number of seconds after a door was closed that a

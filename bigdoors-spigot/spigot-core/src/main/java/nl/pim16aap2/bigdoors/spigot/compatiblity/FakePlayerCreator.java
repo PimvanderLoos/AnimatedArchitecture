@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.mojang.authlib.GameProfile;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -43,60 +43,43 @@ class FakePlayerCreator
     private Field uuid;
     private boolean success = false;
 
-    FakePlayerCreator(final @NonNull BigDoorsSpigot plugin)
+    FakePlayerCreator(final @NotNull BigDoorsSpigot plugin)
+        throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
 
         NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
             + ".";
-        try
-        {
-            CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
-            CraftWorld = getCraftClass("CraftWorld");
-            WorldServer = getNMSClass("WorldServer");
-            EntityPlayer = getNMSClass("EntityPlayer");
-            MinecraftServer = getNMSClass("MinecraftServer");
-            PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
-                                                                  PlayerInteractManager);
-            getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
-            getHandle = CraftWorld.getMethod("getHandle");
-            getProfile = CraftOfflinePlayer.getMethod("getProfile");
-            getServer = MinecraftServer.getMethod("getServer");
-            uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
-            uuid.setAccessible(true);
 
-            World = getNMSClass("World");
-            try
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
-            }
-            catch (Exception e)
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
-            }
-        }
-        catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
-        catch (LinkageError e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
+        CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
+        CraftWorld = getCraftClass("CraftWorld");
+        WorldServer = getNMSClass("WorldServer");
+        EntityPlayer = getNMSClass("EntityPlayer");
+        MinecraftServer = getNMSClass("MinecraftServer");
+        PlayerInteractManager = getNMSClass("PlayerInteractManager");
+        EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
+                                                              PlayerInteractManager);
+        getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
+        getHandle = CraftWorld.getMethod("getHandle");
+        getProfile = CraftOfflinePlayer.getMethod("getProfile");
+        getServer = MinecraftServer.getMethod("getServer");
+        uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
+        uuid.setAccessible(true);
+
+        World = getNMSClass("World");
+        PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
+        PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
         success = true;
     }
 
-    private @NonNull Class<?> getNMSClass(final @NonNull String name)
+    private @NotNull Class<?> getNMSClass(final @NotNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private @NonNull Class<?> getCraftClass(final @NonNull String name)
+    private @NotNull Class<?> getCraftClass(final @NotNull String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
@@ -109,7 +92,7 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    @NonNull Optional<Player> getFakePlayer(final @NonNull OfflinePlayer oPlayer, final @NonNull World world)
+    @NotNull Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
     {
         if (!success)
             return Optional.empty();

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -16,7 +16,7 @@ public interface ICommandSender extends IMessageable
      * @return The {@link IPPlayer} that issued the command, if it was a player that issued the command. Otherwise, an
      * empty Optional is returned.
      */
-    @NonNull Optional<IPPlayer> getPlayer();
+    @NotNull Optional<IPPlayer> getPlayer();
 
     /**
      * Checks if the command sender is a player.
@@ -31,7 +31,7 @@ public interface ICommandSender extends IMessageable
      * @param permission The permission node to check.
      * @return True if the player has access to the provided permission, otherwise false.
      */
-    default @NonNull CompletableFuture<Boolean> hasPermission(@NonNull String permission)
+    default @NotNull CompletableFuture<Boolean> hasPermission(@NotNull String permission)
     {
         return getPlayer().map(player -> player.hasPermission(permission))
                           .orElse(CompletableFuture.completedFuture(true));
@@ -47,7 +47,7 @@ public interface ICommandSender extends IMessageable
      * @return A {@link BooleanPair} that is true if the player has access to the provided permissions, otherwise false
      * for the user and the admin permission nodes respectively.
      */
-    default @NonNull CompletableFuture<BooleanPair> hasPermission(@NonNull CommandDefinition command)
+    default @NotNull CompletableFuture<BooleanPair> hasPermission(@NotNull CommandDefinition command)
     {
         return getPlayer().map(player -> player.hasPermission(command))
                           .orElse(CompletableFuture.completedFuture(new BooleanPair(false, false)));

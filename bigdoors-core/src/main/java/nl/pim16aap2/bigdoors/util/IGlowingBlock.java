@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import org.jetbrains.annotations.NotNull;
 
 public interface IGlowingBlock extends IRestartable
 {
@@ -17,7 +17,7 @@ public interface IGlowingBlock extends IRestartable
      *
      * @param position The new position of the {@link IGlowingBlock}.
      */
-    void teleport(@NonNull Vector3DdConst position);
+    void teleport(@NotNull Vector3DdConst position);
 
     /**
      * Spawns this {@link IGlowingBlock} for the specified number of ticks.
@@ -28,5 +28,5 @@ public interface IGlowingBlock extends IRestartable
      * @param z      The z-coordiante of the block.
      * @param ticks  The number of ticks to keep this entity visible for the player.
      */
-    void spawn(@NonNull PColor pColor, double x, double y, double z, long ticks);
+    void spawn(@NotNull PColor pColor, double x, double y, double z, long ticks);
 }

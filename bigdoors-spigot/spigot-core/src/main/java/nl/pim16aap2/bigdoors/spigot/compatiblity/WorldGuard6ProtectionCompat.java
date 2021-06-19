@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,13 +19,13 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    private static final @NonNull ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
-    private final @NonNull BigDoorsSpigot plugin;
-    private final @NonNull WorldGuardPlugin worldGuard;
+    private static final @NotNull ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private final @NotNull BigDoorsSpigot plugin;
+    private final @NotNull WorldGuardPlugin worldGuard;
     private boolean success = false;
     private Method m;
 
-    public WorldGuard6ProtectionCompat(final @NonNull BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat(final @NotNull BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
@@ -33,10 +33,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))
-        {
-            worldGuard = null;
-            return;
-        }
+            throw new IllegalStateException("Plugin " + wgPlugin + " is not the expected WorldGuardPlugin!");
 
         worldGuard = (WorldGuardPlugin) wgPlugin;
 
@@ -47,12 +44,12 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            plugin.getPLogger().logThrowable(e);
+            throw new RuntimeException("Failed to access canBuild method!", e);
         }
     }
 
     @Override
-    public boolean canBreakBlock(final @NonNull Player player, final @NonNull Location loc)
+    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
     {
         try
         {
@@ -66,8 +63,8 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NonNull Player player, final @NonNull Location loc1,
-                                             final @NonNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
+                                             final @NotNull Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -94,7 +91,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NonNull String getName()
+    public @NotNull String getName()
     {
         return worldGuard.getName();
     }

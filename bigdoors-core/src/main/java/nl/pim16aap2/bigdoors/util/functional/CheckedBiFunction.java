@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
@@ -26,6 +26,6 @@ public interface CheckedBiFunction<T, U, R, E extends Exception>
      *
      * @throws E
      */
-    @NonNull R apply(T t, U u)
+    @NotNull R apply(T t, U u)
         throws E;
 }

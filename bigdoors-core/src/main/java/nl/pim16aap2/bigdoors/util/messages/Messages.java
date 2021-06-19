@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigdoors.util.messages;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
+import nl.pim16aap2.bigdoors.util.Util;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +20,6 @@ import java.net.URLConnection;
 import java.nio.file.StandardCopyOption;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -34,17 +34,17 @@ public final class Messages extends Restartable
     /**
      * The name of the default language file.
      */
-    private static final @NonNull String DEFAULTFILENAME = "en_US.txt";
-    private final @NonNull IPLogger plogger;
+    private static final @NotNull String DEFAULTFILENAME = "en_US.txt";
+    private final @NotNull IPLogger plogger;
 
-    private static final @NonNull Pattern matchDots = Pattern.compile("\\.");
-    private static final @NonNull Pattern matchNewLines = Pattern.compile("\\\\n");
-    private static final @NonNull Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
+    private static final @NotNull Pattern matchDots = Pattern.compile("\\.");
+    private static final @NotNull Pattern matchNewLines = Pattern.compile("\\\\n");
+    private static final @NotNull Pattern matchColorCodes = Pattern.compile("&((?i)[0-9a-fk-or])");
 
     /**
      * The directory of the language file.
      */
-    private final @NonNull File fileDir;
+    private final @NotNull File fileDir;
 
     /**
      * The map of all messages.
@@ -53,12 +53,12 @@ public final class Messages extends Restartable
      * <p>
      * Value: The translated message.
      */
-    private @NonNull Map<Message, String> messageMap = new EnumMap<>(Message.class);
+    private final @NotNull Map<Message, String> messageMap = new EnumMap<>(Message.class);
 
     /**
      * The selected language file.
      */
-    private File textFile;
+    private final @NotNull File textFile;
 
     /**
      * Constructs for Messages object.
@@ -68,28 +68,31 @@ public final class Messages extends Restartable
      * @param fileName The name of the file that will be loaded, if it exists. Extension excluded.
      * @param plogger  The {@link PLogger} object that will be used for logging.
      */
-    public Messages(final @NonNull IRestartableHolder holder, final @NonNull File fileDir,
-                    final @NonNull String fileName, final @NonNull IPLogger plogger)
+    public Messages(final @NotNull IRestartableHolder holder, final @NotNull File fileDir,
+                    final @NotNull String fileName, final @NotNull IPLogger plogger)
     {
         super(holder);
         this.plogger = plogger;
         this.fileDir = fileDir;
 
-        if (!fileDir.exists())
-            if (!fileDir.mkdirs())
-            {
-                plogger.logThrowable(new IOException("Failed to create folder: \"" + fileDir.toString() + "\""));
-                return;
-            }
-
-        // TODO: Don't add .txt if it already ends with .txt
-        textFile = new File(fileDir, fileName + ".txt");
-        if (!textFile.exists())
+        if (!fileDir.exists() && !fileDir.mkdirs())
         {
-            plogger.warn("Failed to load language file: \"" + textFile
-                             + "\": File not found! Using default file instead!");
-            textFile = new File(fileDir, DEFAULTFILENAME);
-            writeDefaultFile();
+            plogger.logThrowable(new IOException("Failed to create folder: \"" + fileDir + "\""));
+            textFile = new File("");
+        }
+        else
+        {
+            File textFileTmp;
+            // TODO: Don't add .txt if it already ends with .txt
+            textFileTmp = new File(fileDir, fileName + ".txt");
+            if (!textFileTmp.exists())
+            {
+                plogger.warn("Failed to load language file: \"" + textFileTmp
+                                 + "\": File not found! Using default file instead!");
+                textFileTmp = new File(fileDir, DEFAULTFILENAME);
+                writeDefaultFile(textFileTmp);
+            }
+            textFile = textFileTmp;
         }
         populateMessageMap();
     }
@@ -111,7 +114,7 @@ public final class Messages extends Restartable
      * Copies the default language file to the default location. The default location is the directory of the language
      * specified in the config + the {@link #DEFAULTFILENAME}.
      */
-    private void writeDefaultFile()
+    private void writeDefaultFile(final @NotNull File file)
     {
         File defaultFile = new File(fileDir, DEFAULTFILENAME);
 
@@ -133,7 +136,7 @@ public final class Messages extends Restartable
         }
         catch (Exception e)
         {
-            plogger.logThrowable(e, "Failed to write default file to \"" + textFile + "\".");
+            plogger.logThrowable(e, "Failed to write default file to \"" + file + "\".");
         }
         finally
         {
@@ -157,7 +160,7 @@ public final class Messages extends Restartable
      * @param action The action to take for every message and value combination that is encountered.
      * @throws IOException
      */
-    private void processFile(final @NonNull BufferedReader br, final @NonNull BiConsumer<Message, String> action)
+    private void processFile(final @NotNull BufferedReader br, final @NotNull BiConsumer<Message, String> action)
         throws IOException
     {
         String sCurrentLine;
@@ -190,7 +193,7 @@ public final class Messages extends Restartable
      * @param message The {@link Message}.
      * @param value   The value of the message.
      */
-    private void addMessage(final @NonNull Message message, final @NonNull String value)
+    private void addMessage(final @NotNull Message message, final @NotNull String value)
     {
         messageMap.put(message, value);
     }
@@ -201,7 +204,7 @@ public final class Messages extends Restartable
      * @param message The {@link Message}.
      * @param value   The value of the message.
      */
-    private void addBackupMessage(final @NonNull Message message, final @NonNull String value)
+    private void addBackupMessage(final @NotNull Message message, final @NotNull String value)
     {
         if (messageMap.containsKey(message))
             return;
@@ -233,7 +236,8 @@ public final class Messages extends Restartable
 
         try (BufferedReader br = new BufferedReader(
             new InputStreamReader(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME)).openStream())))
+                Util.requireNonNull(getClass().getClassLoader().getResource(DEFAULTFILENAME), "File " + DEFAULTFILENAME)
+                    .openStream())))
         {
             processFile(br, this::addBackupMessage);
         }
@@ -260,7 +264,7 @@ public final class Messages extends Restartable
      * @param key The key that could not be resolved.
      * @return The default String to return in case a value could not be found for a given String.
      */
-    private @NonNull String getFailureString(final @NonNull String key)
+    private @NotNull String getFailureString(final @NotNull String key)
     {
         return "Translation for key \"" + key + "\" not found! Contact server admin!";
     }
@@ -272,11 +276,11 @@ public final class Messages extends Restartable
      * @param messageName The name of a {@link Message}, see {@link Message#valueOf(String)}.
      * @return The translated String if possible, otherwise an empty String.
      */
-    public @NonNull String getString(final @NonNull String messageName)
+    public @NotNull String getString(final @NotNull String messageName)
     {
         try
         {
-            return messageMap.get(Message.valueOf(messageName));
+            return messageMap.getOrDefault(Message.valueOf(messageName), "No message found!");
         }
         catch (IllegalStateException e)
         {
@@ -294,7 +298,7 @@ public final class Messages extends Restartable
      * @return The translated message of the provided {@link Message} and substitutes its variables for the provided
      * values.
      */
-    public @NonNull String getString(final @NonNull Message msg, final @NonNull String... values)
+    public @NotNull String getString(final @NotNull Message msg, final @NotNull String... values)
     {
         if (msg.equals(Message.EMPTY))
             return "";

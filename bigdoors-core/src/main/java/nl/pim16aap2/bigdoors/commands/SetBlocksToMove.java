@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -9,6 +8,7 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -22,9 +22,9 @@ public class SetBlocksToMove extends DoorTargetCommand
 {
     private final int blocksToMove;
 
-    private static final @NonNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
+    private static final @NotNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
 
-    protected SetBlocksToMove(final @NonNull ICommandSender commandSender, final @NonNull DoorRetriever doorRetriever,
+    protected SetBlocksToMove(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                               final int blocksToMove)
     {
         super(commandSender, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
@@ -41,21 +41,21 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @param blocksToMove  The new blocks-to-move distance.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever doorRetriever,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever doorRetriever,
                                                           final int blocksToMove)
     {
         return new SetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
     }
 
     @Override
-    protected @NonNull CompletableFuture<Boolean> performAction(final @NonNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
     {
         if (!(door instanceof IBlocksToMoveArchetype))
         {
@@ -81,8 +81,8 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> runDelayed(final @NonNull ICommandSender commandSender,
-                                                                 final @NonNull DoorRetriever doorRetriever)
+    public static @NotNull CompletableFuture<Boolean> runDelayed(final @NotNull ICommandSender commandSender,
+                                                                 final @NotNull DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
@@ -105,7 +105,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @param blocksToMove  The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> provideDelayedInput(final @NonNull ICommandSender commandSender,
+    public static @NotNull CompletableFuture<Boolean> provideDelayedInput(final @NotNull ICommandSender commandSender,
                                                                           final int blocksToMove)
     {
         return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
@@ -125,8 +125,8 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @param blocksToMove  The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
-    private static @NonNull CompletableFuture<Boolean> delayedInputExecutor(final @NonNull ICommandSender commandSender,
-                                                                            final @NonNull DoorRetriever doorRetriever,
+    private static @NotNull CompletableFuture<Boolean> delayedInputExecutor(final @NotNull ICommandSender commandSender,
+                                                                            final @NotNull DoorRetriever doorRetriever,
                                                                             final int blocksToMove)
     {
         return new SetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
@@ -137,7 +137,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NonNull String inputRequestMessage()
+    private static @NotNull String inputRequestMessage()
     {
         return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_BLOCKSTOMOVE_INIT);
     }

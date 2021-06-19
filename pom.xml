@@ -22,6 +22,7 @@
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.7.1</dependency.version.errorprone>
+        <dependency.version.nullaway>0.9.1</dependency.version.nullaway>
         <dependency.version.mockito>3.10.0</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -140,6 +141,10 @@
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
                             </relocation>
+                            <relocation>
+                                <pattern>com.google.errorprone</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
+                            </relocation>
                         </relocations>
                     </configuration>
                     <executions>
@@ -203,7 +208,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
             <build>
                 <pluginManagement>
                     <plugins>
@@ -231,7 +235,6 @@
 
         <profile>
             <id>errorprone</id>
-
             <build>
                 <pluginManagement>
                     <plugins>
@@ -248,7 +251,7 @@
                                     <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
-                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -XepExcludedPaths:.*/test/.*</arg>
+                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2 -XepExcludedPaths:.*/test/.*</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -270,6 +273,11 @@
                                         <groupId>com.google.errorprone</groupId>
                                         <artifactId>error_prone_core</artifactId>
                                         <version>${dependency.version.errorprone}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>com.uber.nullaway</groupId>
+                                        <artifactId>nullaway</artifactId>
+                                        <version>${dependency.version.nullaway}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>

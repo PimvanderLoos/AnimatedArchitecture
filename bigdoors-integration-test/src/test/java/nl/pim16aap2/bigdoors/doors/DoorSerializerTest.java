@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.val;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -19,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -134,12 +134,12 @@ class DoorSerializerTest
             Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
-        public TestDoorType(final @NonNull DoorData doorData)
+        public TestDoorType(final @NotNull DoorData doorData)
         {
             super(doorData);
         }
 
-        public TestDoorType(final @NonNull DoorData doorData, final @NonNull String testName,
+        public TestDoorType(final @NotNull DoorData doorData, final @NotNull String testName,
                             final boolean isCoolType, final int blockTestCount)
         {
             super(doorData);
@@ -149,17 +149,17 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NonNull DoorType getDoorType()
+        public @NotNull DoorType getDoorType()
         {
             return DOOR_TYPE;
         }
 
         @Override
-        protected @NonNull BlockMover constructBlockMover(@NonNull DoorActionCause cause,
+        protected @NotNull BlockMover constructBlockMover(@NotNull DoorActionCause cause,
                                                           double time, boolean skipAnimation,
-                                                          @NonNull CuboidConst newCuboid,
-                                                          @NonNull IPPlayer responsible,
-                                                          @NonNull DoorActionType actionType)
+                                                          @NotNull CuboidConst newCuboid,
+                                                          @NotNull IPPlayer responsible,
+                                                          @NotNull DoorActionType actionType)
         {
             return null;
         }
@@ -171,25 +171,25 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NonNull RotateDirection getCurrentToggleDir()
+        public @NotNull RotateDirection getCurrentToggleDir()
         {
             return null;
         }
 
         @Override
-        public @NonNull Optional<Cuboid> getPotentialNewCoordinates()
+        public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
         {
             return Optional.empty();
         }
 
         @Override
-        public @NonNull RotateDirection cycleOpenDirection()
+        public @NotNull RotateDirection cycleOpenDirection()
         {
             return null;
         }
 
         @Override
-        public @NonNull Vector2Di[] calculateChunkRange()
+        public @NotNull Vector2Di[] calculateChunkRange()
         {
             return new Vector2Di[0];
         }
@@ -202,7 +202,7 @@ class DoorSerializerTest
         @Getter
         private int subclassTestValue = -1;
 
-        public TestDoorSubType(final @NonNull DoorData doorData, final @NonNull String testName,
+        public TestDoorSubType(final @NotNull DoorData doorData, final @NotNull String testName,
                                final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
         {
             super(doorData, testName, isCoolType, blockTestCount);

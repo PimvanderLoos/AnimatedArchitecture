@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -8,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -16,6 +16,8 @@ import java.util.Optional;
 /**
  * Represents an item in a BigDoors GUI.
  */
+@Deprecated
+@SuppressWarnings("NullAway")
 class GUIItem
 {
     private ItemStack is;
@@ -23,10 +25,10 @@ class GUIItem
     private List<String> lore;
     private int count;
     private String name;
-    private DoorOwner doorOwner = null;
+    private @Nullable DoorOwner doorOwner = null;
     private boolean missingHeadTexture;
-    private DoorAttribute attribute = null;
-    private Object specialValue;
+    private @Nullable DoorAttribute attribute = null;
+    private @Nullable Object specialValue;
 
     /**
      * Constructs a new {@link GUIItem}.
@@ -37,7 +39,7 @@ class GUIItem
      * @param count        The number of items on this stack.
      * @param specialValue An unspecified special value that can be used for various purposes.
      */
-    GUIItem(Material mat, String name, List<String> lore, int count, Object specialValue)
+    GUIItem(Material mat, String name, List<String> lore, int count, @Nullable Object specialValue)
     {
         this.name = name;
         this.lore = lore;
@@ -69,7 +71,7 @@ class GUIItem
      * @param count        The number of items on this stack.
      * @param specialValue An unspecified special value that can be used for various purposes.
      */
-    public GUIItem(ItemStack is, String name, List<String> lore, int count, Object specialValue)
+    public GUIItem(ItemStack is, String name, List<String> lore, int count, @Nullable Object specialValue)
     {
         this.name = name;
         this.lore = lore;
@@ -97,7 +99,7 @@ class GUIItem
      *
      * @param doorOwner The {@link DoorOwner}.
      */
-    public GUIItem(final @NonNull DoorOwner doorOwner)
+    public GUIItem(final @NotNull DoorOwner doorOwner)
     {
         this.doorOwner = doorOwner;
         count = Math.max(1, doorOwner.getPermission());
@@ -135,7 +137,7 @@ class GUIItem
      *
      * @return The ItemStack.
      */
-    public @NonNull ItemStack getItemStack()
+    public @NotNull ItemStack getItemStack()
     {
         return is;
     }
@@ -145,7 +147,7 @@ class GUIItem
      *
      * @return The {@link DoorAttribute} associated with this {@link GUIItem}. Returns null if unavailable.
      */
-    public @NonNull Optional<DoorAttribute> getDoorAttribute()
+    public @NotNull Optional<DoorAttribute> getDoorAttribute()
     {
         return Optional.ofNullable(attribute);
     }
@@ -155,7 +157,7 @@ class GUIItem
      *
      * @param atr The {@link DoorAttribute} to be associated with this {@link GUIItem}.
      */
-    public void setDoorAttribute(final @NonNull DoorAttribute atr)
+    public void setDoorAttribute(final @NotNull DoorAttribute atr)
     {
         attribute = atr;
     }
@@ -175,7 +177,7 @@ class GUIItem
      *
      * @param door The {@link AbstractDoorBase} to be associated with this {@link GUIItem}.
      */
-    public void setDoor(final @NonNull AbstractDoorBase door)
+    public void setDoor(final @NotNull AbstractDoorBase door)
     {
         this.door = door;
     }
@@ -185,7 +187,7 @@ class GUIItem
      *
      * @return The name of this {@link GUIItem}.
      */
-    public @NonNull String getName()
+    public @NotNull String getName()
     {
         return name;
     }
@@ -195,7 +197,7 @@ class GUIItem
      *
      * @return The lore of this {@link GUIItem}.
      */
-    public @NonNull List<String> getLore()
+    public @NotNull List<String> getLore()
     {
         return lore;
     }
@@ -235,7 +237,7 @@ class GUIItem
      *
      * @param specialValue The special value of this {@link GUIItem}.
      */
-    public void setSpecialValue(Object specialValue)
+    public void setSpecialValue(@Nullable Object specialValue)
     {
         this.specialValue = specialValue;
     }

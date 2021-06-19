@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.commands;
 
-import lombok.NonNull;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -10,6 +9,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -23,14 +23,14 @@ import java.util.logging.Level;
 public class Toggle extends BaseCommand
 {
     protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
-    protected static final @NonNull DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
+    protected static final @NotNull DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
-    private final @NonNull DoorRetriever[] doorRetrievers;
-    private final @NonNull DoorActionType doorActionType;
+    private final @NotNull DoorRetriever[] doorRetrievers;
+    private final @NotNull DoorActionType doorActionType;
     private final double speedMultiplier;
 
-    protected Toggle(final @NonNull ICommandSender commandSender, final @NonNull DoorActionType doorActionType,
-                     final double speedMultiplier, final @NonNull DoorRetriever... doorRetrievers)
+    protected Toggle(final @NotNull ICommandSender commandSender, final @NotNull DoorActionType doorActionType,
+                     final double speedMultiplier, final @NotNull DoorRetriever... doorRetrievers)
     {
         super(commandSender);
         this.doorActionType = doorActionType;
@@ -53,10 +53,10 @@ public class Toggle extends BaseCommand
      * @param doorRetrievers  The door(s) to toggle.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorActionType doorActionType,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorActionType doorActionType,
                                                           final double speedMultiplier,
-                                                          final @NonNull DoorRetriever... doorRetrievers)
+                                                          final @NotNull DoorRetriever... doorRetrievers)
     {
         return new Toggle(commandSender, doorActionType, speedMultiplier, doorRetrievers).run();
     }
@@ -66,9 +66,9 @@ public class Toggle extends BaseCommand
      * <p>
      * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorActionType doorActionType,
-                                                          final @NonNull DoorRetriever... doorRetrievers)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorActionType doorActionType,
+                                                          final @NotNull DoorRetriever... doorRetrievers)
     {
         return run(commandSender, doorActionType, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
@@ -78,9 +78,9 @@ public class Toggle extends BaseCommand
      * <p>
      * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
                                                           final double speedMultiplier,
-                                                          final @NonNull DoorRetriever... doorRetrievers)
+                                                          final @NotNull DoorRetriever... doorRetrievers)
     {
         return run(commandSender, DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
     }
@@ -91,8 +91,8 @@ public class Toggle extends BaseCommand
      * <p>
      * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
      */
-    public static @NonNull CompletableFuture<Boolean> run(final @NonNull ICommandSender commandSender,
-                                                          final @NonNull DoorRetriever... doorRetrievers)
+    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
+                                                          final @NotNull DoorRetriever... doorRetrievers)
     {
         return run(commandSender, DEFAULT_DOOR_ACTION_TYPE, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
@@ -109,7 +109,7 @@ public class Toggle extends BaseCommand
     }
 
     @Override
-    public @NonNull CommandDefinition getCommand()
+    public @NotNull CommandDefinition getCommand()
     {
         return CommandDefinition.TOGGLE;
     }
@@ -124,7 +124,7 @@ public class Toggle extends BaseCommand
      * @param door The door for which to check whether it can be toggled.
      * @return True if the toggle action is possible, otherwise false.
      */
-    protected final boolean canToggle(final @NonNull AbstractDoorBase door)
+    protected final boolean canToggle(final @NotNull AbstractDoorBase door)
     {
         switch (doorActionType)
         {
@@ -141,7 +141,7 @@ public class Toggle extends BaseCommand
         }
     }
 
-    private void toggleDoor(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause doorActionCause,
+    private void toggleDoor(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause doorActionCause,
                             final boolean hasBypassPermission)
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
@@ -166,8 +166,8 @@ public class Toggle extends BaseCommand
                                   speedMultiplier, false, doorActionType);
     }
 
-    private @NonNull CompletableFuture<Void> handleDoorRequest(final @NonNull DoorRetriever doorRetriever,
-                                                               final @NonNull DoorActionCause doorActionCause,
+    private @NotNull CompletableFuture<Void> handleDoorRequest(final @NotNull DoorRetriever doorRetriever,
+                                                               final @NotNull DoorActionCause doorActionCause,
                                                                final boolean hasBypassPermission)
     {
         return getDoor(doorRetriever)
@@ -175,7 +175,7 @@ public class Toggle extends BaseCommand
     }
 
     @Override
-    protected final @NonNull CompletableFuture<Boolean> executeCommand(final @NonNull BooleanPair permissions)
+    protected final @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         val actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
         val actions = new CompletableFuture[doorRetrievers.length];

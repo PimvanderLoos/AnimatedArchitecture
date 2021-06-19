@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.logging;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintWriter;
@@ -15,16 +15,16 @@ import java.util.logging.Level;
  */
 public abstract class LogMessage
 {
-    protected final @NonNull String message;
+    protected final @NotNull String message;
 
-    protected final @NonNull Level logLevel;
+    protected final @NotNull Level logLevel;
 
     /**
      * The id of the thread from which this messages was created.
      */
     private final long threadID;
 
-    protected LogMessage(final @NonNull String message, final @NonNull Level logLevel)
+    protected LogMessage(final @NotNull String message, final @NotNull Level logLevel)
     {
         this.message = message;
         this.logLevel = logLevel;
@@ -32,7 +32,7 @@ public abstract class LogMessage
     }
 
     @Override
-    public @NonNull String toString()
+    public @NotNull String toString()
     {
         return getFormattedLevel() + getFormattedThreadID() + message;
     }
@@ -43,19 +43,19 @@ public abstract class LogMessage
      * @param str The message to format.
      * @return The formatted message.
      */
-    protected static @NonNull String checkMessage(final @Nullable String str)
+    protected static @NotNull String checkMessage(final @Nullable String str)
     {
         if (str == null || str.equals("\n"))
             return "";
         return str + "\n";
     }
 
-    private @NonNull String getFormattedThreadID()
+    private @NotNull String getFormattedThreadID()
     {
         return String.format("Thread [%d] ", threadID);
     }
 
-    private @NonNull String getFormattedLevel()
+    private @NotNull String getFormattedLevel()
     {
         return String.format("(%s) ", logLevel.toString());
     }
@@ -66,7 +66,7 @@ public abstract class LogMessage
      * @param throwable The {@link Throwable} whose stack trace to retrieve as String.
      * @return A string of the stack trace.
      */
-    private static @NonNull String throwableStackTraceToString(final @NonNull Throwable throwable)
+    private static @NotNull String throwableStackTraceToString(final @NotNull Throwable throwable)
     {
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
@@ -74,7 +74,7 @@ public abstract class LogMessage
         return sw.toString();
     }
 
-    private static @NonNull String stackTraceToString(final @NonNull StackTraceElement[] stackTrace, final int skip)
+    private static @NotNull String stackTraceToString(final @NotNull StackTraceElement[] stackTrace, final int skip)
     {
         final StringBuilder sb = new StringBuilder();
         for (int idx = skip; idx < stackTrace.length; ++idx)
@@ -89,8 +89,8 @@ public abstract class LogMessage
      */
     public static class LogMessageThrowable extends LogMessage
     {
-        LogMessageThrowable(final @NonNull Throwable throwable, final @NonNull String message,
-                            final @NonNull Level logLevel)
+        LogMessageThrowable(final @NotNull Throwable throwable, final @NotNull String message,
+                            final @NotNull Level logLevel)
         {
             super(checkMessage(message) + checkMessage(throwableStackTraceToString(throwable)), logLevel);
         }
@@ -111,14 +111,14 @@ public abstract class LogMessage
          * @param logLevel   The level at which to log the resulting message.
          * @param skip       The number of elements in the stack trace to skip.
          */
-        LogMessageStackTrace(final @NonNull StackTraceElement[] stackTrace, final @NonNull String message,
-                             final @NonNull Level logLevel, final int skip)
+        LogMessageStackTrace(final @NotNull StackTraceElement[] stackTrace, final @NotNull String message,
+                             final @NotNull Level logLevel, final int skip)
         {
             super(checkMessage(message) + checkMessage(stackTraceToString(stackTrace, skip)), logLevel);
         }
 
-        LogMessageStackTrace(final @NonNull StackTraceElement[] stackTrace, final @NonNull String message,
-                             final @NonNull Level logLevel)
+        LogMessageStackTrace(final @NotNull StackTraceElement[] stackTrace, final @NotNull String message,
+                             final @NotNull Level logLevel)
         {
             this(stackTrace, message, logLevel, 0);
         }
@@ -131,7 +131,7 @@ public abstract class LogMessage
      */
     public static class LogMessageString extends LogMessage
     {
-        LogMessageString(final @NonNull String message, final @NonNull Level logLevel)
+        LogMessageString(final @NotNull String message, final @NotNull Level logLevel)
         {
             super(checkMessage(message), logLevel);
         }
@@ -139,8 +139,8 @@ public abstract class LogMessage
 
     public static class LogMessageStringSupplier extends LogMessage
     {
-        LogMessageStringSupplier(final @NonNull String message, final @NonNull Supplier<String> stringSupplier,
-                                 final @NonNull Level logLevel)
+        LogMessageStringSupplier(final @NotNull String message, final @NotNull Supplier<String> stringSupplier,
+                                 final @NotNull Level logLevel)
         {
             super(checkMessage(message) + checkMessage(stringSupplier.get()), logLevel);
         }

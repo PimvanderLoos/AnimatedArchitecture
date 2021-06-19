@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an object that can play sounds.
@@ -19,7 +19,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(@NonNull IPLocationConst loc, @NonNull PSound sound, float volume, float pitch);
+    void playSound(@NotNull IPLocationConst loc, @NotNull PSound sound, float volume, float pitch);
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
@@ -30,7 +30,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(@NonNull Vector3DiConst pos, @NonNull IPWorld world, @NonNull PSound sound,
+    void playSound(@NotNull Vector3DiConst pos, @NotNull IPWorld world, @NotNull PSound sound,
                    float volume, float pitch);
 
     /**
@@ -42,7 +42,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(@NonNull Vector3DdConst pos, @NonNull IPWorld world, @NonNull PSound sound,
+    void playSound(@NotNull Vector3DdConst pos, @NotNull IPWorld world, @NotNull PSound sound,
                    float volume, float pitch);
 
     /**
@@ -56,6 +56,6 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(double x, double y, double z, @NonNull IPWorld world,
-                   @NonNull PSound sound, float volume, float pitch);
+    void playSound(double x, double y, double z, @NotNull IPWorld world,
+                   @NotNull PSound sound, float volume, float pitch);
 }

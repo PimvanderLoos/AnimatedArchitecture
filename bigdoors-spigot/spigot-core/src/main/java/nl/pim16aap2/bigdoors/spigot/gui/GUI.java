@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -13,6 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Deprecated
+@SuppressWarnings("NullAway")
 public class GUI
 {
     static final Material PAGESWITCHMAT = Material.ARROW;
@@ -65,11 +68,11 @@ public class GUI
     private int page;
     private int doorOwnerPage = 0;
     private SortType sortType = SortType.ID;
-    private Inventory inventory = null;
+    private @Nullable Inventory inventory = null;
     private int maxPageCount;
-    private AbstractDoorBase door = null;
+    private @Nullable AbstractDoorBase door = null;
 
-    public GUI(final @NonNull BigDoorsSpigot plugin, final @NonNull IPPlayer guiHolder)
+    public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull IPPlayer guiHolder)
     {
         isRefreshing = false;
         isOpen = true;
@@ -95,12 +98,12 @@ public class GUI
             });
     }
 
-    void updateItem(int index, @NonNull Optional<GUIItem> guiItem)
+    void updateItem(int index, @NotNull Optional<GUIItem> guiItem)
     {
         guiItem.ifPresent(I -> setItem(index, I));
     }
 
-    void setItem(int index, @NonNull GUIItem guiItem)
+    void setItem(int index, @NotNull GUIItem guiItem)
     {
         items.put(index, guiItem);
         getInventory().setItem(index, guiItem.getItemStack());
@@ -146,7 +149,7 @@ public class GUI
         return false;
     }
 
-    void setGUIPage(final @NonNull IGUIPage guiPage)
+    void setGUIPage(final @NotNull IGUIPage guiPage)
     {
         guiPage.kill();
         this.guiPage = guiPage;
@@ -196,12 +199,12 @@ public class GUI
         return guiHolder;
     }
 
-    AbstractDoorBase getDoor()
+    @Nullable AbstractDoorBase getDoor()
     {
         return door;
     }
 
-    void setDoor(final @NonNull AbstractDoorBase door)
+    void setDoor(final @NotNull AbstractDoorBase door)
     {
         this.door = door;
     }
@@ -238,7 +241,7 @@ public class GUI
         door = null;
     }
 
-    int indexOfDoor(final @NonNull AbstractDoorBase door)
+    int indexOfDoor(final @NotNull AbstractDoorBase door)
     {
         return doorBases.indexOf(door);
     }
@@ -248,7 +251,7 @@ public class GUI
         return doorBases.size();
     }
 
-    void addItem(final int index, final @NonNull GUIItem guiItem)
+    void addItem(final int index, final @NotNull GUIItem guiItem)
     {
         items.put(index, guiItem);
     }
@@ -258,7 +261,7 @@ public class GUI
         return items.get(index);
     }
 
-    Inventory getInventory()
+    @Nullable Inventory getInventory()
     {
         return inventory;
     }
@@ -273,7 +276,7 @@ public class GUI
         return sortType;
     }
 
-    void setSortType(final @NonNull SortType sortType)
+    void setSortType(final @NotNull SortType sortType)
     {
         this.sortType = sortType;
         sort();

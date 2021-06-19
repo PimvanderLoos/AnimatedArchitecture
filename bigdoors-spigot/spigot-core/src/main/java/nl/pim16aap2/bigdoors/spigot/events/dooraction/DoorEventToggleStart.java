@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -10,6 +9,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventToggleStart} for the Spigot platform.
@@ -19,10 +19,10 @@ import org.bukkit.event.HandlerList;
 @ToString
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
-    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
-    private final @NonNull CuboidConst newCuboid;
+    private final @NotNull CuboidConst newCuboid;
 
     /**
      * Constructs a door action event.
@@ -36,21 +36,21 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
      */
-    public DoorEventToggleStart(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause cause,
-                                final @NonNull DoorActionType actionType, final @NonNull IPPlayer responsible,
-                                final double time, final boolean skipAnimation, final @NonNull CuboidConst newCuboid)
+    public DoorEventToggleStart(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                                final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+                                final double time, final boolean skipAnimation, final @NotNull CuboidConst newCuboid)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;
     }
 
     @Override
-    public @NonNull HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NonNull HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

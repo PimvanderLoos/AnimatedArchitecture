@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
@@ -15,34 +15,34 @@ import java.util.logging.Level;
  */
 public class MessagingInterfaceStdout implements IMessagingInterface
 {
-private final @NonNull String formattedName;
+    private final @NotNull String formattedName;
 
-    public MessagingInterfaceStdout(final @NonNull String name)
+    public MessagingInterfaceStdout(final @NotNull String name)
     {
         formattedName = IPLogger.formatName(name);
     }
 
     @Override
-    public void writeToConsole(final @NonNull Level level, final @NonNull String message)
+    public void writeToConsole(final @NotNull Level level, final @NotNull String message)
     {
         System.out.println(formattedName + message);
     }
 
     @Override
-    public void messagePlayer(final @NonNull IPPlayer player, final @NonNull String message)
+    public void messagePlayer(final @NotNull IPPlayer player, final @NotNull String message)
     {
         System.out.println(formattedName + " to player: \"" + player.getName() + "\": " + message);
     }
 
     @Override
-    public void sendMessageToTarget(final @NonNull Object target, final @NonNull Level level,
-                                    final @NonNull String message)
+    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level,
+                                    final @NotNull String message)
     {
         System.out.println(formattedName + " to a target: " + message);
     }
 
     @Override
-    public void broadcastMessage(final @NonNull String message)
+    public void broadcastMessage(final @NotNull String message)
     {
         System.out.println(message);
     }

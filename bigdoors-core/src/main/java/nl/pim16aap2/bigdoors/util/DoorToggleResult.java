@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represent the possible outcomes of trying to toggle a door.
@@ -90,9 +90,9 @@ public enum DoorToggleResult
     /**
      * The {@link Message} associated with the {@link DoorToggleResult}.
      */
-    private final @NonNull Message message;
+    private final @NotNull Message message;
 
-    DoorToggleResult(@NonNull final Message message)
+    DoorToggleResult(@NotNull final Message message)
     {
         this.message = message;
     }
@@ -103,7 +103,7 @@ public enum DoorToggleResult
      * @param result The {@link DoorToggleResult}.
      * @return The Key for the translation of this {@link DoorToggleResult}.
      */
-    public static @NonNull Message getMessage(final @NonNull DoorToggleResult result)
+    public static @NotNull Message getMessage(final @NotNull DoorToggleResult result)
     {
         return result.message;
     }

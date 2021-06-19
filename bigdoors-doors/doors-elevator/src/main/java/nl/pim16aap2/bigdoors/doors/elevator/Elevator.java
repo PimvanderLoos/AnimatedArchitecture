@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.elevator;
 
-import lombok.NonNull;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an Elevator doorType.
@@ -11,44 +12,31 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see Portcullis
  */
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class Elevator extends Portcullis
 {
-    private static final @NonNull DoorType DOOR_TYPE = DoorTypeElevator.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeElevator.get();
 
-    public Elevator(final @NonNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+    public Elevator(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
                     final int autoOpenTime)
     {
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    public Elevator(final @NonNull DoorData doorData, final int blocksToMove)
+    public Elevator(final @NotNull DoorData doorData, final int blocksToMove)
     {
         super(doorData, blocksToMove, -1, -1);
     }
 
-    private Elevator(final @NonNull DoorData doorData)
+    private Elevator(final @NotNull DoorData doorData)
     {
         this(doorData, -1); // Add tmp/default values
     }
 
     @Override
-    public @NonNull DoorType getDoorType()
+    public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NonNull Elevator other = (Elevator) o;
-        return blocksToMove == other.blocksToMove &&
-            autoOpenTime == other.autoOpenTime &&
-            autoCloseTime == other.autoCloseTime;
     }
 }

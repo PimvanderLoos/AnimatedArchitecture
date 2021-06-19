@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.implementations;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -15,17 +14,19 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
 public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
 {
-    private static final @NonNull Material TOOL_MATERIAL = Material.STICK;
-    private static final @NonNull NamespacedKey BIG_DOORS_TOOL_KEY = new NamespacedKey(BigDoorsSpigot.get(), "BIG_DOORS_TOOL");
+    private static final @NotNull Material TOOL_MATERIAL = Material.STICK;
+    private static final @NotNull NamespacedKey BIG_DOORS_TOOL_KEY = new NamespacedKey(BigDoorsSpigot.get(),
+                                                                                       "BIG_DOORS_TOOL");
 
     @Override
-    public void giveToPlayer(final @NonNull IPPlayer player, final @NonNull String name, final @NonNull String lore)
+    public void giveToPlayer(final @NotNull IPPlayer player, final @NotNull String name, final @NotNull String lore)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -35,7 +36,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
             return;
         }
 
-        final @NonNull ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
+        final @NotNull ItemStack tool = new ItemStack(TOOL_MATERIAL, 1);
         tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
 
         final @Nullable ItemMeta itemMeta =
@@ -57,7 +58,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public void removeTool(final @NonNull IPPlayer player)
+    public void removeTool(final @NotNull IPPlayer player)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -87,7 +88,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
     }
 
     @Override
-    public boolean isPlayerHoldingTool(final @NonNull IPPlayer player)
+    public boolean isPlayerHoldingTool(final @NotNull IPPlayer player)
     {
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
@@ -100,7 +101,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         return isPlayerHoldingTool(spigotPlayer);
     }
 
-    public boolean isPlayerHoldingTool(final @NonNull Player player)
+    public boolean isPlayerHoldingTool(final @NotNull Player player)
     {
         return isTool(player.getInventory().getItemInMainHand());
     }

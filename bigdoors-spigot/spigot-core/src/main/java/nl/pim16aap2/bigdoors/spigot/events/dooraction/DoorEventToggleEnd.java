@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -8,6 +7,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventToggleEnd} for the Spigot platform.
@@ -17,7 +17,7 @@ import org.bukkit.event.HandlerList;
 @ToString
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
-    private static final @NonNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
      * Constructs a door action event.
@@ -30,20 +30,20 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
-    public DoorEventToggleEnd(final @NonNull AbstractDoorBase door, final @NonNull DoorActionCause cause,
-                              final @NonNull DoorActionType actionType, final @NonNull IPPlayer responsible,
+    public DoorEventToggleEnd(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+                              final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
                               final double time, final boolean skipAnimation)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
     }
 
     @Override
-    public @NonNull HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NonNull HandlerList getHandlerList()
+    public static @NotNull HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

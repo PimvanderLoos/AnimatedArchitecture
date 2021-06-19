@@ -3,11 +3,11 @@ package nl.pim16aap2.bigdoors.tooluser.step;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import nl.pim16aap2.bigdoors.util.messages.Message;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -24,15 +24,15 @@ import java.util.function.Supplier;
 public class Step implements IStep
 {
     @Getter
-    private final @NonNull String name;
+    private final @NotNull String name;
 
-    private final @NonNull StepExecutor stepExecutor;
-
-    @ToString.Exclude
-    private final @NonNull Message message;
+    private final @NotNull StepExecutor stepExecutor;
 
     @ToString.Exclude
-    private final @NonNull List<Supplier<String>> messageVariablesRetrievers;
+    private final @NotNull Message message;
+
+    @ToString.Exclude
+    private final @NotNull List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
@@ -49,7 +49,7 @@ public class Step implements IStep
     }
 
     @Override
-    public @NonNull Optional<StepExecutor> getStepExecutor()
+    public @NotNull Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
     }
@@ -61,9 +61,9 @@ public class Step implements IStep
     }
 
     @Override
-    public @NonNull String getLocalizedMessage()
+    public @NotNull String getLocalizedMessage()
     {
-        final @NonNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
+        final @NotNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
 
         String[] variablesArr = new String[variables.size()];
@@ -74,57 +74,57 @@ public class Step implements IStep
 
     public static class Factory
     {
-        private final @NonNull String name;
-        private StepExecutor stepExecutor = null;
-        private List<Supplier<String>> messageVariablesRetrievers = null;
+        private final @NotNull String name;
+        private @Nullable StepExecutor stepExecutor = null;
+        private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
-        private Message message = null;
-        private Supplier<Boolean> skipCondition = null;
+        private @Nullable Message message = null;
+        private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
-        public Factory(final @NonNull String name)
+        public Factory(final @NotNull String name)
         {
             this.name = name;
         }
 
-        public @NonNull Factory implicitNextStep(final boolean implicitNextStep)
+        public @NotNull Factory implicitNextStep(final boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
             return this;
         }
 
-        public @NonNull Factory stepExecutor(final @NonNull StepExecutor stepExecutor)
+        public @NotNull Factory stepExecutor(final @NotNull StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public @NonNull Factory messageVariableRetrievers(
-            final @NonNull List<Supplier<String>> messageVariablesRetrievers)
+        public @NotNull Factory messageVariableRetrievers(
+            final @NotNull List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public @NonNull Factory skipCondition(final @NonNull Supplier<Boolean> skipCondition)
+        public @NotNull Factory skipCondition(final @NotNull Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public @NonNull Factory waitForUserInput(final boolean waitForUserInput)
+        public @NotNull Factory waitForUserInput(final boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public @NonNull Factory message(final @NonNull Message message)
+        public @NotNull Factory message(final @NotNull Message message)
         {
             this.message = message;
             return this;
         }
 
-        public @NonNull Step construct()
+        public @NotNull Step construct()
             throws InstantiationException
         {
             if (stepExecutor == null)

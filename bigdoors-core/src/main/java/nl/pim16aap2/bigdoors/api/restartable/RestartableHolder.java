@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api.restartable;
 
-import lombok.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,22 +12,22 @@ import java.util.Set;
  */
 public class RestartableHolder implements IRestartableHolder
 {
-    protected final @NonNull Set<@NonNull IRestartable> restartables = new HashSet<>();
+    protected final @NotNull Set<@NotNull IRestartable> restartables = new HashSet<>();
 
     @Override
-    public void registerRestartable(final @NonNull IRestartable restartable)
+    public void registerRestartable(final @NotNull IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(final @NonNull IRestartable restartable)
+    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
     {
         return restartables.contains(restartable);
     }
 
     @Override
-    public void deregisterRestartable(final @NonNull IRestartable restartable)
+    public void deregisterRestartable(final @NotNull IRestartable restartable)
     {
         restartables.remove(restartable);
     }
