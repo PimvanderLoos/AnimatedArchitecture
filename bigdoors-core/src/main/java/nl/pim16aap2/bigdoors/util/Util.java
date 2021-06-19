@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -257,7 +256,7 @@ public final class Util
     }
 
     /**
-     * Gets a {@link NonNull} value from a {@link Nullable} one, with a provided fallback in case the value is null.
+     * Gets a {@link NotNull} value from a {@link Nullable} one, with a provided fallback in case the value is null.
      *
      * @param value    The value that may or may not be null.
      * @param fallback A {@link Supplier} to supply a fallback to return in case the value is null.
