@@ -1,3 +1,6 @@
+Alpha 0.1.8.31
+- The auto-updater is now initialized before checking if the current server version is valid. Thanks, @Eldoria, for the bug report!
+
 Alpha 0.1.8.30
 - Add full support for Minecraft 1.17.
 - Close all open BigDoors menus on plugin shutdown/restart.

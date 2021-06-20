@@ -169,6 +169,7 @@ public class BigDoors extends JavaPlugin implements Listener
             setDisabled("This plugin is disabled because it failed to read config file!");
             return;
         }
+        updateManager.setEnabled(getConfigLoader().autoDLUpdate());
 
         messages = new Messages(this);
 
