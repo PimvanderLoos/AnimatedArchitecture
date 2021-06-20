@@ -5,6 +5,7 @@ Alpha 0.1.8.30
 - Updated XMaterial.
 - Fixed jungle logs not rotating properly in east/south-aligned drawbridges. Thanks, @Nateboy, for the bug report and for helping fix it!
 - Fix PlotSquared v4.4.495 support. All older versions of v4 aren't supported anymore. Thanks, @Arma, for the bug report!
+- Fix support for version 1.13.2 (previously 1.13 and 1.13.1 were the only working 1.13.x versions) 
 
 Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!

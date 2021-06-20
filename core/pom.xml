@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>BigDoors</artifactId>
+        <groupId>nl.pim16aap2</groupId>
+        <version>0.1.8.30-ALPHA</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>BigDoors-core</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+
+        <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
+        <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
+        <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+    </properties>
+
+    <repositories>
+        <!-- bStats -->
+        <repository>
+            <id>bstats-repo</id>
+            <url>http://repo.bstats.org/content/repositories/releases/</url>
+        </repository>
+
+        <!-- RedProtect -->
+        <repository>
+            <id>redprotect-repo</id>
+            <url>https://raw.githubusercontent.com/FabioZumbi12/RedProtect/mvn-repo/</url>
+        </repository>
+
+        <repository>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo/</url>
+        </repository>
+
+        <repository>
+            <id>redprotect-repo2</id>
+            <url>https://raw.github.com/FabioZumbi12/RedProtect/mvn-repo/</url>
+        </repository>
+
+        <repository>
+            <id>Massive</id>
+            <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>
+        </repository>
+
+        <!-- Vault -->
+        <repository>
+            <id>vault-repo</id>
+            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+        </repository>
+
+        <!-- Towny -->
+        <repository>
+            <id>articdive-repo</id>
+            <url>https://nexus.articdive.de/repository/maven-releases</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- Add 1.11's NMS stuff so we can use stuff like com.mojang.GameProfile -->
+        <!-- This is not intended to give access to actual NMS classes (even though it does do that) -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>nms-api</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_11_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_12_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_13_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_13_R1_5</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_13_R2</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_14_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_15_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_16_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_16_R2</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_16_R3</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>v1_17_R1</artifactId>
+            <version>0.1.8.30-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- bStats -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>2.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Towny -->
+        <dependency>
+            <groupId>com.palmergames</groupId>
+            <artifactId>Towny</artifactId>
+            <version>0.94.0.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- WorldGuard (OLD) -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- WorldGuard (NEW) -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- WorldEdit -->
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- WorldEdit -->
+        <dependency>
+            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
+            <artifactId>RedProtect-Spigot-1.13</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Vault -->
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>VaultAPI</artifactId>
+            <version>1.7</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- GriefPrevention -->
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JCalculator -->
+        <dependency>
+            <groupId>com.github.PimvanderLoos</groupId>
+            <artifactId>JCalculator</artifactId>
+            <version>${dependency.version.jcalculator}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Lands -->
+        <dependency>
+            <groupId>com.github.Angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>4.3.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- RedProtect -->
+        <dependency>
+            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
+            <artifactId>RedProtect-Core</artifactId>
+            <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- PlotSquared 3 -->
+        <dependency>
+            <groupId>com.intellectualcrafters</groupId>
+            <artifactId>plot</artifactId>
+            <version>19.05.28-e4fbc23-769</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.05.28-e4fbc23-769.jar</systemPath>
+        </dependency>
+
+        <!-- PlotSquared 4 -->
+        <dependency>
+            <groupId>com.github.intellectualsites</groupId>
+            <artifactId>plotsquared</artifactId>
+            <version>4.4.495</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.4.495.jar</systemPath>
+        </dependency>
+
+        <!-- PlotSquared 5 -->
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>core</artifactId>
+            <version>5.13.13</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>5.13.13</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>BigDoors</finalName>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/..</directory>
+                <includes>
+                    <include>changelog.txt</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>build.number</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${dependency.version.maven-compiler}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${dependency.version.maven-shade}</version>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>nl.pim16aap2.jcalculator</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>antrunner</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <ant antfile="${basedir}/build.xml" />
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
