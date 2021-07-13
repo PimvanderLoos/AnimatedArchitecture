@@ -1,10 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.logging.Level;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
@@ -15,6 +10,10 @@ import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import java.util.logging.Level;
 
 public class SlidingDoorOpener implements Opener
 {
@@ -42,20 +41,20 @@ public class SlidingDoorOpener implements Opener
         {
             switch (openDirection)
             {
-            case NORTH:
-                openDirection = RotateDirection.SOUTH;
-                break;
-            case EAST:
-                openDirection = RotateDirection.WEST;
-                break;
-            case SOUTH:
-                openDirection = RotateDirection.NORTH;
-                break;
-            case WEST:
-                openDirection = RotateDirection.EAST;
-                break;
-            default:
-                break;
+                case NORTH:
+                    openDirection = RotateDirection.SOUTH;
+                    break;
+                case EAST:
+                    openDirection = RotateDirection.WEST;
+                    break;
+                case SOUTH:
+                    openDirection = RotateDirection.NORTH;
+                    break;
+                case WEST:
+                    openDirection = RotateDirection.EAST;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -85,7 +84,7 @@ public class SlidingDoorOpener implements Opener
     public boolean isRotateDirectionValid(Door door)
     {
         return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.EAST) ||
-               door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
+            door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
     }
 
     @Override
@@ -99,7 +98,7 @@ public class SlidingDoorOpener implements Opener
         RotateDirection openDir = getBlocksToMove(door).getRotateDirection();
         if (openDir.equals(RotateDirection.NONE))
             return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH :
-                RotateDirection.EAST;
+                   RotateDirection.EAST;
         return openDir;
     }
 
@@ -110,43 +109,6 @@ public class SlidingDoorOpener implements Opener
         if (NS)
             return 1 + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
         return 1 + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
-    }
-
-    @Override
-    public DoorOpenResult shadowToggle(Door door)
-    {
-        if (!plugin.getCommander().canGo())
-        {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
-        }
-        
-        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
-        {
-            plugin.getMyLogger().myLogger(Level.INFO,
-                                          "Sliding door " + door.toSimpleString() + " is not available right now!");
-            return abort(DoorOpenResult.BUSY, door.getDoorUID());
-        }
-
-        RotateDirection openDirection = door.getOpenDir();
-        if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null)
-        {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
-            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
-        }
-
-        boolean NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
-        int moved = door.getBlocksToMove() > 0 ? door.getBlocksToMove() : getLengthInDir(door, NS);
-
-        int multiplier = 1;
-        // These directions go to a negative value.
-        if (openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.WEST))
-            multiplier *= -1;
-        multiplier *= door.isOpen() ? 1 : -1;
-
-        SlidingMover.updateCoords(door, null, null, moved * multiplier, NS, true);
-
-        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override
@@ -161,26 +123,26 @@ public class SlidingDoorOpener implements Opener
 
         switch (blocksToMove.getRotateDirection())
         {
-        case DOWN:
-            addY = -1 * blocksToMove.getBlocks();
-            break;
-        case EAST:
-            addX = 1 * blocksToMove.getBlocks();
-            break;
-        case NORTH:
-            addZ = -1 * blocksToMove.getBlocks();
-            break;
-        case SOUTH:
-            addZ = 1 * blocksToMove.getBlocks();
-            break;
-        case UP:
-            addY = 1 * blocksToMove.getBlocks();
-            break;
-        case WEST:
-            addX = -1 * blocksToMove.getBlocks();
-            break;
-        default:
-            break;
+            case DOWN:
+                addY = -1 * blocksToMove.getBlocks();
+                break;
+            case EAST:
+                addX = 1 * blocksToMove.getBlocks();
+                break;
+            case NORTH:
+                addZ = -1 * blocksToMove.getBlocks();
+                break;
+            case SOUTH:
+                addZ = 1 * blocksToMove.getBlocks();
+                break;
+            case UP:
+                addY = 1 * blocksToMove.getBlocks();
+                break;
+            case WEST:
+                addX = -1 * blocksToMove.getBlocks();
+                break;
+            default:
+                break;
 
         }
 
@@ -194,21 +156,24 @@ public class SlidingDoorOpener implements Opener
     {
         if (!plugin.getCommander().canGo())
         {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            plugin.getMyLogger()
+                  .info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
-        
+
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Sliding Door " + door.toSimpleString() + " is not available right now!");
+                plugin.getMyLogger()
+                      .myLogger(Level.INFO, "Sliding Door " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for sliding door " + door.toSimpleString() + " are not loaded!", true, false);
+            plugin.getMyLogger()
+                  .logMessage("Chunks for sliding door " + door.toSimpleString() + " are not loaded!", true, false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -219,8 +184,9 @@ public class SlidingDoorOpener implements Opener
         int maxDoorSize = getSizeLimit(door);
         if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
         {
-            plugin.getMyLogger().logMessage("Sliding Door " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
-                                            true, false);
+            plugin.getMyLogger()
+                  .logMessage("Sliding Door " + door.toSimpleString() + " Exceeds the size limit: " + maxDoorSize,
+                              true, false);
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
@@ -228,7 +194,8 @@ public class SlidingDoorOpener implements Opener
         if (Math.abs(blocksToMove.getBlocks()) > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
         {
             plugin.getMyLogger().logMessage("Sliding Door " + door.toSimpleString() + " Exceeds blocksToMove limit: "
-                + blocksToMove.getBlocks() + ". Limit = " + BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true,
+                                                + blocksToMove.getBlocks() + ". Limit = " +
+                                                BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true,
                                             false);
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
@@ -245,12 +212,13 @@ public class SlidingDoorOpener implements Opener
             if (door.isOpen())
             {
                 newRotDir = newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
-                    newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
-                    newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
+                            newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
+                            newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
             }
 
             plugin.getMyLogger().logMessage("Updating openDirection of sliding door " + door.toSimpleString() + " to "
-                + newRotDir.name() + ". If this is undesired, change it via the GUI.", true, false);
+                                                + newRotDir.name() + ". If this is undesired, change it via the GUI.",
+                                            true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
         }
 
@@ -271,9 +239,9 @@ public class SlidingDoorOpener implements Opener
             return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
         plugin.getCommander()
-            .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen,
-                                            blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),
-                                            plugin.getConfigLoader().sdMultiplier()));
+              .addBlockMover(new SlidingMover(plugin, door.getWorld(), time, door, instantOpen,
+                                              blocksToMove.getBlocks(), blocksToMove.getRotateDirection(),
+                                              plugin.getConfigLoader().sdMultiplier()));
         fireDoorEventToggleStart(door, instantOpen);
         return DoorOpenResult.SUCCESS;
     }
@@ -367,16 +335,16 @@ public class SlidingDoorOpener implements Opener
             blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         }
         else if (door.getOpenDir().equals(RotateDirection.NORTH) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.SOUTH) && door.isOpen())
+            door.getOpenDir().equals(RotateDirection.SOUTH) && door.isOpen())
             blocksNorth = getBlocksInDir(door, RotateDirection.NORTH);
         else if (door.getOpenDir().equals(RotateDirection.NORTH) && door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.SOUTH) && !door.isOpen())
+            door.getOpenDir().equals(RotateDirection.SOUTH) && !door.isOpen())
             blocksSouth = getBlocksInDir(door, RotateDirection.SOUTH);
         else if (door.getOpenDir().equals(RotateDirection.EAST) && !door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST) && door.isOpen())
+            door.getOpenDir().equals(RotateDirection.WEST) && door.isOpen())
             blocksEast = getBlocksInDir(door, RotateDirection.EAST);
         else if (door.getOpenDir().equals(RotateDirection.EAST) && door.isOpen() ||
-                 door.getOpenDir().equals(RotateDirection.WEST) && !door.isOpen())
+            door.getOpenDir().equals(RotateDirection.WEST) && !door.isOpen())
             blocksWest = getBlocksInDir(door, RotateDirection.WEST);
         else
             return new MovementSpecification(0, RotateDirection.NONE);

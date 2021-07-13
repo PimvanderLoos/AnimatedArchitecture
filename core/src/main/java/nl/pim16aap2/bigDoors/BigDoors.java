@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors;
 
 import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.NMS.FakePlayerCreator_V1_17_R1;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_13_R1;
@@ -13,7 +14,6 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
-import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R1;
@@ -185,7 +185,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 return;
             }
             loginMessages.add("You are trying to load this plugin in an unsupported environment: \""
-                + disableReason.get() + "\"!!!");
+                                  + disableReason.get() + "\"!!!");
         }
 
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
@@ -202,8 +202,9 @@ public class BigDoors extends JavaPlugin implements Listener
             if (!validVersion)
             {
                 logger.logMessage("Trying to load the plugin on an incompatible version of Minecraft! (\""
-                    + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3])
-                    + "\"). This plugin will NOT be enabled!", true, true);
+                                      + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                               .split(",")[3])
+                                      + "\"). This plugin will NOT be enabled!", true, true);
                 setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date?");
                 return;
             }
@@ -240,18 +241,19 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
-            setDisabled("This plugin is disabled because an unknown error occurred during startup, please check the logs!");
+            setDisabled(
+                "This plugin is disabled because an unknown error occurred during startup, please check the logs!");
         }
 
         isEnabled = true;
     }
 
     /**
-     * Checks if the current environment is invalid. This plugin should not attempt
-     * initialization in an invalid environment.
-     *
-     * Note that it doesn't check if the version is valid. That is done somewhere
-     * else and I couldn't be bothered to rewrite it.
+     * Checks if the current environment is invalid. This plugin should not attempt initialization in an invalid
+     * environment.
+     * <p>
+     * Note that it doesn't check if the version is valid. That is done somewhere else and I couldn't be bothered to
+     * rewrite it.
      *
      * @return The name of the invalid environment, if one could be found.
      */
@@ -274,7 +276,6 @@ public class BigDoors extends JavaPlugin implements Listener
         getCommand("inspectpowerblockloc").setExecutor(commandExecutor);
         getCommand("changepowerblockloc").setExecutor(commandExecutor);
         getCommand("setautoclosetime").setExecutor(commandExecutor);
-        getCommand("shadowtoggledoor").setExecutor(commandExecutor);
         getCommand("setdoorrotation").setExecutor(commandExecutor);
         getCommand("setblockstomove").setExecutor(commandExecutor);
         getCommand("listplayerdoors").setExecutor(commandExecutor);
@@ -363,16 +364,13 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     /**
-     * For this plugin, there is a difference between being enabled and being
-     * enabled successfully.
-     *
-     * This plugin will always try to enable itself, even if it won't function at
-     * all. This is done so that an alternative command handler can be registered to
-     * inform users that the plugin is broken and admins WHY it failed to enable
-     * properly.
-     *
-     * So, if you inted to use this plugin, make sure to check this function to
-     * avoid running into issues.
+     * For this plugin, there is a difference between being enabled and being enabled successfully.
+     * <p>
+     * This plugin will always try to enable itself, even if it won't function at all. This is done so that an
+     * alternative command handler can be registered to inform users that the plugin is broken and admins WHY it failed
+     * to enable properly.
+     * <p>
+     * So, if you inted to use this plugin, make sure to check this function to avoid running into issues.
      *
      * @return True if this plugin was enabled successfully.
      */
@@ -382,10 +380,9 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     /**
-     * Gets the number of the current build. Higher number == newer build. This can
-     * be used to check for feature support, for example. Released builds do not use
-     * branches, so if feature x is supported in build y, feature x will also be
-     * supported in build y+1, unless intentionally removed.
+     * Gets the number of the current build. Higher number == newer build. This can be used to check for feature
+     * support, for example. Released builds do not use branches, so if feature x is supported in build y, feature x
+     * will also be supported in build y+1, unless intentionally removed.
      *
      * @return The id of the current build.
      */
@@ -517,7 +514,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
                 sb.append("[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
-                    + "Restart your server to apply the update!\n");
+                              + "Restart your server to apply the update!\n");
             else if (updateManager.updateAvailable())
                 sb.append("[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n");
         }
@@ -561,20 +558,20 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         switch (type)
         {
-        case DOOR:
-            return doorOpener;
-        case DRAWBRIDGE:
-            return bridgeOpener;
-        case PORTCULLIS:
-            return portcullisOpener;
-        case SLIDINGDOOR:
-            return slidingDoorOpener;
-        case ELEVATOR:
-            return elevatorOpener;
-        case FLAG:
-            return flagOpener;
-        default:
-            return null;
+            case DOOR:
+                return doorOpener;
+            case DRAWBRIDGE:
+                return bridgeOpener;
+            case PORTCULLIS:
+                return portcullisOpener;
+            case SLIDINGDOOR:
+                return slidingDoorOpener;
+            case ELEVATOR:
+                return elevatorOpener;
+            case FLAG:
+                return flagOpener;
+            default:
+                return null;
         }
     }
 
@@ -863,7 +860,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private int readBuildNumber()
     {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass()
-            .getResourceAsStream("/build.number"))))
+                                                                                  .getResourceAsStream(
+                                                                                      "/build.number"))))
         {
             for (int idx = 0; idx != 2; ++idx)
                 reader.readLine();
@@ -895,10 +893,8 @@ public class BigDoors extends JavaPlugin implements Listener
      */
 
     /**
-     * Checks if all chunks a door could interact with if it were to be toggled
-     * right now. Depending on how much is known about the door (e.g. open
-     * direction, blocksToMove) and its type, the result can be more or less
-     * reliable.
+     * Checks if all chunks a door could interact with if it were to be toggled right now. Depending on how much is
+     * known about the door (e.g. open direction, blocksToMove) and its type, the result can be more or less reliable.
      *
      * @param door The door for which to check which chunks it could interact with.
      * @return True if all chunks the door could interact with are currently loaded.

@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.logging.Level;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils.ChunkLoadMode;
@@ -10,6 +8,8 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+
+import java.util.logging.Level;
 
 public class FlagOpener implements Opener
 {
@@ -33,7 +33,7 @@ public class FlagOpener implements Opener
     public boolean isRotateDirectionValid(Door door)
     {
         return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.EAST) ||
-               door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
+            door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
     }
 
     @Override
@@ -42,13 +42,7 @@ public class FlagOpener implements Opener
         if (isRotateDirectionValid(door))
             return door.getOpenDir();
         return door.getMinimum().getBlockX() == door.getMaximum().getBlockX() ? RotateDirection.NORTH :
-            RotateDirection.EAST;
-    }
-
-    @Override
-    public DoorOpenResult shadowToggle(Door door)
-    {
-        return DoorOpenResult.SUCCESS;
+               RotateDirection.EAST;
     }
 
     @Override
@@ -63,21 +57,24 @@ public class FlagOpener implements Opener
     {
         if (!plugin.getCommander().canGo())
         {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            plugin.getMyLogger()
+                  .info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
-        
+
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
-                plugin.getMyLogger().myLogger(Level.INFO, "Flag " + door.toSimpleString() + " is not available right now!");
+                plugin.getMyLogger()
+                      .myLogger(Level.INFO, "Flag " + door.toSimpleString() + " is not available right now!");
             return abort(DoorOpenResult.BUSY, door.getDoorUID());
         }
 
         final ChunkLoadResult chunkLoadResult = chunksLoaded(door, mode);
         if (chunkLoadResult == ChunkLoadResult.FAIL)
         {
-            plugin.getMyLogger().logMessage("Chunks for flag " + door.toSimpleString() + " are not loaded!", true, false);
+            plugin.getMyLogger()
+                  .logMessage("Chunks for flag " + door.toSimpleString() + " are not loaded!", true, false);
             return abort(DoorOpenResult.CHUNKSNOTLOADED, door.getDoorUID());
         }
         if (chunkLoadResult == ChunkLoadResult.REQUIRED_LOAD)
@@ -102,8 +99,9 @@ public class FlagOpener implements Opener
         if (!isRotateDirectionValid(door))
         {
             RotateDirection rotDir = getRotateDirection(door);
-            plugin.getMyLogger().logMessage("Updating openDirection of flag " + door.toSimpleString() + " to " + rotDir.name()
-                + ". If this is undesired, change it via the GUI.", true, false);
+            plugin.getMyLogger()
+                  .logMessage("Updating openDirection of flag " + door.toSimpleString() + " to " + rotDir.name()
+                                  + ". If this is undesired, change it via the GUI.", true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), rotDir);
         }
 

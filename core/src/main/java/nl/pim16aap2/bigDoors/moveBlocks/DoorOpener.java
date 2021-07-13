@@ -1,10 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.logging.Level;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
@@ -16,6 +11,10 @@ import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import java.util.logging.Level;
 
 public class DoorOpener implements Opener
 {
@@ -40,7 +39,7 @@ public class DoorOpener implements Opener
         if (newDirection == null)
         {
             plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.toSimpleString()
-                + "! Using current range instead!");
+                                          + "! Using current range instead!");
             return getCurrentChunkRange(door);
         }
 
@@ -60,7 +59,7 @@ public class DoorOpener implements Opener
     public boolean isRotateDirectionValid(Door door)
     {
         return door.getOpenDir().equals(RotateDirection.CLOCKWISE) ||
-               door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE);
+            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE);
     }
 
     @Override
@@ -90,23 +89,23 @@ public class DoorOpener implements Opener
 
         switch (newDirection)
         {
-        case NORTH:
-            startZ = engLoc.getBlockZ() - xLen;
-            endZ = engLoc.getBlockZ() - 1;
-            break;
-        case EAST:
-            startX = engLoc.getBlockX() + 1;
-            endX = engLoc.getBlockX() + zLen;
-            endZ = engLoc.getBlockZ();
-            break;
-        case SOUTH:
-            startZ = engLoc.getBlockZ() + 1;
-            endZ = engLoc.getBlockZ() + xLen;
-            break;
-        case WEST:
-            startX = engLoc.getBlockX() - zLen;
-            endX = engLoc.getBlockX() - 1;
-            break;
+            case NORTH:
+                startZ = engLoc.getBlockZ() - xLen;
+                endZ = engLoc.getBlockZ() - 1;
+                break;
+            case EAST:
+                startX = engLoc.getBlockX() + 1;
+                endX = engLoc.getBlockX() + zLen;
+                endZ = engLoc.getBlockZ();
+                break;
+            case SOUTH:
+                startZ = engLoc.getBlockZ() + 1;
+                endZ = engLoc.getBlockZ() + xLen;
+                break;
+            case WEST:
+                startX = engLoc.getBlockX() - zLen;
+                endX = engLoc.getBlockX() - 1;
+                break;
         }
 
         min.setWorld(world);
@@ -144,24 +143,25 @@ public class DoorOpener implements Opener
         DoorDirection currentDir = getCurrentDirection(door);
         RotateDirection openDir = door.getOpenDir();
         openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-            openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
+                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
+                  openDir;
 
         if (!isRotateDirectionValid(door))
             return null;
 
         switch (currentDir)
         {
-        case NORTH:
-            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.EAST : DoorDirection.WEST;
+            case NORTH:
+                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.EAST : DoorDirection.WEST;
 
-        case EAST:
-            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.NORTH : DoorDirection.SOUTH;
+            case EAST:
+                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.NORTH : DoorDirection.SOUTH;
 
-        case SOUTH:
-            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.WEST : DoorDirection.EAST;
+            case SOUTH:
+                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.WEST : DoorDirection.EAST;
 
-        case WEST:
-            return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.SOUTH : DoorDirection.NORTH;
+            case WEST:
+                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.SOUTH : DoorDirection.NORTH;
         }
         return null;
     }
@@ -172,76 +172,37 @@ public class DoorOpener implements Opener
     {
         RotateDirection openDir = door.getOpenDir();
         openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-            openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
+                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
+                  openDir;
         switch (currentDir)
         {
-        case NORTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.EAST))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.WEST))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
+            case NORTH:
+                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.EAST))
+                    return RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.WEST))
+                    return RotateDirection.COUNTERCLOCKWISE;
+                break;
 
-        case EAST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
+            case EAST:
+                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
+                    return RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
+                    return RotateDirection.COUNTERCLOCKWISE;
+                break;
 
-        case SOUTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.WEST))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.EAST))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
+            case SOUTH:
+                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.WEST))
+                    return RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.EAST))
+                    return RotateDirection.COUNTERCLOCKWISE;
+                break;
 
-        case WEST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
-        }
-        return null;
-    }
-
-    // Determine which direction the door is going to rotate. Clockwise or
-    // counterclockwise.
-    private RotateDirection getShadowRotationDirection(Door door, DoorDirection currentDir)
-    {
-        RotateDirection openDir = door.getOpenDir();
-        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-            openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE : openDir;
-        switch (currentDir)
-        {
-        case NORTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
-
-        case EAST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
-
-        case SOUTH:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
-
-        case WEST:
-            if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE))
-                return RotateDirection.CLOCKWISE;
-            else if (!openDir.equals(RotateDirection.CLOCKWISE))
-                return RotateDirection.COUNTERCLOCKWISE;
-            break;
+            case WEST:
+                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
+                    return RotateDirection.CLOCKWISE;
+                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
+                    return RotateDirection.COUNTERCLOCKWISE;
+                break;
         }
         return null;
     }
@@ -255,35 +216,9 @@ public class DoorOpener implements Opener
         // MaxZ != EngineZ => South
         // MinX != EngineX => West
         return door.getEngine().getBlockZ() != door.getMinimum().getBlockZ() ? DoorDirection.NORTH :
-            door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? DoorDirection.EAST :
-            door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? DoorDirection.SOUTH :
-            door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST : null;
-    }
-
-    @Override
-    public DoorOpenResult shadowToggle(Door door)
-    {
-        if (!plugin.getCommander().canGo())
-        {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
-        }
-        
-        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
-        {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " is not available right now!");
-            return abort(DoorOpenResult.BUSY, door.getDoorUID());
-        }
-        DoorDirection currentDirection = getCurrentDirection(door);
-        RotateDirection rotDirection = getShadowRotationDirection(door, currentDirection);
-        if (door.getOpenDir().equals(RotateDirection.NONE) || currentDirection == null || rotDirection == null)
-        {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
-            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
-        }
-        CylindricalMover.updateCoords(door, currentDirection, rotDirection, 0, true);
-
-        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
+               door.getEngine().getBlockX() != door.getMaximum().getBlockX() ? DoorDirection.EAST :
+               door.getEngine().getBlockZ() != door.getMaximum().getBlockZ() ? DoorDirection.SOUTH :
+               door.getEngine().getBlockX() != door.getMinimum().getBlockX() ? DoorDirection.WEST : null;
     }
 
     @Override
@@ -298,10 +233,11 @@ public class DoorOpener implements Opener
     {
         if (!plugin.getCommander().canGo())
         {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            plugin.getMyLogger()
+                  .info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
-        
+
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
@@ -344,10 +280,11 @@ public class DoorOpener implements Opener
             RotateDirection newRotDirection = rotDirection;
             if (door.isOpen())
                 newRotDirection = newRotDirection.equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
-                    RotateDirection.CLOCKWISE;
+                                  RotateDirection.CLOCKWISE;
 
             plugin.getMyLogger().logMessage("Updating openDirection of door " + door.toSimpleString() + " to "
-                + newRotDirection.name() + ". If this is undesired, change it via the GUI.", true, false);
+                                                + newRotDirection.name() +
+                                                ". If this is undesired, change it via the GUI.", true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDirection);
         }
 
@@ -395,9 +332,10 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
         plugin.getCommander()
-            .addBlockMover(new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint,
-                                                currentDirection, door, instantOpen,
-                                                plugin.getConfigLoader().bdMultiplier()));
+              .addBlockMover(
+                  new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint,
+                                       currentDirection, door, instantOpen,
+                                       plugin.getConfigLoader().bdMultiplier()));
         fireDoorEventToggleStart(door, instantOpen);
 
         return DoorOpenResult.SUCCESS;

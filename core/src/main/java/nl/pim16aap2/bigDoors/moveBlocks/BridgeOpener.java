@@ -1,11 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.Optional;
-import java.util.logging.Level;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ChunkUtils;
@@ -17,6 +11,11 @@ import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import java.util.Optional;
+import java.util.logging.Level;
 
 public class BridgeOpener implements Opener
 {
@@ -40,7 +39,7 @@ public class BridgeOpener implements Opener
         if (doorDirection == null)
         {
             plugin.getMyLogger().warn("Failed to obtain good chunk range for door: " + door.getDoorUID()
-                + "! Using current range instead!");
+                                          + "! Using current range instead!");
             return getCurrentChunkRange(door);
         }
 
@@ -60,16 +59,16 @@ public class BridgeOpener implements Opener
     {
         switch (curDir)
         {
-        case EAST:
-            return RotateDirection.WEST;
-        case NORTH:
-            return RotateDirection.SOUTH;
-        case SOUTH:
-            return RotateDirection.NORTH;
-        case WEST:
-            return RotateDirection.EAST;
-        default:
-            return RotateDirection.NONE;
+            case EAST:
+                return RotateDirection.WEST;
+            case NORTH:
+                return RotateDirection.SOUTH;
+            case SOUTH:
+                return RotateDirection.NORTH;
+            case WEST:
+                return RotateDirection.EAST;
+            default:
+                return RotateDirection.NONE;
         }
     }
 
@@ -77,14 +76,14 @@ public class BridgeOpener implements Opener
     {
         switch (curDir)
         {
-        case EAST:
-            return DoorDirection.WEST;
-        case NORTH:
-            return DoorDirection.SOUTH;
-        case SOUTH:
-            return DoorDirection.NORTH;
-        case WEST:
-            return DoorDirection.EAST;
+            case EAST:
+                return DoorDirection.WEST;
+            case NORTH:
+                return DoorDirection.SOUTH;
+            case SOUTH:
+                return DoorDirection.NORTH;
+            case WEST:
+                return DoorDirection.EAST;
         }
         throw new IllegalArgumentException("Unable to get opposite direction of: " + curDir.name());
     }
@@ -117,104 +116,112 @@ public class BridgeOpener implements Opener
         if (upDown.equals(RotateDirection.UP))
             switch (cardinal)
             {
-            // North West = Min X, Min Z
-            // South West = Min X, Max Z
-            // North East = Max X, Min Z
-            // South East = Max X, Max X
-            case NORTH:
-                startX = door.getMinimum().getBlockX();
-                endX = door.getMaximum().getBlockX();
+                // North West = Min X, Min Z
+                // South West = Min X, Max Z
+                // North East = Max X, Min Z
+                // South East = Max X, Max X
+                case NORTH:
+                    startX = door.getMinimum().getBlockX();
+                    endX = door.getMaximum().getBlockX();
 
-                startY = door.getMinimum().getBlockY() + 1;
-                endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+                    startY = door.getMinimum().getBlockY() + 1;
+                    endY =
+                        door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 
-                startZ = door.getMinimum().getBlockZ();
-                endZ = door.getMinimum().getBlockZ();
-                break;
+                    startZ = door.getMinimum().getBlockZ();
+                    endZ = door.getMinimum().getBlockZ();
+                    break;
 
-            case SOUTH:
-                startX = door.getMinimum().getBlockX();
-                endX = door.getMaximum().getBlockX();
+                case SOUTH:
+                    startX = door.getMinimum().getBlockX();
+                    endX = door.getMaximum().getBlockX();
 
-                startY = door.getMinimum().getBlockY() + 1;
-                endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
+                    startY = door.getMinimum().getBlockY() + 1;
+                    endY =
+                        door.getMinimum().getBlockY() + door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ();
 
-                startZ = door.getMaximum().getBlockZ();
-                endZ = door.getMaximum().getBlockZ();
-                break;
+                    startZ = door.getMaximum().getBlockZ();
+                    endZ = door.getMaximum().getBlockZ();
+                    break;
 
-            case EAST:
-                startX = door.getMaximum().getBlockX();
-                endX = door.getMaximum().getBlockX();
+                case EAST:
+                    startX = door.getMaximum().getBlockX();
+                    endX = door.getMaximum().getBlockX();
 
-                startY = door.getMinimum().getBlockY() + 1;
-                endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+                    startY = door.getMinimum().getBlockY() + 1;
+                    endY =
+                        door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 
-                startZ = door.getMinimum().getBlockZ();
-                endZ = door.getMaximum().getBlockZ();
-                break;
+                    startZ = door.getMinimum().getBlockZ();
+                    endZ = door.getMaximum().getBlockZ();
+                    break;
 
-            case WEST:
-                startX = door.getMinimum().getBlockX();
-                endX = door.getMinimum().getBlockX();
+                case WEST:
+                    startX = door.getMinimum().getBlockX();
+                    endX = door.getMinimum().getBlockX();
 
-                startY = door.getMinimum().getBlockY() + 1;
-                endY = door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
+                    startY = door.getMinimum().getBlockY() + 1;
+                    endY =
+                        door.getMinimum().getBlockY() + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
 
-                startZ = door.getMinimum().getBlockZ();
-                endZ = door.getMaximum().getBlockZ();
-                break;
+                    startZ = door.getMinimum().getBlockZ();
+                    endZ = door.getMaximum().getBlockZ();
+                    break;
             }
         else
             switch (cardinal)
             {
-            // North West = Min X, Min Z
-            // South West = Min X, Max Z
-            // North East = Max X, Min Z
-            // South East = Max X, Max X
-            case NORTH:
-                startX = door.getMinimum().getBlockX();
-                endX = door.getMaximum().getBlockX();
+                // North West = Min X, Min Z
+                // South West = Min X, Max Z
+                // North East = Max X, Min Z
+                // South East = Max X, Max X
+                case NORTH:
+                    startX = door.getMinimum().getBlockX();
+                    endX = door.getMaximum().getBlockX();
 
-                startY = door.getMinimum().getBlockY();
-                endY = door.getMinimum().getBlockY();
+                    startY = door.getMinimum().getBlockY();
+                    endY = door.getMinimum().getBlockY();
 
-                startZ = door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-                endZ = door.getMinimum().getBlockZ() - 1;
-                break;
+                    startZ =
+                        door.getMinimum().getBlockZ() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+                    endZ = door.getMinimum().getBlockZ() - 1;
+                    break;
 
-            case SOUTH:
-                startX = door.getMinimum().getBlockX();
-                endX = door.getMaximum().getBlockX();
+                case SOUTH:
+                    startX = door.getMinimum().getBlockX();
+                    endX = door.getMaximum().getBlockX();
 
-                startY = door.getMinimum().getBlockY();
-                endY = door.getMinimum().getBlockY();
+                    startY = door.getMinimum().getBlockY();
+                    endY = door.getMinimum().getBlockY();
 
-                startZ = door.getMinimum().getBlockZ() + 1;
-                endZ = door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
-                break;
+                    startZ = door.getMinimum().getBlockZ() + 1;
+                    endZ =
+                        door.getMinimum().getBlockZ() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+                    break;
 
-            case EAST:
-                startX = door.getMinimum().getBlockX() + 1;
-                endX = door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
+                case EAST:
+                    startX = door.getMinimum().getBlockX() + 1;
+                    endX =
+                        door.getMaximum().getBlockX() + door.getMaximum().getBlockY() - door.getMinimum().getBlockY();
 
-                startY = door.getMinimum().getBlockY();
-                endY = door.getMinimum().getBlockY();
+                    startY = door.getMinimum().getBlockY();
+                    endY = door.getMinimum().getBlockY();
 
-                startZ = door.getMinimum().getBlockZ();
-                endZ = door.getMaximum().getBlockZ();
-                break;
+                    startZ = door.getMinimum().getBlockZ();
+                    endZ = door.getMaximum().getBlockZ();
+                    break;
 
-            case WEST:
-                startX = door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
-                endX = door.getMinimum().getBlockX() - 1;
+                case WEST:
+                    startX =
+                        door.getMinimum().getBlockX() - door.getMaximum().getBlockY() + door.getMinimum().getBlockY();
+                    endX = door.getMinimum().getBlockX() - 1;
 
-                startY = door.getMinimum().getBlockY();
-                endY = door.getMinimum().getBlockY();
+                    startY = door.getMinimum().getBlockY();
+                    endY = door.getMinimum().getBlockY();
 
-                startZ = door.getMinimum().getBlockZ();
-                endZ = door.getMaximum().getBlockZ();
-                break;
+                    startZ = door.getMinimum().getBlockZ();
+                    endZ = door.getMaximum().getBlockZ();
+                    break;
             }
 
         min.setWorld(world);
@@ -272,7 +279,7 @@ public class BridgeOpener implements Opener
         if (isRotateDirectionValid(door))
         {
             Optional<DoorDirection> newDir = Util.getDoorDirection(door.getOpenDir())
-                .map(dir -> door.isOpen() ? getOpposite(dir) : dir);
+                                                 .map(dir -> door.isOpen() ? getOpposite(dir) : dir);
             if (newDir.isPresent())
                 return newDir.get();
         }
@@ -289,9 +296,9 @@ public class BridgeOpener implements Opener
         {
             if (NS)
                 return isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-                    isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : null;
+                       isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : null;
             return isNewPosFree(door, upDown, DoorDirection.WEST) ? DoorDirection.WEST :
-                isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST : null;
+                   isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST : null;
         }
         return null;
     }
@@ -301,38 +308,6 @@ public class BridgeOpener implements Opener
     private DoorDirection getCurrentDirection(Door door)
     {
         return door.getEngSide();
-    }
-
-    @Override
-    public DoorOpenResult shadowToggle(Door door)
-    {
-        if (!plugin.getCommander().canGo())
-        {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
-        }
-        
-        if (!plugin.getCommander().canGo())
-        {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
-            return abort(DoorOpenResult.ERROR, door.getDoorUID());
-        }
-        
-        if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
-        {
-            plugin.getMyLogger().myLogger(Level.INFO,
-                                          "Bridge " + door.toSimpleString() + " is not available right now!");
-            return abort(DoorOpenResult.BUSY, door.getDoorUID());
-        }
-        DoorDirection openDirection = getOpenDirection(door);
-        final RotateDirection upDown = getUpDown(door);
-        if (door.getOpenDir().equals(RotateDirection.NONE) || openDirection == null || upDown == null)
-        {
-            plugin.getMyLogger().myLogger(Level.INFO, "Door " + door.toSimpleString() + " has no open direction!");
-            return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
-        }
-        BridgeMover.updateCoords(door, openDirection, upDown, 0, true);
-        return abort(DoorOpenResult.SUCCESS, door.getDoorUID());
     }
 
     @Override
@@ -346,10 +321,11 @@ public class BridgeOpener implements Opener
     {
         if (!plugin.getCommander().canGo())
         {
-            plugin.getMyLogger().info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
+            plugin.getMyLogger()
+                  .info("Failed to toggle: " + door.toSimpleString() + ", as door toggles are currently disabled!");
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
-        
+
         if (plugin.getCommander().isDoorBusyRegisterIfNot(door.getDoorUID()))
         {
             if (!silent)
@@ -400,14 +376,14 @@ public class BridgeOpener implements Opener
             if (door.isOpen())
             {
                 newRotDir = newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
-                    newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
-                    newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
+                            newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
+                            newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
             }
 
             plugin.getMyLogger().logMessage(
-                                            "Updating openDirection of drawbridge " + door.toSimpleString() + " to "
-                                                + newRotDir.name() + ". If this is undesired, change it via the GUI.",
-                                            true, false);
+                "Updating openDirection of drawbridge " + door.toSimpleString() + " to "
+                    + newRotDir.name() + ". If this is undesired, change it via the GUI.",
+                true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
         }
 

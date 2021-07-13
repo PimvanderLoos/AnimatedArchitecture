@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
@@ -17,6 +14,8 @@ import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 public interface Opener
 {
@@ -30,23 +29,21 @@ public interface Opener
     }
 
     /**
-     * Gets the minimum and maximum chunk coordinates this door may visit. Note that
-     * the output may not be 100% correct. The accuracy depends on the type and how
-     * much is known about the door.
+     * Gets the minimum and maximum chunk coordinates this door may visit. Note that the output may not be 100% correct.
+     * The accuracy depends on the type and how much is known about the door.
      *
      * @param door The door for which to check it.
-     * @return A pair of coordinates in chunk-space (hence 2d) containing the
-     *         lower-bound coordinates first and the upper bound second.
+     * @return A pair of coordinates in chunk-space (hence 2d) containing the lower-bound coordinates first and the
+     * upper bound second.
      */
     public Pair<Vector2D, Vector2D> getChunkRange(Door door);
 
     /**
-     * Gets the minimum and maximum chunk coordinates of the door according to its
-     * current location.
+     * Gets the minimum and maximum chunk coordinates of the door according to its current location.
      *
      * @param door The door for which to check it.
-     * @return A pair of coordinates in chunk-space (hence 2d) containing the
-     *         lower-bound coordinates first and the upper bound second.
+     * @return A pair of coordinates in chunk-space (hence 2d) containing the lower-bound coordinates first and the
+     * upper bound second.
      */
     default Pair<Vector2D, Vector2D> getCurrentChunkRange(Door door)
     {
@@ -71,7 +68,7 @@ public interface Opener
     public default DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
     {
         ChunkLoadMode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? ChunkLoadMode.ATTEMPT_LOAD :
-            ChunkLoadMode.VERIFY_LOADED;
+                             ChunkLoadMode.VERIFY_LOADED;
 
         // When "skipUnloadedAutoCloseToggle" is enabled, doors will not try to load
         // chunks if they have an autoCloseTimer. This only affects closed doors,
@@ -84,8 +81,6 @@ public interface Opener
     }
 
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode);
-
-    public DoorOpenResult shadowToggle(Door door);
 
     default DoorOpenResult abort(DoorOpenResult reason, long doorUID)
     {
