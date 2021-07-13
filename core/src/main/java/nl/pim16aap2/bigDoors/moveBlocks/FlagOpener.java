@@ -8,7 +8,12 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import org.bukkit.Location;
 
+import javax.annotation.Nonnull;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class FlagOpener implements Opener
@@ -18,6 +23,18 @@ public class FlagOpener implements Opener
     public FlagOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public @Nonnull Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
+    {
+        return Optional.of(new Pair<>(door.getMinimum(), door.getMaximum()));
+    }
+
+    @Override
+    public @Nonnull List<RotateDirection> getValidRotateDirections()
+    {
+        return Collections.emptyList();
     }
 
     /**
@@ -30,7 +47,7 @@ public class FlagOpener implements Opener
     }
 
     @Override
-    public boolean isRotateDirectionValid(Door door)
+    public boolean isRotateDirectionValid(@Nonnull Door door)
     {
         return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.EAST) ||
             door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);

@@ -1,12 +1,5 @@
-/**
- *
- */
 package nl.pim16aap2.bigDoors.util;
 
-/**
- *
- * @author Pim
- */
 public class Pair<T1, T2>
 {
     public T1 first;
@@ -21,5 +14,11 @@ public class Pair<T1, T2>
     public Pair()
     {
         this(null, null);
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("Pair(%s, %s)", first, second);
     }
 }

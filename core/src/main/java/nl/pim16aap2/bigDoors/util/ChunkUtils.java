@@ -169,8 +169,7 @@ public final class ChunkUtils
         PASS,
 
         /**
-         * The process failed. For example, it could not load any chunks even though it
-         * had to.
+         * The process failed. For example, it could not load any chunks even though it had to.
          */
         FAIL,
 

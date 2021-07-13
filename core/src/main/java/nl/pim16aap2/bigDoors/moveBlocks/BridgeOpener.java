@@ -14,16 +14,31 @@ import nl.pim16aap2.bigDoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
 public class BridgeOpener implements Opener
 {
+    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS = Collections
+        .unmodifiableList(Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
+                                        RotateDirection.SOUTH, RotateDirection.WEST));
+
     private final BigDoors plugin;
 
     public BridgeOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public @Nonnull List<RotateDirection> getValidRotateDirections()
+    {
+        return VALID_ROTATE_DIRECTIONS;
     }
 
     /**
@@ -46,50 +61,14 @@ public class BridgeOpener implements Opener
         return getChunkRange(door, RotateDirection.DOWN, doorDirection);
     }
 
-    private Pair<Vector2D, Vector2D> getChunkRange(Door door, RotateDirection upDown, DoorDirection cardinal)
+    private Pair<Vector2D, Vector2D> getChunkRange(Door door, RotateDirection upDown, DoorDirection currentDirection)
     {
-        Location newMin = new Location(null, 0, 0, 0);
-        Location newMax = new Location(null, 0, 0, 0);
-
-        getNewLocations(newMin, newMax, door, upDown, cardinal);
-        return ChunkUtils.getChunkRangeBetweenCoords(newMin, newMax);
-    }
-
-    private RotateDirection getOppositeAsRotate(final DoorDirection curDir)
-    {
-        switch (curDir)
-        {
-            case EAST:
-                return RotateDirection.WEST;
-            case NORTH:
-                return RotateDirection.SOUTH;
-            case SOUTH:
-                return RotateDirection.NORTH;
-            case WEST:
-                return RotateDirection.EAST;
-            default:
-                return RotateDirection.NONE;
-        }
-    }
-
-    private DoorDirection getOpposite(final DoorDirection curDir)
-    {
-        switch (curDir)
-        {
-            case EAST:
-                return DoorDirection.WEST;
-            case NORTH:
-                return DoorDirection.SOUTH;
-            case SOUTH:
-                return DoorDirection.NORTH;
-            case WEST:
-                return DoorDirection.EAST;
-        }
-        throw new IllegalArgumentException("Unable to get opposite direction of: " + curDir.name());
+        final Pair<Location, Location> newCoordinates = getNewCoordinates(door, upDown, currentDirection);
+        return ChunkUtils.getChunkRangeBetweenCoords(newCoordinates.first, newCoordinates.second);
     }
 
     @Override
-    public boolean isRotateDirectionValid(Door door)
+    public boolean isRotateDirectionValid(@Nonnull Door door)
     {
         // When rotation point is positioned along the NORTH/SOUTH axis, it can only
         // rotate EAST or WEST. Or the other way round.
@@ -104,17 +83,54 @@ public class BridgeOpener implements Opener
     {
         if (isRotateDirectionValid(door))
             return door.getOpenDir();
-        return getOppositeAsRotate(door.getEngSide());
+        return Util.getRotateDirection(DoorDirection.getOpposite(door.getEngSide()));
     }
 
-    private void getNewLocations(Location min, Location max, Door door, RotateDirection upDown, DoorDirection cardinal)
+    @Override
+    public @Nonnull Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
+    {
+        final int maxDoorSize = getSizeLimit(door);
+        if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
+        {
+            plugin.getMyLogger().warn("Size " + door.getBlockCount() + " exceeds limit of " +
+                                          maxDoorSize + " for drawbridge: " + door);
+            return Optional.empty();
+        }
+
+        RotateDirection upDown = getUpDown(door);
+        if (upDown == null)
+        {
+            plugin.getMyLogger().warn("Found null open direction for drawbridge: " + door);
+            return Optional.empty();
+        }
+
+        DoorDirection currentDirection = getCurrentDirection(door);
+        if (currentDirection == null)
+        {
+            plugin.getMyLogger().warn("Current direction is null for drawbridge " + door + "!");
+            return Optional.empty();
+        }
+
+        @Nullable OpeningSpecification openingSpecification = getOpeningSpecification(door, upDown, currentDirection);
+        if (openingSpecification == null)
+        {
+            plugin.getMyLogger()
+                  .info("Failed to find open direction for drawbridge " + door + " because it is obstructed!");
+            return Optional.empty();
+        }
+
+        return Optional.of(new Pair<>(openingSpecification.min, openingSpecification.max));
+    }
+
+    private @Nonnull Pair<Location, Location> getNewCoordinates(@Nonnull Door door, @Nonnull RotateDirection upDown,
+                                                                @Nonnull DoorDirection currentDirection)
     {
         int startX = 0, startY = 0, startZ = 0;
         int endX = 0, endY = 0, endZ = 0;
         World world = door.getWorld();
 
         if (upDown.equals(RotateDirection.UP))
-            switch (cardinal)
+            switch (currentDirection)
             {
                 // North West = Min X, Min Z
                 // South West = Min X, Max Z
@@ -169,7 +185,7 @@ public class BridgeOpener implements Opener
                     break;
             }
         else
-            switch (cardinal)
+            switch (currentDirection)
             {
                 // North West = Min X, Min Z
                 // South West = Min X, Max Z
@@ -224,34 +240,7 @@ public class BridgeOpener implements Opener
                     break;
             }
 
-        min.setWorld(world);
-        min.setX(startX);
-        min.setY(startY);
-        min.setZ(startZ);
-
-        max.setWorld(world);
-        max.setX(endX);
-        max.setY(endY);
-        max.setZ(endZ);
-    }
-
-    // Check if the new position is free.
-    private boolean isNewPosFree(Door door, RotateDirection upDown, DoorDirection cardinal)
-    {
-        Location newMin = new Location(null, 0, 0, 0);
-        Location newMax = new Location(null, 0, 0, 0);
-        getNewLocations(newMin, newMax, door, upDown, cardinal);
-
-        World world = door.getWorld();
-        for (int xAxis = newMin.getBlockX(); xAxis <= newMax.getBlockX(); ++xAxis)
-            for (int yAxis = newMin.getBlockY(); yAxis <= newMax.getBlockY(); ++yAxis)
-                for (int zAxis = newMin.getBlockZ(); zAxis <= newMax.getBlockZ(); ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
-                        return false;
-
-        door.setNewMin(newMin);
-        door.setNewMax(newMax);
-        return true;
+        return new Pair<>(new Location(world, startX, startY, startZ), new Location(world, endX, endY, endZ));
     }
 
     // Check if the bridge should go up or down.
@@ -263,7 +252,7 @@ public class BridgeOpener implements Opener
         return RotateDirection.UP;
     }
 
-    private DoorDirection getOpenDirection(Door door)
+    private @Nullable DoorDirection getOpenDirection(Door door)
     {
         if (door.getOpenDir() == null)
             return null;
@@ -279,7 +268,7 @@ public class BridgeOpener implements Opener
         if (isRotateDirectionValid(door))
         {
             Optional<DoorDirection> newDir = Util.getDoorDirection(door.getOpenDir())
-                                                 .map(dir -> door.isOpen() ? getOpposite(dir) : dir);
+                                                 .map(dir -> door.isOpen() ? DoorDirection.getOpposite(dir) : dir);
             if (newDir.isPresent())
                 return newDir.get();
         }
@@ -292,15 +281,39 @@ public class BridgeOpener implements Opener
             door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE) && !door.isOpen())
             return NS ? DoorDirection.NORTH : DoorDirection.WEST;
 
-        if (door.getOpenDir().equals(RotateDirection.NONE) && !door.isOpen())
+        return null;
+    }
+
+    private @Nullable OpeningSpecification findFirstValidSpecification(@Nonnull Door door,
+                                                                       @Nonnull RotateDirection upDown,
+                                                                       @Nonnull DoorDirection... directions)
+    {
+        for (DoorDirection fallbackDirection : directions)
         {
-            if (NS)
-                return isNewPosFree(door, upDown, DoorDirection.NORTH) ? DoorDirection.NORTH :
-                       isNewPosFree(door, upDown, DoorDirection.SOUTH) ? DoorDirection.SOUTH : null;
-            return isNewPosFree(door, upDown, DoorDirection.WEST) ? DoorDirection.WEST :
-                   isNewPosFree(door, upDown, DoorDirection.EAST) ? DoorDirection.EAST : null;
+            final Pair<Location, Location> newCoordinates = getNewCoordinates(door, upDown, fallbackDirection);
+            if (isPosFree(door.getWorld(), newCoordinates))
+                return new OpeningSpecification(fallbackDirection, newCoordinates);
         }
         return null;
+    }
+
+    private @Nullable OpeningSpecification getOpeningSpecification(@Nonnull Door door,
+                                                                   @Nonnull RotateDirection upDown,
+                                                                   @Nonnull DoorDirection currentDirection)
+    {
+        final @Nullable DoorDirection openDirection = getOpenDirection(door);
+        if (isValidOpenDirection(Util.getRotateDirection(openDirection)))
+        {
+            final Pair<Location, Location> newCoordinates = getNewCoordinates(door, upDown, openDirection);
+            return isPosFree(door.getWorld(), newCoordinates) ?
+                   new OpeningSpecification(openDirection, newCoordinates) : null;
+        }
+
+        final boolean NS = currentDirection == DoorDirection.NORTH || currentDirection == DoorDirection.SOUTH;
+        if (NS)
+            return findFirstValidSpecification(door, upDown, DoorDirection.NORTH, DoorDirection.SOUTH);
+        else
+            return findFirstValidSpecification(door, upDown, DoorDirection.EAST, DoorDirection.WEST);
     }
 
     // Get the "current direction". In this context this means on which side of the
@@ -360,29 +373,24 @@ public class BridgeOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        DoorDirection openDirection = getOpenDirection(door);
-        if (openDirection == null || !isNewPosFree(door, upDown, openDirection))
+        final OpeningSpecification openingSpecification = getOpeningSpecification(door, upDown, currentDirection);
+        if (openingSpecification == null)
         {
-            plugin.getMyLogger().logMessage("OpenDirection direction is null for bridge " + door.toSimpleString() + "!",
-                                            true, false);
+            plugin.getMyLogger().warn("Could not determine opening direction for door: " + door + "!");
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
+
         if (!isRotateDirectionValid(door))
         {
             // If the door is currently open, then the selected rotDirection is actually the
-            // closing direction.
-            // So, if the door is open, flip the direciton.
-            RotateDirection newRotDir = RotateDirection.valueOf(openDirection.name());
+            // closing direction. So, if the door is open, flip the direciton.
+            RotateDirection newRotDir = Util.getRotateDirection(openingSpecification.openDirection);
             if (door.isOpen())
-            {
-                newRotDir = newRotDir.equals(RotateDirection.NORTH) ? RotateDirection.SOUTH :
-                            newRotDir.equals(RotateDirection.SOUTH) ? RotateDirection.NORTH :
-                            newRotDir.equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
-            }
+                newRotDir = RotateDirection.getOpposite(newRotDir);
 
             plugin.getMyLogger().logMessage(
                 "Updating openDirection of drawbridge " + door.toSimpleString() + " to "
-                    + newRotDir.name() + ". If this is undesired, change it via the GUI.",
+                    + newRotDir + ". If this is undesired, change it via the GUI.",
                 true, false);
             plugin.getCommander().updateDoorOpenDirection(door.getDoorUID(), newRotDir);
         }
@@ -397,21 +405,38 @@ public class BridgeOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getMinimum(), door.getMinimum()) != null)
+        if (!hasAccessToLocations(door, openingSpecification.min, openingSpecification.max))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
             return abort(DoorOpenResult.CANCELLED, door.getDoorUID());
 
-        plugin.getCommander().addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown, openDirection,
-                                                            instantOpen, plugin.getConfigLoader().dbMultiplier()));
+        plugin.getCommander().addBlockMover(new BridgeMover(plugin, door.getWorld(), time, door, upDown,
+                                                            openingSpecification.openDirection, instantOpen,
+                                                            plugin.getConfigLoader().dbMultiplier()));
         fireDoorEventToggleStart(door, instantOpen);
 
         return DoorOpenResult.SUCCESS;
+    }
+
+    private static final class OpeningSpecification
+    {
+        public final DoorDirection openDirection;
+        public final Location min;
+        public final Location max;
+
+        public OpeningSpecification(DoorDirection openDirection,
+                                    Location min, Location max)
+        {
+            this.openDirection = openDirection;
+            this.min = min;
+            this.max = max;
+        }
+
+        public OpeningSpecification(DoorDirection openDirection,
+                                    Pair<Location, Location> locations)
+        {
+            this(openDirection, locations.first, locations.second);
+        }
     }
 }

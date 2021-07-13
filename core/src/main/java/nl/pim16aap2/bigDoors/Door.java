@@ -32,8 +32,6 @@ public class Door
     private int            permission;
     private Location         chunkLoc;
     private Integer            length;
-    private Location           newMin;
-    private Location           newMax;
     private UUID primeOwner;
     private boolean notify;
 
@@ -119,12 +117,12 @@ public class Door
     public RotateDirection getOpenDir() {  return openDir;       }  // Get the open direction of this door.
     public int getAutoClose()           {  return autoClose;     }  // Get the auto close time.
     public int getBlocksToMove()        {  return blocksToMove;  }  // Get the desired number of blocks to move this door.
-    
+
     public boolean notificationEnabled()
     {
         return notify;
     }
-    
+
     public void setNotificationEnabled(boolean notify)
     {
         this.notify = notify;
@@ -254,7 +252,7 @@ public class Door
         if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS) || type.equals(DoorType.ELEVATOR))
             length = xLen > zLen ? xLen : zLen;
 
-        // Drawbridge
+            // Drawbridge
         else if (type.equals(DoorType.DRAWBRIDGE) && engineSide != null)
         {
             int yLen = Math.abs(max.getBlockY() - min.getBlockY());
@@ -277,7 +275,7 @@ public class Door
     {
         if (type.equals(DoorType.DRAWBRIDGE) || type.equals(DoorType.PORTCULLIS))
             return engineSide == DoorDirection.NORTH ||
-                   engineSide == DoorDirection.SOUTH ? DoorDirection.NORTH : DoorDirection.EAST;
+                       engineSide == DoorDirection.SOUTH ? DoorDirection.NORTH : DoorDirection.EAST;
 
         return engine.getBlockZ() != min.getBlockZ() ? DoorDirection.NORTH :
                engine.getBlockX() != max.getBlockX() ? DoorDirection.EAST  :
@@ -288,26 +286,6 @@ public class Door
     public long getPowerBlockChunkHash()
     {
         return Util.chunkHashFromLocation(powerBlock.getBlockX(), powerBlock.getBlockZ(), world.getUID());
-    }
-
-    public Location getNewMin()
-    {
-        return newMin;
-    }
-
-    public Location getNewMax()
-    {
-        return newMax;
-    }
-
-    public void setNewMin(Location loc)
-    {
-        newMin = loc;
-    }
-
-    public void setNewMax(Location loc)
-    {
-        newMax = loc;
     }
 
     private int calculateBlockCount()
@@ -343,9 +321,3 @@ public class Door
         return ret;
     }
 }
-
-
-
-
-
-

@@ -14,10 +14,19 @@ import nl.pim16aap2.bigDoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class DoorOpener implements Opener
 {
+    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS = Collections
+        .unmodifiableList(Arrays.asList(RotateDirection.CLOCKWISE, RotateDirection.COUNTERCLOCKWISE));
+
     private final BigDoors plugin;
 
     public DoorOpener(BigDoors plugin)
@@ -34,6 +43,12 @@ public class DoorOpener implements Opener
         return getChunkRange(door, getNewDirection(door));
     }
 
+    @Override
+    public @Nonnull List<RotateDirection> getValidRotateDirections()
+    {
+        return VALID_ROTATE_DIRECTIONS;
+    }
+
     private Pair<Vector2D, Vector2D> getChunkRange(Door door, DoorDirection newDirection)
     {
         if (newDirection == null)
@@ -43,11 +58,8 @@ public class DoorOpener implements Opener
             return getCurrentChunkRange(door);
         }
 
-        Location newMin = new Location(null, 0, 0, 0);
-        Location newMax = new Location(null, 0, 0, 0);
-
-        getNewLocations(newMin, newMax, door, newDirection);
-        return getChunkRange(door, newMin, newMax);
+        Pair<Location, Location> newLocations = getNewCoordinates(door, newDirection);
+        return getChunkRange(door, newLocations.first, newLocations.second);
     }
 
     private Pair<Vector2D, Vector2D> getChunkRange(Door door, Location newMin, Location newMax)
@@ -56,23 +68,46 @@ public class DoorOpener implements Opener
     }
 
     @Override
-    public boolean isRotateDirectionValid(Door door)
-    {
-        return door.getOpenDir().equals(RotateDirection.CLOCKWISE) ||
-            door.getOpenDir().equals(RotateDirection.COUNTERCLOCKWISE);
-    }
-
-    @Override
     public RotateDirection getRotateDirection(Door door)
     {
         if (isRotateDirectionValid(door))
             return door.getOpenDir();
 
-        RotateDirection rotateDir = getRotationDirection(door, getCurrentDirection(door));
-        return rotateDir != null ? rotateDir : RotateDirection.CLOCKWISE;
+        final RotateDirection defaultDirection = RotateDirection.CLOCKWISE;
+
+        DoorDirection currentDirection = getCurrentDirection(door);
+        if (currentDirection == null)
+            return defaultDirection;
+
+        @Nullable OpeningSpecification openingSpecification = getOpeningSpecification(door, getOpenDirection(door),
+                                                                                      currentDirection);
+
+        return openingSpecification == null ? defaultDirection : openingSpecification.rotateDirection;
     }
 
-    private void getNewLocations(Location min, Location max, Door door, DoorDirection newDirection)
+    private @Nullable DoorDirection getNewDirection(@Nonnull Door door)
+    {
+        final DoorDirection currentDir = getCurrentDirection(door);
+        if (currentDir == null)
+            return null;
+
+        RotateDirection openDir = door.isOpen() ? RotateDirection.getOpposite(door.getOpenDir()) : door.getOpenDir();
+
+        if (!isRotateDirectionValid(door))
+            return null;
+
+        return getNewDirection(currentDir, openDir);
+    }
+
+    private @Nonnull DoorDirection getNewDirection(@Nonnull DoorDirection currentDirection,
+                                                   @Nonnull RotateDirection rotateDirection)
+    {
+        return rotateDirection.equals(RotateDirection.CLOCKWISE) ?
+               DoorDirection.cycleCardinalDirection(currentDirection) :
+               DoorDirection.cycleCardinalDirectionReverse(currentDirection);
+    }
+
+    private Pair<Location, Location> getNewCoordinates(Door door, DoorDirection newDirection)
     {
         Location engLoc = door.getEngine();
         int startX = engLoc.getBlockX();
@@ -107,104 +142,99 @@ public class DoorOpener implements Opener
                 endX = engLoc.getBlockX() - 1;
                 break;
         }
-
-        min.setWorld(world);
-        min.setX(startX);
-        min.setY(startY);
-        min.setZ(startZ);
-
-        max.setWorld(world);
-        max.setX(endX);
-        max.setY(endY);
-        max.setZ(endZ);
+        return new Pair<>(new Location(world, startX, startY, startZ), new Location(world, endX, endY, endZ));
     }
 
-    // Check if the block on the north/east/south/west side of the location is free.
-    private boolean isPosFree(Door door, DoorDirection direction)
+    /**
+     * Finds the rotation direction and the new coordinates for a door.
+     * <p>
+     * If the found location(s) are obstructed (see {@link #isPosFree(World, Location, Location)}), null is returned.
+     * <p>
+     * If the provided rotateDirection is not valid for this type, all rotation directions listed in {@link
+     * #getValidRotateDirections()} either until a valid, unobstructed position is found or until we run out of
+     * direction to check.
+     *
+     * @param door             The door for which to get the opening specification.
+     * @param rotateDirection  The opening rotation direction to check.
+     * @param currentDirection The current direction of the door.
+     * @return The open direction and the new min/max coordinates of the door is a valid, unobstructed position could be
+     * found.
+     * <p>
+     * The returned open direction is going to be the same as the input rotateDirection if the provided rotateDirection
+     * is valid. When it is not valid, this value will be the {@link RotateDirection} used to get the found min/max
+     * coordinates.
+     */
+    private @Nullable OpeningSpecification getOpeningSpecification(@Nonnull Door door,
+                                                                   @Nullable RotateDirection rotateDirection,
+                                                                   @Nonnull DoorDirection currentDirection)
     {
-        Location newMin = new Location(null, 0, 0, 0);
-        Location newMax = new Location(null, 0, 0, 0);
-        getNewLocations(newMin, newMax, door, direction);
+        if (isValidOpenDirection(rotateDirection))
+        {
+            final DoorDirection newDirection = getNewDirection(currentDirection, rotateDirection);
+            final Pair<Location, Location> newCoordinates = getNewCoordinates(door, newDirection);
+            return isPosFree(door.getWorld(), newCoordinates) ?
+                   new OpeningSpecification(rotateDirection, newCoordinates) : null;
+        }
 
-        World world = door.getWorld();
-        for (int xAxis = newMin.getBlockX(); xAxis <= newMax.getBlockX(); ++xAxis)
-            for (int yAxis = newMin.getBlockY(); yAxis <= newMax.getBlockY(); ++yAxis)
-                for (int zAxis = newMin.getBlockZ(); zAxis <= newMax.getBlockZ(); ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
-                        return false;
+        plugin.getMyLogger().info("Encountered invalid open direction " + rotateDirection + " for door " + door +
+                                      "!\nWe will try to find a valid open direction now!");
 
-        door.setNewMin(newMin);
-        door.setNewMax(newMax);
-        return true;
+        for (RotateDirection fallbackDirection : getValidRotateDirections())
+        {
+            final DoorDirection newDirection = getNewDirection(currentDirection, fallbackDirection);
+            final Pair<Location, Location> newCoordinates = getNewCoordinates(door, newDirection);
+            if (isPosFree(door.getWorld(), newCoordinates))
+                return new OpeningSpecification(fallbackDirection, newCoordinates);
+        }
+
+        return null;
     }
 
-    private DoorDirection getNewDirection(Door door)
+    @Override
+    public @Nonnull Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
     {
-        DoorDirection currentDir = getCurrentDirection(door);
+        final RotateDirection openDirection = getOpenDirection(door);
+        if (!isValidOpenDirection(openDirection))
+        {
+            plugin.getMyLogger().warn("Invalid open direction " + openDirection + " for door: " + door);
+            return Optional.empty();
+        }
+
+        final int maxDoorSize = getSizeLimit(door);
+        if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
+        {
+            plugin.getMyLogger()
+                  .warn("Size " + door.getBlockCount() + " exceeds limit of " + maxDoorSize + " for door: " + door);
+            return Optional.empty();
+        }
+
+        DoorDirection currentDirection = getCurrentDirection(door);
+        if (currentDirection == null)
+        {
+            plugin.getMyLogger().warn("Current direction is null for door " + door);
+            return Optional.empty();
+        }
+
+        @Nullable OpeningSpecification openingSpecification = getOpeningSpecification(door, openDirection,
+                                                                                      currentDirection);
+        if (openingSpecification == null)
+        {
+            plugin.getMyLogger().info("Failed to find open direction for door " + door + " because it is obstructed!");
+            return Optional.empty();
+        }
+
+        return Optional.of(new Pair<>(openingSpecification.min, openingSpecification.max));
+    }
+
+    private @Nullable RotateDirection getOpenDirection(Door door)
+    {
         RotateDirection openDir = door.getOpenDir();
-        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
-                  openDir;
-
-        if (!isRotateDirectionValid(door))
+        if (openDir == null)
             return null;
+        return openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
+               openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
+               openDir;
 
-        switch (currentDir)
-        {
-            case NORTH:
-                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.EAST : DoorDirection.WEST;
-
-            case EAST:
-                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.NORTH : DoorDirection.SOUTH;
-
-            case SOUTH:
-                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.WEST : DoorDirection.EAST;
-
-            case WEST:
-                return openDir.equals(RotateDirection.COUNTERCLOCKWISE) ? DoorDirection.SOUTH : DoorDirection.NORTH;
-        }
-        return null;
-    }
-
-    // Determine which direction the door is going to rotate. Clockwise or
-    // counterclockwise.
-    private RotateDirection getRotationDirection(Door door, DoorDirection currentDir)
-    {
-        RotateDirection openDir = door.getOpenDir();
-        openDir = openDir.equals(RotateDirection.CLOCKWISE) && door.isOpen() ? RotateDirection.COUNTERCLOCKWISE :
-                  openDir.equals(RotateDirection.COUNTERCLOCKWISE) && door.isOpen() ? RotateDirection.CLOCKWISE :
-                  openDir;
-        switch (currentDir)
-        {
-            case NORTH:
-                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.EAST))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.WEST))
-                    return RotateDirection.COUNTERCLOCKWISE;
-                break;
-
-            case EAST:
-                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
-                    return RotateDirection.COUNTERCLOCKWISE;
-                break;
-
-            case SOUTH:
-                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.WEST))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.EAST))
-                    return RotateDirection.COUNTERCLOCKWISE;
-                break;
-
-            case WEST:
-                if (!openDir.equals(RotateDirection.COUNTERCLOCKWISE) && isPosFree(door, DoorDirection.NORTH))
-                    return RotateDirection.CLOCKWISE;
-                else if (!openDir.equals(RotateDirection.CLOCKWISE) && isPosFree(door, DoorDirection.SOUTH))
-                    return RotateDirection.COUNTERCLOCKWISE;
-                break;
-        }
-        return null;
     }
 
     // Get the direction the door is currently facing as seen from the engine to the
@@ -264,11 +294,11 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        RotateDirection rotDirection = getRotationDirection(door, currentDirection);
-        if (rotDirection == null)
+        final OpeningSpecification openingSpecification = getOpeningSpecification(door, getOpenDirection(door),
+                                                                                  currentDirection);
+        if (openingSpecification == null)
         {
-            plugin.getMyLogger().logMessage("Rotation direction is null for door " + door.toSimpleString() + "!", true,
-                                            false);
+            plugin.getMyLogger().warn("Could not determine opening direction for door: " + door + "!");
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
         }
 
@@ -277,7 +307,7 @@ public class DoorOpener implements Opener
             // If the door is currently open, then the selected rotDirection is actually the
             // closing direction.
             // So, if the door is open, flip the direciton.
-            RotateDirection newRotDirection = rotDirection;
+            RotateDirection newRotDirection = openingSpecification.rotateDirection;
             if (door.isOpen())
                 newRotDirection = newRotDirection.equals(RotateDirection.CLOCKWISE) ? RotateDirection.COUNTERCLOCKWISE :
                                   RotateDirection.CLOCKWISE;
@@ -320,12 +350,7 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getMinimum(), door.getMinimum()) != null)
+        if (!hasAccessToLocations(door, openingSpecification.min, openingSpecification.max))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
@@ -333,11 +358,30 @@ public class DoorOpener implements Opener
 
         plugin.getCommander()
               .addBlockMover(
-                  new CylindricalMover(plugin, oppositePoint.getWorld(), 1, rotDirection, time, oppositePoint,
-                                       currentDirection, door, instantOpen,
+                  new CylindricalMover(plugin, oppositePoint.getWorld(), 1, openingSpecification.rotateDirection, time,
+                                       oppositePoint, currentDirection, door, instantOpen,
                                        plugin.getConfigLoader().bdMultiplier()));
         fireDoorEventToggleStart(door, instantOpen);
 
         return DoorOpenResult.SUCCESS;
+    }
+
+    private static final class OpeningSpecification
+    {
+        public final RotateDirection rotateDirection;
+        public final Location min;
+        public final Location max;
+
+        public OpeningSpecification(RotateDirection rotateDirection, Location min, Location max)
+        {
+            this.rotateDirection = rotateDirection;
+            this.min = min;
+            this.max = max;
+        }
+
+        public OpeningSpecification(RotateDirection rotateDirection, Pair<Location, Location> locations)
+        {
+            this(rotateDirection, locations.first, locations.second);
+        }
     }
 }

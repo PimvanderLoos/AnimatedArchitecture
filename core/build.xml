@@ -7,7 +7,7 @@
 
     <property name="topDir" location="${basedir}/.."/>
     <property name="serverDir" location="${topDir}/Servers"/>
-    <property name="jarDir" location="${topDir}/Jars"/>
+    <property name="jarDir" location="${topDir}/core/target/"/>
     
     <target name="init">
         <delete file="${jarDir}/BigDoors-unobf.jar"/>
@@ -24,15 +24,15 @@
     </target>
     
     <target name="CreateJar" description="Create Jar file" depends="init">
-        <copy file="${basedir}/target/BigDoors.jar" tofile="${jarDir}/BigDoors-unobf.jar"/>
+        <symlink resource="${basedir}/target/BigDoors.jar" link="${jarDir}/BigDoors-unobf.jar"/>
 
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
-        <copy file="${jarDir}/BigDoors-unobf.jar" tofile="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
+        <symlink resource="${jarDir}/BigDoors-unobf.jar" link="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
     </target>
 
     <target name="obfuscate" depends="CreateJar">

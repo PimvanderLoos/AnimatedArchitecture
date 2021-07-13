@@ -12,15 +12,29 @@ import nl.pim16aap2.bigDoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class PortcullisOpener implements Opener
 {
+    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS = Collections
+        .unmodifiableList(Arrays.asList(RotateDirection.UP, RotateDirection.DOWN));
+
     private final BigDoors plugin;
 
     public PortcullisOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public @Nonnull List<RotateDirection> getValidRotateDirections()
+    {
+        return VALID_ROTATE_DIRECTIONS;
     }
 
     /**
@@ -38,7 +52,7 @@ public class PortcullisOpener implements Opener
     }
 
     @Override
-    public boolean isRotateDirectionValid(Door door)
+    public boolean isRotateDirectionValid(@Nonnull Door door)
     {
         return isRotateDirectionValid(door.getOpenDir());
     }
@@ -55,6 +69,29 @@ public class PortcullisOpener implements Opener
     public DoorOpenResult openDoor(Door door, double time)
     {
         return openDoor(door, time, false, false);
+    }
+
+
+    @Override
+    @Nonnull public Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
+    {
+        if (door.getBlocksToMove() > plugin.getConfigLoader().getMaxBlocksToMove())
+            return Optional.empty();
+
+        final int maxDoorSize = getSizeLimit(door);
+        if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
+        {
+            plugin.getMyLogger().warn("Size " + door.getBlockCount() + " exceeds limit of " +
+                                          maxDoorSize + " for portcullis: " + door);
+            return Optional.empty();
+        }
+
+        final int blocksToMove = getBlocksToMove(door);
+        if (blocksToMove == 0)
+            return Optional.empty();
+
+        return Optional.of(new Pair<>(door.getMinimum().add(0, blocksToMove, 0),
+                                      door.getMaximum().add(0, blocksToMove, 0)));
     }
 
     // Open a door.
@@ -97,24 +134,23 @@ public class PortcullisOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        int blocksToMove = getBlocksToMove(door);
-        if (Math.abs(blocksToMove) > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
         {
             plugin.getMyLogger().logMessage("Portcullis " + door.toSimpleString() + " Exceeds blocksToMove limit: "
-                                                + blocksToMove + ". Limit = " +
+                                                + door.getBlocksToMove() + ". Limit = " +
                                                 BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true, false);
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
 
+        int blocksToMove = getBlocksToMove(door);
+
         if (blocksToMove == 0)
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getNewMin(), door.getNewMax()) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getMinimum(), door.getMinimum()) != null)
+        Location newMin = door.getMinimum().add(0, blocksToMove, 0);
+        Location newMax = door.getMaximum().add(0, blocksToMove, 0);
+
+        if (!hasAccessToLocations(door, newMin, newMax))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (!isRotateDirectionValid(door))
@@ -148,9 +184,10 @@ public class PortcullisOpener implements Opener
         yMax = door.getMaximum().getBlockY();
         zMax = door.getMaximum().getBlockZ();
         yLen = yMax - yMin + 1;
-//        int distanceToCheck = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
-        int distanceToCheck = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
 
+        final int sizeLimit = BigDoors.get().getConfigLoader().getMaxBlocksToMove();
+        final int distanceToCheck =
+            Util.getLowestPositiveNumber(sizeLimit, door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove(), 0);
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();
@@ -186,24 +223,14 @@ public class PortcullisOpener implements Opener
 
     private int getBlocksToMove(Door door)
     {
-        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
-            return door.getBlocksToMove();
-
-        int blocksToMove;
         RotateDirection openDir = getCurrentDirection(door);
         if (isRotateDirectionValid(openDir))
-            blocksToMove = getBlocksInDir(door, openDir);
+            return getBlocksInDir(door, openDir);
         else
         {
             int blocksUp = getBlocksInDir(door, RotateDirection.UP);
             int blocksDown = getBlocksInDir(door, RotateDirection.DOWN);
-            blocksToMove = blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
+            return blocksUp > -1 * blocksDown ? blocksUp : blocksDown;
         }
-
-        door.setNewMin(new Location(door.getWorld(), door.getMinimum().getBlockX(),
-                                    door.getMinimum().getBlockY() + blocksToMove, door.getMinimum().getBlockZ()));
-        door.setNewMax(new Location(door.getWorld(), door.getMaximum().getBlockX(),
-                                    door.getMaximum().getBlockY() + blocksToMove, door.getMaximum().getBlockZ()));
-        return blocksToMove;
     }
 }

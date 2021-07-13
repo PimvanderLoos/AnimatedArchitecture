@@ -42,7 +42,6 @@ import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSout
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
-import nl.pim16aap2.bigDoors.moveBlocks.ElevatorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.FlagOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
@@ -125,7 +124,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener portcullisOpener;
     private RedstoneHandler redstoneHandler;
-    private ElevatorOpener elevatorOpener;
     private boolean validVersion;
     private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
@@ -229,7 +227,6 @@ public class BigDoors extends JavaPlugin implements Listener
             flagOpener = new FlagOpener(this);
             bridgeOpener = new BridgeOpener(this);
             commandHandler = new CommandHandler(this);
-            elevatorOpener = new ElevatorOpener(this);
             portcullisOpener = new PortcullisOpener(this);
             slidingDoorOpener = new SlidingDoorOpener(this);
 
@@ -562,12 +559,11 @@ public class BigDoors extends JavaPlugin implements Listener
                 return doorOpener;
             case DRAWBRIDGE:
                 return bridgeOpener;
+            case ELEVATOR:
             case PORTCULLIS:
                 return portcullisOpener;
             case SLIDINGDOOR:
                 return slidingDoorOpener;
-            case ELEVATOR:
-                return elevatorOpener;
             case FLAG:
                 return flagOpener;
             default:

@@ -13,15 +13,30 @@ import nl.pim16aap2.bigDoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 public class SlidingDoorOpener implements Opener
 {
-    private BigDoors plugin;
+    private static final List<RotateDirection> VALID_ROTATE_DIRECTIONS = Collections
+        .unmodifiableList(Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
+                                        RotateDirection.SOUTH, RotateDirection.WEST));
+
+    private final BigDoors plugin;
 
     public SlidingDoorOpener(BigDoors plugin)
     {
         this.plugin = plugin;
+    }
+
+    @Override
+    public @Nonnull List<RotateDirection> getValidRotateDirections()
+    {
+        return VALID_ROTATE_DIRECTIONS;
     }
 
     /**
@@ -74,14 +89,14 @@ public class SlidingDoorOpener implements Opener
         else
             moveX = blocksToMove;
 
-        Location newMin = door.getMinimum().clone().add(moveX, 0, moveZ);
-        Location newMax = door.getMaximum().clone().add(moveX, 0, moveZ);
+        Location newMin = door.getMinimum().add(moveX, 0, moveZ);
+        Location newMax = door.getMaximum().add(moveX, 0, moveZ);
 
         return ChunkUtils.getChunkRangeBetweenCoords(newMin, newMax, door.getMinimum(), door.getMaximum());
     }
 
     @Override
-    public boolean isRotateDirectionValid(Door door)
+    public boolean isRotateDirectionValid(@Nonnull Door door)
     {
         return door.getOpenDir().equals(RotateDirection.NORTH) || door.getOpenDir().equals(RotateDirection.EAST) ||
             door.getOpenDir().equals(RotateDirection.SOUTH) || door.getOpenDir().equals(RotateDirection.WEST);
@@ -150,6 +165,32 @@ public class SlidingDoorOpener implements Opener
         max.add(addX, addY, addZ);
     }
 
+    @Override
+    public @Nonnull Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
+    {
+        if (door.getBlocksToMove() > plugin.getConfigLoader().getMaxBlocksToMove())
+            return Optional.empty();
+
+        final int maxDoorSize = getSizeLimit(door);
+        if (maxDoorSize > 0 && door.getBlockCount() > maxDoorSize)
+        {
+            plugin.getMyLogger().warn("Size " + door.getBlockCount() + " exceeds limit of " +
+                                          maxDoorSize + " for sliding door: " + door);
+            return Optional.empty();
+        }
+
+        final MovementSpecification blocksToMove = getBlocksToMove(door);
+
+        if (blocksToMove.getBlocks() == 0)
+            return Optional.empty();
+
+        Location newMin = door.getMinimum();
+        Location newMax = door.getMaximum();
+        getNewCoords(newMin, newMax, blocksToMove);
+
+        return Optional.of(new Pair<>(newMin, newMax));
+    }
+
     // Open a door.
     @Override
     public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
@@ -190,15 +231,15 @@ public class SlidingDoorOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        MovementSpecification blocksToMove = getBlocksToMove(door);
-        if (Math.abs(blocksToMove.getBlocks()) > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
+        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
         {
             plugin.getMyLogger().logMessage("Sliding Door " + door.toSimpleString() + " Exceeds blocksToMove limit: "
-                                                + blocksToMove.getBlocks() + ". Limit = " +
-                                                BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true,
-                                            false);
+                                                + door.getBlocksToMove() + ". Limit = " +
+                                                BigDoors.get().getConfigLoader().getMaxBlocksToMove(), true, false);
             return abort(DoorOpenResult.BLOCKSTOMOVEINVALID, door.getDoorUID());
         }
+
+        final MovementSpecification blocksToMove = getBlocksToMove(door);
 
         if (blocksToMove.getBlocks() == 0)
             return abort(DoorOpenResult.NODIRECTION, door.getDoorUID());
@@ -226,13 +267,7 @@ public class SlidingDoorOpener implements Opener
         Location newMax = door.getMaximum();
         getNewCoords(newMin, newMax, blocksToMove);
 
-        // The door's owner does not have permission to move the door into the new
-        // position (e.g. worldguard doens't allow it.
-        if (plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(), newMin,
-                                             newMax) != null ||
-            plugin.canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(), door.getWorld(),
-                                             door.getMinimum(), door.getMaximum()) != null)
-
+        if (!hasAccessToLocations(door, newMin, newMax))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
@@ -260,6 +295,13 @@ public class SlidingDoorOpener implements Opener
 
         xLen = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? xLen : door.getBlocksToMove();
         zLen = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? zLen : door.getBlocksToMove();
+
+        final int sizeLimit = BigDoors.get().getConfigLoader().getMaxBlocksToMove();
+        xLen = Util.getLowestPositiveNumber(sizeLimit, xLen, 0);
+        zLen = Util.getLowestPositiveNumber(sizeLimit, zLen, 0);
+
+        if (xLen == 0 && zLen == 0)
+            return 0;
 
         int xAxis, yAxis, zAxis;
         step = slideDir == RotateDirection.NORTH || slideDir == RotateDirection.WEST ? -1 : 1;
@@ -322,9 +364,6 @@ public class SlidingDoorOpener implements Opener
 
     private MovementSpecification getBlocksToMove(Door door)
     {
-        if (door.getBlocksToMove() > BigDoors.get().getConfigLoader().getMaxBlocksToMove())
-            return new MovementSpecification(door.getBlocksToMove(), RotateDirection.NONE);
-
         int blocksNorth = 0, blocksEast = 0, blocksSouth = 0, blocksWest = 0;
 
         if (door.getOpenDir().equals(RotateDirection.NONE))

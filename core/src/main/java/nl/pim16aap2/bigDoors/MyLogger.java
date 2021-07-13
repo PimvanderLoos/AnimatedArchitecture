@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -112,6 +113,13 @@ public class MyLogger
     public void logMessageToConsoleOnly(String msg)
     {
         info(msg);
+    }
+
+    public void debug(String str)
+    {
+        if (ConfigLoader.DEBUG)
+            // Log at INFO level because lower levels are filtered by Spigot.
+            myLogger(Level.INFO, str);
     }
 
     public void info(String str)

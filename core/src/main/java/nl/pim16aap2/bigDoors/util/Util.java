@@ -1,5 +1,18 @@
 package nl.pim16aap2.bigDoors.util;
 
+import com.google.common.hash.Hashing;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Door;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,20 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-
-import com.google.common.hash.Hashing;
-
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.Door;
 
 public final class Util
 {
@@ -82,9 +81,14 @@ public final class Util
         return Optional.ofNullable(rot == null ? null : rotateDirectionMapper.get(rot));
     }
 
-    public static Optional<RotateDirection> getRotateDirection(DoorDirection dir)
+    public static RotateDirection getRotateDirection(DoorDirection dir)
     {
-        return Optional.ofNullable(dir == null ? null : doorDirectionMapper.get(dir));
+        if (dir == null)
+            return RotateDirection.NONE;
+        final RotateDirection mapped = doorDirectionMapper.get(dir);
+        if (mapped == null)
+            throw new IllegalStateException("Failed to find rotate direction for direction: " + dir);
+        return mapped;
     }
 
     // Send a message to a player in a specific color.
@@ -325,19 +329,33 @@ public final class Util
     }
 
     /**
-     * Gets the lowest positive integer out of 2.
+     * Gets the lowest positive integer out of 2. If both values are negative, the fallback value is returned instead.
      *
      * @param a The first int.
      * @param b The second int.
-     * @return The lowest positive integer.
+     * @return The lowest positive integer or 0 if both inputs are negative.
      */
-    public static int getLowestPositiveNumber(final int a, final int b)
+    public static int getLowestPositiveNumber(final int a, final int b, final int fallback)
     {
+        if (a < 0 && b < 0)
+            return fallback;
         if (a < 0)
             return b;
         if (b < 0)
             return a;
         return Math.min(a, b);
+    }
+
+    /**
+     * Gets the lowest positive integer out of 2.
+     *
+     * @param a The first int.
+     * @param b The second int.
+     * @return The lowest positive integer or -1 if both inputs are negative.
+     */
+    public static int getLowestPositiveNumber(final int a, final int b)
+    {
+        return getLowestPositiveNumber(a, b, -1);
     }
 
     private static int getHighestPermissionSuffix(Player player, String permissionNode)
@@ -510,7 +528,7 @@ public final class Util
             return 5;
         if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG) || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG) ||
             xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG) || xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG) ||
-            xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) || 
+            xmat.equals(XMaterial.STRIPPED_JUNGLE_LOG) || xmat.equals(XMaterial.STRIPPED_OAK_LOG) ||
             xmat.equals(XMaterial.CHAIN))
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
