@@ -50,7 +50,7 @@ public class SQLiteJDBCDriverConnection
     // The highest database version. If the found db version matches or exceeds
     // this version, the database cannot be enabled.
     private static final int MAX_DATABASE_VERSION = 10;
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     private static final int DOOR_ID = 1;
     private static final int DOOR_NAME = 2;
@@ -2181,6 +2181,9 @@ public class SQLiteJDBCDriverConnection
             if (dbVersion < 7)
                 upgradeToV7(conn);
 
+            if (dbVersion < 8)
+                upgradeToV8(conn);
+
             // If the database upgrade to V5 got interrupted in a previous attempt, the
             // fakeUUID
             // will still be in the database. If so, simply continue filling in player names
@@ -2652,6 +2655,19 @@ public class SQLiteJDBCDriverConnection
         catch (SQLException | NullPointerException e)
         {
             logMessage("1420", e);
+        }
+    }
+
+    private void upgradeToV8(final Connection conn)
+    {
+        try(PreparedStatement statement = conn.prepareStatement("UPDATE doors set type = type - 1 WHERE type >= 3;"))
+        {
+            plugin.getMyLogger().logMessage("Upgrading database to V8!", true, true);
+            statement.execute();
+        }
+        catch (SQLException | NullPointerException e)
+        {
+            logMessage("2670", e);
         }
     }
 

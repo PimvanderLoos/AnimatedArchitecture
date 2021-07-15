@@ -93,12 +93,11 @@ public class Door
     }
 
     // ------------------------ SIMPLE GETTERS -------------------- //
-//    public DoorType getType()           {  return type;          }  // Get this door's type.
     public DoorType getType() throws NullPointerException
     {
         try
         {
-            return type.equals(DoorType.ELEVATOR) ?  DoorType.PORTCULLIS : type; // DISABLED ELEVATORS
+            return type;
         }
         catch (NullPointerException e)
         {
@@ -249,7 +248,7 @@ public class Door
         length = 1;
 
         // Regular door or Portcullis
-        if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS) || type.equals(DoorType.ELEVATOR))
+        if (type.equals(DoorType.DOOR) || type.equals(DoorType.PORTCULLIS))
             length = xLen > zLen ? xLen : zLen;
 
             // Drawbridge
@@ -263,7 +262,7 @@ public class Door
         }
 
         // Portcullis engine is in the middle and doesn't rotate.
-        if (type.equals(DoorType.PORTCULLIS) || type.equals(DoorType.ELEVATOR))
+        if (type.equals(DoorType.PORTCULLIS))
             length /= 2;
 
         roundedLength = length / 16 + 1;

@@ -2,6 +2,8 @@ Alpha 0.1.8.31
 - The auto-updater is now initialized before checking if the current server version is valid. Thanks, @Eldoria, for the bug report!
 - Removed the shadowtoggle command.
 - Added some util methods to opener classes to make them a bit more useful for external plugins.
+- Removed some unused stuff.
+- Updated database to v8.
 
 Alpha 0.1.8.30
 - Add full support for Minecraft 1.17.

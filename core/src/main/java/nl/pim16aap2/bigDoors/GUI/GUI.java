@@ -53,34 +53,24 @@ public class GUI
     private static final byte PLAYERHEADDATA = 3;
     private static final byte SKULLDATA = 0;
     private static final int CHESTSIZE = 45;
-    private static Material[] DOORTYPES = new Material[6];
+    private static Material[] DOORTYPES = new Material[4];
 
     static
     {
         // Ugly hack. I cannot be bothered to fix this properly.
-        if (MCVersion.v1_11.equals(BigDoors.getMCVersion()))
+        if (MCVersion.v1_11.equals(BigDoors.getMCVersion()) || MCVersion.v1_12.equals(BigDoors.getMCVersion()))
         {
             DOORTYPES[0] = Material.getMaterial("WOOD_DOOR"); // Door
             DOORTYPES[1] = Material.getMaterial("TRAP_DOOR"); // DrawBridge
             DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
-            DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
-            DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
-        }
-        else if (MCVersion.v1_12.equals(BigDoors.getMCVersion()))
-        {
-            DOORTYPES[0] = Material.getMaterial("WOOD_DOOR"); // Door
-            DOORTYPES[1] = Material.getMaterial("TRAP_DOOR"); // DrawBridge
-            DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
-            DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
-            DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
+            DOORTYPES[3] = Material.getMaterial("PISTON_BASE"); // Sliding Door
         }
         else
         {
             DOORTYPES[0] = XMaterial.OAK_DOOR.parseMaterial(); // Door
             DOORTYPES[1] = XMaterial.OAK_TRAPDOOR.parseMaterial(); // DrawBridge
             DOORTYPES[2] = XMaterial.IRON_DOOR.parseMaterial(); // Portcullis
-            DOORTYPES[3] = XMaterial.OAK_BOAT.parseMaterial(); // Elevator
-            DOORTYPES[4] = XMaterial.PISTON.parseMaterial(); // Sliding Door
+            DOORTYPES[3] = XMaterial.PISTON.parseMaterial(); // Sliding Door
         }
     }
 
@@ -220,7 +210,6 @@ public class GUI
         items.put(1, new GUIItem(TOGGLEDOORMAT, messages.getString("GUI.SORTED.Change"), lore, 1));
         lore.clear();
 
-//        addCreationBook(DoorType.ELEVATOR,    2, "GUI.NewElevator"   ); // DISABLED ELEVATORS
         addCreationBook(DoorType.DRAWBRIDGE, 3, "GUI.NewDrawbridge");
         addCreationBook(DoorType.DOOR, 4, "GUI.NewDoor");
         addCreationBook(DoorType.PORTCULLIS, 5, "GUI.NewPortcullis");
@@ -506,8 +495,6 @@ public class GUI
                 startCreationProcess(player, DoorType.PORTCULLIS);
             else if (itemName.equals(messages.getString("GUI.NewDrawbridge")))
                 startCreationProcess(player, DoorType.DRAWBRIDGE);
-            else if (itemName.equals(messages.getString("GUI.NewElevator")))
-                startCreationProcess(player, DoorType.ELEVATOR);
             else if (itemName.equals(messages.getString("GUI.NewSlidingDoor")))
                 startCreationProcess(player, DoorType.SLIDINGDOOR);
         }
@@ -715,8 +702,6 @@ public class GUI
                 curOpenDir == RotateDirection.NORTH ? RotateDirection.EAST :
                 curOpenDir == RotateDirection.EAST ? RotateDirection.SOUTH :
                 curOpenDir == RotateDirection.SOUTH ? RotateDirection.WEST : RotateDirection.NORTH;
-        else if (door.getType() == DoorType.ELEVATOR || door.getType() == DoorType.PORTCULLIS)
-            newOpenDir = curOpenDir == RotateDirection.UP ? RotateDirection.DOWN : RotateDirection.UP;
         else if (door.getType() == DoorType.DRAWBRIDGE)
             newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.NORTH :
                 curOpenDir == RotateDirection.NORTH ? RotateDirection.SOUTH :

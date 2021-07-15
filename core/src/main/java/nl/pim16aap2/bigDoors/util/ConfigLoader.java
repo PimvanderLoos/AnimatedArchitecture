@@ -62,7 +62,7 @@ public class ConfigLoader
     private Set<Material> whitelist;
 
     private int headCacheTimeout;
-    private String doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice;
+    private String doorPrice, drawbridgePrice, portcullisPrice, slidingDoorPrice;
 
     private final ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
@@ -148,7 +148,7 @@ public class ConfigLoader
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
                                        "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
-                                       "bd = Big Door, pc = PortCullis, db = DrawBridge, sd = Sliding Door, el = ELevator.",
+                                       "bd = Big Door, pc = PortCullis, db = DrawBridge, sd = Sliding Door.",
                                        "Note that everything is optimized for default values, so it's recommended to leave this setting as-is." };
         String[] compatibilityHooks = { "Enable or disable compatibility hooks for certain plugins. If the plugins aren't installed, these options do nothing.",
                                         "When enabled, doors cannot be opened or created in areas not owned by the door's owner." };
@@ -289,9 +289,6 @@ public class ConfigLoader
 
         portcullisPrice = config.getString("portcullisPrice", "0");
         configOptionsList.add(new ConfigOption("portcullisPrice", portcullisPrice, null));
-
-        elevatorPrice = config.getString("elevatorPrice", "0");
-        configOptionsList.add(new ConfigOption("elevatorPrice", elevatorPrice, null));
 
         slidingDoorPrice = config.getString("slidingDoorPrice", "0");
         configOptionsList.add(new ConfigOption("slidingDoorPrice", slidingDoorPrice, null));
@@ -627,11 +624,6 @@ public class ConfigLoader
     public String portcullisPrice()
     {
         return portcullisPrice;
-    }
-
-    public String elevatorPrice()
-    {
-        return elevatorPrice;
     }
 
     public String slidingDoorPrice()

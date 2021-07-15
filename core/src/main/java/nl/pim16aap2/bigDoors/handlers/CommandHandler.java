@@ -6,7 +6,6 @@ import nl.pim16aap2.bigDoors.GUI.GUI;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.DrawbridgeCreator;
-import nl.pim16aap2.bigDoors.toolUsers.ElevatorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.PortcullisCreator;
 import nl.pim16aap2.bigDoors.toolUsers.PowerBlockInspector;
 import nl.pim16aap2.bigDoors.toolUsers.PowerBlockRelocator;
@@ -269,14 +268,9 @@ public class CommandHandler implements CommandExecutor
         if (isPlayerBusy(player))
             return;
 
-        // These are disabled.
-        if (type.equals(DoorType.ELEVATOR)) // DISABLED ELEVATORS
-            return;
-
         ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
                       type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
                       type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
-                      type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
         startTimerForAbortable(tu, 120 * 20);
@@ -765,13 +759,6 @@ public class CommandHandler implements CommandExecutor
                     openDir = RotateDirection.NORTH;
                 else if (args[1].equalsIgnoreCase("WEST"))
                     openDir = RotateDirection.NORTH;
-            }
-            else if (door.getType() == DoorType.ELEVATOR)
-            {
-                if (args[1].equalsIgnoreCase("UP"))
-                    openDir = RotateDirection.UP;
-                else if (args[1].equalsIgnoreCase("DOWN"))
-                    openDir = RotateDirection.DOWN;
             }
             else
             {

@@ -551,7 +551,6 @@ public class BigDoors extends JavaPlugin implements Listener
                 return doorOpener;
             case DRAWBRIDGE:
                 return bridgeOpener;
-            case ELEVATOR:
             case PORTCULLIS:
                 return portcullisOpener;
             case SLIDINGDOOR:

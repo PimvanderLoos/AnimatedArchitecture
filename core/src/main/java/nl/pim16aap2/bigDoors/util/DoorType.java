@@ -24,14 +24,7 @@ public enum DoorType
                                       DoorAttribute.NOTIFICATIONS}),
 
 
-    ELEVATOR    (3, "-EL", "GENERAL.DOORTYPE.Elevator", "bigdoors.user.createdoor.elevator",
-                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE, 
-                                      DoorAttribute.NOTIFICATIONS}),
-
-
-    SLIDINGDOOR (4, "-SD", "GENERAL.DOORTYPE.SlidingDoor", "bigdoors.user.createdoor.slidingdoor",
+    SLIDINGDOOR (3, "-SD", "GENERAL.DOORTYPE.SlidingDoor", "bigdoors.user.createdoor.slidingdoor",
                  new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
                                       DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE, 
