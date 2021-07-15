@@ -66,17 +66,28 @@ public interface Opener
         return ChunkUtils.checkChunks(door.getWorld(), getCurrentChunkRange(door), mode);
     }
 
-    DoorOpenResult openDoor(Door door, double time);
+    /**
+     * See {@link #openDoor(Door, double, boolean, boolean, ChunkLoadMode, boolean)}.
+     */
+    default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time)
+    {
+        return openDoor(door, time, false, false);
+    }
 
-    default DoorOpenResult openDoor(Door door, double time, boolean instantOpen)
+    /**
+     * See {@link #openDoor(Door, double, boolean, boolean, ChunkLoadMode, boolean)}.
+     */
+    default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen)
     {
         return openDoor(door, time, instantOpen, false);
     }
 
-    default DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent)
+    /**
+     * See {@link #openDoor(Door, double, boolean, boolean, ChunkLoadMode, boolean)}.
+     */
+    default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent)
     {
-        ChunkLoadMode mode = BigDoors.get().getConfigLoader().loadChunksForToggle() ? ChunkLoadMode.ATTEMPT_LOAD :
-                             ChunkLoadMode.VERIFY_LOADED;
+        ChunkLoadMode mode = BigDoors.get().getConfigLoader().getChunkLoadMode();
 
         // When "skipUnloadedAutoCloseToggle" is enabled, doors will not try to load
         // chunks if they have an autoCloseTimer. This only affects closed doors,
@@ -88,7 +99,33 @@ public interface Opener
         return openDoor(door, time, instantOpen, silent, mode);
     }
 
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode);
+    /**
+     * See {@link #openDoor(Door, double, boolean, boolean, ChunkLoadMode, boolean)}.
+     */
+    default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
+                                             @Nonnull ChunkLoadMode mode)
+    {
+        return openDoor(door, time, instantOpen, silent, mode, false);
+    }
+
+    /**
+     * Attempts to toggle a door.
+     *
+     * @param door                  The door to attempt to toggle.
+     * @param time                  The amount of time the animation should (try to) take to complete. This will not be
+     *                              the actual amount of time the full toggle will take because 1) some parts of the
+     *                              animation are not included in this timing value and 2) There are some limits that
+     *                              cannot be exceeded.
+     *                              <p>
+     *                              Setting this value to 0 will result in the default time value being used.
+     * @param instantOpen           When this is true, the animation will be skipped.
+     * @param silent                Whether or not to suppress messages.
+     * @param mode                  Determines how to deal with unloaded chunks. See {@link ConfigLoader#getChunkLoadMode()}.
+     * @param bypassProtectionHooks Whether or not to bypass the protection hooks when trying to toggle the door.
+     * @return The result of the toggle attempt.
+     */
+    @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
+                                     @Nonnull ChunkLoadMode mode, boolean bypassProtectionHooks);
 
     default DoorOpenResult abort(DoorOpenResult reason, long doorUID)
     {

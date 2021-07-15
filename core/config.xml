@@ -1,6 +1,7 @@
 <config>
     <input>
-        <jar in="/home/pim/Documents/workspace/BigDoors/core/target/BigDoors-unobf.jar" out="/home/pim/Documents/workspace/BigDoors/core/target/BigDoors.jar"/>
+        <jar in="/home/pim/Documents/workspace/BigDoors/core/target/BigDoors-unobf.jar"
+             out="/home/pim/Documents/workspace/BigDoors/core/target/BigDoors_obf.jar"/>
     </input>
 
     <keep-names>

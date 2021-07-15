@@ -644,9 +644,9 @@ public class ConfigLoader
         return commandWaiterTimeout;
     }
 
-    public boolean loadChunksForToggle()
+    public ChunkUtils.ChunkLoadMode getChunkLoadMode()
     {
-        return loadChunksForToggle;
+        return loadChunksForToggle ? ChunkUtils.ChunkLoadMode.ATTEMPT_LOAD : ChunkUtils.ChunkLoadMode.VERIFY_LOADED;
     }
 
     public int maxPowerBlockDistance()

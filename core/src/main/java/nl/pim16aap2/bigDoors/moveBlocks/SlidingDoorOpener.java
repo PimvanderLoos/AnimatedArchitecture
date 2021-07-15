@@ -126,12 +126,6 @@ public class SlidingDoorOpener implements Opener
         return 1 + door.getMaximum().getBlockX() - door.getMinimum().getBlockX();
     }
 
-    @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
-    }
-
     private void getNewCoords(final Location min, final Location max, final MovementSpecification blocksToMove)
     {
         int addX = 0, addY = 0, addZ = 0;
@@ -191,9 +185,9 @@ public class SlidingDoorOpener implements Opener
         return Optional.of(new Pair<>(newMin, newMax));
     }
 
-    // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
+    public @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
+                                            @Nonnull ChunkLoadMode mode, boolean bypassProtectionHooks)
     {
         if (!plugin.getCommander().canGo())
         {
@@ -267,7 +261,7 @@ public class SlidingDoorOpener implements Opener
         Location newMax = door.getMaximum();
         getNewCoords(newMin, newMax, blocksToMove);
 
-        if (!hasAccessToLocations(door, newMin, newMax))
+        if (!bypassProtectionHooks && !hasAccessToLocations(door, newMin, newMax))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))

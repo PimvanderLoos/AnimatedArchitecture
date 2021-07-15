@@ -66,13 +66,6 @@ public class PortcullisOpener implements Opener
     }
 
     @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
-    }
-
-
-    @Override
     @Nonnull public Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door)
     {
         if (door.getBlocksToMove() > plugin.getConfigLoader().getMaxBlocksToMove())
@@ -94,9 +87,9 @@ public class PortcullisOpener implements Opener
                                       door.getMaximum().add(0, blocksToMove, 0)));
     }
 
-    // Open a door.
     @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
+    public @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
+                                            @Nonnull ChunkLoadMode mode, boolean bypassProtectionHooks)
     {
         if (!plugin.getCommander().canGo())
         {
@@ -150,7 +143,7 @@ public class PortcullisOpener implements Opener
         Location newMin = door.getMinimum().add(0, blocksToMove, 0);
         Location newMax = door.getMaximum().add(0, blocksToMove, 0);
 
-        if (!hasAccessToLocations(door, newMin, newMax))
+        if (!bypassProtectionHooks && !hasAccessToLocations(door, newMin, newMax))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (!isRotateDirectionValid(door))

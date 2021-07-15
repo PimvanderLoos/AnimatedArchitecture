@@ -252,14 +252,8 @@ public class DoorOpener implements Opener
     }
 
     @Override
-    public DoorOpenResult openDoor(Door door, double time)
-    {
-        return openDoor(door, time, false, false);
-    }
-
-    // Open a door.
-    @Override
-    public DoorOpenResult openDoor(Door door, double time, boolean instantOpen, boolean silent, ChunkLoadMode mode)
+    public @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
+                                            @Nonnull ChunkLoadMode mode, boolean bypassProtectionHooks)
     {
         if (!plugin.getCommander().canGo())
         {
@@ -350,7 +344,7 @@ public class DoorOpener implements Opener
             return abort(DoorOpenResult.ERROR, door.getDoorUID());
         }
 
-        if (!hasAccessToLocations(door, openingSpecification.min, openingSpecification.max))
+        if (!bypassProtectionHooks && !hasAccessToLocations(door, openingSpecification.min, openingSpecification.max))
             return abort(DoorOpenResult.NOPERMISSION, door.getDoorUID());
 
         if (fireDoorEventTogglePrepare(door, instantOpen))
