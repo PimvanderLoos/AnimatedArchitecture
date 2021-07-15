@@ -36,12 +36,6 @@ public enum DoorType
                                       DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
                                       DoorAttribute.REMOVEOWNER, DoorAttribute.DIRECTION_STRAIGHT, DoorAttribute.BLOCKSTOMOVE, 
                                       DoorAttribute.NOTIFICATIONS}),
-
-
-    FLAG        (5, "-FL", "GENERAL.DOORTYPE.Flag", "bigdoors.user.createdoor.flag",
-                 new DoorAttribute[] {DoorAttribute.LOCK, DoorAttribute.TOGGLE, DoorAttribute.INFO, DoorAttribute.DELETE,
-                                      DoorAttribute.RELOCATEPOWERBLOCK, DoorAttribute.CHANGETIMER, DoorAttribute.ADDOWNER,
-                                      DoorAttribute.REMOVEOWNER, DoorAttribute.NOTIFICATIONS})
     ;
 
     private int    val;

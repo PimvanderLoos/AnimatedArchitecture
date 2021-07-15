@@ -7,7 +7,6 @@ import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.toolUsers.DoorCreator;
 import nl.pim16aap2.bigDoors.toolUsers.DrawbridgeCreator;
 import nl.pim16aap2.bigDoors.toolUsers.ElevatorCreator;
-import nl.pim16aap2.bigDoors.toolUsers.FlagCreator;
 import nl.pim16aap2.bigDoors.toolUsers.PortcullisCreator;
 import nl.pim16aap2.bigDoors.toolUsers.PowerBlockInspector;
 import nl.pim16aap2.bigDoors.toolUsers.PowerBlockRelocator;
@@ -271,14 +270,13 @@ public class CommandHandler implements CommandExecutor
             return;
 
         // These are disabled.
-        if (type.equals(DoorType.FLAG) || type.equals(DoorType.ELEVATOR)) // DISABLED ELEVATORS
+        if (type.equals(DoorType.ELEVATOR)) // DISABLED ELEVATORS
             return;
 
         ToolUser tu = type == DoorType.DOOR ? new DoorCreator(plugin, player, name) :
                       type == DoorType.DRAWBRIDGE ? new DrawbridgeCreator(plugin, player, name) :
                       type == DoorType.PORTCULLIS ? new PortcullisCreator(plugin, player, name) :
                       type == DoorType.ELEVATOR ? new ElevatorCreator(plugin, player, name) :
-                      type == DoorType.FLAG ? new FlagCreator(plugin, player, name) :
                       type == DoorType.SLIDINGDOOR ? new SlidingDoorCreator(plugin, player, name) : null;
 
         startTimerForAbortable(tu, 120 * 20);

@@ -18,7 +18,7 @@ public final class VaultManager
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.
-    Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice, flagPrice;
+    Integer doorPrice, drawbridgePrice, portcullisPrice, elevatorPrice, slidingDoorPrice;
     private final static double EPSILON = 0.00001;
 
     private final BigDoors plugin;
@@ -102,15 +102,6 @@ public final class VaultManager
         {
             slidingDoorPrice = null;
         }
-
-        try
-        {
-            flagPrice = Integer.parseInt(plugin.getConfigLoader().flagPrice());
-        }
-        catch(Exception e)
-        {
-            flagPrice = null;
-        }
     }
 
     public boolean hasPermission(Player player, String permission)
@@ -170,13 +161,6 @@ public final class VaultManager
                 price = elevatorPrice;
             else
                 price = evaluateFormula(plugin.getConfigLoader().elevatorPrice(), blockCount);
-            break;
-
-        case FLAG:
-            if (flagPrice != null)
-                price = flagPrice;
-            else
-                price = evaluateFormula(plugin.getConfigLoader().flagPrice(), blockCount);
             break;
 
         case PORTCULLIS:

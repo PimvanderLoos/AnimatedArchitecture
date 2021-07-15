@@ -42,7 +42,6 @@ import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSout
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
-import nl.pim16aap2.bigDoors.moveBlocks.FlagOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.SlidingDoorOpener;
@@ -125,7 +124,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private PortcullisOpener portcullisOpener;
     private RedstoneHandler redstoneHandler;
     private boolean validVersion;
-    private FlagOpener flagOpener;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
     private HashMap<UUID, WaitForCommand> cmdWaiters;
@@ -224,7 +222,6 @@ public class BigDoors extends JavaPlugin implements Listener
             db = new SQLiteJDBCDriverConnection(this, config.dbFile());
             commander = new Commander(this, db);
             doorOpener = new DoorOpener(this);
-            flagOpener = new FlagOpener(this);
             bridgeOpener = new BridgeOpener(this);
             commandHandler = new CommandHandler(this);
             portcullisOpener = new PortcullisOpener(this);
@@ -484,12 +481,7 @@ public class BigDoors extends JavaPlugin implements Listener
             Map<String, Integer> output = new HashMap<>(doorTypes.length - 1);
             Map<DoorType, Integer> stats = db.getDatabaseStatistics();
             for (DoorType type : doorTypes)
-            {
-                // Makes no sense to log flags
-                if (type == DoorType.FLAG)
-                    continue;
                 output.put(DoorType.getFriendlyName(type), stats.getOrDefault(type, 0));
-            }
             return output;
         }));
     }
@@ -564,8 +556,6 @@ public class BigDoors extends JavaPlugin implements Listener
                 return portcullisOpener;
             case SLIDINGDOOR:
                 return slidingDoorOpener;
-            case FLAG:
-                return flagOpener;
             default:
                 return null;
         }

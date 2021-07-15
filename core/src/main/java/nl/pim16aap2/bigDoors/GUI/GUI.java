@@ -65,7 +65,6 @@ public class GUI
             DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
             DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
             DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
-            DOORTYPES[5] = Material.getMaterial("CARPET"); // Flag
         }
         else if (MCVersion.v1_12.equals(BigDoors.getMCVersion()))
         {
@@ -74,7 +73,6 @@ public class GUI
             DOORTYPES[2] = Material.getMaterial("IRON_DOOR"); // Portcullis
             DOORTYPES[3] = Material.getMaterial("BOAT"); // Elevator
             DOORTYPES[4] = Material.getMaterial("PISTON_BASE"); // Sliding Door
-            DOORTYPES[5] = Material.getMaterial("CARPET"); // Flag
         }
         else
         {
@@ -83,7 +81,6 @@ public class GUI
             DOORTYPES[2] = XMaterial.IRON_DOOR.parseMaterial(); // Portcullis
             DOORTYPES[3] = XMaterial.OAK_BOAT.parseMaterial(); // Elevator
             DOORTYPES[4] = XMaterial.PISTON.parseMaterial(); // Sliding Door
-            DOORTYPES[5] = XMaterial.PURPLE_CARPET.parseMaterial(); // Flag
         }
     }
 
