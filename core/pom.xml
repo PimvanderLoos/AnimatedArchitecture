@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BigDoors</artifactId>
         <groupId>nl.pim16aap2</groupId>
-        <version>0.1.8.30-ALPHA</version>
+        <version>0.1.8.31-ALPHA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,6 +18,7 @@
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+        <dependency.version.bytebuddy>1.11.7</dependency.version.bytebuddy>
     </properties>
 
     <repositories>
@@ -74,86 +75,110 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>nms-api</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_11_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_12_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R1_5</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R2</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_14_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_15_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R2</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R3</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_17_R1</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${dependency.version.bytebuddy}</version>
+            <!--            <scope>provided</scope>-->
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>9.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>9.2</version>
+        </dependency>
+
 
         <!-- bStats -->
         <dependency>
@@ -324,6 +349,10 @@
                             <pattern>nl.pim16aap2.jcalculator</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.objectweb.asm.</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.asm</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -356,7 +385,7 @@
                                 </goals>
                                 <configuration>
                                     <tasks>
-                                        <ant antfile="${basedir}/build.xml" />
+                                        <ant antfile="${basedir}/build.xml"/>
                                     </tasks>
                                 </configuration>
                             </execution>

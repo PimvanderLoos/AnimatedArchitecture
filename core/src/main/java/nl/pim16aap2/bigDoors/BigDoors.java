@@ -25,6 +25,7 @@ import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_17_R1;
+import nl.pim16aap2.bigDoors.codegeneration.EntityFallingBlockGenerator;
 import nl.pim16aap2.bigDoors.compatibility.IFakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
@@ -148,6 +149,17 @@ public class BigDoors extends JavaPlugin implements Listener
     @Override
     public void onEnable()
     {
+        try
+        {
+            new EntityFallingBlockGenerator();
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }
+
+        System.exit(0);
+
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this);
@@ -165,6 +177,7 @@ public class BigDoors extends JavaPlugin implements Listener
             setDisabled("This plugin is disabled because it failed to read config file!");
             return;
         }
+
         updateManager.setEnabled(getConfigLoader().autoDLUpdate());
 
         messages = new Messages(this);
@@ -712,7 +725,9 @@ public class BigDoors extends JavaPlugin implements Listener
             return null;
         }
 
-        MCVersion mcVersion = null;
+        MCVersion mcVersion = MCVersion.v1_17;
+
+
         if (version.equals("v1_11_R1"))
             mcVersion = MCVersion.v1_11;
         else if (version.equals("v1_12_R1"))
@@ -748,91 +763,103 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         fabf = null;
-        if (version.equals("v1_11_R1"))
+        switch (version)
         {
-            fabf = new FallingBlockFactory_V1_11_R1();
-            headManager = new SkullCreator_V1_11_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_12_R1"))
-        {
-            fabf = new FallingBlockFactory_V1_12_R1();
-            headManager = new SkullCreator_V1_12_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_13_R1"))
-        {
-            is1_13 = true;
-            fabf = new FallingBlockFactory_V1_13_R1();
-            headManager = new SkullCreator_V1_13_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_13_R2"))
-        {
-            String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-            final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(-1);
-            if (minorVersion == -1)
-            {
-                logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
+            case "v1_8_R1":
+            case "v1_8_R2":
+            case "v1_8_R3":
+            case "v1_9_R1":
+            case "v1_9_R2":
+            case "v1_10_R1":
                 return false;
-            }
-            is1_13 = true;
-            fakePlayerCreator = new FakePlayerCreator(this);
-            // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
-            // That's why 1.13.1 is a kinda R1.5 package.
-            if (minorVersion == 1)
-            {
-                fabf = new FallingBlockFactory_V1_13_R1_5();
-                headManager = new SkullCreator_V1_13_R1_5(this);
-            }
-            else
-            {
-                fabf = new FallingBlockFactory_V1_13_R2();
-                headManager = new SkullCreator_V1_13_R2(this);
-            }
+            case "v1_11_R1":
+                fabf = new FallingBlockFactory_V1_11_R1();
+                headManager = new SkullCreator_V1_11_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_12_R1":
+                fabf = new FallingBlockFactory_V1_12_R1();
+                headManager = new SkullCreator_V1_12_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_13_R1":
+                is1_13 = true;
+                fabf = new FallingBlockFactory_V1_13_R1();
+                headManager = new SkullCreator_V1_13_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_13_R2":
+                String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+                final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(-1);
+                if (minorVersion == -1)
+                {
+                    logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
+                    return false;
+                }
+                is1_13 = true;
+                fakePlayerCreator = new FakePlayerCreator(this);
+                // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
+                // That's why 1.13.1 is a kinda R1.5 package.
+                if (minorVersion == 1)
+                {
+                    fabf = new FallingBlockFactory_V1_13_R1_5();
+                    headManager = new SkullCreator_V1_13_R1_5(this);
+                }
+                else
+                {
+                    fabf = new FallingBlockFactory_V1_13_R2();
+                    headManager = new SkullCreator_V1_13_R2(this);
+                }
+                break;
+            case "v1_14_R1":
+                is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_14_R1();
+                headManager = new SkullCreator_V1_14_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_15_R1":
+                is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_15_R1();
+                headManager = new SkullCreator_V1_15_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_16_R1":
+                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_16_R1();
+                headManager = new SkullCreator_V1_16_R1(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_16_R2":
+                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_16_R2();
+                headManager = new SkullCreator_V1_16_R2(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_16_R3":
+                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_16_R3();
+                headManager = new SkullCreator_V1_16_R3(this);
+                fakePlayerCreator = new FakePlayerCreator(this);
+                break;
+            case "v1_17_R1":
+                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+
+                fabf = new FallingBlockFactory_V1_17_R1();
+                headManager = new SkullCreator_V1_17_R1(this);
+                fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
+                break;
+            default:
+                getMyLogger().warn("The plugin has not been tested for this version! We'll try to make it work, though...");
+                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+
+                break;
         }
-        else if (version.equals("v1_14_R1"))
-        {
-            is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_14_R1();
-            headManager = new SkullCreator_V1_14_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_15_R1"))
-        {
-            is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_15_R1();
-            headManager = new SkullCreator_V1_15_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R1"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R1();
-            headManager = new SkullCreator_V1_16_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R2"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R2();
-            headManager = new SkullCreator_V1_16_R2(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R3"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R3();
-            headManager = new SkullCreator_V1_16_R3(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_17_R1"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_17_R1();
-            headManager = new SkullCreator_V1_17_R1(this);
-            fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
-        }
+
         // Return true if compatible.
         return fabf != null;
     }

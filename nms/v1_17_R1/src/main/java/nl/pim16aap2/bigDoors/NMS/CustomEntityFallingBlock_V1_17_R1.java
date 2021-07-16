@@ -9,7 +9,6 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.tags.TagsBlock;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EnumMoveType;
 import net.minecraft.world.entity.item.EntityFallingBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -47,35 +46,26 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
      */
     public NBTTagCompound d;
 
-    /**
-     * block
-     */
-    private IBlockData f;
+    private IBlockData block;
 
-    /**
-     * fallHurtMax
-     */
-    private int aq;
+    private int fallHurtMax;
 
-    /**
-     * FallHurtAmount
-     */
-    private float ar;
+    private float FallHurtAmount;
 
     private final org.bukkit.World bukkitWorld;
 
     public CustomEntityFallingBlock_V1_17_R1(final org.bukkit.World world, final double d0, final double d1,
-        final double d2, final IBlockData iblockdata)
+                                             final double d2, final IBlockData iblockdata)
     {
-        super(EntityTypes.C, ((CraftWorld) world).getHandle());
+        super(((CraftWorld) world).getHandle(), d0, d1, d2, iblockdata);
         bukkitWorld = world;
-        f = iblockdata;
+        block = iblockdata;
         r = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
         c = false;
         setNoGravity(true);
-        aq = 0;
-        ar = 0.0F;
+        fallHurtMax = 0;
+        FallHurtAmount = 0.0F;
         setMot(0, 0, 0);
 
         /*
@@ -100,7 +90,7 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
     @Override
     public void tick()
     {
-        if (f.isAir())
+        if (block.isAir())
             die();
         else
         {
@@ -122,12 +112,12 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
     @Override
     protected void saveData(final NBTTagCompound nbttagcompound)
     {
-        nbttagcompound.set("BlockState", GameProfileSerializer.a(f));
+        nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
         nbttagcompound.setInt("Time", b);
         nbttagcompound.setBoolean("DropItem", c);
         nbttagcompound.setBoolean("HurtEntities", ap);
-        nbttagcompound.setFloat("FallHurtAmount", ar);
-        nbttagcompound.setInt("FallHurtMax", aq);
+        nbttagcompound.setFloat("FallHurtAmount", FallHurtAmount);
+        nbttagcompound.setInt("FallHurtMax", fallHurtMax);
         if (d != null)
             nbttagcompound.set("TileEntityData", d);
     }
@@ -135,15 +125,15 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
     @Override
     protected void loadData(final NBTTagCompound nbttagcompound)
     {
-        f = GameProfileSerializer.c(nbttagcompound.getCompound("BlockState"));
+        block = GameProfileSerializer.c(nbttagcompound.getCompound("BlockState"));
         b = nbttagcompound.getInt("Time");
         if (nbttagcompound.hasKeyOfType("HurtEntities", 99))
         {
             ap = nbttagcompound.getBoolean("HurtEntities");
-            ar = nbttagcompound.getFloat("FallHurtAmount");
-            aq = nbttagcompound.getInt("FallHurtMax");
+            FallHurtAmount = nbttagcompound.getFloat("FallHurtAmount");
+            fallHurtMax = nbttagcompound.getInt("FallHurtMax");
         }
-        else if (f.a(TagsBlock.G))
+        else if (block.a(TagsBlock.G))
             ap = true;
 
         if (nbttagcompound.hasKeyOfType("DropItem", 99))
@@ -152,20 +142,20 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
         if (nbttagcompound.hasKeyOfType("TileEntityData", 10))
             d = nbttagcompound.getCompound("TileEntityData");
 
-        if (f.isAir())
-            f = Blocks.C.getBlockData();
+        if (block.isAir())
+            block = Blocks.C.getBlockData();
     }
 
     @Override
     public void appendEntityCrashDetails(final CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
-        crashreportsystemdetails.a("Imitating BlockState", f.toString());
+        crashreportsystemdetails.a("Imitating BlockState", block.toString());
     }
 
     @Override
     public IBlockData getBlock()
     {
-        return f;
+        return block;
     }
 }

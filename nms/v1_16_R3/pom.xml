@@ -5,7 +5,7 @@
     <parent>
         <artifactId>nms</artifactId>
         <groupId>nl.pim16aap2</groupId>
-        <version>0.1.8.30-ALPHA</version>
+        <version>0.1.8.31-ALPHA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>nms-api</artifactId>
-            <version>0.1.8.30-ALPHA</version>
+            <version>0.1.8.31-ALPHA</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
