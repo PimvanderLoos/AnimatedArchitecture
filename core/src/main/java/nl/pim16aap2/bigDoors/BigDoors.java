@@ -151,7 +151,7 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         try
         {
-            new EntityFallingBlockGenerator();
+            new EntityFallingBlockGenerator().generate();
         }
         catch (Exception exception)
         {

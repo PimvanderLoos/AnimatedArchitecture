@@ -18,7 +18,7 @@
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
-        <dependency.version.bytebuddy>1.11.7</dependency.version.bytebuddy>
+        <dependency.version.bytebuddy>1.11.8</dependency.version.bytebuddy>
     </properties>
 
     <repositories>

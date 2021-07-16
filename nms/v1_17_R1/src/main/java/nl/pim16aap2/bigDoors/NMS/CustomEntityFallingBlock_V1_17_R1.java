@@ -4,10 +4,6 @@ import net.minecraft.CrashReportSystemDetails;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.nbt.GameProfileSerializer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.syncher.DataWatcher;
-import net.minecraft.network.syncher.DataWatcherObject;
-import net.minecraft.network.syncher.DataWatcherRegistry;
-import net.minecraft.tags.TagsBlock;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EnumMoveType;
 import net.minecraft.world.entity.item.EntityFallingBlock;
@@ -24,8 +20,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
  */
 public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implements CustomEntityFallingBlock
 {
-    protected static final DataWatcherObject<BlockPosition> e = DataWatcher.a(EntityFallingBlock.class,
-                                                                              DataWatcherRegistry.l);
     /**
      * ticksLived
      */
@@ -48,10 +42,6 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
 
     private IBlockData block;
 
-    private int fallHurtMax;
-
-    private float FallHurtAmount;
-
     private final org.bukkit.World bukkitWorld;
 
     public CustomEntityFallingBlock_V1_17_R1(final org.bukkit.World world, final double d0, final double d1,
@@ -60,20 +50,8 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
         super(((CraftWorld) world).getHandle(), d0, d1, d2, iblockdata);
         bukkitWorld = world;
         block = iblockdata;
-        r = true;
-        setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
-        c = false;
         setNoGravity(true);
-        fallHurtMax = 0;
-        FallHurtAmount = 0.0F;
         setMot(0, 0, 0);
-
-        /*
-         * lastX, lastY, lastZ
-         */
-        u = d0;
-        v = d1;
-        w = d2;
 
         // try setting noclip twice, because it doesn't seem to stick.
         P = true;
@@ -116,8 +94,8 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
         nbttagcompound.setInt("Time", b);
         nbttagcompound.setBoolean("DropItem", c);
         nbttagcompound.setBoolean("HurtEntities", ap);
-        nbttagcompound.setFloat("FallHurtAmount", FallHurtAmount);
-        nbttagcompound.setInt("FallHurtMax", fallHurtMax);
+        nbttagcompound.setFloat("FallHurtAmount", 0.0f);
+        nbttagcompound.setInt("FallHurtMax", 0);
         if (d != null)
             nbttagcompound.set("TileEntityData", d);
     }
@@ -127,14 +105,6 @@ public class CustomEntityFallingBlock_V1_17_R1 extends EntityFallingBlock implem
     {
         block = GameProfileSerializer.c(nbttagcompound.getCompound("BlockState"));
         b = nbttagcompound.getInt("Time");
-        if (nbttagcompound.hasKeyOfType("HurtEntities", 99))
-        {
-            ap = nbttagcompound.getBoolean("HurtEntities");
-            FallHurtAmount = nbttagcompound.getFloat("FallHurtAmount");
-            fallHurtMax = nbttagcompound.getInt("FallHurtMax");
-        }
-        else if (block.a(TagsBlock.G))
-            ap = true;
 
         if (nbttagcompound.hasKeyOfType("DropItem", 99))
             c = nbttagcompound.getBoolean("DropItem");
