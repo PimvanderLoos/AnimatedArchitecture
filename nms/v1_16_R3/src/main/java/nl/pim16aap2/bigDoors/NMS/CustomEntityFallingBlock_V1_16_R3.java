@@ -162,7 +162,7 @@ public class CustomEntityFallingBlock_V1_16_R3 extends EntityFallingBlock implem
     public void appendEntityCrashDetails(final CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
-        crashreportsystemdetails.a("Imitating BlockState", block.toString());
+        crashreportsystemdetails.a("Animated BigDoors block with state: ", block.toString());
     }
 
     @Override

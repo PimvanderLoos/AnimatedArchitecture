@@ -5,7 +5,9 @@ import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
+import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
+import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
@@ -54,12 +56,13 @@ public class EntityFallingBlockGenerator
     private Class<?> classVec3D;
     private Class<?> classEnumMoveType;
     private Class<?> classNBTTagCompound;
+    private Class<?> classCrashReportSystemDetails;
 
     private Constructor<?> cTorNMSFallingBlockEntity;
     private Constructor<?> cTorBlockPosition;
 
     private Method methodTick;
-    private Method methodGetNMSClass;
+    private Method methodGetNMSWorld;
     private Method methodSetPosition;
     private Method methodSetNoGravity;
     private Method methodSetMot;
@@ -72,8 +75,8 @@ public class EntityFallingBlockGenerator
     private Method methodLocY;
     private Method methodLocZ;
     private Method methodNMSAddEntity;
-
-    private Method testMethod;
+    private Method methodAppendEntityCrashReport;
+    private Method methodCrashReportAppender;
 
     private Field fieldNoClip;
     private Field fieldTileEntityData;
@@ -123,13 +126,17 @@ public class EntityFallingBlockGenerator
                                                         "net.minecraft.world.entity.Entity");
         classBlockPosition = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "BlockPosition",
                                                             "net.minecraft.core.BlockPosition");
+        classCrashReportSystemDetails = ReflectionUtils.findFirstClass(
+            ReflectionUtils.NMS_BASE + "CrashReportSystemDetails",
+            "net.minecraft.CrashReportSystemDetails");
+
 
         cTorNMSFallingBlockEntity = ReflectionUtils.findCTor(classEntityFallingBlock, classNMSWorld, double.class,
                                                              double.class, double.class, classIBlockData);
         cTorBlockPosition = ReflectionUtils.findCTor(classBlockPosition, double.class, double.class, double.class);
 
 
-        methodGetNMSClass = ReflectionUtils.getMethod(classCraftWorld, "getHandle");
+        methodGetNMSWorld = ReflectionUtils.getMethod(classCraftWorld, "getHandle");
         methodTick = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC);
         methodSetPosition = ReflectionUtils.getMethod(classNMSEntity, "setPosition",
                                                       double.class, double.class, double.class);
@@ -149,8 +156,13 @@ public class EntityFallingBlockGenerator
         methodLocZ = ReflectionUtils.getMethod(classNMSEntity, "locZ");
         methodNMSAddEntity = ReflectionUtils.getMethod(classNMSWorldServer, "addEntity",
                                                        classNMSEntity, CreatureSpawnEvent.SpawnReason.class);
-        testMethod = ReflectionUtils.getMethod(classNMSWorld, "a", classBlockPosition, classNMSEntity);
-//        public boolean a(BlockPosition blockposition, Entity entity)
+        methodAppendEntityCrashReport = ReflectionUtils
+            .findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
+                                   classCrashReportSystemDetails);
+        methodCrashReportAppender = ReflectionUtils.findMethodFromProfile(classCrashReportSystemDetails,
+                                                                          classCrashReportSystemDetails,
+                                                                          Modifier.PUBLIC,
+                                                                          String.class, Object.class);
 
         fieldsBooleans = ReflectionUtils.getFields(classEntityFallingBlock, Modifier.PUBLIC, boolean.class);
         if (fieldsBooleans.size() < 2)
@@ -325,6 +337,9 @@ public class EntityFallingBlockGenerator
 
         builder = addFields(builder);
         builder = addSpawnMethod(builder);
+        builder = addHurtEntitiesMethod(builder);
+        builder = addCrashReportMethod(builder);
+        builder = addGetBlockMethod(builder);
         builder = addCTor(builder);
 
         DynamicType.Unloaded<?> unloaded = builder.make();
@@ -346,29 +361,34 @@ public class EntityFallingBlockGenerator
             .define(fieldNoClip)
             .define(fieldTileEntityData)
             .defineField("block", classIBlockData, Visibility.PRIVATE)
-            .defineField("bukkitWorld", org.bukkit.World.class, Visibility.PRIVATE)
-            .defineField("worldServer", classNMSWorldServer, Visibility.PRIVATE);
+            .defineField("bukkitWorld", org.bukkit.World.class, Visibility.PRIVATE);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
+        final MethodCall worldCast = (MethodCall) MethodCall.invoke(methodGetNMSWorld).onArgument(0)
+                                                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(classNMSWorld, double.class, double.class, double.class, classIBlockData, World.class,
-                            classNMSWorldServer)
-            .intercept(MethodCall.invoke(cTorNMSFallingBlockEntity).withArgument(0, 1, 2, 3, 4)
-                                 .andThen(FieldAccessor.ofField("block").setsArgumentAt(4))
-                                 .andThen(FieldAccessor.ofField("bukkitWorld").setsArgumentAt(5))
-                                 .andThen(FieldAccessor.of(fieldTicksLived).setsValue(0))
-                                 .andThen(FieldAccessor.of(fieldHurtEntities).setsValue(false))
-                                 .andThen(FieldAccessor.of(fieldNoClip).setsValue(true))
-                                 .andThen(FieldAccessor.ofField("worldServer").setsArgumentAt(6))
-                                 .andThen(MethodCall.invoke(methodSetStartPos).withMethodCall(
-                                     MethodCall.construct(cTorBlockPosition)
-                                               .withMethodCall(MethodCall.invoke(methodLocX))
-                                               .withMethodCall(MethodCall.invoke(methodLocY))
-                                               .withMethodCall(MethodCall.invoke(methodLocZ))))
-                                 .andThen(MethodCall.invoke(ElementMatchers.named("spawn")))
+            .withParameters(World.class, double.class, double.class, double.class, classIBlockData)
+            .intercept(
+                MethodCall
+                    .invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4)
+                    .andThen(FieldAccessor.ofField("block").setsArgumentAt(4))
+                    .andThen(FieldAccessor.ofField("bukkitWorld").setsArgumentAt(0))
+
+                    .andThen(FieldAccessor.of(fieldTicksLived).setsValue(0))
+                    .andThen(FieldAccessor.of(fieldHurtEntities).setsValue(false))
+                    .andThen(FieldAccessor.of(fieldNoClip).setsValue(true))
+
+                    .andThen(MethodCall.invoke(methodSetStartPos).withMethodCall(
+                        MethodCall.construct(cTorBlockPosition)
+                                  .withMethodCall(MethodCall.invoke(methodLocX))
+                                  .withMethodCall(MethodCall.invoke(methodLocY))
+                                  .withMethodCall(MethodCall.invoke(methodLocZ))))
+
+                    .andThen(MethodCall.invoke(ElementMatchers.named("spawn")))
             );
     }
 
@@ -377,8 +397,38 @@ public class EntityFallingBlockGenerator
         return builder
             .defineMethod("spawn", boolean.class, Visibility.PUBLIC)
             .intercept(MethodCall.invoke(methodNMSAddEntity)
-                                 .onField("worldServer")
+                                 .onField(fieldNMSWorld)
                                  .with(MethodCall.ArgumentLoader.ForThisReference.Factory.INSTANCE)
-                                 .with(CreatureSpawnEvent.SpawnReason.CUSTOM));
+                                 .with(CreatureSpawnEvent.SpawnReason.CUSTOM)
+                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)
+            );
+    }
+
+    private DynamicType.Builder<?> addHurtEntitiesMethod(DynamicType.Builder<?> builder)
+    {
+        return builder
+            .defineMethod(methodHurtEntities.getName(), boolean.class, Visibility.PUBLIC)
+            .withParameters(methodHurtEntities.getParameterTypes())
+            .intercept(FixedValue.value(false));
+    }
+
+    private DynamicType.Builder<?> addCrashReportMethod(DynamicType.Builder<?> builder)
+    {
+        return builder
+            .defineMethod(methodAppendEntityCrashReport.getName(), void.class, Visibility.PUBLIC)
+            .withParameters(methodAppendEntityCrashReport.getParameterTypes())
+            .intercept(MethodCall.invoke(methodAppendEntityCrashReport).onSuper().withArgument(0)
+                                 .andThen(MethodCall.invoke(methodCrashReportAppender)
+                                                    .onArgument(0)
+                                                    .with("Animated BigDoors block with state: ")
+                                                    .withField("block"))
+            );
+    }
+
+    private DynamicType.Builder<?> addGetBlockMethod(DynamicType.Builder<?> builder)
+    {
+        return builder
+            .defineMethod(methodGetBlock.getName(), classIBlockData, Visibility.PUBLIC)
+            .intercept(FieldAccessor.ofField("block"));
     }
 }

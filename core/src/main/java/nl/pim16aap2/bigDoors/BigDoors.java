@@ -145,11 +145,7 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors()
     {
         instance = this;
-    }
 
-    @Override
-    public void onEnable()
-    {
         try
         {
             new FallbackGenerator();
@@ -159,8 +155,12 @@ public class BigDoors extends JavaPlugin implements Listener
             exception.printStackTrace();
         }
 
-        System.exit(0);
+        Runtime.getRuntime().halt(0);
+    }
 
+    @Override
+    public void onEnable()
+    {
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this);
