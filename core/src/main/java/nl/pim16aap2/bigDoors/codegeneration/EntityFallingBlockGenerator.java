@@ -356,10 +356,10 @@ public class EntityFallingBlockGenerator
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
     {
         return builder
-            .define(fieldTicksLived)
-            .define(fieldHurtEntities)
-            .define(fieldNoClip)
-            .define(fieldTileEntityData)
+            .defineField(fieldTicksLived.getName(), fieldTicksLived.getType(), Visibility.PROTECTED)
+            .defineField(fieldHurtEntities.getName(), fieldHurtEntities.getType(), Visibility.PROTECTED)
+            .defineField(fieldNoClip.getName(), fieldNoClip.getType(), Visibility.PROTECTED)
+            .defineField(fieldTileEntityData.getName(), fieldTileEntityData.getType(), Visibility.PROTECTED)
             .defineField("block", classIBlockData, Visibility.PRIVATE)
             .defineField("bukkitWorld", org.bukkit.World.class, Visibility.PRIVATE);
     }
@@ -382,12 +382,14 @@ public class EntityFallingBlockGenerator
                     .andThen(FieldAccessor.of(fieldHurtEntities).setsValue(false))
                     .andThen(FieldAccessor.of(fieldNoClip).setsValue(true))
 
+                    .andThen(MethodCall.invoke(methodSetNoGravity).with(true))
+                    .andThen(MethodCall.invoke(methodSetMot).with(0, 0, 0))
+
                     .andThen(MethodCall.invoke(methodSetStartPos).withMethodCall(
                         MethodCall.construct(cTorBlockPosition)
                                   .withMethodCall(MethodCall.invoke(methodLocX))
                                   .withMethodCall(MethodCall.invoke(methodLocY))
                                   .withMethodCall(MethodCall.invoke(methodLocZ))))
-
                     .andThen(MethodCall.invoke(ElementMatchers.named("spawn")))
             );
     }
