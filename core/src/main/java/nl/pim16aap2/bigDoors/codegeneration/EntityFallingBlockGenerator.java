@@ -10,7 +10,7 @@ import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
@@ -42,10 +42,7 @@ import java.util.Objects;
 
 public class EntityFallingBlockGenerator
 {
-    private static final String NMS_BASE =
-        "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-    private static final String CRAFT_BASE =
-        "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
+    private final @NotNull String mappingsVersion;
 
     private Class<?> classEntityFallingBlock;
     private Class<?> classIBlockData;
@@ -89,9 +86,11 @@ public class EntityFallingBlockGenerator
      */
     private List<Field> fieldsBooleans;
 
-    public EntityFallingBlockGenerator()
+    public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
         throws Exception
     {
+        this.mappingsVersion = mappingsVersion;
+
         try
         {
             init();
@@ -105,21 +104,24 @@ public class EntityFallingBlockGenerator
     private void init()
         throws IOException
     {
-        classEntityFallingBlock = ReflectionUtils.findFirstClass(NMS_BASE + "EntityFallingBlock",
+        classEntityFallingBlock = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "EntityFallingBlock",
                                                                  "net.minecraft.world.entity.item.EntityFallingBlock");
-        classNBTTagCompound = ReflectionUtils.findFirstClass(NMS_BASE + "NBTTagCompound",
+        classNBTTagCompound = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "NBTTagCompound",
                                                              "net.minecraft.nbt.NBTTagCompound");
-        classIBlockData = ReflectionUtils.findFirstClass(NMS_BASE + "IBlockData",
+        classIBlockData = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "IBlockData",
                                                          "net.minecraft.world.level.block.state.IBlockData");
-        classCraftWorld = ReflectionUtils.findFirstClass(CRAFT_BASE + "CraftWorld");
-        classEnumMoveType = ReflectionUtils.findFirstClass(NMS_BASE + "EnumMoveType",
+        classCraftWorld = ReflectionUtils.findFirstClass(ReflectionUtils.CRAFT_BASE + "CraftWorld");
+        classEnumMoveType = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "EnumMoveType",
                                                            "net.minecraft.world.entity.EnumMoveType");
-        classVec3D = ReflectionUtils.findFirstClass(NMS_BASE + "Vec3D", "net.minecraft.world.phys.Vec3D");
-        classNMSWorld = ReflectionUtils.findFirstClass(NMS_BASE + "World", "net.minecraft.world.level.World");
-        classNMSWorldServer = ReflectionUtils.findFirstClass(NMS_BASE + "WorldServer",
+        classVec3D = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "Vec3D",
+                                                    "net.minecraft.world.phys.Vec3D");
+        classNMSWorld = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "World",
+                                                       "net.minecraft.world.level.World");
+        classNMSWorldServer = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "WorldServer",
                                                              "net.minecraft.server.level.WorldServer");
-        classNMSEntity = ReflectionUtils.findFirstClass(NMS_BASE + "Entity", "net.minecraft.world.entity.Entity");
-        classBlockPosition = ReflectionUtils.findFirstClass(NMS_BASE + "BlockPosition",
+        classNMSEntity = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "Entity",
+                                                        "net.minecraft.world.entity.Entity");
+        classBlockPosition = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "BlockPosition",
                                                             "net.minecraft.core.BlockPosition");
 
         cTorNMSFallingBlockEntity = ReflectionUtils.findCTor(classEntityFallingBlock, classNMSWorld, double.class,
@@ -317,7 +319,9 @@ public class EntityFallingBlockGenerator
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(CustomEntityFallingBlock.class)
-            .name("GeneratedCustomEntityFallingBlock");
+            // TODO: Use full name
+//            .name("CustomEntityFallingBlock$" + this.mappingsVersion);
+            .name("CustomEntityFallingBlock$generated");
 
         builder = addFields(builder);
         builder = addSpawnMethod(builder);
@@ -325,8 +329,11 @@ public class EntityFallingBlockGenerator
 
         DynamicType.Unloaded<?> unloaded = builder.make();
 
-        // TODO: This definitely shouldn't be hardcoded. Doing it this way is much easier for the time being, though.
+        // TODO: Remove this
         unloaded.saveIn(new File("/home/pim/Documents/workspace/BigDoors/generated"));
+
+        if (ConfigLoader.DEBUG)
+            unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
 
         return unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
     }
@@ -345,7 +352,6 @@ public class EntityFallingBlockGenerator
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
-
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(classNMSWorld, double.class, double.class, double.class, classIBlockData, World.class,

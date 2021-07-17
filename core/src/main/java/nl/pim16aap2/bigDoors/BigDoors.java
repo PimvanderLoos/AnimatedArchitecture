@@ -26,6 +26,7 @@ import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_17_R1;
 import nl.pim16aap2.bigDoors.codegeneration.EntityFallingBlockGenerator;
+import nl.pim16aap2.bigDoors.codegeneration.FallbackGenerator;
 import nl.pim16aap2.bigDoors.compatibility.IFakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
@@ -151,7 +152,7 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         try
         {
-            new EntityFallingBlockGenerator().generate();
+            new FallbackGenerator();
         }
         catch (Exception exception)
         {
