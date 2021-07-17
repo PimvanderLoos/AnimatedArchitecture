@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -20,9 +21,86 @@ public final class ReflectionUtils
     public static final String CRAFT_BASE =
         "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
 
+
+    private static final @Nullable Method ENUM_VALUE_NAME;
+
+    static
+    {
+        Method m = null;
+        try
+        {
+            m = Enum.class.getMethod("name");
+        }
+        catch (NoSuchMethodException e)
+        {
+            e.printStackTrace();
+        }
+        ENUM_VALUE_NAME = m;
+    }
+
     private ReflectionUtils()
     {
         // utility class
+    }
+
+    public static @NotNull Object getEnumConstant(@NotNull Class<?> source, @NotNull String name)
+    {
+        return getEnumConstant(true, source, name);
+    }
+
+    @Contract("true, _, _ -> !null")
+    public static Object getEnumConstant(boolean nonNull, @NotNull Class<?> source, @NotNull String name)
+    {
+        return getEnumConstant(nonNull, source, null, name);
+    }
+
+    public static @NotNull Object getEnumConstant(@NotNull Class<?> source, int index)
+    {
+        return getEnumConstant(true, source, index);
+    }
+
+    @Contract("true, _, _ -> !null")
+    public static Object getEnumConstant(boolean nonNull, @NotNull Class<?> source, int index)
+    {
+        return getEnumConstant(nonNull, source, index, null);
+    }
+
+    @Contract("true, _, _, _ -> !null")
+    private static Object getEnumConstant(boolean nonNull, @NotNull Class<?> source, @Nullable Integer index,
+                                          @Nullable String name)
+    {
+        if (ENUM_VALUE_NAME == null)
+            throw new IllegalStateException("Failed to find name method for enums!");
+        if (index == null && name == null)
+            throw new IllegalArgumentException(
+                "Both index and name are null! Exactly one of them should be specified!");
+        if (index != null && name != null)
+            throw new IllegalArgumentException(
+                "Both index and name are not null! Exactly one of them should be specified!");
+
+        @Nullable Object[] values = source.getEnumConstants();
+        if (values == null)
+            throw new IllegalStateException("Class " + source + " is not an enum!");
+        for (int idx = 0; idx < values.length; ++idx)
+        {
+            try
+            {
+                final Object obj = values[idx];
+                if (index != null && idx == index)
+                    return obj;
+                if (name != null && name.equals(ENUM_VALUE_NAME.invoke(obj)))
+                    return obj;
+            }
+            catch (IllegalAccessException | InvocationTargetException e)
+            {
+                break;
+            }
+        }
+        if (nonNull)
+            throw new NullPointerException(
+                "Failed to find enum value with identifier \"" + (index == null ? name : index) + "\" in class: " +
+                    source);
+        return null;
     }
 
     public static @NotNull Class<?> findClass(@NotNull String name)
@@ -75,6 +153,30 @@ public final class ReflectionUtils
             throw new NullPointerException(
                 "Failed to find " + (names.length > 1 ? "any of the classes: " : "the class: ") +
                     Arrays.toString(names));
+        return null;
+    }
+
+    public static @NotNull Method getMethodFullInheritance(@NotNull Class<?> source, @NotNull String name,
+                                                           @NotNull Class<?>... args)
+    {
+        return getMethodFullInheritance(true, source, name, args);
+    }
+
+    @Contract("true, _, _, _ -> !null")
+    public static Method getMethodFullInheritance(boolean nonNull, @NotNull Class<?> source,
+                                                  @NotNull String name, @NotNull Class<?>... args)
+    {
+        while (!Object.class.equals(source))
+        {
+            Method m = getMethod(false, source, name, args);
+            if (m != null)
+                return m;
+            source = source.getSuperclass();
+        }
+        if (nonNull)
+            throw new NullPointerException(
+                "Failed to find method \"" + name + "\" in class \"" + source + "\" with args: " +
+                    Arrays.toString(args));
         return null;
     }
 
@@ -287,6 +389,19 @@ public final class ReflectionUtils
                     (modifiers == null ? "NULL" : Modifier.toString(modifiers)) +
                     " of type \"" + type + "\"");
         return null;
+    }
+
+    public static @NotNull List<Field> getFields(int expected, @NotNull Class<?> source, @Nullable Integer modifiers,
+                                                 @NotNull Class<?> type)
+        throws IllegalStateException
+    {
+        List<Field> ret = getFields(source, modifiers, type);
+        if (ret.size() != expected)
+            throw new IllegalStateException(
+                String.format("Expected %d fields of type %s with modifiers %s in class %s, but found %d!",
+                              expected, type, (modifiers == null ? "NULL" : Modifier.toString(modifiers)), source,
+                              ret.size()));
+        return ret;
     }
 
     public static @NotNull List<Field> getFields(@NotNull Class<?> source, @Nullable Integer modifiers,

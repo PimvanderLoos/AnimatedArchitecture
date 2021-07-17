@@ -17,7 +17,8 @@ public class FallbackGenerator
         throws Exception
     {
         mappingsVersion = getMappingsVersion();
-        classCustomEntityFallingBlock = new EntityFallingBlockGenerator(mappingsVersion).generate();
+        EntityFallingBlockGenerator generator = new EntityFallingBlockGenerator(mappingsVersion);
+        classCustomEntityFallingBlock = generator.generate();
     }
 
     public String getMappingsVersion()

@@ -7,6 +7,9 @@ import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.BigDoors;
@@ -37,8 +40,10 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -56,17 +61,23 @@ public class EntityFallingBlockGenerator
     private Class<?> classVec3D;
     private Class<?> classEnumMoveType;
     private Class<?> classNBTTagCompound;
+    private Class<?> classNBTBase;
     private Class<?> classCrashReportSystemDetails;
+    private Class<?> classGameProfileSerializer;
 
     private Constructor<?> cTorNMSFallingBlockEntity;
     private Constructor<?> cTorBlockPosition;
+    private Constructor<?> cTorVec3D;
 
     private Method methodTick;
     private Method methodGetNMSWorld;
     private Method methodSetPosition;
     private Method methodSetNoGravity;
+    private Method methodGetMot;
     private Method methodSetMot;
+    private Method methodSetMotVec;
     private Method methodHurtEntities;
+    private Method methodMove;
     private Method methodSaveData;
     private Method methodLoadData;
     private Method methodGetBlock;
@@ -77,6 +88,12 @@ public class EntityFallingBlockGenerator
     private Method methodNMSAddEntity;
     private Method methodAppendEntityCrashReport;
     private Method methodCrashReportAppender;
+    private Method methodNBTTagCompoundSet;
+    private Method methodNBTTagCompoundSetInt;
+    private Method methodNBTTagCompoundSetBoolean;
+    private Method methodNBTTagCompoundSetFloat;
+    private Method methodIBlockDataSerializer;
+    private Method methodIsAir;
 
     private Field fieldNoClip;
     private Field fieldTileEntityData;
@@ -84,10 +101,9 @@ public class EntityFallingBlockGenerator
     private Field fieldHurtEntities;
     private Field fieldNMSWorld;
 
-    /**
-     * The public boolean fields are dropItem and hurtEntities (as of 1.17.0).
-     */
-    private List<Field> fieldsBooleans;
+    private List<Field> fieldsVec3D;
+
+    private Object fieldEnumMoveTypeSelf;
 
     public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
         throws Exception
@@ -107,33 +123,34 @@ public class EntityFallingBlockGenerator
     private void init()
         throws IOException
     {
-        classEntityFallingBlock = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "EntityFallingBlock",
+        String nmsBase = ReflectionUtils.NMS_BASE;
+        classEntityFallingBlock = ReflectionUtils.findFirstClass(nmsBase + "EntityFallingBlock",
                                                                  "net.minecraft.world.entity.item.EntityFallingBlock");
-        classNBTTagCompound = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "NBTTagCompound",
+        classNBTTagCompound = ReflectionUtils.findFirstClass(nmsBase + "NBTTagCompound",
                                                              "net.minecraft.nbt.NBTTagCompound");
-        classIBlockData = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "IBlockData",
+        classNBTBase = ReflectionUtils.findFirstClass(nmsBase + "NBTBase", "net.minecraft.nbt.NBTBase");
+        classIBlockData = ReflectionUtils.findFirstClass(nmsBase + "IBlockData",
                                                          "net.minecraft.world.level.block.state.IBlockData");
         classCraftWorld = ReflectionUtils.findFirstClass(ReflectionUtils.CRAFT_BASE + "CraftWorld");
-        classEnumMoveType = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "EnumMoveType",
+        classEnumMoveType = ReflectionUtils.findFirstClass(nmsBase + "EnumMoveType",
                                                            "net.minecraft.world.entity.EnumMoveType");
-        classVec3D = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "Vec3D",
-                                                    "net.minecraft.world.phys.Vec3D");
-        classNMSWorld = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "World",
-                                                       "net.minecraft.world.level.World");
-        classNMSWorldServer = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "WorldServer",
+        classVec3D = ReflectionUtils.findFirstClass(nmsBase + "Vec3D", "net.minecraft.world.phys.Vec3D");
+        classNMSWorld = ReflectionUtils.findFirstClass(nmsBase + "World", "net.minecraft.world.level.World");
+        classNMSWorldServer = ReflectionUtils.findFirstClass(nmsBase + "WorldServer",
                                                              "net.minecraft.server.level.WorldServer");
-        classNMSEntity = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "Entity",
-                                                        "net.minecraft.world.entity.Entity");
-        classBlockPosition = ReflectionUtils.findFirstClass(ReflectionUtils.NMS_BASE + "BlockPosition",
+        classNMSEntity = ReflectionUtils.findFirstClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity");
+        classBlockPosition = ReflectionUtils.findFirstClass(nmsBase + "BlockPosition",
                                                             "net.minecraft.core.BlockPosition");
-        classCrashReportSystemDetails = ReflectionUtils.findFirstClass(
-            ReflectionUtils.NMS_BASE + "CrashReportSystemDetails",
-            "net.minecraft.CrashReportSystemDetails");
+        classCrashReportSystemDetails = ReflectionUtils.findFirstClass(nmsBase + "CrashReportSystemDetails",
+                                                                       "net.minecraft.CrashReportSystemDetails");
+        classGameProfileSerializer = ReflectionUtils.findFirstClass(nmsBase + "GameProfileSerializer",
+                                                                    "net.minecraft.nbt.GameProfileSerializer");
 
 
         cTorNMSFallingBlockEntity = ReflectionUtils.findCTor(classEntityFallingBlock, classNMSWorld, double.class,
                                                              double.class, double.class, classIBlockData);
         cTorBlockPosition = ReflectionUtils.findCTor(classBlockPosition, double.class, double.class, double.class);
+        cTorVec3D = ReflectionUtils.findCTor(classVec3D, double.class, double.class, double.class);
 
 
         methodGetNMSWorld = ReflectionUtils.getMethod(classCraftWorld, "getHandle");
@@ -141,11 +158,13 @@ public class EntityFallingBlockGenerator
         methodSetPosition = ReflectionUtils.getMethod(classNMSEntity, "setPosition",
                                                       double.class, double.class, double.class);
         methodSetNoGravity = ReflectionUtils.getMethod(classNMSEntity, "setNoGravity", boolean.class);
-        methodSetMot = ReflectionUtils.getMethod(classNMSEntity, "setMot",
-                                                 double.class, double.class, double.class);
+        methodSetMot = ReflectionUtils.getMethod(classNMSEntity, "setMot", double.class, double.class, double.class);
+        methodSetMotVec = ReflectionUtils.getMethod(classNMSEntity, "setMot", classVec3D);
+        methodGetMot = ReflectionUtils.getMethod(classNMSEntity, "getMot");
         methodHurtEntities = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, boolean.class,
                                                                    Modifier.PUBLIC,
                                                                    float.class, float.class, null);
+        methodMove = ReflectionUtils.getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
         methodSaveData = ReflectionUtils.getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
         methodLoadData = ReflectionUtils.getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
         methodGetBlock = ReflectionUtils.getMethod(classEntityFallingBlock, "getBlock");
@@ -163,18 +182,30 @@ public class EntityFallingBlockGenerator
                                                                           classCrashReportSystemDetails,
                                                                           Modifier.PUBLIC,
                                                                           String.class, Object.class);
+        methodIsAir = ReflectionUtils.getMethodFullInheritance(classIBlockData, "isAir");
+        methodNBTTagCompoundSet = ReflectionUtils.getMethod(classNBTTagCompound, "set", String.class, classNBTBase);
 
-        fieldsBooleans = ReflectionUtils.getFields(classEntityFallingBlock, Modifier.PUBLIC, boolean.class);
-        if (fieldsBooleans.size() < 2)
-            throw new IllegalStateException("Failed to find expected number of booleans in class \"" +
-                                                classEntityFallingBlock + "\"! Found: " + fieldsBooleans.size() +
-                                                ", but expected at least 2!");
+        methodNBTTagCompoundSetInt = ReflectionUtils.getMethod(classNBTTagCompound, "setInt",
+                                                               String.class, int.class);
+        methodNBTTagCompoundSetBoolean = ReflectionUtils.getMethod(classNBTTagCompound, "setBoolean",
+                                                                   String.class, boolean.class);
+        methodNBTTagCompoundSetFloat = ReflectionUtils.getMethod(classNBTTagCompound, "setFloat",
+                                                                 String.class, float.class);
+        methodIBlockDataSerializer = ReflectionUtils
+            .findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
+                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classIBlockData);
+
 
         fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
         fieldNoClip = ReflectionUtils.getField(classNMSEntity, getNoClipFieldName(), boolean.class);
         fieldTileEntityData = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
         fieldTicksLived = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
         fieldNMSWorld = ReflectionUtils.getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
+        fieldEnumMoveTypeSelf = ReflectionUtils.getEnumConstant(classEnumMoveType, 0);
+
+
+        fieldsVec3D = ReflectionUtils
+            .getFields(3, classVec3D, ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
     }
 
     private @NotNull String getHurtEntitiesFieldName()
@@ -189,8 +220,7 @@ public class EntityFallingBlockGenerator
     private @NotNull String getNoClipFieldName()
         throws IOException
     {
-        final Method m = ReflectionUtils.getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
-        final String fieldName = getFieldName(m, classNMSEntity, MethodAdapterFirstIfMemberField::new);
+        final String fieldName = getFieldName(methodMove, classNMSEntity, MethodAdapterFirstIfMemberField::new);
         return Objects.requireNonNull(fieldName, "Failed to find name of noClip variable in move method!");
     }
 
@@ -330,17 +360,20 @@ public class EntityFallingBlockGenerator
     {
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            .implement(CustomEntityFallingBlock.class)
+            .implement(CustomEntityFallingBlock.class, GeneratedFallingBlockEntity.class)
             // TODO: Use full name
 //            .name("CustomEntityFallingBlock$" + this.mappingsVersion);
             .name("CustomEntityFallingBlock$generated");
 
         builder = addFields(builder);
+        builder = addCTor(builder);
         builder = addSpawnMethod(builder);
         builder = addHurtEntitiesMethod(builder);
-        builder = addCrashReportMethod(builder);
         builder = addGetBlockMethod(builder);
-        builder = addCTor(builder);
+        builder = addSaveDataMethod(builder);
+        builder = addAuxiliaryMethods(builder);
+        builder = addTickMethod(builder);
+        builder = addCrashReportMethod(builder);
 
         DynamicType.Unloaded<?> unloaded = builder.make();
 
@@ -432,5 +465,152 @@ public class EntityFallingBlockGenerator
         return builder
             .defineMethod(methodGetBlock.getName(), classIBlockData, Visibility.PUBLIC)
             .intercept(FieldAccessor.ofField("block"));
+    }
+
+    public interface SaveDataDelegation
+    {
+        @RuntimeType
+        Object intercept(@This Object baseObject, @RuntimeType Object compound, @RuntimeType Object block,
+                         String methodName);
+    }
+
+    private DynamicType.Builder<?> addSaveDataMethod(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .defineMethod(methodSaveData.getName() + "$tileEntityData", classNBTTagCompound, Visibility.PRIVATE)
+            .withParameters(classNBTTagCompound)
+            .intercept(MethodCall.invoke(methodNBTTagCompoundSet).onArgument(0)
+                                 .with("TileEntityData").withField(fieldTileEntityData.getName())
+                                 .andThen(FixedValue.argument(0)));
+
+        builder = builder
+            .defineMethod(methodSaveData.getName() + "$conditional", classNBTTagCompound, Visibility.PRIVATE)
+            .withParameters(Object.class, classNBTTagCompound, classNBTTagCompound, String.class)
+            .intercept(MethodDelegation.to(new SaveDataDelegation()
+            {
+                @Override
+                public @RuntimeType Object intercept(@This Object baseObject, @RuntimeType Object base,
+                                                     @RuntimeType Object append, String methodName)
+                {
+                    if (append == null)
+                        return base;
+                    try
+                    {
+                        Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
+                        m.setAccessible(true);
+                        return m.invoke(baseObject, base);
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+            }, SaveDataDelegation.class));
+
+        return builder
+            .defineMethod(methodSaveData.getName(), classNBTTagCompound, Visibility.PUBLIC)
+            .withParameters(classNBTTagCompound)
+            .intercept(
+                MethodCall
+                    .invoke(methodNBTTagCompoundSet).onArgument(0)
+                    .with("BlockState").withMethodCall(MethodCall.invoke(methodIBlockDataSerializer).withField("block"))
+
+                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetInt).onArgument(0)
+                                       .with("Time").withField(fieldTicksLived.getName()))
+
+                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetBoolean).onArgument(0)
+                                       .with("DropItem", false))
+
+                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetBoolean).onArgument(0)
+                                       .with("HurtEntities").withField(fieldHurtEntities.getName()))
+
+                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetFloat).onArgument(0)
+                                       .with("FallHurtAmount", 0.0f))
+
+                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetInt).onArgument(0)
+                                       .with("FallHurtMax", 0))
+
+                    .andThen(MethodCall.invoke(ElementMatchers.named(methodSaveData.getName() + "$conditional"))
+                                       .withThis().withArgument(0).withField(fieldTileEntityData.getName())
+                                       .with(methodSaveData.getName() + "$tileEntityData"))
+
+                    .andThen(FixedValue.argument(0))
+            );
+    }
+
+    public interface GeneratedFallingBlockEntity
+    {
+        void generated$die();
+
+        boolean generated$isAir();
+
+        void generated$move();
+
+        int generated$getTicksLived();
+
+        void generated$setTicksLived(int val);
+
+        void generated$updateMot();
+    }
+
+    public interface MultiplyVec3D
+    {
+        @RuntimeType
+        Object intercept(@RuntimeType Object vec3d, double x, double y, double z);
+    }
+
+    private DynamicType.Builder<?> addAuxiliaryMethods(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .defineMethod("generated$multiplyVec", classVec3D, Visibility.PRIVATE)
+            .withParameters(classVec3D, double.class, double.class, double.class)
+            .intercept(MethodDelegation.to(new MultiplyVec3D()
+            {
+                @Override @RuntimeType
+                public Object intercept(@RuntimeType Object vec, double x, double y, double z)
+                {
+                    try
+                    {
+                        return cTorVec3D.newInstance((double) fieldsVec3D.get(0).get(vec) * x,
+                                                     (double) fieldsVec3D.get(1).get(vec) * y,
+                                                     (double) fieldsVec3D.get(2).get(vec) * z);
+                    }
+                    catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+                    {
+                        e.printStackTrace();
+                        return vec;
+                    }
+                }
+            }, MultiplyVec3D.class));
+
+        builder = builder.method(ElementMatchers.named("generated$die"))
+                         .intercept(MethodCall.invoke(ElementMatchers.named("die")).onSuper());
+        builder = builder.method(ElementMatchers.named("igenerated$sAir"))
+                         .intercept(MethodCall.invoke(methodIsAir).onField("block"));
+        builder = builder
+            .method(ElementMatchers.named("generated$move")
+                                   .and(ElementMatchers.takesArguments(Collections.emptyList())))
+            .intercept(MethodCall.invoke(methodMove)
+                                 .with(FixedValue.value(fieldEnumMoveTypeSelf))
+                                 .withMethodCall(MethodCall.invoke(methodGetMot))
+                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+        builder = builder.method(ElementMatchers.named("generated$getTicksLived"))
+                         .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
+        builder = builder.method(ElementMatchers.named("generated$setTicksLived"))
+                         .intercept(FieldAccessor.of(fieldTicksLived).setsArgumentAt(0));
+        builder = builder
+            .method(ElementMatchers.named("generated$updateMot"))
+            .intercept(MethodCall.invoke(methodSetMotVec)
+                                 .withMethodCall(MethodCall.invoke(ElementMatchers.named("generated$multiplyVec"))
+                                                           .withMethodCall(MethodCall.invoke(methodGetMot))
+                                                           .with(0.9800000190734863D, 1.0D, 0.9800000190734863D))
+            );
+        return builder;
+    }
+
+    private DynamicType.Builder<?> addTickMethod(DynamicType.Builder<?> builder)
+    {
+        return builder;
     }
 }
