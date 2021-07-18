@@ -13,21 +13,27 @@ public class FallbackGenerator
 {
     private final @NotNull String mappingsVersion;
 
-    private final Class<?> classCustomEntityFallingBlock;
-    private final EntityFallingBlockGenerator entityFallingBlockGenerator;
+    private final IGenerator entityFallingBlockGenerator;
+    private final IGenerator craftEntityFallingBlockGenerator;
 
     public FallbackGenerator()
         throws Exception
     {
         mappingsVersion = getMappingsVersion();
         entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
-        classCustomEntityFallingBlock = entityFallingBlockGenerator.getGeneratedClass();
+        craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion).generate();
     }
 
     public Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
     {
         return new Pair<>(entityFallingBlockGenerator.getGeneratedClass(),
                           entityFallingBlockGenerator.getGeneratedConstructor());
+    }
+
+    public Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
+    {
+        return new Pair<>(craftEntityFallingBlockGenerator.getGeneratedClass(),
+                          craftEntityFallingBlockGenerator.getGeneratedConstructor());
     }
 
     public String getMappingsVersion()

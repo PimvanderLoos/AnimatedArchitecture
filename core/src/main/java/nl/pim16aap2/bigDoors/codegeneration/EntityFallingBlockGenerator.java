@@ -47,9 +47,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-class EntityFallingBlockGenerator
+final class EntityFallingBlockGenerator implements IGenerator
 {
     private final @NotNull String mappingsVersion;
+    private boolean isGenerated = false;
     private @Nullable Class<?> generatedClass;
     private @Nullable Constructor<?> generatedConstructor;
 
@@ -368,9 +369,14 @@ class EntityFallingBlockGenerator
         }
     }
 
-    public @NotNull EntityFallingBlockGenerator generate()
-        throws IOException
+    @Override
+    public synchronized @NotNull IGenerator generate()
+        throws Exception
     {
+        if (isGenerated)
+            return this;
+        isGenerated = true;
+
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
@@ -713,11 +719,13 @@ class EntityFallingBlockGenerator
         return builder;
     }
 
+    @Override
     public @Nullable Class<?> getGeneratedClass()
     {
         return generatedClass;
     }
 
+    @Override
     public @Nullable Constructor<?> getGeneratedConstructor()
     {
         return generatedConstructor;
