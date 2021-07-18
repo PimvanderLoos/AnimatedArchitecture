@@ -54,82 +54,68 @@ final class EntityFallingBlockGenerator implements IGenerator
     private @Nullable Class<?> generatedClass;
     private @Nullable Constructor<?> generatedConstructor;
 
-    private Class<?> classEntityFallingBlock;
-    private Class<?> classIBlockData;
-    private Class<?> classCraftWorld;
-    private Class<?> classNMSWorld;
-    private Class<?> classNMSWorldServer;
-    private Class<?> classBlockPosition;
-    private Class<?> classNMSEntity;
-    private Class<?> classVec3D;
-    private Class<?> classEnumMoveType;
-    private Class<?> classNBTTagCompound;
-    private Class<?> classNBTBase;
-    private Class<?> classCrashReportSystemDetails;
-    private Class<?> classGameProfileSerializer;
+    private final Class<?> classEntityFallingBlock;
+    private final Class<?> classIBlockData;
+    private final Class<?> classCraftWorld;
+    private final Class<?> classNMSWorld;
+    private final Class<?> classNMSWorldServer;
+    private final Class<?> classBlockPosition;
+    private final Class<?> classNMSEntity;
+    private final Class<?> classVec3D;
+    private final Class<?> classEnumMoveType;
+    private final Class<?> classNBTTagCompound;
+    private final Class<?> classNBTBase;
+    private final Class<?> classCrashReportSystemDetails;
+    private final Class<?> classGameProfileSerializer;
 
-    private Constructor<?> cTorNMSFallingBlockEntity;
-    private Constructor<?> cTorBlockPosition;
-    private Constructor<?> cTorVec3D;
+    private final Constructor<?> cTorNMSFallingBlockEntity;
+    private final Constructor<?> cTorBlockPosition;
+    private final Constructor<?> cTorVec3D;
 
-    private Method methodTick;
-    private Method methodGetNMSWorld;
-    private Method methodSetPosition;
-    private Method methodSetNoGravity;
-    private Method methodGetMot;
-    private Method methodSetMot;
-    private Method methodSetMotVec;
-    private Method methodHurtEntities;
-    private Method methodMove;
-    private Method methodSaveData;
-    private Method methodLoadData;
-    private Method methodGetBlock;
-    private Method methodSetStartPos;
-    private Method methodLocX;
-    private Method methodLocY;
-    private Method methodLocZ;
-    private Method methodNMSAddEntity;
-    private Method methodAppendEntityCrashReport;
-    private Method methodCrashReportAppender;
-    private Method methodNBTTagCompoundSet;
-    private Method methodNBTTagCompoundSetInt;
-    private Method methodNBTTagCompoundSetBoolean;
-    private Method methodNBTTagCompoundSetFloat;
-    private Method methodNBTTagCompoundHasKeyOfType;
-    private Method methodNBTTagCompoundGetCompound;
-    private Method methodNBTTagCompoundGetInt;
-    private Method methodIBlockDataSerializer;
-    private Method methodIBlockDataDeserializer;
-    private Method methodIsAir;
+    private final Method methodTick;
+    private final Method methodGetNMSWorld;
+    private final Method methodSetPosition;
+    private final Method methodSetNoGravity;
+    private final Method methodGetMot;
+    private final Method methodSetMot;
+    private final Method methodSetMotVec;
+    private final Method methodHurtEntities;
+    private final Method methodMove;
+    private final Method methodSaveData;
+    private final Method methodLoadData;
+    private final Method methodGetBlock;
+    private final Method methodSetStartPos;
+    private final Method methodLocX;
+    private final Method methodLocY;
+    private final Method methodLocZ;
+    private final Method methodNMSAddEntity;
+    private final Method methodAppendEntityCrashReport;
+    private final Method methodCrashReportAppender;
+    private final Method methodNBTTagCompoundSet;
+    private final Method methodNBTTagCompoundSetInt;
+    private final Method methodNBTTagCompoundSetBoolean;
+    private final Method methodNBTTagCompoundSetFloat;
+    private final Method methodNBTTagCompoundHasKeyOfType;
+    private final Method methodNBTTagCompoundGetCompound;
+    private final Method methodNBTTagCompoundGetInt;
+    private final Method methodIBlockDataSerializer;
+    private final Method methodIBlockDataDeserializer;
+    private final Method methodIsAir;
 
-    private Field fieldNoClip;
-    private Field fieldTileEntityData;
-    private Field fieldTicksLived;
-    private Field fieldHurtEntities;
-    private Field fieldNMSWorld;
+    private final Field fieldNoClip;
+    private final Field fieldTileEntityData;
+    private final Field fieldTicksLived;
+    private final Field fieldHurtEntities;
+    private final Field fieldNMSWorld;
 
-    private List<Field> fieldsVec3D;
+    private final List<Field> fieldsVec3D;
 
-    private Object fieldEnumMoveTypeSelf;
+    private final Object fieldEnumMoveTypeSelf;
 
     public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
-        throws Exception
     {
         this.mappingsVersion = mappingsVersion;
 
-        try
-        {
-            init();
-        }
-        catch (NullPointerException | IllegalStateException | IOException e)
-        {
-            throw new Exception("Failed to find all components required to generate an EntityFallingBlock!", e);
-        }
-    }
-
-    private void init()
-        throws IOException
-    {
         String nmsBase = ReflectionUtils.NMS_BASE;
         classEntityFallingBlock = ReflectionUtils.findFirstClass(nmsBase + "EntityFallingBlock",
                                                                  "net.minecraft.world.entity.item.EntityFallingBlock");
@@ -223,7 +209,6 @@ final class EntityFallingBlockGenerator implements IGenerator
     }
 
     private @NotNull String getHurtEntitiesFieldName()
-        throws IOException
     {
         final String fieldName = getFieldName(methodHurtEntities, classEntityFallingBlock,
                                               MethodAdapterFirstIfMemberField::new);
@@ -232,7 +217,6 @@ final class EntityFallingBlockGenerator implements IGenerator
     }
 
     private @NotNull String getNoClipFieldName()
-        throws IOException
     {
         final String fieldName = getFieldName(methodMove, classNMSEntity, MethodAdapterFirstIfMemberField::new);
         return Objects.requireNonNull(fieldName, "Failed to find name of noClip variable in move method!");
@@ -240,14 +224,22 @@ final class EntityFallingBlockGenerator implements IGenerator
 
     private @Nullable String getFieldName(@NotNull Method method, @NotNull Class<?> clz,
                                           @NotNull IFieldFinderCreator fieldFinderCreator)
-        throws IOException
     {
+
         final String className = clz.getName().replace('.', '/');
         final String classAsPath = className + ".class";
         final InputStream inputStream = Objects.requireNonNull(clz.getClassLoader().getResourceAsStream(classAsPath),
                                                                "Failed to get " + clz + " class resources.");
 
-        final ClassReader classReader = new ClassReader(inputStream);
+        final ClassReader classReader;
+        try
+        {
+            classReader = new ClassReader(inputStream);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to construct ClassReader for class: " + clz, e);
+        }
         final ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
 
         final FieldFinderClassVisitor cv = new FieldFinderClassVisitor(classWriter, method, className,

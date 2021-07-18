@@ -13,15 +13,23 @@ public class FallbackGenerator
 {
     private final @NotNull String mappingsVersion;
 
-    private final IGenerator entityFallingBlockGenerator;
-    private final IGenerator craftEntityFallingBlockGenerator;
+    private final @NotNull IGenerator entityFallingBlockGenerator;
+    private final @NotNull IGenerator craftEntityFallingBlockGenerator;
 
     public FallbackGenerator()
-        throws Exception
     {
-        mappingsVersion = getMappingsVersion();
-        entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
-        craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion).generate();
+        try
+        {
+            mappingsVersion = getMappingsVersion();
+            entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion);
+            entityFallingBlockGenerator.generate();
+            craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion);
+            entityFallingBlockGenerator.generate();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to generate NMS code! Please contact pim16aap2!", e);
+        }
     }
 
     public Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()

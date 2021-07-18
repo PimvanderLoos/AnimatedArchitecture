@@ -1,37 +1,28 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
+import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 public class CraftEntityFallingBlockGenerator implements IGenerator
 {
-    private boolean isGenerated = false;
     private final @NotNull String mappingsVersion;
+    private boolean isGenerated = false;
     private @Nullable Class<?> generatedClass;
     private @Nullable Constructor<?> generatedConstructor;
 
+    private final Class<?> classCraftEntity;
+    private final Class<?> classCraftServer;
+
     public CraftEntityFallingBlockGenerator(@NotNull String mappingsVersion)
-        throws Exception
     {
         this.mappingsVersion = mappingsVersion;
 
-        try
-        {
-            init();
-        }
-        catch (NullPointerException | IllegalStateException | IOException e)
-        {
-            throw new Exception("Failed to find all components required to generate a CraftEntityFallingBlock!", e);
-        }
-    }
-
-    private void init()
-        throws IOException
-    {
-
+        final String craftBase = ReflectionUtils.CRAFT_BASE;
+        classCraftEntity = ReflectionUtils.findClass(craftBase + "entity.CraftEntity");
+        classCraftServer = ReflectionUtils.findClass(craftBase + "CraftServer");
     }
 
     @Override
@@ -46,13 +37,13 @@ public class CraftEntityFallingBlockGenerator implements IGenerator
     }
 
     @Override
-    public Class<?> getGeneratedClass()
+    public @Nullable Class<?> getGeneratedClass()
     {
         return generatedClass;
     }
 
     @Override
-    public Constructor<?> getGeneratedConstructor()
+    public @Nullable Constructor<?> getGeneratedConstructor()
     {
         return generatedConstructor;
     }
