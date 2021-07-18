@@ -15,7 +15,7 @@ public class FallbackGenerator
     private final @NotNull String mappingsVersion;
 
     private final @NotNull Generator entityFallingBlockGenerator;
-    private final @NotNull Generator craftEntityFallingBlockGenerator;
+    private final @NotNull Generator craftFallingBlockGenerator;
 
     public FallbackGenerator()
     {
@@ -23,7 +23,7 @@ public class FallbackGenerator
         {
             mappingsVersion = getMappingsVersion();
             entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
-            craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion).generate();
+            craftFallingBlockGenerator = new CraftFallingBlockGenerator(mappingsVersion).generate();
         }
         catch (Exception e)
         {
@@ -38,7 +38,7 @@ public class FallbackGenerator
 
     public Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
     {
-        return getGeneratedClassData(craftEntityFallingBlockGenerator, "CraftEntityFallingBlock");
+        return getGeneratedClassData(craftFallingBlockGenerator, "CraftFallingBlock");
     }
 
     private Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)

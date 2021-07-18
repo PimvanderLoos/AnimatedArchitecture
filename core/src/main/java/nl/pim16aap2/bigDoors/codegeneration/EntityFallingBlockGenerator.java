@@ -12,10 +12,8 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
-import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
-import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +32,6 @@ import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -378,25 +375,7 @@ final class EntityFallingBlockGenerator extends Generator
         builder = addTickMethod(builder);
         builder = addCrashReportMethod(builder);
 
-        DynamicType.Unloaded<?> unloaded = builder.make();
-
-        // TODO: Remove this
-        unloaded.saveIn(new File("/home/pim/Documents/workspace/BigDoors/generated"));
-
-        if (ConfigLoader.DEBUG)
-            unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
-
-        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
-        try
-        {
-            this.generatedConstructor = this.generatedClass
-                .getConstructor(World.class, double.class, double.class, double.class, classIBlockData);
-        }
-        catch (NoSuchMethodException e)
-        {
-            throw new RuntimeException("Failed to get constructor of generated class for mapping " +
-                                           mappingsVersion, e);
-        }
+        finishBuilder(builder, World.class, double.class, double.class, double.class, classIBlockData);
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)

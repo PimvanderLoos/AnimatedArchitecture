@@ -1,9 +1,15 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
+import net.bytebuddy.dynamic.DynamicType;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 abstract class Generator
 {
@@ -35,6 +41,31 @@ abstract class Generator
 
     protected abstract void generateImpl()
         throws Exception;
+
+    protected final void finishBuilder(DynamicType.Builder<?> builder, Class<?>... ctorArguments)
+        throws IOException
+    {
+        DynamicType.Unloaded<?> unloaded = builder.make();
+
+        // TODO: Remove this
+        unloaded.saveIn(new File("/home/pim/Documents/workspace/BigDoors/generated"));
+
+        if (ConfigLoader.DEBUG)
+            unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
+
+        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
+        try
+        {
+            this.generatedConstructor = this.generatedClass.getConstructor(ctorArguments);
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new RuntimeException("Failed to get constructor of generated class for mapping " +
+                                           mappingsVersion, e);
+        }
+        Objects.requireNonNull(this.generatedClass, "Failed to construct class with generator: " + this);
+        Objects.requireNonNull(this.generatedConstructor, "Failed to find constructor with generator: " + this);
+    }
 
     public @Nullable Class<?> getGeneratedClass()
     {
