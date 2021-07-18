@@ -50,6 +50,8 @@ import java.util.Objects;
 public class EntityFallingBlockGenerator
 {
     private final @NotNull String mappingsVersion;
+    private @Nullable Class<?> generatedClass;
+    private @Nullable Constructor<?> generatedConstructor;
 
     private Class<?> classEntityFallingBlock;
     private Class<?> classIBlockData;
@@ -355,12 +357,12 @@ public class EntityFallingBlockGenerator
         }
     }
 
-    public Class<?> generate()
+    public @NotNull EntityFallingBlockGenerator generate()
         throws IOException
     {
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            .implement(CustomEntityFallingBlock.class, GeneratedFallingBlockEntity.class)
+            .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
             // TODO: Use full name
 //            .name("CustomEntityFallingBlock$" + this.mappingsVersion);
             .name("CustomEntityFallingBlock$generated");
@@ -383,7 +385,18 @@ public class EntityFallingBlockGenerator
         if (ConfigLoader.DEBUG)
             unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
 
-        return unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
+        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
+        try
+        {
+            this.generatedConstructor = this.generatedClass
+                .getConstructor(World.class, double.class, double.class, double.class, classIBlockData);
+        }
+        catch (NoSuchMethodException e)
+        {
+            throw new RuntimeException("Failed to get constructor of generated class for mapping " +
+                                           mappingsVersion, e);
+        }
+        return this;
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
@@ -539,7 +552,7 @@ public class EntityFallingBlockGenerator
             );
     }
 
-    public interface GeneratedFallingBlockEntity
+    public interface IGeneratedFallingBlockEntity
     {
         void generated$die();
 
@@ -552,6 +565,8 @@ public class EntityFallingBlockGenerator
         void generated$setTicksLived(int val);
 
         void generated$updateMot();
+
+        double locY();
     }
 
     public interface MultiplyVec3D
@@ -604,13 +619,53 @@ public class EntityFallingBlockGenerator
             .intercept(MethodCall.invoke(methodSetMotVec)
                                  .withMethodCall(MethodCall.invoke(ElementMatchers.named("generated$multiplyVec"))
                                                            .withMethodCall(MethodCall.invoke(methodGetMot))
-                                                           .with(0.9800000190734863D, 1.0D, 0.9800000190734863D))
-            );
+                                                           .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
         return builder;
+    }
+
+    public interface ITickMethodDelegate
+    {
+        void intercept(IGeneratedFallingBlockEntity entity);
     }
 
     private DynamicType.Builder<?> addTickMethod(DynamicType.Builder<?> builder)
     {
+        builder = builder
+            .defineMethod("generated$tick", void.class, Visibility.PRIVATE)
+            .withParameters(IGeneratedFallingBlockEntity.class)
+            .intercept(MethodDelegation.to((ITickMethodDelegate) entity ->
+            {
+                if (entity.generated$isAir())
+                {
+                    entity.generated$die();
+                    return;
+                }
+
+                entity.generated$move();
+
+                double locY = entity.locY();
+                int ticks = entity.generated$getTicksLived() + 1;
+                entity.generated$setTicksLived(ticks);
+
+                if (++ticks > 100 && (locY < 1 || locY > 256) || ticks > 12000)
+                    entity.generated$die();
+
+                entity.generated$updateMot();
+            }, ITickMethodDelegate.class));
+
+        builder = builder
+            .define(methodTick).intercept(MethodCall.invoke(ElementMatchers.named("generated$tick")).withThis()
+                                                    .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         return builder;
+    }
+
+    public @Nullable Class<?> getGeneratedClass()
+    {
+        return generatedClass;
+    }
+
+    public @Nullable Constructor<?> getGeneratedConstructor()
+    {
+        return generatedConstructor;
     }
 }
