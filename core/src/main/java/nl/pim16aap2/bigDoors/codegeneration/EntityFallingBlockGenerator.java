@@ -44,6 +44,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static net.bytebuddy.implementation.FixedValue.value;
+import static net.bytebuddy.implementation.MethodCall.construct;
+import static net.bytebuddy.implementation.MethodCall.invoke;
+import static net.bytebuddy.matcher.ElementMatchers.named;
+
 final class EntityFallingBlockGenerator extends Generator
 {
     private final Class<?> classEntityFallingBlock;
@@ -185,7 +190,8 @@ final class EntityFallingBlockGenerator extends Generator
                                    ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classIBlockData);
         methodIBlockDataDeserializer = ReflectionUtils
             .findMethodFromProfile(classGameProfileSerializer, classIBlockData,
-                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classNBTTagCompound);
+                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC),
+                                   classNBTTagCompound);
 
 
         fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
@@ -358,7 +364,8 @@ final class EntityFallingBlockGenerator extends Generator
         throws Exception
     {
         DynamicType.Builder<?> builder = new ByteBuddy()
-            .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
+            .subclass(classEntityFallingBlock,
+                      ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
             // TODO: Use full name
 //            .name("GeneratedCustomEntityFallingBlock_" + this.mappingsVersion);
@@ -391,31 +398,25 @@ final class EntityFallingBlockGenerator extends Generator
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
-        final MethodCall worldCast = (MethodCall) MethodCall.invoke(methodGetNMSWorld).onArgument(0)
-                                                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+        final MethodCall worldCast = (MethodCall) invoke(methodGetNMSWorld)
+            .onArgument(0).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(World.class, double.class, double.class, double.class, classIBlockData)
-            .intercept(
-                MethodCall
-                    .invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4)
-                    .andThen(FieldAccessor.ofField("block").setsArgumentAt(4))
-                    .andThen(FieldAccessor.ofField("bukkitWorld").setsArgumentAt(0))
-
-                    .andThen(FieldAccessor.of(fieldTicksLived).setsValue(0))
-                    .andThen(FieldAccessor.of(fieldHurtEntities).setsValue(false))
-                    .andThen(FieldAccessor.of(fieldNoClip).setsValue(true))
-
-                    .andThen(MethodCall.invoke(methodSetNoGravity).with(true))
-                    .andThen(MethodCall.invoke(methodSetMot).with(0, 0, 0))
-
-                    .andThen(MethodCall.invoke(methodSetStartPos).withMethodCall(
-                        MethodCall.construct(cTorBlockPosition)
-                                  .withMethodCall(MethodCall.invoke(methodLocX))
-                                  .withMethodCall(MethodCall.invoke(methodLocY))
-                                  .withMethodCall(MethodCall.invoke(methodLocZ))))
-                    .andThen(MethodCall.invoke(ElementMatchers.named("spawn")))
+            .intercept(invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4).andThen(
+                FieldAccessor.ofField("block").setsArgumentAt(4)).andThen(
+                FieldAccessor.ofField("bukkitWorld").setsArgumentAt(0)).andThen(
+                FieldAccessor.of(fieldTicksLived).setsValue(0)).andThen(
+                FieldAccessor.of(fieldHurtEntities).setsValue(false)).andThen(
+                FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
+                invoke(methodSetNoGravity).with(true)).andThen(
+                invoke(methodSetMot).with(0, 0, 0)).andThen(
+                invoke(methodSetStartPos)
+                    .withMethodCall(construct(cTorBlockPosition).withMethodCall(invoke(methodLocX))
+                                                                .withMethodCall(invoke(methodLocY))
+                                                                .withMethodCall(invoke(methodLocZ)))).andThen(
+                invoke(named("spawn")))
             );
     }
 
@@ -423,11 +424,11 @@ final class EntityFallingBlockGenerator extends Generator
     {
         return builder
             .defineMethod("spawn", boolean.class, Visibility.PUBLIC)
-            .intercept(MethodCall.invoke(methodNMSAddEntity)
-                                 .onField(fieldNMSWorld)
-                                 .with(MethodCall.ArgumentLoader.ForThisReference.Factory.INSTANCE)
-                                 .with(CreatureSpawnEvent.SpawnReason.CUSTOM)
-                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)
+            .intercept(invoke(methodNMSAddEntity)
+                           .onField(fieldNMSWorld)
+                           .with(MethodCall.ArgumentLoader.ForThisReference.Factory.INSTANCE)
+                           .with(CreatureSpawnEvent.SpawnReason.CUSTOM)
+                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)
             );
     }
 
@@ -436,7 +437,7 @@ final class EntityFallingBlockGenerator extends Generator
         return builder
             .defineMethod(methodHurtEntities.getName(), boolean.class, Visibility.PUBLIC)
             .withParameters(methodHurtEntities.getParameterTypes())
-            .intercept(FixedValue.value(false));
+            .intercept(value(false));
     }
 
     private DynamicType.Builder<?> addCrashReportMethod(DynamicType.Builder<?> builder)
@@ -444,12 +445,9 @@ final class EntityFallingBlockGenerator extends Generator
         return builder
             .defineMethod(methodAppendEntityCrashReport.getName(), void.class, Visibility.PUBLIC)
             .withParameters(methodAppendEntityCrashReport.getParameterTypes())
-            .intercept(MethodCall.invoke(methodAppendEntityCrashReport).onSuper().withArgument(0)
-                                 .andThen(MethodCall.invoke(methodCrashReportAppender)
-                                                    .onArgument(0)
-                                                    .with("Animated BigDoors block with state: ")
-                                                    .withField("block"))
-            );
+            .intercept(invoke(methodAppendEntityCrashReport).onSuper().withArgument(0).andThen(
+                invoke(methodCrashReportAppender).onArgument(0).with("Animated BigDoors block with state: ")
+                                                 .withField("block")));
     }
 
     private DynamicType.Builder<?> addGetBlockMethod(DynamicType.Builder<?> builder)
@@ -467,14 +465,17 @@ final class EntityFallingBlockGenerator extends Generator
 
     private DynamicType.Builder<?> addLoadDataMethod(DynamicType.Builder<?> builder)
     {
-        builder = builder
-            .defineMethod(methodLoadData.getName() + "$tileEntityData", void.class, Visibility.PRIVATE)
-            .withParameters(classNBTTagCompound)
-            .intercept(MethodCall.invoke(methodNBTTagCompoundGetCompound).onArgument(0)
-                                 .with("TileEntityData").setsField(fieldTileEntityData));
+        final String loadTileEntityDataName = methodLoadData.getName() + "$tileEntityData";
+        final String tileEntityConditionalName = methodLoadData.getName() + "$conditional";
 
         builder = builder
-            .defineMethod(methodLoadData.getName() + "$conditional", void.class, Visibility.PRIVATE)
+            .defineMethod(loadTileEntityDataName, void.class, Visibility.PRIVATE)
+            .withParameters(classNBTTagCompound)
+            .intercept(invoke(methodNBTTagCompoundGetCompound).onArgument(0).with("TileEntityData")
+                                                              .setsField(fieldTileEntityData));
+
+        builder = builder
+            .defineMethod(tileEntityConditionalName, void.class, Visibility.PRIVATE)
             .withParameters(Object.class, classNBTTagCompound, boolean.class, String.class)
             .intercept(MethodDelegation.to((LoadDataDelegation) (baseObject, compound, hasKey, methodName) ->
             {
@@ -494,18 +495,15 @@ final class EntityFallingBlockGenerator extends Generator
 
         builder = builder
             .define(methodLoadData)
-            .intercept(MethodCall
-                           .invoke(methodIBlockDataDeserializer)
-                           .withMethodCall(MethodCall.invoke(methodNBTTagCompoundGetCompound)
-                                                     .onArgument(0).with("BlockState"))
-                           .setsField(ElementMatchers.named("block"))
-                           .andThen(MethodCall.invoke(methodNBTTagCompoundGetInt).onArgument(0)
-                                              .with("Time").setsField(fieldTicksLived))
-                           .andThen(MethodCall.invoke(ElementMatchers.named(methodLoadData.getName() + "$conditional"))
-                                              .withThis().withArgument(0)
-                                              .withMethodCall(MethodCall.invoke(methodNBTTagCompoundHasKeyOfType)
-                                                                        .onArgument(0).with("TileEntityData", 10))
-                                              .with(methodLoadData.getName() + "$tileEntityData"))
+            .intercept(invoke(methodIBlockDataDeserializer)
+                           .withMethodCall(invoke(methodNBTTagCompoundGetCompound).onArgument(0).with("BlockState"))
+                           .setsField(named("block")).andThen(
+                    invoke(methodNBTTagCompoundGetInt).onArgument(0).with("Time").setsField(fieldTicksLived)).andThen(
+                    invoke(named(tileEntityConditionalName))
+                        .withThis().withArgument(0)
+                        .withMethodCall(invoke(methodNBTTagCompoundHasKeyOfType).onArgument(0)
+                                                                                .with("TileEntityData", 10))
+                        .with(loadTileEntityDataName))
             );
 
         return builder;
@@ -520,15 +518,18 @@ final class EntityFallingBlockGenerator extends Generator
 
     private DynamicType.Builder<?> addSaveDataMethod(DynamicType.Builder<?> builder)
     {
-        builder = builder
-            .defineMethod(methodSaveData.getName() + "$tileEntityData", classNBTTagCompound, Visibility.PRIVATE)
-            .withParameters(classNBTTagCompound)
-            .intercept(MethodCall.invoke(methodNBTTagCompoundSet).onArgument(0)
-                                 .with("TileEntityData").withField(fieldTileEntityData.getName())
-                                 .andThen(FixedValue.argument(0)));
+        final String saveTileEntityDataName = methodSaveData.getName() + "$tileEntityData";
+        final String tileEntityConditionalName = methodSaveData.getName() + "$conditional";
 
         builder = builder
-            .defineMethod(methodSaveData.getName() + "$conditional", classNBTTagCompound, Visibility.PRIVATE)
+            .defineMethod(saveTileEntityDataName, classNBTTagCompound, Visibility.PRIVATE)
+            .withParameters(classNBTTagCompound)
+            .intercept(invoke(methodNBTTagCompoundSet).onArgument(0).with("TileEntityData")
+                                                      .withField(fieldTileEntityData.getName()).andThen(
+                    FixedValue.argument(0)));
+
+        builder = builder
+            .defineMethod(tileEntityConditionalName, classNBTTagCompound, Visibility.PRIVATE)
             .withParameters(Object.class, classNBTTagCompound, classNBTTagCompound, String.class)
             .intercept(MethodDelegation.to((SaveDataDelegation) (baseObject, base, append, methodName) ->
             {
@@ -549,32 +550,20 @@ final class EntityFallingBlockGenerator extends Generator
 
         return builder
             .define(methodSaveData)
-            .intercept(
-                MethodCall
-                    .invoke(methodNBTTagCompoundSet).onArgument(0)
-                    .with("BlockState").withMethodCall(MethodCall.invoke(methodIBlockDataSerializer).withField("block"))
-
-                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetInt).onArgument(0)
-                                       .with("Time").withField(fieldTicksLived.getName()))
-
-                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetBoolean).onArgument(0)
-                                       .with("DropItem", false))
-
-                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetBoolean).onArgument(0)
-                                       .with("HurtEntities").withField(fieldHurtEntities.getName()))
-
-                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetFloat).onArgument(0)
-                                       .with("FallHurtAmount", 0.0f))
-
-                    .andThen(MethodCall.invoke(methodNBTTagCompoundSetInt).onArgument(0)
-                                       .with("FallHurtMax", 0))
-
-                    .andThen(MethodCall.invoke(ElementMatchers.named(methodSaveData.getName() + "$conditional"))
-                                       .withThis().withArgument(0).withField(fieldTileEntityData.getName())
-                                       .with(methodSaveData.getName() + "$tileEntityData"))
-
-                    .andThen(FixedValue.argument(0))
-            );
+            .intercept(invoke(methodNBTTagCompoundSet)
+                           .onArgument(0).with("BlockState")
+                           .withMethodCall(invoke(methodIBlockDataSerializer).withField("block")).andThen(
+                    invoke(methodNBTTagCompoundSetInt).onArgument(0).with("Time")
+                                                      .withField(fieldTicksLived.getName())).andThen(
+                    invoke(methodNBTTagCompoundSetBoolean).onArgument(0).with("DropItem", false)).andThen(
+                    invoke(methodNBTTagCompoundSetBoolean).onArgument(0).with("HurtEntities")
+                                                          .withField(fieldHurtEntities.getName())).andThen(
+                    invoke(methodNBTTagCompoundSetFloat).onArgument(0).with("FallHurtAmount", 0.0f)).andThen(
+                    invoke(methodNBTTagCompoundSetInt).onArgument(0).with("FallHurtMax", 0)).andThen(
+                    invoke(named(tileEntityConditionalName)).withThis().withArgument(0)
+                                                            .withField(fieldTileEntityData.getName())
+                                                            .with(saveTileEntityDataName)).andThen(
+                    FixedValue.argument(0)));
     }
 
     public interface IGeneratedFallingBlockEntity
@@ -620,27 +609,24 @@ final class EntityFallingBlockGenerator extends Generator
                 }
             }, MultiplyVec3D.class));
 
-        builder = builder.method(ElementMatchers.named("generated$die"))
-                         .intercept(MethodCall.invoke(ElementMatchers.named("die")).onSuper());
-        builder = builder.method(ElementMatchers.named("igenerated$sAir"))
-                         .intercept(MethodCall.invoke(methodIsAir).onField("block"));
+        builder = builder.method(named("generated$die")).intercept(invoke(named("die")).onSuper());
+        builder = builder.method(named("igenerated$sAir")).intercept(invoke(methodIsAir).onField("block"));
         builder = builder
-            .method(ElementMatchers.named("generated$move")
-                                   .and(ElementMatchers.takesArguments(Collections.emptyList())))
-            .intercept(MethodCall.invoke(methodMove)
-                                 .with(FixedValue.value(fieldEnumMoveTypeSelf))
-                                 .withMethodCall(MethodCall.invoke(methodGetMot))
-                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
-        builder = builder.method(ElementMatchers.named("generated$getTicksLived"))
+            .method(named("generated$move").and(ElementMatchers.takesArguments(Collections.emptyList())))
+            .intercept(invoke(methodMove)
+                           .with(value(fieldEnumMoveTypeSelf))
+                           .withMethodCall(invoke(methodGetMot))
+                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+        builder = builder.method(named("generated$getTicksLived"))
                          .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
-        builder = builder.method(ElementMatchers.named("generated$setTicksLived"))
+        builder = builder.method(named("generated$setTicksLived"))
                          .intercept(FieldAccessor.of(fieldTicksLived).setsArgumentAt(0));
         builder = builder
-            .method(ElementMatchers.named("generated$updateMot"))
-            .intercept(MethodCall.invoke(methodSetMotVec)
-                                 .withMethodCall(MethodCall.invoke(ElementMatchers.named("generated$multiplyVec"))
-                                                           .withMethodCall(MethodCall.invoke(methodGetMot))
-                                                           .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
+            .method(named("generated$updateMot"))
+            .intercept(invoke(methodSetMotVec)
+                           .withMethodCall(invoke(named("generated$multiplyVec"))
+                                               .withMethodCall(invoke(methodGetMot))
+                                               .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
         return builder;
     }
 
@@ -675,8 +661,8 @@ final class EntityFallingBlockGenerator extends Generator
             }, ITickMethodDelegate.class));
 
         builder = builder
-            .define(methodTick).intercept(MethodCall.invoke(ElementMatchers.named("generated$tick")).withThis()
-                                                    .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+            .define(methodTick).intercept(invoke(named("generated$tick"))
+                                              .withThis().withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         return builder;
     }
 

@@ -95,9 +95,8 @@ public class CraftFallingBlockGenerator extends Generator
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(classCraftServer, classGeneratedEntityFallingBlock)
-            .intercept(invoke(ctorCraftEntity).withArgument(0, 1)
-                                              .andThen(FieldAccessor.ofField("generated$customEntityFallingBlock")
-                                                                    .setsArgumentAt(1)));
+            .intercept(invoke(ctorCraftEntity).withArgument(0, 1).andThen(
+                FieldAccessor.ofField("generated$customEntityFallingBlock").setsArgumentAt(1)));
     }
 
     private DynamicType.Builder<?> addBasicMethods(DynamicType.Builder<?> builder)
@@ -124,17 +123,17 @@ public class CraftFallingBlockGenerator extends Generator
                          .intercept(StubMethod.INSTANCE);
 
         // Slightly more involved methods
-        builder = builder.define(methodCraftEntitySetTicksLived).intercept(
-            invoke(methodCraftEntitySetTicksLived).onSuper().withArgument(0).andThen(
-                invoke(named("generated$setTicksLived")).onMethodCall(
-                    invoke(named("getHandle"))).withArgument(0)));
+        builder = builder
+            .define(methodCraftEntitySetTicksLived)
+            .intercept(invoke(methodCraftEntitySetTicksLived).onSuper().withArgument(0).andThen(
+                invoke(named("generated$setTicksLived")).onMethodCall(invoke(named("getHandle"))).withArgument(0)));
 
         builder = builder
-            .defineMethod("getMaterial", Material.class).intercept(
-                invoke(methodGetItemType).onMethodCall(
-                    invoke(methodCraftMagicNumbersGetMaterial).withMethodCall(
-                        invoke(named("getBlock")).onMethodCall(
-                            invoke(named("getHandle"))))));
+            .defineMethod("getMaterial", Material.class)
+            .intercept(invoke(methodGetItemType)
+                           .onMethodCall(invoke(methodCraftMagicNumbersGetMaterial)
+                                             .withMethodCall(invoke(named("getBlock"))
+                                                                 .onMethodCall(invoke(named("getHandle"))))));
 
         return builder;
     }
