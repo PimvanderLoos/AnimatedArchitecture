@@ -47,7 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class EntityFallingBlockGenerator
+class EntityFallingBlockGenerator
 {
     private final @NotNull String mappingsVersion;
     private @Nullable Class<?> generatedClass;
@@ -94,7 +94,11 @@ public class EntityFallingBlockGenerator
     private Method methodNBTTagCompoundSetInt;
     private Method methodNBTTagCompoundSetBoolean;
     private Method methodNBTTagCompoundSetFloat;
+    private Method methodNBTTagCompoundHasKeyOfType;
+    private Method methodNBTTagCompoundGetCompound;
+    private Method methodNBTTagCompoundGetInt;
     private Method methodIBlockDataSerializer;
+    private Method methodIBlockDataDeserializer;
     private Method methodIsAir;
 
     private Field fieldNoClip;
@@ -193,9 +197,16 @@ public class EntityFallingBlockGenerator
                                                                    String.class, boolean.class);
         methodNBTTagCompoundSetFloat = ReflectionUtils.getMethod(classNBTTagCompound, "setFloat",
                                                                  String.class, float.class);
+        methodNBTTagCompoundGetCompound = ReflectionUtils.getMethod(classNBTTagCompound, "getCompound", String.class);
+        methodNBTTagCompoundGetInt = ReflectionUtils.getMethod(classNBTTagCompound, "getInt", String.class);
+        methodNBTTagCompoundHasKeyOfType = ReflectionUtils.getMethod(classNBTTagCompound, "hasKeyOfType",
+                                                                     String.class, int.class);
         methodIBlockDataSerializer = ReflectionUtils
             .findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
                                    ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classIBlockData);
+        methodIBlockDataDeserializer = ReflectionUtils
+            .findMethodFromProfile(classGameProfileSerializer, classIBlockData,
+                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classNBTTagCompound);
 
 
         fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
@@ -372,6 +383,7 @@ public class EntityFallingBlockGenerator
         builder = addSpawnMethod(builder);
         builder = addHurtEntitiesMethod(builder);
         builder = addGetBlockMethod(builder);
+        builder = addLoadDataMethod(builder);
         builder = addSaveDataMethod(builder);
         builder = addAuxiliaryMethods(builder);
         builder = addTickMethod(builder);
@@ -480,6 +492,58 @@ public class EntityFallingBlockGenerator
             .intercept(FieldAccessor.ofField("block"));
     }
 
+    public interface LoadDataDelegation
+    {
+        @RuntimeType
+        void intercept(@This Object baseObject, @RuntimeType Object compound, boolean hasKey, String methodName);
+    }
+
+    private DynamicType.Builder<?> addLoadDataMethod(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .defineMethod(methodLoadData.getName() + "$tileEntityData", void.class, Visibility.PRIVATE)
+            .withParameters(classNBTTagCompound)
+            .intercept(MethodCall.invoke(methodNBTTagCompoundGetCompound).onArgument(0)
+                                 .with("TileEntityData").setsField(fieldTileEntityData));
+
+        builder = builder
+            .defineMethod(methodLoadData.getName() + "$conditional", void.class, Visibility.PRIVATE)
+            .withParameters(Object.class, classNBTTagCompound, boolean.class, String.class)
+            .intercept(MethodDelegation.to((LoadDataDelegation) (baseObject, compound, hasKey, methodName) ->
+            {
+                if (!hasKey)
+                    return;
+                try
+                {
+                    Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
+                    m.setAccessible(true);
+                    m.invoke(baseObject, compound);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }, LoadDataDelegation.class));
+
+        builder = builder
+            .define(methodLoadData)
+            .intercept(MethodCall
+                           .invoke(methodIBlockDataDeserializer)
+                           .withMethodCall(MethodCall.invoke(methodNBTTagCompoundGetCompound)
+                                                     .onArgument(0).with("BlockState"))
+                           .setsField(ElementMatchers.named("block"))
+                           .andThen(MethodCall.invoke(methodNBTTagCompoundGetInt).onArgument(0)
+                                              .with("Time").setsField(fieldTicksLived))
+                           .andThen(MethodCall.invoke(ElementMatchers.named(methodLoadData.getName() + "$conditional"))
+                                              .withThis().withArgument(0)
+                                              .withMethodCall(MethodCall.invoke(methodNBTTagCompoundHasKeyOfType)
+                                                                        .onArgument(0).with("TileEntityData", 10))
+                                              .with(methodLoadData.getName() + "$tileEntityData"))
+            );
+
+        return builder;
+    }
+
     public interface SaveDataDelegation
     {
         @RuntimeType
@@ -499,31 +563,25 @@ public class EntityFallingBlockGenerator
         builder = builder
             .defineMethod(methodSaveData.getName() + "$conditional", classNBTTagCompound, Visibility.PRIVATE)
             .withParameters(Object.class, classNBTTagCompound, classNBTTagCompound, String.class)
-            .intercept(MethodDelegation.to(new SaveDataDelegation()
+            .intercept(MethodDelegation.to((SaveDataDelegation) (baseObject, base, append, methodName) ->
             {
-                @Override
-                public @RuntimeType Object intercept(@This Object baseObject, @RuntimeType Object base,
-                                                     @RuntimeType Object append, String methodName)
+                if (append == null)
+                    return base;
+                try
                 {
-                    if (append == null)
-                        return base;
-                    try
-                    {
-                        Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
-                        m.setAccessible(true);
-                        return m.invoke(baseObject, base);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        return null;
-                    }
+                    Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
+                    m.setAccessible(true);
+                    return m.invoke(baseObject, base);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return null;
                 }
             }, SaveDataDelegation.class));
 
         return builder
-            .defineMethod(methodSaveData.getName(), classNBTTagCompound, Visibility.PUBLIC)
-            .withParameters(classNBTTagCompound)
+            .define(methodSaveData)
             .intercept(
                 MethodCall
                     .invoke(methodNBTTagCompoundSet).onArgument(0)
@@ -580,22 +638,18 @@ public class EntityFallingBlockGenerator
         builder = builder
             .defineMethod("generated$multiplyVec", classVec3D, Visibility.PRIVATE)
             .withParameters(classVec3D, double.class, double.class, double.class)
-            .intercept(MethodDelegation.to(new MultiplyVec3D()
+            .intercept(MethodDelegation.to((MultiplyVec3D) (vec, x, y, z) ->
             {
-                @Override @RuntimeType
-                public Object intercept(@RuntimeType Object vec, double x, double y, double z)
+                try
                 {
-                    try
-                    {
-                        return cTorVec3D.newInstance((double) fieldsVec3D.get(0).get(vec) * x,
-                                                     (double) fieldsVec3D.get(1).get(vec) * y,
-                                                     (double) fieldsVec3D.get(2).get(vec) * z);
-                    }
-                    catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
-                    {
-                        e.printStackTrace();
-                        return vec;
-                    }
+                    return cTorVec3D.newInstance((double) fieldsVec3D.get(0).get(vec) * x,
+                                                 (double) fieldsVec3D.get(1).get(vec) * y,
+                                                 (double) fieldsVec3D.get(2).get(vec) * z);
+                }
+                catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+                {
+                    e.printStackTrace();
+                    return vec;
                 }
             }, MultiplyVec3D.class));
 
