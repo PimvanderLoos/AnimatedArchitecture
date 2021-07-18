@@ -25,7 +25,6 @@ import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_17_R1;
-import nl.pim16aap2.bigDoors.codegeneration.EntityFallingBlockGenerator;
 import nl.pim16aap2.bigDoors.codegeneration.FallbackGenerator;
 import nl.pim16aap2.bigDoors.compatibility.IFakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
@@ -72,6 +71,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -375,9 +375,14 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
-    public static final BigDoors get()
+    public static BigDoors get()
     {
         return instance;
+    }
+
+    public @NotNull ClassLoader getBigDoorsClassLoader()
+    {
+        return super.getClassLoader();
     }
 
     /**
@@ -864,7 +869,8 @@ public class BigDoors extends JavaPlugin implements Listener
                 fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
                 break;
             default:
-                getMyLogger().warn("The plugin has not been tested for this version! We'll try to make it work, though...");
+                getMyLogger()
+                    .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
                 break;

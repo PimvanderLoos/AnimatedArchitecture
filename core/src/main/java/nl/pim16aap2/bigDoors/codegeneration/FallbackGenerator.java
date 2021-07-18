@@ -23,7 +23,8 @@ public class FallbackGenerator
         {
             mappingsVersion = getMappingsVersion();
             entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
-            craftFallingBlockGenerator = new CraftFallingBlockGenerator(mappingsVersion).generate();
+            craftFallingBlockGenerator =
+                new CraftFallingBlockGenerator(mappingsVersion, entityFallingBlockGenerator.generatedClass).generate();
         }
         catch (Exception e)
         {

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +54,10 @@ abstract class Generator
         if (ConfigLoader.DEBUG)
             unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
 
-        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
+        this.generatedClass = unloaded.load(BigDoors.get().getBigDoorsClassLoader(),
+                                            ClassLoadingStrategy.Default.INJECTION).getLoaded();
+
+//        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
         try
         {
             this.generatedConstructor = this.generatedClass.getConstructor(ctorArguments);
@@ -61,7 +65,7 @@ abstract class Generator
         catch (NoSuchMethodException e)
         {
             throw new RuntimeException("Failed to get constructor of generated class for mapping " +
-                                           mappingsVersion, e);
+                                           mappingsVersion + " for generator: " + this, e);
         }
         Objects.requireNonNull(this.generatedClass, "Failed to construct class with generator: " + this);
         Objects.requireNonNull(this.generatedConstructor, "Failed to find constructor with generator: " + this);
