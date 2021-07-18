@@ -8,23 +8,22 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class FallbackGenerator
 {
     private final @NotNull String mappingsVersion;
 
-    private final @NotNull IGenerator entityFallingBlockGenerator;
-    private final @NotNull IGenerator craftEntityFallingBlockGenerator;
+    private final @NotNull Generator entityFallingBlockGenerator;
+    private final @NotNull Generator craftEntityFallingBlockGenerator;
 
     public FallbackGenerator()
     {
         try
         {
             mappingsVersion = getMappingsVersion();
-            entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion);
-            entityFallingBlockGenerator.generate();
-            craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion);
-            entityFallingBlockGenerator.generate();
+            entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
+            craftEntityFallingBlockGenerator = new CraftEntityFallingBlockGenerator(mappingsVersion).generate();
         }
         catch (Exception e)
         {
@@ -34,14 +33,19 @@ public class FallbackGenerator
 
     public Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
     {
-        return new Pair<>(entityFallingBlockGenerator.getGeneratedClass(),
-                          entityFallingBlockGenerator.getGeneratedConstructor());
+        return getGeneratedClassData(entityFallingBlockGenerator, "EntityFallingBlock");
     }
 
     public Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
     {
-        return new Pair<>(craftEntityFallingBlockGenerator.getGeneratedClass(),
-                          craftEntityFallingBlockGenerator.getGeneratedConstructor());
+        return getGeneratedClassData(craftEntityFallingBlockGenerator, "CraftEntityFallingBlock");
+    }
+
+    private Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
+    {
+        return new Pair<>(Objects.requireNonNull(generator.generatedClass, "Class for " + name + " cannot be null!"),
+                          Objects.requireNonNull(generator.getGeneratedConstructor(),
+                                                 "Constructor for " + name + " cannot be null!"));
     }
 
     public String getMappingsVersion()

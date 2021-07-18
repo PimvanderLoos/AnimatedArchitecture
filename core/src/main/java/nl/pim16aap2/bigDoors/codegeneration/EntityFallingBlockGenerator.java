@@ -47,13 +47,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-final class EntityFallingBlockGenerator implements IGenerator
+final class EntityFallingBlockGenerator extends Generator
 {
-    private final @NotNull String mappingsVersion;
-    private boolean isGenerated = false;
-    private @Nullable Class<?> generatedClass;
-    private @Nullable Constructor<?> generatedConstructor;
-
     private final Class<?> classEntityFallingBlock;
     private final Class<?> classIBlockData;
     private final Class<?> classCraftWorld;
@@ -114,7 +109,7 @@ final class EntityFallingBlockGenerator implements IGenerator
 
     public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
     {
-        this.mappingsVersion = mappingsVersion;
+        super(mappingsVersion);
 
         String nmsBase = ReflectionUtils.NMS_BASE;
         classEntityFallingBlock = ReflectionUtils.findFirstClass(nmsBase + "EntityFallingBlock",
@@ -362,13 +357,9 @@ final class EntityFallingBlockGenerator implements IGenerator
     }
 
     @Override
-    public synchronized @NotNull IGenerator generate()
+    protected void generateImpl()
         throws Exception
     {
-        if (isGenerated)
-            return this;
-        isGenerated = true;
-
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classEntityFallingBlock, ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
@@ -406,7 +397,6 @@ final class EntityFallingBlockGenerator implements IGenerator
             throw new RuntimeException("Failed to get constructor of generated class for mapping " +
                                            mappingsVersion, e);
         }
-        return this;
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)

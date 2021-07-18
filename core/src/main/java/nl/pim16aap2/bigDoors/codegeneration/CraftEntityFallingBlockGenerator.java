@@ -6,19 +6,14 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 
-public class CraftEntityFallingBlockGenerator implements IGenerator
+public class CraftEntityFallingBlockGenerator extends Generator
 {
-    private final @NotNull String mappingsVersion;
-    private boolean isGenerated = false;
-    private @Nullable Class<?> generatedClass;
-    private @Nullable Constructor<?> generatedConstructor;
-
     private final Class<?> classCraftEntity;
     private final Class<?> classCraftServer;
 
     public CraftEntityFallingBlockGenerator(@NotNull String mappingsVersion)
     {
-        this.mappingsVersion = mappingsVersion;
+        super(mappingsVersion);
 
         final String craftBase = ReflectionUtils.CRAFT_BASE;
         classCraftEntity = ReflectionUtils.findClass(craftBase + "entity.CraftEntity");
@@ -26,14 +21,10 @@ public class CraftEntityFallingBlockGenerator implements IGenerator
     }
 
     @Override
-    public synchronized @NotNull IGenerator generate()
+    protected void generateImpl()
         throws Exception
     {
-        if (isGenerated)
-            return this;
-        isGenerated = true;
 
-        return this;
     }
 
     @Override
