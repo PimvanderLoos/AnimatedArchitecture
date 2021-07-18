@@ -10,6 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.classCraftMagicNumbers;
+
 public class FallbackGenerator
 {
     private final @NotNull String mappingsVersion;
@@ -26,7 +28,7 @@ public class FallbackGenerator
             craftFallingBlockGenerator =
                 new CraftFallingBlockGenerator(mappingsVersion, entityFallingBlockGenerator.generatedClass).generate();
         }
-        catch (Exception e)
+        catch (Exception | ExceptionInInitializerError e)
         {
             throw new RuntimeException("Failed to generate NMS code! Please contact pim16aap2!", e);
         }
@@ -44,7 +46,8 @@ public class FallbackGenerator
 
     private Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
     {
-        return new Pair<>(Objects.requireNonNull(generator.generatedClass, "Class for " + name + " cannot be null!"),
+        return new Pair<>(Objects.requireNonNull(generator.getGeneratedClass(),
+                                                 "Class for " + name + " cannot be null!"),
                           Objects.requireNonNull(generator.getGeneratedConstructor(),
                                                  "Constructor for " + name + " cannot be null!"));
     }
@@ -52,8 +55,6 @@ public class FallbackGenerator
     public String getMappingsVersion()
         throws IllegalAccessException, InvocationTargetException
     {
-        final Class<?> classCraftMagicNumbers = ReflectionUtils.findClass(ReflectionUtils.CRAFT_BASE +
-                                                                              "util.CraftMagicNumbers");
         final Method methodGetMappingsVersion = ReflectionUtils.getMethod(classCraftMagicNumbers, "getMappingsVersion");
         final Field instanceField = ReflectionUtils.getField(classCraftMagicNumbers, "INSTANCE");
         final Object instance = instanceField.get(null);

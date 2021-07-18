@@ -57,7 +57,6 @@ abstract class Generator
         this.generatedClass = unloaded.load(BigDoors.get().getBigDoorsClassLoader(),
                                             ClassLoadingStrategy.Default.INJECTION).getLoaded();
 
-//        this.generatedClass = unloaded.load(BigDoors.get().getClass().getClassLoader()).getLoaded();
         try
         {
             this.generatedConstructor = this.generatedClass.getConstructor(ctorArguments);

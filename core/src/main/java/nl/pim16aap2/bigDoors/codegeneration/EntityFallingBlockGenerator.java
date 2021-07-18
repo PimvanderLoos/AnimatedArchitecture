@@ -39,171 +39,26 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.construct;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
 final class EntityFallingBlockGenerator extends Generator
 {
-    private final Class<?> classEntityFallingBlock;
-    private final Class<?> classIBlockData;
-    private final Class<?> classCraftWorld;
-    private final Class<?> classNMSWorld;
-    private final Class<?> classNMSWorldServer;
-    private final Class<?> classBlockPosition;
-    private final Class<?> classNMSEntity;
-    private final Class<?> classVec3D;
-    private final Class<?> classEnumMoveType;
-    private final Class<?> classNBTTagCompound;
-    private final Class<?> classNBTBase;
-    private final Class<?> classCrashReportSystemDetails;
-    private final Class<?> classGameProfileSerializer;
-
-    private final Constructor<?> cTorNMSFallingBlockEntity;
-    private final Constructor<?> cTorBlockPosition;
-    private final Constructor<?> cTorVec3D;
-
-    private final Method methodTick;
-    private final Method methodGetNMSWorld;
-    private final Method methodSetPosition;
-    private final Method methodSetNoGravity;
-    private final Method methodGetMot;
-    private final Method methodSetMot;
-    private final Method methodSetMotVec;
-    private final Method methodHurtEntities;
-    private final Method methodMove;
-    private final Method methodSaveData;
-    private final Method methodLoadData;
-    private final Method methodGetBlock;
-    private final Method methodSetStartPos;
-    private final Method methodLocX;
-    private final Method methodLocY;
-    private final Method methodLocZ;
-    private final Method methodNMSAddEntity;
-    private final Method methodAppendEntityCrashReport;
-    private final Method methodCrashReportAppender;
-    private final Method methodNBTTagCompoundSet;
-    private final Method methodNBTTagCompoundSetInt;
-    private final Method methodNBTTagCompoundSetBoolean;
-    private final Method methodNBTTagCompoundSetFloat;
-    private final Method methodNBTTagCompoundHasKeyOfType;
-    private final Method methodNBTTagCompoundGetCompound;
-    private final Method methodNBTTagCompoundGetInt;
-    private final Method methodIBlockDataSerializer;
-    private final Method methodIBlockDataDeserializer;
-    private final Method methodIsAir;
-
-    private final Field fieldNoClip;
-    private final Field fieldTileEntityData;
-    private final Field fieldTicksLived;
-    private final Field fieldHurtEntities;
-    private final Field fieldNMSWorld;
-
-    private final List<Field> fieldsVec3D;
-
-    private final Object fieldEnumMoveTypeSelf;
+    public final Field fieldNoClip;
+    public final Field fieldHurtEntities;
 
     public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
     {
         super(mappingsVersion);
 
-        String nmsBase = ReflectionUtils.NMS_BASE;
-        classEntityFallingBlock = ReflectionUtils.findFirstClass(nmsBase + "EntityFallingBlock",
-                                                                 "net.minecraft.world.entity.item.EntityFallingBlock");
-        classNBTTagCompound = ReflectionUtils.findFirstClass(nmsBase + "NBTTagCompound",
-                                                             "net.minecraft.nbt.NBTTagCompound");
-        classNBTBase = ReflectionUtils.findFirstClass(nmsBase + "NBTBase", "net.minecraft.nbt.NBTBase");
-        classIBlockData = ReflectionUtils.findFirstClass(nmsBase + "IBlockData",
-                                                         "net.minecraft.world.level.block.state.IBlockData");
-        classCraftWorld = ReflectionUtils.findFirstClass(ReflectionUtils.CRAFT_BASE + "CraftWorld");
-        classEnumMoveType = ReflectionUtils.findFirstClass(nmsBase + "EnumMoveType",
-                                                           "net.minecraft.world.entity.EnumMoveType");
-        classVec3D = ReflectionUtils.findFirstClass(nmsBase + "Vec3D", "net.minecraft.world.phys.Vec3D");
-        classNMSWorld = ReflectionUtils.findFirstClass(nmsBase + "World", "net.minecraft.world.level.World");
-        classNMSWorldServer = ReflectionUtils.findFirstClass(nmsBase + "WorldServer",
-                                                             "net.minecraft.server.level.WorldServer");
-        classNMSEntity = ReflectionUtils.findFirstClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity");
-        classBlockPosition = ReflectionUtils.findFirstClass(nmsBase + "BlockPosition",
-                                                            "net.minecraft.core.BlockPosition");
-        classCrashReportSystemDetails = ReflectionUtils.findFirstClass(nmsBase + "CrashReportSystemDetails",
-                                                                       "net.minecraft.CrashReportSystemDetails");
-        classGameProfileSerializer = ReflectionUtils.findFirstClass(nmsBase + "GameProfileSerializer",
-                                                                    "net.minecraft.nbt.GameProfileSerializer");
-
-
-        cTorNMSFallingBlockEntity = ReflectionUtils.findCTor(classEntityFallingBlock, classNMSWorld, double.class,
-                                                             double.class, double.class, classIBlockData);
-        cTorBlockPosition = ReflectionUtils.findCTor(classBlockPosition, double.class, double.class, double.class);
-        cTorVec3D = ReflectionUtils.findCTor(classVec3D, double.class, double.class, double.class);
-
-
-        methodGetNMSWorld = ReflectionUtils.getMethod(classCraftWorld, "getHandle");
-        methodTick = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC);
-        methodSetPosition = ReflectionUtils.getMethod(classNMSEntity, "setPosition",
-                                                      double.class, double.class, double.class);
-        methodSetNoGravity = ReflectionUtils.getMethod(classNMSEntity, "setNoGravity", boolean.class);
-        methodSetMot = ReflectionUtils.getMethod(classNMSEntity, "setMot", double.class, double.class, double.class);
-        methodSetMotVec = ReflectionUtils.getMethod(classNMSEntity, "setMot", classVec3D);
-        methodGetMot = ReflectionUtils.getMethod(classNMSEntity, "getMot");
-        methodHurtEntities = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, boolean.class,
-                                                                   Modifier.PUBLIC,
-                                                                   float.class, float.class, null);
-        methodMove = ReflectionUtils.getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
-        methodSaveData = ReflectionUtils.getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
-        methodLoadData = ReflectionUtils.getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
-        methodGetBlock = ReflectionUtils.getMethod(classEntityFallingBlock, "getBlock");
-        methodSetStartPos = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, void.class,
-                                                                  Modifier.PUBLIC, classBlockPosition);
-        methodLocX = ReflectionUtils.getMethod(classNMSEntity, "locX");
-        methodLocY = ReflectionUtils.getMethod(classNMSEntity, "locY");
-        methodLocZ = ReflectionUtils.getMethod(classNMSEntity, "locZ");
-        methodNMSAddEntity = ReflectionUtils.getMethod(classNMSWorldServer, "addEntity",
-                                                       classNMSEntity, CreatureSpawnEvent.SpawnReason.class);
-        methodAppendEntityCrashReport = ReflectionUtils
-            .findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
-                                   classCrashReportSystemDetails);
-        methodCrashReportAppender = ReflectionUtils.findMethodFromProfile(classCrashReportSystemDetails,
-                                                                          classCrashReportSystemDetails,
-                                                                          Modifier.PUBLIC,
-                                                                          String.class, Object.class);
-        methodIsAir = ReflectionUtils.getMethodFullInheritance(classIBlockData, "isAir");
-        methodNBTTagCompoundSet = ReflectionUtils.getMethod(classNBTTagCompound, "set", String.class, classNBTBase);
-
-        methodNBTTagCompoundSetInt = ReflectionUtils.getMethod(classNBTTagCompound, "setInt",
-                                                               String.class, int.class);
-        methodNBTTagCompoundSetBoolean = ReflectionUtils.getMethod(classNBTTagCompound, "setBoolean",
-                                                                   String.class, boolean.class);
-        methodNBTTagCompoundSetFloat = ReflectionUtils.getMethod(classNBTTagCompound, "setFloat",
-                                                                 String.class, float.class);
-        methodNBTTagCompoundGetCompound = ReflectionUtils.getMethod(classNBTTagCompound, "getCompound", String.class);
-        methodNBTTagCompoundGetInt = ReflectionUtils.getMethod(classNBTTagCompound, "getInt", String.class);
-        methodNBTTagCompoundHasKeyOfType = ReflectionUtils.getMethod(classNBTTagCompound, "hasKeyOfType",
-                                                                     String.class, int.class);
-        methodIBlockDataSerializer = ReflectionUtils
-            .findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
-                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classIBlockData);
-        methodIBlockDataDeserializer = ReflectionUtils
-            .findMethodFromProfile(classGameProfileSerializer, classIBlockData,
-                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC),
-                                   classNBTTagCompound);
-
-
         fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
         fieldNoClip = ReflectionUtils.getField(classNMSEntity, getNoClipFieldName(), boolean.class);
-        fieldTileEntityData = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
-        fieldTicksLived = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
-        fieldNMSWorld = ReflectionUtils.getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
-        fieldEnumMoveTypeSelf = ReflectionUtils.getEnumConstant(classEnumMoveType, 0);
-
-
-        fieldsVec3D = ReflectionUtils
-            .getFields(3, classVec3D, ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
     }
 
     private @NotNull String getHurtEntitiesFieldName()
@@ -216,7 +71,8 @@ final class EntityFallingBlockGenerator extends Generator
 
     private @NotNull String getNoClipFieldName()
     {
-        final String fieldName = getFieldName(methodMove, classNMSEntity, MethodAdapterFirstIfMemberField::new);
+        final String fieldName = getFieldName(methodMove, classNMSEntity,
+                                              MethodAdapterFirstIfMemberField::new);
         return Objects.requireNonNull(fieldName, "Failed to find name of noClip variable in move method!");
     }
 
@@ -412,10 +268,10 @@ final class EntityFallingBlockGenerator extends Generator
                 FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
                 invoke(methodSetNoGravity).with(true)).andThen(
                 invoke(methodSetMot).with(0, 0, 0)).andThen(
-                invoke(methodSetStartPos)
-                    .withMethodCall(construct(cTorBlockPosition).withMethodCall(invoke(methodLocX))
-                                                                .withMethodCall(invoke(methodLocY))
-                                                                .withMethodCall(invoke(methodLocZ)))).andThen(
+                invoke(methodSetStartPos).withMethodCall(construct(cTorBlockPosition)
+                                                             .withMethodCall(invoke(methodLocX))
+                                                             .withMethodCall(invoke(methodLocY))
+                                                             .withMethodCall(invoke(methodLocZ)))).andThen(
                 invoke(named("spawn")))
             );
     }
@@ -496,15 +352,15 @@ final class EntityFallingBlockGenerator extends Generator
         builder = builder
             .define(methodLoadData)
             .intercept(invoke(methodIBlockDataDeserializer)
-                           .withMethodCall(invoke(methodNBTTagCompoundGetCompound).onArgument(0).with("BlockState"))
-                           .setsField(named("block")).andThen(
-                    invoke(methodNBTTagCompoundGetInt).onArgument(0).with("Time").setsField(fieldTicksLived)).andThen(
+                           .withMethodCall(invoke(methodNBTTagCompoundGetCompound)
+                                               .onArgument(0).with("BlockState")).setsField(named("block")).andThen(
+                    invoke(methodNBTTagCompoundGetInt)
+                        .onArgument(0).with("Time").setsField(fieldTicksLived)).andThen(
                     invoke(named(tileEntityConditionalName))
                         .withThis().withArgument(0)
-                        .withMethodCall(invoke(methodNBTTagCompoundHasKeyOfType).onArgument(0)
-                                                                                .with("TileEntityData", 10))
-                        .with(loadTileEntityDataName))
-            );
+                        .withMethodCall(invoke(methodNBTTagCompoundHasKeyOfType)
+                                            .onArgument(0).with("TileEntityData", 10))
+                        .with(loadTileEntityDataName)));
 
         return builder;
     }
@@ -613,10 +469,9 @@ final class EntityFallingBlockGenerator extends Generator
         builder = builder.method(named("igenerated$sAir")).intercept(invoke(methodIsAir).onField("block"));
         builder = builder
             .method(named("generated$move").and(ElementMatchers.takesArguments(Collections.emptyList())))
-            .intercept(invoke(methodMove)
-                           .with(value(fieldEnumMoveTypeSelf))
-                           .withMethodCall(invoke(methodGetMot))
-                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+            .intercept(invoke(methodMove).with(value(fieldEnumMoveTypeSelf))
+                                         .withMethodCall(invoke(methodGetMot))
+                                         .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         builder = builder.method(named("generated$getTicksLived"))
                          .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
         builder = builder.method(named("generated$setTicksLived"))

@@ -9,40 +9,25 @@ import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.StubMethod;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
 import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
-import org.bukkit.material.MaterialData;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 import static net.bytebuddy.implementation.FieldAccessor.ofField;
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static nl.pim16aap2.bigDoors.reflection.ReflectionUtils.*;
+import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
 public class CraftFallingBlockGenerator extends Generator
 {
     private final @NotNull Class<?> classGeneratedEntityFallingBlock;
-
-    private final Class<?> classCraftEntity;
-    private final Class<?> classCraftServer;
-    private final Class<?> classNMSEntity;
-    private final Class<?> classIBlockData;
-    private final Class<?> classCraftMagicNumbers;
-
-    private final Method methodCraftMagicNumbersGetMaterial;
-    private final Method methodGetItemType;
-    private final Method methodCraftEntitySetTicksLived;
-
-    private final Constructor<?> ctorCraftEntity;
 
     public CraftFallingBlockGenerator(@NotNull String mappingsVersion,
                                       Class<?> classGeneratedEntityFallingBlock)
@@ -50,20 +35,6 @@ public class CraftFallingBlockGenerator extends Generator
         super(mappingsVersion);
         this.classGeneratedEntityFallingBlock = Objects
             .requireNonNull(classGeneratedEntityFallingBlock, "No classGeneratedEntityFallingBlock provided!");
-
-        final String craftBase = ReflectionUtils.CRAFT_BASE;
-        final String nmsBase = ReflectionUtils.NMS_BASE;
-        classCraftEntity = findClass(craftBase + "entity.CraftEntity");
-        classCraftServer = findClass(craftBase + "CraftServer");
-        classNMSEntity = findFirstClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity");
-        classIBlockData = findFirstClass(nmsBase + "IBlockData", "net.minecraft.world.level.block.state.IBlockData");
-        classCraftMagicNumbers = findClass(craftBase + "util.CraftMagicNumbers");
-
-        methodCraftMagicNumbersGetMaterial = getMethod(classCraftMagicNumbers, "getMaterial", classIBlockData);
-        methodGetItemType = getMethod(MaterialData.class, "getItemType");
-        methodCraftEntitySetTicksLived = ReflectionUtils.getMethod(classCraftEntity, "setTicksLived", int.class);
-
-        ctorCraftEntity = ReflectionUtils.findCTor(classCraftEntity, classCraftServer, classNMSEntity);
     }
 
     public interface IGeneratedCraftFallingBlock
