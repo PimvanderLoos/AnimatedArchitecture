@@ -69,7 +69,7 @@ final class NMSBlockGenerator extends Generator
         builder = addRotateCylindricalMethod(builder);
 
         finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                      asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumBlockRotation));
+                      asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation));
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -79,7 +79,7 @@ final class NMSBlockGenerator extends Generator
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                            asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumBlockRotation))
+                            asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation))
             .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
 
                 construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
@@ -107,7 +107,7 @@ final class NMSBlockGenerator extends Generator
             .defineField("craftBlockData", classCraftBlockData, Visibility.PRIVATE)
             .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
             .defineField("loc", Location.class, Visibility.PRIVATE)
-            .defineField("axesValues", asArrayType(classEnumDirectionEnumAxis), Visibility.PRIVATE)
+            .defineField("axesValues", asArrayType(classEnumDirectionAxis), Visibility.PRIVATE)
             .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
             ;
     }
@@ -202,8 +202,8 @@ final class NMSBlockGenerator extends Generator
             .intercept(setNewAxis.setsField(named("blockData")));
 
         builder = builder
-            .defineMethod(privateMethodName, classEnumDirectionEnumAxis, Visibility.PRIVATE)
-            .withParameters(boolean.class, int.class, asArrayType(classEnumDirectionEnumAxis))
+            .defineMethod(privateMethodName, classEnumDirectionAxis, Visibility.PRIVATE)
+            .withParameters(boolean.class, int.class, asArrayType(classEnumDirectionAxis))
             .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes, values) ->
             {
                 int newIdx = 0;

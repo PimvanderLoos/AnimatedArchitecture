@@ -43,6 +43,17 @@ public final class ReflectionUtils
         // utility class
     }
 
+    public static @NotNull Object[] getEnumValues(@NotNull Class<?> source)
+    {
+        if (ENUM_VALUE_NAME == null)
+            throw new IllegalStateException("Failed to find name method for enums!");
+
+        @Nullable Object[] values = source.getEnumConstants();
+        if (values == null)
+            throw new IllegalStateException("Class " + source + " is not an enum!");
+        return values;
+    }
+
     public static @NotNull Object getEnumConstant(@NotNull Class<?> source, @NotNull String name)
     {
         return getEnumConstant(true, source, name);
@@ -69,8 +80,6 @@ public final class ReflectionUtils
     private static Object getEnumConstant(boolean nonNull, @NotNull Class<?> source, @Nullable Integer index,
                                           @Nullable String name)
     {
-        if (ENUM_VALUE_NAME == null)
-            throw new IllegalStateException("Failed to find name method for enums!");
         if (index == null && name == null)
             throw new IllegalArgumentException(
                 "Both index and name are null! Exactly one of them should be specified!");
@@ -78,9 +87,7 @@ public final class ReflectionUtils
             throw new IllegalArgumentException(
                 "Both index and name are not null! Exactly one of them should be specified!");
 
-        @Nullable Object[] values = source.getEnumConstants();
-        if (values == null)
-            throw new IllegalStateException("Class " + source + " is not an enum!");
+        Object[] values = getEnumValues(source);
         for (int idx = 0; idx < values.length; ++idx)
         {
             try

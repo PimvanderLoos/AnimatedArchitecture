@@ -19,6 +19,7 @@ public final class FallbackGenerator
     private final @NotNull Generator entityFallingBlockGenerator;
     private final @NotNull Generator craftFallingBlockGenerator;
     private final @NotNull Generator nmsBlockGenerator;
+    private final @NotNull Generator FallingBlockFactoryGenerator;
 
     public FallbackGenerator()
     {
@@ -29,6 +30,10 @@ public final class FallbackGenerator
             craftFallingBlockGenerator =
                 new CraftFallingBlockGenerator(mappingsVersion, entityFallingBlockGenerator.generatedClass).generate();
             nmsBlockGenerator = new NMSBlockGenerator(mappingsVersion).generate();
+            FallingBlockFactoryGenerator = new FallingBlockFactoryGenerator(mappingsVersion,
+                                                                            getGeneratedNMSBlockClass(),
+                                                                            getGeneratedCraftEntityClass(),
+                                                                            getGeneratedEntityClass()).generate();
         }
         catch (Exception | ExceptionInInitializerError e)
         {
@@ -36,19 +41,24 @@ public final class FallbackGenerator
         }
     }
 
-    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
+    private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
     {
         return getGeneratedClassData(entityFallingBlockGenerator, "EntityFallingBlock");
     }
 
-    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
+    private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
     {
         return getGeneratedClassData(craftFallingBlockGenerator, "CraftFallingBlock");
     }
 
-    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedNMSBlockClass()
+    private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedNMSBlockClass()
     {
         return getGeneratedClassData(nmsBlockGenerator, "NMSBlock");
+    }
+
+    private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedFallingBlockFactoryClass()
+    {
+        return getGeneratedClassData(FallingBlockFactoryGenerator, "FallingBlockFactory");
     }
 
     private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)

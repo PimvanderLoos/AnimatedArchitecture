@@ -28,12 +28,8 @@ final class ReflectionRepository
     public static final Class<?> classNMSBlock;
     public static final Class<?> classNMSItem;
     public static final Class<?> classBlockRotatable;
-    public static final Class<?> classBlockStateEnum;
-    public static final Class<?> classEnumDirectionEnumAxis;
-    public static final Class<?> classEnumBlockRotation;
     public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
-    public static final Class<?> classEnumMoveType;
     public static final Class<?> classNBTTagCompound;
     public static final Class<?> classNBTBase;
     public static final Class<?> classCrashReportSystemDetails;
@@ -45,6 +41,11 @@ final class ReflectionRepository
     public static final Class<?> classCraftServer;
     public static final Class<?> classCraftMagicNumbers;
     public static final Class<?> classCraftBlockData;
+    
+    public static final Class<?> classEnumBlockState;
+    public static final Class<?> classEnumMoveType;
+    public static final Class<?> classEnumDirectionAxis;
+    public static final Class<?> classEnumBlockRotation;
 
     public static final Constructor<?> cTorNMSFallingBlockEntity;
     public static final Constructor<?> cTorBlockPosition;
@@ -131,13 +132,13 @@ final class ReflectionRepository
         classCraftBlockData = findClass(CRAFT_BASE + "block.data.CraftBlockData");
         classNMSBlock = findFirstClass(NMS_BASE + "Block", "net.minecraft.world.level.block.Block");
         classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
-        classEnumDirectionEnumAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
-                                                    "net.minecraft.core.EnumDirection$EnumAxis");
+        classEnumDirectionAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
+                                                "net.minecraft.core.EnumDirection$EnumAxis");
         classEnumBlockRotation = findFirstClass(NMS_BASE + "EnumBlockRotation",
                                                 "net.minecraft.world.level.block.EnumBlockRotation");
         classBlockRotatable = findFirstClass(NMS_BASE + "BlockRotatable",
                                              "net.minecraft.world.level.block.BlockRotatable");
-        classBlockStateEnum = findFirstClass(NMS_BASE + "BlockStateEnum",
+        classEnumBlockState = findFirstClass(NMS_BASE + "BlockStateEnum",
                                              "net.minecraft.world.level.block.state.properties.BlockStateEnum");
 
 
@@ -208,7 +209,7 @@ final class ReflectionRepository
         fieldNMSWorld = getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
         fieldBlockRotatableAxis = getField(classBlockRotatable,
                                            getModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC),
-                                           classBlockStateEnum);
+                                           classEnumBlockState);
         fieldEnumMoveTypeSelf = getEnumConstant(classEnumMoveType, 0);
 
 
