@@ -12,7 +12,7 @@ import java.util.Objects;
 
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.classCraftMagicNumbers;
 
-public class FallbackGenerator
+public final class FallbackGenerator
 {
     private final @NotNull String mappingsVersion;
 
@@ -34,17 +34,17 @@ public class FallbackGenerator
         }
     }
 
-    public Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
+    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
     {
         return getGeneratedClassData(entityFallingBlockGenerator, "EntityFallingBlock");
     }
 
-    public Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
+    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
     {
         return getGeneratedClassData(craftFallingBlockGenerator, "CraftFallingBlock");
     }
 
-    private Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
+    private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
     {
         return new Pair<>(Objects.requireNonNull(generator.getGeneratedClass(),
                                                  "Class for " + name + " cannot be null!"),
@@ -52,12 +52,13 @@ public class FallbackGenerator
                                                  "Constructor for " + name + " cannot be null!"));
     }
 
-    public String getMappingsVersion()
+    private @NotNull String getMappingsVersion()
         throws IllegalAccessException, InvocationTargetException
     {
         final Method methodGetMappingsVersion = ReflectionUtils.getMethod(classCraftMagicNumbers, "getMappingsVersion");
         final Field instanceField = ReflectionUtils.getField(classCraftMagicNumbers, "INSTANCE");
         final Object instance = instanceField.get(null);
-        return (String) methodGetMappingsVersion.invoke(instance);
+        return Objects.requireNonNull((String) methodGetMappingsVersion.invoke(instance),
+                                      "Failed to find the current mappings version!");
     }
 }

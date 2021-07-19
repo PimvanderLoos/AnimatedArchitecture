@@ -79,7 +79,6 @@ final class EntityFallingBlockGenerator extends Generator
     private @Nullable String getFieldName(@NotNull Method method, @NotNull Class<?> clz,
                                           @NotNull IFieldFinderCreator fieldFinderCreator)
     {
-
         final String className = clz.getName().replace('.', '/');
         final String classAsPath = className + ".class";
         final InputStream inputStream = Objects.requireNonNull(clz.getClassLoader().getResourceAsStream(classAsPath),
@@ -466,7 +465,7 @@ final class EntityFallingBlockGenerator extends Generator
             }, MultiplyVec3D.class));
 
         builder = builder.method(named("generated$die")).intercept(invoke(named("die")).onSuper());
-        builder = builder.method(named("igenerated$sAir")).intercept(invoke(methodIsAir).onField("block"));
+        builder = builder.method(named("generated$isAir")).intercept(invoke(methodIsAir).onField("block"));
         builder = builder
             .method(named("generated$move").and(ElementMatchers.takesArguments(Collections.emptyList())))
             .intercept(invoke(methodMove).with(value(fieldEnumMoveTypeSelf))

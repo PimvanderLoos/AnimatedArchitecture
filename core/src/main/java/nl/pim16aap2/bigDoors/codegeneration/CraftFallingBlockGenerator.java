@@ -25,7 +25,7 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
-public class CraftFallingBlockGenerator extends Generator
+final class CraftFallingBlockGenerator extends Generator
 {
     private final @NotNull Class<?> classGeneratedEntityFallingBlock;
 
@@ -105,7 +105,6 @@ public class CraftFallingBlockGenerator extends Generator
                            .onMethodCall(invoke(methodCraftMagicNumbersGetMaterial)
                                              .withMethodCall(invoke(named("getBlock"))
                                                                  .onMethodCall(invoke(named("getHandle"))))));
-
         return builder;
     }
 
