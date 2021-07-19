@@ -11,6 +11,7 @@ import net.bytebuddy.implementation.StubMethod;
 import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
+import net.minecraft.server.v1_11_R1.EnumDirection;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.XMaterial;
@@ -26,6 +27,7 @@ import org.bukkit.block.data.type.Fence;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -62,9 +64,36 @@ final class NMSBlockGenerator extends Generator
         builder = addCTor(builder);
         builder = addBasicMethods(builder);
         builder = addPutBlockMethod(builder);
+        builder = addRotateBlockUpDownMethod(builder);
         builder = addUpdateMultipleFacingMethod(builder);
 
-        finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo);
+        finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo, List.class);
+    }
+
+    private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
+        throws IllegalAccessException
+    {
+        final MethodCall getBlockAtLoc = invoke(methodGetBlockAtCoords).onArgument(0).withArgument(1, 2, 3);
+
+        return builder
+            .defineConstructor(Visibility.PUBLIC)
+            .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo, List.class)
+            .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
+
+                construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
+
+                FieldAccessor.ofField("axesValues").setsArgumentAt(5)).andThen(
+
+                invoke(named("getBlockData"))
+                    .onMethodCall(getBlockAtLoc)
+                    .setsField(named("craftBlockData"))
+                    .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)).andThen(
+
+                invoke(named("checkWaterLogged")).withField("craftBlockData")).andThen(
+
+                invoke(named("constructBlockDataFromBukkit"))).andThen(
+
+                invoke(methodMatchXMaterial).withMethodCall(invoke(named("getType")).onMethodCall(getBlockAtLoc))));
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
@@ -73,7 +102,63 @@ final class NMSBlockGenerator extends Generator
             .defineField("blockData", classIBlockData, Visibility.PRIVATE)
             .defineField("craftBlockData", classCraftBlockData, Visibility.PRIVATE)
             .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
-            .defineField("loc", Location.class, Visibility.PRIVATE);
+            .defineField("loc", Location.class, Visibility.PRIVATE)
+            .defineField("axesValues", List.class, Visibility.PRIVATE)
+            ;
+    }
+
+    public interface IRotateBlockUpDown
+    {
+        @RuntimeType
+        int intercept(boolean northSouthAligned, int currentAxes);
+    }
+
+    private DynamicType.Builder<?> addRotateBlockUpDownMethod(DynamicType.Builder<?> builder)
+        throws IllegalAccessException
+    {
+        final String privateMethodName = "generated$rotateBlockUpDown";
+        final Object blockRotatableAxis = fieldBlockRotatableAxis.get(null);
+
+        final MethodCall getCurrentAxis = (MethodCall) invoke(methodEnumOrdinal)
+            .onMethodCall((MethodCall) invoke(named("get")).onField("blockData").with(blockRotatableAxis)
+                                                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC))
+            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+
+        final MethodCall getNewAxisIdx = (MethodCall) invoke(named(privateMethodName))
+            .withArgument(0).withMethodCall(getCurrentAxis)
+            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+
+        final MethodCall getNewAxis = (MethodCall)
+            invoke(named("get")).onField("axesValues").withMethodCall(getNewAxisIdx)
+                                .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+
+        final MethodCall setNewAxis = (MethodCall)
+            invoke(named("set")).onField("blockData").with(blockRotatableAxis).withMethodCall(getNewAxis)
+                                .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+
+        builder = builder
+            .defineMethod("rotateBlockUpDown", void.class).withParameters(boolean.class)
+            .intercept(setNewAxis.setsField(named("blockData")));
+
+        builder = builder
+            .defineMethod(privateMethodName, int.class, Visibility.PRIVATE)
+            .withParameters(boolean.class, int.class)
+            .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes) ->
+            {
+                switch (currentAxes)
+                {
+                    case 0:
+                        return northSouthAligned ? 0 : 1;
+                    case 1:
+                        return northSouthAligned ? 2 : 0;
+                    case 2:
+                        return northSouthAligned ? 1 : 2;
+                    default:
+                        throw new RuntimeException("Received unexpected direction " + currentAxes);
+                }
+            }, IRotateBlockUpDown.class));
+
+        return builder;
     }
 
     public interface ICheckWaterLogged
@@ -195,28 +280,5 @@ final class NMSBlockGenerator extends Generator
                             ((MultipleFacing) craftBlockData).setFace(blockFace, false);
                     });
             }, IUpdateMultipleFacing.class).andThen(invoke(named("constructBlockDataFromBukkit"))));
-    }
-
-    private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
-    {
-        final MethodCall getBlockAtLoc = invoke(methodGetBlockAtCoords).onArgument(0).withArgument(1, 2, 3);
-
-        return builder
-            .defineConstructor(Visibility.PUBLIC)
-            .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo)
-            .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
-
-                construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
-
-                invoke(named("getBlockData"))
-                    .onMethodCall(getBlockAtLoc)
-                    .setsField(named("craftBlockData"))
-                    .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)).andThen(
-
-                invoke(named("checkWaterLogged")).withField("craftBlockData")).andThen(
-
-                invoke(named("constructBlockDataFromBukkit"))).andThen(
-
-                invoke(methodMatchXMaterial).withMethodCall(invoke(named("getType")).onMethodCall(getBlockAtLoc))));
     }
 }

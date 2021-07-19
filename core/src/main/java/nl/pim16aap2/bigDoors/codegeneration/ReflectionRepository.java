@@ -25,6 +25,9 @@ final class ReflectionRepository
     public static final Class<?> classNMSEntity;
     public static final Class<?> classNMSBlock;
     public static final Class<?> classNMSItem;
+    public static final Class<?> classBlockRotatable;
+    public static final Class<?> classBlockStateEnum;
+    public static final Class<?> classEnumDirectionEnumAxis;
     public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
     public static final Class<?> classEnumMoveType;
@@ -84,10 +87,12 @@ final class ReflectionRepository
     public static final Method methodGetBlockAtLoc;
     public static final Method methodIsAssignableFrom;
     public static final Method methodSetBlockType;
+    public static final Method methodEnumOrdinal;
 
     public static final Field fieldTileEntityData;
     public static final Field fieldTicksLived;
     public static final Field fieldNMSWorld;
+    public static final Field fieldBlockRotatableAxis;
 
     public static final List<Field> fieldsVec3D;
 
@@ -120,6 +125,12 @@ final class ReflectionRepository
         classCraftBlockData = findClass(CRAFT_BASE + "block.data.CraftBlockData");
         classNMSBlock = findFirstClass(NMS_BASE + "Block", "net.minecraft.world.level.block.Block");
         classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
+        classEnumDirectionEnumAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
+                                                    "net.minecraft.core.EnumDirection$EnumAxis");
+        classBlockRotatable = findFirstClass(NMS_BASE + "BlockRotatable",
+                                             "net.minecraft.world.level.block.BlockRotatable");
+        classBlockStateEnum = findFirstClass(NMS_BASE + "BlockStateEnum",
+                                             "net.minecraft.world.level.block.state.properties.BlockStateEnum");
 
 
         cTorNMSFallingBlockEntity = findCTor(classEntityFallingBlock, classNMSWorld, double.class,
@@ -178,11 +189,15 @@ final class ReflectionRepository
         methodGetBlockAtLoc = getMethod(World.class, "getBlockAt", Location.class);
         methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
         methodSetBlockType = getMethod(Block.class, "setType", Material.class);
+        methodEnumOrdinal = getMethod(Enum.class, "ordinal");
 
 
         fieldTileEntityData = getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
         fieldTicksLived = getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
         fieldNMSWorld = getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
+        fieldBlockRotatableAxis = getField(classBlockRotatable,
+                                           getModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC),
+                                           classBlockStateEnum);
         fieldEnumMoveTypeSelf = getEnumConstant(classEnumMoveType, 0);
 
 
