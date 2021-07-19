@@ -13,7 +13,7 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;

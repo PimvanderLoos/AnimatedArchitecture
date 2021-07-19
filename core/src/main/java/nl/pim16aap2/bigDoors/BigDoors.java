@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors;
 
 import nl.pim16aap2.bigDoors.GUI.GUI;
-import nl.pim16aap2.bigDoors.NMS.FakePlayerCreator_V1_17_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_12_R1;
@@ -25,7 +24,6 @@ import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_17_R1;
 import nl.pim16aap2.bigDoors.codegeneration.FallbackGenerator;
-import nl.pim16aap2.bigDoors.compatibility.IFakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
@@ -129,7 +127,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private HashMap<UUID, GUI> playerGUIs;
     private HashMap<UUID, WaitForCommand> cmdWaiters;
     private boolean is1_13 = false;
-    private IFakePlayerCreator fakePlayerCreator;
+    private FakePlayerCreator fakePlayerCreator;
     private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
@@ -206,6 +204,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date?");
                 return;
             }
+            fakePlayerCreator = new FakePlayerCreator(this);
 
             init();
 
@@ -545,7 +544,7 @@ public class BigDoors extends JavaPlugin implements Listener
         return autoCloseScheduler;
     }
 
-    public IFakePlayerCreator getFakePlayerCreator()
+    public FakePlayerCreator getFakePlayerCreator()
     {
         return fakePlayerCreator;
     }
@@ -769,18 +768,15 @@ public class BigDoors extends JavaPlugin implements Listener
             case "v1_11_R1":
                 fabf = new FallingBlockFactory_V1_11_R1();
                 headManager = new SkullCreator_V1_11_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_12_R1":
                 fabf = new FallingBlockFactory_V1_12_R1();
                 headManager = new SkullCreator_V1_12_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_13_R1":
                 is1_13 = true;
                 fabf = new FallingBlockFactory_V1_13_R1();
                 headManager = new SkullCreator_V1_13_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_13_R2":
                 String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
@@ -791,7 +787,6 @@ public class BigDoors extends JavaPlugin implements Listener
                     return false;
                 }
                 is1_13 = true;
-                fakePlayerCreator = new FakePlayerCreator(this);
                 // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
                 // That's why 1.13.1 is a kinda R1.5 package.
                 if (minorVersion == 1)
@@ -810,35 +805,30 @@ public class BigDoors extends JavaPlugin implements Listener
 
                 fabf = new FallingBlockFactory_V1_14_R1();
                 headManager = new SkullCreator_V1_14_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_15_R1":
                 is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
 
                 fabf = new FallingBlockFactory_V1_15_R1();
                 headManager = new SkullCreator_V1_15_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_16_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
                 fabf = new FallingBlockFactory_V1_16_R1();
                 headManager = new SkullCreator_V1_16_R1(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_16_R2":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
                 fabf = new FallingBlockFactory_V1_16_R2();
                 headManager = new SkullCreator_V1_16_R2(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_16_R3":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
                 fabf = new FallingBlockFactory_V1_16_R3();
                 headManager = new SkullCreator_V1_16_R3(this);
-                fakePlayerCreator = new FakePlayerCreator(this);
                 break;
             case "v1_17_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
@@ -846,7 +836,6 @@ public class BigDoors extends JavaPlugin implements Listener
 //                fabf = new FallingBlockFactory_V1_17_R1();
                 fabf = new FallbackGenerator().getFallingBlockFactory();
                 headManager = new SkullCreator_V1_17_R1(this);
-                fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
                 break;
             default:
                 getMyLogger()

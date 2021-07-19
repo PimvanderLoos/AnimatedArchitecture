@@ -12,7 +12,7 @@ import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 import org.bukkit.Location;

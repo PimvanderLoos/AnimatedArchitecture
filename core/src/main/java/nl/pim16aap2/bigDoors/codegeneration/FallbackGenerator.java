@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.Pair;
 import org.jetbrains.annotations.NotNull;
 

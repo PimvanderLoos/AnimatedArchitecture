@@ -12,7 +12,7 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;

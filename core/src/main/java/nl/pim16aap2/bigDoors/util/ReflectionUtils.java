@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.reflection;
+package nl.pim16aap2.bigDoors.util;
 
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;

@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,6 +29,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +76,17 @@ public final class Util
             if (!Util.isAllowedBlockBackDoor(mat))
                 BLACKLIST.add(mat);
         }
+    }
+
+    public static @Nullable <T> T firstNonNull(Supplier<T>... suppliers)
+    {
+        for (Supplier<T> supplier : suppliers)
+        {
+            T ret = supplier.get();
+            if (ret != null)
+                return ret;
+        }
+        return null;
     }
 
     public static Optional<DoorDirection> getDoorDirection(RotateDirection rot)

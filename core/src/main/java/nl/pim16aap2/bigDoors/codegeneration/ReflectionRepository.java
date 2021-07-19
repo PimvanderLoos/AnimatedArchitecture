@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-import static nl.pim16aap2.bigDoors.reflection.ReflectionUtils.*;
+import static nl.pim16aap2.bigDoors.util.ReflectionUtils.*;
 
 final class ReflectionRepository
 {
