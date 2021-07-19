@@ -13,6 +13,7 @@ import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -67,7 +68,7 @@ final class NMSBlockGenerator extends Generator
         builder = addRotateCylindricalMethod(builder);
 
         finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                      asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumEnumBlockRotation));
+                      asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumBlockRotation));
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -77,7 +78,7 @@ final class NMSBlockGenerator extends Generator
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                            asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumEnumBlockRotation))
+                            asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumBlockRotation))
             .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
 
                 construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
@@ -106,12 +107,42 @@ final class NMSBlockGenerator extends Generator
             .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
             .defineField("loc", Location.class, Visibility.PRIVATE)
             .defineField("axesValues", asArrayType(classEnumDirectionEnumAxis), Visibility.PRIVATE)
-            .defineField("blockRotationValues", asArrayType(classEnumEnumBlockRotation), Visibility.PRIVATE)
+            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
             ;
+    }
+
+    public interface IRotateCylindrical
+    {
+        @RuntimeType
+        Object intercept(RotateDirection rotateDirection, Object[] values);
     }
 
     private DynamicType.Builder<?> addRotateCylindricalMethod(DynamicType.Builder<?> builder)
     {
+        final String rotateMethod = "generated$rotateCylindricalMethod";
+        final MethodDelegation findBlockRotation = MethodDelegation
+            .to((IRotateCylindrical) (rotateDirection, values) ->
+            {
+                if (rotateDirection.equals(RotateDirection.CLOCKWISE))
+                    return values[1];
+                else
+                    return values[3];
+            }, IRotateCylindrical.class);
+
+        builder = builder
+            .defineMethod(rotateMethod, classEnumBlockRotation, Visibility.PRIVATE)
+            .withParameters(RotateDirection.class, asArrayType(classEnumBlockRotation))
+            .intercept(findBlockRotation);
+
+        builder = builder
+            .defineMethod("rotateCylindrical", void.class)
+            .withParameters(RotateDirection.class)
+            .intercept(invoke(methodRotateBlockData)
+                           .onField("blockData")
+                           .withMethodCall(invoke(named(rotateMethod))
+                                               .withArgument(0).withField("blockRotationValues"))
+                           .setsField(named("blockData")));
+
         return builder;
     }
 

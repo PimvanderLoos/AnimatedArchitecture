@@ -21,6 +21,7 @@ final class ReflectionRepository
 {
     public static final Class<?> classEntityFallingBlock;
     public static final Class<?> classIBlockData;
+    public static final Class<?> classBlockData;
     public static final Class<?> classNMSWorld;
     public static final Class<?> classNMSWorldServer;
     public static final Class<?> classNMSEntity;
@@ -29,7 +30,7 @@ final class ReflectionRepository
     public static final Class<?> classBlockRotatable;
     public static final Class<?> classBlockStateEnum;
     public static final Class<?> classEnumDirectionEnumAxis;
-    public static final Class<?> classEnumEnumBlockRotation;
+    public static final Class<?> classEnumBlockRotation;
     public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
     public static final Class<?> classEnumMoveType;
@@ -87,6 +88,7 @@ final class ReflectionRepository
     public static final Method methodMatchXMaterial;
     public static final Method methodGetBlockAtCoords;
     public static final Method methodGetBlockAtLoc;
+    public static final Method methodRotateBlockData;
     public static final Method methodIsAssignableFrom;
     public static final Method methodSetBlockType;
     public static final Method methodEnumOrdinal;
@@ -108,6 +110,9 @@ final class ReflectionRepository
         classNBTTagCompound = findFirstClass(NMS_BASE + "NBTTagCompound",
                                              "net.minecraft.nbt.NBTTagCompound");
         classNBTBase = findFirstClass(NMS_BASE + "NBTBase", "net.minecraft.nbt.NBTBase");
+        classBlockBase = findFirstClass(NMS_BASE + "BlockBase", "net.minecraft.world.level.block.state.BlockBase");
+        classBlockBaseInfo = findFirstClass(classBlockBase.getName() + "$Info");
+        classBlockData = findFirstClass(classBlockBase.getName() + "$BlockData");
         classIBlockData = findFirstClass(NMS_BASE + "IBlockData", "net.minecraft.world.level.block.state.IBlockData");
         classCraftWorld = findFirstClass(CRAFT_BASE + "CraftWorld");
         classEnumMoveType = findFirstClass(NMS_BASE + "EnumMoveType", "net.minecraft.world.entity.EnumMoveType");
@@ -123,15 +128,13 @@ final class ReflectionRepository
         classCraftEntity = findClass(CRAFT_BASE + "entity.CraftEntity");
         classCraftServer = findClass(CRAFT_BASE + "CraftServer");
         classCraftMagicNumbers = findClass(CRAFT_BASE + "util.CraftMagicNumbers");
-        classBlockBase = findFirstClass(NMS_BASE + "BlockBase", "net.minecraft.world.level.block.state.BlockBase");
-        classBlockBaseInfo = findFirstClass(classBlockBase.getName() + "$Info");
         classCraftBlockData = findClass(CRAFT_BASE + "block.data.CraftBlockData");
         classNMSBlock = findFirstClass(NMS_BASE + "Block", "net.minecraft.world.level.block.Block");
         classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
         classEnumDirectionEnumAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
                                                     "net.minecraft.core.EnumDirection$EnumAxis");
-        classEnumEnumBlockRotation = findFirstClass(NMS_BASE + "EnumBlockRotation",
-                                                    "net.minecraft.world.level.block.EnumBlockRotation");
+        classEnumBlockRotation = findFirstClass(NMS_BASE + "EnumBlockRotation",
+                                                "net.minecraft.world.level.block.EnumBlockRotation");
         classBlockRotatable = findFirstClass(NMS_BASE + "BlockRotatable",
                                              "net.minecraft.world.level.block.BlockRotatable");
         classBlockStateEnum = findFirstClass(NMS_BASE + "BlockStateEnum",
@@ -192,6 +195,8 @@ final class ReflectionRepository
         methodMatchXMaterial = getMethod(XMaterial.class, "matchXMaterial", Material.class);
         methodGetBlockAtCoords = getMethod(World.class, "getBlockAt", int.class, int.class, int.class);
         methodGetBlockAtLoc = getMethod(World.class, "getBlockAt", Location.class);
+        methodRotateBlockData =
+            findMethodFromProfile(classBlockData, classIBlockData, Modifier.PUBLIC, classEnumBlockRotation);
         methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
         methodSetBlockType = getMethod(Block.class, "setType", Material.class);
         methodEnumOrdinal = getMethod(Enum.class, "ordinal");
