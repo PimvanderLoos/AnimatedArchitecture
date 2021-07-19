@@ -63,6 +63,7 @@ final class NMSBlockGenerator extends Generator
         builder = addCTor(builder);
         builder = addBasicMethods(builder);
         builder = addPutBlockMethod(builder);
+        builder = addRotateBlockMethod(builder);
         builder = addRotateBlockUpDownMethod(builder);
         builder = addUpdateMultipleFacingMethod(builder);
         builder = addRotateCylindricalMethod(builder);
@@ -111,39 +112,64 @@ final class NMSBlockGenerator extends Generator
             ;
     }
 
-    public interface IRotateCylindrical
+    public interface IRotateBlock
     {
         @RuntimeType
         Object intercept(RotateDirection rotateDirection, Object[] values);
     }
 
+    private DynamicType.Builder<?> addRotateBlockBaseMethod(DynamicType.Builder<?> builder, MethodDelegation delegation,
+                                                            String baseName, String delegationName)
+    {
+        builder = builder
+            .defineMethod(delegationName, classEnumBlockRotation, Visibility.PRIVATE)
+            .withParameters(RotateDirection.class, asArrayType(classEnumBlockRotation))
+            .intercept(delegation);
+
+        builder = builder
+            .defineMethod(baseName, void.class)
+            .withParameters(RotateDirection.class)
+            .intercept(invoke(methodRotateBlockData)
+                           .onField("blockData")
+                           .withMethodCall(invoke(named(delegationName))
+                                               .withArgument(0).withField("blockRotationValues"))
+                           .setsField(named("blockData")));
+        return builder;
+    }
+
+    private DynamicType.Builder<?> addRotateBlockMethod(DynamicType.Builder<?> builder)
+    {
+        final String rotateMethod = "generated$rotateBlockMethod";
+        final MethodDelegation findBlockRotation = MethodDelegation
+            .to((IRotateBlock) (rotateDirection, values) ->
+            {
+                switch (rotateDirection)
+                {
+                    case CLOCKWISE:
+                        return values[1];
+                    case COUNTERCLOCKWISE:
+                        return values[2];
+                    default:
+                        return values[0];
+                }
+            }, IRotateBlock.class);
+
+        return addRotateBlockBaseMethod(builder, findBlockRotation, "rotateBlock", rotateMethod);
+    }
+
     private DynamicType.Builder<?> addRotateCylindricalMethod(DynamicType.Builder<?> builder)
     {
-        final String rotateMethod = "generated$rotateCylindricalMethod";
+        final String rotateMethod = "generated$rotateBlockCylindrical";
         final MethodDelegation findBlockRotation = MethodDelegation
-            .to((IRotateCylindrical) (rotateDirection, values) ->
+            .to((IRotateBlock) (rotateDirection, values) ->
             {
                 if (rotateDirection.equals(RotateDirection.CLOCKWISE))
                     return values[1];
                 else
                     return values[3];
-            }, IRotateCylindrical.class);
+            }, IRotateBlock.class);
 
-        builder = builder
-            .defineMethod(rotateMethod, classEnumBlockRotation, Visibility.PRIVATE)
-            .withParameters(RotateDirection.class, asArrayType(classEnumBlockRotation))
-            .intercept(findBlockRotation);
-
-        builder = builder
-            .defineMethod("rotateCylindrical", void.class)
-            .withParameters(RotateDirection.class)
-            .intercept(invoke(methodRotateBlockData)
-                           .onField("blockData")
-                           .withMethodCall(invoke(named(rotateMethod))
-                                               .withArgument(0).withField("blockRotationValues"))
-                           .setsField(named("blockData")));
-
-        return builder;
+        return addRotateBlockBaseMethod(builder, findBlockRotation, "rotateCylindrical", rotateMethod);
     }
 
     public interface IRotateBlockUpDown
