@@ -237,7 +237,8 @@ final class EntityFallingBlockGenerator extends Generator
         builder = addTickMethod(builder);
         builder = addCrashReportMethod(builder);
 
-        finishBuilder(builder, World.class, double.class, double.class, double.class, classIBlockData);
+        finishBuilder(builder, World.class, double.class, double.class, double.class, classIBlockData,
+                      asArrayType(classEnumMoveType));
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
@@ -248,7 +249,8 @@ final class EntityFallingBlockGenerator extends Generator
             .defineField(fieldNoClip.getName(), fieldNoClip.getType(), Visibility.PROTECTED)
             .defineField(fieldTileEntityData.getName(), fieldTileEntityData.getType(), Visibility.PROTECTED)
             .defineField("block", classIBlockData, Visibility.PRIVATE)
-            .defineField("bukkitWorld", org.bukkit.World.class, Visibility.PRIVATE);
+            .defineField("bukkitWorld", org.bukkit.World.class, Visibility.PRIVATE)
+            .defineField("enumMoveTypeValues", asArrayType(classEnumMoveType), Visibility.PRIVATE);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -258,10 +260,12 @@ final class EntityFallingBlockGenerator extends Generator
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(World.class, double.class, double.class, double.class, classIBlockData)
+            .withParameters(World.class, double.class, double.class, double.class, classIBlockData,
+                            asArrayType(classEnumMoveType))
             .intercept(invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4).andThen(
                 FieldAccessor.ofField("block").setsArgumentAt(4)).andThen(
                 FieldAccessor.ofField("bukkitWorld").setsArgumentAt(0)).andThen(
+                FieldAccessor.ofField("enumMoveTypeValues").setsArgumentAt(5)).andThen(
                 FieldAccessor.of(fieldTicksLived).setsValue(0)).andThen(
                 FieldAccessor.of(fieldHurtEntities).setsValue(false)).andThen(
                 FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
@@ -465,12 +469,14 @@ final class EntityFallingBlockGenerator extends Generator
                 }
             }, MultiplyVec3D.class));
 
+
         builder = builder.method(named("generated$die")).intercept(invoke(named("die")).onSuper());
         builder = builder.method(named("generated$isAir")).intercept(invoke(methodIsAir).onField("block"));
         builder = builder
             .method(named("generated$move").and(ElementMatchers.takesArguments(Collections.emptyList())))
             .intercept(invoke(methodMove)
-                           .with(value(fieldEnumMoveTypeSelf)).withMethodCall(invoke(methodGetMot))
+                           .withMethodCall(invoke(methodArrayGetIdx).withField("enumMoveTypeValues").with(0))
+                           .withMethodCall(invoke(methodGetMot))
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         builder = builder.method(named("generated$getTicksLived"))
                          .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));

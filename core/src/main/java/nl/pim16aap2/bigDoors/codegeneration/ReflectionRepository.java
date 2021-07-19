@@ -109,8 +109,6 @@ final class ReflectionRepository
 
     public static final List<Field> fieldsVec3D;
 
-    public static final Object fieldEnumMoveTypeSelf;
-
     static
     {
         classEntityFallingBlock = findFirstClass(NMS_BASE + "EntityFallingBlock",
@@ -225,8 +223,6 @@ final class ReflectionRepository
         fieldBlockRotatableAxis = getField(classBlockRotatable,
                                            getModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC),
                                            classEnumBlockState);
-        fieldEnumMoveTypeSelf = getEnumConstant(classEnumMoveType, 0);
-
 
         fieldsVec3D = getFields(3, classVec3D, getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
     }

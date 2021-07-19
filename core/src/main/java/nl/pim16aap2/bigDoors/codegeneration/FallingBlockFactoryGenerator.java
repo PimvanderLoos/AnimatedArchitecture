@@ -65,19 +65,22 @@ public class FallingBlockFactoryGenerator extends Generator
     {
         return builder
             .defineField("axesValues", asArrayType(classEnumDirectionAxis), Visibility.PRIVATE)
-            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE);
+            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
+            .defineField("enumMoveTypeValues", asArrayType(classEnumMoveType), Visibility.PRIVATE);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
         Object[] axesValues = ReflectionUtils.getEnumValues(classEnumDirectionAxis);
         Object[] blockRotationValues = ReflectionUtils.getEnumValues(classEnumBlockRotation);
+        Object[] enumMoveTypeValues = ReflectionUtils.getEnumValues(classEnumMoveType);
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .intercept(SuperMethodCall.INSTANCE.andThen(
                 FieldAccessor.ofField("axesValues").setsValue(axesValues)).andThen(
-                FieldAccessor.ofField("blockRotationValues").setsValue(blockRotationValues)));
+                FieldAccessor.ofField("blockRotationValues").setsValue(blockRotationValues)).andThen(
+                FieldAccessor.ofField("enumMoveTypeValues").setsValue(enumMoveTypeValues)));
     }
 
     private DynamicType.Builder<?> addNMSBlockFactoryMethod(DynamicType.Builder<?> builder)
@@ -127,7 +130,8 @@ public class FallingBlockFactoryGenerator extends Generator
             .withMethodCall(invoke(named("getX")).onArgument(0))
             .withMethodCall(invoke(named("getY")).onArgument(0))
             .withMethodCall(invoke(named("getZ")).onArgument(0))
-            .withMethodCall(createBlockData);
+            .withMethodCall(createBlockData)
+            .withField("enumMoveTypeValues");
 
         final MethodCall createCraftFallingBlock = (MethodCall)
             construct(craftFallingBlock.second)

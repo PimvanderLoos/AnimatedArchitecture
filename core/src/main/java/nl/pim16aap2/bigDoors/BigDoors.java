@@ -13,7 +13,6 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_15_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
-import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R1;
@@ -145,31 +144,11 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors()
     {
         instance = this;
-        try
-        {
-            new FallbackGenerator();
-        }
-        catch (Throwable t)
-        {
-            t.printStackTrace();
-        }
-        Runtime.getRuntime().halt(0);
     }
 
     @Override
     public void onEnable()
     {
-        try
-        {
-            new FallbackGenerator();
-        }
-        catch (Throwable t)
-        {
-            t.printStackTrace();
-        }
-        Runtime.getRuntime().halt(0);
-
-
         logFile = new File(getDataFolder(), "log.txt");
         logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this);
@@ -864,7 +843,8 @@ public class BigDoors extends JavaPlugin implements Listener
             case "v1_17_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
-                fabf = new FallingBlockFactory_V1_17_R1();
+//                fabf = new FallingBlockFactory_V1_17_R1();
+                fabf = new FallbackGenerator().getFallingBlockFactory();
                 headManager = new SkullCreator_V1_17_R1(this);
                 fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
                 break;
