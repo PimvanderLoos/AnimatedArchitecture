@@ -11,7 +11,6 @@ import net.bytebuddy.implementation.StubMethod;
 import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
-import net.minecraft.server.v1_11_R1.EnumDirection;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.XMaterial;
@@ -26,8 +25,8 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Fence;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Set;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -67,17 +66,18 @@ final class NMSBlockGenerator extends Generator
         builder = addRotateBlockUpDownMethod(builder);
         builder = addUpdateMultipleFacingMethod(builder);
 
-        finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo, List.class);
+        finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo,
+                      asArrayType(classEnumDirectionEnumAxis));
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
-        throws IllegalAccessException
     {
         final MethodCall getBlockAtLoc = invoke(methodGetBlockAtCoords).onArgument(0).withArgument(1, 2, 3);
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo, List.class)
+            .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo,
+                            asArrayType(classEnumDirectionEnumAxis))
             .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
 
                 construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
@@ -103,7 +103,7 @@ final class NMSBlockGenerator extends Generator
             .defineField("craftBlockData", classCraftBlockData, Visibility.PRIVATE)
             .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
             .defineField("loc", Location.class, Visibility.PRIVATE)
-            .defineField("axesValues", List.class, Visibility.PRIVATE)
+            .defineField("axesValues", asArrayType(classEnumDirectionEnumAxis), Visibility.PRIVATE)
             ;
     }
 
@@ -129,7 +129,7 @@ final class NMSBlockGenerator extends Generator
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         final MethodCall getNewAxis = (MethodCall)
-            invoke(named("get")).onField("axesValues").withMethodCall(getNewAxisIdx)
+            invoke(methodArrayGetIdx).withField("axesValues").withMethodCall(getNewAxisIdx)
                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         final MethodCall setNewAxis = (MethodCall)

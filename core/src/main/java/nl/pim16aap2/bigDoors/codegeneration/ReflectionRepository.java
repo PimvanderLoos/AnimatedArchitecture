@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -88,6 +89,7 @@ final class ReflectionRepository
     public static final Method methodIsAssignableFrom;
     public static final Method methodSetBlockType;
     public static final Method methodEnumOrdinal;
+    public static final Method methodArrayGetIdx;
 
     public static final Field fieldTileEntityData;
     public static final Field fieldTicksLived;
@@ -190,6 +192,7 @@ final class ReflectionRepository
         methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
         methodSetBlockType = getMethod(Block.class, "setType", Material.class);
         methodEnumOrdinal = getMethod(Enum.class, "ordinal");
+        methodArrayGetIdx = getMethod(Array.class, "get", Object.class, int.class);
 
 
         fieldTileEntityData = getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
@@ -206,5 +209,10 @@ final class ReflectionRepository
 
     private ReflectionRepository()
     {
+    }
+
+    public static Class<?> asArrayType(Class<?> clz)
+    {
+        return Array.newInstance(clz, 0).getClass();
     }
 }
