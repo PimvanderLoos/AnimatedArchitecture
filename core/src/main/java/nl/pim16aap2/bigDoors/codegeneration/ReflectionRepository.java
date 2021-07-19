@@ -1,6 +1,10 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
+import nl.pim16aap2.bigDoors.util.XMaterial;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 
@@ -16,25 +20,32 @@ final class ReflectionRepository
 {
     public static final Class<?> classEntityFallingBlock;
     public static final Class<?> classIBlockData;
-    public static final Class<?> classCraftWorld;
     public static final Class<?> classNMSWorld;
     public static final Class<?> classNMSWorldServer;
-    public static final Class<?> classBlockPosition;
     public static final Class<?> classNMSEntity;
+    public static final Class<?> classNMSBlock;
+    public static final Class<?> classNMSItem;
+    public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
     public static final Class<?> classEnumMoveType;
     public static final Class<?> classNBTTagCompound;
     public static final Class<?> classNBTBase;
     public static final Class<?> classCrashReportSystemDetails;
     public static final Class<?> classGameProfileSerializer;
+    public static final Class<?> classBlockBase;
+    public static final Class<?> classBlockBaseInfo;
+    public static final Class<?> classCraftWorld;
     public static final Class<?> classCraftEntity;
     public static final Class<?> classCraftServer;
     public static final Class<?> classCraftMagicNumbers;
+    public static final Class<?> classCraftBlockData;
 
     public static final Constructor<?> cTorNMSFallingBlockEntity;
     public static final Constructor<?> cTorBlockPosition;
     public static final Constructor<?> cTorVec3D;
     public static final Constructor<?> ctorCraftEntity;
+    public static final Constructor<?> ctorBlockBase;
+    public static final Constructor<?> ctorLocation;
 
     public static final Method methodTick;
     public static final Method methodGetNMSWorld;
@@ -65,10 +76,14 @@ final class ReflectionRepository
     public static final Method methodIBlockDataSerializer;
     public static final Method methodIBlockDataDeserializer;
     public static final Method methodIsAir;
-
     public static final Method methodCraftMagicNumbersGetMaterial;
     public static final Method methodGetItemType;
     public static final Method methodCraftEntitySetTicksLived;
+    public static final Method methodMatchXMaterial;
+    public static final Method methodGetBlockAtCoords;
+    public static final Method methodGetBlockAtLoc;
+    public static final Method methodIsAssignableFrom;
+    public static final Method methodSetBlockType;
 
     public static final Field fieldTileEntityData;
     public static final Field fieldTicksLived;
@@ -100,76 +115,81 @@ final class ReflectionRepository
         classCraftEntity = findClass(CRAFT_BASE + "entity.CraftEntity");
         classCraftServer = findClass(CRAFT_BASE + "CraftServer");
         classCraftMagicNumbers = findClass(CRAFT_BASE + "util.CraftMagicNumbers");
+        classBlockBase = findFirstClass(NMS_BASE + "BlockBase", "net.minecraft.world.level.block.state.BlockBase");
+        classBlockBaseInfo = findFirstClass(classBlockBase.getName() + "$Info");
+        classCraftBlockData = findClass(CRAFT_BASE + "block.data.CraftBlockData");
+        classNMSBlock = findFirstClass(NMS_BASE + "Block", "net.minecraft.world.level.block.Block");
+        classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
 
 
-        cTorNMSFallingBlockEntity = ReflectionUtils.findCTor(classEntityFallingBlock, classNMSWorld, double.class,
-                                                             double.class, double.class, classIBlockData);
-        cTorBlockPosition = ReflectionUtils.findCTor(classBlockPosition, double.class, double.class, double.class);
-        cTorVec3D = ReflectionUtils.findCTor(classVec3D, double.class, double.class, double.class);
-        ctorCraftEntity = ReflectionUtils.findCTor(classCraftEntity, classCraftServer, classNMSEntity);
+        cTorNMSFallingBlockEntity = findCTor(classEntityFallingBlock, classNMSWorld, double.class,
+                                             double.class, double.class, classIBlockData);
+        cTorBlockPosition = findCTor(classBlockPosition, double.class, double.class, double.class);
+        cTorVec3D = findCTor(classVec3D, double.class, double.class, double.class);
+        ctorCraftEntity = findCTor(classCraftEntity, classCraftServer, classNMSEntity);
+        ctorBlockBase = findCTor(classBlockBase, classBlockBaseInfo);
+        ctorLocation = findCTor(Location.class, World.class, double.class, double.class, double.class);
 
 
-        methodGetNMSWorld = ReflectionUtils.getMethod(classCraftWorld, "getHandle");
-        methodTick = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC);
-        methodSetPosition = ReflectionUtils.getMethod(classNMSEntity, "setPosition",
-                                                      double.class, double.class, double.class);
-        methodSetNoGravity = ReflectionUtils.getMethod(classNMSEntity, "setNoGravity", boolean.class);
-        methodSetMot = ReflectionUtils.getMethod(classNMSEntity, "setMot", double.class, double.class, double.class);
-        methodSetMotVec = ReflectionUtils.getMethod(classNMSEntity, "setMot", classVec3D);
-        methodGetMot = ReflectionUtils.getMethod(classNMSEntity, "getMot");
-        methodHurtEntities = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, boolean.class,
-                                                                   Modifier.PUBLIC,
-                                                                   float.class, float.class, null);
-        methodMove = ReflectionUtils.getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
-        methodSaveData = ReflectionUtils.getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
-        methodLoadData = ReflectionUtils.getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
-        methodGetBlock = ReflectionUtils.getMethod(classEntityFallingBlock, "getBlock");
-        methodSetStartPos = ReflectionUtils.findMethodFromProfile(classEntityFallingBlock, void.class,
-                                                                  Modifier.PUBLIC, classBlockPosition);
-        methodLocX = ReflectionUtils.getMethod(classNMSEntity, "locX");
-        methodLocY = ReflectionUtils.getMethod(classNMSEntity, "locY");
-        methodLocZ = ReflectionUtils.getMethod(classNMSEntity, "locZ");
-        methodNMSAddEntity = ReflectionUtils.getMethod(classNMSWorldServer, "addEntity",
-                                                       classNMSEntity, CreatureSpawnEvent.SpawnReason.class);
-        methodAppendEntityCrashReport = ReflectionUtils
-            .findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
-                                   classCrashReportSystemDetails);
-        methodCrashReportAppender = ReflectionUtils.findMethodFromProfile(classCrashReportSystemDetails,
-                                                                          classCrashReportSystemDetails,
-                                                                          Modifier.PUBLIC,
-                                                                          String.class, Object.class);
-        methodIsAir = ReflectionUtils.getMethodFullInheritance(classIBlockData, "isAir");
-        methodNBTTagCompoundSet = ReflectionUtils.getMethod(classNBTTagCompound, "set", String.class, classNBTBase);
-
-        methodNBTTagCompoundSetInt = ReflectionUtils.getMethod(classNBTTagCompound, "setInt",
-                                                               String.class, int.class);
-        methodNBTTagCompoundSetBoolean = ReflectionUtils.getMethod(classNBTTagCompound, "setBoolean",
-                                                                   String.class, boolean.class);
-        methodNBTTagCompoundSetFloat = ReflectionUtils.getMethod(classNBTTagCompound, "setFloat",
-                                                                 String.class, float.class);
-        methodNBTTagCompoundGetCompound = ReflectionUtils.getMethod(classNBTTagCompound, "getCompound", String.class);
-        methodNBTTagCompoundGetInt = ReflectionUtils.getMethod(classNBTTagCompound, "getInt", String.class);
-        methodNBTTagCompoundHasKeyOfType = ReflectionUtils.getMethod(classNBTTagCompound, "hasKeyOfType",
-                                                                     String.class, int.class);
-        methodIBlockDataSerializer = ReflectionUtils
-            .findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
-                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC), classIBlockData);
-        methodIBlockDataDeserializer = ReflectionUtils
-            .findMethodFromProfile(classGameProfileSerializer, classIBlockData,
-                                   ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.STATIC),
-                                   classNBTTagCompound);
+        methodGetNMSWorld = getMethod(classCraftWorld, "getHandle");
+        methodTick = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC);
+        methodSetPosition = getMethod(classNMSEntity, "setPosition", double.class, double.class, double.class);
+        methodSetNoGravity = getMethod(classNMSEntity, "setNoGravity", boolean.class);
+        methodSetMot = getMethod(classNMSEntity, "setMot", double.class, double.class, double.class);
+        methodSetMotVec = getMethod(classNMSEntity, "setMot", classVec3D);
+        methodGetMot = getMethod(classNMSEntity, "getMot");
+        methodHurtEntities = findMethodFromProfile(classEntityFallingBlock, boolean.class,
+                                                   Modifier.PUBLIC, float.class, float.class, null);
+        methodMove = getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
+        methodSaveData = getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
+        methodLoadData = getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
+        methodGetBlock = getMethod(classEntityFallingBlock, "getBlock");
+        methodSetStartPos = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
+                                                  classBlockPosition);
+        methodLocX = getMethod(classNMSEntity, "locX");
+        methodLocY = getMethod(classNMSEntity, "locY");
+        methodLocZ = getMethod(classNMSEntity, "locZ");
+        methodNMSAddEntity = getMethod(classNMSWorldServer, "addEntity", classNMSEntity,
+                                       CreatureSpawnEvent.SpawnReason.class);
+        methodAppendEntityCrashReport = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
+                                                              classCrashReportSystemDetails);
+        methodCrashReportAppender = findMethodFromProfile(classCrashReportSystemDetails,
+                                                          classCrashReportSystemDetails,
+                                                          Modifier.PUBLIC, String.class, Object.class);
+        methodIsAir = getMethodFullInheritance(classIBlockData, "isAir");
+        methodNBTTagCompoundSet = getMethod(classNBTTagCompound, "set", String.class, classNBTBase);
+        methodNBTTagCompoundSetInt = getMethod(classNBTTagCompound, "setInt", String.class, int.class);
+        methodNBTTagCompoundSetBoolean = getMethod(classNBTTagCompound, "setBoolean", String.class, boolean.class);
+        methodNBTTagCompoundSetFloat = getMethod(classNBTTagCompound, "setFloat", String.class, float.class);
+        methodNBTTagCompoundGetCompound = getMethod(classNBTTagCompound, "getCompound", String.class);
+        methodNBTTagCompoundGetInt = getMethod(classNBTTagCompound, "getInt", String.class);
+        methodNBTTagCompoundHasKeyOfType = getMethod(classNBTTagCompound, "hasKeyOfType", String.class, int.class);
+        methodIBlockDataSerializer = findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
+                                                           getModifiers(Modifier.PUBLIC, Modifier.STATIC),
+                                                           classIBlockData);
+        methodIBlockDataDeserializer = findMethodFromProfile(classGameProfileSerializer, classIBlockData,
+                                                             getModifiers(Modifier.PUBLIC, Modifier.STATIC),
+                                                             classNBTTagCompound);
         methodCraftMagicNumbersGetMaterial = getMethod(classCraftMagicNumbers, "getMaterial", classIBlockData);
         methodGetItemType = getMethod(MaterialData.class, "getItemType");
-        methodCraftEntitySetTicksLived = ReflectionUtils.getMethod(classCraftEntity, "setTicksLived", int.class);
+        methodCraftEntitySetTicksLived = getMethod(classCraftEntity, "setTicksLived", int.class);
+        methodMatchXMaterial = getMethod(XMaterial.class, "matchXMaterial", Material.class);
+        methodGetBlockAtCoords = getMethod(World.class, "getBlockAt", int.class, int.class, int.class);
+        methodGetBlockAtLoc = getMethod(World.class, "getBlockAt", Location.class);
+        methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
+        methodSetBlockType = getMethod(Block.class, "setType", Material.class);
 
 
-        fieldTileEntityData = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
-        fieldTicksLived = ReflectionUtils.getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
-        fieldNMSWorld = ReflectionUtils.getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
-        fieldEnumMoveTypeSelf = ReflectionUtils.getEnumConstant(classEnumMoveType, 0);
+        fieldTileEntityData = getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
+        fieldTicksLived = getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
+        fieldNMSWorld = getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
+        fieldEnumMoveTypeSelf = getEnumConstant(classEnumMoveType, 0);
 
 
-        fieldsVec3D = ReflectionUtils
-            .getFields(3, classVec3D, ReflectionUtils.getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
+        fieldsVec3D = getFields(3, classVec3D, getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
+    }
+
+    private ReflectionRepository()
+    {
     }
 }

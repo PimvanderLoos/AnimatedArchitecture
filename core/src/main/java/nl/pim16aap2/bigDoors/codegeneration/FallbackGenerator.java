@@ -18,6 +18,7 @@ public final class FallbackGenerator
 
     private final @NotNull Generator entityFallingBlockGenerator;
     private final @NotNull Generator craftFallingBlockGenerator;
+    private final @NotNull Generator nmsBlockGenerator;
 
     public FallbackGenerator()
     {
@@ -27,6 +28,7 @@ public final class FallbackGenerator
             entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
             craftFallingBlockGenerator =
                 new CraftFallingBlockGenerator(mappingsVersion, entityFallingBlockGenerator.generatedClass).generate();
+            nmsBlockGenerator = new NMSBlockGenerator(mappingsVersion).generate();
         }
         catch (Exception | ExceptionInInitializerError e)
         {
@@ -42,6 +44,11 @@ public final class FallbackGenerator
     public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedCraftEntityClass()
     {
         return getGeneratedClassData(craftFallingBlockGenerator, "CraftFallingBlock");
+    }
+
+    public @NotNull Pair<Class<?>, Constructor<?>> getGeneratedNMSBlockClass()
+    {
+        return getGeneratedClassData(nmsBlockGenerator, "NMSBlock");
     }
 
     private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
