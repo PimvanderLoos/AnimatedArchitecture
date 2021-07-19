@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.reflection.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.Pair;
 import org.jetbrains.annotations.NotNull;
@@ -14,31 +15,39 @@ import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.classCra
 
 public final class FallbackGenerator
 {
-    private final @NotNull String mappingsVersion;
-
     private final @NotNull Generator entityFallingBlockGenerator;
     private final @NotNull Generator craftFallingBlockGenerator;
     private final @NotNull Generator nmsBlockGenerator;
-    private final @NotNull Generator FallingBlockFactoryGenerator;
+    private final @NotNull Generator fallingBlockFactoryGenerator;
+
+    private final @NotNull FallingBlockFactory fallingBlockFactory;
 
     public FallbackGenerator()
     {
         try
         {
-            mappingsVersion = getMappingsVersion();
+            final String mappingsVersion = getMappingsVersion();
             entityFallingBlockGenerator = new EntityFallingBlockGenerator(mappingsVersion).generate();
             craftFallingBlockGenerator =
                 new CraftFallingBlockGenerator(mappingsVersion, entityFallingBlockGenerator.generatedClass).generate();
             nmsBlockGenerator = new NMSBlockGenerator(mappingsVersion).generate();
-            FallingBlockFactoryGenerator = new FallingBlockFactoryGenerator(mappingsVersion,
+            fallingBlockFactoryGenerator = new FallingBlockFactoryGenerator(mappingsVersion,
                                                                             getGeneratedNMSBlockClass(),
                                                                             getGeneratedCraftEntityClass(),
                                                                             getGeneratedEntityClass()).generate();
+            //noinspection ConstantConditions
+            fallingBlockFactory = (FallingBlockFactory) fallingBlockFactoryGenerator.getGeneratedConstructor()
+                                                                                    .newInstance();
         }
         catch (Exception | ExceptionInInitializerError e)
         {
             throw new RuntimeException("Failed to generate NMS code! Please contact pim16aap2!", e);
         }
+    }
+
+    public @NotNull FallingBlockFactory getFallingBlockFactory()
+    {
+        return fallingBlockFactory;
     }
 
     private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedEntityClass()
@@ -58,7 +67,7 @@ public final class FallbackGenerator
 
     private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedFallingBlockFactoryClass()
     {
-        return getGeneratedClassData(FallingBlockFactoryGenerator, "FallingBlockFactory");
+        return getGeneratedClassData(fallingBlockFactoryGenerator, "FallingBlockFactory");
     }
 
     private @NotNull Pair<Class<?>, Constructor<?>> getGeneratedClassData(@NotNull Generator generator, String name)
