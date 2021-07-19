@@ -29,6 +29,7 @@ final class ReflectionRepository
     public static final Class<?> classBlockRotatable;
     public static final Class<?> classBlockStateEnum;
     public static final Class<?> classEnumDirectionEnumAxis;
+    public static final Class<?> classEnumEnumBlockRotation;
     public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
     public static final Class<?> classEnumMoveType;
@@ -129,6 +130,8 @@ final class ReflectionRepository
         classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
         classEnumDirectionEnumAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
                                                     "net.minecraft.core.EnumDirection$EnumAxis");
+        classEnumEnumBlockRotation = findFirstClass(NMS_BASE + "EnumBlockRotation",
+                                                    "net.minecraft.world.level.block.EnumBlockRotation");
         classBlockRotatable = findFirstClass(NMS_BASE + "BlockRotatable",
                                              "net.minecraft.world.level.block.BlockRotatable");
         classBlockStateEnum = findFirstClass(NMS_BASE + "BlockStateEnum",

@@ -25,7 +25,6 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Fence;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Set;
 
@@ -65,9 +64,10 @@ final class NMSBlockGenerator extends Generator
         builder = addPutBlockMethod(builder);
         builder = addRotateBlockUpDownMethod(builder);
         builder = addUpdateMultipleFacingMethod(builder);
+        builder = addRotateCylindricalMethod(builder);
 
         finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                      asArrayType(classEnumDirectionEnumAxis));
+                      asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumEnumBlockRotation));
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -77,12 +77,14 @@ final class NMSBlockGenerator extends Generator
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                            asArrayType(classEnumDirectionEnumAxis))
+                            asArrayType(classEnumDirectionEnumAxis), asArrayType(classEnumEnumBlockRotation))
             .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
 
                 construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
 
                 FieldAccessor.ofField("axesValues").setsArgumentAt(5)).andThen(
+
+                FieldAccessor.ofField("blockRotationValues").setsArgumentAt(6)).andThen(
 
                 invoke(named("getBlockData"))
                     .onMethodCall(getBlockAtLoc)
@@ -104,13 +106,19 @@ final class NMSBlockGenerator extends Generator
             .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
             .defineField("loc", Location.class, Visibility.PRIVATE)
             .defineField("axesValues", asArrayType(classEnumDirectionEnumAxis), Visibility.PRIVATE)
+            .defineField("blockRotationValues", asArrayType(classEnumEnumBlockRotation), Visibility.PRIVATE)
             ;
+    }
+
+    private DynamicType.Builder<?> addRotateCylindricalMethod(DynamicType.Builder<?> builder)
+    {
+        return builder;
     }
 
     public interface IRotateBlockUpDown
     {
         @RuntimeType
-        int intercept(boolean northSouthAligned, int currentAxes);
+        Object intercept(boolean northSouthAligned, int currentAxes, Object[] values);
     }
 
     private DynamicType.Builder<?> addRotateBlockUpDownMethod(DynamicType.Builder<?> builder)
@@ -124,13 +132,9 @@ final class NMSBlockGenerator extends Generator
                                                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC))
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
-        final MethodCall getNewAxisIdx = (MethodCall) invoke(named(privateMethodName))
-            .withArgument(0).withMethodCall(getCurrentAxis)
+        final MethodCall getNewAxis = (MethodCall) invoke(named(privateMethodName))
+            .withArgument(0).withMethodCall(getCurrentAxis).withField("axesValues")
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
-
-        final MethodCall getNewAxis = (MethodCall)
-            invoke(methodArrayGetIdx).withField("axesValues").withMethodCall(getNewAxisIdx)
-                                .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         final MethodCall setNewAxis = (MethodCall)
             invoke(named("set")).onField("blockData").with(blockRotatableAxis).withMethodCall(getNewAxis)
@@ -141,23 +145,27 @@ final class NMSBlockGenerator extends Generator
             .intercept(setNewAxis.setsField(named("blockData")));
 
         builder = builder
-            .defineMethod(privateMethodName, int.class, Visibility.PRIVATE)
-            .withParameters(boolean.class, int.class)
-            .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes) ->
+            .defineMethod(privateMethodName, classEnumDirectionEnumAxis, Visibility.PRIVATE)
+            .withParameters(boolean.class, int.class, asArrayType(classEnumDirectionEnumAxis))
+            .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes, values) ->
             {
+                int newIdx = 0;
                 switch (currentAxes)
                 {
                     case 0:
-                        return northSouthAligned ? 0 : 1;
+                        newIdx = northSouthAligned ? 0 : 1;
+                        break;
                     case 1:
-                        return northSouthAligned ? 2 : 0;
+                        newIdx = northSouthAligned ? 2 : 0;
+                        break;
                     case 2:
-                        return northSouthAligned ? 1 : 2;
+                        newIdx = northSouthAligned ? 1 : 2;
+                        break;
                     default:
                         throw new RuntimeException("Received unexpected direction " + currentAxes);
                 }
+                return values[newIdx];
             }, IRotateBlockUpDown.class));
-
         return builder;
     }
 
