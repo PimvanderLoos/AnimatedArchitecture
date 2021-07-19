@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import nl.pim16aap2.bigDoors.util.XMaterial;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -41,7 +42,7 @@ final class ReflectionRepository
     public static final Class<?> classCraftServer;
     public static final Class<?> classCraftMagicNumbers;
     public static final Class<?> classCraftBlockData;
-    
+
     public static final Class<?> classEnumBlockState;
     public static final Class<?> classEnumMoveType;
     public static final Class<?> classEnumDirectionAxis;
@@ -89,7 +90,13 @@ final class ReflectionRepository
     public static final Method methodMatchXMaterial;
     public static final Method methodGetBlockAtCoords;
     public static final Method methodGetBlockAtLoc;
+    public static final Method methodGetBlockFromBlockData;
     public static final Method methodRotateBlockData;
+    public static final Method methodBlockInfoFromBlockBase;
+    public static final Method methodGetTypeFromBlockPosition;
+    public static final Method methodGetBukkitServer;
+    public static final Method methodSetCraftEntityCustomName;
+    public static final Method methodSetCraftEntityCustomNameVisible;
     public static final Method methodIsAssignableFrom;
     public static final Method methodSetBlockType;
     public static final Method methodEnumOrdinal;
@@ -196,8 +203,16 @@ final class ReflectionRepository
         methodMatchXMaterial = getMethod(XMaterial.class, "matchXMaterial", Material.class);
         methodGetBlockAtCoords = getMethod(World.class, "getBlockAt", int.class, int.class, int.class);
         methodGetBlockAtLoc = getMethod(World.class, "getBlockAt", Location.class);
+        methodGetBlockFromBlockData = getMethod(classBlockData, "getBlock");
         methodRotateBlockData =
             findMethodFromProfile(classBlockData, classIBlockData, Modifier.PUBLIC, classEnumBlockRotation);
+        methodBlockInfoFromBlockBase = findMethodFromProfile(classBlockBaseInfo, classBlockBaseInfo,
+                                                             getModifiers(Modifier.PUBLIC, Modifier.STATIC),
+                                                             classBlockBase);
+        methodGetTypeFromBlockPosition = getMethod(classNMSWorld, "getType", classBlockPosition);
+        methodGetBukkitServer = getMethod(Bukkit.class, "getServer");
+        methodSetCraftEntityCustomName = getMethod(classCraftEntity, "setCustomName", String.class);
+        methodSetCraftEntityCustomNameVisible = getMethod(classCraftEntity, "setCustomNameVisible", boolean.class);
         methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
         methodSetBlockType = getMethod(Block.class, "setType", Material.class);
         methodEnumOrdinal = getMethod(Enum.class, "ordinal");
