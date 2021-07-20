@@ -1,5 +1,12 @@
 package nl.pim16aap2.bigDoors.util;
 
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,14 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
-import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
 
 public class ConfigLoader
 {
@@ -182,7 +181,7 @@ public class ConfigLoader
                                        "By enabling this option you agree that you will not complain if any issues arise and that it is completely",
                                        "your own responsibility.",
                                        "If you need to enable this option you are doing it wrong and you should rethink your life choices." };
-        
+
         String[] allowNotificationsComment = { "Whether or not to allow toggle notifications. ",
                                                "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
                                                "This is on a per-door basis."};
@@ -192,7 +191,8 @@ public class ConfigLoader
                                                 "but also that unexpected issues might pop up! Be sure to test everything when using this!",
                                                 "Note that this is geared only towards NEWER version of Minecraft!",
                                                 "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work.",
-                                                "Specifically, the code being generated is used to create/move/etc animated blocks.",
+                                                "There are many other reasons than the code to be generated why it will not work.",
+                                                "The code being generated is the code used to create/move/etc animated blocks.",
                                                 "So when testing this on your TEST SERVER and AFTER MAKING A BACKUP, be sure to check that that still works."};
 
         String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",

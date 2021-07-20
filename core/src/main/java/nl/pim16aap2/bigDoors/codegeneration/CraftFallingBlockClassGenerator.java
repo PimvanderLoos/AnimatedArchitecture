@@ -19,6 +19,11 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
+/**
+ * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link CustomCraftFallingBlock}.
+ *
+ * @author Pim
+ */
 final class CraftFallingBlockClassGenerator extends ClassGenerator
 {
     private final @NotNull Class<?>[] constructorParameterTypes;
@@ -53,7 +58,6 @@ final class CraftFallingBlockClassGenerator extends ClassGenerator
 
     @Override
     protected void generateImpl()
-        throws Exception
     {
         DynamicType.Builder<?> builder = createBuilder(classCraftEntity)
             .implement(org.bukkit.entity.FallingBlock.class,

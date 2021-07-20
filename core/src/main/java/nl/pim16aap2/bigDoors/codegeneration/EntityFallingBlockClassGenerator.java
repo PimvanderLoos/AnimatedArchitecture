@@ -11,33 +11,14 @@ import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import net.bytebuddy.matcher.ElementMatchers;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import org.bukkit.World;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.jetbrains.annotations.NotNull;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
-import org.objectweb.asm.util.Printer;
-import org.objectweb.asm.util.Textifier;
-import org.objectweb.asm.util.TraceMethodVisitor;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.Objects;
 
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -45,6 +26,11 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
+/**
+ * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link CustomEntityFallingBlock}.
+ *
+ * @author Pim
+ */
 final class EntityFallingBlockClassGenerator extends ClassGenerator
 {
     private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
@@ -59,8 +45,9 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     {
         super(mappingsVersion);
 
-        fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
-        fieldNoClip = ReflectionUtils.getField(classNMSEntity, getNoClipFieldName(), boolean.class);
+        final EntityFallingBlockClassAnalyzer analyzer = new EntityFallingBlockClassAnalyzer();
+        fieldHurtEntities = analyzer.getHurtEntitiesField();
+        fieldNoClip = analyzer.getNoClipField();
 
         generate();
     }
@@ -75,159 +62,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     protected @NotNull String getBaseName()
     {
         return "EntityFallingBlock";
-    }
-
-    private @NotNull String getHurtEntitiesFieldName()
-    {
-        final String fieldName = getFieldName(methodHurtEntities, classEntityFallingBlock,
-                                              MethodAdapterFirstIfMemberField::new);
-        return Objects.requireNonNull(fieldName,
-                                      "Failed to find name of HurtEntities variable in hurt entities method!");
-    }
-
-    private @NotNull String getNoClipFieldName()
-    {
-        final String fieldName = getFieldName(methodMove, classNMSEntity,
-                                              MethodAdapterFirstIfMemberField::new);
-        return Objects.requireNonNull(fieldName, "Failed to find name of noClip variable in move method!");
-    }
-
-    private @Nullable String getFieldName(@NotNull Method method, @NotNull Class<?> clz,
-                                          @NotNull IFieldFinderCreator fieldFinderCreator)
-    {
-        final String className = clz.getName().replace('.', '/');
-        final String classAsPath = className + ".class";
-        final InputStream inputStream = Objects.requireNonNull(clz.getClassLoader().getResourceAsStream(classAsPath),
-                                                               "Failed to get " + clz + " class resources.");
-
-        final ClassReader classReader;
-        try
-        {
-            classReader = new ClassReader(inputStream);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Failed to construct ClassReader for class: " + clz, e);
-        }
-        final ClassWriter classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
-
-        final FieldFinderClassVisitor cv = new FieldFinderClassVisitor(classWriter, method, className,
-                                                                       fieldFinderCreator);
-        classReader.accept(cv, 0);
-        return cv.getFieldName();
-    }
-
-    private static final class FieldFinderClassVisitor extends ClassVisitor
-    {
-        private final Type type;
-        private final String fieldOwner;
-        private final IFieldFinderCreator fieldFinderCreator;
-        private FieldFinder methodAdapter;
-        private static final boolean DEBUG = false;
-
-        public FieldFinderClassVisitor(ClassWriter cw, Method m, String fieldOwner,
-                                       IFieldFinderCreator fieldFinderCreator)
-        {
-            super(Opcodes.ASM9, cw);
-            this.type = Type.getType(m);
-            this.fieldOwner = fieldOwner;
-            this.fieldFinderCreator = fieldFinderCreator;
-        }
-
-        public @Nullable String getFieldName()
-        {
-            return methodAdapter == null ? null : methodAdapter.getFoundFieldName();
-        }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
-        {
-            MethodVisitor mv = cv.visitMethod(access, name, desc, signature, exceptions);
-            if (Type.getType(desc).equals(this.type))
-            {
-                methodAdapter = fieldFinderCreator.create(access, name, desc, signature, exceptions, mv, fieldOwner);
-                mv = methodAdapter;
-                if (DEBUG)
-                    mv = getDebugVisitor(mv);
-            }
-            return mv;
-        }
-
-        private MethodVisitor getDebugVisitor(MethodVisitor mv)
-        {
-            Printer p = new Textifier(Opcodes.ASM9)
-            {
-                @Override
-                public void visitMethodEnd()
-                {
-                    print(new PrintWriter(System.out));
-                }
-            };
-            return new TraceMethodVisitor(mv, p);
-        }
-    }
-
-    @FunctionalInterface
-    private interface IFieldFinderCreator
-    {
-        FieldFinder create(int access, String name, String desc, String signature, String[] exceptions,
-                           MethodVisitor mv, String fieldOwner);
-    }
-
-    private abstract static class FieldFinder extends MethodNode
-    {
-        public FieldFinder(int access, String name, String desc, String signature, String[] exceptions)
-        {
-            super(Opcodes.ASM9, access, name, desc, signature, exceptions);
-        }
-
-        abstract @Nullable String getFoundFieldName();
-    }
-
-    private static final class MethodAdapterFirstIfMemberField extends FieldFinder
-    {
-        private final String fieldOwner;
-        private @Nullable String fieldName = null;
-
-        public MethodAdapterFirstIfMemberField(int access, String name, String desc,
-                                               String signature, String[] exceptions, MethodVisitor mv,
-                                               String fieldOwner)
-        {
-            super(access, name, desc, signature, exceptions);
-            this.mv = mv;
-            this.fieldOwner = fieldOwner;
-        }
-
-        @Override
-        public @Nullable String getFoundFieldName()
-        {
-            return fieldName;
-        }
-
-        @Override
-        public void visitEnd()
-        {
-            for (AbstractInsnNode node : instructions)
-            {
-                if (node.getOpcode() != Opcodes.ALOAD
-                    || ((VarInsnNode) node).var != 0)
-                    continue;
-
-                if (node.getNext() == null
-                    || node.getNext().getOpcode() != Opcodes.GETFIELD)
-                    continue;
-
-                // Checks the invoked method name and signature
-                FieldInsnNode next = (FieldInsnNode) node.getNext();
-                if (!next.owner.equals(fieldOwner)
-                    || !next.desc.equals("Z"))
-                    continue;
-
-                fieldName = next.name;
-                break;
-            }
-            accept(mv);
-        }
     }
 
     @Override

@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public final class ReflectionUtils
 {
     public static final String NMS_BASE =
         "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
     public static final String CRAFT_BASE =
         "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-
 
     private static final @Nullable Method ENUM_VALUE_NAME;
 
@@ -48,7 +48,7 @@ public final class ReflectionUtils
         if (ENUM_VALUE_NAME == null)
             throw new IllegalStateException("Failed to find name method for enums!");
 
-        @Nullable Object[] values = source.getEnumConstants();
+        Object[] values = source.getEnumConstants();
         if (values == null)
             throw new IllegalStateException("Class " + source + " is not an enum!");
         return values;
@@ -95,6 +95,7 @@ public final class ReflectionUtils
                 final Object obj = values[idx];
                 if (index != null && idx == index)
                     return obj;
+                //noinspection ConstantConditions
                 if (name != null && name.equals(ENUM_VALUE_NAME.invoke(obj)))
                     return obj;
             }
@@ -116,7 +117,7 @@ public final class ReflectionUtils
     }
 
     @Contract("true, _ -> !null")
-    public static @NotNull Class<?> findClass(boolean nonNull, @NotNull String name)
+    public static Class<?> findClass(boolean nonNull, @NotNull String name)
     {
         return findFirstClass(nonNull, name);
     }

@@ -166,7 +166,7 @@ final class ReflectionRepository
         methodGetMot = getMethod(classNMSEntity, "getMot");
         methodHurtEntities = findMethodFromProfile(classEntityFallingBlock, boolean.class,
                                                    Modifier.PUBLIC, float.class, float.class, null);
-        methodMove = getMethod(true, classNMSEntity, "move", classEnumMoveType, classVec3D);
+        methodMove = getMethod(classNMSEntity, "move", classEnumMoveType, classVec3D);
         methodSaveData = getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
         methodLoadData = getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
         methodGetBlock = getMethod(classEntityFallingBlock, "getBlock");

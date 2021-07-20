@@ -32,6 +32,11 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
+/**
+ * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link NMSBlock}.
+ *
+ * @author Pim
+ */
 final class NMSBlockClassGenerator extends ClassGenerator
 {
     private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =

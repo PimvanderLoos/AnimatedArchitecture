@@ -22,6 +22,11 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
+/**
+ * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link FallingBlockFactory}.
+ *
+ * @author Pim
+ */
 public class FallingBlockFactoryClassGenerator extends ClassGenerator
 {
     private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES = new Class<?>[0];
@@ -58,7 +63,6 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
 
     @Override
     protected void generateImpl()
-        throws Exception
     {
         DynamicType.Builder<?> builder = createBuilder(FallingBlockFactory.class);
 
