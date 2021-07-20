@@ -59,28 +59,6 @@ public class GUIItem
         construct();
     }
 
-    public GUIItem(BigDoors plugin, DoorOwner doorOwner, Player guiOwner)
-    {
-        this.doorOwner = doorOwner;
-        count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
-        name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
-
-        Location loc = guiOwner.getLocation();
-        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
-                                            loc.getBlockY(), loc.getBlockZ(), guiOwner);
-        if (is == null)
-        {
-            is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
-            missingHeadTexture = true;
-        }
-        else
-            missingHeadTexture = false;
-
-        name = doorOwner.getPlayerName();
-        lore = null;
-        construct();
-    }
-
     private void construct()
     {
         ItemMeta meta = is.getItemMeta();

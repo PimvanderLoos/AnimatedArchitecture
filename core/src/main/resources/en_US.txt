@@ -41,7 +41,6 @@ GUI.NAME.DoorList=Door Menu
 GUI.NAME.SubMenu=Door Sub-Menu
 GUI.NAME.ConfirmMenu=Confirmation Menu
 GUI.NAME.NewDoors=Door Creation Menu
-GUI.NAME.REMOVEOWNER=Owner Removal Menu
 GUI.SORTED.Change=Change sorting.
 GUI.SORTED.Alphabetically=Alphabetically sorted
 GUI.SORTED.Numerically=Numerically sorted

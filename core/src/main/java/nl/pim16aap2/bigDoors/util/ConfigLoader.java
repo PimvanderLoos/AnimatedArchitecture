@@ -61,7 +61,6 @@ public class ConfigLoader
     private Set<Material> blacklist;
     private Set<Material> whitelist;
 
-    private int headCacheTimeout;
     private String doorPrice, drawbridgePrice, portcullisPrice, slidingDoorPrice;
 
     private final ArrayList<ConfigOption> configOptionsList;
@@ -175,9 +174,6 @@ public class ConfigLoader
         String[] soundRangeComment = {"The range of the sounds the doors make, counted in number of blocks. Note that using too high ranges may cause lag.",
                                       "The sound is only played at the engine of a door.",
                                       "Use a value of 0 or less to completely disable all sounds."};
-
-//        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
-//                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
 
         String[] unsafeModeComment = { "Only load this plugin in supported environments.",
                                        "Enabling this is NOT SUPPORTED and you WILL run into issues. ",
@@ -604,11 +600,6 @@ public class ConfigLoader
     public int getMaxBlocksToMove()
     {
         return maxBlocksToMove;
-    }
-
-    public int headCacheTimeout()
-    {
-        return headCacheTimeout;
     }
 
     public String doorPrice()

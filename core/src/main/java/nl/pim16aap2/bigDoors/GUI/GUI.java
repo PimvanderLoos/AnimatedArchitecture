@@ -25,6 +25,7 @@ import nl.pim16aap2.bigDoors.util.PageType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import com.cryptomorin.xseries.XMaterial;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class GUI
 {
@@ -125,13 +126,6 @@ public class GUI
         items.clear();
         maxPageCount = doors.size() / (CHESTSIZE - 9) + ((doors.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
 
-        if (pageType == PageType.REMOVEOWNER)
-        {
-            owners = plugin.getCommander().getDoorOwners(door.getDoorUID(), player.getUniqueId());
-            Collections.sort(owners, Comparator.comparing(DoorOwner::getPlayerName));
-            maxDoorOwnerPageCount = owners.size() / (CHESTSIZE - 9) + ((owners.size() % (CHESTSIZE - 9)) == 0 ? 0 : 1);
-        }
-
         refresh();
     }
 
@@ -149,11 +143,6 @@ public class GUI
         {
             fillDefaultHeader();
             fillDoors();
-        }
-        else if (pageType == PageType.REMOVEOWNER)
-        {
-            fillOwnerListHeader();
-            fillOwners();
         }
 
         inventory = Bukkit.createInventory(player, CHESTSIZE, messages.getString(PageType.getMessage(pageType)));
@@ -300,19 +289,6 @@ public class GUI
         }
     }
 
-    private void fillOwners()
-    {
-        int idx = 9;
-        missingHeadTextures = 0;
-        for (DoorOwner owner : owners)
-        {
-            GUIItem item = new GUIItem(plugin, owner, player);
-            if (item.missingHeadTexture())
-                ++missingHeadTextures;
-            items.put(idx++, item);
-        }
-    }
-
     private boolean isStillOwner()
     {
         if (door != null &&
@@ -342,10 +318,6 @@ public class GUI
 
         case DOORINFO:
             handleInputDoorInfo(interactionIDX);
-            break;
-
-        case REMOVEOWNER:
-            handleInputRemoveOwner(interactionIDX);
             break;
 
         case DOORLIST:
@@ -440,34 +412,6 @@ public class GUI
         }
     }
 
-    private void handleInputRemoveOwner(int interactionIDX)
-    {
-        if (interactionIDX == 0)
-        {
-            pageType = PageType.DOORINFO;
-            update();
-        }
-        else if (interactionIDX == 1)
-        {
-            --doorOwnerPage;
-            update();
-        }
-        else if (interactionIDX == 7)
-        {
-            ++doorOwnerPage;
-            update();
-        }
-        else if (interactionIDX > 8)
-        {
-            if (isStillOwner())
-                return;
-            removeOwner(items.get(interactionIDX).getDoorOwner());
-            if (owners.size() == 0)
-                pageType = PageType.DOORINFO;
-            update();
-        }
-    }
-
     private void handleInputDoorList(int interactionIDX, boolean header)
     {
         if (interactionIDX == 0)
@@ -518,26 +462,6 @@ public class GUI
     {
         plugin.getCommandHandler().startRemoveOwner(player, door.getDoorUID());
         close();
-
-//        pageType = PageType.REMOVEOWNER;
-//        update();
-//
-//        if (missingHeadTextures == 0)
-//            return;
-//
-//        // It usually takes a while for the skull textures to load.
-//        // This will refresh the skulls every now and then.
-//        // Until a texture is found, the default player texture is used.
-//        new BukkitRunnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                refresh();
-//                if (missingHeadTextures == 0 || pageType != PageType.REMOVEOWNER)
-//                    cancel();
-//            }
-//        }.runTaskTimer(plugin, 10, 20);
     }
 
     private void sort()
@@ -716,11 +640,5 @@ public class GUI
         doors.get(idx).setOpenDir(newOpenDir);
         door = doors.get(idx);
         refresh();
-    }
-
-    private void removeOwner(DoorOwner owner)
-    {
-        if (plugin.getCommander().removeOwner(owner.getDoorUID(), owner.getPlayerUUID(), getPlayer()))
-            owners.remove(owners.indexOf(owner));
     }
 }
