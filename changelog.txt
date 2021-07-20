@@ -1,3 +1,7 @@
+Alpha 0.1.9.0
+- Added code generation to generate the required code for unsupported versions. This is disabled by default, but can be enabled in the config via the "allowCodeGeneration" and the "forceCodeGeneration" options.
+- Removed a bunch of unused code to make updates a bit easier going forward.
+
 Alpha 0.1.8.31
 - The auto-updater is now initialized before checking if the current server version is valid. Thanks, @Eldoria, for the bug report!
 - Removed the shadowtoggle command.
