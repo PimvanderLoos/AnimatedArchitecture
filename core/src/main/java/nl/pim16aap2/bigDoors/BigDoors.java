@@ -24,11 +24,7 @@ import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
@@ -54,7 +50,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +71,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // TODO: Drawbridges that were created when flat, should remember that direction for opening.
 
@@ -115,7 +112,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
     private HashMap<UUID, WaitForCommand> cmdWaiters;
-    private boolean is1_13 = false;
     private FakePlayerCreator fakePlayerCreator;
     private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
@@ -123,7 +119,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
-    private static final MCVersion mcVersion = BigDoors.calculateMCVersion();
+    private static final @NotNull MCVersion MC_VERSION = BigDoors.calculateMCVersion();
+    private static final boolean IS_ON_FLATTENED_VERSION = MC_VERSION.isAtLeast(MCVersion.v1_13);
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
 
@@ -216,8 +213,6 @@ public class BigDoors extends JavaPlugin implements Listener
             slidingDoorOpener = new SlidingDoorOpener(this);
 
             registerCommands(commandHandler);
-
-            liveDevelopmentLoad();
         }
         catch (Exception exception)
         {
@@ -478,11 +473,6 @@ public class BigDoors extends JavaPlugin implements Listener
         }));
     }
 
-    public String getUpdateURL()
-    {
-        return null;
-    }
-
     public String getLoginMessage()
     {
         StringBuilder sb = new StringBuilder();
@@ -584,9 +574,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public WaitForCommand getCommandWaiter(Player player)
     {
-//        if (cmdWaiters.containsKey(player.getUniqueId()))
-//            return cmdWaiters.get(player.getUniqueId());
-//        return null;
         return cmdWaiters.get(player.getUniqueId());
     }
 
@@ -648,7 +635,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public static MCVersion getMCVersion()
     {
-        return mcVersion;
+        return MC_VERSION;
     }
 
     private void readConfigValues()
@@ -674,56 +661,49 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
-    // This function simply loads these classes to make my life a bit less hell-ish
-    // with live development.
-    @SuppressWarnings("unused")
-    private void liveDevelopmentLoad()
+    public static boolean isOnFlattenedVersion()
     {
-        new GetNewLocationNorth();
-        new GetNewLocationEast();
-        new GetNewLocationSouth();
-        new GetNewLocationWest();
+        return IS_ON_FLATTENED_VERSION;
     }
 
-    public boolean is1_13()
+    private static @NotNull MCVersion calculateMCVersion()
     {
-        return is1_13;
-    }
+        final MCVersion[] values = MCVersion.values();
+        final MCVersion maxVersion = values[values.length - 1];
 
-    private static MCVersion calculateMCVersion()
-    {
         String version;
-
         try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
-        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
+        catch (final ArrayIndexOutOfBoundsException e)
         {
-            useAVersionMentionedInTheDescriptionPleaseException.printStackTrace();
-            return null;
+            e.printStackTrace();
+            Bukkit.getLogger().severe("Failed to figure out the current version from input: \"" +
+                                          Bukkit.getServer().getClass().getPackage().getName() +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
         }
 
-        MCVersion mcVersion = MCVersion.v1_17;
+        final Matcher baseVersionMatcher = Pattern.compile("v[0-9_]*(?=_R)").matcher(version);
+        if (!baseVersionMatcher.find())
+        {
+            Bukkit.getLogger().severe("Failed to find base version from version String: \"" + version +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
+        }
 
-
-        if (version.equals("v1_11_R1"))
-            mcVersion = MCVersion.v1_11;
-        else if (version.equals("v1_12_R1"))
-            mcVersion = MCVersion.v1_12;
-        else if (version.equals("v1_13_R1"))
-            mcVersion = MCVersion.v1_13;
-        else if (version.equals("v1_13_R2"))
-            mcVersion = MCVersion.v1_13;
-        else if (version.equals("v1_14_R1"))
-            mcVersion = MCVersion.v1_14;
-        else if (version.equals("v1_15_R1"))
-            mcVersion = MCVersion.v1_15;
-        else if (version.equals("v1_16_R1") || version.equals("v1_16_R2") || version.equals("v1_16_R3"))
-            mcVersion = MCVersion.v1_16;
-        else if (version.equals("v1_17_R1"))
-            mcVersion = MCVersion.v1_17;
-        return mcVersion;
+        final String baseVersion = baseVersionMatcher.group().toLowerCase();
+        try
+        {
+            return MCVersion.valueOf(baseVersion);
+        }
+        catch (IllegalArgumentException e)
+        {
+            Bukkit.getLogger().severe("Failed to find the version associated with the String: \"" + baseVersion +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
+        }
     }
 
     // Check + initialize for the correct version of Minecraft.
@@ -731,7 +711,6 @@ public class BigDoors extends JavaPlugin implements Listener
     {
         if (config.forceCodeGeneration())
         {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
             fabf = new FallbackGenerator().getFallingBlockFactory();
             return true;
         }
@@ -765,7 +744,6 @@ public class BigDoors extends JavaPlugin implements Listener
                 fabf = new FallingBlockFactory_V1_12_R1();
                 break;
             case "v1_13_R1":
-                is1_13 = true;
                 fabf = new FallingBlockFactory_V1_13_R1();
                 break;
             case "v1_13_R2":
@@ -776,7 +754,6 @@ public class BigDoors extends JavaPlugin implements Listener
                     logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
                     return false;
                 }
-                is1_13 = true;
                 // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
                 // That's why 1.13.1 is a kinda R1.5 package.
                 if (minorVersion == 1)
@@ -785,27 +762,21 @@ public class BigDoors extends JavaPlugin implements Listener
                     fabf = new FallingBlockFactory_V1_13_R2();
                 break;
             case "v1_14_R1":
-                is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_14_R1();
                 break;
             case "v1_15_R1":
-                is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_15_R1();
                 break;
             case "v1_16_R1":
-                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_16_R1();
                 break;
             case "v1_16_R2":
-                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_16_R2();
                 break;
             case "v1_16_R3":
-                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_16_R3();
                 break;
             case "v1_17_R1":
-                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                 fabf = new FallingBlockFactory_V1_17_R1();
                 break;
             default:
@@ -813,7 +784,6 @@ public class BigDoors extends JavaPlugin implements Listener
                 {
                     getMyLogger()
                         .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
-                    is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                     fabf = new FallbackGenerator().getFallingBlockFactory();
                 }
         }
@@ -926,6 +896,13 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public enum MCVersion
     {
+        v1_4,
+        v1_5,
+        v1_6,
+        v1_7,
+        v1_8,
+        v1_9,
+        v1_10,
         v1_11,
         v1_12,
         v1_13,
@@ -936,8 +913,19 @@ public class BigDoors extends JavaPlugin implements Listener
         v1_18,
         v1_19,
         v1_20,
-    }
+        v1_21,
+        v1_22,
+        v1_23,
+        v1_24,
+        v1_25,
+        v1_26,
+        v1_27,
+        v1_28,
+        ;
 
-//    public long createNewDoor(Location min, Location max, Location engine,
-//                              Location powerBlock, DoorType type, )
+        public boolean isAtLeast(MCVersion test)
+        {
+            return ordinal() >= test.ordinal();
+        }
+    }
 }

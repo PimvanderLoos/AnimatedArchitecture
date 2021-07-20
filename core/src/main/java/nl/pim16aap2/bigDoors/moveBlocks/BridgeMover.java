@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -248,7 +247,7 @@ public class BridgeMover implements BlockMover
                             Block b = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                             materialData.setData(matByte);
 
-                            if (plugin.is1_13())
+                            if (plugin.isOnFlattenedVersion())
                             {
                                 if (canRotate == 6)
                                 {
@@ -265,7 +264,7 @@ public class BridgeMover implements BlockMover
                                 }
                             }
                         }
-                        if (!plugin.is1_13())
+                        if (!plugin.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -304,7 +303,7 @@ public class BridgeMover implements BlockMover
         }
 
         // This is only supported on 1.13
-        if (plugin.is1_13())
+        if (plugin.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
@@ -364,7 +363,7 @@ public class BridgeMover implements BlockMover
 
                         if (!savedBlocks.get(index).getMat().equals(Material.AIR))
                         {
-                            if (plugin.is1_13())
+                            if (plugin.isOnFlattenedVersion())
                             {
                                 savedBlocks.get(index).getBlock().putBlock(newPos);
                                 Block b = world.getBlockAt(newPos);

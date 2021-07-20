@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -146,7 +145,7 @@ public class CylindricalMover implements BlockMover
                             Block b = world.getBlockAt(pos);
                             materialData.setData(matByte);
 
-                            if (plugin.is1_13())
+                            if (plugin.isOnFlattenedVersion())
                                 if (canRotate == 6)
                                 {
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
@@ -161,7 +160,7 @@ public class CylindricalMover implements BlockMover
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                 }
                         }
-                        if (!plugin.is1_13())
+                        if (!plugin.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -206,7 +205,7 @@ public class CylindricalMover implements BlockMover
         }
 
         // This is only supported on 1.13
-        if (plugin.is1_13())
+        if (plugin.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
@@ -258,7 +257,7 @@ public class CylindricalMover implements BlockMover
                     savedBlock.getFBlock().remove();
 
                 if (!savedBlock.getMat().equals(Material.AIR))
-                    if (plugin.is1_13())
+                    if (plugin.isOnFlattenedVersion())
                     {
                         savedBlock.getBlock().putBlock(newPos);
                         Block b = world.getBlockAt(newPos);

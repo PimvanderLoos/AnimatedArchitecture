@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -109,7 +108,7 @@ public class VerticalMover implements BlockMover
                         MaterialData materialData = bs.getData();
                         NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
-                        if (!plugin.is1_13())
+                        if (!plugin.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -131,7 +130,7 @@ public class VerticalMover implements BlockMover
         while (yAxis <= yMax);
 
         // This is only supported on 1.13
-        if (plugin.is1_13())
+        if (plugin.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
@@ -181,7 +180,7 @@ public class VerticalMover implements BlockMover
                             savedBlocks.get(index).getFBlock().remove();
 
                         if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                            if (plugin.is1_13())
+                            if (plugin.isOnFlattenedVersion())
                             {
                                 savedBlocks.get(index).getBlock().putBlock(newPos);
 

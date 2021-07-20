@@ -13,7 +13,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
@@ -527,7 +526,7 @@ public final class Util
             return 2;
         // Panes only have to rotate on 1.13+.
         // On versions before, rotating it only changes its color...
-        if ((BigDoors.get().is1_13()) &&
+        if ((BigDoors.get().isOnFlattenedVersion()) &&
             (xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) ||
              xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) ||
              xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) ||
