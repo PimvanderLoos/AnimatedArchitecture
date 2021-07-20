@@ -172,7 +172,7 @@ public class BigDoors extends JavaPlugin implements Listener
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
         if (DEVBUILD)
-            logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")!");
+            logger.logMessageToConsoleOnly("WARNING! You are running a dev-build (build: " + buildNumber + ")!");
 
         try
         {
@@ -186,7 +186,9 @@ public class BigDoors extends JavaPlugin implements Listener
                                       + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
                                                .split(",")[3])
                                       + "\"). This plugin will NOT be enabled!", true, true);
-                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date?");
+                logger.logMessage("If no update is available for this version, you could try to enable code generation in the config.", true, true);
+                logger.logMessage("Code generation may add support for this version, but be sure to read the warning in the config before using it!", true, true);
+                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? Or enable code generation.");
                 return;
             }
             fakePlayerCreator = new FakePlayerCreator(this);
