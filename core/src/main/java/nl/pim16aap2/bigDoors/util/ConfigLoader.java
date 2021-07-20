@@ -55,6 +55,8 @@ public class ConfigLoader
     private int maxAutoCloseTimer;
     private boolean skipUnloadedAutoCloseToggle;
     private boolean allowNotifications;
+    private boolean allowCodeGeneration;
+    private boolean forceCodeGeneration;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
@@ -185,6 +187,16 @@ public class ConfigLoader
                                                "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
                                                "This is on a per-door basis."};
 
+        String[] allowCodeGenerationComment = { "On unsupported versions of Minecraft, BigDoors can try to generate the required code itself.",
+                                                "This means that the plugin may work even on unsupported versions, ",
+                                                "but also that unexpected issues might pop up! Be sure to test everything when using this!",
+                                                "Note that this is geared only towards NEWER version of Minecraft!",
+                                                "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work."};
+
+        String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
+                                                "This may be useful in case the mappings change within a single version.",
+                                                "In general, however, you will not need this and you're better off not using it!"};
+
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
         String[] backupComment = { "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
@@ -302,6 +314,12 @@ public class ConfigLoader
 
         allowNotifications = config.getBoolean("allowNotifications", true);
         configOptionsList.add(new ConfigOption("allowNotifications", allowNotifications, allowNotificationsComment));
+
+        allowCodeGeneration = config.getBoolean("allowCodeGeneration", false);
+        configOptionsList.add(new ConfigOption("allowCodeGeneration", allowCodeGeneration, allowCodeGenerationComment));
+
+        forceCodeGeneration = config.getBoolean("forceCodeGeneration", false);
+        configOptionsList.add(new ConfigOption("forceCodeGeneration", forceCodeGeneration, forceCodeGenerationComment));
 
         enableFileLogging = config.getBoolean("enableFileLogging", true);
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
@@ -651,7 +669,17 @@ public class ConfigLoader
     {
         return allowNotifications;
     }
-    
+
+    public boolean allowCodeGeneration()
+    {
+        return allowNotifications;
+    }
+
+    public boolean forceCodeGeneration()
+    {
+        return forceCodeGeneration;
+    }
+
     /**
      * Gets a set of blacklisted materials as defined in the config.
      *

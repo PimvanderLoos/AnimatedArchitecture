@@ -729,6 +729,13 @@ public class BigDoors extends JavaPlugin implements Listener
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
     {
+        if (config.forceCodeGeneration())
+        {
+            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+            fabf = new FallbackGenerator().getFallingBlockFactory();
+            return true;
+        }
+
         String version;
 
         try
@@ -779,39 +786,36 @@ public class BigDoors extends JavaPlugin implements Listener
                 break;
             case "v1_14_R1":
                 is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_14_R1();
                 break;
             case "v1_15_R1":
                 is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_15_R1();
                 break;
             case "v1_16_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_16_R1();
                 break;
             case "v1_16_R2":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_16_R2();
                 break;
             case "v1_16_R3":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_16_R3();
                 break;
             case "v1_17_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-
                 fabf = new FallingBlockFactory_V1_17_R1();
                 break;
             default:
-                getMyLogger()
-                    .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
-                is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-                fabf = new FallbackGenerator().getFallingBlockFactory();
+                if (config.allowCodeGeneration())
+                {
+                    getMyLogger()
+                        .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
+                    is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
+                    fabf = new FallbackGenerator().getFallingBlockFactory();
+                }
         }
 
         // Return true if compatible.
