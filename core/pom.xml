@@ -168,23 +168,26 @@
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
             <version>${dependency.version.bytebuddy}</version>
-            <!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>9.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
             <version>9.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-util</artifactId>
             <version>9.2</version>
+            <scope>provided</scope>
         </dependency>
 
 
@@ -356,10 +359,6 @@
                         <relocation>
                             <pattern>nl.pim16aap2.jcalculator</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.objectweb.asm</pattern>
-                            <shadedPattern>nl.pim16aap2.bigDoors.lib.asm</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.cryptomorin.xseries</pattern>

@@ -5,6 +5,11 @@ author: pim16aap2
 api-version: 1.13
 loadbefore: [ PlotSquared ]
 softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind ]
+libraries:
+  - net.bytebuddy:byte-buddy:1.11.8
+  - org.ow2.asm:asm:9.2
+  - org.ow2.asm:asm-commons:9.2
+  - org.ow2.asm:asm-util:9.2
 commands:
   bigdoors:
     description: Basic command
