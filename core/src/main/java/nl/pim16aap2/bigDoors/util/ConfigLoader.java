@@ -191,11 +191,14 @@ public class ConfigLoader
                                                 "This means that the plugin may work even on unsupported versions, ",
                                                 "but also that unexpected issues might pop up! Be sure to test everything when using this!",
                                                 "Note that this is geared only towards NEWER version of Minecraft!",
-                                                "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work."};
+                                                "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work.",
+                                                "Specifically, the code being generated is used to create/move/etc animated blocks.",
+                                                "So when testing this on your TEST SERVER and AFTER MAKING A BACKUP, be sure to check that that still works."};
 
         String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
                                                 "This may be useful in case the mappings change within a single version.",
-                                                "In general, however, you will not need this and you're better off not using it!"};
+                                                "In general, however, you will not need this and you're better off not using it!",
+                                                "When this option is enabled, it overrides the \"" + allowCodeGeneration + "\" option."};
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
