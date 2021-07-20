@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigDoors.util;
 
+import com.cryptomorin.xseries.SkullUtils;
 import nl.pim16aap2.bigDoors.skulls.HeadManager;
-import nl.pim16aap2.bigDoors.skulls.Skull;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.UUID;
@@ -18,24 +19,17 @@ public class SkullCreator extends HeadManager
     }
 
     @Override
-    protected String[] getFromPlayer(Player playerBukkit)
-    {
-        return new String[0];
-    }
-
-    @Override
     protected void createSkull(int x, int y, int z, String name, UUID playerUUID, Player p)
     {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+            final ItemStack skull = SkullUtils.getSkull(playerUUID);
+            final SkullMeta sm = (SkullMeta) skull.getItemMeta();
 
+            sm.setDisplayName(name);
+            skull.setItemMeta(sm);
+
+            headMap.put(playerUUID, skull);
         });
-    }
-
-    @Override
-    protected String[] getFromName(String name, Player p)
-    {
-        return new String[0];
     }
 }

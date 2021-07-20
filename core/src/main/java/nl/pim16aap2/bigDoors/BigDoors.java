@@ -54,6 +54,7 @@ import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.Messages;
+import nl.pim16aap2.bigDoors.util.SkullCreator;
 import nl.pim16aap2.bigDoors.util.TimedCache;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
@@ -835,14 +836,14 @@ public class BigDoors extends JavaPlugin implements Listener
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
                 fabf = new FallingBlockFactory_V1_17_R1();
-                headManager = new SkullCreator_V1_17_R1(this);
+                headManager = new SkullCreator(this);
                 break;
             default:
                 getMyLogger()
                     .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
                 fabf = new FallbackGenerator().getFallingBlockFactory();
-                // TODO: Implement SkullCreator.
+                headManager = new SkullCreator(this);
         }
 
         // Return true if compatible.

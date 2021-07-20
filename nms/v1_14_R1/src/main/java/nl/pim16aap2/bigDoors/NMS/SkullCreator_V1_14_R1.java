@@ -35,17 +35,6 @@ public class SkullCreator_V1_14_R1 extends HeadManager
     }
 
     @Override
-    public String[] getFromPlayer(Player playerBukkit)
-    {
-        EntityPlayer playerNMS = ((CraftPlayer) playerBukkit).getHandle();
-        GameProfile profile = playerNMS.getProfile();
-        Property property = profile.getProperties().get("textures").iterator().next();
-        String texture = property.getValue();
-        String signature = property.getSignature();
-        return new String[] { texture, signature };
-    }
-
-    @Override
     public void createSkull(int x, int y, int z, String name, UUID playerUUID, Player p)
     {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
@@ -74,14 +63,12 @@ public class SkullCreator_V1_14_R1 extends HeadManager
             SkullMeta sm = (SkullMeta) skull.getItemMeta();
             sm.setDisplayName(name);
             skull.setItemMeta(sm);
-            end();
 
             headMap.put(playerUUID, skull);
         });
     }
 
-    @Override
-    protected String[] getFromName(String name, Player p)
+    private String[] getFromName(String name, Player p)
     {
         try
         {
