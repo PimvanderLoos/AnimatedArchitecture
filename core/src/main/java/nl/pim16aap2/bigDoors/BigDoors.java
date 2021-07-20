@@ -656,8 +656,6 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.warn("║   THIS IS NOT SUPPORTED! USE THIS AT YOUR OWN RISK!   ║");
             logger.warn("║                                                       ║");
             logger.warn("╚═══════════════════════════════════════════════════════╝");
-
-            loginMessages.add("You are running this plugin in unsafe mode! THIS IS NOT SUPPORTED!");
         }
     }
 
@@ -706,17 +704,31 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
+    private FallingBlockFactory generateFallBackFallingBlockFactory()
+    {
+        logger.warn("╔═══════════════════════════════════════════════════════╗");
+        logger.warn("║                                                       ║");
+        logger.warn("║                    !!  WARNING  !!                    ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║           YOU HAVE ENABLED CODE GENERATION!           ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║     THIS MAY CAUSE ISSUES! PLEASE TEST CAREFULLY!     ║");
+        logger.warn("║                                                       ║");
+        logger.warn("╚═══════════════════════════════════════════════════════╝");
+        return new FallbackGenerator().getFallingBlockFactory();
+    }
+
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
     {
         if (config.forceCodeGeneration())
         {
-            fabf = new FallbackGenerator().getFallingBlockFactory();
+            fabf = generateFallBackFallingBlockFactory();
             return true;
         }
 
         String version;
-
         try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -781,11 +793,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 break;
             default:
                 if (config.allowCodeGeneration())
-                {
-                    getMyLogger()
-                        .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
-                    fabf = new FallbackGenerator().getFallingBlockFactory();
-                }
+                    fabf = generateFallBackFallingBlockFactory();
         }
 
         // Return true if compatible.
