@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
+import com.cryptomorin.xseries.XMaterial;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
@@ -14,7 +15,6 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -55,9 +55,7 @@ final class NMSBlockGenerator extends Generator
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(classBlockBase, ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(org.bukkit.entity.FallingBlock.class, NMSBlock.class, IGeneratedNMSBlock.class)
-            // TODO: Use full name
-//            .name("GeneratedNMSBlock_" + this.mappingsVersion);
-            .name("GeneratedNMSBlock");
+            .name("GeneratedNMSBlock_" + this.mappingsVersion);
 
         builder = addFields(builder);
         builder = addCTor(builder);
@@ -314,32 +312,34 @@ final class NMSBlockGenerator extends Generator
                 if (!(craftBlockData instanceof MultipleFacing))
                     return;
 
-                Set<BlockFace> allowedFaces = ((MultipleFacing) craftBlockData).getAllowedFaces();
+                final Set<BlockFace> allowedFaces = ((MultipleFacing) craftBlockData).getAllowedFaces();
                 allowedFaces.forEach(
                     (blockFace) ->
                     {
                         Block otherBlock =
-                            loc.clone().add(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ())
-                               .getBlock();
-
-                        Object otherData = origin.generated$retrieveBlockData(otherBlock);
+                            loc.clone().add(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()).getBlock();
 
                         if (blockFace.equals(BlockFace.UP))
                             ((MultipleFacing) craftBlockData).setFace(blockFace, true);
                         else if (otherBlock.getType().isSolid())
                         {
-                            // TODO: Yikes
+                            final Object otherData = origin.generated$retrieveBlockData(otherBlock);
+
                             ((MultipleFacing) craftBlockData).setFace(blockFace, true);
-                            if (otherData instanceof MultipleFacing &&
-                                (otherBlock.getType().equals(xmat.parseMaterial()) ||
-                                    (craftBlockData instanceof Fence &&
-                                        otherData instanceof Fence)))
-                                if (((MultipleFacing) otherData).getAllowedFaces()
-                                                                .contains(blockFace.getOppositeFace()))
+
+                            final boolean isOtherMultipleFacing = otherData instanceof MultipleFacing;
+                            final boolean materialMatch = otherBlock.getType().equals(xmat.parseMaterial());
+                            final boolean areBothFence = craftBlockData instanceof Fence && otherData instanceof Fence;
+
+                            if (isOtherMultipleFacing && (materialMatch || areBothFence))
+                            {
+                                final Set<BlockFace> otherAllowedFaces = ((MultipleFacing) otherData).getAllowedFaces();
+                                if (otherAllowedFaces.contains(blockFace.getOppositeFace()))
                                 {
                                     ((MultipleFacing) otherData).setFace(blockFace.getOppositeFace(), true);
                                     origin.generated$updateBlockData(otherBlock, otherData);
                                 }
+                            }
                         }
                         else
                             ((MultipleFacing) craftBlockData).setFace(blockFace, false);

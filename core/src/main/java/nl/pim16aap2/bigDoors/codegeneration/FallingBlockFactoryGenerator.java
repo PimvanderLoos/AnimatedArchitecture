@@ -49,9 +49,7 @@ public class FallingBlockFactoryGenerator extends Generator
     {
         DynamicType.Builder<?> builder = new ByteBuddy()
             .subclass(FallingBlockFactory.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            // TODO: Use full name
-//            .name("GeneratedFallingBlockFactory_" + this.mappingsVersion);
-            .name("GeneratedFallingBlockFactory");
+            .name("GeneratedFallingBlockFactory_" + this.mappingsVersion);
 
         builder = addCTor(builder);
         builder = addFields(builder);

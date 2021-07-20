@@ -222,9 +222,7 @@ final class EntityFallingBlockGenerator extends Generator
             .subclass(classEntityFallingBlock,
                       ConstructorStrategy.Default.NO_CONSTRUCTORS)
             .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
-            // TODO: Use full name
-//            .name("GeneratedCustomEntityFallingBlock_" + this.mappingsVersion);
-            .name("GeneratedCustomEntityFallingBlock");
+            .name("GeneratedCustomEntityFallingBlock_" + this.mappingsVersion);
 
         builder = addFields(builder);
         builder = addCTor(builder);

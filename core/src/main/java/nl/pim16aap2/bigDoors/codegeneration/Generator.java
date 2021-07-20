@@ -48,9 +48,6 @@ abstract class Generator
     {
         DynamicType.Unloaded<?> unloaded = builder.make();
 
-        // TODO: Remove this
-        unloaded.saveIn(new File("/home/pim/Documents/workspace/BigDoors/generated"));
-
         if (ConfigLoader.DEBUG)
             unloaded.saveIn(new File(BigDoors.get().getDataFolder(), "generated"));
 

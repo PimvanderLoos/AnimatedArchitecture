@@ -14,6 +14,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.List;
 
 import static nl.pim16aap2.bigDoors.util.ReflectionUtils.*;
@@ -224,7 +225,8 @@ final class ReflectionRepository
                                            getModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC),
                                            classEnumBlockState);
 
-        fieldsVec3D = getFields(3, classVec3D, getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class);
+        fieldsVec3D = Collections.unmodifiableList(
+            getFields(3, classVec3D, getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class));
     }
 
     private ReflectionRepository()

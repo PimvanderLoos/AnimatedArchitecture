@@ -49,9 +49,7 @@ final class CraftFallingBlockGenerator extends Generator
             .implement(org.bukkit.entity.FallingBlock.class,
                        CustomCraftFallingBlock.class,
                        IGeneratedCraftFallingBlock.class)
-            // TODO: Use full name
-//            .name("GeneratedCustomCraftFallingBlock_" + this.mappingsVersion);
-            .name("GeneratedCustomCraftFallingBlock");
+            .name("GeneratedCustomCraftFallingBlock_" + this.mappingsVersion);
 
         builder = addCTor(builder);
         builder = addBasicMethods(builder);
