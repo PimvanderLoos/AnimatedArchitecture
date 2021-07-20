@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
@@ -13,13 +11,10 @@ import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.util.ReflectionUtils;
-import nl.pim16aap2.bigDoors.util.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -27,29 +22,45 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
-public class FallingBlockFactoryGenerator extends Generator
+public class FallingBlockFactoryClassGenerator extends ClassGenerator
 {
-    private final Pair<Class<?>, Constructor<?>> nmsBlock;
-    private final Pair<Class<?>, Constructor<?>> craftFallingBlock;
-    private final Pair<Class<?>, Constructor<?>> entityFallingBlock;
+    private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES = new Class<?>[0];
 
-    public FallingBlockFactoryGenerator(@NotNull String mappingsVersion, Pair<Class<?>, Constructor<?>> nmsBlock,
-                                        Pair<Class<?>, Constructor<?>> craftFallingBlock,
-                                        Pair<Class<?>, Constructor<?>> entityFallingBlock)
+    private final @NotNull ClassGenerator nmsBlockClassGenerator;
+    private final @NotNull ClassGenerator craftFallingBlockClassGenerator;
+    private final @NotNull ClassGenerator entityFallingBlockClassGenerator;
+
+    public FallingBlockFactoryClassGenerator(@NotNull String mappingsVersion,
+                                             @NotNull ClassGenerator nmsBlockClassGenerator,
+                                             @NotNull ClassGenerator craftFallingBlockClassGenerator,
+                                             @NotNull ClassGenerator entityFallingBlockClassGenerator)
+        throws Exception
     {
         super(mappingsVersion);
-        this.nmsBlock = nmsBlock;
-        this.craftFallingBlock = craftFallingBlock;
-        this.entityFallingBlock = entityFallingBlock;
+        this.nmsBlockClassGenerator = nmsBlockClassGenerator;
+        this.craftFallingBlockClassGenerator = craftFallingBlockClassGenerator;
+        this.entityFallingBlockClassGenerator = entityFallingBlockClassGenerator;
+
+        generate();
+    }
+
+    @Override
+    protected @NotNull Class<?>[] getConstructorArgumentTypes()
+    {
+        return CONSTRUCTOR_PARAMETER_TYPES;
+    }
+
+    @Override
+    protected @NotNull String getBaseName()
+    {
+        return "FallingBlockFactory";
     }
 
     @Override
     protected void generateImpl()
         throws Exception
     {
-        DynamicType.Builder<?> builder = new ByteBuddy()
-            .subclass(FallingBlockFactory.class, ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            .name("GeneratedFallingBlockFactory_" + this.mappingsVersion);
+        DynamicType.Builder<?> builder = createBuilder(FallingBlockFactory.class);
 
         builder = addCTor(builder);
         builder = addFields(builder);
@@ -99,10 +110,10 @@ public class FallingBlockFactoryGenerator extends Generator
 
         builder = builder
             .defineMethod("nmsBlockFactory", NMSBlock.class)
-            .withParameters(World.class, int.class, int.class, int.class)
-            .intercept(construct(nmsBlock.second).withArgument(0, 1, 2, 3)
-                                                 .withMethodCall(createBlockInfo)
-                                                 .withField("axesValues", "blockRotationValues"));
+            .withParameters(org.bukkit.World.class, int.class, int.class, int.class)
+            .intercept(construct(nmsBlockClassGenerator.getGeneratedConstructor())
+                           .withArgument(0, 1, 2, 3).withMethodCall(createBlockInfo)
+                           .withField("axesValues", "blockRotationValues"));
 
         return builder;
     }
@@ -112,18 +123,19 @@ public class FallingBlockFactoryGenerator extends Generator
         final String postProcessName = "generated$postProcessEntity";
 
         builder = builder
-            .defineMethod(postProcessName, craftFallingBlock.first, Visibility.PRIVATE)
-            .withParameters(craftFallingBlock.first)
+            .defineMethod(postProcessName, craftFallingBlockClassGenerator.getGeneratedClass(), Visibility.PRIVATE)
+            .withParameters(craftFallingBlockClassGenerator.getGeneratedClass())
             .intercept(invoke(methodSetCraftEntityCustomName).onArgument(0).with("BigDoorsEntity").andThen(
                 invoke(methodSetCraftEntityCustomNameVisible).onArgument(0).with(false)).andThen(
                 FixedValue.argument(0)));
 
-        final Method methodGetMyBlockData = ReflectionUtils.getMethod(nmsBlock.first, "getMyBlockData");
+        final Method methodGetMyBlockData =
+            ReflectionUtils.getMethod(nmsBlockClassGenerator.getGeneratedClass(), "getMyBlockData");
 
         final MethodCall createBlockData = (MethodCall)
             invoke(methodGetMyBlockData).onArgument(1).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
-        final MethodCall createEntity = construct(entityFallingBlock.second)
+        final MethodCall createEntity = construct(entityFallingBlockClassGenerator.getGeneratedConstructor())
             .withMethodCall(invoke(named("getWorld")).onArgument(0))
             .withMethodCall(invoke(named("getX")).onArgument(0))
             .withMethodCall(invoke(named("getY")).onArgument(0))
@@ -132,7 +144,7 @@ public class FallingBlockFactoryGenerator extends Generator
             .withField("enumMoveTypeValues");
 
         final MethodCall createCraftFallingBlock = (MethodCall)
-            construct(craftFallingBlock.second)
+            construct(craftFallingBlockClassGenerator.getGeneratedConstructor())
                 .withMethodCall(invoke(methodGetBukkitServer))
                 .withMethodCall(createEntity)
                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);

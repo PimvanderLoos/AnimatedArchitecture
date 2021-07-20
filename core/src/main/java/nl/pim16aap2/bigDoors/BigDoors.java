@@ -13,7 +13,7 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
-import nl.pim16aap2.bigDoors.codegeneration.FallbackGenerator;
+import nl.pim16aap2.bigDoors.codegeneration.FallbackGeneratorManager;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
@@ -186,9 +186,12 @@ public class BigDoors extends JavaPlugin implements Listener
                                       + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
                                                .split(",")[3])
                                       + "\"). This plugin will NOT be enabled!", true, true);
-                logger.logMessage("If no update is available for this version, you could try to enable code generation in the config.", true, true);
-                logger.logMessage("Code generation may add support for this version, but be sure to read the warning in the config before using it!", true, true);
-                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? Or enable code generation.");
+                logger.logMessage("If no update is available for this version, you could try to enable " +
+                                      "code generation in the config.", true, true);
+                logger.logMessage("Code generation may add support for this version, but be sure to read the " +
+                                      "warning in the config before using it!", true, true);
+                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? " +
+                                "Or enable code generation.");
                 return;
             }
             fakePlayerCreator = new FakePlayerCreator(this);
@@ -707,6 +710,7 @@ public class BigDoors extends JavaPlugin implements Listener
     }
 
     private FallingBlockFactory generateFallBackFallingBlockFactory()
+        throws Exception
     {
         logger.warn("╔═══════════════════════════════════════════════════════╗");
         logger.warn("║                                                       ║");
@@ -718,11 +722,12 @@ public class BigDoors extends JavaPlugin implements Listener
         logger.warn("║     THIS MAY CAUSE ISSUES! PLEASE TEST CAREFULLY!     ║");
         logger.warn("║                                                       ║");
         logger.warn("╚═══════════════════════════════════════════════════════╝");
-        return new FallbackGenerator().getFallingBlockFactory();
+        return FallbackGeneratorManager.getInstance().getFallingBlockFactory();
     }
 
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
+        throws Exception
     {
         if (config.forceCodeGeneration())
         {

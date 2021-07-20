@@ -1,10 +1,8 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import com.cryptomorin.xseries.XMaterial;
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -34,11 +32,29 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
-final class NMSBlockGenerator extends Generator
+final class NMSBlockClassGenerator extends ClassGenerator
 {
-    public NMSBlockGenerator(@NotNull String mappingsVersion)
+    private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
+        new Class<?>[]{World.class, int.class, int.class, int.class, classBlockBaseInfo,
+                       asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation)};
+
+    public NMSBlockClassGenerator(@NotNull String mappingsVersion)
+        throws Exception
     {
         super(mappingsVersion);
+        generate();
+    }
+
+    @Override
+    protected @NotNull Class<?>[] getConstructorArgumentTypes()
+    {
+        return CONSTRUCTOR_PARAMETER_TYPES;
+    }
+
+    @Override
+    protected @NotNull String getBaseName()
+    {
+        return "NMSBlock";
     }
 
     public interface IGeneratedNMSBlock
@@ -52,10 +68,8 @@ final class NMSBlockGenerator extends Generator
     protected void generateImpl()
         throws Exception
     {
-        DynamicType.Builder<?> builder = new ByteBuddy()
-            .subclass(classBlockBase, ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            .implement(org.bukkit.entity.FallingBlock.class, NMSBlock.class, IGeneratedNMSBlock.class)
-            .name("GeneratedNMSBlock_" + this.mappingsVersion);
+        DynamicType.Builder<?> builder = createBuilder(classBlockBase)
+            .implement(org.bukkit.entity.FallingBlock.class, NMSBlock.class, IGeneratedNMSBlock.class);
 
         builder = addFields(builder);
         builder = addCTor(builder);
@@ -66,8 +80,7 @@ final class NMSBlockGenerator extends Generator
         builder = addUpdateMultipleFacingMethod(builder);
         builder = addRotateCylindricalMethod(builder);
 
-        finishBuilder(builder, World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                      asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation));
+        finishBuilder(builder);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -76,8 +89,7 @@ final class NMSBlockGenerator extends Generator
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                            asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation))
+            .withParameters(getConstructorArgumentTypes())
             .intercept(invoke(ctorBlockBase).withArgument(4).andThen(
 
                 construct(ctorLocation).withArgument(0, 1, 2, 3).setsField(named("loc"))).andThen(
@@ -103,11 +115,10 @@ final class NMSBlockGenerator extends Generator
         return builder
             .defineField("blockData", classIBlockData, Visibility.PRIVATE)
             .defineField("craftBlockData", classCraftBlockData, Visibility.PRIVATE)
-            .defineField("xmat", XMaterial.class, Visibility.PRIVATE)
+            .defineField("xMat", XMaterial.class, Visibility.PRIVATE)
             .defineField("loc", Location.class, Visibility.PRIVATE)
             .defineField("axesValues", asArrayType(classEnumDirectionAxis), Visibility.PRIVATE)
-            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
-            ;
+            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE);
     }
 
     public interface IRotateBlock
@@ -204,7 +215,7 @@ final class NMSBlockGenerator extends Generator
             .withParameters(boolean.class, int.class, asArrayType(classEnumDirectionAxis))
             .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes, values) ->
             {
-                int newIdx = 0;
+                int newIdx;
                 switch (currentAxes)
                 {
                     case 0:
@@ -283,7 +294,7 @@ final class NMSBlockGenerator extends Generator
             .intercept(FieldAccessor.ofField("loc").setsArgumentAt(0).andThen(
 
                 invoke(named("updateCraftBlockDataMultipleFacing"))
-                    .withThis().withField("craftBlockData").withField("loc").withField("xmat")).andThen(
+                    .withThis().withField("craftBlockData").withField("loc").withField("xMat")).andThen(
 
                 invoke(named("setTypeAndData"))
                     .onMethodCall(worldCast)
@@ -299,7 +310,7 @@ final class NMSBlockGenerator extends Generator
     {
         @RuntimeType
         void intercept(IGeneratedNMSBlock origin, Object craftBlockData,
-                       @FieldValue("loc") Location loc, @FieldValue("xmat") XMaterial xmat);
+                       @FieldValue("loc") Location loc, @FieldValue("xMat") XMaterial xMat);
     }
 
     private DynamicType.Builder<?> addUpdateMultipleFacingMethod(DynamicType.Builder<?> builder)
@@ -307,7 +318,7 @@ final class NMSBlockGenerator extends Generator
         return builder
             .defineMethod("updateCraftBlockDataMultipleFacing", void.class)
             .withParameters(IGeneratedNMSBlock.class, Object.class, Location.class, XMaterial.class)
-            .intercept(MethodDelegation.to((IUpdateMultipleFacing) (origin, craftBlockData, loc, xmat) ->
+            .intercept(MethodDelegation.to((IUpdateMultipleFacing) (origin, craftBlockData, loc, xMat) ->
             {
                 if (!(craftBlockData instanceof MultipleFacing))
                     return;
@@ -328,7 +339,7 @@ final class NMSBlockGenerator extends Generator
                             ((MultipleFacing) craftBlockData).setFace(blockFace, true);
 
                             final boolean isOtherMultipleFacing = otherData instanceof MultipleFacing;
-                            final boolean materialMatch = otherBlock.getType().equals(xmat.parseMaterial());
+                            final boolean materialMatch = otherBlock.getType().equals(xMat.parseMaterial());
                             final boolean areBothFence = craftBlockData instanceof Fence && otherData instanceof Fence;
 
                             if (isOtherMultipleFacing && (materialMatch || areBothFence))

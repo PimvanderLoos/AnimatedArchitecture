@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
@@ -35,7 +33,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,17 +45,36 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
-final class EntityFallingBlockGenerator extends Generator
+final class EntityFallingBlockClassGenerator extends ClassGenerator
 {
-    public final Field fieldNoClip;
-    public final Field fieldHurtEntities;
+    private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
+        new Class<?>[]{World.class, double.class, double.class, double.class,
+                       classIBlockData, asArrayType(classEnumMoveType)};
 
-    public EntityFallingBlockGenerator(@NotNull String mappingsVersion)
+    private final Field fieldNoClip;
+    private final Field fieldHurtEntities;
+
+    public EntityFallingBlockClassGenerator(@NotNull String mappingsVersion)
+        throws Exception
     {
         super(mappingsVersion);
 
         fieldHurtEntities = ReflectionUtils.getField(classEntityFallingBlock, getHurtEntitiesFieldName());
         fieldNoClip = ReflectionUtils.getField(classNMSEntity, getNoClipFieldName(), boolean.class);
+
+        generate();
+    }
+
+    @Override
+    protected @NotNull Class<?>[] getConstructorArgumentTypes()
+    {
+        return CONSTRUCTOR_PARAMETER_TYPES;
+    }
+
+    @Override
+    protected @NotNull String getBaseName()
+    {
+        return "EntityFallingBlock";
     }
 
     private @NotNull String getHurtEntitiesFieldName()
@@ -216,13 +232,9 @@ final class EntityFallingBlockGenerator extends Generator
 
     @Override
     protected void generateImpl()
-        throws Exception
     {
-        DynamicType.Builder<?> builder = new ByteBuddy()
-            .subclass(classEntityFallingBlock,
-                      ConstructorStrategy.Default.NO_CONSTRUCTORS)
-            .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class)
-            .name("GeneratedCustomEntityFallingBlock_" + this.mappingsVersion);
+        DynamicType.Builder<?> builder = createBuilder(classEntityFallingBlock)
+            .implement(CustomEntityFallingBlock.class, IGeneratedFallingBlockEntity.class);
 
         builder = addFields(builder);
         builder = addCTor(builder);
@@ -235,8 +247,7 @@ final class EntityFallingBlockGenerator extends Generator
         builder = addTickMethod(builder);
         builder = addCrashReportMethod(builder);
 
-        finishBuilder(builder, World.class, double.class, double.class, double.class, classIBlockData,
-                      asArrayType(classEnumMoveType));
+        finishBuilder(builder);
     }
 
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
@@ -258,8 +269,7 @@ final class EntityFallingBlockGenerator extends Generator
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(World.class, double.class, double.class, double.class, classIBlockData,
-                            asArrayType(classEnumMoveType))
+            .withParameters(getConstructorArgumentTypes())
             .intercept(invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4).andThen(
                 FieldAccessor.ofField("block").setsArgumentAt(4)).andThen(
                 FieldAccessor.ofField("bukkitWorld").setsArgumentAt(0)).andThen(
@@ -523,17 +533,5 @@ final class EntityFallingBlockGenerator extends Generator
             .define(methodTick).intercept(invoke(named("generated$tick"))
                                               .withThis().withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         return builder;
-    }
-
-    @Override
-    public @Nullable Class<?> getGeneratedClass()
-    {
-        return generatedClass;
-    }
-
-    @Override
-    public @Nullable Constructor<?> getGeneratedConstructor()
-    {
-        return generatedConstructor;
     }
 }

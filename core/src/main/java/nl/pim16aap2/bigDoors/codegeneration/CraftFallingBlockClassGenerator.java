@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
 import net.bytebuddy.implementation.ExceptionMethod;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.StubMethod;
@@ -15,26 +13,39 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.util.EulerAngle;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Constructor;
-import java.util.Objects;
-
 import static net.bytebuddy.implementation.FieldAccessor.ofField;
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 
-final class CraftFallingBlockGenerator extends Generator
+final class CraftFallingBlockClassGenerator extends ClassGenerator
 {
+    private final @NotNull Class<?>[] constructorParameterTypes;
+
     private final @NotNull Class<?> classGeneratedEntityFallingBlock;
 
-    public CraftFallingBlockGenerator(@NotNull String mappingsVersion,
-                                      Class<?> classGeneratedEntityFallingBlock)
+    public CraftFallingBlockClassGenerator(@NotNull String mappingsVersion,
+                                           @NotNull Class<?> classGeneratedEntityFallingBlock)
+        throws Exception
     {
         super(mappingsVersion);
-        this.classGeneratedEntityFallingBlock = Objects
-            .requireNonNull(classGeneratedEntityFallingBlock, "No classGeneratedEntityFallingBlock provided!");
+        this.classGeneratedEntityFallingBlock = classGeneratedEntityFallingBlock;
+        this.constructorParameterTypes = new Class<?>[]{classCraftServer, this.classGeneratedEntityFallingBlock};
+
+        generate();
+    }
+
+    @Override
+    protected @NotNull Class<?>[] getConstructorArgumentTypes()
+    {
+        return constructorParameterTypes;
+    }
+
+    @Override
+    protected @NotNull String getBaseName()
+    {
+        return "CraftFallingBlock";
     }
 
     public interface IGeneratedCraftFallingBlock
@@ -44,17 +55,15 @@ final class CraftFallingBlockGenerator extends Generator
     protected void generateImpl()
         throws Exception
     {
-        DynamicType.Builder<?> builder = new ByteBuddy()
-            .subclass(classCraftEntity, ConstructorStrategy.Default.NO_CONSTRUCTORS)
+        DynamicType.Builder<?> builder = createBuilder(classCraftEntity)
             .implement(org.bukkit.entity.FallingBlock.class,
                        CustomCraftFallingBlock.class,
-                       IGeneratedCraftFallingBlock.class)
-            .name("GeneratedCustomCraftFallingBlock_" + this.mappingsVersion);
+                       IGeneratedCraftFallingBlock.class);
 
         builder = addCTor(builder);
         builder = addBasicMethods(builder);
 
-        finishBuilder(builder, classCraftServer, classGeneratedEntityFallingBlock);
+        finishBuilder(builder);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -63,7 +72,7 @@ final class CraftFallingBlockGenerator extends Generator
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
-            .withParameters(classCraftServer, classGeneratedEntityFallingBlock)
+            .withParameters(getConstructorArgumentTypes())
             .intercept(invoke(ctorCraftEntity).withArgument(0, 1).andThen(
                 FieldAccessor.ofField("generated$customEntityFallingBlock").setsArgumentAt(1)));
     }
@@ -104,17 +113,5 @@ final class CraftFallingBlockGenerator extends Generator
                                              .withMethodCall(invoke(named("getBlock"))
                                                                  .onMethodCall(invoke(named("getHandle"))))));
         return builder;
-    }
-
-    @Override
-    public @Nullable Class<?> getGeneratedClass()
-    {
-        return generatedClass;
-    }
-
-    @Override
-    public @Nullable Constructor<?> getGeneratedConstructor()
-    {
-        return generatedConstructor;
     }
 }
