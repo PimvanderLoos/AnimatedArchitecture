@@ -5,7 +5,7 @@
     <groupId>nl.pim16aap2</groupId>
     <artifactId>BigDoors</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.8.31-ALPHA</version>
+    <version>0.1.9.0-ALPHA</version>
     <modules>
         <module>core</module>
         <module>nms</module>

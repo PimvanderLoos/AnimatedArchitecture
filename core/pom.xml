@@ -5,7 +5,7 @@
     <parent>
         <artifactId>BigDoors</artifactId>
         <groupId>nl.pim16aap2</groupId>
-        <version>0.1.8.31-ALPHA</version>
+        <version>0.1.9.0-ALPHA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -75,84 +75,84 @@
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>nms-api</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_11_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_12_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R1_5</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_13_R2</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_14_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_15_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R2</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_16_R3</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>nl.pim16aap2</groupId>
             <artifactId>v1_17_R1</artifactId>
-            <version>0.1.8.31-ALPHA</version>
+            <version>0.1.9.0-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
