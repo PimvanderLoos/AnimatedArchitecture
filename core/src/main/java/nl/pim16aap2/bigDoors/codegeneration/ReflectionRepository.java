@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

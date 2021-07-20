@@ -12,6 +12,7 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_15_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_12_R1;
 import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R1;
@@ -833,16 +834,15 @@ public class BigDoors extends JavaPlugin implements Listener
             case "v1_17_R1":
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
 
-//                fabf = new FallingBlockFactory_V1_17_R1();
-                fabf = new FallbackGenerator().getFallingBlockFactory();
+                fabf = new FallingBlockFactory_V1_17_R1();
                 headManager = new SkullCreator_V1_17_R1(this);
                 break;
             default:
                 getMyLogger()
                     .warn("The plugin has not been tested for this version! We'll try to make it work, though...");
                 is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-
-                break;
+                fabf = new FallbackGenerator().getFallingBlockFactory();
+                // TODO: Implement SkullCreator.
         }
 
         // Return true if compatible.

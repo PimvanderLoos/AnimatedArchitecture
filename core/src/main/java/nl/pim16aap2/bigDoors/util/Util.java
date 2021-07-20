@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.google.common.hash.Hashing;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;

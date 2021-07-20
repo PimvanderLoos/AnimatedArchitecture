@@ -156,6 +156,14 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.github.cryptomorin/XSeries -->
+        <dependency>
+            <groupId>com.github.cryptomorin</groupId>
+            <artifactId>XSeries</artifactId>
+            <version>8.2.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
@@ -350,10 +358,24 @@
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>org.objectweb.asm.</pattern>
+                            <pattern>org.objectweb.asm</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.asm</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.cryptomorin.xseries</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.xseries</shadedPattern>
+                        </relocation>
                     </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>com.github.cryptomorin:XSeries</artifact>
+                            <includes>
+                                <include>com/cryptomorin/xseries/XMaterial*</include>
+                                <include>com/cryptomorin/xseries/SkullUtils*</include>
+                                <include>com/cryptomorin/xseries/ReflectionUtils*</include>
+                            </includes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>

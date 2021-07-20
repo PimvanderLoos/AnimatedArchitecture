@@ -17,7 +17,7 @@ import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForAddOwner;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForCommand;
 import nl.pim16aap2.bigDoors.waitForCommand.WaitForRemoveOwner;

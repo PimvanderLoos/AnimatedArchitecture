@@ -13,7 +13,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 
 public class GUIItem
 {

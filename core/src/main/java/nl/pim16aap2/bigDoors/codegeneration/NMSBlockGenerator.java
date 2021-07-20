@@ -14,7 +14,7 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.util.ReflectionUtils;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

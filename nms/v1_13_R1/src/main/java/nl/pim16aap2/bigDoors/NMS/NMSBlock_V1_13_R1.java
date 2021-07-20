@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.NMS;
 
 import java.util.Set;
 
+import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -18,7 +19,6 @@ import net.minecraft.server.v1_13_R1.EnumBlockRotation;
 import net.minecraft.server.v1_13_R1.EnumDirection.EnumAxis;
 import net.minecraft.server.v1_13_R1.IBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.XMaterial;
 
 public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block implements NMSBlock
 {

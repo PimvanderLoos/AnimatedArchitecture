@@ -18,7 +18,7 @@ import net.minecraft.server.v1_13_R2.EnumBlockRotation;
 import net.minecraft.server.v1_13_R2.EnumDirection.EnumAxis;
 import net.minecraft.server.v1_13_R2.IBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 
 public class NMSBlock_V1_13_R2 extends net.minecraft.server.v1_13_R2.Block implements NMSBlock
 {

@@ -24,7 +24,7 @@ import nl.pim16aap2.bigDoors.util.Messages;
 import nl.pim16aap2.bigDoors.util.PageType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 
 public class GUI
 {
