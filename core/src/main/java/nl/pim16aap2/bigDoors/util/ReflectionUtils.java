@@ -353,16 +353,16 @@ public final class ReflectionUtils
     }
 
     /**
-     * See {@link #getField(boolean, Class, Integer, Class)}, with nonNull enabled.
+     * See {@link #getField(boolean, Class, int, Class)}, with nonNull enabled.
      */
-    public static @NotNull Field getField(@NotNull Class<?> source, @Nullable Integer modifiers, @NotNull Class<?> type)
+    public static @NotNull Field getField(@NotNull Class<?> source, int modifiers, @NotNull Class<?> type)
     {
         return getField(true, source, modifiers, type);
     }
 
     /**
      * Attempts to find a field in a class. Only the first field that matches the desired specification is returned. If
-     * all fields matching the specification are desired, use {@link #getFields(Class, Integer, Class)} instead.
+     * all fields matching the specification are desired, use {@link #getFields(Class, int, Class)} instead.
      *
      * @param nonNull   Whether to allow returning a null value when no classes could be found. When this is true, and
      *                  no classes could be found for any of the provided names, an exception will be thrown.
@@ -375,14 +375,14 @@ public final class ReflectionUtils
      * @return The first field that matches the specification.
      */
     @Contract("true, _, _, _ -> !null")
-    public static Field getField(boolean nonNull, @NotNull Class<?> source, @Nullable Integer modifiers,
+    public static Field getField(boolean nonNull, @NotNull Class<?> source, int modifiers,
                                  @NotNull Class<?> type)
     {
-        final Field[] fields = modifiers != null && Modifier.isPublic(modifiers) ?
+        final Field[] fields = modifiers != 0 && Modifier.isPublic(modifiers) ?
                                source.getFields() : source.getDeclaredFields();
         for (Field field : fields)
         {
-            if (modifiers != null && field.getModifiers() != modifiers)
+            if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
 
             if (!field.getType().equals(type))
@@ -392,14 +392,12 @@ public final class ReflectionUtils
         }
 
         if (nonNull)
-            throw new NullPointerException(
-                "Failed to find field in class \"" + source + "\" with modifiers " +
-                    (modifiers == null ? "NULL" : Modifier.toString(modifiers)) +
-                    " of type \"" + type + "\"");
+            throw new NullPointerException("Failed to find field in class \"" + source + "\" with modifiers " +
+                                               Modifier.toString(modifiers) + " of type \"" + type + "\"");
         return null;
     }
 
-    public static @NotNull List<Field> getFields(int expected, @NotNull Class<?> source, @Nullable Integer modifiers,
+    public static @NotNull List<Field> getFields(int expected, @NotNull Class<?> source, int modifiers,
                                                  @NotNull Class<?> type)
         throws IllegalStateException
     {
@@ -407,20 +405,20 @@ public final class ReflectionUtils
         if (ret.size() != expected)
             throw new IllegalStateException(
                 String.format("Expected %d fields of type %s with modifiers %s in class %s, but found %d!",
-                              expected, type, (modifiers == null ? "NULL" : Modifier.toString(modifiers)), source,
+                              expected, type, Modifier.toString(modifiers), source,
                               ret.size()));
         return ret;
     }
 
-    public static @NotNull List<Field> getFields(@NotNull Class<?> source, @Nullable Integer modifiers,
+    public static @NotNull List<Field> getFields(@NotNull Class<?> source, int modifiers,
                                                  @NotNull Class<?> type)
     {
         List<Field> ret = new ArrayList<>();
-        final Field[] fields = modifiers != null && Modifier.isPublic(modifiers) ?
+        final Field[] fields = modifiers != 0 && Modifier.isPublic(modifiers) ?
                                source.getFields() : source.getDeclaredFields();
         for (Field field : fields)
         {
-            if (modifiers != null && field.getModifiers() != modifiers)
+            if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
 
             if (!field.getType().equals(type))
