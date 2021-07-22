@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 
 import static net.bytebuddy.implementation.FixedValue.value;
@@ -159,41 +158,30 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
             .intercept(FieldAccessor.ofField("block"));
     }
 
-    public interface LoadDataDelegation
+    public interface ILoadDataDelegation
     {
         @RuntimeType
-        void intercept(@This Object baseObject, @RuntimeType Object compound, boolean hasKey, String methodName);
+        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound, boolean hasKey);
     }
 
     private DynamicType.Builder<?> addLoadDataMethod(DynamicType.Builder<?> builder)
     {
-        final String loadTileEntityDataName = methodLoadData.getName() + "$tileEntityData";
         final String tileEntityConditionalName = methodLoadData.getName() + "$conditional";
 
         builder = builder
-            .defineMethod(loadTileEntityDataName, void.class, Visibility.PRIVATE)
-            .withParameters(classNBTTagCompound)
+            .method(named("generated$loadTileEntityData"))
             .intercept(invoke(methodNBTTagCompoundGetCompound)
-                           .onArgument(0).with("TileEntityData").setsField(fieldTileEntityData));
+                           .onArgument(0).with("TileEntityData").setsField(fieldTileEntityData)
+                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
         builder = builder
             .defineMethod(tileEntityConditionalName, void.class, Visibility.PRIVATE)
-            .withParameters(Object.class, classNBTTagCompound, boolean.class, String.class)
-            .intercept(MethodDelegation.to((LoadDataDelegation) (baseObject, compound, hasKey, methodName) ->
+            .withParameters(IGeneratedFallingBlockEntity.class, classNBTTagCompound, boolean.class)
+            .intercept(MethodDelegation.to((ILoadDataDelegation) (baseObject, compound, hasKey) ->
             {
                 if (!hasKey)
-                    return;
-                try
-                {
-                    Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
-                    m.setAccessible(true);
-                    m.invoke(baseObject, compound);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-            }, LoadDataDelegation.class));
+                    baseObject.generated$loadTileEntityData(compound);
+            }, ILoadDataDelegation.class));
 
         builder = builder
             .define(methodLoadData)
@@ -205,50 +193,36 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                     invoke(named(tileEntityConditionalName))
                         .withThis().withArgument(0)
                         .withMethodCall(invoke(methodNBTTagCompoundHasKeyOfType)
-                                            .onArgument(0).with("TileEntityData", 10))
-                        .with(loadTileEntityDataName)));
+                                            .onArgument(0).with("TileEntityData", 10))));
 
         return builder;
     }
 
-    public interface SaveDataDelegation
+    public interface ISaveDataDelegation
     {
         @RuntimeType
-        Object intercept(@This Object baseObject, @RuntimeType Object compound, @RuntimeType Object block,
-                         String methodName);
+        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound,
+                       @RuntimeType Object block);
     }
 
     private DynamicType.Builder<?> addSaveDataMethod(DynamicType.Builder<?> builder)
     {
-        final String saveTileEntityDataName = methodSaveData.getName() + "$tileEntityData";
         final String tileEntityConditionalName = methodSaveData.getName() + "$conditional";
 
         builder = builder
-            .defineMethod(saveTileEntityDataName, classNBTTagCompound, Visibility.PRIVATE)
-            .withParameters(classNBTTagCompound)
+            .method(named("generated$saveTileEntityData"))
             .intercept(invoke(methodNBTTagCompoundSet)
-                           .onArgument(0).with("TileEntityData").withField(fieldTileEntityData.getName()).andThen(
-                    FixedValue.argument(0)));
+                           .onArgument(0).with("TileEntityData").withField(fieldTileEntityData.getName())
+                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
         builder = builder
-            .defineMethod(tileEntityConditionalName, classNBTTagCompound, Visibility.PRIVATE)
-            .withParameters(Object.class, classNBTTagCompound, classNBTTagCompound, String.class)
-            .intercept(MethodDelegation.to((SaveDataDelegation) (baseObject, base, append, methodName) ->
+            .defineMethod(tileEntityConditionalName, void.class, Visibility.PRIVATE)
+            .withParameters(IGeneratedFallingBlockEntity.class, classNBTTagCompound, classNBTTagCompound)
+            .intercept(MethodDelegation.to((ISaveDataDelegation) (baseObject, compound, block) ->
             {
-                if (append == null)
-                    return base;
-                try
-                {
-                    Method m = baseObject.getClass().getDeclaredMethod(methodName, classNBTTagCompound);
-                    m.setAccessible(true);
-                    return m.invoke(baseObject, base);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return null;
-                }
-            }, SaveDataDelegation.class));
+                if (block != null)
+                    baseObject.generated$saveTileEntityData(compound);
+            }, ISaveDataDelegation.class));
 
         return builder
             .define(methodSaveData)
@@ -262,9 +236,8 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                         .onArgument(0).with("HurtEntities").withField(fieldHurtEntities.getName())).andThen(
                     invoke(methodNBTTagCompoundSetFloat).onArgument(0).with("FallHurtAmount", 0.0f)).andThen(
                     invoke(methodNBTTagCompoundSetInt).onArgument(0).with("FallHurtMax", 0)).andThen(
-                    invoke(named(tileEntityConditionalName))
-                        .withThis().withArgument(0).withField(fieldTileEntityData.getName())
-                        .with(saveTileEntityDataName)).andThen(
+                    invoke(named(tileEntityConditionalName)).withThis().withArgument(0)
+                                                            .withField(fieldTileEntityData.getName())).andThen(
                     FixedValue.argument(0)));
     }
 
@@ -283,9 +256,13 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         void generated$updateMot();
 
         double locY();
+
+        void generated$saveTileEntityData(Object target);
+
+        void generated$loadTileEntityData(Object target);
     }
 
-    public interface MultiplyVec3D
+    public interface IMultiplyVec3D
     {
         @RuntimeType
         Object intercept(@RuntimeType Object vec3d, double x, double y, double z);
@@ -296,7 +273,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         builder = builder
             .defineMethod("generated$multiplyVec", classVec3D, Visibility.PRIVATE)
             .withParameters(classVec3D, double.class, double.class, double.class)
-            .intercept(MethodDelegation.to((MultiplyVec3D) (vec, x, y, z) ->
+            .intercept(MethodDelegation.to((IMultiplyVec3D) (vec, x, y, z) ->
             {
                 try
                 {
@@ -309,7 +286,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                     e.printStackTrace();
                     return vec;
                 }
-            }, MultiplyVec3D.class));
+            }, IMultiplyVec3D.class));
 
 
         builder = builder.method(named("generated$die")).intercept(invoke(named("die")).onSuper());
