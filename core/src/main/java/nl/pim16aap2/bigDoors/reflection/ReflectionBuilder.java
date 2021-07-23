@@ -127,12 +127,12 @@ public class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link ParameterGroup}.
+     * Creates a new {@link ParameterGroup.Builder}.
      *
-     * @return A new {@link ParameterGroup}.
+     * @return A new {@link ParameterGroup.Builder}.
      */
-    public static @NotNull ParameterGroup parameterBuilder()
+    public static @NotNull ParameterGroup.Builder parameterBuilder()
     {
-        return new ParameterGroup();
+        return new ParameterGroup.Builder();
     }
 }

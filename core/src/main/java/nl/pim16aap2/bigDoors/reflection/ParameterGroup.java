@@ -17,55 +17,34 @@ import java.util.Objects;
  * For example, when providing the types {@code {int.class, boolean.class, float.class}} and mark {@code float.class} as
  * optional, this set of parameters can be used to match a method {@code void fun(int, boolean)} as well as a method
  * {@code void fun(int, boolean, float}.
+ * <p>
+ * Use {@link ParameterGroup.Builder} to create a new instance.
  *
  * @author Pim
  */
 @SuppressWarnings("unused")
 public class ParameterGroup
 {
-    private final @NotNull List<Parameter> parameters = new ArrayList<>();
-    private int requiredCount = 0;
+    private final @NotNull List<Parameter> parameters;
+    private final int requiredCount;
 
-    public ParameterGroup()
+    private ParameterGroup(@NotNull List<Parameter> parameters, int requiredCount)
     {
+        this.parameters = Collections.unmodifiableList(parameters);
+        this.requiredCount = requiredCount;
     }
 
     // Copy constructor
     public ParameterGroup(@NotNull ParameterGroup other)
     {
-        for (Parameter parameter : Objects.requireNonNull(other, "Copy constructor cannot copy from null!").parameters)
-            parameters.add(new Parameter(parameter));
+        final List<Parameter> tmpList = new ArrayList<>(other.parameters.size());
+        Objects.requireNonNull(other, "Copy constructor cannot copy from null!").parameters
+            .forEach(parameter -> tmpList.add(new Parameter(parameter)));
+
+        this.parameters = Collections.unmodifiableList(tmpList);
         this.requiredCount = other.requiredCount;
     }
 
-    /**
-     * Appends a set of types as required parameters to the current parameter group.
-     *
-     * @param types The types to add as required parameters.
-     * @return The instance of the current parameter group.
-     */
-    public ParameterGroup withRequiredParameters(@NotNull Class<?>... types)
-    {
-        for (@NotNull Class<?> type : types)
-            parameters.add(new Parameter(type, false));
-        requiredCount += types.length;
-        return this;
-    }
-
-    /**
-     * Appends a set of types as optional parameter to the current parameter group.
-     * <p>
-     * Optional types can be skipped when comparing against a set of arguments.
-     *
-     * @param types The types to add as optional parameters.
-     * @return The instance of the current parameter group.
-     */
-    public @NotNull ParameterGroup withOptionalParameters(@NotNull Class<?>... types)
-    {
-        for (Class<?> type : types)
-            parameters.add(new Parameter(type, true));
-        return this;
-    }
 
     /**
      * Gets the currently-configured list of {@link Parameter}s.
@@ -76,7 +55,7 @@ public class ParameterGroup
      */
     public @NotNull List<Parameter> getParameters()
     {
-        return Collections.unmodifiableList(parameters);
+        return parameters;
     }
 
     /**
@@ -152,6 +131,64 @@ public class ParameterGroup
                 sb.append(", ");
         }
         return sb.toString();
+    }
+
+    /**
+     * Represents a builder for {@link ParameterGroup}s.
+     */
+    public static class Builder
+    {
+        private final @NotNull List<Parameter> parameters = new ArrayList<>();
+        private int requiredCount = 0;
+
+        public Builder()
+        {
+        }
+
+        public Builder(@NotNull ParameterGroup group)
+        {
+            group.getParameters().forEach(parameter -> parameters.add(new Parameter(parameter)));
+            requiredCount = group.requiredCount;
+        }
+
+        /**
+         * Appends a set of types as required parameters to the current parameter group.
+         *
+         * @param types The types to add as required parameters.
+         * @return The instance of the current parameter group.
+         */
+        public ParameterGroup.Builder withRequiredParameters(@NotNull Class<?>... types)
+        {
+            for (@NotNull Class<?> type : types)
+                parameters.add(new Parameter(type, false));
+            requiredCount += types.length;
+            return this;
+        }
+
+        /**
+         * Appends a set of types as optional parameter to the current parameter group.
+         * <p>
+         * Optional types can be skipped when comparing against a set of arguments.
+         *
+         * @param types The types to add as optional parameters.
+         * @return The instance of the current parameter group.
+         */
+        public @NotNull ParameterGroup.Builder withOptionalParameters(@NotNull Class<?>... types)
+        {
+            for (Class<?> type : types)
+                parameters.add(new Parameter(type, true));
+            return this;
+        }
+
+        /**
+         * Constructs a new {@link ParameterGroup} from this builder.
+         *
+         * @return The newly created {@link ParameterGroup}.
+         */
+        public @NotNull ParameterGroup construct()
+        {
+            return new ParameterGroup(parameters, requiredCount);
+        }
     }
 
     private static final class Parameter

@@ -131,7 +131,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          */
         public @NotNull U withoutParameters()
         {
-            this.parameters = new ParameterGroup();
+            this.parameters = new ParameterGroup.Builder().construct();
             return (U) this;
         }
 
@@ -158,7 +158,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          */
         public @NotNull U withParameters(@NotNull Class<?>... parameters)
         {
-            this.parameters = new ParameterGroup().withRequiredParameters(parameters);
+            this.parameters = new ParameterGroup.Builder().withRequiredParameters(parameters).construct();
             return (U) this;
         }
 
@@ -166,12 +166,25 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          * Indicates the set of required arguments this finder should consider when looking for the target object being
          * searched for.
          *
-         * @param parameters The required parameters of the target object.
+         * @param parameters The parameters of the target object.
          * @return The current finder instance.
          */
         public @NotNull U withParameters(@NotNull ParameterGroup parameters)
         {
             this.parameters = parameters;
+            return (U) this;
+        }
+
+        /**
+         * Indicates the set of required arguments this finder should consider when looking for the target object being
+         * searched for.
+         *
+         * @param parameters The parameters of the target object.
+         * @return The current finder instance.
+         */
+        public @NotNull U withParameters(@NotNull ParameterGroup.Builder parameters)
+        {
+            this.parameters = parameters.construct();
             return (U) this;
         }
     }
