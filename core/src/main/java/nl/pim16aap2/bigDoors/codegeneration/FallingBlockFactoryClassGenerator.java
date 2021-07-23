@@ -10,7 +10,7 @@ import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +21,7 @@ import static net.bytebuddy.implementation.MethodCall.construct;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findEnumValues;
 
 /**
  * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link FallingBlockFactory}.
@@ -84,9 +85,9 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
-        Object[] axesValues = ReflectionUtils.getEnumValues(classEnumDirectionAxis);
-        Object[] blockRotationValues = ReflectionUtils.getEnumValues(classEnumBlockRotation);
-        Object[] enumMoveTypeValues = ReflectionUtils.getEnumValues(classEnumMoveType);
+        final Object[] axesValues = findEnumValues().inEnum(classEnumDirectionAxis).get();
+        final Object[] blockRotationValues = findEnumValues().inEnum(classEnumBlockRotation).get();
+        final Object[] enumMoveTypeValues = findEnumValues().inEnum(classEnumMoveType).get();
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
@@ -134,7 +135,8 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
                 FixedValue.argument(0)));
 
         final Method methodGetMyBlockData =
-            ReflectionUtils.getMethod(nmsBlockClassGenerator.getGeneratedClass(), "getMyBlockData");
+            ReflectionBuilder.findMethod().inClass(nmsBlockClassGenerator.getGeneratedClass())
+                             .withName("getMyBlockData").withoutParameters().get();
 
         final MethodCall createBlockData = (MethodCall)
             invoke(methodGetMyBlockData).onArgument(1).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);

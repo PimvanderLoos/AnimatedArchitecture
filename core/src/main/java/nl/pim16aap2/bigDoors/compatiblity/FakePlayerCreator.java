@@ -2,8 +2,6 @@ package nl.pim16aap2.bigDoors.compatiblity;
 
 import com.mojang.authlib.GameProfile;
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
-import nl.pim16aap2.bigDoors.util.Util;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -17,7 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.UUID;
 
-import static nl.pim16aap2.bigDoors.util.ReflectionUtils.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.*;
 
 /**
  * Class used to create a fake-online player who is actually offline.
@@ -54,47 +52,41 @@ public class FakePlayerCreator
     {
         this.plugin = plugin;
 
-        try
-        {
-            classCraftOfflinePlayer = Class.forName(CRAFT_BASE + "CraftOfflinePlayer");
-            classCraftWorld = Class.forName(CRAFT_BASE + "CraftWorld");
-            classWorldServer = findFirstClass(NMS_BASE + "WorldServer", "net.minecraft.server.level.WorldServer");
-            classEntityPlayer = findFirstClass(NMS_BASE + "EntityPlayer", "net.minecraft.server.level.EntityPlayer");
-            classMinecraftServer = findFirstClass(NMS_BASE + "MinecraftServer", "net.minecraft.server.MinecraftServer");
-            classPlayerInteractManager = findFirstClass(NMS_BASE + "PlayerInteractManager",
-                                                        "net.minecraft.server.level.PlayerInteractManager");
-            cTorEntityPlayerConstructor =
-                Util.firstNonNull(() -> findCTor(false, classEntityPlayer, classMinecraftServer,
-                                                 classWorldServer, GameProfile.class),
-                                  () -> findCTor(false, classEntityPlayer, classMinecraftServer,
-                                                 classWorldServer, GameProfile.class, classPlayerInteractManager));
+        final String nmsBase = "net.minecraft.server." + BigDoors.get().getPackageVersion() + ".";
+        final String craftBase = "org.bukkit.craftbukkit." + BigDoors.get().getPackageVersion() + ".";
 
-            methodGetBukkitEntity = classEntityPlayer.getMethod("getBukkitEntity");
-            methodGetHandle = classCraftWorld.getMethod("getHandle");
-            methodGetProfile = classCraftOfflinePlayer.getMethod("getProfile");
-            methodGetServer = classMinecraftServer.getMethod("getServer");
+        classCraftOfflinePlayer = findClass(craftBase + "CraftOfflinePlayer").get();
+        classCraftWorld = findClass(craftBase + "CraftWorld").get();
+        classWorldServer = findClass(nmsBase + "WorldServer", "net.minecraft.server.level.WorldServer").get();
+        classEntityPlayer = findClass(nmsBase + "EntityPlayer", "net.minecraft.server.level.EntityPlayer").get();
+        classMinecraftServer = findClass(nmsBase + "MinecraftServer", "net.minecraft.server.MinecraftServer").get();
+        classPlayerInteractManager = findClass(nmsBase + "PlayerInteractManager",
+                                               "net.minecraft.server.level.PlayerInteractManager").get();
+        cTorEntityPlayerConstructor = findConstructor()
+            .inClass(classEntityPlayer)
+            .withParameters(parameterBuilder()
+                                .withRequiredParameters(classMinecraftServer, classWorldServer, GameProfile.class)
+                                .withOptionalParameters(classPlayerInteractManager)).get();
 
-            Class<?> classNMSEntity = findFirstClass(NMS_BASE + "Entity", "net.minecraft.world.entity.Entity");
+        methodGetBukkitEntity = findMethod().inClass(classEntityPlayer).withName("getBukkitEntity").get();
+        methodGetHandle = findMethod().inClass(classCraftWorld).withName("getHandle").get();
+        methodGetProfile = findMethod().inClass(classCraftOfflinePlayer).withName("getProfile").get();
+        methodGetServer = findMethod().inClass(classMinecraftServer).withName("getServer").get();
 
-            fieldUuid = ReflectionUtils.getField(classNMSEntity, getModifiers(Modifier.PROTECTED), UUID.class);
-            fieldUuid.setAccessible(true);
+        Class<?> classNMSEntity = findClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity").get();
 
-            fieldPlayerNameVar = GameProfile.class.getDeclaredField("name");
-            fieldPlayerNameVar.setAccessible(true);
+        fieldUuid = findField().inClass(classNMSEntity).ofType(UUID.class).withModifiers(Modifier.PROTECTED).get();
+        fieldUuid.setAccessible(true);
 
-            cTorPlayerInteractManager = findCTor(false, classPlayerInteractManager, classWorldServer);
-            if (cTorPlayerInteractManager == null)
-            {
-                Class<?> classNMSWorld = findFirstClass(false, NMS_BASE + "World");
-                if (classNMSWorld != null)
-                    cTorPlayerInteractManager = findCTor(false, classPlayerInteractManager, classNMSWorld);
-            }
-        }
-        catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
-        {
-            e.printStackTrace();
-            return;
-        }
+        fieldPlayerNameVar = findField().inClass(GameProfile.class).withName("name").get();
+        fieldPlayerNameVar.setAccessible(true);
+
+        final Class<?> classNMSWorld = findClass(nmsBase + "World", "net.minecraft.world.level.World").get();
+        cTorPlayerInteractManager = findConstructor()
+            .inClass(classPlayerInteractManager)
+            .withParameters(parameterBuilder()
+                                .withOptionalParameters(classWorldServer)
+                                .withOptionalParameters(classNMSWorld)).setNullable().get();
         success = true;
     }
 

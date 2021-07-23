@@ -11,7 +11,7 @@ import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -275,7 +275,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
         builder = builder.defineMethod("getItem", classNMSItem).intercept(StubMethod.INSTANCE);
 
-        final Method getBlock = ReflectionUtils.findMethodFromProfile(classBlockBase, classNMSBlock, null);
+        final Method getBlock = ReflectionBuilder.findMethod().inClass(classBlockBase).withReturnType(classNMSBlock)
+                                                 .withoutParameters().get();
         builder = builder.define(getBlock).intercept(StubMethod.INSTANCE);
 
         builder = builder

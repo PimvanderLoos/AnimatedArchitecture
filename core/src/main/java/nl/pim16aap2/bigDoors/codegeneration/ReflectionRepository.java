@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import com.cryptomorin.xseries.XMaterial;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -17,7 +19,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
 
-import static nl.pim16aap2.bigDoors.util.ReflectionUtils.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.*;
 
 final class ReflectionRepository
 {
@@ -29,6 +31,7 @@ final class ReflectionRepository
     public static final Class<?> classNMSEntity;
     public static final Class<?> classNMSBlock;
     public static final Class<?> classNMSItem;
+    public static final Class<?> classNMSDamageSource;
     public static final Class<?> classBlockRotatable;
     public static final Class<?> classBlockPosition;
     public static final Class<?> classVec3D;
@@ -112,121 +115,168 @@ final class ReflectionRepository
 
     static
     {
-        classEntityFallingBlock = findFirstClass(NMS_BASE + "EntityFallingBlock",
-                                                 "net.minecraft.world.entity.item.EntityFallingBlock");
-        classNBTTagCompound = findFirstClass(NMS_BASE + "NBTTagCompound",
-                                             "net.minecraft.nbt.NBTTagCompound");
-        classNBTBase = findFirstClass(NMS_BASE + "NBTBase", "net.minecraft.nbt.NBTBase");
-        classBlockBase = findFirstClass(NMS_BASE + "BlockBase", "net.minecraft.world.level.block.state.BlockBase");
-        classBlockBaseInfo = findFirstClass(classBlockBase.getName() + "$Info");
-        classBlockData = findFirstClass(classBlockBase.getName() + "$BlockData");
-        classIBlockData = findFirstClass(NMS_BASE + "IBlockData", "net.minecraft.world.level.block.state.IBlockData");
-        classCraftWorld = findFirstClass(CRAFT_BASE + "CraftWorld");
-        classEnumMoveType = findFirstClass(NMS_BASE + "EnumMoveType", "net.minecraft.world.entity.EnumMoveType");
-        classVec3D = findFirstClass(NMS_BASE + "Vec3D", "net.minecraft.world.phys.Vec3D");
-        classNMSWorld = findFirstClass(NMS_BASE + "World", "net.minecraft.world.level.World");
-        classNMSWorldServer = findFirstClass(NMS_BASE + "WorldServer", "net.minecraft.server.level.WorldServer");
-        classNMSEntity = findFirstClass(NMS_BASE + "Entity", "net.minecraft.world.entity.Entity");
-        classBlockPosition = findFirstClass(NMS_BASE + "BlockPosition", "net.minecraft.core.BlockPosition");
-        classCrashReportSystemDetails = findFirstClass(NMS_BASE + "CrashReportSystemDetails",
-                                                       "net.minecraft.CrashReportSystemDetails");
-        classGameProfileSerializer = findFirstClass(NMS_BASE + "GameProfileSerializer",
-                                                    "net.minecraft.nbt.GameProfileSerializer");
-        classCraftEntity = findClass(CRAFT_BASE + "entity.CraftEntity");
-        classCraftServer = findClass(CRAFT_BASE + "CraftServer");
-        classCraftMagicNumbers = findClass(CRAFT_BASE + "util.CraftMagicNumbers");
-        classCraftBlockData = findClass(CRAFT_BASE + "block.data.CraftBlockData");
-        classNMSBlock = findFirstClass(NMS_BASE + "Block", "net.minecraft.world.level.block.Block");
-        classNMSItem = findFirstClass(NMS_BASE + "Item", "net.minecraft.world.item.Item");
-        classEnumDirectionAxis = findFirstClass(NMS_BASE + "EnumDirection$EnumAxis",
-                                                "net.minecraft.core.EnumDirection$EnumAxis");
-        classEnumBlockRotation = findFirstClass(NMS_BASE + "EnumBlockRotation",
-                                                "net.minecraft.world.level.block.EnumBlockRotation");
-        classBlockRotatable = findFirstClass(NMS_BASE + "BlockRotatable",
-                                             "net.minecraft.world.level.block.BlockRotatable");
-        classEnumBlockState = findFirstClass(NMS_BASE + "BlockStateEnum",
-                                             "net.minecraft.world.level.block.state.properties.BlockStateEnum");
+        final String nmsBase = "net.minecraft.server." + BigDoors.get().getPackageVersion() + ".";
+        final String craftBase = "org.bukkit.craftbukkit." + BigDoors.get().getPackageVersion() + ".";
+
+        classEntityFallingBlock = findClass(nmsBase + "EntityFallingBlock",
+                                            "net.minecraft.world.entity.item.EntityFallingBlock").get();
+        classNBTTagCompound = findClass(nmsBase + "NBTTagCompound",
+                                        "net.minecraft.nbt.NBTTagCompound").get();
+        classNBTBase = findClass(nmsBase + "NBTBase", "net.minecraft.nbt.NBTBase").get();
+        classBlockBase = findClass(nmsBase + "BlockBase", "net.minecraft.world.level.block.state.BlockBase").get();
+        classBlockBaseInfo = findClass(classBlockBase.getName() + "$Info").get();
+        classBlockData = findClass(classBlockBase.getName() + "$BlockData").get();
+        classIBlockData = findClass(nmsBase + "IBlockData", "net.minecraft.world.level.block.state.IBlockData").get();
+        classCraftWorld = findClass(craftBase + "CraftWorld").get();
+        classEnumMoveType = findClass(nmsBase + "EnumMoveType", "net.minecraft.world.entity.EnumMoveType").get();
+        classVec3D = findClass(nmsBase + "Vec3D", "net.minecraft.world.phys.Vec3D").get();
+        classNMSWorld = findClass(nmsBase + "World", "net.minecraft.world.level.World").get();
+        classNMSWorldServer = findClass(nmsBase + "WorldServer", "net.minecraft.server.level.WorldServer").get();
+        classNMSEntity = findClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity").get();
+        classBlockPosition = findClass(nmsBase + "BlockPosition", "net.minecraft.core.BlockPosition").get();
+        classCrashReportSystemDetails = findClass(nmsBase + "CrashReportSystemDetails",
+                                                  "net.minecraft.CrashReportSystemDetails").get();
+        classGameProfileSerializer = findClass(nmsBase + "GameProfileSerializer",
+                                               "net.minecraft.nbt.GameProfileSerializer").get();
+        classCraftEntity = findClass(craftBase + "entity.CraftEntity").get();
+        classCraftServer = findClass(craftBase + "CraftServer").get();
+        classCraftMagicNumbers = findClass(craftBase + "util.CraftMagicNumbers").get();
+        classCraftBlockData = findClass(craftBase + "block.data.CraftBlockData").get();
+        classNMSBlock = findClass(nmsBase + "Block", "net.minecraft.world.level.block.Block").get();
+        classNMSItem = findClass(nmsBase + "Item", "net.minecraft.world.item.Item").get();
+        classNMSDamageSource = findClass(nmsBase + "DamageSource",
+                                         "net.minecraft.world.damagesource.DamageSource").get();
+        classEnumDirectionAxis = findClass(nmsBase + "EnumDirection$EnumAxis",
+                                           "net.minecraft.core.EnumDirection$EnumAxis").get();
+        classEnumBlockRotation = findClass(nmsBase + "EnumBlockRotation",
+                                           "net.minecraft.world.level.block.EnumBlockRotation").get();
+        classBlockRotatable = findClass(nmsBase + "BlockRotatable",
+                                        "net.minecraft.world.level.block.BlockRotatable").get();
+        classEnumBlockState = findClass(nmsBase + "BlockStateEnum",
+                                        "net.minecraft.world.level.block.state.properties.BlockStateEnum").get();
 
 
-        cTorNMSFallingBlockEntity = findCTor(classEntityFallingBlock, classNMSWorld, double.class,
-                                             double.class, double.class, classIBlockData);
-        cTorBlockPosition = findCTor(classBlockPosition, double.class, double.class, double.class);
-        cTorVec3D = findCTor(classVec3D, double.class, double.class, double.class);
-        ctorCraftEntity = findCTor(classCraftEntity, classCraftServer, classNMSEntity);
-        ctorBlockBase = findCTor(classBlockBase, classBlockBaseInfo);
-        ctorLocation = findCTor(Location.class, World.class, double.class, double.class, double.class);
+        cTorNMSFallingBlockEntity = findConstructor().inClass(classEntityFallingBlock)
+                                                     .withParameters(classNMSWorld, double.class,
+                                                                     double.class, double.class, classIBlockData).get();
+        cTorBlockPosition = findConstructor().inClass(classBlockPosition)
+                                             .withParameters(double.class, double.class, double.class).get();
+        cTorVec3D = findConstructor().inClass(classVec3D)
+                                     .withParameters(double.class, double.class, double.class).get();
+        ctorCraftEntity = findConstructor().inClass(classCraftEntity)
+                                           .withParameters(classCraftServer, classNMSEntity).get();
+        ctorBlockBase = findConstructor().inClass(classBlockBase)
+                                         .withParameters(classBlockBaseInfo).get();
+        ctorLocation = findConstructor().inClass(Location.class)
+                                        .withParameters(World.class, double.class, double.class, double.class).get();
 
 
-        methodGetNMSWorld = getMethod(classCraftWorld, "getHandle");
-        methodTick = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC);
-        methodSetPosition = getMethod(classNMSEntity, "setPosition", double.class, double.class, double.class);
-        methodSetNoGravity = getMethod(classNMSEntity, "setNoGravity", boolean.class);
-        methodSetMot = getMethod(classNMSEntity, "setMot", double.class, double.class, double.class);
-        methodSetMotVec = getMethod(classNMSEntity, "setMot", classVec3D);
-        methodGetMot = getMethod(classNMSEntity, "getMot");
-        methodHurtEntities = findMethodFromProfile(classEntityFallingBlock, boolean.class,
-                                                   Modifier.PUBLIC, float.class, float.class, null);
-        methodMove = getMethod(classNMSEntity, "move", classEnumMoveType, classVec3D);
-        methodSaveData = getMethod(classEntityFallingBlock, "saveData", classNBTTagCompound);
-        methodLoadData = getMethod(classEntityFallingBlock, "loadData", classNBTTagCompound);
-        methodGetBlock = getMethod(classEntityFallingBlock, "getBlock");
-        methodSetStartPos = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
-                                                  classBlockPosition);
-        methodLocX = getMethod(classNMSEntity, "locX");
-        methodLocY = getMethod(classNMSEntity, "locY");
-        methodLocZ = getMethod(classNMSEntity, "locZ");
-        methodNMSAddEntity = getMethod(classNMSWorldServer, "addEntity", classNMSEntity,
-                                       CreatureSpawnEvent.SpawnReason.class);
-        methodAppendEntityCrashReport = findMethodFromProfile(classEntityFallingBlock, void.class, Modifier.PUBLIC,
-                                                              classCrashReportSystemDetails);
-        methodCrashReportAppender = findMethodFromProfile(classCrashReportSystemDetails,
-                                                          classCrashReportSystemDetails,
-                                                          Modifier.PUBLIC, String.class, Object.class);
-        methodIsAir = getMethodFullInheritance(classIBlockData, "isAir");
-        methodNBTTagCompoundSet = getMethod(classNBTTagCompound, "set", String.class, classNBTBase);
-        methodNBTTagCompoundSetInt = getMethod(classNBTTagCompound, "setInt", String.class, int.class);
-        methodNBTTagCompoundSetBoolean = getMethod(classNBTTagCompound, "setBoolean", String.class, boolean.class);
-        methodNBTTagCompoundSetFloat = getMethod(classNBTTagCompound, "setFloat", String.class, float.class);
-        methodNBTTagCompoundGetCompound = getMethod(classNBTTagCompound, "getCompound", String.class);
-        methodNBTTagCompoundGetInt = getMethod(classNBTTagCompound, "getInt", String.class);
-        methodNBTTagCompoundHasKeyOfType = getMethod(classNBTTagCompound, "hasKeyOfType", String.class, int.class);
-        methodIBlockDataSerializer = findMethodFromProfile(classGameProfileSerializer, classNBTTagCompound,
-                                                           getModifiers(Modifier.PUBLIC, Modifier.STATIC),
-                                                           classIBlockData);
-        methodIBlockDataDeserializer = findMethodFromProfile(classGameProfileSerializer, classIBlockData,
-                                                             getModifiers(Modifier.PUBLIC, Modifier.STATIC),
-                                                             classNBTTagCompound);
-        methodCraftMagicNumbersGetMaterial = getMethod(classCraftMagicNumbers, "getMaterial", classIBlockData);
-        methodGetItemType = getMethod(MaterialData.class, "getItemType");
-        methodCraftEntitySetTicksLived = getMethod(classCraftEntity, "setTicksLived", int.class);
-        methodMatchXMaterial = getMethod(XMaterial.class, "matchXMaterial", Material.class);
-        methodGetBlockAtCoords = getMethod(World.class, "getBlockAt", int.class, int.class, int.class);
-        methodGetBlockAtLoc = getMethod(World.class, "getBlockAt", Location.class);
-        methodGetBlockFromBlockData = getMethod(classBlockData, "getBlock");
-        methodRotateBlockData =
-            findMethodFromProfile(classBlockData, classIBlockData, Modifier.PUBLIC, classEnumBlockRotation);
-        methodBlockInfoFromBlockBase = findMethodFromProfile(classBlockBaseInfo, classBlockBaseInfo,
-                                                             getModifiers(Modifier.PUBLIC, Modifier.STATIC),
-                                                             classBlockBase);
-        methodGetTypeFromBlockPosition = getMethod(classNMSWorld, "getType", classBlockPosition);
-        methodGetBukkitServer = getMethod(Bukkit.class, "getServer");
-        methodSetCraftEntityCustomName = getMethod(classCraftEntity, "setCustomName", String.class);
-        methodSetCraftEntityCustomNameVisible = getMethod(classCraftEntity, "setCustomNameVisible", boolean.class);
-        methodIsAssignableFrom = getMethod(Class.class, "isAssignableFrom", Class.class);
-        methodSetBlockType = getMethod(Block.class, "setType", Material.class);
-        methodEnumOrdinal = getMethod(Enum.class, "ordinal");
-        methodArrayGetIdx = getMethod(Array.class, "get", Object.class, int.class);
+        methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle").get();
+        methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
+                                 .withModifiers(Modifier.PUBLIC).withoutParameters().get();
+        methodSetPosition = findMethod().inClass(classNMSEntity).withName("setPosition")
+                                        .withParameters(double.class, double.class, double.class).get();
+        methodSetNoGravity = findMethod().inClass(classNMSEntity).withName("setNoGravity")
+                                         .withParameters(boolean.class).get();
+        methodSetMot = findMethod().inClass(classNMSEntity).withName("setMot")
+                                   .withParameters(double.class, double.class, double.class).get();
+        methodSetMotVec = findMethod().inClass(classNMSEntity).withName("setMot").withParameters(classVec3D).get();
+        methodGetMot = findMethod().inClass(classNMSEntity).withName("getMot").get();
+        methodHurtEntities = findMethod().inClass(classEntityFallingBlock).withReturnType(boolean.class)
+                                         .withParameters(parameterBuilder()
+                                                             .withRequiredParameters(float.class, float.class)
+                                                             .withOptionalParameters(classNMSDamageSource)).get();
+        methodMove = findMethod().inClass(classNMSEntity).withName("move")
+                                 .withParameters(classEnumMoveType, classVec3D).get();
+        methodSaveData = findMethod().inClass(classEntityFallingBlock).withName("saveData")
+                                     .withParameters(classNBTTagCompound).get();
+        methodLoadData = findMethod().inClass(classEntityFallingBlock).withName("loadData")
+                                     .withParameters(classNBTTagCompound).get();
+        methodGetBlock = findMethod().inClass(classEntityFallingBlock).withName("getBlock").get();
+        methodSetStartPos = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
+                                        .withModifiers(Modifier.PUBLIC).withParameters(classBlockPosition).get();
+        methodLocX = findMethod().inClass(classNMSEntity).withName("locX").get();
+        methodLocY = findMethod().inClass(classNMSEntity).withName("locY").get();
+        methodLocZ = findMethod().inClass(classNMSEntity).withName("locZ").get();
+        methodNMSAddEntity = findMethod().inClass(classNMSWorldServer).withName("addEntity")
+                                         .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class).get();
+        methodAppendEntityCrashReport = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
+                                                    .withModifiers(Modifier.PUBLIC)
+                                                    .withParameters(classCrashReportSystemDetails).get();
+        methodCrashReportAppender = findMethod().inClass(classCrashReportSystemDetails)
+                                                .withReturnType(classCrashReportSystemDetails)
+                                                .withModifiers(Modifier.PUBLIC)
+                                                .withParameters(String.class, Object.class).get();
+        methodIsAir = findMethod().inClass(classIBlockData).withName("isAir").checkSuperClasses().get();
+        methodNBTTagCompoundSet = findMethod().inClass(classNBTTagCompound).withName("set")
+                                              .withParameters(String.class, classNBTBase).get();
+        methodNBTTagCompoundSetInt = findMethod().inClass(classNBTTagCompound).withName("setInt")
+                                                 .withParameters(String.class, int.class).get();
+        methodNBTTagCompoundSetBoolean = findMethod().inClass(classNBTTagCompound).withName("setBoolean")
+                                                     .withParameters(String.class, boolean.class).get();
+        methodNBTTagCompoundSetFloat = findMethod().inClass(classNBTTagCompound).withName("setFloat")
+                                                   .withParameters(String.class, float.class).get();
+        methodNBTTagCompoundGetCompound = findMethod().inClass(classNBTTagCompound).withName("getCompound")
+                                                      .withParameters(String.class).get();
+        methodNBTTagCompoundGetInt = findMethod().inClass(classNBTTagCompound).withName("getInt")
+                                                 .withParameters(String.class).get();
+        methodNBTTagCompoundHasKeyOfType = findMethod().inClass(classNBTTagCompound).withName("hasKeyOfType")
+                                                       .withParameters(String.class, int.class).get();
+        methodIBlockDataSerializer = findMethod().inClass(classGameProfileSerializer)
+                                                 .withReturnType(classNBTTagCompound)
+                                                 .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                                                 .withParameters(classIBlockData).get();
+        methodIBlockDataDeserializer = findMethod().inClass(classGameProfileSerializer)
+                                                   .withReturnType(classIBlockData)
+                                                   .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                                                   .withParameters(classNBTTagCompound).get();
+        methodCraftMagicNumbersGetMaterial = findMethod()
+            .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
+        methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
+        methodCraftEntitySetTicksLived = findMethod().inClass(classCraftEntity).withName("setTicksLived")
+                                                     .withParameters(int.class).get();
+        methodMatchXMaterial = findMethod().inClass(XMaterial.class).withName("matchXMaterial")
+                                           .withParameters(Material.class).get();
+        methodGetBlockAtCoords = findMethod().inClass(World.class).withName("getBlockAt")
+                                             .withParameters(int.class, int.class, int.class).get();
+        methodGetBlockAtLoc = findMethod().inClass(World.class).withName("getBlockAt").withParameters(Location.class)
+                                          .get();
+        methodGetBlockFromBlockData = findMethod().inClass(classBlockData).withName("getBlock").get();
+        methodRotateBlockData = findMethod().inClass(classBlockData).withReturnType(classIBlockData)
+                                            .withModifiers(Modifier.PUBLIC).withParameters(classEnumBlockRotation)
+                                            .get();
+        methodBlockInfoFromBlockBase = findMethod().inClass(classBlockBaseInfo).withReturnType(classBlockBaseInfo)
+                                                   .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                                                   .withParameters(classBlockBase).get();
+        methodGetTypeFromBlockPosition = findMethod().inClass(classNMSWorld).withName("getType")
+                                                     .withParameters(classBlockPosition).get();
+        methodGetBukkitServer = findMethod().inClass(Bukkit.class).withName("getServer").get();
+        methodSetCraftEntityCustomName = findMethod().inClass(classCraftEntity).withName("setCustomName")
+                                                     .withParameters(String.class).get();
+        methodSetCraftEntityCustomNameVisible = findMethod()
+            .inClass(classCraftEntity).withName("setCustomNameVisible").withParameters(boolean.class).get();
+        methodIsAssignableFrom = findMethod().inClass(Class.class).withName("isAssignableFrom")
+                                             .withParameters(Class.class).get();
+        methodSetBlockType = findMethod().inClass(Block.class).withName("setType").withParameters(Material.class).get();
+        methodEnumOrdinal = findMethod().inClass(Enum.class).withName("ordinal").get();
+        methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
+                                        .withParameters(Object.class, int.class).get();
 
 
-        fieldTileEntityData = getField(classEntityFallingBlock, Modifier.PUBLIC, classNBTTagCompound);
-        fieldTicksLived = getField(classEntityFallingBlock, Modifier.PUBLIC, int.class);
-        fieldNMSWorld = getField(classNMSEntity, Modifier.PUBLIC, classNMSWorld);
-        fieldBlockRotatableAxis = getField(classBlockRotatable,
-                                           getModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC),
-                                           classEnumBlockState);
+        fieldTileEntityData = findField().inClass(classEntityFallingBlock).ofType(classNBTTagCompound)
+                                         .withModifiers(Modifier.PUBLIC).get();
+        fieldTicksLived = findField().inClass(classEntityFallingBlock).ofType(int.class)
+                                     .withModifiers(Modifier.PUBLIC).get();
+        fieldNMSWorld = findField().inClass(classNMSEntity).ofType(classNMSWorld)
+                                   .withModifiers(Modifier.PUBLIC).get();
+        fieldBlockRotatableAxis = findField().inClass(classBlockRotatable).ofType(classEnumBlockState)
+                                             .withModifiers(Modifier.PUBLIC, Modifier.FINAL, Modifier.STATIC).get();
+
 
         fieldsVec3D = Collections.unmodifiableList(
-            getFields(3, classVec3D, getModifiers(Modifier.PUBLIC, Modifier.FINAL), double.class));
+            ReflectionBuilder.findField().inClass(classVec3D).allOfType(double.class)
+                             .withModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                             .exactCount(3).get());
     }
 
     private ReflectionRepository()

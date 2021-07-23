@@ -1,6 +1,5 @@
-package nl.pim16aap2.bigDoors.util;
+package nl.pim16aap2.bigDoors.reflection;
 
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings("unused")
-public final class ReflectionUtils
+@SuppressWarnings("unused") final class ReflectionUtils
 {
-    public static final String NMS_BASE =
-        "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-    public static final String CRAFT_BASE =
-        "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-
     private static final @Nullable Method ENUM_VALUE_NAME;
 
     static
@@ -48,7 +41,7 @@ public final class ReflectionUtils
         if (ENUM_VALUE_NAME == null)
             throw new IllegalStateException("Failed to find name method for enums!");
 
-        Object[] values = source.getEnumConstants();
+        final Object[] values = source.getEnumConstants();
         if (values == null)
             throw new IllegalStateException("Class " + source + " is not an enum!");
         return values;
@@ -111,30 +104,6 @@ public final class ReflectionUtils
         return null;
     }
 
-    public static @NotNull Class<?> findClass(@NotNull String name)
-    {
-        return findFirstClass(name);
-    }
-
-    @Contract("true, _ -> !null")
-    public static Class<?> findClass(boolean nonNull, @NotNull String name)
-    {
-        return findFirstClass(nonNull, name);
-    }
-
-    /**
-     * Finds a class from a set of names.
-     * <p>
-     * See {@link #findFirstClass(boolean, String...)} where null values are allowed.
-     *
-     * @param names The fully qualified name(s) of the class to find.
-     * @return The first class from the list that could be found or, if no classes could be found, null.
-     */
-    public static @NotNull Class<?> findFirstClass(@NotNull String... names)
-    {
-        return findFirstClass(true, names);
-    }
-
     /**
      * Finds a class from a set of names.
      *
@@ -143,14 +112,17 @@ public final class ReflectionUtils
      * @param names   The fully qualified name(s) of the class to find.
      * @return The first class from the list that could be found or, if no classes could be found, null.
      */
-    @Contract("true, _ -> !null")
-    public static Class<?> findFirstClass(boolean nonNull, @NotNull String... names)
+    @Contract("true, _, _ -> !null")
+    public static Class<?> findFirstClass(boolean nonNull, int modifiers, @NotNull String... names)
     {
         for (String name : names)
         {
             try
             {
-                return Class.forName(name);
+                final Class<?> clz = Class.forName(name);
+                if (modifiers != 0 && clz.getModifiers() != modifiers)
+                    continue;
+                return clz;
             }
             catch (ClassNotFoundException e)
             {
@@ -164,82 +136,36 @@ public final class ReflectionUtils
         return null;
     }
 
-    public static @NotNull Method getMethodFullInheritance(@NotNull Class<?> source, @NotNull String name,
-                                                           @NotNull Class<?>... args)
+    public static @NotNull Field getField(@NotNull Class<?> source, @NotNull String name, int modifiers)
     {
-        return getMethodFullInheritance(true, source, name, args);
+        return getField(true, source, name, modifiers, null);
     }
 
     @Contract("true, _, _, _ -> !null")
-    public static Method getMethodFullInheritance(boolean nonNull, @NotNull Class<?> source,
-                                                  @NotNull String name, @NotNull Class<?>... args)
+    public static Field getField(boolean nonNull, @NotNull Class<?> source, @NotNull String name, int modifiers)
     {
-        while (!Object.class.equals(source))
-        {
-            Method m = getMethod(false, source, name, args);
-            if (m != null)
-                return m;
-            source = source.getSuperclass();
-        }
-        if (nonNull)
-            throw new NullPointerException(
-                "Failed to find method \"" + name + "\" in class \"" + source + "\" with args: " +
-                    Arrays.toString(args));
-        return null;
+        return getField(nonNull, source, name, modifiers, null);
     }
 
-    public static @NotNull Method getMethod(@NotNull Class<?> source, @NotNull String name, @NotNull Class<?>... args)
+    public static @NotNull Field getField(@NotNull Class<?> source, @NotNull String name, int modifiers,
+                                          @Nullable Class<?> type)
     {
-        return getMethod(true, source, name, args);
+        return getField(true, source, name, modifiers, type);
     }
 
-    @Contract("true, _, _, _ -> !null")
-    public static Method getMethod(boolean nonNull, @NotNull Class<?> source, @NotNull String name,
-                                   @NotNull Class<?>... args)
-    {
-        try
-        {
-            return source.getDeclaredMethod(name, args);
-        }
-        catch (NoSuchMethodException e)
-        {
-            if (nonNull)
-                throw new NullPointerException(
-                    "Failed to find method \"" + name + "\" in class \"" + source + "\" with args: " +
-                        Arrays.toString(args));
-            return null;
-        }
-    }
-
-    public static @NotNull Field getField(@NotNull Class<?> source, @NotNull String name)
-    {
-        return getField(true, source, name, null);
-    }
-
-    public static @NotNull Field getField(@NotNull Class<?> source, @NotNull String name, @Nullable Class<?> type)
-    {
-        return getField(true, source, name, type);
-    }
-
-    @Contract("true, _, _ -> !null")
-    public static Field getField(boolean nonNull, @NotNull Class<?> source, @NotNull String name)
-    {
-        return getField(nonNull, source, name, null);
-    }
-
-    @Contract("true, _, _, _ -> !null")
+    @Contract("true, _, _, _, _ -> !null")
     public static Field getField(boolean nonNull, @NotNull Class<?> source, @NotNull String name,
-                                 @Nullable Class<?> type)
+                                 int modifiers, @Nullable Class<?> type)
     {
-        try
+        for (Field field : source.getDeclaredFields())
         {
-            Field f = source.getDeclaredField(name);
-            if (type == null || f.getType().equals(type))
-                return f;
-        }
-        catch (NoSuchFieldException e)
-        {
-            // Ignored
+            if (type != null && !field.getType().equals(type))
+                continue;
+            if (modifiers != 0 && field.getModifiers() != modifiers)
+                continue;
+            if (!field.getName().equals(name))
+                continue;
+            return field;
         }
         if (nonNull)
             throw new NullPointerException(
@@ -264,92 +190,43 @@ public final class ReflectionUtils
         return null;
     }
 
-    public static @NotNull Method findMethodFromProfile(@NotNull Class<?> source, @Nullable Class<?> returnType,
-                                                        @Nullable Integer modifiers, @Nullable Class<?>... args)
+    private static @Nullable Method findMethod(@NotNull Class<?> source, @Nullable String name, int modifiers,
+                                               @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
-        return findMethodFromProfile(true, source, returnType, modifiers, args);
-    }
-
-    @Contract("true, _, _, _, _ -> !null")
-    public static Method findMethodFromProfile(boolean nonNull, @NotNull Class<?> source, @Nullable Class<?> returnType,
-                                               @Nullable Integer modifiers, @Nullable Class<?>... args)
-    {
-        final Method[] methods = modifiers != null && Modifier.isPublic(modifiers) ?
-                                 source.getMethods() : source.getDeclaredMethods();
-
-        for (Method method : methods)
+        for (Method method : source.getDeclaredMethods())
         {
-            if (modifiers != null && method.getModifiers() != modifiers)
+            if (modifiers != 0 && method.getModifiers() != modifiers)
                 continue;
-
             if (returnType != null && !method.getReturnType().equals(returnType))
                 continue;
-
-            if (!testArgsSimilarity(args, method.getParameterTypes()))
+            if (name != null && !method.getName().equals(name))
                 continue;
-
+            if (parameters != null && !parameters.matches(method.getParameterTypes()))
+                continue;
             return method;
         }
-
-        if (nonNull)
-            throw new NullPointerException(
-                "Failed to find method in class \"" + source + "\" with modifiers " +
-                    (modifiers == null ? "NULL" : Modifier.toString(modifiers)) +
-                    ", return type \"" + returnType + "\", and arguments: " + Arrays.toString(args));
         return null;
     }
 
-    /**
-     * Checks if two sets of arguments are similar in the sense that all non-null values of the desired arguments match
-     * the found arguments. Trailing null values in the desired arguments are not considered. Additionally, if the
-     * desired args array itself is null, this method will also consider the arrays similar.
-     * <p>
-     * Note that while all situations where two arrays A and B return true for {@code Arrays.equals(A, B)} will also
-     * return true for this method, but the reverse is not true!
-     * <p>
-     * For example, given {@code found = {int.class, double.class}} all of the following inputs will return true:
-     * <p>
-     * - {@code desired = {int.class, double.class, null}}}
-     * <p>
-     * - {@code desired = {int.class, null, null}}}
-     * <p>
-     * - {@code desired = {null, null, null}}}
-     * <p>
-     * - {@code desired = null}}
-     * <p>
-     * However, {@code desired = {int.class, double.class, String.class}} would return false.
-     *
-     * @param desiredArgs The desired argument types.
-     * @param foundArgs   The found argument types.
-     * @return True if all non-null values in the desired args array equal the value in the found args array at the same
-     * index.
-     */
-    private static boolean testArgsSimilarity(@Nullable Class<?>[] desiredArgs, @NotNull Class<?>[] foundArgs)
+    @Contract("true, _, _, _, _, _, _ -> !null")
+    public static Method findMethod(boolean nonNull, boolean checkSuperClasses, @NotNull Class<?> source,
+                                    @Nullable String name, int modifiers, @Nullable ParameterGroup parameters,
+                                    @Nullable Class<?> returnType)
     {
-        if (desiredArgs == null)
-            return true;
-
-        // Trailing null values are ignored, so it doesn't
-        // matter if there are more found args than desired args.
-        // However, the reverse is not true.
-        if (desiredArgs.length < foundArgs.length)
-            return false;
-
-        for (int idx = 0; idx < desiredArgs.length; ++idx)
+        Class<?> check = source;
+        do
         {
-            // We do not look for exact equality;
-            // Any null-values of the desired args are skipped.
-            if (desiredArgs[idx] == null)
-                continue;
-            // All trailing null values in the desired args are ignored.
-            // However, if a non-null value is found out of range for the
-            // found args, the similarity fails.
-            if (idx >= foundArgs.length)
-                return false;
-            if (!foundArgs[idx].equals(desiredArgs[idx]))
-                return false;
+            Method m = findMethod(check, name, modifiers, parameters, returnType);
+            if (m != null)
+                return m;
+            check = source.getSuperclass();
         }
-        return true;
+        while (checkSuperClasses && check != Object.class);
+        if (nonNull)
+            throw new NullPointerException(
+                "Failed to find method in class \"" + source + "\" with modifiers " + modifiersToString(modifiers) +
+                    ", return type \"" + returnType + "\", and arguments: " + parameters);
+        return null;
     }
 
     /**
@@ -378,9 +255,7 @@ public final class ReflectionUtils
     public static Field getField(boolean nonNull, @NotNull Class<?> source, int modifiers,
                                  @NotNull Class<?> type)
     {
-        final Field[] fields = modifiers != 0 && Modifier.isPublic(modifiers) ?
-                               source.getFields() : source.getDeclaredFields();
-        for (Field field : fields)
+        for (Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
@@ -393,7 +268,7 @@ public final class ReflectionUtils
 
         if (nonNull)
             throw new NullPointerException("Failed to find field in class \"" + source + "\" with modifiers " +
-                                               Modifier.toString(modifiers) + " of type \"" + type + "\"");
+                                               modifiersToString(modifiers) + " of type \"" + type + "\"");
         return null;
     }
 
@@ -405,7 +280,7 @@ public final class ReflectionUtils
         if (ret.size() != expected)
             throw new IllegalStateException(
                 String.format("Expected %d fields of type %s with modifiers %s in class %s, but found %d!",
-                              expected, type, Modifier.toString(modifiers), source,
+                              expected, type, modifiersToString(modifiers), source,
                               ret.size()));
         return ret;
     }
@@ -414,9 +289,7 @@ public final class ReflectionUtils
                                                  @NotNull Class<?> type)
     {
         List<Field> ret = new ArrayList<>();
-        final Field[] fields = modifiers != 0 && Modifier.isPublic(modifiers) ?
-                               source.getFields() : source.getDeclaredFields();
-        for (Field field : fields)
+        for (Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
@@ -465,5 +338,35 @@ public final class ReflectionUtils
         for (int mod : mods)
             ret |= mod;
         return ret;
+    }
+
+    public static @NotNull Constructor<?> findCTor(@NotNull Class<?> source, int modifiers,
+                                                   @Nullable ParameterGroup parameters)
+    {
+        return findCTor(true, source, modifiers, parameters);
+    }
+
+    @Contract("true, _, _, _ -> !null")
+    public static Constructor<?> findCTor(boolean nonnull, @NotNull Class<?> source, int modifiers,
+                                          @Nullable ParameterGroup parameters)
+    {
+        for (Constructor<?> ctor : source.getDeclaredConstructors())
+        {
+            if (modifiers != 0 && ctor.getModifiers() != modifiers)
+                continue;
+            if (parameters != null && !parameters.matches(ctor.getParameterTypes()))
+                continue;
+            return ctor;
+        }
+        if (nonnull)
+            throw new NullPointerException(
+                "Failed to find constructor in class " + source + " with modifiers " + modifiersToString(modifiers) +
+                    " and parameters: " + parameters);
+        return null;
+    }
+
+    private static @NotNull String modifiersToString(int modifiers)
+    {
+        return modifiers == 0 ? "0" : Modifier.toString(modifiers);
     }
 }

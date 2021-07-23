@@ -4,7 +4,7 @@ import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,8 +94,12 @@ public final class FallbackGeneratorManager
     private @NotNull String getMappingsVersion()
         throws IllegalAccessException, InvocationTargetException
     {
-        final Method methodGetMappingsVersion = ReflectionUtils.getMethod(classCraftMagicNumbers, "getMappingsVersion");
-        final Field instanceField = ReflectionUtils.getField(classCraftMagicNumbers, "INSTANCE");
+        final Method methodGetMappingsVersion = ReflectionBuilder.findMethod().inClass(classCraftMagicNumbers)
+                                                                 .withName("getMappingsVersion")
+                                                                 .withoutParameters().get();
+        final Field instanceField = ReflectionBuilder.findField().inClass(classCraftMagicNumbers)
+                                                     .withName("INSTANCE").get();
+
         final Object craftMagicNumbersInstance = instanceField.get(null);
         return Objects.requireNonNull((String) methodGetMappingsVersion.invoke(craftMagicNumbersInstance),
                                       "Failed to find the current mappings version!");

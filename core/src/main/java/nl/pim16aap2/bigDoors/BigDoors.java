@@ -82,6 +82,8 @@ public class BigDoors extends JavaPlugin implements Listener
     public static final boolean DEVBUILD = true;
     private int buildNumber = -1;
 
+    private static final String PACKAGE_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+
     public static final int MINIMUMDOORDELAY = 15;
 
     // TODO: Maybe use a whitelist instead?
@@ -388,6 +390,11 @@ public class BigDoors extends JavaPlugin implements Listener
         ToolUser tu = getToolUser(player);
         if (tu != null)
             tu.abortSilently();
+    }
+
+    public String getPackageVersion()
+    {
+        return PACKAGE_VERSION;
     }
 
     public String canBreakBlock(UUID playerUUID, String playerName, Location loc)

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
-import nl.pim16aap2.bigDoors.util.ReflectionUtils;
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -51,7 +51,7 @@ class EntityFallingBlockClassAnalyzer
             Objects.requireNonNull(getFieldName(methodHurtEntities, classEntityFallingBlock,
                                                 MethodAdapterFindFirstAccessedBooleanMemberField::new),
                                    "Failed to find name of HurtEntities variable in hurt entities method!");
-        return ReflectionUtils.getField(classEntityFallingBlock, fieldName);
+        return ReflectionBuilder.findField().inClass(classEntityFallingBlock).withName(fieldName).get();
     }
 
     /**
@@ -67,7 +67,7 @@ class EntityFallingBlockClassAnalyzer
         final String fieldName = Objects.requireNonNull(
             getFieldName(methodMove, classNMSEntity, MethodAdapterFindFirstAccessedBooleanMemberField::new),
             "Failed to find name of noClip variable in move method!");
-        return ReflectionUtils.getField(classNMSEntity, fieldName, boolean.class);
+        return ReflectionBuilder.findField().inClass(classNMSEntity).withName(fieldName).ofType(boolean.class).get();
     }
 
     /**

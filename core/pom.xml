@@ -18,7 +18,10 @@
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+        <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
         <dependency.version.bytebuddy>1.11.8</dependency.version.bytebuddy>
+        <dependency.version.mockito>3.10.0</dependency.version.mockito>
+        <dependency.version.junit>5.8.0-M1</dependency.version.junit>
     </properties>
 
     <repositories>
@@ -312,6 +315,32 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -382,6 +411,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${dependency.version.surefire}</version>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                    <useFile>false</useFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>
