@@ -124,7 +124,7 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            return ReflectionUtils.findMethod(nonnull, checkSuperClasses, source, name, modifiers, parameters, null);
+            return ReflectionBackend.findMethod(nonnull, checkSuperClasses, source, name, modifiers, parameters, null);
         }
     }
 
@@ -144,7 +144,7 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            return ReflectionUtils
+            return ReflectionBackend
                 .findMethod(nonnull, checkSuperClasses, source, null, modifiers, parameters, returnType);
         }
     }

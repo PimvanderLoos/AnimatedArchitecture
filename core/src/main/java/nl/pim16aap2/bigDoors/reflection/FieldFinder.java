@@ -96,7 +96,7 @@ public class FieldFinder
         @Override
         public Field get()
         {
-            return ReflectionUtils.getField(nonnull, source, name, modifiers, fieldType);
+            return ReflectionBackend.getField(nonnull, source, name, modifiers, fieldType);
         }
 
         /**
@@ -132,7 +132,7 @@ public class FieldFinder
         @Override
         public Field get()
         {
-            return ReflectionUtils.getField(nonnull, source, modifiers, fieldType);
+            return ReflectionBackend.getField(nonnull, source, modifiers, fieldType);
         }
     }
 
@@ -157,7 +157,7 @@ public class FieldFinder
         @Override
         public List<Field> get()
         {
-            final List<Field> found = ReflectionUtils.getFields(source, modifiers, fieldType);
+            final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType);
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(
                     String.format("Expected %d fields of type %s in class %s with modifiers %d, but found %d",

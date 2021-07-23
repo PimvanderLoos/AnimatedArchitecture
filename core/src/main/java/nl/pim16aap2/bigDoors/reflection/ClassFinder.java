@@ -33,6 +33,6 @@ public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
     @Override
     public Class<?> get()
     {
-        return ReflectionUtils.findFirstClass(nonnull, modifiers, names);
+        return ReflectionBackend.findFirstClass(nonnull, modifiers, names);
     }
 }

@@ -77,7 +77,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      */
     public @NotNull U withModifiers(int... mods)
     {
-        this.modifiers = ReflectionUtils.getModifiers(mods);
+        this.modifiers = ReflectionBackend.getModifiers(mods);
         return (U) this;
     }
 

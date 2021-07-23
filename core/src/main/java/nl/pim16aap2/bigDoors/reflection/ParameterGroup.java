@@ -144,14 +144,14 @@ public class ParameterGroup
     public String toString()
     {
         final int lastIdx = parameters.size() - 1;
-        final StringBuilder sb = new StringBuilder("Parameters: [");
+        final StringBuilder sb = new StringBuilder();
         for (int idx = 0; idx < parameters.size(); ++idx)
         {
             sb.append(parameters.get(idx));
             if (idx != lastIdx)
                 sb.append(", ");
         }
-        return sb.append("]").toString();
+        return sb.toString();
     }
 
     private static final class Parameter
@@ -190,7 +190,7 @@ public class ParameterGroup
         @Override
         public String toString()
         {
-            return String.format("[%s, Optional: %s]", type, optional);
+            return optional ? ("[" + type + "]") : type.toString();
         }
     }
 }

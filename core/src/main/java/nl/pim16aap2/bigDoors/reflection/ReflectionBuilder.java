@@ -106,7 +106,7 @@ public class ReflectionBuilder
     }
 
     /**
-     * Creates a new {@link EnumValuesFinder.EnumValuesFinderInSource}.
+     * Creates a new {@link EnumValuesFinder}.
      *
      * @return A new {@link EnumValuesFinder}.
      */
@@ -123,7 +123,7 @@ public class ReflectionBuilder
      */
     public static @NotNull EnumValuesFinder.EnumValuesFinderInSource findEnumValues(@NotNull Class<?> source)
     {
-        return new EnumValuesFinder().inEnum(source);
+        return new EnumValuesFinder().inClass(source);
     }
 
     /**

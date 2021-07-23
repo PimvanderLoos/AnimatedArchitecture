@@ -85,9 +85,9 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
     {
-        final Object[] axesValues = findEnumValues().inEnum(classEnumDirectionAxis).get();
-        final Object[] blockRotationValues = findEnumValues().inEnum(classEnumBlockRotation).get();
-        final Object[] enumMoveTypeValues = findEnumValues().inEnum(classEnumMoveType).get();
+        final Object[] axesValues = findEnumValues().inClass(classEnumDirectionAxis).get();
+        final Object[] blockRotationValues = findEnumValues().inClass(classEnumBlockRotation).get();
+        final Object[] enumMoveTypeValues = findEnumValues().inClass(classEnumMoveType).get();
 
         return builder
             .defineConstructor(Visibility.PUBLIC)
