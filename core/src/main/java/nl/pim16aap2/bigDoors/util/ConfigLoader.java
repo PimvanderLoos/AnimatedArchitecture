@@ -233,7 +233,7 @@ public class ConfigLoader
         for (ProtectionCompat compat : ProtectionCompat.values())
         {
             final String name = ProtectionCompat.getName(compat).toLowerCase();
-            final boolean isEnabled = config.getBoolean(name, false);
+            final boolean isEnabled = config.getBoolean(name, true);
             configOptionsList.add(new ConfigOption(name, isEnabled, ((idx++ == 0) ? compatibilityHooks : null)));
             hooksMap.put(compat, isEnabled);
         }

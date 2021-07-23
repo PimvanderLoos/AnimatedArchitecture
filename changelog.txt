@@ -4,6 +4,7 @@ Alpha 0.1.8.31
 - Added some util methods to opener classes to make them a bit more useful for external plugins.
 - Removed some unused stuff.
 - Updated database to v8.
+- Added protection hook for GriefDefender. Thanks, anon_fawkes, for the suggestion!
 
 Alpha 0.1.8.30
 - Add full support for Minecraft 1.17.

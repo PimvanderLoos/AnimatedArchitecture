@@ -4,7 +4,7 @@ version: Alpha 0.1.8.31
 author: pim16aap2
 api-version: 1.13
 loadbefore: [ PlotSquared ]
-softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind ]
+softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind, GriefDefender ]
 commands:
   bigdoors:
     description: Basic command
