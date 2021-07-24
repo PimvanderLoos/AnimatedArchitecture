@@ -242,8 +242,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             if (!conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
             {
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructPPreparedStatement());
+
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOORBASE.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_DOORBASE.constructPPreparedStatement());
+
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_DOOROWNER_PLAYER.constructPPreparedStatement());
+                executeUpdate(conn, SQLStatement.RESERVE_IDS_DOOROWNER_PLAYER.constructPPreparedStatement());
 
                 setDBVersion(conn, DATABASE_VERSION);
                 databaseState = DatabaseState.OK;

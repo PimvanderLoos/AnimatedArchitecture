@@ -244,6 +244,19 @@ public enum SQLStatement
         "PRAGMA foreign_keys = OFF;"
     ),
 
+    RESERVE_IDS_PLAYER(
+        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'Player' and seq < 100;"
+    ),
+
+    RESERVE_IDS_DOORBASE(
+        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'DoorBase' and seq < 100;"
+    ),
+
+    RESERVE_IDS_DOOROWNER_PLAYER(
+        "UPDATE SQLITE_SEQUENCE SET seq = 100 WHERE name = 'DoorOwnerPlayer' and seq < 100;"
+    ),
+
+
     CREATE_TABLE_PLAYER(
         "CREATE TABLE IF NOT EXISTS Player\n" +
             "(id             INTEGER    PRIMARY KEY AUTOINCREMENT,\n" +
