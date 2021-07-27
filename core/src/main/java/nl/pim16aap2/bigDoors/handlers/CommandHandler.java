@@ -963,7 +963,7 @@ public class CommandHandler implements CommandExecutor
             }
 
             // /bdm
-            if (cmd.getName().equalsIgnoreCase("bdm"))
+            if (cmd.getName().equalsIgnoreCase("bdm") || cmd.getName().equalsIgnoreCase("doors"))
             {
                 plugin.addGUIUser(new GUI(plugin, player));
                 return true;

@@ -7,13 +7,14 @@ loadbefore: [ PlotSquared ]
 softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind, GriefDefender ]
 commands:
   bigdoors:
-    description: Basic command
+    description: Base command
     usage: /BigDoors
     permission: bigdoors.user.base
   bdm:
-    description: Alias of /BigDoors, Opens the BigDoors GUI.
+    description: Opens the BigDoors GUI.
     usage: /BDM
     permission: bigdoors.user.gui
+    aliases: ["doors"]
   namedoor:
     description: Create a new door named "doorName".
     usage: /NameDoor <doorName || doorUID>
