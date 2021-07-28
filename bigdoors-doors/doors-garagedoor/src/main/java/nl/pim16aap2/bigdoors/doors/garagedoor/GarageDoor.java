@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -96,13 +95,13 @@ public class GarageDoor extends AbstractDoorBase
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3Di dimensions = getDimensions();
         final int radius;
         if (!isOpen())
-            radius = dimensions.getY() / 16 + 1;
+            radius = dimensions.y() / 16 + 1;
         else
             radius =
-                Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
+                Math.max(dimensions.x(), dimensions.z()) / 16 + 1;
 
         return new Vector2Di[]{
             new Vector2Di(getEngineChunk().x() - radius, getEngineChunk().y() - radius),
@@ -124,21 +123,21 @@ public class GarageDoor extends AbstractDoorBase
         final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
         final @NotNull Cuboid cuboid = getCuboid().clone();
 
-        final @NotNull Vector3DiConst dimensions = cuboid.getDimensions();
-        final @NotNull Vector3DiConst minimum = cuboid.getMin();
-        final @NotNull Vector3DiConst maximum = cuboid.getMax();
+        final @NotNull Vector3Di dimensions = cuboid.getDimensions();
+        final @NotNull Vector3Di minimum = cuboid.getMin();
+        final @NotNull Vector3Di maximum = cuboid.getMax();
 
-        int minX = minimum.getX();
-        int minY = minimum.getY();
-        int minZ = minimum.getZ();
-        int maxX = maximum.getX();
-        int maxY = maximum.getY();
-        int maxZ = maximum.getZ();
-        int xLen = dimensions.getX();
-        int yLen = dimensions.getY();
-        int zLen = dimensions.getZ();
+        int minX = minimum.x();
+        int minY = minimum.y();
+        int minZ = minimum.z();
+        int maxX = maximum.x();
+        int maxY = maximum.y();
+        int maxZ = maximum.z();
+        int xLen = dimensions.x();
+        int yLen = dimensions.y();
+        int zLen = dimensions.z();
 
-        final @NotNull Vector3DiConst rotateVec;
+        final @NotNull Vector3Di rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
@@ -153,17 +152,17 @@ public class GarageDoor extends AbstractDoorBase
 
         if (!isOpen())
         {
-            minY = maxY = maximum.getY() + 1;
-            minX += rotateVec.getX();
-            maxX += (1 + yLen) * rotateVec.getX();
-            minZ += rotateVec.getZ();
-            maxZ += (1 + yLen) * rotateVec.getZ();
+            minY = maxY = maximum.y() + 1;
+            minX += rotateVec.x();
+            maxX += (1 + yLen) * rotateVec.x();
+            minZ += rotateVec.z();
+            maxZ += (1 + yLen) * rotateVec.z();
         }
         else
         {
             maxY = maxY - 1;
-            minY -= Math.abs(rotateVec.getX() * xLen);
-            minY -= Math.abs(rotateVec.getZ() * zLen);
+            minY -= Math.abs(rotateVec.x() * xLen);
+            minY -= Math.abs(rotateVec.z() * zLen);
             minY -= 1;
 
             if (rotateDirection.equals(RotateDirection.SOUTH))

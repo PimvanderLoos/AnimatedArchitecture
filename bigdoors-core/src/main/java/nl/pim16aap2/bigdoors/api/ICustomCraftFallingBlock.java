@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,7 +19,7 @@ public interface ICustomCraftFallingBlock
      * @param teleportMode How to handle the teleport.
      * @return True if the teleport was successful.
      */
-    boolean teleport(@NotNull Vector3DdConst newPosition, @NotNull Vector3DdConst rotation,
+    boolean teleport(@NotNull Vector3Dd newPosition, @NotNull Vector3Dd rotation,
                      @NotNull TeleportMode teleportMode);
 
     /**
@@ -29,7 +29,7 @@ public interface ICustomCraftFallingBlock
      * @param rotation    The local rotations of the entity.
      * @return True if the teleport was successful.
      */
-    default boolean teleport(@NotNull Vector3DdConst newPosition, @NotNull Vector3DdConst rotation)
+    default boolean teleport(@NotNull Vector3Dd newPosition, @NotNull Vector3Dd rotation)
     {
         return teleport(newPosition, rotation, TeleportMode.SET_VELOCITY);
     }
@@ -40,7 +40,7 @@ public interface ICustomCraftFallingBlock
      * @param newPosition The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
-    default boolean teleport(@NotNull Vector3DdConst newPosition)
+    default boolean teleport(@NotNull Vector3Dd newPosition)
     {
         return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.SET_VELOCITY);
     }
@@ -62,7 +62,7 @@ public interface ICustomCraftFallingBlock
      *
      * @return The current position of this entity.
      */
-    @NotNull Vector3DdConst getPosition();
+    @NotNull Vector3Dd getPosition();
 
     /**
      * Gets the current velocity of this entity.
@@ -76,21 +76,21 @@ public interface ICustomCraftFallingBlock
      *
      * @param vector The new velocity of the entity.
      */
-    void setVelocity(@NotNull Vector3DdConst vector);
+    void setVelocity(@NotNull Vector3Dd vector);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param pose The new pose of this entity's head.
      */
-    void setHeadPose(@NotNull Vector3DdConst pose);
+    void setHeadPose(@NotNull Vector3Dd pose);
 
     /**
      * Sets the headPose of this entity.
      *
      * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
      */
-    void setBodyPose(@NotNull Vector3DdConst eulerAngle);
+    void setBodyPose(@NotNull Vector3Dd eulerAngle);
 
     enum TeleportMode
     {

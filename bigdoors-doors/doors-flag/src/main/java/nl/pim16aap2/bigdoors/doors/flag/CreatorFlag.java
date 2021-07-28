@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,14 +61,13 @@ public class CreatorFlag extends Creator
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                            loc.getBlockZ())).getDimensions();
+        final @NotNull Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                                 loc.getBlockZ())).getDimensions();
 
         // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
-        if ((cuboidDims.getX() == 1) ^ (cuboidDims.getZ() == 1))
+        if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAligned = cuboidDims.getX() == 1;
+            northSouthAligned = cuboidDims.x() == 1;
             return super.setSecondPos(loc);
         }
 
@@ -84,8 +82,8 @@ public class CreatorFlag extends Creator
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
         // It doesn't make sense to have it in the middle or something; that's now how flags work.
-        if ((loc.getBlockX() == cuboid.getMin().getX() || loc.getBlockX() == cuboid.getMax().getX()) &&
-            (loc.getBlockZ() == cuboid.getMin().getZ() || loc.getBlockZ() == cuboid.getMax().getZ()))
+        if ((loc.getBlockX() == cuboid.getMin().x() || loc.getBlockX() == cuboid.getMax().x()) &&
+            (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
             return super.completeSetEngineStep(loc);
 
         getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
@@ -99,9 +97,9 @@ public class CreatorFlag extends Creator
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(engine, "engine");
         if (northSouthAligned)
-            openDir = engine.getZ() == cuboid.getMin().getZ() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            openDir = engine.z() == cuboid.getMin().z() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            openDir = engine.getX() == cuboid.getMin().getX() ? RotateDirection.EAST : RotateDirection.WEST;
+            openDir = engine.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
 
         return new Flag(constructDoorData(), northSouthAligned);
     }

@@ -8,9 +8,8 @@ import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -65,24 +64,24 @@ public class UnitTestUtil
         return world;
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3DdConst vec)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3Dd vec)
     {
-        return getLocation(vec.getX(), vec.getY(), vec.getZ());
+        return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3DiConst vec)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3Di vec)
     {
-        return getLocation(vec.getX(), vec.getY(), vec.getZ());
+        return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3DdConst vec, final @NotNull IPWorld world)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3Dd vec, final @NotNull IPWorld world)
     {
-        return getLocation(vec.getX(), vec.getY(), vec.getZ(), world);
+        return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3DiConst vec, final @NotNull IPWorld world)
+    public static @NotNull IPLocation getLocation(final @NotNull Vector3Di vec, final @NotNull IPWorld world)
     {
-        return getLocation(vec.getX(), vec.getY(), vec.getZ(), world);
+        return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
     public static @NotNull IPLocation getLocation(final double x, final double y, final double z)

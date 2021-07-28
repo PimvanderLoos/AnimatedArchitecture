@@ -29,7 +29,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,13 +58,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private final @NotNull IPWorld world;
 
     @Getter
-    private volatile @NotNull Vector3DiConst engine;
+    private volatile @NotNull Vector3Di engine;
 
     @Getter
     private volatile @NotNull Vector2Di engineChunk;
 
     @Getter
-    private volatile @NotNull Vector3DiConst powerBlock;
+    private volatile @NotNull Vector3Di powerBlock;
 
     @Getter
     @Setter
@@ -216,7 +215,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull DoorData getDoorDataCopy()
     {
-        return new DoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
+        return new DoorData(doorUID, name, cuboid.clone(), engine, powerBlock,
                             world.clone(), open, locked, openDir, getPrimeOwner().clone(), getDoorOwnersCopy());
     }
 
@@ -230,7 +229,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
-        return new SimpleDoorData(doorUID, name, cuboid.clone(), engine.clone(), powerBlock.clone(),
+        return new SimpleDoorData(doorUID, name, cuboid.clone(), engine, powerBlock,
                                   world.clone(), open, locked, openDir, getPrimeOwner().clone());
     }
 
@@ -533,21 +532,21 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3DiConst posA,
-                                                          final @NotNull Vector3DiConst posB)
+    public final @NotNull AbstractDoorBase setCoordinates(final @NotNull Vector3Di posA,
+                                                          final @NotNull Vector3Di posB)
     {
         cuboid = new Cuboid(posA, posB);
         return this;
     }
 
     @Override
-    public @NotNull Vector3DiConst getMinimum()
+    public @NotNull Vector3Di getMinimum()
     {
         return cuboid.getMin();
     }
 
     @Override
-    public @NotNull Vector3DiConst getMaximum()
+    public @NotNull Vector3Di getMaximum()
     {
         return cuboid.getMax();
     }
@@ -579,23 +578,23 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NotNull Vector3DiConst getDimensions()
+    public @NotNull Vector3Di getDimensions()
     {
         return cuboid.getDimensions();
     }
 
     @Override
-    public synchronized final @NotNull AbstractDoorBase setEngine(final @NotNull Vector3DiConst pos)
+    public final synchronized @NotNull AbstractDoorBase setEngine(final @NotNull Vector3Di pos)
     {
-        engine = new Vector3Di(pos);
+        engine = pos;
         engineChunk = Util.getChunkCoords(pos);
         return this;
     }
 
     @Override
-    public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3DiConst pos)
+    public final @NotNull AbstractDoorBase setPowerBlockPosition(final @NotNull Vector3Di pos)
     {
-        powerBlock = new Vector3Di(pos);
+        powerBlock = pos;
         invalidateChunkRange();
         return this;
     }
@@ -607,9 +606,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public synchronized final long getSimplePowerBlockChunkHash()
+    public final synchronized long getSimplePowerBlockChunkHash()
     {
-        return Util.simpleChunkHashFromLocation(powerBlock.getX(), powerBlock.getZ());
+        return Util.simpleChunkHashFromLocation(powerBlock.x(), powerBlock.z());
     }
 
     @Override
@@ -636,11 +635,11 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         builder.append("OpenDir: ").append(openDir.name()).append("\n");
 
         builder.append("\nType-specific data:\n");
-        val serializer = getDoorType().getDoorSerializer();
-        if (serializer.isEmpty())
+        val serializerOpt = getDoorType().getDoorSerializer();
+        if (serializerOpt.isEmpty())
             builder.append("Invalid serializer!\n");
         else
-            builder.append(serializer.get().toString(this));
+            builder.append(serializerOpt.get().toString(this));
 
         return builder.toString();
     }
@@ -675,13 +674,13 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         /**
          * The location of the engine.
          */
-        @NotNull Vector3DiConst engine;
+        @NotNull Vector3Di engine;
 
         /**
          * The location of the powerblock.
          */
 
-        @NotNull Vector3DiConst powerBlock;
+        @NotNull Vector3Di powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.
@@ -728,7 +727,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
-                        final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
+                        final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
                         final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
                         final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
         {
@@ -736,9 +735,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             doorOwners = Collections.singletonMap(primeOwner.getPPlayerData().getUUID(), primeOwner);
         }
 
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
-                        final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
-                        final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
+                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
+                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
                         final boolean isLocked, final @NotNull RotateDirection openDirection,
                         final @NotNull DoorOwner primeOwner)
         {
@@ -747,7 +746,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
-                        final @NotNull Vector3DiConst engine, final @NotNull Vector3DiConst powerBlock,
+                        final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
                         final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
                         final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
                         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
@@ -756,9 +755,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
             this.doorOwners = doorOwners;
         }
 
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3DiConst min,
-                        final @NotNull Vector3DiConst max, final @NotNull Vector3DiConst engine,
-                        final @NotNull Vector3DiConst powerBlock, final @NotNull IPWorld world, final boolean isOpen,
+        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
+                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
+                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
                         final boolean isLocked, final @NotNull RotateDirection openDirection,
                         final @NotNull DoorOwner primeOwner,
                         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)

@@ -20,7 +20,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -86,14 +86,14 @@ public class Drawbridge extends AbstractDoorBase
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3Di dimensions = getDimensions();
 
-        final int xLen = dimensions.getX();
-        final int yLen = dimensions.getY();
-        final int zLen = dimensions.getZ();
+        final int xLen = dimensions.x();
+        final int yLen = dimensions.y();
+        final int zLen = dimensions.z();
 
         final int radius;
-        if (dimensions.getY() != 1)
+        if (dimensions.y() != 1)
             radius = yLen / 16 + 1;
         else
             radius = Math.max(xLen, zLen) / 16 + 1;

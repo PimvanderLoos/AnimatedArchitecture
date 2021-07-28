@@ -27,9 +27,9 @@ class CuboidTest
         final @NotNull Vector3Di min = new Vector3Di(0, 0, 0);
         final @NotNull Vector3Di max = new Vector3Di(10, 10, 10);
         final @NotNull Vector3Di newMax = new Vector3Di(20, 20, 20);
-        final @NotNull Cuboid cuboid = new Cuboid(min, max);
+        @NotNull Cuboid cuboid = new Cuboid(min, max);
 
-        cuboid.updatePositions(newMax, max);
+        cuboid = cuboid.updatePositions(newMax, max);
         Assertions.assertEquals(max, cuboid.getMin());
         Assertions.assertEquals(newMax, cuboid.getMax());
     }
@@ -43,8 +43,8 @@ class CuboidTest
         final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 76);
         final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
-        cuboid.move(1, 4, 8);
+        @NotNull Cuboid cuboid = new Cuboid(min0, max0);
+        cuboid = cuboid.move(1, 4, 8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -58,8 +58,7 @@ class CuboidTest
         final @NotNull Vector3Di min1 = new Vector3Di(11, 41, 60);
         final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
-        cuboid.changeDimensions(1, 4, 8);
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).changeDimensions(1, 4, 8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -73,8 +72,7 @@ class CuboidTest
         final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 62);
         final @NotNull Vector3Di max1 = new Vector3Di(21, 61, 76);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0);
-        cuboid.changeDimensions(-1, -4, -8);
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).changeDimensions(-1, -4, -8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -107,10 +105,10 @@ class CuboidTest
 
         final @NotNull Vector3Di actualMin = new Vector3Di(10, -10, 9);
 
-        final @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        @NotNull Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMin, cuboid.getMin());
 
-        cuboid.updatePositions(val2, val1);
+        cuboid = cuboid.updatePositions(val2, val1);
         Assertions.assertEquals(actualMin, cuboid.getMin());
     }
 
@@ -122,10 +120,10 @@ class CuboidTest
 
         final @NotNull Vector3Di actualMax = new Vector3Di(11, 20, 10);
 
-        final @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        @NotNull Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMax, cuboid.getMax());
 
-        cuboid.updatePositions(val2, val1);
+        cuboid = cuboid.updatePositions(val2, val1);
         Assertions.assertEquals(actualMax, cuboid.getMax());
     }
 
@@ -160,9 +158,9 @@ class CuboidTest
         final @NotNull Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
 
         final @NotNull Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
-        Assertions.assertTrue(Math.abs(center.getX() - foundCenter.getX()) < EPSILON);
-        Assertions.assertTrue(Math.abs(center.getY() - foundCenter.getY()) < EPSILON);
-        Assertions.assertTrue(Math.abs(center.getZ() - foundCenter.getZ()) < EPSILON);
+        Assertions.assertTrue(Math.abs(center.x() - foundCenter.x()) < EPSILON);
+        Assertions.assertTrue(Math.abs(center.y() - foundCenter.y()) < EPSILON);
+        Assertions.assertTrue(Math.abs(center.z() - foundCenter.z()) < EPSILON);
     }
 
     @Test

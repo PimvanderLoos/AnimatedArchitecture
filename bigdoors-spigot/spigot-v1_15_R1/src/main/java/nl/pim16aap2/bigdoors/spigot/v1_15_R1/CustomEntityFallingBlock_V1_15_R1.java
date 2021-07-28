@@ -19,7 +19,7 @@ import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.TagsBlock;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.NotNull;
@@ -51,11 +51,11 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private final WorldServer worldServer;
 
     @Getter
-    private Vector3DdConst previousPosition;
+    private Vector3Dd previousPosition;
     @Getter
-    private Vector3DdConst currentPosition;
+    private Vector3Dd currentPosition;
     @Getter
-    private Vector3DdConst futurePosition;
+    private Vector3Dd futurePosition;
 
     public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
                                              final double d2, final @NotNull IBlockData iblockdata)
@@ -76,7 +76,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         lastY = d1;
         lastZ = d2;
 
-        previousPosition = new Vector3DdConst(d0, d1, d2);
+        previousPosition = new Vector3Dd(d0, d1, d2);
         currentPosition = previousPosition;
         futurePosition = currentPosition;
 
@@ -104,21 +104,21 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
             throw new Exception("Failed to obtain EntityTracker for FallingBlock: " + getId());
     }
 
-    private void cyclePositions(@NotNull Vector3DdConst newPosition)
+    private void cyclePositions(@NotNull Vector3Dd newPosition)
     {
         previousPosition = currentPosition;
         currentPosition = futurePosition;
         futurePosition = newPosition;
     }
 
-    public boolean teleport(final @NotNull Vector3DdConst newPosition, final @NotNull Vector3DdConst rotation)
+    public boolean teleport(final @NotNull Vector3Dd newPosition, final @NotNull Vector3Dd rotation)
     {
         final double distance = futurePosition.getDistance(newPosition);
         cyclePositions(newPosition);
 
-        double deltaX = currentPosition.getX() - previousPosition.getX();
-        double deltaY = currentPosition.getY() - previousPosition.getY();
-        double deltaZ = currentPosition.getZ() - previousPosition.getZ();
+        double deltaX = currentPosition.x() - previousPosition.x();
+        double deltaY = currentPosition.y() - previousPosition.y();
+        double deltaZ = currentPosition.z() - previousPosition.z();
 
         short relX = (short) (deltaX * 4096);
         short relY = (short) (deltaY * 4096);

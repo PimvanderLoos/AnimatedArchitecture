@@ -74,7 +74,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private boolean isHourArmNS(final @NotNull PBlockData block)
     {
-        return ((int) block.getStartLocation().getZ()) == door.getEngine().getZ();
+        return ((int) block.getStartLocation().getZ()) == door.getEngine().z();
     }
 
     /**
@@ -84,7 +84,7 @@ public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorA
      */
     private boolean isHourArmEW(final @NotNull PBlockData block)
     {
-        return ((int) block.getStartLocation().getX()) == door.getEngine().getX();
+        return ((int) block.getStartLocation().getX()) == door.getEngine().x();
     }
 
     @Override

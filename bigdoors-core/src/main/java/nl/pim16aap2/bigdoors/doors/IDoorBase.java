@@ -7,8 +7,7 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -248,7 +247,7 @@ public interface IDoorBase
      *
      * @return The position of the power block of this door.
      */
-    @NotNull Vector3DiConst getPowerBlock();
+    @NotNull Vector3Di getPowerBlock();
 
     /**
      * Updates the position of the powerblock.
@@ -256,14 +255,14 @@ public interface IDoorBase
      * @param pos The new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NotNull AbstractDoorBase setPowerBlockPosition(@NotNull Vector3DiConst pos);
+    @NotNull AbstractDoorBase setPowerBlockPosition(@NotNull Vector3Di pos);
 
     /**
      * Gets the position of the engine of this door.
      *
      * @return The position of the engine block of this door.
      */
-    @NotNull Vector3DiConst getEngine();
+    @NotNull Vector3Di getEngine();
 
     /**
      * Updates the position of the engine.
@@ -271,14 +270,14 @@ public interface IDoorBase
      * @param pos The new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NotNull AbstractDoorBase setEngine(@NotNull Vector3DiConst pos);
+    @NotNull AbstractDoorBase setEngine(@NotNull Vector3Di pos);
 
     /**
      * Gets the minimum position of this door.
      *
      * @return The minimum coordinates of this door.
      */
-    @NotNull Vector3DiConst getMinimum();
+    @NotNull Vector3Di getMinimum();
 
     /**
      * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
@@ -286,7 +285,7 @@ public interface IDoorBase
      * @param posA The first new position.
      * @return This {@link AbstractDoorBase}.
      */
-    @NotNull AbstractDoorBase setCoordinates(@NotNull Vector3DiConst posA, @NotNull Vector3DiConst posB);
+    @NotNull AbstractDoorBase setCoordinates(@NotNull Vector3Di posA, @NotNull Vector3Di posB);
 
     /**
      * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
@@ -301,7 +300,7 @@ public interface IDoorBase
      *
      * @return A copy of the maximum position of this door.
      */
-    @NotNull Vector3DiConst getMaximum();
+    @NotNull Vector3Di getMaximum();
 
     /**
      * Gets the the Vector2Di coordinates of the min and max Vector2Dis that are in range of this door.
@@ -341,7 +340,7 @@ public interface IDoorBase
      *
      * @return The dimensions of this door.
      */
-    @NotNull Vector3DiConst getDimensions();
+    @NotNull Vector3Di getDimensions();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

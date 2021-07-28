@@ -15,12 +15,11 @@ import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 
 public class BigDoorMover extends BlockMover
 {
-    private final @NotNull Vector3DdConst rotationCenter;
+    private final @NotNull Vector3Dd rotationCenter;
     private int halfEndCount;
     private final double angle;
     private final double endSin;
@@ -45,10 +44,10 @@ public class BigDoorMover extends BlockMover
         endCos = Math.cos(angle);
         endSin = Math.sin(angle);
 
-        rotationCenter = new Vector3Dd(door.getEngine().getX() + 0.5, yMin, door.getEngine().getZ() + 0.5);
+        rotationCenter = new Vector3Dd(door.getEngine().x() + 0.5, yMin, door.getEngine().z() + 0.5);
 
-        final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
-        final int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
+        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
+        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
         final int doorLength = Math.max(xLen, zLen) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorLength, time, multiplier, 3.7);
         super.time = vars[0];
@@ -72,9 +71,9 @@ public class BigDoorMover extends BlockMover
     @Override
     protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                                 startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
@@ -103,13 +102,13 @@ public class BigDoorMover extends BlockMover
     private @NotNull Vector3Dd getGoalPos(final double cos, final double sin, final double startX, final double startY,
                                           final double startZ)
     {
-        double translatedX = startX - rotationCenter.getX();
-        double translatedZ = startZ - rotationCenter.getZ();
+        double translatedX = startX - rotationCenter.x();
+        double translatedZ = startZ - rotationCenter.z();
 
         double changeX = translatedX * cos - translatedZ * sin;
         double changeZ = translatedX * sin + translatedZ * cos;
 
-        return new Vector3Dd(rotationCenter.getX() + changeX, startY, rotationCenter.getZ() + changeZ);
+        return new Vector3Dd(rotationCenter.x() + changeX, startY, rotationCenter.z() + changeZ);
     }
 
     @Override
@@ -122,14 +121,14 @@ public class BigDoorMover extends BlockMover
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
-        final double deltaA = door.getEngine().getX() - xAxis;
-        final double deltaB = door.getEngine().getZ() - zAxis;
+        final double deltaA = (double) door.getEngine().x() - xAxis;
+        final double deltaB = (double) door.getEngine().z() - zAxis;
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
     @Override
     protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
-        return (float) Math.atan2(door.getEngine().getX() - xAxis, door.getEngine().getZ() - zAxis);
+        return (float) Math.atan2((double) door.getEngine().x() - xAxis, (double) door.getEngine().z() - zAxis);
     }
 }

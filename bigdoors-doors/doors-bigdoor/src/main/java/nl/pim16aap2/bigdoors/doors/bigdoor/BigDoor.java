@@ -20,7 +20,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -70,10 +70,10 @@ public class BigDoor extends AbstractDoorBase implements IMovingDoorArchetype, I
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3Di dimensions = getDimensions();
 
         // Yeah, radius might be too big, but it doesn't really matter.
-        final int radius = Math.max(dimensions.getX(), dimensions.getZ()) / 16 + 1;
+        final int radius = Math.max(dimensions.x(), dimensions.z()) / 16 + 1;
 
         return new Vector2Di[]{
             new Vector2Di(getEngineChunk().x() - radius, getEngineChunk().y() - radius),

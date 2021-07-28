@@ -18,8 +18,8 @@ class Vector3DiTest
         final double radiansPos = Math.PI / 2;
         final double radiansNeg = -Math.PI / 2;
 
-        Assertions.assertEquals(endPointPos, startPoint.clone().rotateAroundXAxis(pivotPoint, radiansPos));
-        Assertions.assertEquals(endPointNeg, startPoint.clone().rotateAroundXAxis(pivotPoint, radiansNeg));
+        Assertions.assertEquals(endPointPos, startPoint.rotateAroundXAxis(pivotPoint, radiansPos));
+        Assertions.assertEquals(endPointNeg, startPoint.rotateAroundXAxis(pivotPoint, radiansNeg));
     }
 
     @Test
@@ -33,8 +33,8 @@ class Vector3DiTest
         final double radiansPos = Math.PI / 2;
         final double radiansNeg = -Math.PI / 2;
 
-        Assertions.assertEquals(endPointPos, startPoint.clone().rotateAroundYAxis(pivotPoint, radiansPos));
-        Assertions.assertEquals(endPointNeg, startPoint.clone().rotateAroundYAxis(pivotPoint, radiansNeg));
+        Assertions.assertEquals(endPointPos, startPoint.rotateAroundYAxis(pivotPoint, radiansPos));
+        Assertions.assertEquals(endPointNeg, startPoint.rotateAroundYAxis(pivotPoint, radiansNeg));
     }
 
     @Test
@@ -48,7 +48,7 @@ class Vector3DiTest
         final double radiansPos = Math.PI / 2;
         final double radiansNeg = -Math.PI / 2;
 
-        Assertions.assertEquals(endPointPos, startPoint.clone().rotateAroundZAxis(pivotPoint, radiansPos));
-        Assertions.assertEquals(endPointNeg, startPoint.clone().rotateAroundZAxis(pivotPoint, radiansNeg));
+        Assertions.assertEquals(endPointPos, startPoint.rotateAroundZAxis(pivotPoint, radiansPos));
+        Assertions.assertEquals(endPointNeg, startPoint.rotateAroundZAxis(pivotPoint, radiansNeg));
     }
 }

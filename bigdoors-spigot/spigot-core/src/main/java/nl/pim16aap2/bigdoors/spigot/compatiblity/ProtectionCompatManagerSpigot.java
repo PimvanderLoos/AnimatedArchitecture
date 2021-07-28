@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -182,8 +182,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
     @Override
     public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                               final @NotNull Vector3DiConst pos1,
-                                                               final @NotNull Vector3DiConst pos2,
+                                                               final @NotNull Vector3Di pos1,
+                                                               final @NotNull Vector3Di pos2,
                                                                final @NotNull IPWorld world)
     {
         if (protectionCompats.isEmpty())

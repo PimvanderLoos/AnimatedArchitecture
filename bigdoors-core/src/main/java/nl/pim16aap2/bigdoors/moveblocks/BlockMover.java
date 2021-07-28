@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -115,12 +114,12 @@ public abstract class BlockMover implements IRestartable
         this.cause = cause;
         this.actionType = actionType;
 
-        xMin = door.getMinimum().getX();
-        yMin = door.getMinimum().getY();
-        zMin = door.getMinimum().getZ();
-        xMax = door.getMaximum().getX();
-        yMax = door.getMaximum().getY();
-        zMax = door.getMaximum().getZ();
+        xMin = door.getMinimum().x();
+        yMin = door.getMinimum().y();
+        zMin = door.getMinimum().z();
+        xMax = door.getMaximum().x();
+        yMax = door.getMaximum().y();
+        zMax = door.getMaximum().z();
     }
 
     /**
@@ -164,7 +163,7 @@ public abstract class BlockMover implements IRestartable
     private boolean respawnBlock(final @NotNull PBlockData blockData, final @NotNull INMSBlock newBlock)
     {
         final IPLocationConst loc = blockData.getFBlock().getPosition().toLocation(world);
-        final Vector3DdConst veloc = blockData.getFBlock().getPVelocity();
+        final Vector3Dd veloc = blockData.getFBlock().getPVelocity();
 
         try
         {

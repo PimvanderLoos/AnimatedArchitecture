@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,10 +37,10 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
     }
 
     @Override
-    public boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
+    public boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull Vector3Di position)
     {
-        final Location loc = new Location(SpigotAdapter.getBukkitWorld(world), position.getX(), position.getY(),
-                                          position.getZ());
+        final Location loc = new Location(SpigotAdapter.getBukkitWorld(world), position.x(), position.y(),
+                                          position.z());
         // TODO: Check if this is sufficient.
         return loc.getBlock().isBlockIndirectlyPowered();
 

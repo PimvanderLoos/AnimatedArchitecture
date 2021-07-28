@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -84,7 +83,7 @@ public final class PowerBlockManager extends Restartable
      */
     // TODO: Try to have about 50% less CompletableFuture here.
     public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoorBase>>>> doorsFromPowerBlockLoc(
-        final @NotNull Vector3DiConst loc, final @NotNull String worldName)
+        final @NotNull Vector3Di loc, final @NotNull String worldName)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -126,8 +125,8 @@ public final class PowerBlockManager extends Restartable
      * @param oldPos The old position.
      * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3DiConst oldPos,
-                                    final @NotNull Vector3DiConst newPos)
+    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldPos,
+                                    final @NotNull Vector3Di newPos)
     {
         door.setPowerBlockPosition(newPos).syncData();
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getWorldName());
@@ -149,7 +148,7 @@ public final class PowerBlockManager extends Restartable
      * @param worldName The name of the world of the door.
      * @param pos       The position of the door's power block.
      */
-    public void onDoorAddOrRemove(final @NotNull String worldName, final @NotNull Vector3DiConst pos)
+    public void onDoorAddOrRemove(final @NotNull String worldName, final @NotNull Vector3Di pos)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -234,12 +233,12 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        private @NotNull CompletableFuture<List<Long>> getPowerBlocks(final @NotNull Vector3DiConst loc)
+        private @NotNull CompletableFuture<List<Long>> getPowerBlocks(final @NotNull Vector3Di loc)
         {
             if (!isBigDoorsWorld())
                 return CompletableFuture.completedFuture(Collections.emptyList());
 
-            final long chunkHash = Util.simpleChunkHashFromLocation(loc.getX(), loc.getZ());
+            final long chunkHash = Util.simpleChunkHashFromLocation(loc.x(), loc.z());
 
             if (!powerBlockChunks.containsKey(chunkHash))
             {
@@ -267,9 +266,9 @@ public final class PowerBlockManager extends Restartable
          *
          * @param pos The position.
          */
-        private void invalidatePosition(final @NotNull Vector3DiConst pos)
+        private void invalidatePosition(final @NotNull Vector3Di pos)
         {
-            powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.getX(), pos.getZ()));
+            powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.x(), pos.z()));
         }
 
         /**
@@ -324,12 +323,12 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        private @NotNull List<Long> getPowerBlocks(final @NotNull Vector3DiConst loc)
+        private @NotNull List<Long> getPowerBlocks(final @NotNull Vector3Di loc)
         {
             if (!isPowerBlockChunk())
                 return Collections.emptyList();
 
-            return powerBlocks.getOrDefault(Util.simpleChunkSpaceLocationhash(loc.getX(), loc.getY(), loc.getZ()),
+            return powerBlocks.getOrDefault(Util.simpleChunkSpaceLocationhash(loc.x(), loc.y(), loc.z()),
                                             Collections.emptyList());
         }
 

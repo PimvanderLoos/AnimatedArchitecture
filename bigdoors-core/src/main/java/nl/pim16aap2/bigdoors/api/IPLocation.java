@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,7 +48,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull IPLocation add(@NotNull Vector3DiConst vector);
+    @NotNull IPLocation add(@NotNull Vector3Di vector);
 
     /**
      * Adds values to the coordinates of this location.
@@ -56,7 +56,7 @@ public interface IPLocation extends IPLocationConst, Cloneable
      * @param vector The vector to add to the coordinates.
      * @return This current IPLocation.
      */
-    @NotNull IPLocation add(@NotNull Vector3DdConst vector);
+    @NotNull IPLocation add(@NotNull Vector3Dd vector);
 
     @NotNull IPLocation clone();
 }

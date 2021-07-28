@@ -17,7 +17,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
@@ -87,12 +87,12 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
     @Override
-    public void teleport(final @NotNull Vector3DdConst position)
+    public void teleport(final @NotNull Vector3Dd position)
     {
         if (!alive)
             return;
         getConnection().ifPresent(connection -> connection
-            .sendPacket(new PacketPlayOutGlowingBlockTeleport(position.getX(), position.getY(), position.getZ())));
+            .sendPacket(new PacketPlayOutGlowingBlockTeleport(position.x(), position.y(), position.z())));
     }
 
     @Override

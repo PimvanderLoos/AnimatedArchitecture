@@ -4,7 +4,6 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -33,12 +32,12 @@ public class CuboidConst
      * @return The dimensions of this door.
      */
     @SuppressWarnings("NullAway.Init") @Getter
-    private Vector3DiConst dimensions;
+    private Vector3Di dimensions;
 
-    public CuboidConst(final Vector3DiConst min, final Vector3DiConst max)
+    public CuboidConst(final Vector3Di min, final Vector3Di max)
     {
-        this.min = new Vector3Di(min);
-        this.max = new Vector3Di(max);
+        this.min = min;
+        this.max = max;
         onCoordsUpdate();
     }
 
@@ -52,21 +51,16 @@ public class CuboidConst
      */
     protected void onCoordsUpdate()
     {
-        int minX = Math.min(min.getX(), max.getX());
-        int minY = Math.min(min.getY(), max.getY());
-        int minZ = Math.min(min.getZ(), max.getZ());
+        final int minX = Math.min(min.x(), max.x());
+        final int minY = Math.min(min.y(), max.y());
+        final int minZ = Math.min(min.z(), max.z());
 
-        int maxX = Math.max(min.getX(), max.getX());
-        int maxY = Math.max(min.getY(), max.getY());
-        int maxZ = Math.max(min.getZ(), max.getZ());
+        final int maxX = Math.max(min.x(), max.x());
+        final int maxY = Math.max(min.y(), max.y());
+        final int maxZ = Math.max(min.z(), max.z());
 
-        min.setX(minX);
-        min.setY(minY);
-        min.setZ(minZ);
-
-        max.setX(maxX);
-        max.setY(maxY);
-        max.setZ(maxZ);
+        min = new Vector3Di(minX, minY, minZ);
+        max = new Vector3Di(maxX, maxY, maxZ);
 
         volume = calculateVolume();
         dimensions = calculateDimensions();
@@ -74,9 +68,9 @@ public class CuboidConst
 
     private int calculateVolume()
     {
-        int x = max.getX() - min.getX() + 1;
-        int y = max.getY() - min.getY() + 1;
-        int z = max.getZ() - min.getZ() + 1;
+        int x = max.x() - min.x() + 1;
+        int y = max.y() - min.y() + 1;
+        int z = max.z() - min.z() + 1;
 
         return x * y * z;
     }
@@ -86,7 +80,7 @@ public class CuboidConst
      *
      * @return The lower bound position.
      */
-    public @NotNull Vector3DiConst getMin()
+    public @NotNull Vector3Di getMin()
     {
         return min;
     }
@@ -96,17 +90,17 @@ public class CuboidConst
      *
      * @return The upper bound position.
      */
-    public @NotNull Vector3DiConst getMax()
+    public @NotNull Vector3Di getMax()
     {
         return max;
     }
 
-    private Vector3DiConst calculateDimensions()
+    private Vector3Di calculateDimensions()
     {
-        int x = max.getX() - min.getX() + 1;
-        int y = max.getY() - min.getY() + 1;
-        int z = max.getZ() - min.getZ() + 1;
-        return new Vector3DiConst(x, y, z);
+        int x = max.x() - min.x() + 1;
+        int y = max.y() - min.y() + 1;
+        int z = max.z() - min.z() + 1;
+        return new Vector3Di(x, y, z);
     }
 
     /**
@@ -115,11 +109,11 @@ public class CuboidConst
      * @param pos The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
-    public boolean isPosInsideCuboid(final @NotNull Vector3DiConst pos)
+    public boolean isPosInsideCuboid(final @NotNull Vector3Di pos)
     {
-        return pos.getX() >= min.getX() && pos.getX() <= max.getX() &&
-            pos.getY() >= min.getY() && pos.getY() <= max.getY() &&
-            pos.getZ() >= min.getZ() && pos.getZ() <= max.getZ();
+        return pos.x() >= min.x() && pos.x() <= max.x() &&
+            pos.y() >= min.y() && pos.y() <= max.y() &&
+            pos.z() >= min.z() && pos.z() <= max.z();
     }
 
     private static int getOuterDistance(final int test, final int min, final int max)
@@ -143,7 +137,7 @@ public class CuboidConst
      * @param y     The y-coordinate to check.
      * @param z     The z-coordinate to check.
      * @param range The range the position might be in. A range of 0 gives the same result as {@link
-     *              #isPosInsideCuboid(Vector3DiConst)}.
+     *              #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
      */
     public boolean isInRange(final int x, int y, int z, final int range)
@@ -151,17 +145,17 @@ public class CuboidConst
         if (range < 0)
             throw new IllegalArgumentException("Range (" + range + ") cannot be smaller than 0!");
 
-        return getOuterDistance(x, min.getX(), max.getX()) <= range &&
-            getOuterDistance(y, min.getY(), max.getY()) <= range &&
-            getOuterDistance(z, min.getZ(), max.getZ()) <= range;
+        return getOuterDistance(x, min.x(), max.x()) <= range &&
+            getOuterDistance(y, min.y(), max.y()) <= range &&
+            getOuterDistance(z, min.z(), max.z()) <= range;
     }
 
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
-    public boolean isInRange(final @NotNull Vector3DiConst pos, final int range)
+    public boolean isInRange(final @NotNull Vector3Di pos, final int range)
     {
-        return isInRange(pos.getX(), pos.getY(), pos.getZ(), range);
+        return isInRange(pos.x(), pos.y(), pos.z(), range);
     }
 
     /**
@@ -179,9 +173,9 @@ public class CuboidConst
      */
     public @NotNull Vector3Dd getCenter()
     {
-        double cX = max.getX() - ((max.getX() - min.getX()) / 2.0f);
-        double cY = max.getY() - ((max.getY() - min.getY()) / 2.0f);
-        double cZ = max.getZ() - ((max.getZ() - min.getZ()) / 2.0f);
+        double cX = max.x() - ((max.x() - min.x()) / 2.0f);
+        double cY = max.y() - ((max.y() - min.y()) / 2.0f);
+        double cZ = max.z() - ((max.z() - min.z()) / 2.0f);
         return new Vector3Dd(cX, cY, cZ);
     }
 
@@ -192,9 +186,9 @@ public class CuboidConst
      */
     public @NotNull Vector3Di getCenterBlock()
     {
-        int cX = (int) (max.getX() - ((max.getX() - min.getX()) / 2.0f));
-        int cY = (int) (max.getY() - ((max.getY() - min.getY()) / 2.0f));
-        int cZ = (int) (max.getZ() - ((max.getZ() - min.getZ()) / 2.0f));
+        int cX = (int) (max.x() - ((max.x() - min.x()) / 2.0f));
+        int cY = (int) (max.y() - ((max.y() - min.y()) / 2.0f));
+        int cZ = (int) (max.z() - ((max.z() - min.z()) / 2.0f));
         return new Vector3Di(cX, cY, cZ);
     }
 
@@ -213,7 +207,7 @@ public class CuboidConst
         if (!(o instanceof CuboidConst))
             return false;
 
-        CuboidConst other = (CuboidConst) o;
+        final CuboidConst other = (CuboidConst) o;
         return min.equals(other.min) && max.equals(other.max);
     }
 

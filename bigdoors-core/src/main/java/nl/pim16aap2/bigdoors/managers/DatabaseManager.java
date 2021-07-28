@@ -138,9 +138,9 @@ public final class DatabaseManager extends Restartable
                 result.ifPresent(
                     (door) -> BigDoors.get().getPlatform().getPowerBlockManager()
                                       .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(
-                                          door.getPowerBlock().getX(),
-                                          door.getPowerBlock().getY(),
-                                          door.getPowerBlock().getZ())));
+                                          door.getPowerBlock().x(),
+                                          door.getPowerBlock().y(),
+                                          door.getPowerBlock().z())));
                 return new Pair<>(false, result);
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
 
@@ -207,9 +207,9 @@ public final class DatabaseManager extends Restartable
                     return ActionResult.FAIL;
 
                 BigDoors.get().getPlatform().getPowerBlockManager()
-                        .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(door.getPowerBlock().getX(),
-                                                                                         door.getPowerBlock().getY(),
-                                                                                         door.getPowerBlock().getZ()));
+                        .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(door.getPowerBlock().x(),
+                                                                                         door.getPowerBlock().y(),
+                                                                                         door.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
@@ -661,7 +661,7 @@ public final class DatabaseManager extends Restartable
     //         over several classes.
     //       Alternatively, consider creating a separate class with package-private access to either this class or
     //       the door one. Might be a bit cleaner.
-    public static abstract class FriendDoorAccessor
+    public abstract static class FriendDoorAccessor
     {
         /**
          * Adds an owner to the map of Owners.

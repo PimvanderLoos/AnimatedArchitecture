@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -13,7 +12,7 @@ import java.util.function.Consumer;
  */
 public class Cuboid extends CuboidConst
 {
-    public Cuboid(final @NotNull Vector3DiConst min, final @NotNull Vector3DiConst max)
+    public Cuboid(final @NotNull Vector3Di min, final @NotNull Vector3Di max)
     {
         super(min, max);
     }
@@ -32,10 +31,10 @@ public class Cuboid extends CuboidConst
      * @param second The first of the two new coordinates.
      * @return This {@link Cuboid}
      */
-    public @NotNull Cuboid updatePositions(final @NotNull Vector3DiConst first, final @NotNull Vector3DiConst second)
+    public @NotNull Cuboid updatePositions(final @NotNull Vector3Di first, final @NotNull Vector3Di second)
     {
-        min = new Vector3Di(first);
-        max = new Vector3Di(second);
+        min = first;
+        max = second;
         onCoordsUpdate();
         return this;
     }
@@ -64,8 +63,8 @@ public class Cuboid extends CuboidConst
      */
     public @NotNull Cuboid move(final int x, final int y, final int z)
     {
-        min.add(x, y, z);
-        max.add(x, y, z);
+        min = min.add(x, y, z);
+        max = max.add(x, y, z);
         return this;
     }
 
@@ -80,8 +79,8 @@ public class Cuboid extends CuboidConst
      */
     public @NotNull Cuboid changeDimensions(final int x, final int y, final int z)
     {
-        min.add(-x, -y, -z);
-        max.add(x, y, z);
+        min = min.add(-x, -y, -z);
+        max = max.add(x, y, z);
         // Fix the min/max values to avoid issues with overlapping changes.
         onCoordsUpdate();
         return this;

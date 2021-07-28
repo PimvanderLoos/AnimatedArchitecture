@@ -360,25 +360,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         insertOrIgnorePlayer(conn, playerData);
 
         final @NotNull String worldName = door.getWorld().getWorldName();
-        final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().getX(), door.getEngine().getZ());
+        final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().x(), door.getEngine().z());
         final long powerBlockHash = Util
-            .simpleChunkHashFromLocation(door.getPowerBlock().getX(), door.getPowerBlock().getZ());
+            .simpleChunkHashFromLocation(door.getPowerBlock().x(), door.getPowerBlock().z());
         executeUpdate(conn, SQLStatement.INSERT_DOOR_BASE.constructPPreparedStatement()
                                                          .setNextString(door.getName())
                                                          .setNextString(worldName)
-                                                         .setNextInt(door.getMinimum().getX())
-                                                         .setNextInt(door.getMinimum().getY())
-                                                         .setNextInt(door.getMinimum().getZ())
-                                                         .setNextInt(door.getMaximum().getX())
-                                                         .setNextInt(door.getMaximum().getY())
-                                                         .setNextInt(door.getMaximum().getZ())
-                                                         .setNextInt(door.getEngine().getX())
-                                                         .setNextInt(door.getEngine().getY())
-                                                         .setNextInt(door.getEngine().getZ())
+                                                         .setNextInt(door.getMinimum().x())
+                                                         .setNextInt(door.getMinimum().y())
+                                                         .setNextInt(door.getMinimum().z())
+                                                         .setNextInt(door.getMaximum().x())
+                                                         .setNextInt(door.getMaximum().y())
+                                                         .setNextInt(door.getMaximum().z())
+                                                         .setNextInt(door.getEngine().x())
+                                                         .setNextInt(door.getEngine().y())
+                                                         .setNextInt(door.getEngine().z())
                                                          .setNextLong(engineHash)
-                                                         .setNextInt(door.getPowerBlock().getX())
-                                                         .setNextInt(door.getPowerBlock().getY())
-                                                         .setNextInt(door.getPowerBlock().getZ())
+                                                         .setNextInt(door.getPowerBlock().x())
+                                                         .setNextInt(door.getPowerBlock().y())
+                                                         .setNextInt(door.getPowerBlock().z())
                                                          .setNextLong(powerBlockHash)
                                                          .setNextInt(RotateDirection.getValue(door.getOpenDir()))
                                                          .setNextLong(getFlag(door))
@@ -436,25 +436,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                  .setNextString(simpleDoorData.getName())
                                  .setNextString(simpleDoorData.getWorld().getWorldName())
 
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().getX())
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().getY())
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().getZ())
+                                 .setNextInt(simpleDoorData.getCuboid().getMin().x())
+                                 .setNextInt(simpleDoorData.getCuboid().getMin().y())
+                                 .setNextInt(simpleDoorData.getCuboid().getMin().z())
 
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().getX())
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().getY())
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().getZ())
+                                 .setNextInt(simpleDoorData.getCuboid().getMax().x())
+                                 .setNextInt(simpleDoorData.getCuboid().getMax().y())
+                                 .setNextInt(simpleDoorData.getCuboid().getMax().z())
 
-                                 .setNextInt(simpleDoorData.getEngine().getX())
-                                 .setNextInt(simpleDoorData.getEngine().getY())
-                                 .setNextInt(simpleDoorData.getEngine().getZ())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().getX(),
-                                                                               simpleDoorData.getEngine().getZ()))
+                                 .setNextInt(simpleDoorData.getEngine().x())
+                                 .setNextInt(simpleDoorData.getEngine().y())
+                                 .setNextInt(simpleDoorData.getEngine().z())
+                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().x(),
+                                                                               simpleDoorData.getEngine().z()))
 
-                                 .setNextInt(simpleDoorData.getPowerBlock().getX())
-                                 .setNextInt(simpleDoorData.getPowerBlock().getY())
-                                 .setNextInt(simpleDoorData.getPowerBlock().getZ())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().getX(),
-                                                                               simpleDoorData.getPowerBlock().getZ()))
+                                 .setNextInt(simpleDoorData.getPowerBlock().x())
+                                 .setNextInt(simpleDoorData.getPowerBlock().y())
+                                 .setNextInt(simpleDoorData.getPowerBlock().z())
+                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().x(),
+                                                                               simpleDoorData.getPowerBlock().z()))
 
                                  .setNextInt(RotateDirection.getValue(simpleDoorData.getOpenDirection()))
                                  .setNextLong(getFlag(simpleDoorData.isOpen(), simpleDoorData.isLocked()))

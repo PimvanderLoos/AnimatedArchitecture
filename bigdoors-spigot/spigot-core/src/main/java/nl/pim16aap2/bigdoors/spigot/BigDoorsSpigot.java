@@ -74,7 +74,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -384,8 +384,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                               final @NotNull Vector3DiConst pos1,
-                                                               final @NotNull Vector3DiConst pos2,
+                                                               final @NotNull Vector3Di pos1,
+                                                               final @NotNull Vector3Di pos2,
                                                                final @NotNull IPWorld world)
     {
         return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);

@@ -138,14 +138,14 @@ public interface IGlowingBlockSpawner
         List<IGlowingBlock> ret = new ArrayList<>(4);
         IPWorld world = doorBase.getWorld();
 
-        spawnGlowingBlock(player, world, 15, doorBase.getPowerBlock().getX(), doorBase.getPowerBlock().getY(),
-                          doorBase.getPowerBlock().getZ(), PColor.GOLD);
-        spawnGlowingBlock(player, world, 15, doorBase.getEngine().getX(), doorBase.getEngine().getY(),
-                          doorBase.getEngine().getZ(), PColor.DARK_PURPLE);
-        spawnGlowingBlock(player, world, 15, doorBase.getMinimum().getX(), doorBase.getMinimum().getY(),
-                          doorBase.getMinimum().getZ(), PColor.BLUE);
-        spawnGlowingBlock(player, world, 15, doorBase.getMaximum().getX(), doorBase.getMaximum().getY(),
-                          doorBase.getMaximum().getZ(), PColor.RED);
+        spawnGlowingBlock(player, world, 15, doorBase.getPowerBlock().x(), doorBase.getPowerBlock().y(),
+                          doorBase.getPowerBlock().z(), PColor.GOLD);
+        spawnGlowingBlock(player, world, 15, doorBase.getEngine().x(), doorBase.getEngine().y(),
+                          doorBase.getEngine().z(), PColor.DARK_PURPLE);
+        spawnGlowingBlock(player, world, 15, doorBase.getMinimum().x(), doorBase.getMinimum().y(),
+                          doorBase.getMinimum().z(), PColor.BLUE);
+        spawnGlowingBlock(player, world, 15, doorBase.getMaximum().x(), doorBase.getMaximum().y(),
+                          doorBase.getMaximum().z(), PColor.RED);
         return ret;
     }
 

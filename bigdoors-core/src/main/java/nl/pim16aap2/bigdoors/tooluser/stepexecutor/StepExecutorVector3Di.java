@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,18 +14,18 @@ import java.util.function.Function;
 public class StepExecutorVector3Di extends StepExecutor
 {
     @ToString.Exclude
-    private final @NotNull Function<Vector3DiConst, Boolean> fun;
+    private final @NotNull Function<Vector3Di, Boolean> fun;
 
     @Override
     protected boolean protectedAccept(final @Nullable Object input)
     {
         Util.requireNonNull(input, "Vector input");
-        return fun.apply((Vector3DiConst) input);
+        return fun.apply((Vector3Di) input);
     }
 
     @Override
     public @NotNull Class<?> getInputClass()
     {
-        return Vector3DiConst.class;
+        return Vector3Di.class;
     }
 }

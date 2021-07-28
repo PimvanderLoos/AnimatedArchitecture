@@ -66,8 +66,8 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = (door.getEngine().getY() - yAxis);
-        final double deltaB = !NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
+        final double deltaA = (double) door.getEngine().y() - yAxis;
+        final double deltaB = !NS ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -76,8 +76,8 @@ public class WindmillMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDo
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
-        final float deltaA = !NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
-        final float deltaB = door.getEngine().getY() - yAxis;
+        final double deltaA = !NS ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
+        final double deltaB = (double) door.getEngine().y() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

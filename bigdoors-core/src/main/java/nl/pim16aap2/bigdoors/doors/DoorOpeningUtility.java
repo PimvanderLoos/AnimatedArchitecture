@@ -19,7 +19,6 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,23 +108,23 @@ public final class DoorOpeningUtility
                                    final @Nullable IPPlayer player, final @NotNull IPWorld world)
     {
         final @NotNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
-        final Vector3DiConst newMin = newCuboid.getMin();
-        final Vector3DiConst newMax = newCuboid.getMax();
-        final Vector3DiConst curMin = currentCuboid.getMin();
-        final Vector3DiConst curMax = currentCuboid.getMax();
+        final Vector3Di newMin = newCuboid.getMin();
+        final Vector3Di newMax = newCuboid.getMax();
+        final Vector3Di curMin = currentCuboid.getMin();
+        final Vector3Di curMax = currentCuboid.getMax();
 
         boolean isEmpty = true;
-        for (int xAxis = newMin.getX(); xAxis <= newMax.getX(); ++xAxis)
+        for (int xAxis = newMin.x(); xAxis <= newMax.x(); ++xAxis)
         {
-            for (int yAxis = newMin.getY(); yAxis <= newMax.getY(); ++yAxis)
+            for (int yAxis = newMin.y(); yAxis <= newMax.y(); ++yAxis)
             {
-                for (int zAxis = newMin.getZ(); zAxis <= newMax.getZ(); ++zAxis)
+                for (int zAxis = newMin.z(); zAxis <= newMax.z(); ++zAxis)
                 {
                     // Ignore blocks that are currently part of the door.
                     // It's expected and accepted for them to be in the way.
-                    if (Util.between(xAxis, curMin.getX(), curMax.getX()) &&
-                        Util.between(yAxis, curMin.getY(), curMax.getY()) &&
-                        Util.between(zAxis, curMin.getZ(), curMax.getZ()))
+                    if (Util.between(xAxis, curMin.x(), curMax.x()) &&
+                        Util.between(yAxis, curMin.y(), curMax.y()) &&
+                        Util.between(zAxis, curMin.z(), curMax.z()))
                         continue;
 
                     if (!BigDoors.get().getPlatform().getBlockAnalyzer()
@@ -160,25 +159,25 @@ public final class DoorOpeningUtility
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
-    public int getBlocksInDir(final @NotNull Vector3DiConst vec, final @Nullable IPPlayer player,
+    public int getBlocksInDir(final @NotNull Vector3Di vec, final @Nullable IPPlayer player,
                               final @NotNull IPWorld world, final @NotNull CuboidConst cuboid, final int blocksToMove)
     {
-        final Vector3DiConst curMin = cuboid.getMin();
-        final Vector3DiConst curMax = cuboid.getMax();
+        final Vector3Di curMin = cuboid.getMin();
+        final Vector3Di curMax = cuboid.getMax();
 
-        final int startY = vec.getY() == 0 ? curMin.getY() : vec.getY() == 1 ? curMax.getY() + 1 : curMin.getY() - 1;
+        final int startY = vec.y() == 0 ? curMin.y() : vec.y() == 1 ? curMax.y() + 1 : curMin.y() - 1;
 
         // Doors cannot start outside of the world limit.
         if (startY < 0 || startY > 255)
             return 0;
 
         int startX, startZ, endX, endY, endZ;
-        startX = vec.getX() == 0 ? curMin.getX() : vec.getX() == 1 ? curMax.getX() + 1 : curMin.getX() - 1;
-        startZ = vec.getZ() == 0 ? curMin.getZ() : vec.getZ() == 1 ? curMax.getZ() + 1 : curMin.getZ() - 1;
+        startX = vec.x() == 0 ? curMin.x() : vec.x() == 1 ? curMax.x() + 1 : curMin.x() - 1;
+        startZ = vec.z() == 0 ? curMin.z() : vec.z() == 1 ? curMax.z() + 1 : curMin.z() - 1;
 
-        endX = vec.getX() == 0 ? curMax.getX() : startX;
-        endY = vec.getY() == 0 ? curMax.getY() : startY;
-        endZ = vec.getZ() == 0 ? curMax.getZ() : startZ;
+        endX = vec.x() == 0 ? curMax.x() : startX;
+        endY = vec.y() == 0 ? curMax.y() : startY;
+        endZ = vec.z() == 0 ? curMax.z() : startZ;
 
 
         final @NotNull Vector3Di locA = new Vector3Di(startX, startY, startZ);
@@ -186,17 +185,17 @@ public final class DoorOpeningUtility
 
         // xLen and zLen describe the length of the door in the x and the z direction respectively.
         // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
-        final int xLen = blocksToMove < 1 ? (curMax.getX() - curMin.getX()) + 1 : blocksToMove;
-        int yLen = blocksToMove < 1 ? (curMax.getY() - curMin.getY()) + 1 : blocksToMove;
-        final int zLen = blocksToMove < 1 ? (curMax.getZ() - curMin.getZ()) + 1 : blocksToMove;
+        final int xLen = blocksToMove < 1 ? (curMax.x() - curMin.x()) + 1 : blocksToMove;
+        int yLen = blocksToMove < 1 ? (curMax.y() - curMin.y()) + 1 : blocksToMove;
+        final int zLen = blocksToMove < 1 ? (curMax.z() - curMin.z()) + 1 : blocksToMove;
 
-        yLen = vec.getY() == 1 ? Math.min(255, curMax.getY() + yLen) :
-               vec.getY() == -1 ? Math.max(0, curMin.getY() - yLen) : yLen;
+        yLen = vec.y() == 1 ? Math.min(255, curMax.y() + yLen) :
+               vec.y() == -1 ? Math.max(0, curMin.y() - yLen) : yLen;
 
         // The maxDist is the number of blocks to check in a direction. This is either getBlocksToMove if it that has
         // been specified. If it hasn't, it's the length of the door in the provided direction.
         int maxDist = blocksToMove > 0 ? blocksToMove :
-                      Math.abs(vec.getX() * xLen + vec.getY() * yLen + vec.getZ() * zLen);
+                      Math.abs(vec.x() * xLen + vec.y() * yLen + vec.z() * zLen);
 
         int ret = 0;
         int steps = 0;
@@ -212,13 +211,13 @@ public final class DoorOpeningUtility
             }
             if (!obstructed) // There is no point in checking how many blocks are available behind an obstruction.
                 ++ret;
-            locA.add(vec.getX(), vec.getY(), vec.getZ());
-            locB.add(vec.getX(), vec.getY(), vec.getZ());
+            locA.add(vec.x(), vec.y(), vec.z());
+            locB.add(vec.x(), vec.y(), vec.z());
             ++steps;
         }
 
         // If the direction was in a negative direction, make sure the output is negative as well.
-        return (vec.getX() == -1 || vec.getY() == -1 || vec.getZ() == -1) ? -1 * ret : ret;
+        return (vec.x() == -1 || vec.y() == -1 || vec.z() == -1) ? -1 * ret : ret;
     }
 
     /**

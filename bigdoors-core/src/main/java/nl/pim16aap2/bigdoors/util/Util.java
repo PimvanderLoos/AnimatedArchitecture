@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -486,9 +485,9 @@ public final class Util
      * @param position The position.
      * @return The chunk coordinates.
      */
-    public static @NotNull Vector2Di getChunkCoords(final @NotNull Vector3DiConst position)
+    public static @NotNull Vector2Di getChunkCoords(final @NotNull Vector3Di position)
     {
-        return new Vector2Di(position.getX() << 4, position.getZ() << 4);
+        return new Vector2Di(position.x() << 4, position.z() << 4);
     }
 
     /**
@@ -544,9 +543,9 @@ public final class Util
      * @param position The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static @NotNull Vector3Di getChunkSpacePosition(final @NotNull Vector3DiConst position)
+    public static @NotNull Vector3Di getChunkSpacePosition(final @NotNull Vector3Di position)
     {
-        return getChunkSpacePosition(position.getX(), position.getY(), position.getZ());
+        return getChunkSpacePosition(position.x(), position.y(), position.z());
     }
 
     /**

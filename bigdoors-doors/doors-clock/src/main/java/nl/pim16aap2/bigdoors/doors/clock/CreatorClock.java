@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,11 +85,11 @@ public class CreatorClock extends Creator
 
         Util.requireNonNull(cuboid, "cuboid");
         if (northSouthAligned)
-            hourArmSide = loc.getBlockZ() == cuboid.getMin().getZ() ? PBlockFace.NORTH :
-                          loc.getBlockZ() == cuboid.getMax().getZ() ? PBlockFace.SOUTH : null;
+            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? PBlockFace.NORTH :
+                          loc.getBlockZ() == cuboid.getMax().z() ? PBlockFace.SOUTH : null;
         else
-            hourArmSide = loc.getBlockX() == cuboid.getMin().getX() ? PBlockFace.WEST :
-                          loc.getBlockX() == cuboid.getMax().getX() ? PBlockFace.EAST : null;
+            hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? PBlockFace.WEST :
+                          loc.getBlockX() == cuboid.getMax().x() ? PBlockFace.EAST : null;
 
         return hourArmSide != null;
     }
@@ -102,12 +101,11 @@ public class CreatorClock extends Creator
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                            loc.getBlockZ())).getDimensions();
+        final @NotNull Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                                 loc.getBlockZ())).getDimensions();
 
         // The clock has to be an odd number of blocks tall.
-        if (cuboidDims.getY() % 2 == 0)
+        if (cuboidDims.y() % 2 == 0)
         {
             BigDoors.get().getPLogger()
                     .debug("ClockCreator: " + getPlayer().asString() +
@@ -115,10 +113,10 @@ public class CreatorClock extends Creator
             return false;
         }
 
-        if (cuboidDims.getX() % 2 == 0)
+        if (cuboidDims.x() % 2 == 0)
         {
             // It has to be a square.
-            if (cuboidDims.getY() != cuboidDims.getZ())
+            if (cuboidDims.y() != cuboidDims.z())
             {
                 BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The x-axis is valid.");
@@ -126,10 +124,10 @@ public class CreatorClock extends Creator
             }
             northSouthAligned = false;
         }
-        else if (cuboidDims.getZ() % 2 == 0)
+        else if (cuboidDims.z() % 2 == 0)
         {
             // It has to be a square.
-            if (cuboidDims.getY() != cuboidDims.getX())
+            if (cuboidDims.y() != cuboidDims.x())
             {
                 BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The z-axis is valid.");

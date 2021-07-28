@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,15 +23,15 @@ public class PLocationFactorySpigot implements IPLocationFactory
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position)
+    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3Di position)
     {
-        return create(world, position.getX(), position.getY(), position.getZ());
+        return create(world, position.x(), position.y(), position.z());
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position)
+    public @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3Dd position)
     {
-        return create(world, position.getX(), position.getY(), position.getZ());
+        return create(world, position.x(), position.y(), position.z());
     }
 
     @Override
@@ -41,14 +41,14 @@ public class PLocationFactorySpigot implements IPLocationFactory
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DiConst position)
+    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3Di position)
     {
-        return create(worldName, position.getX(), position.getY(), position.getZ());
+        return create(worldName, position.x(), position.y(), position.z());
     }
 
     @Override
-    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DdConst position)
+    public @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3Dd position)
     {
-        return create(worldName, position.getX(), position.getY(), position.getZ());
+        return create(worldName, position.x(), position.y(), position.z());
     }
 }

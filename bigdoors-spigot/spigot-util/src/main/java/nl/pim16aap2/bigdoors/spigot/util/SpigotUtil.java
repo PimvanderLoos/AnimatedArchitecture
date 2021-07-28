@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -102,23 +102,23 @@ public final class SpigotUtil
                                      final @NotNull PBlockFace direction, final @NotNull World world)
     {
         int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
-        Vector3DiConst vec = PBlockFace.getDirection(direction);
+        Vector3Di vec = PBlockFace.getDirection(direction);
         maxDist = Math.abs(maxDist);
 
-        startX = vec.getX() == 0 ? min.getBlockX() : vec.getX() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;
-        startY = vec.getY() == 0 ? min.getBlockY() : vec.getY() == 1 ? max.getBlockY() + 1 : min.getBlockY() - 1;
-        startZ = vec.getZ() == 0 ? min.getBlockZ() : vec.getZ() == 1 ? max.getBlockZ() + 1 : min.getBlockZ() - 1;
+        startX = vec.x() == 0 ? min.getBlockX() : vec.x() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;
+        startY = vec.y() == 0 ? min.getBlockY() : vec.y() == 1 ? max.getBlockY() + 1 : min.getBlockY() - 1;
+        startZ = vec.z() == 0 ? min.getBlockZ() : vec.z() == 1 ? max.getBlockZ() + 1 : min.getBlockZ() - 1;
 
-        endX = vec.getX() == 0 ? max.getBlockX() : startX + vec.getX() * maxDist;
-        endY = vec.getY() == 0 ? max.getBlockY() : startY + vec.getY() * maxDist;
-        endZ = vec.getZ() == 0 ? max.getBlockZ() : startZ + vec.getZ() * maxDist;
+        endX = vec.x() == 0 ? max.getBlockX() : startX + vec.x() * maxDist;
+        endY = vec.y() == 0 ? max.getBlockY() : startY + vec.y() * maxDist;
+        endZ = vec.z() == 0 ? max.getBlockZ() : startZ + vec.z() * maxDist;
 
-        int stepX = vec.getX() == 0 ? 1 : vec.getX();
-        int stepY = vec.getY() == 0 ? 1 : vec.getY();
-        int stepZ = vec.getZ() == 0 ? 1 : vec.getZ();
+        int stepX = vec.x() == 0 ? 1 : vec.x();
+        int stepY = vec.y() == 0 ? 1 : vec.y();
+        int stepZ = vec.z() == 0 ? 1 : vec.z();
 
         int ret = 0;
-        if (vec.getX() != 0)
+        if (vec.x() != 0)
             for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
             {
                 for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
@@ -127,7 +127,7 @@ public final class SpigotUtil
                             return ret;
                 ret += stepX;
             }
-        else if (vec.getY() != 0)
+        else if (vec.y() != 0)
             for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
             {
                 for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
@@ -136,7 +136,7 @@ public final class SpigotUtil
                             return ret;
                 ret += stepY;
             }
-        else if (vec.getZ() != 0)
+        else if (vec.z() != 0)
         {
             for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
             {

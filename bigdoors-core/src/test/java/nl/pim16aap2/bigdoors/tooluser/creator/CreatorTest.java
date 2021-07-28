@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -119,8 +118,8 @@ class CreatorTest
 
         val world = getWorld();
 
-        val vec1 = new Vector3DiConst(12, 128, 56);
-        val vec2 = vec1.clone().add(10, 10, 10);
+        val vec1 = new Vector3Di(12, 128, 56);
+        val vec2 = vec1.add(10, 10, 10);
         val cuboid = new Cuboid(vec1, vec2);
 
         setField("firstPos", vec1);
@@ -219,7 +218,7 @@ class CreatorTest
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
-        val cuboid = new Cuboid(new Vector3DiConst(1, 2, 3), new Vector3DiConst(4, 5, 6));
+        val cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
         Assertions.assertTrue(creator.getPrice().isEmpty());
 
@@ -239,7 +238,7 @@ class CreatorTest
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
 
-        val cuboid = new Cuboid(new Vector3DiConst(1, 2, 3), new Vector3DiConst(4, 5, 6));
+        val cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
         Assertions.assertTrue(creator.buyDoor());
 
@@ -265,8 +264,8 @@ class CreatorTest
 
         val world = getWorld();
 
-        val cuboidMin = new Vector3DiConst(10, 20, 30);
-        val cuboidMax = new Vector3DiConst(40, 50, 60);
+        val cuboidMin = new Vector3Di(10, 20, 30);
+        val cuboidMax = new Vector3Di(40, 50, 60);
         val cuboid = new Cuboid(cuboidMin, cuboidMax);
 
         val outsideCuboid = getLocation(70, 80, 90, world);
@@ -303,8 +302,8 @@ class CreatorTest
     {
         val world = getWorld();
 
-        val cuboidMin = new Vector3DiConst(10, 20, 30);
-        val cuboidMax = new Vector3DiConst(40, 50, 60);
+        val cuboidMin = new Vector3Di(10, 20, 30);
+        val cuboidMax = new Vector3Di(40, 50, 60);
         val cuboid = new Cuboid(cuboidMin, cuboidMax);
 
         setField("world", world);

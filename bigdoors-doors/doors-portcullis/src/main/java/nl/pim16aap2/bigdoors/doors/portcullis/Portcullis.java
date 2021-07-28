@@ -22,7 +22,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -104,8 +104,8 @@ public class Portcullis extends AbstractDoorBase
     @Override
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.getX(), 0, getBlocksToMove() * vec.getZ()));
+        final @NotNull Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
     }
 
     @Override

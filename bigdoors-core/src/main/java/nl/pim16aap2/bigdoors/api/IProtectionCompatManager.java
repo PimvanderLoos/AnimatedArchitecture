@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -31,7 +31,7 @@ public interface IProtectionCompatManager
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
     @NotNull Optional<String> canBreakBlocksBetweenLocs(@NotNull IPPlayer player,
-                                                        @NotNull Vector3DiConst pos1,
-                                                        @NotNull Vector3DiConst pos2,
+                                                        @NotNull Vector3Di pos1,
+                                                        @NotNull Vector3Di pos2,
                                                         @NotNull IPWorld world);
 }

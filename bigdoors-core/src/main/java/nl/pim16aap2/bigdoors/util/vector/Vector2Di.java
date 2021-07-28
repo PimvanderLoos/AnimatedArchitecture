@@ -13,7 +13,22 @@ import org.jetbrains.annotations.NotNull;
 public record Vector2Di(int x, int y)
 {
     /**
-     * Adds two values to the current values.
+     * Creates a new double-based 2d vector from this integer-based 2d vector.
+     *
+     * @return A new integer-based vector.
+     */
+    public @NotNull Vector2Dd toDouble()
+    {
+        return Vector2Dd.fromInteger(this);
+    }
+
+    static @NotNull Vector2Di fromDouble(@NotNull Vector2Dd doubleVec)
+    {
+        return new Vector2Di(round(doubleVec.x()), round(doubleVec.y()));
+    }
+
+    /**
+     * Adds values to the current values.
      *
      * @param x The x value to add to the current x value.
      * @param y The y value to add to the current y value.
@@ -36,10 +51,10 @@ public record Vector2Di(int x, int y)
     }
 
     /**
-     * Adds a value to both the x and the y axis of the current {@link Vector2Di}.
+     * Adds a value to both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to add to both the x and the y axis.
-     * @return A new {@link Vector2Di} with the value added to the axes.
+     * @param val The value to add to both the x and the y values.
+     * @return A new {@link Vector2Di} with the value added to the values.
      */
     public @NotNull Vector2Di add(int val)
     {
@@ -48,7 +63,7 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Subtracts two values from the current values.
+     * Subtracts values from the current values.
      *
      * @param x The x value to subtract from the current x value.
      * @param y The y value to subtract from the current y value.
@@ -60,10 +75,10 @@ public record Vector2Di(int x, int y)
     }
 
     /**
-     * Subtracts another {@link Vector2Di} from both the x and the y axis of the current {@link Vector2Di}.
+     * Subtracts another {@link Vector2Di} from both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param other The other {@link Vector2Di} to subtract from the x and the y axis.
-     * @return The new {@link Vector2Di} with the value subtracted from the axes.
+     * @param other The other {@link Vector2Di} to subtract from the x and the y values.
+     * @return The new {@link Vector2Di} with the value subtracted from the values.
      */
     public @NotNull Vector2Di subtract(final @NotNull Vector2Di other)
     {
@@ -71,10 +86,10 @@ public record Vector2Di(int x, int y)
     }
 
     /**
-     * Subtracts a value from both the x and the y axis of the current {@link Vector2Di}.
+     * Subtracts a value from both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to subtract from both the x and the y axis.
-     * @return A new {@link Vector2Di} with the value subtracted from the axes.
+     * @param val The value to subtract from both the x and the y values.
+     * @return A new {@link Vector2Di} with the value subtracted from the values.
      */
     public @NotNull Vector2Di subtract(int val)
     {
@@ -83,7 +98,7 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Multiplies two values with the current values.
+     * Multiplies values with the current values.
      *
      * @param x The x value to multiply with the current x value.
      * @param y The y value to multiply with the current y value.
@@ -118,7 +133,7 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Multiplies two values with the current values.
+     * Multiplies values with the current values.
      *
      * @param x The x value to multiply with the current x value.
      * @param y The y value to multiply with the current y value.
@@ -153,7 +168,7 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Divides the current values with two values.
+     * Divides the current values with values.
      *
      * @param x The x value to use as divisor for the current x value.
      * @param y The y value to use as divisor for the current y value.
@@ -161,7 +176,7 @@ public record Vector2Di(int x, int y)
      */
     public @NotNull Vector2Di divide(int x, int y)
     {
-        return new Vector2Di(this.x / x, this.y / y);
+        return new Vector2Di(round(this.x / (double) x), round(this.y / (double) y));
     }
 
     /**
@@ -189,7 +204,7 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Divides the current values with two values.
+     * Divides the current values with values.
      *
      * @param x The x value to use as divisor for the current x value.
      * @param y The y value to use as divisor for the current y value.
@@ -225,51 +240,6 @@ public record Vector2Di(int x, int y)
 
 
     /**
-     * Adds a value to the current x value of this {@link Vector2Di}.
-     *
-     * @param val The value to add to the current x value.
-     * @return A new {@link Vector2Di} with the provided value added to the x value.
-     */
-    public @NotNull Vector2Di addX(int val)
-    {
-        return add(val, 0);
-    }
-
-    /**
-     * Adds a value to the current y value of this {@link Vector2Di}.
-     *
-     * @param val The value to add to the current y value.
-     * @return A new {@link Vector2Di} with the provided value added to the y value.
-     */
-    public @NotNull Vector2Di addY(int val)
-    {
-        return add(0, val);
-    }
-
-    /**
-     * Sets the value of the current x value of this {@link Vector2Di}.
-     *
-     * @param newVal The new value to use as x value.
-     * @return A new {@link Vector2Di} with the provided value as x value.
-     */
-    public @NotNull Vector2Di setX(int newVal)
-    {
-        return new Vector2Di(newVal, y);
-    }
-
-    /**
-     * Sets the value of the current y value of this {@link Vector2Di}.
-     *
-     * @param newVal The new value to use as y value.
-     * @return A new {@link Vector2Di} with the provided value as y value.
-     */
-    public @NotNull Vector2Di setY(int newVal)
-    {
-        return new Vector2Di(x, newVal);
-    }
-
-
-    /**
      * Normalizes this {@link Vector2Di}.
      *
      * @return A new {@link Vector2Di} with normalized
@@ -284,7 +254,7 @@ public record Vector2Di(int x, int y)
         return new Vector2Di(newX, newY);
     }
 
-    private int round(double val)
+    private static int round(double val)
     {
         return (int) Math.round(val);
     }

@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.NotNull;
 
 public interface IGlowingBlock extends IRestartable
@@ -17,7 +17,7 @@ public interface IGlowingBlock extends IRestartable
      *
      * @param position The new position of the {@link IGlowingBlock}.
      */
-    void teleport(@NotNull Vector3DdConst position);
+    void teleport(@NotNull Vector3Dd position);
 
     /**
      * Spawns this {@link IGlowingBlock} for the specified number of ticks.

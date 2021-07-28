@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -78,9 +77,9 @@ public class VerticalMover extends BlockMover
     @Override
     protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                                 startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 

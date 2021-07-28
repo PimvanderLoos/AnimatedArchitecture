@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,15 +69,14 @@ public class CreatorGarageDoor extends Creator
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                            loc.getBlockZ())).getDimensions();
+        final @NotNull Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                                 loc.getBlockZ())).getDimensions();
 
         // Check if there's exactly 1 dimension that is 1 block deep.
-        if ((cuboidDims.getX() == 1) ^ (cuboidDims.getY() == 1) ^ (cuboidDims.getZ() == 1))
+        if ((cuboidDims.x() == 1) ^ (cuboidDims.y() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAligned = cuboidDims.getX() == 1;
-            isOpen = cuboidDims.getY() == 1;
+            northSouthAligned = cuboidDims.x() == 1;
+            isOpen = cuboidDims.y() == 1;
             return super.setSecondPos(loc);
         }
 
@@ -136,20 +134,23 @@ public class CreatorGarageDoor extends Creator
         // The engine should be located at the bottom of the garage door.
         // An additional 1 is subtracted because garage doors in the 'up' position
         // are 1 block above the highest point.
-        final int moveDistance = northSouthAligned ? cuboid.getDimensions().getX() : cuboid.getDimensions().getZ();
-        final int engineY = cuboid.getMin().getY() - moveDistance - 1;
+        final int moveDistance = northSouthAligned ? cuboid.getDimensions().x() : cuboid.getDimensions().z();
+        final int engineY = cuboid.getMin().y() - moveDistance - 1;
         final @NotNull Vector3Di engineTmp = cuboid.getCenterBlock();
-        engineTmp.setY(engineY);
+
+        int newX = engineTmp.x();
+        int newZ = engineTmp.z();
 
         if (openDir == RotateDirection.NORTH)
-            engineTmp.setZ(cuboid.getMax().getZ() + 1);
+            newZ = cuboid.getMax().z() + 1;
         else if (openDir == RotateDirection.EAST)
-            engineTmp.setX(cuboid.getMin().getX() - 1);
+            newX = cuboid.getMin().x() - 1;
         else if (openDir == RotateDirection.SOUTH)
-            engineTmp.setZ(cuboid.getMin().getZ() - 1);
+            newZ = cuboid.getMin().z() - 1;
         else if (openDir == RotateDirection.WEST)
-            engineTmp.setX(cuboid.getMax().getX() + 1);
-        engine = engineTmp;
+            newX = cuboid.getMax().x() + 1;
+
+        engine = new Vector3Di(newX, engineY, newZ);
     }
 
     @Override

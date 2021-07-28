@@ -22,7 +22,7 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -85,16 +85,16 @@ public class SlidingDoor extends AbstractDoorBase
     @Override
     public @NotNull Vector2Di[] calculateChunkRange()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
+        final @NotNull Vector3Di dimensions = getDimensions();
 
         int distanceX = 0;
         int distanceZ = 0;
         if (getOpenDir().equals(RotateDirection.NORTH) || getOpenDir().equals(RotateDirection.SOUTH))
-            distanceZ = (getBlocksToMove() > 0 ? Math.max(dimensions.getZ(), getBlocksToMove()) :
-                         Math.min(-dimensions.getZ(), getBlocksToMove())) / 16 + 1;
+            distanceZ = (getBlocksToMove() > 0 ? Math.max(dimensions.z(), getBlocksToMove()) :
+                         Math.min(-dimensions.z(), getBlocksToMove())) / 16 + 1;
         else
-            distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.getX(), getBlocksToMove()) :
-                         Math.min(-dimensions.getX(), getBlocksToMove())) / 16 + 1;
+            distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.x(), getBlocksToMove()) :
+                         Math.min(-dimensions.x(), getBlocksToMove())) / 16 + 1;
 
         return new Vector2Di[]{
             new Vector2Di(getEngineChunk().x() - distanceX, getEngineChunk().y() - distanceZ),
@@ -118,8 +118,8 @@ public class SlidingDoor extends AbstractDoorBase
     @Override
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().clone().move(0, getBlocksToMove() * vec.getY(), 0));
+        final @NotNull Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        return Optional.of(getCuboid().clone().move(0, getBlocksToMove() * vec.y(), 0));
     }
 
     @Override

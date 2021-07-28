@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.functional.TriIntConsumer;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
@@ -19,8 +18,8 @@ import java.util.function.Supplier;
 @Deprecated
 public class PositionIterator implements Iterable<Vector3Di>
 {
-    private final @NotNull Vector3DiConst posA;
-    private final @NotNull Vector3DiConst posB;
+    private final @NotNull Vector3Di posA;
+    private final @NotNull Vector3Di posB;
     private final @NotNull IterationMode iterationMode;
     private final int dx, dy, dz;
     private final int volume;
@@ -36,7 +35,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param volume        The total number of blocks between posA and posB (inclusive). Do not use this if you do not
      *                      know this.
      */
-    public PositionIterator(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB,
+    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
                             final @NotNull IterationMode iterationMode, final int volume)
     {
         if (volume < 1)
@@ -45,9 +44,9 @@ public class PositionIterator implements Iterable<Vector3Di>
         this.posB = posB;
         this.iterationMode = iterationMode;
         this.volume = volume;
-        dx = posA.getX() > posB.getX() ? -1 : 1;
-        dy = posA.getY() > posB.getY() ? -1 : 1;
-        dz = posA.getZ() > posB.getZ() ? -1 : 1;
+        dx = posA.x() > posB.x() ? -1 : 1;
+        dy = posA.y() > posB.y() ? -1 : 1;
+        dz = posA.z() > posB.z() ? -1 : 1;
     }
 
     /**
@@ -59,7 +58,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param posB          The ending values.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB,
+    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
                             final @NotNull IterationMode iterationMode)
     {
         this(posA, posB, iterationMode, getVolume(posA, posB));
@@ -79,7 +78,7 @@ public class PositionIterator implements Iterable<Vector3Di>
         this(cuboid.getMin(), cuboid.getMax(), iterationMode, cuboid.getVolume());
     }
 
-    private static int getVolume(final @NotNull Vector3DiConst posA, final @NotNull Vector3DiConst posB)
+    private static int getVolume(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB)
     {
         return new CuboidConst(posA, posB).getVolume();
     }
@@ -113,9 +112,9 @@ public class PositionIterator implements Iterable<Vector3Di>
 
         private CustomIterator(final @NotNull PositionIterator locationIterator)
         {
-            x = posA.getX();
-            y = posA.getY();
-            z = posA.getZ();
+            x = posA.x();
+            y = posA.y();
+            z = posA.z();
             outerLoop = getIncrementor(locationIterator.iterationMode.getIndex(0));
             middleLoop = getIncrementor(locationIterator.iterationMode.getIndex(1));
             innerLoop = getIncrementor(locationIterator.iterationMode.getIndex(2));
@@ -150,14 +149,14 @@ public class PositionIterator implements Iterable<Vector3Di>
         /**
          * Increments {@link #x} by a step of {@link #dx} if possible.
          * <p>
-         * If no new values are available, i.e. {@link #x} == {@link Vector3Di#getX()} for {@link #posB}, this method
-         * does nothing other than returning false.
+         * If no new values are available, i.e. {@link #x} == {@link Vector3Di#x()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
          * @return True if the x axis could be updated, otherwise false.
          */
         private boolean incrementX()
         {
-            if (x == posB.getX())
+            if (x == posB.x())
                 return false;
 
             x += dx;
@@ -167,14 +166,14 @@ public class PositionIterator implements Iterable<Vector3Di>
         /**
          * Increments {@link #y} by a step of {@link #dy} if possible.
          * <p>
-         * If no new values are available, i.e. {@link #y} == {@link Vector3Di#getY()} for {@link #posB}, this method
-         * does nothing other than returning false.
+         * If no new values are available, i.e. {@link #y} == {@link Vector3Di#y()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
          * @return True if the y axis could be updated, otherwise false.
          */
         private boolean incrementY()
         {
-            if (y == posB.getY())
+            if (y == posB.y())
                 return false;
 
             y += dy;
@@ -184,14 +183,14 @@ public class PositionIterator implements Iterable<Vector3Di>
         /**
          * Increments {@link #z} by a step of {@link #dz} if possible.
          * <p>
-         * If no new values are available, i.e. {@link #z} == {@link Vector3Di#getZ()} for {@link #posB}, this method
-         * does nothing other than returning false.
+         * If no new values are available, i.e. {@link #z} == {@link Vector3Di#z()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
          * @return True if the z axis could be updated, otherwise false.
          */
         private boolean incrementZ()
         {
-            if (z == posB.getZ())
+            if (z == posB.z())
                 return false;
 
             z += dz;
@@ -220,7 +219,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          */
         private void resetX()
         {
-            x = posA.getX();
+            x = posA.x();
         }
 
         /**
@@ -228,7 +227,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          */
         private void resetY()
         {
-            y = posA.getY();
+            y = posA.y();
         }
 
         /**
@@ -236,7 +235,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          */
         private void resetZ()
         {
-            z = posA.getZ();
+            z = posA.z();
         }
 
         /**

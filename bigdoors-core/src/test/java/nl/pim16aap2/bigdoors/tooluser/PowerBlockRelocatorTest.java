@@ -91,7 +91,7 @@ class PowerBlockRelocatorTest
 
         Mockito.when(location.getWorld()).thenReturn(world);
 
-        Mockito.when(location.getPosition()).thenReturn(Mockito.mock(Vector3Di.class));
+        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
         Assertions.assertTrue(relocator.moveToLoc(location));
 
         Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);
@@ -108,7 +108,7 @@ class PowerBlockRelocatorTest
         Mockito.when(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat)).thenReturn(compat);
 
         Mockito.when(location.getWorld()).thenReturn(world);
-        Mockito.when(location.getPosition()).thenReturn(Mockito.mock(Vector3Di.class));
+        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
         Mockito.verify(player).sendMessage(compat);
@@ -120,7 +120,7 @@ class PowerBlockRelocatorTest
         val relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
-        Mockito.when(location.getPosition()).thenReturn(Mockito.mock(Vector3Di.class));
+        Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
         Assertions.assertTrue(relocator.handleInput(location));
 

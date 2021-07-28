@@ -25,7 +25,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,17 +63,17 @@ public abstract class Creator extends ToolUser
      * <p>
      * Once a second point has been selected, these two are used to construct the {@link #cuboid}.
      */
-    protected @Nullable Vector3DiConst firstPos;
+    protected @Nullable Vector3Di firstPos;
 
     /**
      * The engine position selected by the user.
      */
-    protected @Nullable Vector3DiConst engine;
+    protected @Nullable Vector3Di engine;
 
     /**
      * The powerblock selected by the user.
      */
-    protected @Nullable Vector3DiConst powerblock;
+    protected @Nullable Vector3Di powerblock;
 
     /**
      * The opening direction selected by the user.
@@ -316,7 +315,7 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        Cuboid newCuboid = new Cuboid(new Vector3Di(Util.requireNonNull(firstPos, "firstPos")),
+        Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                       new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
         final @NotNull OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);

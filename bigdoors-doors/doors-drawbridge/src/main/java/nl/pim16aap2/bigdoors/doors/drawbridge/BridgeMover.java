@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.TriFunction;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -26,9 +25,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
 {
-    private final @NotNull Vector3DdConst rotationCenter;
+    private final @NotNull Vector3Dd rotationCenter;
     protected final boolean NS;
-    protected final @NotNull TriFunction<Vector3Dd, Vector3DdConst, Double, Vector3Dd> rotator;
+    protected final @NotNull TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
     private double step;
@@ -53,11 +52,11 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         NS = door.isNorthSouthAligned();
-        rotationCenter = new Vector3Dd(door.getEngine()).add(0.5, 0, 0.5);
+        rotationCenter = door.getEngine().toDouble().add(0.5, 0, 0.5);
 
-        final int xLen = Math.abs(door.getMaximum().getX() - door.getMinimum().getX());
-        final int yLen = Math.abs(door.getMaximum().getY() - door.getMinimum().getY());
-        final int zLen = Math.abs(door.getMaximum().getZ() - door.getMinimum().getZ());
+        final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
+        final int yLen = Math.abs(door.getMaximum().y() - door.getMinimum().y());
+        final int zLen = Math.abs(door.getMaximum().z() - door.getMinimum().z());
         final int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
         final double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
@@ -138,8 +137,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
-        final double deltaA = (door.getEngine().getY() - yAxis);
-        final double deltaB = NS ? (door.getEngine().getX() - xAxis) : (door.getEngine().getZ() - zAxis);
+        final double deltaA = (double) door.getEngine().y() - yAxis;
+        final double deltaB = NS ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -155,8 +154,8 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
-        final float deltaA = NS ? door.getEngine().getX() - xAxis : door.getEngine().getZ() - zAxis;
-        final float deltaB = door.getEngine().getY() - yAxis;
+        final double deltaA = NS ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
+        final double deltaB = (double) door.getEngine().y() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

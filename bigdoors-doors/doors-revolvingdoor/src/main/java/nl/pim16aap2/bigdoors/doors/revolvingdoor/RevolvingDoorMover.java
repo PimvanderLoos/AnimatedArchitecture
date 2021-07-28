@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
@@ -82,8 +81,8 @@ public class RevolvingDoorMover extends BlockMover
     private @NotNull Vector3Dd getGoalPosClockwise(final double radius, final double startAngle, final double startY,
                                                    final double stepSum)
     {
-        final double posX = 0.5 + door.getEngine().getX() - radius * Math.sin(startAngle + stepSum);
-        final double posZ = 0.5 + door.getEngine().getZ() - radius * Math.cos(startAngle + stepSum);
+        final double posX = 0.5 + door.getEngine().x() - radius * Math.sin(startAngle + stepSum);
+        final double posZ = 0.5 + door.getEngine().z() - radius * Math.cos(startAngle + stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
@@ -96,8 +95,8 @@ public class RevolvingDoorMover extends BlockMover
                                                           final double startY,
                                                           final double stepSum)
     {
-        final double posX = 0.5 + door.getEngine().getX() - radius * Math.sin(startAngle - stepSum);
-        final double posZ = 0.5 + door.getEngine().getZ() - radius * Math.cos(startAngle - stepSum);
+        final double posX = 0.5 + door.getEngine().x() - radius * Math.sin(startAngle - stepSum);
+        final double posZ = 0.5 + door.getEngine().z() - radius * Math.cos(startAngle - stepSum);
         return new Vector3Dd(posX, startY, posZ);
     }
 
@@ -117,15 +116,15 @@ public class RevolvingDoorMover extends BlockMover
             newPos = getGoalPosClockwise(radius, startAngle, yAxis, endStepSum);
         else
             newPos = getGoalPosCounterClockwise(radius, startAngle, yAxis, endStepSum);
-        return locationFactory.create(world, newPos.getX(), newPos.getY(), newPos.getZ());
+        return locationFactory.create(world, newPos.x(), newPos.y(), newPos.z());
     }
 
     @Override
     protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final @NotNull Vector3Dd startLocation = block.getStartPosition();
+        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                                 startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
@@ -141,14 +140,14 @@ public class RevolvingDoorMover extends BlockMover
     @Override
     protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
     {
-        final double deltaA = (door.getEngine().getX() - xAxis);
-        final double deltaB = door.getEngine().getZ() - zAxis;
+        final double deltaA = (double) door.getEngine().x() - xAxis;
+        final double deltaB = (double) door.getEngine().z() - zAxis;
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
     @Override
     protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
     {
-        return (float) Math.atan2(door.getEngine().getX() - xAxis, door.getEngine().getZ() - zAxis);
+        return (float) Math.atan2((double) door.getEngine().x() - xAxis, (double) door.getEngine().z() - zAxis);
     }
 }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -30,7 +30,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(@NotNull Vector3DiConst pos, @NotNull IPWorld world, @NotNull PSound sound,
+    void playSound(@NotNull Vector3Di pos, @NotNull IPWorld world, @NotNull PSound sound,
                    float volume, float pitch);
 
     /**
@@ -42,7 +42,7 @@ public interface ISoundEngine
      * @param volume The volume
      * @param pitch  The pitch
      */
-    void playSound(@NotNull Vector3DdConst pos, @NotNull IPWorld world, @NotNull PSound sound,
+    void playSound(@NotNull Vector3Dd pos, @NotNull IPWorld world, @NotNull PSound sound,
                    float volume, float pitch);
 
     /**
