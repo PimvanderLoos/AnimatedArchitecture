@@ -69,6 +69,7 @@ public final class MethodFinder
     {
         protected final @NotNull Class<?> source;
         protected boolean checkSuperClasses = false;
+        protected boolean checkInterfaces = false;
 
         private MethodFinderBase(Class<?> source)
         {
@@ -81,11 +82,16 @@ public final class MethodFinder
             super(other);
             this.source = other.source;
             this.checkSuperClasses = other.checkSuperClasses;
+            this.checkInterfaces = other.checkInterfaces;
         }
 
         /**
          * Used to configure the method finder to include the {@link #source} class's superclasses when searching for
          * the target method.
+         * <p>
+         * Note that when both {@link #checkSuperClasses} and {@link #checkInterfaces} are enabled, the superclasses
+         * will take precedence. This means that all super classes (and their interfaces) are evaluated before the
+         * interfaces of the source class are evaluated.
          *
          * @return The current method finder instance.
          */
@@ -101,9 +107,37 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        public @NotNull MethodFinderBase ignoreClasses()
+        public @NotNull MethodFinderBase ignoreSuperClasses()
         {
             this.checkSuperClasses = false;
+            return this;
+        }
+
+        /**
+         * Used to configure the method finder to include the {@link #source} class's interfaces when searching for the
+         * target method.
+         * <p>
+         * Note that when both {@link #checkSuperClasses} and {@link #checkInterfaces} are enabled, the superclasses
+         * will take precedence. This means that all super classes (and their interfaces) are evaluated before the
+         * interfaces of the source class are evaluated.
+         *
+         * @return The current method finder instance.
+         */
+        public @NotNull MethodFinderBase checkInterfaces()
+        {
+            this.checkInterfaces = true;
+            return this;
+        }
+
+        /**
+         * Used to configure the method finder to ignore the {@link #source} class's interfaces when searching for the
+         * target method. This is the default behavior.
+         *
+         * @return The current method finder instance.
+         */
+        public @NotNull MethodFinderBase ignoreInterfaces()
+        {
+            this.checkInterfaces = false;
             return this;
         }
     }
@@ -124,7 +158,8 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            return ReflectionBackend.findMethod(nonnull, checkSuperClasses, source, name, modifiers, parameters, null);
+            return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
+                                                source, name, modifiers, parameters, null);
         }
     }
 
@@ -144,8 +179,8 @@ public final class MethodFinder
         @Override
         public Method get()
         {
-            return ReflectionBackend
-                .findMethod(nonnull, checkSuperClasses, source, null, modifiers, parameters, returnType);
+            return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
+                                                source, null, modifiers, parameters, returnType);
         }
     }
 }

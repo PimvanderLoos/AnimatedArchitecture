@@ -261,11 +261,15 @@ final class ReflectionBackend
 
     /**
      * Finds a method in a class.
+     * <p>
+     * When both `checkSuperClasses` and `checkInterfaces` are allowed, the superclass will be evaluated first, followed
+     * by the interfaces of the superclasses.
      *
      * @param nonNull           Whether to allow returning a null value when the specified method could not be found.
      *                          When this is true, and the specified method could not be found, an exception will be
      *                          thrown.
      * @param checkSuperClasses Whether or not to include methods from superclasses of the source class in the search.
+     * @param checkInterfaces   Whether or not to include methods from super interfaces of the source class.
      * @param source            The class in which to look for the method.
      * @param name              The name of the method. When this is null, the name of the method is ignored.
      * @param modifiers         The {@link Modifier}s that the method should match. E.g. {@link Modifier#PUBLIC}. When
@@ -278,20 +282,55 @@ final class ReflectionBackend
      *                          ignored.
      * @return The method matching the specified description.
      */
-    @Contract("true, _, _, _, _, _, _ -> !null")
-    public static Method findMethod(boolean nonNull, boolean checkSuperClasses, @NotNull Class<?> source,
-                                    @Nullable String name, int modifiers, @Nullable ParameterGroup parameters,
-                                    @Nullable Class<?> returnType)
+    @Contract("true, _, _, _, _, _, _, _ -> !null")
+    public static Method findMethod(boolean nonNull, final boolean checkSuperClasses, final boolean checkInterfaces,
+                                    @NotNull Class<?> source, @Nullable String name, int modifiers,
+                                    @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
-        Class<?> check = source;
-        do
+        Method m = findMethod(source, name, modifiers, parameters, returnType);
+        if (m != null)
+            return m;
+
+        boolean continueSuperClassChecking = checkSuperClasses;
+        boolean continueInterfaceChecking = checkInterfaces;
+        while (continueSuperClassChecking || continueInterfaceChecking)
         {
-            Method m = findMethod(check, name, modifiers, parameters, returnType);
-            if (m != null)
-                return m;
-            check = check.getSuperclass();
+            // Superclasses take precedence, so evaluate them first.
+            if (continueSuperClassChecking)
+            {
+                // Recursion base case for superclasses.
+                Class<?> superClass = source.getSuperclass();
+                if (superClass == null)
+                {
+                    continueSuperClassChecking = false;
+                    continue;
+                }
+
+                m = findMethod(false, true, continueInterfaceChecking, superClass,
+                               name, modifiers, parameters, returnType);
+                if (m != null)
+                    return m;
+            }
+
+            if (continueInterfaceChecking)
+            {
+                final Class<?>[] superInterfaces = source.getInterfaces();
+                // Recursion base case for interfaces.
+                if (superInterfaces.length == 0)
+                {
+                    continueInterfaceChecking = false;
+                    continue;
+                }
+
+                for (Class<?> superInterface : superInterfaces)
+                {
+                    m = findMethod(false, false, true, superInterface, name, modifiers, parameters, returnType);
+                    if (m != null)
+                        return m;
+                }
+            }
         }
-        while (checkSuperClasses && check != Object.class);
+
         if (nonNull)
             throw new NullPointerException(
                 String.format("Failed to find method: [%s %s %s#%s(%s)]. Super classes were %s.",
@@ -300,7 +339,6 @@ final class ReflectionBackend
                               checkSuperClasses ? "included" : "excluded"));
         return null;
     }
-
 
     /**
      * Finds a constructor in a class.
