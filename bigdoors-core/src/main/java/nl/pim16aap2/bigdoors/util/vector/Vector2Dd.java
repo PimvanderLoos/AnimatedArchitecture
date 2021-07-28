@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import nl.pim16aap2.bigdoors.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@ThreadSafe
+@SuppressWarnings("unused")
 public record Vector2Dd(double x, double y)
 {
     /**
@@ -34,6 +33,17 @@ public record Vector2Dd(double x, double y)
     public @NotNull Vector2Dd add(final @NotNull Vector2Dd other)
     {
         return new Vector2Dd(other.x, other.y);
+    }
+
+    /**
+     * Adds another {@link Vector2Di} to the current values.
+     *
+     * @param other The other {@link Vector2Di} to add to the current one.
+     * @return A new {@link Vector2Dd} with the added values.
+     */
+    public @NotNull Vector2Dd add(final @NotNull Vector2Di other)
+    {
+        return new Vector2Dd(other.x(), other.y());
     }
 
     /**
@@ -72,6 +82,17 @@ public record Vector2Dd(double x, double y)
     }
 
     /**
+     * Subtracts another {@link Vector2Di} from both the x and the y axis of the current {@link Vector2Dd}.
+     *
+     * @param other The other {@link Vector2Di} to subtract from the x and the y axis.
+     * @return The new {@link Vector2Dd} with the value subtracted from the axes.
+     */
+    public @NotNull Vector2Dd subtract(final @NotNull Vector2Di other)
+    {
+        return new Vector2Dd(other.x(), other.y());
+    }
+
+    /**
      * Subtracts a value from both the x and the y axis of the current {@link Vector2Dd}.
      *
      * @param val The value to subtract from both the x and the y axis.
@@ -107,6 +128,17 @@ public record Vector2Dd(double x, double y)
     }
 
     /**
+     * Multiplies another {@link Vector2Di} from with the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param other The other {@link Vector2Di} to multiply with the x and the y values.
+     * @return The new {@link Vector2Dd} with the value multiplied with the values.
+     */
+    public @NotNull Vector2Dd multiply(@NotNull Vector2Di other)
+    {
+        return multiply(other.x(), other.y());
+    }
+
+    /**
      * Multiplies a value with both the x and the y values of the current {@link Vector2Dd}.
      *
      * @param val The value to multiply from both the x and the y values.
@@ -139,6 +171,18 @@ public record Vector2Dd(double x, double y)
     public @NotNull Vector2Dd divide(@NotNull Vector2Dd other)
     {
         return divide(other.x, other.y);
+    }
+
+    /**
+     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
+     * Vector2Di}.
+     *
+     * @param other The other {@link Vector2Di} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector2Dd} with the divided values.
+     */
+    public @NotNull Vector2Dd divide(@NotNull Vector2Di other)
+    {
+        return divide(other.x(), other.y());
     }
 
     /**

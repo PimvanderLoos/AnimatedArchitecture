@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import nl.pim16aap2.bigdoors.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-@ThreadSafe
+@SuppressWarnings("unused")
 public record Vector2Di(int x, int y)
 {
     /**
@@ -117,6 +116,42 @@ public record Vector2Di(int x, int y)
         return multiply(val, val);
     }
 
+
+    /**
+     * Multiplies two values with the current values.
+     *
+     * @param x The x value to multiply with the current x value.
+     * @param y The y value to multiply with the current y value.
+     * @return A new {@link Vector2Di} with the multiplied values.
+     */
+    public @NotNull Vector2Di multiply(double x, double y)
+    {
+        return new Vector2Di(round(this.x * x), round(this.y * y));
+    }
+
+    /**
+     * Multiplies another {@link Vector2Dd} from with the x and the y values of the current {@link Vector2Di}.
+     *
+     * @param other The other {@link Vector2Dd} to multiply with the x and the y values.
+     * @return The new {@link Vector2Di} with the value multiplied with the values.
+     */
+    public @NotNull Vector2Di multiply(@NotNull Vector2Dd other)
+    {
+        return multiply(other.x(), other.y());
+    }
+
+    /**
+     * Multiplies a value with both the x and the y values of the current {@link Vector2Di}.
+     *
+     * @param val The value to multiply from both the x and the y values.
+     * @return A new {@link Vector2Di} with the value multiplied with the values.
+     */
+    public @NotNull Vector2Di multiply(double val)
+    {
+        return multiply(val, val);
+    }
+
+
     /**
      * Divides the current values with two values.
      *
@@ -151,6 +186,43 @@ public record Vector2Di(int x, int y)
     {
         return divide(val, val);
     }
+
+
+    /**
+     * Divides the current values with two values.
+     *
+     * @param x The x value to use as divisor for the current x value.
+     * @param y The y value to use as divisor for the current y value.
+     * @return A new {@link Vector2Di} with the divided values.
+     */
+    public @NotNull Vector2Di divide(double x, double y)
+    {
+        return new Vector2Di(round(this.x / x), round(this.y / y));
+    }
+
+    /**
+     * Divides the x and y values of the current {@link Vector2Di} with the x and the y values of the provided {@link
+     * Vector2Dd}.
+     *
+     * @param other The other {@link Vector2Dd} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector2Di} with the divided values.
+     */
+    public @NotNull Vector2Di divide(@NotNull Vector2Dd other)
+    {
+        return divide(other.x(), other.y());
+    }
+
+    /**
+     * Divides both the x and the y values of the current {@link Vector2Di} with a provided value.
+     *
+     * @param val The value to use as divisor for both the x and the y values.
+     * @return A new {@link Vector2Di} with the divided values.
+     */
+    public @NotNull Vector2Di divide(double val)
+    {
+        return divide(val, val);
+    }
+
 
     /**
      * Adds a value to the current x value of this {@link Vector2Di}.
@@ -206,9 +278,14 @@ public record Vector2Di(int x, int y)
     {
         final double length = Math.sqrt((double) x * x + y * y);
 
-        final int newX = (int) (x / length);
-        final int newY = (int) (y / length);
+        final int newX = round(x / length);
+        final int newY = round(y / length);
 
         return new Vector2Di(newX, newY);
+    }
+
+    private int round(double val)
+    {
+        return (int) Math.round(val);
     }
 }
