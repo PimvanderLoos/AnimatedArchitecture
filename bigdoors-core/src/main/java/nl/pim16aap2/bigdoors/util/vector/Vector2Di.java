@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,11 +19,13 @@ public record Vector2Di(int x, int y)
      *
      * @return A new integer-based vector.
      */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
     public @NotNull Vector2Dd toDouble()
     {
         return Vector2Dd.fromInteger(this);
     }
 
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     static @NotNull Vector2Di fromDouble(@NotNull Vector2Dd doubleVec)
     {
         return new Vector2Di(round(doubleVec.x()), round(doubleVec.y()));
@@ -34,6 +38,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to add to the current y value.
      * @return A new {@link Vector2Di} with the added values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di add(int x, int y)
     {
         return new Vector2Di(this.x + x, this.y + y);
@@ -45,6 +50,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Di} to add to the current one.
      * @return A new {@link Vector2Di} with the added values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di add(final @NotNull Vector2Di other)
     {
         return new Vector2Di(other.x, other.y);
@@ -56,6 +62,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to add to both the x and the y values.
      * @return A new {@link Vector2Di} with the value added to the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di add(int val)
     {
         return add(val, val);
@@ -69,6 +76,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to subtract from the current y value.
      * @return A new {@link Vector2Di} with the subtracted values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di subtract(int x, int y)
     {
         return add(-x, -y);
@@ -80,6 +88,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Di} to subtract from the x and the y values.
      * @return The new {@link Vector2Di} with the value subtracted from the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di subtract(final @NotNull Vector2Di other)
     {
         return new Vector2Di(other.x, other.y);
@@ -91,6 +100,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to subtract from both the x and the y values.
      * @return A new {@link Vector2Di} with the value subtracted from the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di subtract(int val)
     {
         return add(val, val);
@@ -104,6 +114,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di multiply(int x, int y)
     {
         return new Vector2Di(this.x * x, this.y * y);
@@ -115,6 +126,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Di} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di multiply(@NotNull Vector2Di other)
     {
         return multiply(other.x, other.y);
@@ -126,6 +138,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di multiply(int val)
     {
         return multiply(val, val);
@@ -139,6 +152,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di multiply(double x, double y)
     {
         return new Vector2Di(round(this.x * x), round(this.y * y));
@@ -150,6 +164,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Dd} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di multiply(@NotNull Vector2Dd other)
     {
         return multiply(other.x(), other.y());
@@ -161,6 +176,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di multiply(double val)
     {
         return multiply(val, val);
@@ -174,6 +190,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di divide(int x, int y)
     {
         return new Vector2Di(round(this.x / (double) x), round(this.y / (double) y));
@@ -186,6 +203,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Di} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di divide(@NotNull Vector2Di other)
     {
         return divide(other.x, other.y);
@@ -197,6 +215,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di divide(int val)
     {
         return divide(val, val);
@@ -210,6 +229,7 @@ public record Vector2Di(int x, int y)
      * @param y The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
     public @NotNull Vector2Di divide(double x, double y)
     {
         return new Vector2Di(round(this.x / x), round(this.y / y));
@@ -222,6 +242,7 @@ public record Vector2Di(int x, int y)
      * @param other The other {@link Vector2Dd} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di divide(@NotNull Vector2Dd other)
     {
         return divide(other.x(), other.y());
@@ -233,6 +254,7 @@ public record Vector2Di(int x, int y)
      * @param val The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
     public @NotNull Vector2Di divide(double val)
     {
         return divide(val, val);
@@ -244,6 +266,7 @@ public record Vector2Di(int x, int y)
      *
      * @return A new {@link Vector2Di} with normalized
      */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
     public @NotNull Vector2Di normalized()
     {
         final double length = Math.sqrt((double) x * x + y * y);

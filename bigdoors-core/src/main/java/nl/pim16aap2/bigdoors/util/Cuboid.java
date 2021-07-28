@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigdoors.util;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.UnaryOperator;
@@ -25,6 +27,7 @@ public class Cuboid
      */
     @Getter
     protected final Vector3Di min;
+
     /**
      * Gets the upper bound position.
      */
@@ -48,7 +51,7 @@ public class Cuboid
 
     public Cuboid(@NotNull Vector3Di a, @NotNull Vector3Di b)
     {
-        Vector3Di[] minmax = getSortedCoordinates(a, b);
+        final Vector3Di[] minmax = getSortedCoordinates(a, b);
         min = minmax[0];
         max = minmax[1];
         volume = calculateVolume();
@@ -61,6 +64,8 @@ public class Cuboid
      * @param pos The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isPosInsideCuboid(final @NotNull Vector3Di pos)
     {
         return pos.x() >= min.x() && pos.x() <= max.x() &&
@@ -81,6 +86,8 @@ public class Cuboid
      * @return The distance between the test value and the provided range, or 0 if the test value lies on the provided
      * range.
      */
+    @CheckReturnValue
+    @Contract(pure = true)
     private static int getOuterDistance(final int test, final int min, final int max)
     {
         if (Util.between(test, min, max))
@@ -105,6 +112,8 @@ public class Cuboid
      *              #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
      */
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(final int x, int y, int z, final int range)
     {
         if (range < 0)
@@ -118,6 +127,8 @@ public class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(final @NotNull Vector3Di pos, final int range)
     {
         return isInRange(pos.x(), pos.y(), pos.z(), range);
@@ -126,6 +137,8 @@ public class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
+    @CheckReturnValue
+    @Contract(pure = true)
     public boolean isInRange(final @NotNull IPLocationConst loc, final int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
@@ -136,6 +149,8 @@ public class Cuboid
      *
      * @return The center point of the cuboid.
      */
+    @CheckReturnValue
+    @Contract(value = " -> new", pure = true)
     public @NotNull Vector3Dd getCenter()
     {
         final double cX = max.x() - ((max.x() - min.x()) / 2.0f);
@@ -149,7 +164,9 @@ public class Cuboid
      *
      * @return The center block of the cuboid.
      */
-    public Vector3Di getCenterBlock()
+    @CheckReturnValue
+    @Contract(value = " -> new", pure = true)
+    public @NotNull Vector3Di getCenterBlock()
     {
         final int cX = (int) (max.x() - ((max.x() - min.x()) / 2.0f));
         final int cY = (int) (max.y() - ((max.y() - min.y()) / 2.0f));
@@ -163,7 +180,9 @@ public class Cuboid
      * @param updateFunction The update function used to update both {@link Vector3Di}s.
      * @return A new {@link Cuboid}.
      */
-    public Cuboid updatePositions(final @NotNull UnaryOperator<Vector3Di> updateFunction)
+    @CheckReturnValue
+    @Contract(value = "_ -> new", pure = true)
+    public @NotNull Cuboid updatePositions(final @NotNull UnaryOperator<Vector3Di> updateFunction)
     {
         final @NotNull Vector3Di newMin = updateFunction.apply(min);
         final @NotNull Vector3Di newMax = updateFunction.apply(max);
@@ -178,7 +197,9 @@ public class Cuboid
      * @param z The number of blocks to move in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    public Cuboid move(final int x, final int y, final int z)
+    @CheckReturnValue
+    @Contract(value = "_, _, _ -> new", pure = true)
+    public @NotNull Cuboid move(final int x, final int y, final int z)
     {
         return new Cuboid(min.add(x, y, z), max.add(x, y, z));
     }
@@ -192,11 +213,15 @@ public class Cuboid
      * @param z The number of blocks to change in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    public Cuboid grow(final int x, final int y, final int z)
+    @CheckReturnValue
+    @Contract(value = "_, _, _ -> new", pure = true)
+    public @NotNull Cuboid grow(final int x, final int y, final int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
     }
 
+    @CheckReturnValue
+    @Contract(value = "_, _ -> new", pure = true)
     private static @NotNull Vector3Di[] getSortedCoordinates(@NotNull Vector3Di a, @NotNull Vector3Di b)
     {
         final int minX = Math.min(a.x(), b.x());
@@ -212,16 +237,19 @@ public class Cuboid
         return new Vector3Di[]{min, max};
     }
 
+    @CheckReturnValue
+    @Contract(pure = true)
     private int calculateVolume()
     {
         final int x = max.x() - min.x() + 1;
         final int y = max.y() - min.y() + 1;
         final int z = max.z() - min.z() + 1;
-
         return x * y * z;
     }
 
-    private Vector3Di calculateDimensions()
+    @CheckReturnValue
+    @Contract(value = " -> new", pure = true)
+    private @NotNull Vector3Di calculateDimensions()
     {
         final int x = max.x() - min.x() + 1;
         final int y = max.y() - min.y() + 1;

@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -99,7 +98,8 @@ public final class DoorOpeningUtility
      * Checks if an area is empty. "Empty" here means that there no blocks that are not air or liquid.
      *
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
-     * @param currentCuboid The {@link Cuboid} representing the area the door currently takes up.
+     * @param currentCuboid The {@link Cuboid} representing the area the door currently takes up. Any parts of the new
+     *                      cuboid overlapping this cuboid will be ignored.
      * @param player        The {@link IPPlayer} to notify of violations. May be null.
      * @param world         The world to check the blocks in.
      * @return True if the area is not empty.
@@ -180,8 +180,8 @@ public final class DoorOpeningUtility
         endZ = vec.z() == 0 ? curMax.z() : startZ;
 
 
-        final @NotNull Vector3Di locA = new Vector3Di(startX, startY, startZ);
-        final @NotNull Vector3Di locB = new Vector3Di(endX, endY, endZ);
+        @NotNull Vector3Di locA = new Vector3Di(startX, startY, startZ);
+        @NotNull Vector3Di locB = new Vector3Di(endX, endY, endZ);
 
         // xLen and zLen describe the length of the door in the x and the z direction respectively.
         // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
@@ -211,8 +211,8 @@ public final class DoorOpeningUtility
             }
             if (!obstructed) // There is no point in checking how many blocks are available behind an obstruction.
                 ++ret;
-            locA.add(vec.x(), vec.y(), vec.z());
-            locB.add(vec.x(), vec.y(), vec.z());
+            locA = locA.add(vec.x(), vec.y(), vec.z());
+            locB = locB.add(vec.x(), vec.y(), vec.z());
             ++steps;
         }
 
