@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
-import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
@@ -167,7 +167,7 @@ public final class PowerBlockManager extends Restartable
      * @param worldName The name of the world.
      * @param chunk     The location (x,z) of the chunk in chunk-space.
      */
-    public void invalidateChunk(final @NotNull String worldName, final @NotNull Vector2DiConst chunk)
+    public void invalidateChunk(final @NotNull String worldName, final @NotNull Vector2Di chunk)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
@@ -175,7 +175,7 @@ public final class PowerBlockManager extends Restartable
             pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
             return;
         }
-        powerBlockWorld.invalidatePosition(new Vector3Di(chunk.getX(), 64, chunk.getY()));
+        powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));
         powerBlockWorld.checkBigDoorsWorldStatus();
     }
 

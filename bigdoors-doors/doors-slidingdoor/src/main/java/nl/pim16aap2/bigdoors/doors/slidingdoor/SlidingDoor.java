@@ -97,8 +97,8 @@ public class SlidingDoor extends AbstractDoorBase
                          Math.min(-dimensions.getX(), getBlocksToMove())) / 16 + 1;
 
         return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().getX() - distanceX, getEngineChunk().getY() - distanceZ),
-            new Vector2Di(getEngineChunk().getX() + distanceX, getEngineChunk().getY() + distanceZ)};
+            new Vector2Di(getEngineChunk().x() - distanceX, getEngineChunk().y() - distanceZ),
+            new Vector2Di(getEngineChunk().x() + distanceX, getEngineChunk().y() + distanceZ)};
     }
 
     @Override

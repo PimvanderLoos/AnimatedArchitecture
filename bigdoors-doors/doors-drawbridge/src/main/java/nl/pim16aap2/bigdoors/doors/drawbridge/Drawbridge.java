@@ -99,8 +99,8 @@ public class Drawbridge extends AbstractDoorBase
             radius = Math.max(xLen, zLen) / 16 + 1;
 
         return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
-            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
+            new Vector2Di(getEngineChunk().x() - radius, getEngineChunk().y() - radius),
+            new Vector2Di(getEngineChunk().x() + radius, getEngineChunk().y() + radius)};
     }
 
     @Override

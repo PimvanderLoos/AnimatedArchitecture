@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,14 +133,14 @@ public interface IDoorBase
     @NotNull Vector2Di[] calculateCurrentChunkRange();
 
     /**
-     * Check if a provided {@link Vector2DiConst} is in range of the door. Range in this case refers to all Vector2Dis
-     * this {@link IDoorBase} could potentially occupy using animated blocks.
+     * Check if a provided {@link Vector2Di} is in range of the door. Range in this case refers to all Vector2Dis this
+     * {@link IDoorBase} could potentially occupy using animated blocks.
      *
      * @param chunk The chunk to check
-     * @return True if the {@link Vector2DiConst} is in range of the door.
+     * @return True if the {@link Vector2Di} is in range of the door.
      */
     @Deprecated
-    boolean chunkInRange(@NotNull IPWorld otherWorld, @NotNull Vector2DiConst chunk);
+    boolean chunkInRange(@NotNull IPWorld otherWorld, @NotNull Vector2Di chunk);
 
     /**
      * Gets the name of this door.
@@ -321,7 +321,7 @@ public interface IDoorBase
      *
      * @return The Vector2Di the power block of this {@link IDoorBase} resides in.
      */
-    @NotNull Vector2DiConst getEngineChunk();
+    @NotNull Vector2Di getEngineChunk();
 
     /**
      * Retrieve the total number of blocks this {@link IDoorBase} is made out of. If invalidated or not calculated *

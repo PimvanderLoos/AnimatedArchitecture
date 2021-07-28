@@ -277,8 +277,8 @@ public final class DoorOpeningUtility
     private boolean chunksLoaded(final @NotNull AbstractDoorBase door)
     {
         final Vector2Di[] chunkRange = door.getChunkRange();
-        for (int x = chunkRange[0].getX(); x <= chunkRange[1].getX(); ++x)
-            for (int y = chunkRange[0].getY(); y <= chunkRange[1].getY(); ++y)
+        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
+            for (int y = chunkRange[0].y(); y <= chunkRange[1].y(); ++y)
                 if (BigDoors.get().getPlatform().getChunkManager().load(door.getWorld(), new Vector2Di(x, y)) ==
                     IChunkManager.ChunkLoadResult.FAIL)
                     return false;

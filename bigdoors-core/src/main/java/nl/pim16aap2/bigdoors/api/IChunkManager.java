@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
+import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,7 +17,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return True if the chunk is loaded.
      */
-    boolean isLoaded(@NotNull IPWorld world, @NotNull Vector2DiConst chunk);
+    boolean isLoaded(@NotNull IPWorld world, @NotNull Vector2Di chunk);
 
     /**
      * Attempts to load a chunk (if it is not already loaded).
@@ -26,7 +26,7 @@ public interface IChunkManager
      * @param chunk The coordinates of the chunk.
      * @return The result of the load attempt.
      */
-    @NotNull ChunkLoadResult load(@NotNull IPWorld world, @NotNull Vector2DiConst chunk);
+    @NotNull ChunkLoadResult load(@NotNull IPWorld world, @NotNull Vector2Di chunk);
 
     /**
      * Represents the result of an attempt to load a chunk.

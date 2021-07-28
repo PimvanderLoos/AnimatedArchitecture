@@ -28,7 +28,6 @@ import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector2DiConst;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +62,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private volatile @NotNull Vector3DiConst engine;
 
     @Getter
-    private volatile @NotNull Vector2DiConst engineChunk;
+    private volatile @NotNull Vector2Di engineChunk;
 
     @Getter
     private volatile @NotNull Vector3DiConst powerBlock;
@@ -451,8 +450,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         final @NotNull Vector2Di minChunk = Util.getChunkCoords(cuboid.getMin());
         final @NotNull Vector2Di maxChunk = Util.getChunkCoords(cuboid.getMax());
 
-        return new Vector2Di[]{new Vector2Di(minChunk.getX(), minChunk.getY()),
-                               new Vector2Di(maxChunk.getX(), maxChunk.getY())};
+        return new Vector2Di[]{new Vector2Di(minChunk.x(), minChunk.y()),
+                               new Vector2Di(maxChunk.x(), maxChunk.y())};
     }
 
     /**
@@ -460,7 +459,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     @Deprecated
     @Override
-    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2DiConst chunk)
+    public final boolean chunkInRange(final @NotNull IPWorld otherWorld, final @NotNull Vector2Di chunk)
     {
         if (!otherWorld.equals(getWorld()))
             return false;
@@ -468,8 +467,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         verifyChunkRange();
         Util.requireNonNull(minChunkCoords, "minChunkCoords");
         Util.requireNonNull(maxChunkCoords, "maxChunkCoords");
-        return Util.between(chunk.getX(), minChunkCoords.getX(), maxChunkCoords.getX()) &&
-            Util.between(chunk.getY(), minChunkCoords.getY(), maxChunkCoords.getY());
+        return Util.between(chunk.x(), minChunkCoords.x(), maxChunkCoords.x()) &&
+            Util.between(chunk.y(), minChunkCoords.y(), maxChunkCoords.y());
         // It's a Vector2D, so there's no z. Instead of Z, use the second value (Y).
     }
 
