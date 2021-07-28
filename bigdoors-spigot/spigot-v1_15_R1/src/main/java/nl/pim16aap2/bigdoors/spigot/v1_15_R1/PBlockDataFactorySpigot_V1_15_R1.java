@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -17,7 +16,7 @@ import java.util.Optional;
 public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 {
     @Override
-    public @NotNull Optional<PBlockData> create(final @NotNull IPLocationConst startLocation, final boolean bottom,
+    public @NotNull Optional<PBlockData> create(final @NotNull IPLocation startLocation, final boolean bottom,
                                                 final float radius, final float startAngle)
         throws Exception
     {
@@ -32,16 +31,7 @@ public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
         if (!BlockAnalyzer_V1_15_R1.isAllowedBlockStatic(vBlock.getType()))
             return Optional.empty();
 
-        final IPLocation newFBlockLocation = BigDoors.get().getPlatform().getPLocationFactory()
-                                                     .create(startLocation.getWorld(),
-                                                             startLocation.getBlockX() + 0.5,
-                                                             startLocation.getBlockY() - 0.020,
-                                                             startLocation.getBlockZ() + 0.5);
-
-        // Move the lowest blocks up a little, so the client won't predict they're
-        // touching through the ground, which would make them slower than the rest.
-        if (bottom)
-            newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
+        final IPLocation newFBlockLocation = getSpawnLocation(startLocation, bottom);
 
         final INMSBlock nmsBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
                                            .nmsBlockFactory(startLocation);

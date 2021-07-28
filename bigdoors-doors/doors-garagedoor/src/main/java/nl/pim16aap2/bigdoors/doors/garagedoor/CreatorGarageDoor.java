@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -63,7 +63,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

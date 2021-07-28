@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.clock;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -78,7 +78,7 @@ public class CreatorClock extends Creator
      * @param loc The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSelectHourArmStep(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -95,7 +95,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

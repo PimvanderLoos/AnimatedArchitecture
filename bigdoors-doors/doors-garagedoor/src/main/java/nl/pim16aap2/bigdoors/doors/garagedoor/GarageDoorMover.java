@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
@@ -230,9 +229,9 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
-        final @NotNull IPLocationConst startLocation = block.getStartLocation();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final @NotNull IPLocation startLocation = block.getStartLocation();
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                            startLocation.getY(), startLocation.getZ());
         double addX = 0;
         double addZ = 0;
         if (door.isOpen()) // The offset isn't needed when going up.

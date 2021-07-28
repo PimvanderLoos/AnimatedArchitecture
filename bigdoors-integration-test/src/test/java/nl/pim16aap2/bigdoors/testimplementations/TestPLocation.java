@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
-import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -13,18 +11,15 @@ import org.jetbrains.annotations.NotNull;
 public final class TestPLocation implements IPLocation
 {
     @Getter
-    private @NotNull IPWorld world;
+    private final @NotNull IPWorld world;
 
     @Getter
-    @Setter
     private double x;
 
     @Getter
-    @Setter
     private double y;
 
     @Getter
-    @Setter
     private double z;
 
 
@@ -61,6 +56,24 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
+    public @NotNull IPLocation setX(double newVal)
+    {
+        return new TestPLocation(world, x + newVal, y, z);
+    }
+
+    @Override
+    public @NotNull IPLocation setY(double newVal)
+    {
+        return new TestPLocation(world, x, y + newVal, z);
+    }
+
+    @Override
+    public @NotNull IPLocation setZ(double newVal)
+    {
+        return new TestPLocation(world, x, y, z + newVal);
+    }
+
+    @Override
     public @NotNull IPLocation add(final double x, final double y, final double z)
     {
         this.x += x;
@@ -79,24 +92,6 @@ public final class TestPLocation implements IPLocation
     public @NotNull IPLocation add(final @NotNull Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
-    }
-
-    @Override
-    public @NotNull IPLocation clone()
-    {
-        try
-        {
-            TestPLocation cloned = (TestPLocation) super.clone();
-            cloned.world = world.clone();
-            return cloned;
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            BigDoors.get().getPLogger().logThrowable(er);
-            throw er;
-        }
     }
 
     @Override

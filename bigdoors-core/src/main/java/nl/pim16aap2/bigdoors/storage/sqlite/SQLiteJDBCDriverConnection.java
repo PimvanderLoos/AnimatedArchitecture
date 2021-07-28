@@ -359,7 +359,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         final @NotNull PPlayerData playerData = door.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
-        final @NotNull String worldName = door.getWorld().getWorldName();
+        final @NotNull String worldName = door.getWorld().worldName();
         final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().x(), door.getEngine().z());
         final long powerBlockHash = Util
             .simpleChunkHashFromLocation(door.getPowerBlock().x(), door.getPowerBlock().z());
@@ -434,7 +434,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return executeUpdate(SQLStatement.UPDATE_DOOR_BASE
                                  .constructPPreparedStatement()
                                  .setNextString(simpleDoorData.getName())
-                                 .setNextString(simpleDoorData.getWorld().getWorldName())
+                                 .setNextString(simpleDoorData.getWorld().worldName())
 
                                  .setNextInt(simpleDoorData.getCuboid().getMin().x())
                                  .setNextInt(simpleDoorData.getCuboid().getMin().y())

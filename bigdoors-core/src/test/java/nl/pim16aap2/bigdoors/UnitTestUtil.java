@@ -60,7 +60,7 @@ public class UnitTestUtil
     public static @NotNull IPWorld getWorld()
     {
         val world = Mockito.mock(IPWorld.class);
-        Mockito.when(world.getWorldName()).thenReturn(UUID.randomUUID().toString());
+        Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
 

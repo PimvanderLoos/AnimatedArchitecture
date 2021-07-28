@@ -94,7 +94,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
                   .append(String.format("%d: %s, Creator: %s, World: %s",
                                         door.getDoorUID(), door.getDoorType().getSimpleName(),
                                         door.getPrimeOwner().pPlayerData().getName(),
-                                        door.getWorld().getWorldName()));
+                                        door.getWorld().worldName()));
 
                 if (location.isEmpty())
                     return;

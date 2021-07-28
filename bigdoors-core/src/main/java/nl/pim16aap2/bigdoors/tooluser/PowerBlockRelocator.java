@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -25,7 +25,7 @@ import java.util.List;
 public class PowerBlockRelocator extends ToolUser
 {
     private final @NotNull AbstractDoorBase door;
-    private @Nullable IPLocationConst newLoc;
+    private @Nullable IPLocation newLoc;
 
     public PowerBlockRelocator(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
     {
@@ -40,7 +40,7 @@ public class PowerBlockRelocator extends ToolUser
                  Message.CREATOR_PBRELOCATOR_INIT);
     }
 
-    protected boolean moveToLoc(final @NotNull IPLocationConst loc)
+    protected boolean moveToLoc(final @NotNull IPLocation loc)
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {

@@ -90,14 +90,14 @@ class CreatorTest
     void testWorldMatch()
     {
         val world = getWorld();
-        val worldName = world.getWorldName();
+        val worldName = world.worldName();
         setField("world", world);
 
         val secondWorld = getWorld();
         // Different world, so no match!
         Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IPWorld.class)));
 
-        Mockito.when(secondWorld.getWorldName()).thenReturn(worldName);
+        Mockito.when(secondWorld.worldName()).thenReturn(worldName);
         // Same world name, so match!
         Assertions.assertTrue(creator.verifyWorldMatch(secondWorld));
     }

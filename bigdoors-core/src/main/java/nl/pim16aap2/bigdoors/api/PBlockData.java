@@ -50,7 +50,7 @@ public final class PBlockData
      * @return The location the block was first spawned at.
      */
     @Getter
-    private final @NotNull IPLocationConst startLocation;
+    private final @NotNull IPLocation startLocation;
 
     /**
      * The angle the block had in regards to the rotation point when it was first spawned.
@@ -83,7 +83,7 @@ public final class PBlockData
      *                          Useful for torches, for example (so they don't fall off immediately).
      */
     public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
-                      final @NotNull INMSBlock newBlock, final @NotNull IPLocationConst startLocation,
+                      final @NotNull INMSBlock newBlock, final @NotNull IPLocation startLocation,
                       final float startAngle, final boolean placementDeferred)
     {
         block = newBlock;

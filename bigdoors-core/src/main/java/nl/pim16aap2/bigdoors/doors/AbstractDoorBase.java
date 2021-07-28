@@ -205,8 +205,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull DoorData getDoorDataCopy()
     {
-        return new DoorData(doorUID, name, cuboid, engine, powerBlock,
-                            world.clone(), open, locked, openDir, primeOwner, getDoorOwnersCopy());
+        return new DoorData(doorUID, name, cuboid, engine, powerBlock, world, open, locked,
+                            openDir, primeOwner, getDoorOwnersCopy());
     }
 
     /**
@@ -219,8 +219,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
-        return new SimpleDoorData(doorUID, name, cuboid, engine, powerBlock,
-                                  world.clone(), open, locked, openDir, primeOwner);
+        return new SimpleDoorData(doorUID, name, cuboid, engine, powerBlock, world, open, locked, openDir, primeOwner);
     }
 
     /**
@@ -610,7 +609,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         builder.append("Cuboid: ").append(cuboid.toString()).append(", Engine: ").append(engine).append("\n");
         builder.append("PowerBlock position: ").append(powerBlock).append(". Hash: ")
                .append(getSimplePowerBlockChunkHash()).append("\n");
-        builder.append("World: ").append(getWorld().getWorldName()).append("\n");
+        builder.append("World: ").append(getWorld().worldName()).append("\n");
         builder.append("This door is ").append((locked ? "" : "NOT ")).append("locked. ").append("\n");
         builder.append("This door is ").append((open ? "open.\n" : "closed.\n"));
         builder.append("OpenDir: ").append(openDir.name()).append("\n");

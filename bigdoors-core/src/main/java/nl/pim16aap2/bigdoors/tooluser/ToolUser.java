@@ -5,7 +5,7 @@ import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
@@ -262,7 +262,7 @@ public abstract class ToolUser implements IRestartable
      * @param loc The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
-    public boolean playerHasAccessToLocation(final @NotNull IPLocationConst loc)
+    public boolean playerHasAccessToLocation(final @NotNull IPLocation loc)
     {
         final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
                                                          .canBreakBlock(getPlayer(), loc);

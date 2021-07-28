@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public interface IPWorld extends Cloneable
+public interface IPWorld
 {
     /**
      * Gets the name of this world.
      *
      * @return The name of this world.
      */
-    @NotNull String getWorldName();
+    @NotNull String worldName();
 
     /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
@@ -30,6 +30,4 @@ public interface IPWorld extends Cloneable
      * @return Gets the time in this world.
      */
     @NotNull WorldTime getTime();
-
-    @NotNull IPWorld clone();
 }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
@@ -78,8 +77,8 @@ public class VerticalMover extends BlockMover
     protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
     {
         final @NotNull Vector3Dd startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
-                                                                 startLocation.y(), startLocation.z());
+        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                            startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 

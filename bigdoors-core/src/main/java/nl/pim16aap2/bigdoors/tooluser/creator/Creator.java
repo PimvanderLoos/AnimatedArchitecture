@@ -4,7 +4,7 @@ import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
@@ -291,7 +291,7 @@ public abstract class Creator extends ToolUser
      * @param loc The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setFirstPos(final @NotNull IPLocationConst loc)
+    protected boolean setFirstPos(final @NotNull IPLocation loc)
     {
         if (!playerHasAccessToLocation(loc))
             return false;
@@ -307,7 +307,7 @@ public abstract class Creator extends ToolUser
      * @param loc The second location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -445,7 +445,7 @@ public abstract class Creator extends ToolUser
      */
     protected boolean verifyWorldMatch(final @NotNull IPWorld targetWorld)
     {
-        if (Util.requireNonNull(world, "world").getWorldName().equals(targetWorld.getWorldName()))
+        if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
         BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
         return false;
@@ -562,7 +562,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the area was set successfully.
      */
-    protected boolean completeSetPowerBlockStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSetPowerBlockStep(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -603,7 +603,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the engine was set successfully.
      */
-    protected boolean completeSetEngineStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSetEngineStep(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

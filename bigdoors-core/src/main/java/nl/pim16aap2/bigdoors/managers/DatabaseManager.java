@@ -137,7 +137,7 @@ public final class DatabaseManager extends Restartable
                 final @NotNull Optional<AbstractDoorBase> result = db.insert(newDoor);
                 result.ifPresent(
                     (door) -> BigDoors.get().getPlatform().getPowerBlockManager()
-                                      .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(
+                                      .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(
                                           door.getPowerBlock().x(),
                                           door.getPowerBlock().y(),
                                           door.getPowerBlock().z())));
@@ -207,9 +207,9 @@ public final class DatabaseManager extends Restartable
                     return ActionResult.FAIL;
 
                 BigDoors.get().getPlatform().getPowerBlockManager()
-                        .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(door.getPowerBlock().x(),
-                                                                                         door.getPowerBlock().y(),
-                                                                                         door.getPowerBlock().z()));
+                        .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(door.getPowerBlock().x(),
+                                                                                      door.getPowerBlock().y(),
+                                                                                      door.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }

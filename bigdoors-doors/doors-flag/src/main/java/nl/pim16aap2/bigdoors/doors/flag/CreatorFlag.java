@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.flag;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -55,7 +55,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(final @NotNull IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -77,7 +77,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetEngineStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSetEngineStep(final @NotNull IPLocation loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.

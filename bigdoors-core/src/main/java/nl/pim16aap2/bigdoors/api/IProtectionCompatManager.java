@@ -19,7 +19,7 @@ public interface IProtectionCompatManager
      * @param loc    The {@link IPLocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NotNull Optional<String> canBreakBlock(@NotNull IPPlayer player, @NotNull IPLocationConst loc);
+    @NotNull Optional<String> canBreakBlock(@NotNull IPPlayer player, @NotNull IPLocation loc);
 
     /**
      * Check if a player can break all blocks between two locations.

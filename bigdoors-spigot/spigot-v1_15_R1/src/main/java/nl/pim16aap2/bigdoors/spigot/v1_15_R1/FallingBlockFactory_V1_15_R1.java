@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
@@ -21,13 +21,13 @@ import org.jetbrains.annotations.NotNull;
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
     @Override
-    public @NotNull ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocationConst loc,
+    public @NotNull ICustomCraftFallingBlock fallingBlockFactory(final @NotNull IPLocation loc,
                                                                  final @NotNull INMSBlock block)
         throws Exception
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)
-            throw new NullPointerException("Could not find bukkit world " + loc.getWorld().getWorldName());
+            throw new NullPointerException("Could not find bukkit world " + loc.getWorld().worldName());
 
         val fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
@@ -41,7 +41,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     }
 
     @Override
-    public @NotNull INMSBlock nmsBlockFactory(final @NotNull IPLocationConst loc)
+    public @NotNull INMSBlock nmsBlockFactory(final @NotNull IPLocation loc)
         throws Exception
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))

@@ -129,11 +129,11 @@ public final class PowerBlockManager extends Restartable
                                     final @NotNull Vector3Di newPos)
     {
         door.setPowerBlockPosition(newPos).syncData();
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().getWorldName());
+        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + door.getWorld().getWorldName() + "\".");
+                               "Failed to load power blocks for world: \"" + door.getWorld().worldName() + "\".");
             return;
         }
 

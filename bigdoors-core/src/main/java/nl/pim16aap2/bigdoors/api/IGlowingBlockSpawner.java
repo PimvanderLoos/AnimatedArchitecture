@@ -105,7 +105,7 @@ public interface IGlowingBlockSpawner
      */
     default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
                                                                @NotNull TimeUnit timeUnit,
-                                                               @NotNull IPLocationConst location)
+                                                               @NotNull IPLocation location)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, timeUnit, location.getX(), location.getY(),
                                  location.getZ());
@@ -120,7 +120,7 @@ public interface IGlowingBlockSpawner
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull IPLocationConst location)
+                                                               @NotNull IPLocation location)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, location.getX(), location.getY(), location.getZ());
     }
@@ -162,7 +162,7 @@ public interface IGlowingBlockSpawner
      */
     default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
                                                                @NotNull TimeUnit timeUnit,
-                                                               @NotNull IPLocationConst location,
+                                                               @NotNull IPLocation location,
                                                                @NotNull PColor color)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, timeUnit, location.getX(), location.getY(),
@@ -179,7 +179,7 @@ public interface IGlowingBlockSpawner
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull IPLocationConst location,
+                                                               @NotNull IPLocation location,
                                                                @NotNull PColor color)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, location.getX(), location.getY(), location.getZ(),

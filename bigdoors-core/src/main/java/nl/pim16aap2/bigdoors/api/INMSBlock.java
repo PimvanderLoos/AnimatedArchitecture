@@ -29,7 +29,7 @@ public interface INMSBlock
      *
      * @param loc The location where the block will be placed.
      */
-    void putBlock(@NotNull IPLocationConst loc);
+    void putBlock(@NotNull IPLocation loc);
 
     /**
      * Deletes the block at the original location.

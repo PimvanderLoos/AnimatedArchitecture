@@ -6,7 +6,7 @@ import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
@@ -128,7 +128,7 @@ public class NMSBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.Block imple
      * @param loc The location where the block will be placed.
      */
     @Override
-    public void putBlock(@NotNull IPLocationConst loc)
+    public void putBlock(@NotNull IPLocation loc)
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)

@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.util;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.logging.PLogger;
@@ -229,7 +229,7 @@ public final class Util
     }
 
     /**
-     * See {@link #getDistanceToDoor(IPLocationConst, AbstractDoorBase)}.
+     * See {@link #getDistanceToDoor(IPLocation, AbstractDoorBase)}.
      * <p>
      * If the player object has no location, -2 is returned.
      */
@@ -246,7 +246,7 @@ public final class Util
      * @param door     The door to check.
      * @return The distance between the location and the door if they lie in the same world, otherwise -1.
      */
-    public static double getDistanceToDoor(final @NotNull IPLocationConst location,
+    public static double getDistanceToDoor(final @NotNull IPLocation location,
                                            final @NotNull AbstractDoorBase door)
     {
         if (!location.getWorld().equals(door.getWorld()))

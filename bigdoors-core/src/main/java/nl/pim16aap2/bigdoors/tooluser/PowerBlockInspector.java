@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
@@ -45,7 +45,7 @@ public class PowerBlockInspector extends ToolUser
                  Message.CREATOR_PBINSPECTOR_INIT);
     }
 
-    protected boolean inspectLoc(final @NotNull IPLocationConst loc)
+    protected boolean inspectLoc(final @NotNull IPLocation loc)
     {
         throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
