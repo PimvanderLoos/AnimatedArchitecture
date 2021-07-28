@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Synchronized;
 import lombok.experimental.Accessors;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -31,13 +30,14 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -87,14 +87,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     private volatile boolean locked;
 
     @EqualsAndHashCode.Exclude
-    @GuardedBy("doorOwnersLock")
-    private final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
+    // This is a ConcurrentHashMap to ensure serialization uses the correct type.
+    private final @NotNull ConcurrentHashMap<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
-    @EqualsAndHashCode.Exclude
-    private final @NotNull Object doorOwnersLock = new Object();
-
-    @Getter(onMethod = @__({@Override, @Synchronized("doorOwnersLock")}))
-    @GuardedBy("doorOwnersLock")
+    @Getter
     private final @NotNull DoorOwner primeOwner;
 
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
@@ -109,34 +105,28 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
     {
-        synchronized (doorOwnersLock)
+        if (doorOwner.getPermission() == 0)
         {
-            if (doorOwner.getPermission() == 0)
-            {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                    "Failed to add owner: " + doorOwner.getPPlayerData() + " as owner to door: " +
-                        getDoorUID() +
-                        " because a permission level of 0 is not allowed!"));
-                return;
-            }
-            doorOwners.put(uuid, doorOwner);
+            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+                "Failed to add owner: " + doorOwner.getPPlayerData() + " as owner to door: " +
+                    getDoorUID() +
+                    " because a permission level of 0 is not allowed!"));
+            return;
         }
+        doorOwners.put(uuid, doorOwner);
     }
 
     @Override
     protected final boolean removeOwner(final @NotNull UUID uuid)
     {
-        synchronized (doorOwnersLock)
+        if (primeOwner.getPPlayerData().getUUID().equals(uuid))
         {
-            if (primeOwner.getPPlayerData().getUUID().equals(uuid))
-            {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                    "Failed to remove owner: " + primeOwner.getPPlayerData() + " as owner from door: " +
-                        getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
-                return false;
-            }
-            return doorOwners.remove(uuid) != null;
+            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+                "Failed to remove owner: " + primeOwner.getPPlayerData() + " as owner from door: " +
+                    getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
+            return false;
         }
+        return doorOwners.remove(uuid) != null;
     }
 
     /**
@@ -151,6 +141,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         doorOwners = doorData.getDoorOwners();
     }
 
+    @Initializer
     private void init(final @NotNull DoorData doorData)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorUID);
@@ -488,24 +479,18 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NotNull Collection<@NotNull DoorOwner> getDoorOwners()
+    public @NotNull List<DoorOwner> getDoorOwners()
     {
-        synchronized (doorOwnersLock)
-        {
-            return Collections.unmodifiableCollection(doorOwners.values());
-        }
+        final List<DoorOwner> ret = new ArrayList<>(doorOwners.size());
+        ret.addAll(doorOwners.values());
+        return ret;
     }
 
-    protected @NotNull Map<@NotNull UUID, @NotNull DoorOwner> getDoorOwnersCopy()
+    protected @NotNull Map<UUID, DoorOwner> getDoorOwnersCopy()
     {
-        synchronized (doorOwnersLock)
-        {
-            final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> copy = new HashMap<>(doorOwners.size());
-            doorOwners.forEach(
-                (key, value) -> copy.put(new UUID(key.getMostSignificantBits(), key.getLeastSignificantBits()),
-                                         value.clone()));
-            return copy;
-        }
+        final @NotNull Map<UUID, DoorOwner> copy = new HashMap<>(doorOwners.size());
+        doorOwners.forEach((key, value) -> copy.put(key, value.clone()));
+        return copy;
     }
 
     @Override
@@ -517,10 +502,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
     {
-        synchronized (doorOwnersLock)
-        {
-            return Optional.ofNullable(doorOwners.get(uuid));
-        }
+        return Optional.ofNullable(doorOwners.get(uuid));
     }
 
     @Override
@@ -723,7 +705,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          * The list of {@link DoorOwner}s of this door.
          */
         @Getter
-        @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners;
+        @NotNull ConcurrentHashMap<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
                         final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
@@ -731,7 +713,8 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                         final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
         {
             super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
-            doorOwners = Collections.singletonMap(primeOwner.getPPlayerData().getUUID(), primeOwner);
+            doorOwners = new ConcurrentHashMap<>();
+            doorOwners.put(primeOwner.getPPlayerData().getUUID(), primeOwner);
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
@@ -751,7 +734,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
         {
             this(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
-            this.doorOwners = doorOwners;
+            this.doorOwners = new ConcurrentHashMap<>(doorOwners);
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,

@@ -3,15 +3,13 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -193,12 +191,10 @@ public interface IDoorBase
 
     /**
      * Gets all {@link DoorOwner}s of this door, including the original creator.
-     * <p>
-     * Note that this collection is returned as an {@link Collections#unmodifiableCollection(Collection)}.
      *
      * @return All {@link DoorOwner}s of this door, including the original creator.
      */
-    @NotNull Collection<@NotNull DoorOwner> getDoorOwners();
+    @NotNull List<@NotNull DoorOwner> getDoorOwners();
 
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
