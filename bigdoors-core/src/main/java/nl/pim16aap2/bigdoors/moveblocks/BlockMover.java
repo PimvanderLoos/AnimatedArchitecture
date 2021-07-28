@@ -20,7 +20,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -80,7 +80,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected @Nullable PSoundDescription soundFinish = null;
 
-    protected final @NotNull CuboidConst newCuboid;
+    protected final @NotNull Cuboid newCuboid;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -90,11 +90,11 @@ public abstract class BlockMover implements IRestartable
      * @param skipAnimation If the door should be opened instantly (i.e. skip animation) or not.
      * @param openDirection The direction the {@link AbstractDoorBase} will move.
      * @param player        The player who opened this door.
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
-                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
+                         final @NotNull Cuboid newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
         throws Exception
     {

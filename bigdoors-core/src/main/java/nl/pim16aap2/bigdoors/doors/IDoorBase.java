@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -89,11 +89,11 @@ public interface IDoorBase
     @NotNull RotateDirection getCurrentToggleDir();
 
     /**
-     * Gets the {@link CuboidConst} representing the area taken up by this door.
+     * Gets the {@link Cuboid} representing the area taken up by this door.
      *
-     * @return The {@link CuboidConst} representing the area taken up by this door.
+     * @return The {@link Cuboid} representing the area taken up by this door.
      */
-    @NotNull CuboidConst getCuboid();
+    @NotNull Cuboid getCuboid();
 
     /**
      * Finds the new minimum and maximum coordinates (represented by a {@link Cuboid}) of this door that would be the
@@ -290,10 +290,10 @@ public interface IDoorBase
     /**
      * Changes the position of this {@link IDoorBase}. The min/max order of the positions doesn't matter.
      *
-     * @param newCuboid The {@link CuboidConst} representing the area the door will take up from now on.
+     * @param newCuboid The {@link Cuboid} representing the area the door will take up from now on.
      * @return This {@link AbstractDoorBase}.
      */
-    @NotNull AbstractDoorBase setCoordinates(@NotNull CuboidConst newCuboid);
+    @NotNull AbstractDoorBase setCoordinates(@NotNull Cuboid newCuboid);
 
     /**
      * Gets a copy of the maximum position of this door.

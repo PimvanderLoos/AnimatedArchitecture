@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,5 +16,5 @@ public interface IDoorEventToggleStart extends IDoorToggleEvent
      *
      * @return The new coordinates of the door after the toggle.
      */
-    @NotNull CuboidConst getNewCuboid();
+    @NotNull Cuboid getNewCuboid();
 }

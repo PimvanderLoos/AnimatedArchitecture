@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -157,7 +157,7 @@ class DoorSerializerTest
         @Override
         protected @NotNull BlockMover constructBlockMover(@NotNull DoorActionCause cause,
                                                           double time, boolean skipAnimation,
-                                                          @NotNull CuboidConst newCuboid,
+                                                          @NotNull Cuboid newCuboid,
                                                           @NotNull IPPlayer responsible,
                                                           @NotNull DoorActionType actionType)
         {

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -38,7 +38,7 @@ public class GarageDoorMover extends BlockMover
 
     public GarageDoorMover(final @NotNull GarageDoor door, final double time, final double multiplier,
                            final boolean skipAnimation, final @NotNull RotateDirection rotateDirection,
-                           final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
+                           final @NotNull IPPlayer player, final @NotNull Cuboid newCuboid,
                            final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
         throws Exception
     {

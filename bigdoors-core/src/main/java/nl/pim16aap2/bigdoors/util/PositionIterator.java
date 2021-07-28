@@ -80,7 +80,7 @@ public class PositionIterator implements Iterable<Vector3Di>
 
     private static int getVolume(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB)
     {
-        return new CuboidConst(posA, posB).getVolume();
+        return new Cuboid(posA, posB).getVolume();
     }
 
     @Override

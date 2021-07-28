@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -80,7 +80,7 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull CuboidConst cuboid,
+    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull Cuboid cuboid,
                                              final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
@@ -98,13 +98,13 @@ public final class DoorOpeningUtility
     /**
      * Checks if an area is empty. "Empty" here means that there no blocks that are not air or liquid.
      *
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
-     * @param currentCuboid The {@link CuboidConst} representing the area the door currently takes up.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param currentCuboid The {@link Cuboid} representing the area the door currently takes up.
      * @param player        The {@link IPPlayer} to notify of violations. May be null.
      * @param world         The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(final @NotNull CuboidConst newCuboid, final @NotNull CuboidConst currentCuboid,
+    public boolean isLocationEmpty(final @NotNull Cuboid newCuboid, final @NotNull Cuboid currentCuboid,
                                    final @Nullable IPPlayer player, final @NotNull IPWorld world)
     {
         final @NotNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
@@ -155,12 +155,12 @@ public final class DoorOpeningUtility
      * @param vec          Which direction to count the number of available blocks in.
      * @param player       The player for whom to check. May be null.
      * @param world        The world to check the blocks in.
-     * @param cuboid       The {@link CuboidConst} representing the area the door currently takes up.
+     * @param cuboid       The {@link Cuboid} representing the area the door currently takes up.
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
     public int getBlocksInDir(final @NotNull Vector3Di vec, final @Nullable IPPlayer player,
-                              final @NotNull IPWorld world, final @NotNull CuboidConst cuboid, final int blocksToMove)
+                              final @NotNull IPWorld world, final @NotNull Cuboid cuboid, final int blocksToMove)
     {
         final Vector3Di curMin = cuboid.getMin();
         final Vector3Di curMax = cuboid.getMax();

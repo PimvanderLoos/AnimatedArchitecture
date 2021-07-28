@@ -23,7 +23,7 @@ import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +80,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
                                                                      final @NotNull IPPlayer responsible,
                                                                      final double time,
                                                                      final boolean skipAnimation,
-                                                                     final @NotNull CuboidConst newCuboid)
+                                                                     final @NotNull Cuboid newCuboid)
     {
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
@@ -91,7 +91,7 @@ public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
                                                                  final @NotNull DoorActionType actionType,
                                                                  final @NotNull IPPlayer responsible, final double time,
                                                                  final boolean skipAnimation,
-                                                                 final @NotNull CuboidConst newCuboid)
+                                                                 final @NotNull Cuboid newCuboid)
 
     {
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);

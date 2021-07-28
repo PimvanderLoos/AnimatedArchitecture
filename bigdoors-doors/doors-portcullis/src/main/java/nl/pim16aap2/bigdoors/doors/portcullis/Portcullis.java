@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -105,12 +104,12 @@ public class Portcullis extends AbstractDoorBase
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().clone().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
+        return Optional.of(getCuboid().move(getBlocksToMove() * vec.x(), 0, getBlocksToMove() * vec.z()));
     }
 
     @Override
     protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
         throws Exception

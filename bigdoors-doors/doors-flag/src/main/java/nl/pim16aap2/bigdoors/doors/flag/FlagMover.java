@@ -30,7 +30,7 @@ public class FlagMover extends BlockMover
                      final @NotNull DoorActionType actionType)
         throws Exception
     {
-        super(door, time, false, RotateDirection.NONE, player, door.getCuboid().clone(), cause, actionType);
+        super(door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
 
         final int xLen = Math.abs(xMax - xMin) + 1;
         final int zLen = Math.abs(zMax - zMin) + 1;

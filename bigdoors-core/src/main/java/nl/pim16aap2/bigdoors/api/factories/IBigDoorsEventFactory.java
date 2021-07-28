@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -183,14 +183,14 @@ public interface IBigDoorsEventFactory
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     @NotNull IDoorEventTogglePrepare createTogglePrepareEvent(@NotNull AbstractDoorBase door,
                                                               @NotNull DoorActionCause cause,
                                                               @NotNull DoorActionType actionType,
                                                               @NotNull IPPlayer responsible, double time,
                                                               boolean skipAnimation,
-                                                              @NotNull CuboidConst newCuboid);
+                                                              @NotNull Cuboid newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleStart}.
@@ -203,13 +203,13 @@ public interface IBigDoorsEventFactory
      * @param time          The number of seconds the door will take to open. Note that there are other factors that
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     @NotNull IDoorEventToggleStart createToggleStartEvent(@NotNull AbstractDoorBase door,
                                                           @NotNull DoorActionCause cause,
                                                           @NotNull DoorActionType actionType,
                                                           @NotNull IPPlayer responsible, double time,
-                                                          boolean skipAnimation, @NotNull CuboidConst newCuboid);
+                                                          boolean skipAnimation, @NotNull Cuboid newCuboid);
 
     /**
      * Constructs a {@link IDoorEventToggleEnd}.

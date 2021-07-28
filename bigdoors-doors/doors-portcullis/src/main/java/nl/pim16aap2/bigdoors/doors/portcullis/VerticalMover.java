@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -31,7 +31,7 @@ public class VerticalMover extends BlockMover
 
     public VerticalMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
                          final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
-                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
+                         final @NotNull Cuboid newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
         throws Exception
     {

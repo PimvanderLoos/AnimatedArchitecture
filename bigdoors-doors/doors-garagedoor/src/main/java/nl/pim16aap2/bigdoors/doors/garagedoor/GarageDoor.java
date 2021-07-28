@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -121,7 +120,7 @@ public class GarageDoor extends AbstractDoorBase
     public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
     {
         final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
-        final @NotNull Cuboid cuboid = getCuboid().clone();
+        final @NotNull Cuboid cuboid = getCuboid();
 
         final @NotNull Vector3Di dimensions = cuboid.getDimensions();
         final @NotNull Vector3Di minimum = cuboid.getMin();
@@ -206,7 +205,7 @@ public class GarageDoor extends AbstractDoorBase
 
     @Override
     protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
+                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
                                                       final @NotNull IPPlayer responsible,
                                                       final @NotNull DoorActionType actionType)
         throws Exception

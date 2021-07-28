@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -28,7 +28,7 @@ public class BigDoorMover extends BlockMover
 
     public BigDoorMover(final @NotNull AbstractDoorBase door, final @NotNull RotateDirection rotDirection,
                         final double time, final boolean skipAnimation, final double multiplier,
-                        final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
+                        final @NotNull IPPlayer player, final @NotNull Cuboid newCuboid,
                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
         throws Exception
     {

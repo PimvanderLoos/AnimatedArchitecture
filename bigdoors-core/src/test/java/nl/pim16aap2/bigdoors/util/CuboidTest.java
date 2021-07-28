@@ -22,19 +22,6 @@ class CuboidTest
     }
 
     @Test
-    void updatePositions()
-    {
-        final @NotNull Vector3Di min = new Vector3Di(0, 0, 0);
-        final @NotNull Vector3Di max = new Vector3Di(10, 10, 10);
-        final @NotNull Vector3Di newMax = new Vector3Di(20, 20, 20);
-        @NotNull Cuboid cuboid = new Cuboid(min, max);
-
-        cuboid = cuboid.updatePositions(newMax, max);
-        Assertions.assertEquals(max, cuboid.getMin());
-        Assertions.assertEquals(newMax, cuboid.getMax());
-    }
-
-    @Test
     void moveTest()
     {
         final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
@@ -58,7 +45,7 @@ class CuboidTest
         final @NotNull Vector3Di min1 = new Vector3Di(11, 41, 60);
         final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).changeDimensions(1, 4, 8);
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).grow(1, 4, 8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -72,7 +59,7 @@ class CuboidTest
         final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 62);
         final @NotNull Vector3Di max1 = new Vector3Di(21, 61, 76);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).changeDimensions(-1, -4, -8);
+        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).grow(-1, -4, -8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -107,9 +94,6 @@ class CuboidTest
 
         @NotNull Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMin, cuboid.getMin());
-
-        cuboid = cuboid.updatePositions(val2, val1);
-        Assertions.assertEquals(actualMin, cuboid.getMin());
     }
 
     @Test
@@ -121,9 +105,6 @@ class CuboidTest
         final @NotNull Vector3Di actualMax = new Vector3Di(11, 20, 10);
 
         @NotNull Cuboid cuboid = new Cuboid(val1, val2);
-        Assertions.assertEquals(actualMax, cuboid.getMax());
-
-        cuboid = cuboid.updatePositions(val2, val1);
         Assertions.assertEquals(actualMax, cuboid.getMax());
     }
 

@@ -21,7 +21,6 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -70,7 +69,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Setter
     private volatile @NotNull String name;
 
-    private volatile CuboidConst cuboid;
+    private volatile Cuboid cuboid;
 
     @Getter
     @Setter
@@ -200,7 +199,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NotNull CuboidConst getCuboid()
+    public @NotNull Cuboid getCuboid()
     {
         return cuboid;
     }
@@ -215,7 +214,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull DoorData getDoorDataCopy()
     {
-        return new DoorData(doorUID, name, cuboid.clone(), engine, powerBlock,
+        return new DoorData(doorUID, name, cuboid, engine, powerBlock,
                             world.clone(), open, locked, openDir, getPrimeOwner().clone(), getDoorOwnersCopy());
     }
 
@@ -229,7 +228,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      */
     public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
-        return new SimpleDoorData(doorUID, name, cuboid.clone(), engine, powerBlock,
+        return new SimpleDoorData(doorUID, name, cuboid, engine, powerBlock,
                                   world.clone(), open, locked, openDir, getPrimeOwner().clone());
     }
 
@@ -385,14 +384,14 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
      *                      is limited, so at a certain point lower values will not increase door speed.
      * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return The {@link BlockMover} for this class.
      */
     protected abstract @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause,
                                                                final double time, final boolean skipAnimation,
-                                                               final @NotNull CuboidConst newCuboid,
+                                                               final @NotNull Cuboid newCuboid,
                                                                final @NotNull IPPlayer responsible,
                                                                final @NotNull DoorActionType actionType)
         throws Exception;
@@ -407,14 +406,14 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
      * @param time          The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
      *                      is limited, so at a certain point lower values will not increase door speed.
      * @param skipAnimation If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid     The {@link CuboidConst} representing the area the door will take up after the toggle.
+     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      * @param responsible   The {@link IPPlayer} responsible for the door action.
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
     private synchronized boolean registerBlockMover(final @NotNull DoorActionCause cause,
                                                     final double time, final boolean skipAnimation,
-                                                    final @NotNull CuboidConst newCuboid,
+                                                    final @NotNull Cuboid newCuboid,
                                                     final @NotNull IPPlayer responsible,
                                                     final @NotNull DoorActionType actionType)
     {
@@ -525,9 +524,9 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     }
 
     @Override
-    public @NotNull AbstractDoorBase setCoordinates(final @NotNull CuboidConst newCuboid)
+    public @NotNull AbstractDoorBase setCoordinates(final @NotNull Cuboid newCuboid)
     {
-        cuboid = new CuboidConst(newCuboid);
+        cuboid = newCuboid;
         return this;
     }
 
