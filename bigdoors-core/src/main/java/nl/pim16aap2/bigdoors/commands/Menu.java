@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Menu extends BaseCommand
 {
-    final @Nullable IPPlayer target;
+    private final @Nullable IPPlayer target;
 
     protected Menu(final @NotNull ICommandSender commandSender, final @Nullable IPPlayer target)
     {

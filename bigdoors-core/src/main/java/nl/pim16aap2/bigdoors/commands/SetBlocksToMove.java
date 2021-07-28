@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetBlocksToMove extends DoorTargetCommand
 {
-    private final int blocksToMove;
-
     private static final @NotNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_BLOCKS_TO_MOVE;
+
+    private final int blocksToMove;
 
     protected SetBlocksToMove(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                               final int blocksToMove)

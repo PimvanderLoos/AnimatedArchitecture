@@ -23,12 +23,12 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class AddOwner extends DoorTargetCommand
 {
+    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
+
     /**
      * The default value to use for {@link #targetPermissionLevel} when none is specified.
      */
     protected static final int DEFAULT_PERMISSION_LEVEL = 2;
-
-    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.ADD_OWNER;
 
     /**
      * The target player that will be added to the {@link #doorRetriever} as co-owner.

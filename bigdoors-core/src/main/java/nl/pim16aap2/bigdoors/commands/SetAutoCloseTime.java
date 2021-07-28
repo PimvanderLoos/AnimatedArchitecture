@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetAutoCloseTime extends DoorTargetCommand
 {
-    private final int autoCloseTime;
-
     private static final @NotNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
+
+    private final int autoCloseTime;
 
     protected SetAutoCloseTime(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                                final int autoCloseTime)

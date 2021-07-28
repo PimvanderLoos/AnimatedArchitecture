@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class ListDoors extends BaseCommand
 {
-    final @NotNull DoorRetriever doorRetriever;
+    private final @NotNull DoorRetriever doorRetriever;
 
     protected ListDoors(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
     {

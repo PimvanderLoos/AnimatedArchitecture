@@ -20,9 +20,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetOpenDirection extends DoorTargetCommand
 {
-    private final @NotNull RotateDirection rotateDirection;
-
     private static final @NotNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_OPEN_DIR;
+
+    private final @NotNull RotateDirection rotateDirection;
 
     protected SetOpenDirection(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                                final @NotNull RotateDirection rotateDirection)

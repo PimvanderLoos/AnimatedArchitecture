@@ -22,9 +22,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class RemoveOwner extends DoorTargetCommand
 {
-    private final @NotNull IPPlayer targetPlayer;
-
     private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
+
+    private final @NotNull IPPlayer targetPlayer;
 
     protected RemoveOwner(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
                           final @NotNull IPPlayer targetPlayer)
@@ -55,7 +55,7 @@ public class RemoveOwner extends DoorTargetCommand
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
      * use the  {@link RemoveOwner} command (again, if needed) to supply the missing data.
      * <p>
-     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer}.
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer)}.
      *
      * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
      *                      for its execution.
