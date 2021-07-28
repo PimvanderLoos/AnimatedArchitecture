@@ -105,10 +105,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     protected final void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
     {
-        if (doorOwner.getPermission() == 0)
+        if (doorOwner.permission() == 0)
         {
             BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                "Failed to add owner: " + doorOwner.getPPlayerData() + " as owner to door: " +
+                "Failed to add owner: " + doorOwner.pPlayerData() + " as owner to door: " +
                     getDoorUID() +
                     " because a permission level of 0 is not allowed!"));
             return;
@@ -119,10 +119,10 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     @Override
     protected final boolean removeOwner(final @NotNull UUID uuid)
     {
-        if (primeOwner.getPPlayerData().getUUID().equals(uuid))
+        if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
             BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
-                "Failed to remove owner: " + primeOwner.getPPlayerData() + " as owner from door: " +
+                "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from door: " +
                     getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
             return false;
         }
@@ -206,7 +206,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     public synchronized @NotNull DoorData getDoorDataCopy()
     {
         return new DoorData(doorUID, name, cuboid, engine, powerBlock,
-                            world.clone(), open, locked, openDir, getPrimeOwner().clone(), getDoorOwnersCopy());
+                            world.clone(), open, locked, openDir, primeOwner, getDoorOwnersCopy());
     }
 
     /**
@@ -220,7 +220,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
     {
         return new SimpleDoorData(doorUID, name, cuboid, engine, powerBlock,
-                                  world.clone(), open, locked, openDir, getPrimeOwner().clone());
+                                  world.clone(), open, locked, openDir, primeOwner);
     }
 
     /**
@@ -337,7 +337,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     public final void onRedstoneChange(final int newCurrent)
     {
         final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
-                                        .create(getPrimeOwner().getPPlayerData());
+                                        .create(getPrimeOwner().pPlayerData());
 
         final @Nullable DoorActionType doorActionType;
         if (newCurrent == 0 && isCloseable())
@@ -489,7 +489,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
     protected @NotNull Map<UUID, DoorOwner> getDoorOwnersCopy()
     {
         final @NotNull Map<UUID, DoorOwner> copy = new HashMap<>(doorOwners.size());
-        doorOwners.forEach((key, value) -> copy.put(key, value.clone()));
+        doorOwners.forEach(copy::put);
         return copy;
     }
 
@@ -714,7 +714,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         {
             super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
             doorOwners = new ConcurrentHashMap<>();
-            doorOwners.put(primeOwner.getPPlayerData().getUUID(), primeOwner);
+            doorOwners.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         }
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,

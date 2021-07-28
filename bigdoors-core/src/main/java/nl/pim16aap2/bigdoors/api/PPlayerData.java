@@ -3,12 +3,14 @@ package nl.pim16aap2.bigdoors.api;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-@AllArgsConstructor
+@ToString
 @EqualsAndHashCode
+@AllArgsConstructor
 public final class PPlayerData implements IPPlayerDataContainer
 {
     private final @NotNull UUID uuid;

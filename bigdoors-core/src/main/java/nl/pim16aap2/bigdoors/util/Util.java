@@ -451,7 +451,7 @@ public final class Util
                                                  final @NotNull DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
-                   .map(doorOwner -> doorOwner.getPermission() <= DoorAttribute.getPermissionLevel(attribute))
+                   .map(doorOwner -> doorOwner.permission() <= DoorAttribute.getPermissionLevel(attribute))
                    .orElse(false);
     }
 

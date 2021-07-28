@@ -71,7 +71,7 @@ public abstract class BaseCommand
 
         return getCommandSender().getPlayer()
                                  .flatMap(door::getDoorOwner)
-                                 .map(doorOwner -> doorOwner.getPermission() <= doorAttribute.getPermissionLevel())
+                                 .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
                                  .orElse(false);
     }
 

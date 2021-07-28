@@ -562,7 +562,7 @@ public final class DatabaseManager extends Restartable
                                                        ", but the player is not an owner!");
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
-        if (doorOwner.get().getPermission() == 0)
+        if (doorOwner.get().permission() == 0)
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                    "Trying to remove player: " + playerUUID + " from door: " +

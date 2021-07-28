@@ -80,7 +80,7 @@ public class AddOwner extends DoorTargetCommand
     @Override
     protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean hasBypassPermission)
     {
-        final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::getPermission)
+        final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);
 
         if (!getCommandSender().isPlayer() || hasBypassPermission)
@@ -102,7 +102,7 @@ public class AddOwner extends DoorTargetCommand
             return false;
         }
 
-        final int ownerPermission = doorOwner.get().getPermission();
+        final int ownerPermission = doorOwner.get().permission();
         if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.ADD_OWNER))
         {
             // TODO: Localization

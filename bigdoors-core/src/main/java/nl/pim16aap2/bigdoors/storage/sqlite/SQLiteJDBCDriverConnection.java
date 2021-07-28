@@ -356,7 +356,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private Long insert(final @NotNull Connection conn, final @NotNull AbstractDoorBase door,
                         final @NotNull String doorType, final byte[] typeSpecificData)
     {
-        final @NotNull PPlayerData playerData = door.getPrimeOwner().getPPlayerData();
+        final @NotNull PPlayerData playerData = door.getPrimeOwner().pPlayerData();
         insertOrIgnorePlayer(conn, playerData);
 
         final @NotNull String worldName = door.getWorld().getWorldName();
@@ -482,11 +482,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private long getPlayerID(final @NotNull Connection conn, final @NotNull DoorOwner doorOwner)
     {
-        insertOrIgnorePlayer(conn, doorOwner.getPPlayerData());
+        insertOrIgnorePlayer(conn, doorOwner.pPlayerData());
 
         return executeQuery(conn, SQLStatement.GET_PLAYER_ID
                                 .constructPPreparedStatement()
-                                .setString(1, doorOwner.getPPlayerData().getUUID().toString()),
+                                .setString(1, doorOwner.pPlayerData().getUUID().toString()),
                             rs -> rs.next() ? rs.getLong("id") : -1, -1L);
     }
 

@@ -286,7 +286,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertNotNull(door.getPrimeOwner().toString());
         Assertions.assertNotNull(door.getName());
 
-        List<AbstractDoorBase> test = storage.getDoors(door.getPrimeOwner().getPPlayerData().getUUID(), door.getName());
+        List<AbstractDoorBase> test = storage.getDoors(door.getPrimeOwner().pPlayerData().getUUID(), door.getName());
         Assertions.assertEquals(1, test.size());
 
         if (!door.getPrimeOwner().equals(test.get(0).getPrimeOwner()))
@@ -354,7 +354,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         // Verify the permission level of player 2 over door 2.
         UnitTestUtil.optionalEquals(1, storage.getDoor(2L),
-                                    (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::getPermission)
+                                    (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::permission)
                                                   .orElse(-1));
         // Verify there are only 2 owners of door 2 (player 1 didn't get copied).
         UnitTestUtil.optionalEquals(2, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
@@ -374,7 +374,7 @@ public class SQLiteJDBCDriverConnectionTest
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, 2));
         UnitTestUtil.optionalEquals(2, storage.getDoor(2L),
-                                    (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::getPermission)
+                                    (door) -> door.getDoorOwner(PLAYER_DATA_2.getUUID()).map(DoorOwner::permission)
                                                   .orElse(-1));
 
         // Remove player 2 as owner of door 2.

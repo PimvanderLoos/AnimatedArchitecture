@@ -150,7 +150,7 @@ public class RemoveOwner extends DoorTargetCommand
         }
 
         // Assume a permission level of 0 in case the command sender is not an owner but DOES have bypass access.
-        final int ownerPermission = doorOwner.map(DoorOwner::getPermission).orElse(0);
+        final int ownerPermission = doorOwner.map(DoorOwner::permission).orElse(0);
         if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.REMOVE_OWNER))
         {
             // TODO: Localization
@@ -167,7 +167,7 @@ public class RemoveOwner extends DoorTargetCommand
             return false;
         }
 
-        if (targetDoorOwner.get().getPermission() <= ownerPermission)
+        if (targetDoorOwner.get().permission() <= ownerPermission)
         {
             // TODO: Localization
             getCommandSender()

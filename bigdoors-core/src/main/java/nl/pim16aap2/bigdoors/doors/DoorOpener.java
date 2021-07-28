@@ -53,7 +53,7 @@ public final class DoorOpener
 
                 final @NotNull IPPlayer finalResponsible = Objects.requireNonNullElseGet(responsible, ()
                     -> BigDoors.get().getPlatform().getPPlayerFactory()
-                               .create(doorOpt.get().getPrimeOwner().getPPlayerData()));
+                               .create(doorOpt.get().getPrimeOwner().pPlayerData()));
 
                 return animateDoor(doorOpt.get(), cause, messageReceiver, finalResponsible,
                                    time, skipAnimation, doorActionType);
@@ -145,7 +145,7 @@ public final class DoorOpener
     {
         final IPPlayer finalResponsible = responsible != null ? responsible :
                                           BigDoors.get().getPlatform().getPPlayerFactory()
-                                                  .create(door.getPrimeOwner().getPPlayerData());
+                                                  .create(door.getPrimeOwner().pPlayerData());
         return animateDoor(door, cause, messageReceiver, finalResponsible, time, skipAnimation, doorActionType);
     }
 
