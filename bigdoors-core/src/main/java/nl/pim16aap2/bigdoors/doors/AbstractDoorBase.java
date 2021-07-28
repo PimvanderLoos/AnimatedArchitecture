@@ -640,54 +640,54 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
         /**
          * The UID of this door.
          */
-        long uid;
+        final long uid;
 
         /**
          * The name of this door.
          */
-        @NotNull String name;
+        final @NotNull String name;
 
         /**
          * The cuboid that describes this door.
          */
-        @NotNull Cuboid cuboid;
+        final @NotNull Cuboid cuboid;
 
         /**
          * The location of the engine.
          */
-        @NotNull Vector3Di engine;
+        final @NotNull Vector3Di engine;
 
         /**
          * The location of the powerblock.
          */
 
-        @NotNull Vector3Di powerBlock;
+        final @NotNull Vector3Di powerBlock;
 
         /**
          * The {@link IPWorld} this door is in.
          */
-        @NotNull IPWorld world;
+        final @NotNull IPWorld world;
 
         /**
          * Whether or not this door is currently open.
          */
-        boolean isOpen; // TODO: Use the bitflag here instead.
+        final boolean isOpen; // TODO: Use the bitflag here instead.
 
         /**
          * Whether or not this door is currently locked.
          */
-        boolean isLocked;
+        final boolean isLocked;
 
         /**
          * The open direction of this door.
          */
 
-        @NotNull RotateDirection openDirection;
+        final @NotNull RotateDirection openDirection;
 
         /**
          * The {@link DoorOwner} that originally created this door.
          */
-        @NotNull DoorOwner primeOwner;
+        final @NotNull DoorOwner primeOwner;
     }
 
     /**
@@ -705,7 +705,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
          * The list of {@link DoorOwner}s of this door.
          */
         @Getter
-        @NotNull ConcurrentHashMap<@NotNull UUID, @NotNull DoorOwner> doorOwners;
+        private final @NotNull ConcurrentHashMap<@NotNull UUID, @NotNull DoorOwner> doorOwners;
 
         public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
                         final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
@@ -733,7 +733,7 @@ public abstract class AbstractDoorBase extends DatabaseManager.FriendDoorAccesso
                         final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
                         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
         {
-            this(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
+            super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
             this.doorOwners = new ConcurrentHashMap<>(doorOwners);
         }
 
