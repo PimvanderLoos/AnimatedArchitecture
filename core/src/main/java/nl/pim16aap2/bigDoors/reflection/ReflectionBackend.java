@@ -92,7 +92,7 @@ final class ReflectionBackend
             }
         }
         if (nonNull)
-            throw new NullPointerException(String.format("Failed to find enum value: [%s#%s].",
+            throw new NullPointerException(String.format("Failed to find enum value: [%s.%s].",
                                                          source.getName(), name));
         return null;
     }
@@ -159,10 +159,10 @@ final class ReflectionBackend
             return field;
         }
         if (nonNull)
-            throw new NullPointerException(String.format("Failed to find field [%s %s %s] in class: %s.",
+            throw new NullPointerException(String.format("Failed to find field [%s %s %s.%s].",
                                                          optionalModifiersToString(modifiers),
                                                          formatOptionalValue(type, Class::getName),
-                                                         name, source.getName()));
+                                                         source.getName(), name));
         return null;
     }
 
@@ -196,7 +196,7 @@ final class ReflectionBackend
 
         if (nonNull)
             throw new NullPointerException(
-                String.format("Failed to find field: [%s %s [*]] in class: %s.",
+                String.format("Failed to find field: [%s %s %s.[*]].",
                               optionalModifiersToString(modifiers), type.getName(), source.getName()));
         return null;
     }
@@ -289,15 +289,15 @@ final class ReflectionBackend
             Method m = findMethod(check, name, modifiers, parameters, returnType);
             if (m != null)
                 return m;
-            check = source.getSuperclass();
+            check = check.getSuperclass();
         }
         while (checkSuperClasses && check != Object.class);
         if (nonNull)
             throw new NullPointerException(
-                String.format("Failed to find method: [%s %s %s(%s)] in class: %s. Super classes were %s.",
+                String.format("Failed to find method: [%s %s %s#%s(%s)]. Super classes were %s.",
                               optionalModifiersToString(modifiers), formatOptionalValue(returnType, Class::getName),
-                              formatOptionalValue(name), formatOptionalValue(parameters),
-                              source.getName(), checkSuperClasses ? "included" : "excluded"));
+                              source.getName(), formatOptionalValue(name), formatOptionalValue(parameters),
+                              checkSuperClasses ? "included" : "excluded"));
         return null;
     }
 

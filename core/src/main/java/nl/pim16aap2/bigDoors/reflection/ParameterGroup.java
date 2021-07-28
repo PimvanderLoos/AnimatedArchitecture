@@ -227,7 +227,7 @@ public class ParameterGroup
         @Override
         public String toString()
         {
-            return optional ? ("[" + type + "]") : type.toString();
+            return optional ? ("[" + type.getName() + "]") : type.getName();
         }
     }
 }
