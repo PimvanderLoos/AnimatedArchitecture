@@ -5,7 +5,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +23,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 class InfoTest
 {
     @Mock
-    private DoorBase door;
+    private AbstractDoor door;
 
     @Mock
     private DoorRetriever doorRetriever;

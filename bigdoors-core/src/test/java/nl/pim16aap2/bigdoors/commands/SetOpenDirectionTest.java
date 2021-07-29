@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -29,7 +29,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 class SetOpenDirectionTest
 {
     @Mock
-    private DoorBase door;
+    private AbstractDoor door;
 
     @Mock
     private DoorType doorType;
@@ -49,7 +49,6 @@ class SetOpenDirectionTest
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
-        Mockito.when(door.setOpenDir(Mockito.any())).thenReturn(door);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
         initCommandSenderPermissions(commandSender, true, true);

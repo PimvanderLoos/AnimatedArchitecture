@@ -104,15 +104,15 @@ public final class DatabaseManager extends Restartable
 
     /**
      * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an {@link
-     * IPPlayer}. See {@link #addDoorBase(AbstractDoor, IPPlayer)}.
+     * IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
      *
      * @param newDoor The new {@link AbstractDoor}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoorBase(
+    public @NotNull CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(
         final @NotNull AbstractDoor newDoor)
     {
-        return addDoorBase(newDoor, null);
+        return addDoor(newDoor, null);
     }
 
     /**
@@ -126,7 +126,7 @@ public final class DatabaseManager extends Restartable
      * The optional {@link AbstractDoor} contains the door that was added to the database if the addition was
      * successful.
      */
-    public @NotNull CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoorBase(
+    public @NotNull CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(
         final @NotNull AbstractDoor newDoor, final @Nullable IPPlayer responsible)
     {
         val ret = callCancellableEvent(fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
@@ -591,14 +591,13 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
      *
-     * @param simpleDoorData The {@link DoorBase} that describes the base data of door.
-     * @param typeData       The type-specific data of this door.
+     * @param doorBase The {@link DoorBase} that describes the base data of door.
+     * @param typeData The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> syncDoorData(
-        final @NotNull DoorBase simpleDoorData, final byte[] typeData)
+    public @NotNull CompletableFuture<Boolean> syncDoorData(final @NotNull DoorBase doorBase, final byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncDoorData(simpleDoorData, typeData), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 

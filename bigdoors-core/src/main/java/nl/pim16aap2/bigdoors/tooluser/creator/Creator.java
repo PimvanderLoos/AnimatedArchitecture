@@ -40,7 +40,7 @@ import java.util.OptionalInt;
 import java.util.logging.Level;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link DoorBase}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractDoor}s.
  *
  * @author Pim
  */
@@ -460,7 +460,7 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(final @NotNull AbstractDoor door)
     {
-        BigDoors.get().getDatabaseManager().addDoorBase(door, getPlayer()).whenComplete(
+        BigDoors.get().getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
@@ -548,7 +548,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the list of valid open directions for this type. It returns a subset of {@link
-     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link DoorBase}.
+     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoor}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
@@ -558,8 +558,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link DoorBase} that
-     * is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link AbstractDoor}
+     * that is being created.
      *
      * @param loc The selected location of the engine.
      * @return True if the location of the area was set successfully.
@@ -600,7 +600,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the engine for the {@link
-     * DoorBase} that is being created.
+     * AbstractDoor} that is being created.
      *
      * @param loc The selected location of the engine.
      * @return True if the location of the engine was set successfully.

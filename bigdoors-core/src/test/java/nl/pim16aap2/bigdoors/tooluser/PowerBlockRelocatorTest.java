@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 class PowerBlockRelocatorTest
 {
     @Mock
-    private DoorBase door;
+    private AbstractDoor door;
 
     @Mock
     private IPWorld world;
@@ -51,7 +51,6 @@ class PowerBlockRelocatorTest
 
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
-        Mockito.when(door.setPowerBlockPosition(Mockito.any())).thenReturn(door);
 
         messages = Mockito.mock(Messages.class);
         Mockito.when(messages.getString(Mockito.any())).thenReturn("A");

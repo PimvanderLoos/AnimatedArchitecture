@@ -131,18 +131,6 @@ public class DoorSerializer<T extends AbstractDoor>
     public byte[] serialize(final AbstractDoor door)
         throws Exception
     {
-        return serialize(door.getDoorBase());
-    }
-
-    /**
-     * Serializes the type-specific data of a door.
-     *
-     * @param door The door.
-     * @return The serialized type-specific data.
-     */
-    public byte[] serialize(final DoorBase door)
-        throws Exception
-    {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
         for (final Field field : fields)
             try

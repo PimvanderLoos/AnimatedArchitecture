@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 
 class SetAutoCloseTimeTest
 {
-    private DoorBase door;
+    private AbstractDoor door;
 
     private IBigDoorsPlatform platform;
 
@@ -42,7 +42,7 @@ class SetAutoCloseTimeTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
-        door = Mockito.mock(DoorBase.class,
+        door = Mockito.mock(AbstractDoor.class,
                             Mockito.withSettings().extraInterfaces(ITimerToggleable.class));
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
@@ -58,7 +58,7 @@ class SetAutoCloseTimeTest
         final int autoCloseValue = 42;
 
         val command = new SetAutoCloseTime(commandSender, doorRetriever, autoCloseValue);
-        val altDoor = Mockito.mock(DoorBase.class);
+        val altDoor = Mockito.mock(AbstractDoor.class);
 
         Assertions.assertTrue(command.performAction(altDoor).get(1, TimeUnit.SECONDS));
         Mockito.verify(altDoor, Mockito.never()).syncData();

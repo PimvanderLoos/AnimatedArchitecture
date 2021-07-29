@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
@@ -30,16 +31,14 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
- * Represents the abstract base all door types should BigDoors.get().getPLogger().logMessage(Level.FINEST,
- * "Instantiating door: " + doorData.getUid()); if (doorData.getUid() > 0 && !BigDoors.get().getDoorRegistry().registerDoor(new
- * AbstractDoor.Registerable())) { final @NotNull IllegalStateException exception = new IllegalStateException( "Tried to
- * create new door \"" + doorData.getUid() + "\" while it is already registered!");
- * BigDoors.get().getPLogger().logThrowableSilently(exception); throw exception; }extend.
+ * Represents the abstract base all door types should extend.
  *
  * @author Pim
  */
+@EqualsAndHashCode
 public abstract class AbstractDoor implements IDoor
 {
+    @EqualsAndHashCode.Exclude
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
     @Getter
@@ -306,7 +305,7 @@ public abstract class AbstractDoor implements IDoor
         try
         {
             return BigDoors.get().getDatabaseManager()
-                           .syncDoorData(doorBase.getPartialCopy(), serializer.serialize(this));
+                           .syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
         }
         catch (Throwable t)
         {

@@ -5,7 +5,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -36,7 +36,7 @@ class ToggleTest
     private IBigDoorsPlatform platform;
 
     @Mock
-    private DoorBase door;
+    private AbstractDoor door;
 
     private DoorOpener doorOpener;
 
@@ -89,10 +89,10 @@ class ToggleTest
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
         final int count = 10;
         val retrievers = new DoorRetriever[count];
-        val doors = new DoorBase[count];
+        val doors = new AbstractDoor[count];
         for (int idx = 0; idx < count; ++idx)
         {
-            doors[idx] = Mockito.mock(DoorBase.class);
+            doors[idx] = Mockito.mock(AbstractDoor.class);
             retrievers[idx] = Mockito.mock(DoorRetriever.class);
             initDoorRetriever(retrievers[idx], doors[idx]);
         }
@@ -102,7 +102,7 @@ class ToggleTest
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
 
         val toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
-                                  .<DoorBase>map(invocation -> invocation.getArgument(0))
+                                  .<AbstractDoor>map(invocation -> invocation.getArgument(0))
                                   .collect(Collectors.toSet());
 
         Assertions.assertEquals(count, toggledDoors.size());
@@ -152,7 +152,7 @@ class ToggleTest
     private void verifyNoOpenerCalls()
     {
         Mockito.verify(doorOpener, Mockito.never())
-               .animateDoorAsync(Mockito.any(DoorBase.class), Mockito.any(), Mockito.any(),
+               .animateDoorAsync(Mockito.any(AbstractDoor.class), Mockito.any(), Mockito.any(),
                                  Mockito.anyDouble(), Mockito.anyBoolean(), Mockito.any());
     }
 

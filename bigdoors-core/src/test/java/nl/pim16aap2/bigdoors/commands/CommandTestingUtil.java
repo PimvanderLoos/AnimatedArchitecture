@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -19,13 +20,13 @@ class CommandTestingUtil
     public static final DoorOwner doorOwner3 = new DoorOwner(0, 3, playerData);
 
     /**
-     * Sets up a {@link DoorRetriever} with a specific {@link DoorBase} such that requesting the door from the
-     * retriever will return the specified door.
+     * Sets up a {@link DoorRetriever} with a specific {@link DoorBase} such that requesting the door from the retriever
+     * will return the specified door.
      *
      * @param doorRetriever The retriever to set up.
      * @param door          The door to be retrieved by the retriever.
      */
-    public static void initDoorRetriever(final DoorRetriever doorRetriever, final DoorBase door)
+    public static void initDoorRetriever(final DoorRetriever doorRetriever, final AbstractDoor door)
     {
         Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
         Mockito.when(doorRetriever.getDoor(Mockito.any()))

@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +31,7 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class DoorSerializerTest
 {
-    private static final DoorBase.DoorData doorData;
+    private static final DoorBase doorData;
 
     static
     {
@@ -40,8 +39,8 @@ class DoorSerializerTest
         final Vector3Di pos = new Vector3Di(0, 0, 0);
         final PPlayerData playerData = new PPlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
         final DoorOwner doorOwner = new DoorOwner(1, 0, playerData);
-        doorData = new DoorBase.DoorData(1, name, pos, pos, pos, pos, new TestPWorld("worldName"),
-                                         false, false, RotateDirection.DOWN, doorOwner);
+        doorData = new DoorBase(1, name, new Cuboid(pos, pos), pos, pos, new TestPWorld("worldName"),
+                                false, false, RotateDirection.DOWN, doorOwner);
     }
 
     @BeforeEach
@@ -111,7 +110,7 @@ class DoorSerializerTest
     // of the parameters that aren't serialized anyway.
     @SuppressWarnings("ConstantConditions")
     @EqualsAndHashCode(callSuper = false)
-    private static class TestDoorType extends DoorBase
+    private static class TestDoorType extends AbstractDoor
     {
         @PersistentVariable
         @Getter
@@ -133,15 +132,15 @@ class DoorSerializerTest
             Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
-        public TestDoorType(final @NotNull DoorData doorData)
+        public TestDoorType(final @NotNull DoorBase doorBase)
         {
-            super(doorData);
+            super(doorBase);
         }
 
-        public TestDoorType(final @NotNull DoorData doorData, final @NotNull String testName,
+        public TestDoorType(final @NotNull DoorBase doorBase, final @NotNull String testName,
                             final boolean isCoolType, final int blockTestCount)
         {
-            super(doorData);
+            super(doorBase);
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
@@ -186,12 +185,6 @@ class DoorSerializerTest
         {
             return null;
         }
-
-        @Override
-        public @NotNull Vector2Di[] calculateChunkRange()
-        {
-            return new Vector2Di[0];
-        }
     }
 
     @SuppressWarnings("unused") @EqualsAndHashCode(callSuper = true)
@@ -201,10 +194,10 @@ class DoorSerializerTest
         @Getter
         private int subclassTestValue = -1;
 
-        public TestDoorSubType(final @NotNull DoorData doorData, final @NotNull String testName,
+        public TestDoorSubType(final @NotNull DoorBase doorBase, final @NotNull String testName,
                                final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
         {
-            super(doorData, testName, isCoolType, blockTestCount);
+            super(doorBase, testName, isCoolType, blockTestCount);
 
             this.testName = testName;
             this.isCoolType = isCoolType;

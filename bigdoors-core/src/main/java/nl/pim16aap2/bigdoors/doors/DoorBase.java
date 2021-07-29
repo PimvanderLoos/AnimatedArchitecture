@@ -125,11 +125,11 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * Gets a full copy of this {@link DoorBase}.
      * <p>
      * A full copy includes a full copy of {@link #doorOwners}. If this is not needed, consider using {@link
-     * #getPartialCopy()} instead as it will be faster.
+     * #getPartialSnapshot()} instead as it will be faster.
      *
      * @return A full copy of this {@link DoorBase}.
      */
-    synchronized @NotNull DoorBase getFullCopy()
+    public synchronized @NotNull DoorBase getFullSnapshot()
     {
         return new DoorBase(this, getDoorOwnersCopy());
     }
@@ -138,11 +138,11 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * Gets a full copy of this {@link DoorBase}.
      * <p>
      * A partial copy does not include the {@link #doorOwners}. If these are needed, consider using {@link
-     * #getFullCopy()} instead.
+     * #getFullSnapshot()} instead.
      *
-     * @return A full copy of this {@link DoorBase}.
+     * @return A partial copy of this {@link DoorBase}.
      */
-    synchronized @NotNull DoorBase getPartialCopy()
+    public synchronized @NotNull DoorBase getPartialSnapshot()
     {
         return new DoorBase(this, null);
     }
