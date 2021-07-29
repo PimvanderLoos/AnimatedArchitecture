@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -12,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -178,27 +176,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     public @NotNull Cuboid getCuboid()
     {
         return cuboid;
-    }
-
-    @Deprecated
-    @Override
-    public boolean isPowerBlockActive()
-    {
-        // FIXME: Cleanup
-        Vector3Di powerBlockChunkSpaceCoords = Util.getChunkSpacePosition(getPowerBlock());
-        Vector2Di powerBlockChunk = Util.getChunkCoords(getPowerBlock());
-        if (BigDoors.get().getPlatform().getChunkManager().load(getWorld(), powerBlockChunk) ==
-            IChunkManager.ChunkLoadResult.FAIL)
-        {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalStateException("Failed to load chunk at: " + powerBlockChunk));
-            return false;
-        }
-
-        // TODO: Make sure that all corners around the block are also loaded (to check redstone).
-        //       Might have to load up to 3 chunks.
-        return BigDoors.get().getPlatform().getPowerBlockRedstoneManager()
-                       .isBlockPowered(getWorld(), getPowerBlock());
     }
 
     @Override

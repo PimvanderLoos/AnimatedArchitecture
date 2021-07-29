@@ -30,6 +30,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class RevolvingDoor extends AbstractDoor
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     /**

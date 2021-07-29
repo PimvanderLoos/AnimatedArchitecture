@@ -30,6 +30,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**

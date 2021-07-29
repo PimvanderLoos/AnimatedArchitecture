@@ -34,6 +34,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**

@@ -34,6 +34,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     @Getter

@@ -31,6 +31,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     @Getter

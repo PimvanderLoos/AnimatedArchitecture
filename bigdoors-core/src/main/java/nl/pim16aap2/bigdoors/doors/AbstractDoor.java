@@ -307,9 +307,9 @@ public abstract class AbstractDoor implements IDoor
             return BigDoors.get().getDatabaseManager()
                            .syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(t, "Failed to sync data for door: " + getBasicInfo());
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
         }
         return CompletableFuture.completedFuture(false);
     }
@@ -339,12 +339,6 @@ public abstract class AbstractDoor implements IDoor
     public @NotNull Cuboid getCuboid()
     {
         return doorBase.getCuboid();
-    }
-
-    @Override
-    public boolean isPowerBlockActive()
-    {
-        return doorBase.isPowerBlockActive();
     }
 
     @Override

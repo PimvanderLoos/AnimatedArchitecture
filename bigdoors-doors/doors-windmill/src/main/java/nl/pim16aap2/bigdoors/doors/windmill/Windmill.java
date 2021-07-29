@@ -29,6 +29,7 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**
