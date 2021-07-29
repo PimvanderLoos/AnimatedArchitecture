@@ -25,6 +25,7 @@
 package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Setter;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
@@ -49,7 +50,7 @@ class TimedCacheTest
     void testExpiry()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -71,33 +72,95 @@ class TimedCacheTest
     }
 
     /**
+     * Test whether the keepAfterTimeOut option keeps the values around after the timeOut when possible.
+     */
+    @Test
+    void testKeepAfterTimeOut()
+    {
+        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                                null, true, false, true);
+        // Set a hard reference, so the value cannot be garbage collected.
+        String value = "can't touch this";
+
+        // Just ensure the value is stored in the cache and didn't get mangled or whatever.
+        timedCache.put("key", value);
+        Assertions.assertEquals(1, timedCache.getSize());
+
+        // Ensure the value can be retrieved properly.
+        String result = timedCache.get("key").orElse(null);
+        Assertions.assertNotNull(result);
+        Assertions.assertSame(result, value);
+
+        // Ensure the value has timed out.
+        clock.addMillis(1000);
+
+        final TimedSoftValue<String> tsv = getTimedSoftValue(timedCache, "key");
+
+        // Ensure that timedOut correctly reflects that the value is overstaying its welcome.
+        Assertions.assertTrue(tsv.timedOut());
+        // Ensure that even though the value has timed out, it cannot be evicted
+        // because keepAfterTimeOut is enabled.
+        Assertions.assertFalse(tsv.canBeEvicted());
+        // Ensure that the hard reference is removed when the value times out.
+        Assertions.assertNull(tsv.getRawHardReference());
+
+        // Ensure that refreshing still works and that refreshing also re-initializes the hard reference.
+        tsv.getValue(true);
+        Assertions.assertFalse(tsv.timedOut());
+        Assertions.assertNotNull(tsv.getRawHardReference());
+
+        // Ensure that even after the value has been cleared, it cannot be
+        // evicted if it hasn't timed out yet (as it was refreshed).
+        tsv.getRawValue().clear();
+        Assertions.assertFalse(tsv.canBeEvicted());
+
+        clock.addMillis(1000);
+
+        // Ensure that once it has both timed out and reclaimed, the value can finally be evicted.
+        Assertions.assertTrue(tsv.canBeEvicted());
+    }
+
+    private @NotNull <T> TimedSoftValue<T> getTimedSoftValue(TimedCache<String, T> cache, String keyName)
+    {
+        @Nullable AbstractTimedValue<T> retrieved = cache.getRaw(keyName);
+        Assertions.assertNotNull(retrieved);
+        Assertions.assertTrue(retrieved instanceof TimedSoftValue);
+        return (TimedSoftValue<T>) retrieved;
+    }
+
+    /**
      * Make sure that configuring the cache to use {@link SoftReference}s actually wraps the values in them and that
      * they behave properly when cleared.
      */
     @Test
     void testSoftReference()
     {
-        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                          null, true, false);
+        val longDuration = Duration.ofHours(100);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new TimedCache<>(clock, Duration.ZERO, longDuration, false, false, false));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                                () -> new TimedCache<>(clock, Duration.ZERO, Duration.ZERO, true, false, false));
+
+        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ZERO, longDuration,
+                                                                          true, false, false);
         timedCache.put("key", "value");
 
-        @Nullable AbstractTimedValue<String> retrieved = timedCache.getRaw("key");
-        Assertions.assertNotNull(retrieved);
-        Assertions.assertTrue(retrieved instanceof TimedSoftValue);
+        @NotNull TimedSoftValue<String> retrieved = getTimedSoftValue(timedCache, "key");
+        Assertions.assertNull(retrieved.getRawHardReference());
 
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
-        ((TimedSoftValue<String>) retrieved).getRawValue().clear();
+        retrieved.getRawValue().clear();
         Assertions.assertFalse(timedCache.get("key").isPresent());
         Assertions.assertEquals(0, timedCache.getSize());
 
 
         // Now test that setting soft-reference to false doesn't wrap values in them.
-        timedCache = new TimedCache<>(clock, Duration.ofMillis(100), null, false, false);
+        timedCache = new TimedCache<>(clock, Duration.ofMillis(100), null, false, false, false);
         timedCache.put("key2", "value");
-        retrieved = timedCache.getRaw("key2");
-        Assertions.assertNotNull(retrieved);
-        Assertions.assertFalse(retrieved instanceof TimedSoftValue);
+        @Nullable AbstractTimedValue<String> retrieved2 = timedCache.getRaw("key2");
+        Assertions.assertNotNull(retrieved2);
+        Assertions.assertFalse(retrieved2 instanceof TimedSoftValue);
     }
 
     /**
@@ -110,7 +173,7 @@ class TimedCacheTest
     void testRefresh()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, true);
+                                                                                null, false, true, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -146,7 +209,7 @@ class TimedCacheTest
     void computeIfAbsent()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
 
         // Make sure inserting a new item properly returns an empty optional.
         Assertions.assertFalse(timedCache.computeIfAbsent("key", (k) -> "value").isPresent());
@@ -171,7 +234,7 @@ class TimedCacheTest
     void computeIfPresent()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
         timedCache.put("key", "value");
 
         optionalEquals(timedCache.computeIfPresent("key", (k, v) -> "newValue"), "newValue");
@@ -187,7 +250,7 @@ class TimedCacheTest
     void compute()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
         @NotNull String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -205,7 +268,7 @@ class TimedCacheTest
     void putIfAbsent()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
 
         Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
 
@@ -221,7 +284,7 @@ class TimedCacheTest
     void putIfPresent()
     {
         @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                          null, false, false);
+                                                                          null, false, false, false);
 
         timedCache.put("key", "value");
 
@@ -241,7 +304,7 @@ class TimedCacheTest
     void remove()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false);
+                                                                                null, false, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -266,7 +329,8 @@ class TimedCacheTest
     void cleanupTask()
     {
         final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                Duration.ofMillis(1), false, false);
+                                                                                Duration.ofMillis(1), false, false,
+                                                                                false);
 
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());

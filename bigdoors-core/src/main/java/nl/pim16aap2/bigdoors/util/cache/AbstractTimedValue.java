@@ -80,4 +80,14 @@ abstract class AbstractTimedValue<T>
             return true;
         return (clock.millis() - insertTime) > timeOut;
     }
+
+    /**
+     * Checks if this value can be evicted from the cache.
+     *
+     * @return True if this value is ready for eviction from the cache.
+     */
+    public boolean canBeEvicted()
+    {
+        return timedOut();
+    }
 }

@@ -31,6 +31,9 @@ import java.time.Clock;
 
 /**
  * Represents a basic implementation of a {@link AbstractTimedValue}.
+ * <p>
+ * The value wrapped inside will be available until the timeOut is exceeded. After this point, null will always be
+ * returned.
  *
  * @param <T> The type of the value to store.
  * @author Pim

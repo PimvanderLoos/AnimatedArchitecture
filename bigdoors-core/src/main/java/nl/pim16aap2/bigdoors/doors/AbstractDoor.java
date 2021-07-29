@@ -50,7 +50,7 @@ public abstract class AbstractDoor implements IDoor
 
         BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
         if (doorBase.getDoorUID() > 0 &&
-            !BigDoors.get().getDoorRegistry().registerDoor(new AbstractDoor.Registerable()))
+            !BigDoors.get().getDoorRegistry().registerDoor(new Registrable()))
         {
             final @NotNull IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorBase.getDoorUID() + "\" while it is already registered!");
@@ -503,16 +503,16 @@ public abstract class AbstractDoor implements IDoor
         return doorBase.getPrimeOwner();
     }
 
-    public class Registerable
+    public class Registrable
     {
-        private Registerable()
+        private Registrable()
         {
         }
 
         /**
-         * Gets the {@link DoorBase} that is associated with this {@link Registerable}.
+         * Gets the {@link DoorBase} that is associated with this {@link Registrable}.
          *
-         * @return The {@link DoorBase} that is associated with this {@link Registerable}.
+         * @return The {@link DoorBase} that is associated with this {@link Registrable}.
          */
         public @NotNull AbstractDoor getAbstractDoorBase()
         {

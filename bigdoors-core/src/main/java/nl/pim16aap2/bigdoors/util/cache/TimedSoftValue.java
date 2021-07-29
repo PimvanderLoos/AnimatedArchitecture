@@ -38,35 +38,73 @@ import java.time.Clock;
  */
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
+    private final boolean keepAfterTimeOut;
     private final @NotNull SoftReference<T> value;
+
+    // The hard reference looks unused because it is never accessed.
+    // However, its sole purpose is to keep a reference to the value
+    // to avoid garbage collection reclaiming it before it has timed out.
+    @SuppressWarnings("unused")
+    private @Nullable T hardReference;
 
     /**
      * Constructor of {@link TimedSoftValue}.
      *
-     * @param clock   The {@link Clock} to use to determine anything related to time (insertion, age).
-     * @param val     The value of this {@link TimedSoftValue}.
-     * @param timeOut The amount of time (in milliseconds) before this entry expires.
+     * @param clock            The {@link Clock} to use to determine anything related to time (insertion, age).
+     * @param val              The value of this {@link TimedSoftValue}.
+     * @param timeOut          The amount of time (in milliseconds) before this entry expires.
+     * @param keepAfterTimeOut Whether to wait until the garbage collector has reclaimed the item. When this is true,
+     *                         {@link #canBeEvicted()} won't return true until the value has both timed out and been
+     *                         reclaimed and {@link #getValue(boolean)} will return the value for the same duration.
+     *                         <p>
+     *                         When this is false, {@link #canBeEvicted()} will return true as soon as the value has
+     *                         timed out, regardless of whether it may still be available. Similarly, {@link
+     *                         #getValue(boolean)} will return null after the value has timed out.
      */
-    public TimedSoftValue(final @NotNull Clock clock, final @NotNull T val, final long timeOut)
+    public TimedSoftValue(@NotNull Clock clock, @NotNull T val, long timeOut, boolean keepAfterTimeOut)
     {
         super(clock, timeOut);
+        this.keepAfterTimeOut = keepAfterTimeOut;
         value = new SoftReference<>(val);
+        if (keepAfterTimeOut)
+            hardReference = val;
     }
 
     @Override
     public @Nullable T getValue(final boolean refresh)
     {
-        if (timedOut())
+        if (!keepAfterTimeOut && timedOut())
+            return null;
+        final @Nullable T val = value.get();
+        if (val == null)
             return null;
         if (refresh)
-            refresh();
-        return value.get();
+            refresh(val);
+        return val;
+    }
+
+    private void refresh(@NotNull T val)
+    {
+        super.refresh();
+        if (keepAfterTimeOut)
+            hardReference = val;
     }
 
     @Override
     public boolean timedOut()
     {
-        return super.timedOut() || value.get() == null;
+        final boolean timedOut = super.timedOut();
+        if (timedOut)
+            hardReference = null;
+        return timedOut;
+    }
+
+    @Override
+    public boolean canBeEvicted()
+    {
+        if (keepAfterTimeOut)
+            return timedOut() && value.get() == null;
+        return timedOut();
     }
 
     /**
@@ -77,5 +115,18 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     public @NotNull SoftReference<T> getRawValue()
     {
         return value;
+    }
+
+    /**
+     * Gets the raw hard reference to the value.
+     * <p>
+     * This value may not exist.
+     *
+     * @return The raw hard reference to the value.
+     */
+    // Useful for testing.
+    @Nullable T getRawHardReference()
+    {
+        return hardReference;
     }
 }
