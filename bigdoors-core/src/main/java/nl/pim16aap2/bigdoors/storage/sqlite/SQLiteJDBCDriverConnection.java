@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.PPreparedStatement;
 import nl.pim16aap2.bigdoors.storage.SQLStatement;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -332,10 +333,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                             playerData);
 
         final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
-        final @NotNull DoorBase.DoorData doorData = new DoorBase.DoorData(doorUID, name, min, max, eng,
-                                                                          pow, world, isOpen, isLocked,
-                                                                          openDirection.get(),
-                                                                          primeOwner, doorOwners);
+        final @NotNull DoorBase doorData = new DoorBase(doorUID, name, new Cuboid(min, max), eng,
+                                                        pow, world, isOpen, isLocked,
+                                                        openDirection.get(),
+                                                        primeOwner, doorOwners);
 
         final byte[] rawTypeData = doorBaseRS.getBytes("typeData");
         return Optional.of(serializerOpt.get().deserialize(doorData, rawTypeData));
@@ -417,10 +418,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
             if (doorUID > 0)
                 return Optional.of(serializer.deserialize(
-                    new DoorBase.DoorData(doorUID, door.getName(), door.getMinimum(), door.getMaximum(),
-                                          door.getEngine(), door.getPowerBlock(), door.getWorld(),
-                                          door.isOpen(),
-                                          door.isLocked(), door.getOpenDir(), door.getPrimeOwner()), typeData));
+                    new DoorBase(doorUID, door.getName(), door.getCuboid(), door.getEngine(), door.getPowerBlock(),
+                                 door.getWorld(), door.isOpen(), door.isLocked(), door.getOpenDir(),
+                                 door.getPrimeOwner()), typeData));
         }
         catch (Throwable t)
         {

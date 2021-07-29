@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.util.FastFieldCopier;
+import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
@@ -15,7 +15,6 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,41 +40,18 @@ public class DoorSerializer<T extends AbstractDoor>
     private final @NotNull Class<T> doorClass;
 
     /**
-     * The constructor in the {@link #doorClass} that takes exactly 1 argument of the type {@link DoorBase.DoorData} if
-     * such a constructor exists.
+     * The constructor in the {@link #doorClass} that takes exactly 1 argument of the type {@link DoorBase} if such a
+     * constructor exists.
      */
     private final @Nullable Constructor<T> ctor;
+
+    private static final FastFieldSetter<AbstractDoor, DoorBase> FIELD_COPIER_DOOR_BASE =
+        FastFieldSetter.of(DoorBase.class, AbstractDoor.class, "doorBase");
 
     /**
      * The {@link Unsafe} instance.
      */
     private static final @Nullable Unsafe UNSAFE;
-
-    private static final FastFieldCopier<DoorBase.SimpleDoorData, AbstractDoor> FIELD_COPIER_UID =
-        FastFieldCopier.of(DoorBase.SimpleDoorData.class, "uid", AbstractDoor.class, "doorUID");
-    private static final FastFieldCopier<DoorBase.SimpleDoorData, AbstractDoor> FIELD_COPIER_WORLD =
-        FastFieldCopier.of(DoorBase.SimpleDoorData.class, "world", AbstractDoor.class, "world");
-    private static final FastFieldCopier<DoorBase.SimpleDoorData, AbstractDoor> FIELD_COPIER_PRIME_OWNER =
-        FastFieldCopier.of(DoorBase.SimpleDoorData.class, "primeOwner", AbstractDoor.class, "primeOwner");
-    private static final FastFieldCopier<DoorBase.DoorData, AbstractDoor> FIELD_COPIER_DOOR_OWNERS =
-        FastFieldCopier.of(DoorBase.DoorData.class, "doorOwners", AbstractDoor.class, "doorOwners");
-
-    /**
-     * The init method in the {@link DoorBase} class.
-     * <p>
-     * Used to initialize all the non-final parameters when instantiating the {@link #doorClass} via the {@link #UNSAFE}
-     * method.
-     * <p>
-     * See {@link #instantiateUnsafe(DoorBase.DoorData)}.
-     */
-    private static final @Nullable Method INIT_METHOD;
-
-    /**
-     * Checks if the unsafe method is available.
-     * <p>
-     * For this to be true both {@link #UNSAFE} and {@link #INIT_METHOD} must be available.
-     */
-    private static final boolean UNSAFE_AVAILABLE;
 
     static
     {
@@ -92,20 +68,6 @@ public class DoorSerializer<T extends AbstractDoor>
             BigDoors.get().getPLogger().logThrowable(e);
         }
         UNSAFE = unsafe;
-
-        Method initMethod = null;
-        try
-        {
-            initMethod = DoorBase.class.getDeclaredMethod("init", DoorBase.DoorData.class);
-            initMethod.setAccessible(true);
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-        }
-
-        INIT_METHOD = initMethod;
-        UNSAFE_AVAILABLE = UNSAFE != null && INIT_METHOD != null;
     }
 
     public DoorSerializer(final @NotNull Class<T> doorClass)
@@ -118,7 +80,7 @@ public class DoorSerializer<T extends AbstractDoor>
         Constructor<T> ctorTmp = null;
         try
         {
-            ctorTmp = doorClass.getDeclaredConstructor(DoorBase.DoorData.class);
+            ctorTmp = doorClass.getDeclaredConstructor(DoorBase.class);
             ctorTmp.setAccessible(true);
         }
         catch (Exception e)
@@ -127,7 +89,7 @@ public class DoorSerializer<T extends AbstractDoor>
                 " does not have DoorData ctor! Using Unsafe instead!");
         }
         ctor = ctorTmp;
-        if (ctor == null && !UNSAFE_AVAILABLE)
+        if (ctor == null && UNSAFE == null)
             throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
                                     " and Unsafe is unavailable! This type cannot be enabled!");
 
@@ -142,7 +104,7 @@ public class DoorSerializer<T extends AbstractDoor>
     {
         List<Field> fieldList = new ArrayList<>();
         Class<?> clazz = doorClass;
-        while (!clazz.equals(DoorBase.class))
+        while (!clazz.equals(AbstractDoor.class))
         {
             fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
             clazz = clazz.getSuperclass();
@@ -198,16 +160,16 @@ public class DoorSerializer<T extends AbstractDoor>
     /**
      * Deserializes the serialized type-specific data of a door.
      * <p>
-     * The base doorData and the deserialized data is then used to create a instance of the door type.
+     * The doorBase and the deserialized data are then used to create a instance of the door type.
      *
-     * @param doorData The base door data.
+     * @param doorBase The base door data.
      * @param data     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(final @NotNull DoorBase.DoorData doorData, final byte[] data)
+    public T deserialize(final @NotNull DoorBase doorBase, final byte[] data)
         throws Exception
     {
-        return instantiate(doorData, fromByteArray(data));
+        return instantiate(doorBase, fromByteArray(data));
     }
 
     private static byte[] toByteArray(final @NotNull Serializable serializable)
@@ -237,7 +199,7 @@ public class DoorSerializer<T extends AbstractDoor>
         }
     }
 
-    @NotNull T instantiate(final @NotNull DoorBase.DoorData doorData,
+    @NotNull T instantiate(final @NotNull DoorBase doorBase,
                            final @NotNull ArrayList<Object> values)
         throws Exception
     {
@@ -247,7 +209,7 @@ public class DoorSerializer<T extends AbstractDoor>
 
         try
         {
-            @Nullable T door = instantiate(doorData);
+            @Nullable T door = instantiate(doorBase);
             if (door == null)
                 throw new IllegalStateException("Failed to initialize door!");
             for (int idx = 0; idx < fields.size(); ++idx)
@@ -263,40 +225,34 @@ public class DoorSerializer<T extends AbstractDoor>
     /**
      * Attempts to create a new instance of {@link #doorClass} using the provided base data.
      * <p>
-     * When {@link #ctor} is available, {@link #instantiateReflection(DoorBase.DoorData, Constructor)} is used. If that
-     * is not the case, {@link #instantiateUnsafe(DoorBase.DoorData)} is used instead.
+     * When {@link #ctor} is available, {@link #instantiateReflection(DoorBase, Constructor)} is used. If that is not
+     * the case, {@link #instantiateUnsafe(DoorBase)} is used instead.
      *
-     * @param doorData The {@link DoorBase.DoorData} to use for basic {@link DoorBase} initialization.
+     * @param doorBase The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
      * @return A new instance of {@link #doorClass} if one could be constructed.
      */
-    private @Nullable T instantiate(final @NotNull DoorBase.DoorData doorData)
+    private @Nullable T instantiate(final @NotNull DoorBase doorBase)
         throws IllegalAccessException, InstantiationException, InvocationTargetException
     {
-        return ctor != null ? instantiateReflection(doorData, ctor) : instantiateUnsafe(doorData);
+        return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
     }
 
-    private @NotNull T instantiateReflection(final @NotNull DoorBase.DoorData doorData,
+    private @NotNull T instantiateReflection(final @NotNull DoorBase doorBase,
                                              final @NotNull Constructor<T> ctor)
         throws IllegalAccessException, InvocationTargetException, InstantiationException
     {
-        return ctor.newInstance(doorData);
+        return ctor.newInstance(doorBase);
     }
 
-    @SuppressWarnings({"unchecked", "NullAway", "ConstantConditions"})
-    private @Nullable T instantiateUnsafe(final @NotNull DoorBase.DoorData doorData)
-        throws InstantiationException, IllegalAccessException, InvocationTargetException
+    private @Nullable T instantiateUnsafe(final @NotNull DoorBase doorBase)
+        throws InstantiationException
     {
-        if (!UNSAFE_AVAILABLE)
+        if (UNSAFE == null)
             return null;
 
-        T door = (T) UNSAFE.allocateInstance(doorClass);
-
-        FIELD_COPIER_UID.copy(doorData, door);
-        FIELD_COPIER_WORLD.copy(doorData, door);
-        FIELD_COPIER_PRIME_OWNER.copy(doorData, door);
-        FIELD_COPIER_DOOR_OWNERS.copy(doorData, door);
-
-        INIT_METHOD.invoke(door, doorData);
+        @SuppressWarnings("unchecked") //
+        final @NotNull T door = (T) UNSAFE.allocateInstance(doorClass);
+        FIELD_COPIER_DOOR_BASE.copy(door, doorBase);
         return door;
     }
 
@@ -310,7 +266,7 @@ public class DoorSerializer<T extends AbstractDoor>
      * <p>
      * 1 field per line.
      *
-     * @param door The {@link DoorBase} whose {@link PersistentVariable}s to print.
+     * @param door The {@link AbstractDoor} whose {@link PersistentVariable}s to print.
      * @return A String containing the names and values of the persistent parameters of the provided door.
      */
     public String toString(@NotNull AbstractDoor door)
