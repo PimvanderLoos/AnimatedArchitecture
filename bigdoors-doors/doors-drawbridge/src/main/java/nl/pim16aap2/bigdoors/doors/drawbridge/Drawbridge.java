@@ -3,23 +3,20 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -30,20 +27,18 @@ import java.util.Optional;
  * @author Pim
  */
 @EqualsAndHashCode(callSuper = true)
-public class Drawbridge extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
+public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
 
@@ -57,49 +52,30 @@ public class Drawbridge extends AbstractDoorBase
     @PersistentVariable
     protected boolean modeUp;
 
-    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+    public Drawbridge(final @NotNull DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
                       final boolean modeUp)
     {
-        super(doorData);
+        super(doorBase);
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
     }
 
-    public Drawbridge(final @NotNull DoorData doorData, final boolean modeUp)
+    public Drawbridge(final @NotNull DoorBase doorBase, final boolean modeUp)
     {
-        this(doorData, -1, -1, modeUp);
+        this(doorBase, -1, -1, modeUp);
     }
 
-    private Drawbridge(final @NotNull DoorData doorData)
+    @SuppressWarnings("unused")
+    private Drawbridge(final @NotNull DoorBase doorBase)
     {
-        this(doorData, false); // Add tmp/default values
+        this(doorBase, false); // Add tmp/default values
     }
 
     @Override
     public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
-    }
-
-    @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
-    {
-        final @NotNull Vector3Di dimensions = getDimensions();
-
-        final int xLen = dimensions.x();
-        final int yLen = dimensions.y();
-        final int zLen = dimensions.z();
-
-        final int radius;
-        if (dimensions.y() != 1)
-            radius = yLen / 16 + 1;
-        else
-            radius = Math.max(xLen, zLen) / 16 + 1;
-
-        return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().x() - radius, getEngineChunk().y() - radius),
-            new Vector2Di(getEngineChunk().x() + radius, getEngineChunk().y() + radius)};
     }
 
     @Override

@@ -5,7 +5,7 @@ import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -70,7 +70,7 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel,
                                                             getCommandSender().getPlayer().orElse(null))
@@ -78,7 +78,7 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean hasBypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean hasBypassPermission)
     {
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);

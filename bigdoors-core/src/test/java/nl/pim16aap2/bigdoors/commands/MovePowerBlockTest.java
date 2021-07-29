@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -40,7 +40,7 @@ class MovePowerBlockTest
     private DoorRetriever doorRetriever;
 
     @Mock
-    private AbstractDoorBase door;
+    private AbstractDoor door;
 
     @BeforeEach
     void init()

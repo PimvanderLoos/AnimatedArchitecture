@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -18,17 +18,19 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
  * Represents a Flag doorType.
  *
  * @author Pim
- * @see AbstractDoorBase
+ * @see DoorBase
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Flag extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
+    @EqualsAndHashCode.Exclude
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**
@@ -44,15 +46,15 @@ public class Flag extends AbstractDoorBase
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public Flag(final @NotNull DoorData doorData, final boolean northSouthAligned)
+    public Flag(final @NotNull DoorBase doorBase, final boolean northSouthAligned)
     {
-        super(doorData);
+        super(doorBase);
         this.northSouthAligned = northSouthAligned;
     }
 
-    private Flag(final @NotNull DoorData doorData)
+    private Flag(final @NotNull DoorBase doorBase)
     {
-        this(doorData, false); // Add tmp/default values
+        this(doorBase, false); // Add tmp/default values
     }
 
     @Override
@@ -82,5 +84,35 @@ public class Flag extends AbstractDoorBase
         throws Exception
     {
         return new FlagMover(60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return false;
+    }
+
+    @Override
+    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        return Optional.of(getCuboid());
+    }
+
+    @Override
+    public @NotNull RotateDirection getCurrentToggleDir()
+    {
+        return getOpenDir();
+    }
+
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
     }
 }

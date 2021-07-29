@@ -2,12 +2,11 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.experimental.UtilityClass;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -16,7 +15,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +23,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 /**
- * Represents a utility singleton that is used to open {@link AbstractDoorBase}s.
+ * Represents a utility singleton that is used to open {@link IDoor}s.
  *
  * @author Pim
  */
@@ -33,15 +31,15 @@ import java.util.logging.Level;
 public final class DoorOpeningUtility
 {
     /**
-     * Aborts an attempt to toggle a {@link AbstractDoorBase} and cleans up leftover data from this attempt.
+     * Aborts an attempt to toggle a {@link IDoor} and cleans up leftover data from this attempt.
      *
-     * @param door        The {@link AbstractDoorBase}.
+     * @param door        The {@link IDoor}.
      * @param result      The reason the action was aborted.
      * @param cause       What caused the toggle in the first place.
      * @param responsible Who is responsible for the action.
      * @return The result.
      */
-    public @NotNull DoorToggleResult abort(final @NotNull AbstractDoorBase door, final @NotNull DoorToggleResult result,
+    public @NotNull DoorToggleResult abort(final @NotNull IDoor door, final @NotNull DoorToggleResult result,
                                            final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINE,
@@ -74,12 +72,12 @@ public final class DoorOpeningUtility
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
-     * @param door        The {@link AbstractDoorBase} being opened.
+     * @param door        The {@link IDoor} being opened.
      * @param cuboid      The area of blocks to check.
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final @NotNull AbstractDoorBase door, final @NotNull Cuboid cuboid,
+    public boolean canBreakBlocksBetweenLocs(final @NotNull IDoor door, final @NotNull Cuboid cuboid,
                                              final @NotNull IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
@@ -148,7 +146,7 @@ public final class DoorOpeningUtility
 
     /**
      * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * IBlocksToMoveArchetype#getBlocksToMove()}.
+     * IDiscreteMovement#getBlocksToMove()}.
      * <p>
      * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
      *
@@ -221,24 +219,24 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Checks if a {@link AbstractDoorBase} can be toggled or not.
+     * Checks if a {@link AbstractDoor} can be toggled or not.
      * <p>
      * It checks the following items:
      * <p>
-     * - The {@link AbstractDoorBase} is not already being animated.
+     * - The {@link AbstractDoor} is not already being animated.
      * <p>
-     * - The {@link DoorType} is enabled.
+     * - The {@link AbstractDoor} is enabled.
      * <p>
-     * - The {@link AbstractDoorBase} is not locked.
+     * - The {@link AbstractDoor} is not locked.
      * <p>
-     * - All chunks this {@link AbstractDoorBase} might interact with are loaded.
+     * - All chunks this {@link AbstractDoor} might interact with are loaded.
      *
-     * @param door       The {@link AbstractDoorBase}.
+     * @param door       The {@link AbstractDoor}.
      * @param cause      Who or what initiated this action.
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoorBase door,
+    @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoor door,
                                            final @NotNull DoorActionCause cause,
                                            final @NotNull DoorActionType actionType)
     {
@@ -256,33 +254,33 @@ public final class DoorOpeningUtility
         if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPEDISABLED;
 
-        if (!chunksLoaded(door))
-        {
-            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
-            return DoorToggleResult.ERROR;
-        }
+//        if (!chunksLoaded(door))
+//        {
+//            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
+//            return DoorToggleResult.ERROR;
+//        }
 
         return DoorToggleResult.SUCCESS;
     }
 
-    /**
-     * Checks if all chunks in range of the door (see {@link AbstractDoorBase#getChunkRange()}) are loaded.
-     * <p>
-     * If a chunk is not loaded, an attempt to load it will be made.
-     *
-     * @param door The door.
-     * @return False if 1 or more chunks are not loaded and cannot be loaded.
-     */
-    private boolean chunksLoaded(final @NotNull AbstractDoorBase door)
-    {
-        final Vector2Di[] chunkRange = door.getChunkRange();
-        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
-            for (int y = chunkRange[0].y(); y <= chunkRange[1].y(); ++y)
-                if (BigDoors.get().getPlatform().getChunkManager().load(door.getWorld(), new Vector2Di(x, y)) ==
-                    IChunkManager.ChunkLoadResult.FAIL)
-                    return false;
-        return true;
-    }
+//    /**
+//     * Checks if all chunks in range of the door (see {@link IDoor#getChunkRange()}) are loaded.
+//     * <p>
+//     * If a chunk is not loaded, an attempt to load it will be made.
+//     *
+//     * @param door The door.
+//     * @return False if 1 or more chunks are not loaded and cannot be loaded.
+//     */
+//    private boolean chunksLoaded(final @NotNull IDoor door)
+//    {
+//        final Vector2Di[] chunkRange = door.getChunkRange();
+//        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
+//            for (int y = chunkRange[0].y(); y <= chunkRange[1].y(); ++y)
+//                if (BigDoors.get().getPlatform().getChunkManager().load(door.getWorld(), new Vector2Di(x, y)) ==
+//                    IChunkManager.ChunkLoadResult.FAIL)
+//                    return false;
+//        return true;
+//    }
 
     /**
      * Registers a BlockMover with the {@link DatabaseManager}
@@ -295,12 +293,10 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Checks if a {@link BlockMover} of a {@link AbstractDoorBase} has been registered with the {@link
-     * DatabaseManager}.
+     * Checks if a {@link BlockMover} of a {@link IDoor} has been registered with the {@link DatabaseManager}.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link
-     * AbstractDoorBase}.
+     * @param doorUID The UID of the {@link IDoor}.
+     * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link IDoor}.
      */
     public boolean isBlockMoverRegistered(final long doorUID)
     {
@@ -308,12 +304,10 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Gets the {@link BlockMover} of a {@link AbstractDoorBase} if it has been registered with the {@link
-     * DatabaseManager}.
+     * Gets the {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link BlockMover} of a {@link AbstractDoorBase} if it has been registered with the {@link
-     * DatabaseManager}.
+     * @param doorUID The UID of the {@link IDoor}.
+     * @return The {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      */
     public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {
@@ -321,12 +315,12 @@ public final class DoorOpeningUtility
     }
 
     /**
-     * Gets the speed multiplier of a {@link AbstractDoorBase} from the config based on its {@link DoorType}.
+     * Gets the speed multiplier of a {@link IDoor} from the config based on its {@link DoorType}.
      *
-     * @param door The {@link AbstractDoorBase}.
-     * @return The speed multiplier of this {@link AbstractDoorBase}.
+     * @param door The {@link AbstractDoor}.
+     * @return The speed multiplier of this {@link IDoor}.
      */
-    public double getMultiplier(final @NotNull AbstractDoorBase door)
+    public double getMultiplier(final @NotNull AbstractDoor door)
     {
         return BigDoors.get().getPlatform().getConfigLoader().getMultiplier(door.getDoorType());
     }

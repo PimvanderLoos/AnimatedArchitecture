@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.elevator;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.portcullis.CreatorPortcullis;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -57,7 +57,7 @@ public class CreatorElevator extends CreatorPortcullis
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();

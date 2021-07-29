@@ -2,7 +2,8 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -35,8 +36,8 @@ public class SetOpenDirection extends DoorTargetCommand
      * Runs the {@link SetOpenDirection} command.
      *
      * @param commandSender   The {@link ICommandSender} responsible for changing open direction of the door.
-     * @param doorRetriever   A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the open
-     *                        direction will be modified.
+     * @param doorRetriever   A {@link DoorRetriever} representing the {@link DoorBase} for which the open direction
+     *                        will be modified.
      * @param rotateDirection The new open direction.
      * @return See {@link BaseCommand#run()}.
      */
@@ -54,7 +55,7 @@ public class SetOpenDirection extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         if (!door.getDoorType().isValidOpenDirection(rotateDirection))
         {
@@ -64,7 +65,8 @@ public class SetOpenDirection extends DoorTargetCommand
             return CompletableFuture.completedFuture(true);
         }
 
-        return door.setOpenDir(rotateDirection).syncData().thenApply(x -> true);
+        door.setOpenDir(rotateDirection);
+        return door.syncData().thenApply(x -> true);
     }
 
     /**

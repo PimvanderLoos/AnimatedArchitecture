@@ -24,7 +24,7 @@ class CreatorElevatorTest extends CreatorTestsUtil
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 
-        final @NotNull Elevator actualDoor = new Elevator(constructDoorData(), blocksToMove);
+        final @NotNull Elevator actualDoor = new Elevator(constructDoorBase(), blocksToMove);
         final @NotNull CreatorElevator creator = new CreatorElevator(player);
         testCreation(creator, actualDoor,
                      doorName,

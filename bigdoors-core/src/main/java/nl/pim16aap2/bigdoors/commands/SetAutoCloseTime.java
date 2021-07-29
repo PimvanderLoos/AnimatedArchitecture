@@ -2,8 +2,9 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -35,8 +36,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * Runs the {@link SetAutoCloseTime} command.
      *
      * @param commandSender The {@link ICommandSender} responsible for changing the auto-close timer of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the auto-close
-     *                      timer will be modified.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the auto-close timer
+     *                      will be modified.
      * @param autoCloseTime The new auto-close time value.
      * @return See {@link BaseCommand#run()}.
      */
@@ -54,16 +55,16 @@ public class SetAutoCloseTime extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
-        if (!(door instanceof ITimerToggleableArchetype))
+        if (!(door instanceof ITimerToggleable))
         {
             // TODO: Localization
             getCommandSender().sendMessage("This door has no auto close timer property!");
             return CompletableFuture.completedFuture(true);
         }
 
-        ((ITimerToggleableArchetype) door).setAutoCloseTime(autoCloseTime);
+        ((ITimerToggleable) door).setAutoCloseTime(autoCloseTime);
         return door.syncData().thenApply(x -> true);
     }
 

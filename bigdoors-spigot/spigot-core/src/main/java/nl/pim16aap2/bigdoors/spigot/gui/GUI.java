@@ -2,7 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -59,7 +60,7 @@ public class GUI
         };
     private final BigDoorsSpigot plugin;
     private final IPPlayer guiHolder;
-    private List<AbstractDoorBase> doorBases;
+    private List<AbstractDoor> doorBases;
     private final Map<Integer, GUIItem> items;
     private IGUIPage guiPage;
     private boolean isRefreshing;
@@ -70,7 +71,7 @@ public class GUI
     private SortType sortType = SortType.ID;
     private @Nullable Inventory inventory = null;
     private int maxPageCount;
-    private @Nullable AbstractDoorBase door = null;
+    private @Nullable AbstractDoor door = null;
 
     public GUI(final @NotNull BigDoorsSpigot plugin, final @NotNull IPPlayer guiHolder)
     {
@@ -199,12 +200,12 @@ public class GUI
         return guiHolder;
     }
 
-    @Nullable AbstractDoorBase getDoor()
+    AbstractDoor getDoor()
     {
         return door;
     }
 
-    void setDoor(final @NotNull AbstractDoorBase door)
+    void setDoor(final @NotNull AbstractDoor door)
     {
         this.door = door;
     }
@@ -230,7 +231,7 @@ public class GUI
     }
 
     // TODO: OPTIONAL!
-    AbstractDoorBase getDoor(final int index)
+    AbstractDoor getDoor(final int index)
     {
         return doorBases.get(index);
     }
@@ -241,7 +242,7 @@ public class GUI
         door = null;
     }
 
-    int indexOfDoor(final @NotNull AbstractDoorBase door)
+    int indexOfDoor(final @NotNull DoorBase door)
     {
         return doorBases.indexOf(door);
     }
@@ -284,8 +285,8 @@ public class GUI
 
     protected static enum SortType
     {
-        ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(AbstractDoorBase::getDoorUID)),
-        NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(AbstractDoorBase::getName)),
+        ID(Message.GUI_SORTING_NUMERICAL, Comparator.comparing(AbstractDoor::getDoorUID)),
+        NAME(Message.GUI_SORTING_ALPHABETICAL, Comparator.comparing(AbstractDoor::getName)),
         TYPE(Message.GUI_SORTING_TYPICAL, Comparator.comparing(abstractDoorBase ->
                                                                    abstractDoorBase.getDoorType().getSimpleName()))
             {
@@ -297,9 +298,9 @@ public class GUI
             };
 
         private Message message;
-        private Comparator<AbstractDoorBase> comparator;
+        private Comparator<AbstractDoor> comparator;
 
-        SortType(Message message, Comparator<AbstractDoorBase> comparator)
+        SortType(Message message, Comparator<AbstractDoor> comparator)
         {
             this.message = message;
             this.comparator = comparator;
@@ -310,7 +311,7 @@ public class GUI
             return sortType.message;
         }
 
-        static Comparator<AbstractDoorBase> getComparator(SortType sortType)
+        static Comparator<AbstractDoor> getComparator(SortType sortType)
         {
             return sortType.comparator;
         }

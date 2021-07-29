@@ -2,7 +2,8 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -49,7 +50,7 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param permissions Whether the ICommandSender has user and/or admin permissions respectively.
      * @return The result of running the command, see {@link BaseCommand#run()}.
      */
-    private boolean processDoorResult(final @NotNull Optional<AbstractDoorBase> door,
+    private boolean processDoorResult(final @NotNull Optional<AbstractDoor> door,
                                       final @NotNull BooleanPair permissions)
     {
         if (door.isEmpty())
@@ -84,22 +85,22 @@ public abstract class DoorTargetCommand extends BaseCommand
     }
 
     /**
-     * Checks if execution of this command is allowed for the given {@link AbstractDoorBase}.
+     * Checks if execution of this command is allowed for the given {@link AbstractDoor}.
      *
-     * @param door             The {@link AbstractDoorBase} that is the target for this command.
+     * @param door             The {@link AbstractDoor} that is the target for this command.
      * @param bypassPermission Whether or not the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
-    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean bypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean bypassPermission)
     {
         return hasAccessToAttribute(door, doorAttribute, bypassPermission);
     }
 
     /**
-     * Performs the action of this command on the {@link AbstractDoorBase}.
+     * Performs the action of this command on the {@link AbstractDoor}.
      *
-     * @param door The {@link AbstractDoorBase} to perform the action on.
+     * @param door The {@link DoorBase} to perform the action on.
      * @return True if everything was successful.
      */
-    protected abstract @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door);
+    protected abstract @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door);
 }

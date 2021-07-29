@@ -32,7 +32,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyDoor(true);
 
-        final @NotNull Portcullis actualDoor = new Portcullis(constructDoorData(), blocksToMove);
+        final @NotNull Portcullis actualDoor = new Portcullis(constructDoorBase(), blocksToMove);
         final @NotNull CreatorPortcullis creator = new CreatorPortcullis(player);
         testCreation(creator, actualDoor,
                      doorName,

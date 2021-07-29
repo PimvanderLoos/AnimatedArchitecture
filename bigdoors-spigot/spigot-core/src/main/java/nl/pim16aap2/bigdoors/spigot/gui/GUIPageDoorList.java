@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.gui.GUI.SortType;
@@ -116,7 +116,7 @@ class GUIPageDoorList implements IGUIPage
         List<String> lore = new ArrayList<>();
         for (int idx = 0; idx < endCount; ++idx)
         {
-            AbstractDoorBase currentDoor = gui.getDoor(offset + idx);
+            AbstractDoor currentDoor = gui.getDoor(offset + idx);
             DoorType doorType = currentDoor.getDoorType();
             lore.add(messages.getString(Message.GUI_DESCRIPTION_DOORID, Long.toString(currentDoor.getDoorUID())));
 //            lore.add(messages.getString(EDoorType.getMessage(EDoorType)));

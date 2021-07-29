@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ import java.util.logging.Level;
  * Represents a request for delayed additional input for a command.
  * <p>
  * Taking the {@link AddOwner} command as an example, it could be initialized using a GUI, in which case it is known who
- * the {@link ICommandSender} is and what the target {@link AbstractDoorBase} is. However, for some GUIs (e.g. Spigot),
+ * the {@link ICommandSender} is and what the target {@link DoorBase} is. However, for some GUIs (e.g. Spigot),
  * it is not yet known who the target player is and what the desired permission level is. This class can then be used to
  * retrieve the additional data that is required to execute the command.
  *

@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -28,7 +28,7 @@ public class VerticalMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public VerticalMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
+    public VerticalMover(final @NotNull AbstractDoor door, final double time, final boolean skipAnimation,
                          final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
                          final @NotNull Cuboid newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)

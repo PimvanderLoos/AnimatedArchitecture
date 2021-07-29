@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -115,8 +115,7 @@ public class Toggle extends BaseCommand
     }
 
     /**
-     * Checks if the provided {@link AbstractDoorBase} can be toggled with the action provided by {@link
-     * #doorActionType}.
+     * Checks if the provided {@link AbstractDoor} can be toggled with the action provided by {@link #doorActionType}.
      * <p>
      * For example, if the action is {@link DoorActionType#CLOSE} and the door is already closed, the action is not
      * possible.
@@ -124,7 +123,7 @@ public class Toggle extends BaseCommand
      * @param door The door for which to check whether it can be toggled.
      * @return True if the toggle action is possible, otherwise false.
      */
-    protected final boolean canToggle(final @NotNull AbstractDoorBase door)
+    protected final boolean canToggle(final @NotNull AbstractDoor door)
     {
         switch (doorActionType)
         {
@@ -141,7 +140,7 @@ public class Toggle extends BaseCommand
         }
     }
 
-    private void toggleDoor(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause doorActionCause,
+    private void toggleDoor(final @NotNull AbstractDoor door, final @NotNull DoorActionCause doorActionCause,
                             final boolean hasBypassPermission)
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))

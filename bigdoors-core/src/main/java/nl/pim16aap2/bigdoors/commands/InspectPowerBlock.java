@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -29,7 +29,7 @@ public class InspectPowerBlock extends BaseCommand
      *
      * @param commandSender The {@link ICommandSender} responsible for inspecting the powerblocks.
      *                      <p>
-     *                      They can only discover {@link AbstractDoorBase}s attached to specific locations if they both
+     *                      They can only discover {@link DoorBase}s attached to specific locations if they both
      *                      have access to the specific location and access to the specific door(s).
      * @return See {@link BaseCommand#run()}.
      */

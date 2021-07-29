@@ -4,7 +4,8 @@ import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -37,8 +38,8 @@ public class RemoveOwner extends DoorTargetCommand
      * Runs the {@link RemoveOwner} command.
      *
      * @param commandSender The {@link ICommandSender} responsible for removing a co-owner of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which a co-owner is
-     *                      requested to be removed.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which a co-owner is requested
+     *                      to be removed.
      * @param targetPlayer  The co-owner that is requested to be removed.
      * @return See {@link BaseCommand#run()}.
      */
@@ -129,7 +130,7 @@ public class RemoveOwner extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager()
                        .removeOwner(door, targetPlayer, getCommandSender().getPlayer().orElse(null))
@@ -137,7 +138,7 @@ public class RemoveOwner extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean hasBypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean hasBypassPermission)
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 

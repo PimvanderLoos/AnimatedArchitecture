@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
@@ -33,7 +33,7 @@ class DeleteTest
     private DoorRetriever doorRetriever;
 
     @Mock
-    private AbstractDoorBase door;
+    private AbstractDoor door;
 
     @BeforeEach
     void init()

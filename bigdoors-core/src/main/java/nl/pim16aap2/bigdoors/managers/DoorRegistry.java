@@ -3,7 +3,9 @@ package nl.pim16aap2.bigdoors.managers;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.IDoor;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +27,7 @@ public final class DoorRegistry extends Restartable
     public static final int INITIAL_CAPACITY = 100;
     public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(5);
 
-    private TimedCache<Long, AbstractDoorBase> doorCache;
+    private TimedCache<Long, AbstractDoor> doorCache;
 
     /**
      * Constructs a new {@link #DoorRegistry}.
@@ -63,20 +65,20 @@ public final class DoorRegistry extends Restartable
     }
 
     /**
-     * Attempts to get the {@link AbstractDoorBase} associated the given UID. It will only search
+     * Attempts to get the {@link DoorBase} associated the given UID. It will only search
      *
      * @param doorUID The UID of the door.
-     * @return The {@link AbstractDoorBase} if it has been retrieved from the database.
+     * @return The {@link DoorBase} if it has been retrieved from the database.
      */
-    public @NotNull Optional<AbstractDoorBase> getRegisteredDoor(final long doorUID)
+    public @NotNull Optional<AbstractDoor> getRegisteredDoor(final long doorUID)
     {
         return doorCache.get(doorUID);
     }
 
     /**
-     * Deletes an {@link AbstractDoorBase} from the registry.
+     * Deletes an {@link DoorBase} from the registry.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase} to delete.
+     * @param doorUID The UID of the {@link DoorBase} to delete.
      */
     void deregisterDoor(final long doorUID)
     {
@@ -84,10 +86,10 @@ public final class DoorRegistry extends Restartable
     }
 
     /**
-     * Checks if a {@link AbstractDoorBase} associated with a given UID has been registered.
+     * Checks if a {@link DoorBase} associated with a given UID has been registered.
      *
      * @param doorUID The UID of the door.
-     * @return True if an entry exists for the {@link AbstractDoorBase} with the given UID.
+     * @return True if an entry exists for the {@link DoorBase} with the given UID.
      */
     public boolean isRegistered(final long doorUID)
     {
@@ -95,28 +97,28 @@ public final class DoorRegistry extends Restartable
     }
 
     /**
-     * Checks if the exact instance of the provided {@link AbstractDoorBase} has been registered. (i.e. it uses '==' to
-     * check if the cached entry is the same).
+     * Checks if the exact instance of the provided {@link DoorBase} has been registered. (i.e. it uses '==' to check if
+     * the cached entry is the same).
      *
      * @param doorBase The door.
-     * @return True if an entry exists for the exact instance of the provided {@link AbstractDoorBase}.
+     * @return True if an entry exists for the exact instance of the provided {@link DoorBase}.
      */
-    public boolean isRegistered(final @NotNull AbstractDoorBase doorBase)
+    public boolean isRegistered(final @NotNull IDoor doorBase)
     {
         return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }
 
     /**
-     * Registers an {@link AbstractDoorBase} if it hasn't been registered yet.
+     * Registers an {@link DoorBase} if it hasn't been registered yet.
      *
-     * @param registerable The {@link AbstractDoorBase.Registerable} that belongs to the {@link AbstractDoorBase} that
-     *                     is to be registered.
+     * @param registerable The {@link AbstractDoor.Registerable} that belongs to the {@link DoorBase} that is to be
+     *                     registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final @NotNull AbstractDoorBase.Registerable registerable)
+    public boolean registerDoor(final @NotNull AbstractDoor.Registerable registerable)
     {
-        final @NotNull AbstractDoorBase doorBase = registerable.getAbstractDoorBase();
-        return doorCache.putIfAbsent(doorBase.getDoorUID(), doorBase).isEmpty();
+        final @NotNull AbstractDoor door = registerable.getAbstractDoorBase();
+        return doorCache.putIfAbsent(door.getDoorUID(), door).isEmpty();
     }
 
     @Override
@@ -175,7 +177,7 @@ public final class DoorRegistry extends Restartable
         if (doorCache != null)
             doorCache.clear();
 
-        doorCache = TimedCache.<Long, AbstractDoorBase>builder()
+        doorCache = TimedCache.<Long, AbstractDoor>builder()
                               .softReference(true)
                               .duration(cacheExpiry)
                               .build();

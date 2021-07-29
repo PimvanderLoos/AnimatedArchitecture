@@ -5,7 +5,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -31,7 +31,7 @@ class RemoveOwnerTest
     private DoorRetriever doorRetriever;
 
     @Mock
-    private AbstractDoorBase door;
+    private AbstractDoor door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -47,7 +47,7 @@ class RemoveOwnerTest
     void beforeEach()
     {
         platform = UnitTestUtil.initPlatform();
-        door = Mockito.mock(AbstractDoorBase.class);
+        door = Mockito.mock(AbstractDoor.class);
         doorRetriever = Mockito.mock(DoorRetriever.class);
 
         initDoorRetriever(doorRetriever, door);
@@ -161,7 +161,7 @@ class RemoveOwnerTest
         final @NotNull DatabaseManager databaseManager = Mockito.mock(DatabaseManager.class);
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
 
-        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoorBase.class), Mockito.any(IPPlayer.class),
+        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoor.class), Mockito.any(IPPlayer.class),
                                                  Mockito.any(IPPlayer.class)))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
         return databaseManager;

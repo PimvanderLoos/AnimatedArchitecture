@@ -4,8 +4,8 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 
 class SetBlocksToMoveTest
 {
-    private AbstractDoorBase door;
+    private AbstractDoor door;
 
     private IBigDoorsPlatform platform;
 
@@ -42,8 +42,8 @@ class SetBlocksToMoveTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
-        door = Mockito.mock(AbstractDoorBase.class,
-                            Mockito.withSettings().extraInterfaces(IBlocksToMoveArchetype.class));
+        door = Mockito.mock(AbstractDoor.class,
+                            Mockito.withSettings().extraInterfaces(IDiscreteMovement.class));
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
         initCommandSenderPermissions(commandSender, true, true);
@@ -58,13 +58,13 @@ class SetBlocksToMoveTest
         final int blocksToMove = 42;
 
         val command = new SetBlocksToMove(commandSender, doorRetriever, blocksToMove);
-        val altDoor = Mockito.mock(AbstractDoorBase.class);
+        val altDoor = Mockito.mock(AbstractDoor.class);
 
         Assertions.assertTrue(command.performAction(altDoor).get(1, TimeUnit.SECONDS));
         Mockito.verify(altDoor, Mockito.never()).syncData();
 
         Assertions.assertTrue(command.performAction(door).get(1, TimeUnit.SECONDS));
-        Mockito.verify((IBlocksToMoveArchetype) door).setBlocksToMove(blocksToMove);
+        Mockito.verify((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
         Mockito.verify(door).syncData();
     }
 
@@ -76,7 +76,7 @@ class SetBlocksToMoveTest
         Assertions.assertTrue(SetBlocksToMove.run(commandSender, doorRetriever, blocksToMove)
                                              .get(1, TimeUnit.SECONDS));
 
-        Mockito.verify((IBlocksToMoveArchetype) door).setBlocksToMove(blocksToMove);
+        Mockito.verify((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
         Mockito.verify(door).syncData();
     }
 
@@ -93,7 +93,7 @@ class SetBlocksToMoveTest
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
 
-        Mockito.verify((IBlocksToMoveArchetype) door).setBlocksToMove(blocksToMove);
+        Mockito.verify((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
         Mockito.verify(door).syncData();
     }
 }

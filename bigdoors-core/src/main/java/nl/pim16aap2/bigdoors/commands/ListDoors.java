@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,7 @@ public class ListDoors extends BaseCommand
      * @param commandSender The {@link ICommandSender} responsible for retrieving the information for the doors.
      *                      <p>
      *                      This is also the entity that will be informed about the doors that were found.
-     * @param doorRetriever A {@link DoorRetriever} representing any number of {@link AbstractDoorBase}s.
+     * @param doorRetriever A {@link DoorRetriever} representing any number of {@link DoorBase}s.
      * @return See {@link BaseCommand#run()}.
      */
     public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
@@ -52,7 +53,7 @@ public class ListDoors extends BaseCommand
     @Override
     protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
-        final @NotNull CompletableFuture<List<AbstractDoorBase>> doors;
+        final @NotNull CompletableFuture<List<AbstractDoor>> doors;
         if (permissions.second || !(getCommandSender() instanceof IPPlayer))
             doors = doorRetriever.getDoors();
         else
@@ -61,7 +62,7 @@ public class ListDoors extends BaseCommand
         return doors.thenAccept(this::sendDoorList).thenApply(val -> true);
     }
 
-    private void sendDoorList(final @NotNull List<AbstractDoorBase> doors)
+    private void sendDoorList(final @NotNull List<AbstractDoor> doors)
     {
         if (doors.isEmpty())
         {

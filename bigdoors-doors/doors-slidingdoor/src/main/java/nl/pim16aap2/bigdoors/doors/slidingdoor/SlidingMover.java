@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -32,7 +32,7 @@ public class SlidingMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public SlidingMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
+    public SlidingMover(final @NotNull AbstractDoor door, final double time, final boolean skipAnimation,
                         final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
                         final @NotNull IPPlayer player, final @NotNull Cuboid newCuboid,
                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)

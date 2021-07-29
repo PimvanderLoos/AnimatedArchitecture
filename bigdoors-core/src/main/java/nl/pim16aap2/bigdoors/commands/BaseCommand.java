@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -62,7 +63,7 @@ public abstract class BaseCommand
      * @param hasBypassPermission Whether the {@link #commandSender} has bypass permission or not.
      * @return True if the command sender has access to the provided attribute for the given door.
      */
-    protected boolean hasAccessToAttribute(final @NotNull AbstractDoorBase door,
+    protected boolean hasAccessToAttribute(final @NotNull AbstractDoor door,
                                            final @NotNull DoorAttribute doorAttribute,
                                            final boolean hasBypassPermission)
     {
@@ -218,15 +219,15 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link AbstractDoorBase} based on the provided {@link DoorRetriever} and the current {@link
+     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetriever} and the current {@link
      * ICommandSender}.
      * <p>
      * If no door is found, the {@link ICommandSender} will be informed.
      *
      * @param doorRetriever The {@link DoorRetriever} to use
-     * @return The {@link AbstractDoorBase} if one could be retrieved.
+     * @return The {@link DoorBase} if one could be retrieved.
      */
-    protected @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull DoorRetriever doorRetriever)
+    protected @NotNull CompletableFuture<Optional<AbstractDoor>> getDoor(final @NotNull DoorRetriever doorRetriever)
     {
         return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
                                  .orElseGet(doorRetriever::getDoor).thenApplyAsync(

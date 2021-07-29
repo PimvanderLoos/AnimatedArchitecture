@@ -13,7 +13,8 @@ import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -22,6 +23,7 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -132,12 +134,12 @@ public class CreatorTestsUtil
         Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
 
         // Immediately return whatever door was being added to the database as if it was successful.
-        Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
-        Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any(), Mockito.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
+        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any())).thenAnswer(
+            (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
+        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(), Mockito.any())).thenAnswer(
+            (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
@@ -166,14 +168,14 @@ public class CreatorTestsUtil
     }
 
 
-    protected AbstractDoorBase.DoorData constructDoorData()
+    protected DoorBase constructDoorBase()
     {
-        return new AbstractDoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world,
-                                             false, false, openDirection, doorOwner);
+        return new DoorBase(-1, doorName, new Cuboid(min, max), engine, powerblock,
+                            world, false, false, openDirection, doorOwner);
     }
 
     @SneakyThrows
-    public void testCreation(final @NotNull Creator creator, @NotNull AbstractDoorBase actualDoor,
+    public void testCreation(final @NotNull Creator creator, @NotNull AbstractDoor actualDoor,
                              final @NotNull Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)
@@ -187,6 +189,6 @@ public class CreatorTestsUtil
         }
 
         Mockito.verify(creator.getPlayer(), Mockito.never()).sendMessage("Door creation was cancelled!");
-        Mockito.verify(databaseManager).addDoorBase(actualDoor, player);
+        Mockito.verify(databaseManager).addDoor(actualDoor, player);
     }
 }

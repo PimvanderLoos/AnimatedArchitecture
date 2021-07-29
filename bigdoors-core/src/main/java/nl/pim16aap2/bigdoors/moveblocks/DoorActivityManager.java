@@ -3,8 +3,9 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,10 +34,10 @@ public final class DoorActivityManager extends Restartable
     }
 
     /**
-     * Checks if a {@link AbstractDoorBase} is 'busy', i.e. currently being animated.
+     * Checks if a {@link DoorBase} is 'busy', i.e. currently being animated.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return True if the {@link AbstractDoorBase} is busy.
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return True if the {@link DoorBase} is busy.
      */
     public boolean isDoorBusy(final long doorUID)
     {
@@ -69,7 +70,7 @@ public final class DoorActivityManager extends Restartable
     /**
      * Processed a finished {@link BlockMover}.
      * <p>
-     * The {@link AbstractDoorBase} that was being used by the {@link BlockMover} will be registered as inactive and any
+     * The {@link DoorBase} that was being used by the {@link BlockMover} will be registered as inactive and any
      * scheduling that is required will be performed.
      *
      * @param blockMover      The {@link BlockMover} to postprocess.
@@ -97,10 +98,10 @@ public final class DoorActivityManager extends Restartable
                                           blockMover.getPlayer(), blockMover.getTime(),
                                           blockMover.isSkipAnimation()));
 
-        if (blockMover.getDoor() instanceof ITimerToggleableArchetype)
+        if (blockMover.getDoor() instanceof ITimerToggleable)
             BigDoors.get().getAutoCloseScheduler()
                     .scheduleAutoClose(blockMover.getPlayer(),
-                                       (AbstractDoorBase & ITimerToggleableArchetype) blockMover.getDoor(),
+                                       (AbstractDoor & ITimerToggleable) blockMover.getDoor(),
                                        blockMover.getTime(), blockMover.isSkipAnimation());
     }
 
@@ -125,10 +126,10 @@ public final class DoorActivityManager extends Restartable
     }
 
     /**
-     * Gets the {@link BlockMover} of a busy {@link AbstractDoorBase}, if it has been registered.
+     * Gets the {@link BlockMover} of a busy {@link DoorBase}, if it has been registered.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link BlockMover} of a busy {@link AbstractDoorBase}.
+     * @param doorUID The UID of the {@link DoorBase}.
+     * @return The {@link BlockMover} of a busy {@link DoorBase}.
      */
     public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
     {

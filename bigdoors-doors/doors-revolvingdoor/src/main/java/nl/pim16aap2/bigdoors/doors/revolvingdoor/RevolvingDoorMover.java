@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -34,7 +34,7 @@ public class RevolvingDoorMover extends BlockMover
     private double step = 0;
     private double endStepSum = 0;
 
-    public RevolvingDoorMover(final @NotNull AbstractDoorBase door, final double time, final double multiplier,
+    public RevolvingDoorMover(final @NotNull AbstractDoor door, final double time, final double multiplier,
                               final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
                               final int quarterCircles, final @NotNull DoorActionCause cause,
                               final @NotNull Cuboid newCuboid, final @NotNull DoorActionType actionType)

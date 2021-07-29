@@ -30,14 +30,14 @@ public final class DoorOpener
      * @param messageReceiver Who will receive any messages that have to be sent.
      * @param responsible     Who is responsible for this door. Either the player who directly toggled it (via a command
      *                        or the GUI), or the original creator when this data is not available.
-     * @param time            The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum
-     *                        speed is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation   If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param time            The amount of time this {@link AbstractDoor} will try to use to move. The maximum speed is
+     *                        limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation   If the {@link AbstractDoor} should be opened instantly (i.e. skip animation) or not.
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The future result of the toggle (will be available before the door starts its animation).
      */
     public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(
-        final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor, final @NotNull DoorActionCause cause,
+        final @NotNull CompletableFuture<Optional<AbstractDoor>> futureDoor, final @NotNull DoorActionCause cause,
         final @NotNull IMessageable messageReceiver, @Nullable IPPlayer responsible, final double time,
         final boolean skipAnimation, final @NotNull DoorActionType doorActionType)
     {
@@ -67,14 +67,14 @@ public final class DoorOpener
      * @param cause          What caused this action.
      * @param responsible    Who is responsible for this door. Either the player who directly toggled it (via a command
      *                       or the GUI), or the original creator when this data is not available.
-     * @param time           The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
-     *                       is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation  If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param time           The amount of time this {@link AbstractDoor} will try to use to move. The maximum speed is
+     *                       limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation  If the {@link AbstractDoor} should be opened instantly (i.e. skip animation) or not.
      * @param doorActionType Whether the door should be toggled, opened, or closed.
      * @return The future result of the toggle (will be available before the door starts its animation).
      */
     public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(
-        final @NotNull CompletableFuture<Optional<AbstractDoorBase>> futureDoor, final @NotNull DoorActionCause cause,
+        final @NotNull CompletableFuture<Optional<AbstractDoor>> futureDoor, final @NotNull DoorActionCause cause,
         final @Nullable IPPlayer responsible, final double time, final boolean skipAnimation,
         final @NotNull DoorActionType doorActionType)
     {
@@ -104,13 +104,13 @@ public final class DoorOpener
      * @param cause          What caused this action.
      * @param responsible    Who is responsible for this door. Either the player who directly toggled it (via a command
      *                       or the GUI), or the original creator when this data is not available.
-     * @param time           The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum speed
-     *                       is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation  If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param time           The amount of time this {@link AbstractDoor} will try to use to move. The maximum speed is
+     *                       limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation  If the {@link AbstractDoor} should be opened instantly (i.e. skip animation) or not.
      * @param doorActionType Whether the door should be toggled, opened, or closed.
      * @return The result of the toggle.
      */
-    public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(final @NotNull AbstractDoorBase door,
+    public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(final @NotNull AbstractDoor door,
                                                                          final @NotNull DoorActionCause cause,
                                                                          final @Nullable IPPlayer responsible,
                                                                          final double time,
@@ -129,13 +129,13 @@ public final class DoorOpener
      * @param messageReceiver The object that will receive any messages that may be sent.
      * @param responsible     Who is responsible for this door. Either the player who directly toggled it (via a command
      *                        or the GUI), or the original creator when this data is not available.
-     * @param time            The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum
-     *                        speed is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation   If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param time            The amount of time this {@link AbstractDoor} will try to use to move. The maximum speed is
+     *                        limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation   If the {@link AbstractDoor} should be opened instantly (i.e. skip animation) or not.
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The result of the toggle.
      */
-    public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(final @NotNull AbstractDoorBase door,
+    public @NotNull CompletableFuture<DoorToggleResult> animateDoorAsync(final @NotNull AbstractDoor door,
                                                                          final @NotNull DoorActionCause cause,
                                                                          final @NotNull IMessageable messageReceiver,
                                                                          @Nullable IPPlayer responsible,
@@ -157,13 +157,13 @@ public final class DoorOpener
      * @param messageReceiver Who will receive any messages that have to be sent.
      * @param responsible     Who is responsible for this door. Either the player who directly toggled it (via a command
      *                        or the GUI), or the original creator when this data is not available.
-     * @param time            The amount of time this {@link AbstractDoorBase} will try to use to move. The maximum
-     *                        speed is limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation   If the {@link AbstractDoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param time            The amount of time this {@link AbstractDoor} will try to use to move. The maximum speed is
+     *                        limited, so at a certain point lower values will not increase door speed.
+     * @param skipAnimation   If the {@link AbstractDoor} should be opened instantly (i.e. skip animation) or not.
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The result of the animation attempt.
      */
-    private @NotNull CompletableFuture<DoorToggleResult> animateDoor(final @NotNull AbstractDoorBase door,
+    private @NotNull CompletableFuture<DoorToggleResult> animateDoor(final @NotNull AbstractDoor door,
                                                                      final @NotNull DoorActionCause cause,
                                                                      final @NotNull IMessageable messageReceiver,
                                                                      final @NotNull IPPlayer responsible,

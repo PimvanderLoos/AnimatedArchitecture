@@ -4,7 +4,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
@@ -28,9 +28,9 @@ class ListDoorsTest
 {
     private IBigDoorsPlatform platform;
 
-    private List<AbstractDoorBase> doors;
+    private List<AbstractDoor> doors;
 
-    private List<AbstractDoorBase> emptyList = Collections.unmodifiableList(new ArrayList<>(0));
+    private List<AbstractDoor> emptyList = Collections.unmodifiableList(new ArrayList<>(0));
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer playerCommandSender;
@@ -47,7 +47,7 @@ class ListDoorsTest
         final int size = 3;
         doors = new ArrayList<>(size);
         for (int idx = 0; idx < size; ++idx)
-            doors.add(Mockito.mock(AbstractDoorBase.class));
+            doors.add(Mockito.mock(AbstractDoor.class));
 
         Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
     }

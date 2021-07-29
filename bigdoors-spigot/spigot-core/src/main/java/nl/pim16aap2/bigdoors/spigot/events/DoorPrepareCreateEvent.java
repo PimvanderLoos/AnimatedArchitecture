@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -24,14 +24,14 @@ public class DoorPrepareCreateEvent extends DoorEvent implements IDoorPrepareCre
     @Setter
     private boolean isCancelled = false;
 
-    public DoorPrepareCreateEvent(final @NotNull AbstractDoorBase door,
+    public DoorPrepareCreateEvent(final @NotNull AbstractDoor door,
                                   final @Nullable IPPlayer responsible)
     {
         super(door, responsible);
     }
 
     @Override
-    public @NotNull AbstractDoorBase getDoor()
+    public @NotNull AbstractDoor getDoor()
     {
         return super.getDoor();
     }

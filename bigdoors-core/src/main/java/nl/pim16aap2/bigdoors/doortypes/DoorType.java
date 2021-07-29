@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.doortypes;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
@@ -63,8 +64,8 @@ public abstract class DoorType
 
     /**
      * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
-     * aspects of the {@link AbstractDoorBase} into consideration. Therefore, the actual list of valid {@link
-     * RotateDirection}s is most likely going to be a subset of those returned by this method.
+     * aspects of the {@link DoorBase} into consideration. Therefore, the actual list of valid {@link RotateDirection}s
+     * is most likely going to be a subset of those returned by this method.
      *
      * @return A list of all valid {@link RotateDirection} for this given type.
      */
@@ -131,7 +132,7 @@ public abstract class DoorType
      *
      * @return THe class of the door.
      */
-    public abstract @NotNull Class<? extends AbstractDoorBase> getDoorClass();
+    public abstract @NotNull Class<? extends AbstractDoor> getDoorClass();
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.

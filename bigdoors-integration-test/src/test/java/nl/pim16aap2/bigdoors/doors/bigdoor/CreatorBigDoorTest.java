@@ -20,7 +20,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
         openDirection = RotateDirection.CLOCKWISE;
         String openDirectionName = "0";
 
-        final @NotNull BigDoor actualDoor = new BigDoor(constructDoorData());
+        final @NotNull BigDoor actualDoor = new BigDoor(constructDoorBase());
         final @NotNull CreatorBigDoor creator = new CreatorBigDoor(player);
         testCreation(creator, actualDoor,
                      doorName,
