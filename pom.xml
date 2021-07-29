@@ -21,17 +21,17 @@
         <dependency.version.annotations>20.1.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
-        <dependency.version.errorprone>2.7.1</dependency.version.errorprone>
+        <dependency.version.errorprone>2.8.0</dependency.version.errorprone>
 <!--        <dependency.version.nullaway>0.9.1</dependency.version.nullaway>-->
         <dependency.version.nullaway>0.9.3-SNAPSHOT</dependency.version.nullaway>
-        <dependency.version.mockito>3.10.0</dependency.version.mockito>
+        <dependency.version.mockito>3.11.2</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
         <dependency.version.jacoco>0.8.7</dependency.version.jacoco>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
-        <dependency.version.jdbc-sqlite>3.34.0</dependency.version.jdbc-sqlite>
+        <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
     </properties>
 
     <modules>
