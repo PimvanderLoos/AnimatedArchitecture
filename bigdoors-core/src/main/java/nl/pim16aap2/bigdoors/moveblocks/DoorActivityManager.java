@@ -1,11 +1,10 @@
-package nl.pim16aap2.bigdoors.managers;
+package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.NotNull;
 
@@ -76,10 +75,10 @@ public final class DoorActivityManager extends Restartable
      * @param blockMover      The {@link BlockMover} to postprocess.
      * @param allowReschedule Whether or not to allow rescheduling (e.g. autoclose).
      */
-    public void processFinishedBlockMover(@NotNull BlockMover blockMover, boolean allowReschedule)
+    void processFinishedBlockMover(@NotNull BlockMover blockMover, boolean allowReschedule)
     {
-        int delay = Math.max(Constants.MINIMUM_DOOR_DELAY,
-                             BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
+        final int delay = Math.max(Constants.MINIMUM_DOOR_DELAY,
+                                   BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
 
         BigDoors.get().getPlatform().getPExecutor()
                 .runSyncLater(() -> handleFinishedBlockMover(blockMover, allowReschedule), delay);

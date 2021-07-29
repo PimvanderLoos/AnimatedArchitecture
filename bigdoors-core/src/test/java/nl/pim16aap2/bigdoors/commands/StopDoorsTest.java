@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import lombok.val;
-import nl.pim16aap2.bigdoors.managers.DoorActivityManager;
+import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;

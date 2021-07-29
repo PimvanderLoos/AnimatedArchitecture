@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.managers;
+package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -59,19 +59,17 @@ public final class AutoCloseScheduler extends Restartable
     }
 
     /**
-     * Schedule closing a door.
+     * Schedules closing a door.
      *
-     * @param cause         What caused the door to be opened.
      * @param player        The player who requested the door toggle. May be null.
      * @param door          The door to close.
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
-        final @NotNull DoorActionCause cause, final @NotNull IPPlayer player,
-        final T door, double speed, boolean skipAnimation)
+    synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
+        final @NotNull IPPlayer player, final T door, double speed, boolean skipAnimation)
     {
-        int autoCloseTimer = door.getAutoCloseTime();
+        final int autoCloseTimer = door.getAutoCloseTime();
         if (autoCloseTimer < 0 || !door.isOpen())
             return;
 
@@ -87,31 +85,15 @@ public final class AutoCloseScheduler extends Restartable
             {
                 if (door.isOpen())
                 {
-                    // TODO: Verify that reusing the door object won't result in any issues.
                     BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
-                    BigDoors.get().getDoorOpener()
-                            .animateDoorAsync(door, cause, player, speed, skipAnimation, DoorActionType.CLOSE);
+                    BigDoors.get().getDoorOpener().animateDoorAsync(door, DoorActionCause.REDSTONE, player,
+                                                                    speed, skipAnimation, DoorActionType.CLOSE);
                 }
                 deleteTimer(door.getDoorUID());
             }
         };
         timers.put(door.getDoorUID(), task);
         BigDoors.get().getPlatform().getPExecutor().runSyncLater(task, delay);
-    }
-
-    /**
-     * Schedule closing a door.
-     *
-     * @param player        The player who requested the door toggle. May be null.
-     * @param door          The door to close.
-     * @param speed         The speed at which the door should move.
-     * @param skipAnimation Whether the door should be animated or not.
-     */
-    public synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
-        final @NotNull IPPlayer player, final @NotNull T door,
-        double speed, boolean skipAnimation)
-    {
-        scheduleAutoClose(DoorActionCause.REDSTONE, player, door, speed, skipAnimation);
     }
 
     @Override
@@ -123,7 +105,7 @@ public final class AutoCloseScheduler extends Restartable
     @Override
     public synchronized void shutdown()
     {
-        timers.forEach((K, V) -> V.cancel());
+        timers.forEach((key, val) -> val.cancel());
         timers.clear();
     }
 }

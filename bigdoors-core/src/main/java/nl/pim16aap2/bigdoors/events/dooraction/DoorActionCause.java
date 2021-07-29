@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.managers.AutoCloseScheduler;
+import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 
 /**
  * Represents the different kind of causes that can be the reason of a {@link AbstractDoorBase} action.
@@ -35,5 +35,4 @@ public enum DoorActionCause
      */
     PERPETUALMOVEMENT,
 
-    ;
 }
