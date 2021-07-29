@@ -591,12 +591,12 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
      *
-     * @param simpleDoorData The {@link DoorBase.SimpleDoorData} that describes the base data of door.
+     * @param simpleDoorData The {@link DoorBase} that describes the base data of door.
      * @param typeData       The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     public @NotNull CompletableFuture<Boolean> syncDoorData(
-        final @NotNull DoorBase.SimpleDoorData simpleDoorData, final byte[] typeData)
+        final @NotNull DoorBase simpleDoorData, final byte[] typeData)
     {
         return CompletableFuture.supplyAsync(() -> db.syncDoorData(simpleDoorData, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));

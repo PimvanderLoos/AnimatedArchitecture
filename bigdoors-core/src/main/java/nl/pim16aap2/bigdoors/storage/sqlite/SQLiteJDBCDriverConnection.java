@@ -430,38 +430,38 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public boolean syncDoorData(final @NotNull DoorBase.SimpleDoorData simpleDoorData, byte[] typeData)
+    public boolean syncDoorData(final @NotNull DoorBase doorBase, byte[] typeData)
     {
         return executeUpdate(SQLStatement.UPDATE_DOOR_BASE
                                  .constructPPreparedStatement()
-                                 .setNextString(simpleDoorData.getName())
-                                 .setNextString(simpleDoorData.getWorld().worldName())
+                                 .setNextString(doorBase.getName())
+                                 .setNextString(doorBase.getWorld().worldName())
 
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().x())
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().y())
-                                 .setNextInt(simpleDoorData.getCuboid().getMin().z())
+                                 .setNextInt(doorBase.getCuboid().getMin().x())
+                                 .setNextInt(doorBase.getCuboid().getMin().y())
+                                 .setNextInt(doorBase.getCuboid().getMin().z())
 
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().x())
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().y())
-                                 .setNextInt(simpleDoorData.getCuboid().getMax().z())
+                                 .setNextInt(doorBase.getCuboid().getMax().x())
+                                 .setNextInt(doorBase.getCuboid().getMax().y())
+                                 .setNextInt(doorBase.getCuboid().getMax().z())
 
-                                 .setNextInt(simpleDoorData.getEngine().x())
-                                 .setNextInt(simpleDoorData.getEngine().y())
-                                 .setNextInt(simpleDoorData.getEngine().z())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getEngine().x(),
-                                                                               simpleDoorData.getEngine().z()))
+                                 .setNextInt(doorBase.getEngine().x())
+                                 .setNextInt(doorBase.getEngine().y())
+                                 .setNextInt(doorBase.getEngine().z())
+                                 .setNextLong(Util.simpleChunkHashFromLocation(doorBase.getEngine().x(),
+                                                                               doorBase.getEngine().z()))
 
-                                 .setNextInt(simpleDoorData.getPowerBlock().x())
-                                 .setNextInt(simpleDoorData.getPowerBlock().y())
-                                 .setNextInt(simpleDoorData.getPowerBlock().z())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(simpleDoorData.getPowerBlock().x(),
-                                                                               simpleDoorData.getPowerBlock().z()))
+                                 .setNextInt(doorBase.getPowerBlock().x())
+                                 .setNextInt(doorBase.getPowerBlock().y())
+                                 .setNextInt(doorBase.getPowerBlock().z())
+                                 .setNextLong(Util.simpleChunkHashFromLocation(doorBase.getPowerBlock().x(),
+                                                                               doorBase.getPowerBlock().z()))
 
-                                 .setNextInt(RotateDirection.getValue(simpleDoorData.getOpenDirection()))
-                                 .setNextLong(getFlag(simpleDoorData.isOpen(), simpleDoorData.isLocked()))
+                                 .setNextInt(RotateDirection.getValue(doorBase.getOpenDir()))
+                                 .setNextLong(getFlag(doorBase.isOpen(), doorBase.isLocked()))
                                  .setNextBytes(typeData)
 
-                                 .setNextLong(simpleDoorData.getUid())) > 0;
+                                 .setNextLong(doorBase.getDoorUID())) > 0;
     }
 
     private void insertOrIgnorePlayer(final @NotNull Connection conn, final @NotNull PPlayerData playerData)

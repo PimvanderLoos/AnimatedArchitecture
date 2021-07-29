@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,7 +68,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @EqualsAndHashCode.Exclude
     // This is a ConcurrentHashMap to ensure serialization uses the correct type.
-    private final @NotNull ConcurrentHashMap<UUID, DoorOwner> doorOwners;
+    private final @NotNull Map<UUID, DoorOwner> doorOwners;
 
     @Getter
     private final @NotNull DoorOwner primeOwner;
@@ -90,8 +89,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.openDir = openDir;
         this.primeOwner = primeOwner;
 
-        final @NotNull ConcurrentHashMap<UUID, DoorOwner> doorOwnersTmp =
-            new ConcurrentHashMap<>(doorOwners == null ? 1 : doorOwners.size());
+        final int initSize = doorOwners == null ? 1 : doorOwners.size();
+        final @NotNull Map<UUID, DoorOwner> doorOwnersTmp = new ConcurrentHashMap<>(initSize);
         if (doorOwners == null)
             doorOwnersTmp.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         else
@@ -106,13 +105,46 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir, primeOwner, null);
     }
 
-    /**
-     * Constructs a new {@link DoorBase}.
-     */
-    public DoorBase(final @NotNull DoorData doorData)
+    // Copy constructor
+    private DoorBase(@NotNull DoorBase other, @Nullable Map<UUID, DoorOwner> doorOwners)
     {
-        this(doorData.uid, doorData.name, doorData.cuboid, doorData.engine, doorData.powerBlock, doorData.world,
-             doorData.isOpen, doorData.isLocked, doorData.openDirection, doorData.primeOwner, doorData.doorOwners);
+        doorUID = other.doorUID;
+        name = other.name;
+        cuboid = other.cuboid;
+        engine = other.engine;
+        powerBlock = other.powerBlock;
+        world = other.world;
+        isOpen = other.isOpen;
+        isLocked = other.isLocked;
+        openDir = other.openDir;
+        primeOwner = other.primeOwner;
+        this.doorOwners = doorOwners == null ? new ConcurrentHashMap<>(0) : doorOwners;
+    }
+
+    /**
+     * Gets a full copy of this {@link DoorBase}.
+     * <p>
+     * A full copy includes a full copy of {@link #doorOwners}. If this is not needed, consider using {@link
+     * #getPartialCopy()} instead as it will be faster.
+     *
+     * @return A full copy of this {@link DoorBase}.
+     */
+    synchronized @NotNull DoorBase getFullCopy()
+    {
+        return new DoorBase(this, getDoorOwnersCopy());
+    }
+
+    /**
+     * Gets a full copy of this {@link DoorBase}.
+     * <p>
+     * A partial copy does not include the {@link #doorOwners}. If these are needed, consider using {@link
+     * #getFullCopy()} instead.
+     *
+     * @return A full copy of this {@link DoorBase}.
+     */
+    synchronized @NotNull DoorBase getPartialCopy()
+    {
+        return new DoorBase(this, null);
     }
 
     @Override
@@ -146,20 +178,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     public @NotNull Cuboid getCuboid()
     {
         return cuboid;
-    }
-
-    /**
-     * Obtains a simple copy of the {@link DoorData} the describes this door.
-     * <p>
-     * Note that this creates a deep copy of the DoorData <u><b>excluding</u></b><b> its {@link DoorOwner}s</b>, so use
-     * it sparingly.
-     *
-     * @return A copy of the {@link DoorData} the describes this door.
-     */
-    public synchronized @NotNull SimpleDoorData getSimpleDoorDataCopy()
-    {
-        return new SimpleDoorData(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir,
-                                  primeOwner);
     }
 
     @Deprecated
@@ -297,129 +315,5 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     {
         final @NotNull String objString = obj == null ? "NULL" : obj.toString();
         return name + ": " + objString + "\n";
-    }
-
-    /**
-     * POD class that stores all the data needed for basic door initialization.
-     * <p>
-     * This type is called 'simple', as it doesn't include the list of all {@link DoorOwner}s. If you need that, use an
-     * {@link DoorData} instead.
-     *
-     * @author Pim
-     */
-    @AllArgsConstructor
-    @Getter
-    public static class SimpleDoorData
-    {
-        /**
-         * The UID of this door.
-         */
-        final long uid;
-
-        /**
-         * The name of this door.
-         */
-        final @NotNull String name;
-
-        /**
-         * The cuboid that describes this door.
-         */
-        final @NotNull Cuboid cuboid;
-
-        /**
-         * The location of the engine.
-         */
-        final @NotNull Vector3Di engine;
-
-        /**
-         * The location of the powerblock.
-         */
-
-        final @NotNull Vector3Di powerBlock;
-
-        /**
-         * The {@link IPWorld} this door is in.
-         */
-        final @NotNull IPWorld world;
-
-        /**
-         * Whether or not this door is currently open.
-         */
-        final boolean isOpen; // TODO: Use the bitflag here instead.
-
-        /**
-         * Whether or not this door is currently locked.
-         */
-        final boolean isLocked;
-
-        /**
-         * The open direction of this door.
-         */
-
-        final @NotNull RotateDirection openDirection;
-
-        /**
-         * The {@link DoorOwner} that originally created this door.
-         */
-        final @NotNull DoorOwner primeOwner;
-    }
-
-    /**
-     * Represents a more complete picture of {@link SimpleDoorData}, as it includes a list of <u>all</u> {@link
-     * DoorOwner}s of a door.
-     * <p>
-     * When no list of {@link DoorOwner}s is provided, it is assumed that the {@link SimpleDoorData#primeOwner} is the
-     * only {@link DoorOwner}.
-     *
-     * @author Pim
-     */
-    public static class DoorData extends SimpleDoorData
-    {
-        /**
-         * The list of {@link DoorOwner}s of this door.
-         */
-        @Getter
-        private final @NotNull ConcurrentHashMap<@NotNull UUID, @NotNull DoorOwner> doorOwners;
-
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
-                        final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
-                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner)
-        {
-            super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
-            doorOwners = new ConcurrentHashMap<>();
-            doorOwners.put(primeOwner.pPlayerData().getUUID(), primeOwner);
-        }
-
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
-                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
-                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final boolean isLocked, final @NotNull RotateDirection openDirection,
-                        final @NotNull DoorOwner primeOwner)
-        {
-            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
-                 primeOwner);
-        }
-
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Cuboid cuboid,
-                        final @NotNull Vector3Di engine, final @NotNull Vector3Di powerBlock,
-                        final @NotNull IPWorld world, final boolean isOpen, final boolean isLocked,
-                        final @NotNull RotateDirection openDirection, final @NotNull DoorOwner primeOwner,
-                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
-        {
-            super(uid, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDirection, primeOwner);
-            this.doorOwners = new ConcurrentHashMap<>(doorOwners);
-        }
-
-        public DoorData(final long uid, final @NotNull String name, final @NotNull Vector3Di min,
-                        final @NotNull Vector3Di max, final @NotNull Vector3Di engine,
-                        final @NotNull Vector3Di powerBlock, final @NotNull IPWorld world, final boolean isOpen,
-                        final boolean isLocked, final @NotNull RotateDirection openDirection,
-                        final @NotNull DoorOwner primeOwner,
-                        final @NotNull Map<@NotNull UUID, @NotNull DoorOwner> doorOwners)
-        {
-            this(uid, name, new Cuboid(min, max), engine, powerBlock, world, isOpen, isLocked, openDirection,
-                 primeOwner, doorOwners);
-        }
     }
 }

@@ -306,7 +306,7 @@ public abstract class AbstractDoor implements IDoor
         try
         {
             return BigDoors.get().getDatabaseManager()
-                           .syncDoorData(doorBase.getSimpleDoorDataCopy(), serializer.serialize(this));
+                           .syncDoorData(doorBase.getPartialCopy(), serializer.serialize(this));
         }
         catch (Throwable t)
         {

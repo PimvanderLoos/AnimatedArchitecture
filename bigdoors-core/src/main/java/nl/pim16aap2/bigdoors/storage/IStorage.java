@@ -222,11 +222,11 @@ public interface IStorage
      * Synchronizes an {@link AbstractDoor} door with the database. This will synchronize both the base and the
      * type-specific data of the {@link AbstractDoor}.
      *
-     * @param simpleDoorData The {@link DoorBase.SimpleDoorData} that describes the base data of door.
-     * @param typeData       The type-specific data of this door.
+     * @param doorBase The {@link DoorBase} that describes the base data of door.
+     * @param typeData The type-specific data of this door.
      * @return True if the update was successful.
      */
-    boolean syncDoorData(@NotNull DoorBase.SimpleDoorData simpleDoorData, byte[] typeData);
+    boolean syncDoorData(@NotNull DoorBase doorBase, byte[] typeData);
 
     /**
      * Deletes a {@link DoorType} and all {@link AbstractDoor}s of this type from the database.
