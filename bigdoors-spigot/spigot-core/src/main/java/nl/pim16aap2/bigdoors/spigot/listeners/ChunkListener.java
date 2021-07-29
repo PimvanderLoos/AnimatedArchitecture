@@ -3,11 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
-import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -87,17 +83,17 @@ public class ChunkListener implements Listener
                         optionalDoor.ifPresent(
                             door ->
                             {
-                                if (door instanceof IPerpetualMoverArchetype && door.isPowerBlockActive())
-                                    BigDoors.get().getDoorOpener()
-                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
-                                                              false, DoorActionType.TOGGLE);
+//                                if (door instanceof IPerpetualMover && door.isPowerBlockActive())
+//                                    BigDoors.get().getDoorOpener()
+//                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
+//                                                              false, DoorActionType.TOGGLE);
                             })
                 )));
     }
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
-     * AbstractDoorBase}s.
+     * DoorBase}s.
      *
      * @param event The {@link ChunkUnloadEvent}.
      */
@@ -123,10 +119,10 @@ public class ChunkListener implements Listener
             IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
             Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
 
-            // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
-            BigDoors.get().getDoorActivityManager().getBlockMovers()
-                    .filter(BM -> BM.getDoor().chunkInRange(world, chunkCoords))
-                    .forEach(BlockMover::abort);
+//            // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
+//            BigDoors.get().getDoorActivityManager().getBlockMovers()
+//                    .filter(BM -> BM.getDoor().chunkInRange(world, chunkCoords))
+//                    .forEach(BlockMover::abort);
         }
         catch (Exception e)
         {

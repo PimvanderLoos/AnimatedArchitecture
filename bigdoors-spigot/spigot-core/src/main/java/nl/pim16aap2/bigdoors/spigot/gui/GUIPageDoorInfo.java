@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.commands.MovePowerBlock;
 import nl.pim16aap2.bigdoors.commands.SetAutoCloseTime;
 import nl.pim16aap2.bigdoors.commands.SetBlocksToMove;
 import nl.pim16aap2.bigdoors.commands.Toggle;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.PageType;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -45,7 +45,7 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     @Override
-    public PageType getPageType()
+    public @NotNull PageType getPageType()
     {
         return PageType.DOORINFO;
     }
@@ -59,7 +59,7 @@ public class GUIPageDoorInfo implements IGUIPage
      * @param guiItem        The GUIItem pressed.
      * @param interactionIDX The index of the GUIItem the player interacted with.
      */
-    private void handleAllowedInput(final @NotNull AbstractDoorBase door, final @NotNull Player player,
+    private void handleAllowedInput(final @NotNull AbstractDoor door, final @NotNull Player player,
                                     final @NotNull GUIItem guiItem, final int interactionIDX)
     {
         guiItem.getDoorAttribute().ifPresent(
@@ -68,7 +68,8 @@ public class GUIPageDoorInfo implements IGUIPage
                 switch (attr)
                 {
                     case LOCK:
-                        door.setLocked(!door.isLocked()).syncData();
+                        door.setLocked(!door.isLocked());
+                        door.syncData();
                         gui.updateItem(interactionIDX, createGUIItemOfAttribute(door, DoorAttribute.LOCK));
                         break;
                     case TOGGLE:
@@ -179,7 +180,7 @@ public class GUIPageDoorInfo implements IGUIPage
     }
 
     // Changes the opening direction for a door.
-    private void changeOpenDir(final @NotNull AbstractDoorBase door, final int index)
+    private void changeOpenDir(final @NotNull AbstractDoor door, final int index)
     {
 //        DoorAttribute[] attributes = EDoorType.getAttributes(door.getType());
 //        DoorAttribute openTypeAttribute = null;
@@ -219,7 +220,7 @@ public class GUIPageDoorInfo implements IGUIPage
 //        gui.updateItem(index, createGUIItemOfAttribute(door, openTypeAttribute));
     }
 
-    private @NotNull Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoorBase door,
+    private @NotNull Optional<GUIItem> createGUIItemOfAttribute(final @NotNull AbstractDoor door,
                                                                 final @NotNull DoorAttribute atr)
     {
 //        // If the permission level is higher than the max permission of this action.

@@ -4,7 +4,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -36,7 +36,7 @@ class CreatorFullTest extends CreatorTestsUtil
         Mockito.when(doorType.getValidOpenDirections())
                .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        @NotNull val door = Mockito.mock(AbstractDoorBase.class);
+        @NotNull val door = Mockito.mock(DoorBase.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
         @NotNull val creator = new CreatorTestImpl(player, door);
@@ -60,9 +60,9 @@ class CreatorFullTest extends CreatorTestsUtil
 
     private static class CreatorTestImpl extends Creator
     {
-        private final @NotNull AbstractDoorBase door;
+        private final @NotNull DoorBase door;
 
-        protected CreatorTestImpl(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
+        protected CreatorTestImpl(final @NotNull IPPlayer player, final @NotNull DoorBase door)
         {
             super(player, null);
             this.door = door;
@@ -88,7 +88,7 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected @NotNull AbstractDoorBase constructDoor()
+        protected @NotNull DoorBase constructDoor()
         {
             return door;
         }

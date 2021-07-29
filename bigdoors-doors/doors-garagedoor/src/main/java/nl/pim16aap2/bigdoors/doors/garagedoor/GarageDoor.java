@@ -4,15 +4,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -21,7 +20,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,8 +32,7 @@ import java.util.Optional;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class GarageDoor extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
+public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
@@ -56,33 +53,32 @@ public class GarageDoor extends AbstractDoorBase
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
 
-    public GarageDoor(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
+    public GarageDoor(final @NotNull DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
                       final boolean northSouthAligned)
     {
-        super(doorData);
+        super(doorBase);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
         this.northSouthAligned = northSouthAligned;
     }
 
-    public GarageDoor(final @NotNull DoorData doorData, final boolean northSouthAligned)
+    public GarageDoor(final @NotNull DoorBase doorBase, final boolean northSouthAligned)
     {
-        this(doorData, -1, -1, northSouthAligned);
+        this(doorBase, -1, -1, northSouthAligned);
     }
 
-    private GarageDoor(final @NotNull DoorData doorData)
+    @SuppressWarnings("unused")
+    private GarageDoor(final @NotNull DoorBase doorBase)
     {
-        this(doorData, false); // Add tmp/default values
+        this(doorBase, false); // Add tmp/default values
     }
 
     @Override
@@ -92,28 +88,20 @@ public class GarageDoor extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
-    {
-        final @NotNull Vector3Di dimensions = getDimensions();
-        final int radius;
-        if (!isOpen())
-            radius = dimensions.y() / 16 + 1;
-        else
-            radius =
-                Math.max(dimensions.x(), dimensions.z()) / 16 + 1;
-
-        return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().x() - radius, getEngineChunk().y() - radius),
-            new Vector2Di(getEngineChunk().x() + radius, getEngineChunk().y() + radius)};
-    }
-
-    @Override
     public synchronized @NotNull RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())
             return RotateDirection.getOpposite(getOpenDir());
         return rotDir;
+    }
+
+    @Override
+    public @NotNull RotateDirection cycleOpenDirection()
+    {
+        if (isNorthSouthAligned())
+            return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
+        return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.SOUTH : RotateDirection.NORTH;
     }
 
     @Override
@@ -145,7 +133,7 @@ public class GarageDoor extends AbstractDoorBase
         {
             BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
-                    getDoorType().toString() + "\""));
+                    getDoorType() + "\""));
             return Optional.empty();
         }
 

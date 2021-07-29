@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -18,6 +18,8 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
  * Represents a Windmill doorType.
  *
@@ -25,8 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Windmill extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
@@ -39,21 +40,39 @@ public class Windmill extends AbstractDoorBase
     @PersistentVariable
     private int quarterCircles = 1;
 
-    public Windmill(final @NotNull DoorData doorData, final int quarterCircles)
+    public Windmill(final @NotNull DoorBase doorBase, final int quarterCircles)
     {
-        super(doorData);
+        super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public Windmill(final @NotNull DoorData doorData)
+    public Windmill(final @NotNull DoorBase doorBase)
     {
-        this(doorData, 1);
+        this(doorBase, 1);
     }
 
     @Override
     public @NotNull DoorType getDoorType()
     {
         return DOOR_TYPE;
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return false;
+    }
+
+    @Override
+    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        return Optional.of(getCuboid());
+    }
+
+    @Override
+    public @NotNull RotateDirection getCurrentToggleDir()
+    {
+        return getOpenDir();
     }
 
     @Override

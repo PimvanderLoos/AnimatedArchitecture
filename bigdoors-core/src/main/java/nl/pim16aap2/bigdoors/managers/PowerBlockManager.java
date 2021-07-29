@@ -5,7 +5,8 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
@@ -75,14 +76,14 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Gets all {@link AbstractDoorBase}s that have a powerblock at a location in a world.
+     * Gets all {@link DoorBase}s that have a powerblock at a location in a world.
      *
      * @param loc       The location.
      * @param worldName The name of the world.
-     * @return All {@link AbstractDoorBase}s that have a powerblock at a location in a world.
+     * @return All {@link DoorBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
-    public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoorBase>>>> doorsFromPowerBlockLoc(
+    public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(
         final @NotNull Vector3Di loc, final @NotNull String worldName)
     {
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
@@ -95,7 +96,7 @@ public final class PowerBlockManager extends Restartable
         return powerBlockWorld.getPowerBlocks(loc).handle(
             (list, throwable) ->
             {
-                final @NotNull List<CompletableFuture<Optional<AbstractDoorBase>>> doorBases = new ArrayList<>();
+                final @NotNull List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
                 list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
             }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -119,16 +120,17 @@ public final class PowerBlockManager extends Restartable
     }
 
     /**
-     * Updates the position of the power block of a {@link AbstractDoorBase} in the database.
+     * Updates the position of the power block of a {@link DoorBase} in the database.
      *
-     * @param door   The {@link AbstractDoorBase}.
+     * @param door   The {@link DoorBase}.
      * @param oldPos The old position.
      * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final @NotNull AbstractDoorBase door, final @NotNull Vector3Di oldPos,
+    public void updatePowerBlockLoc(final @NotNull AbstractDoor door, final @NotNull Vector3Di oldPos,
                                     final @NotNull Vector3Di newPos)
     {
-        door.setPowerBlockPosition(newPos).syncData();
+        door.setPowerBlockPosition(newPos);
+        door.syncData();
         final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
         if (powerBlockWorld == null)
         {

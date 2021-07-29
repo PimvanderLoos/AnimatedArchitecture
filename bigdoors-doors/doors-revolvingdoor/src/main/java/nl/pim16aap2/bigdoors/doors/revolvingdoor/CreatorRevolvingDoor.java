@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -53,7 +53,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoor constructDoor()
     {
         return new RevolvingDoor(constructDoorData());
     }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -154,7 +154,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected @NotNull AbstractDoor constructDoor()
     {
         setEngine();
         return new GarageDoor(constructDoorData(), northSouthAligned);

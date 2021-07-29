@@ -6,10 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -19,6 +18,8 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 /**
  * Represents a Clock doorType.
  *
@@ -26,8 +27,7 @@ import org.jetbrains.annotations.NotNull;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class Clock extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
+public class Clock extends AbstractDoor implements IHorizontalAxisAligned
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeClock.get();
 
@@ -61,7 +61,7 @@ public class Clock extends AbstractDoorBase
     @PersistentVariable
     protected @NotNull PBlockFace hourArmSide;
 
-    public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,
+    public Clock(final @NotNull DoorBase doorData, final boolean northSouthAligned,
                  final @NotNull PBlockFace hourArmSide)
     {
         super(doorData);
@@ -89,5 +89,40 @@ public class Clock extends AbstractDoorBase
         throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
+    }
+
+    @Override
+    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        return Optional.of(getCuboid());
+    }
+
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
+     */
+    @Override
+    public @NotNull RotateDirection getCurrentToggleDir()
+    {
+        return getOpenDir();
     }
 }

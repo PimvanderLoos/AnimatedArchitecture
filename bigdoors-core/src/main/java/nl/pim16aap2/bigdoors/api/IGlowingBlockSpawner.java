@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import org.jetbrains.annotations.NotNull;
 
@@ -132,7 +132,7 @@ public interface IGlowingBlockSpawner
      * @param player   The {@link IPPlayer} for whom to highlight the door.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    default @NotNull List<IGlowingBlock> spawnGlowingBlocks(@NotNull AbstractDoorBase doorBase,
+    default @NotNull List<IGlowingBlock> spawnGlowingBlocks(@NotNull AbstractDoor doorBase,
                                                             @NotNull IPPlayer player)
     {
         List<IGlowingBlock> ret = new ArrayList<>(4);

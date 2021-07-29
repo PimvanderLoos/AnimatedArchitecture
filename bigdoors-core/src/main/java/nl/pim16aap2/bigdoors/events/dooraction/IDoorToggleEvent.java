@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +12,7 @@ public interface IDoorToggleEvent extends IBigDoorsEvent
      *
      * @return The door.
      */
-    @NotNull AbstractDoorBase getDoor();
+    @NotNull AbstractDoor getDoor();
 
     /**
      * Gets what caused the door action request to be created.

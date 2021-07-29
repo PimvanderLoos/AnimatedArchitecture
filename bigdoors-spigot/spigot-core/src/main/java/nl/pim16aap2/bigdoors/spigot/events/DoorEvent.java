@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.events;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,12 +12,12 @@ import java.util.Optional;
 abstract class DoorEvent extends BigDoorsSpigotEvent implements IDoorEvent
 {
     @Getter
-    protected final @NotNull AbstractDoorBase door;
+    protected final @NotNull AbstractDoor door;
 
     @Getter
     protected final @NotNull Optional<IPPlayer> responsible;
 
-    public DoorEvent(final @NotNull AbstractDoorBase door, final @Nullable IPPlayer responsible)
+    protected DoorEvent(final @NotNull AbstractDoor door, final @Nullable IPPlayer responsible)
     {
         this.door = door;
         this.responsible = Optional.ofNullable(responsible);

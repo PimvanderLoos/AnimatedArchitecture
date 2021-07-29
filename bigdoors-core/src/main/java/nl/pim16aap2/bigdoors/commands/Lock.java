@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +33,8 @@ public class Lock extends DoorTargetCommand
      * Runs the {@link Lock} command.
      *
      * @param commandSender The {@link ICommandSender} responsible for changing the locked status of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the locked
-     *                      status will be modified.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will
+     *                      be modified.
      * @param lock          The new lock status.
      * @return See {@link BaseCommand#run()}.
      */
@@ -51,7 +52,7 @@ public class Lock extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         val event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorPrepareLockChangeEvent(door, lockedStatus,
@@ -64,6 +65,7 @@ public class Lock extends DoorTargetCommand
             return CompletableFuture.completedFuture(true);
         }
 
-        return door.setLocked(lockedStatus).syncData().thenApply(x -> true);
+        door.setLocked(lockedStatus);
+        return door.syncData().thenApply(x -> true);
     }
 }

@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -66,7 +66,7 @@ public final class AutoCloseScheduler extends Restartable
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    synchronized <T extends AbstractDoorBase & ITimerToggleableArchetype> void scheduleAutoClose(
+    synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(
         final @NotNull IPPlayer player, final T door, double speed, boolean skipAnimation)
     {
         final int autoCloseTimer = door.getAutoCloseTime();

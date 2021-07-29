@@ -5,7 +5,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -37,26 +37,29 @@ import java.util.regex.Pattern;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 @UtilityClass
 public final class Util
 {
     /**
      * Characters to use in (secure) random strings.
      */
-    private static final @NotNull String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final @NotNull String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
-     * Used to generate secure random strings. It's more secure than {@link Util#rnd}, but slower.
+     * Used to generate secure random strings. It's more secure than {@link Util#RANDOM}, but slower.
      */
-    private static final @NotNull SecureRandom srnd = new SecureRandom();
+    private static final @NotNull SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
-     * Used to generate simple random strings. It's faster than {@link Util#srnd}, but not secure.
+     * Used to generate simple random strings. It's faster than {@link Util#SECURE_RANDOM}, but not secure.
      */
-    private static final @NotNull Random rnd = new Random();
+    private static final @NotNull Random RANDOM = new Random();
 
-    private static final @NotNull Map<PBlockFace, RotateDirection> toRotateDirection = new EnumMap<>(PBlockFace.class);
-    private static final @NotNull Map<RotateDirection, PBlockFace> toPBlockFace = new EnumMap<>(RotateDirection.class);
+    private static final @NotNull Map<PBlockFace, RotateDirection> TO_ROTATE_DIRECTION =
+        new EnumMap<>(PBlockFace.class);
+    private static final @NotNull Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
+        new EnumMap<>(RotateDirection.class);
 
     static
     {
@@ -71,8 +74,8 @@ public final class Util
             {
                 mappedRotDir = RotateDirection.NONE;
             }
-            toRotateDirection.put(pbf, mappedRotDir);
-            toPBlockFace.put(mappedRotDir, pbf);
+            TO_ROTATE_DIRECTION.put(pbf, mappedRotDir);
+            TO_PBLOCK_FACE.put(mappedRotDir, pbf);
         }
     }
 
@@ -229,11 +232,11 @@ public final class Util
     }
 
     /**
-     * See {@link #getDistanceToDoor(IPLocation, AbstractDoorBase)}.
+     * See {@link #getDistanceToDoor(IPLocation, AbstractDoor)}.
      * <p>
      * If the player object has no location, -2 is returned.
      */
-    public static double getDistanceToDoor(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
+    public static double getDistanceToDoor(final @NotNull IPPlayer player, final @NotNull AbstractDoor door)
     {
         return player.getLocation().map(location -> getDistanceToDoor(location, door)).orElse(-2d);
     }
@@ -247,7 +250,7 @@ public final class Util
      * @return The distance between the location and the door if they lie in the same world, otherwise -1.
      */
     public static double getDistanceToDoor(final @NotNull IPLocation location,
-                                           final @NotNull AbstractDoorBase door)
+                                           final @NotNull AbstractDoor door)
     {
         if (!location.getWorld().equals(door.getWorld()))
             return -1;
@@ -309,7 +312,7 @@ public final class Util
      */
     public static @NotNull RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
     {
-        return toRotateDirection.getOrDefault(pBlockFace, RotateDirection.NONE);
+        return TO_ROTATE_DIRECTION.getOrDefault(pBlockFace, RotateDirection.NONE);
     }
 
     /**
@@ -321,7 +324,7 @@ public final class Util
      */
     public static @NotNull PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
     {
-        return toPBlockFace.getOrDefault(rotateDirection, PBlockFace.NONE);
+        return TO_PBLOCK_FACE.getOrDefault(rotateDirection, PBlockFace.NONE);
     }
 
     /**
@@ -429,7 +432,7 @@ public final class Util
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
-            sb.append(chars.charAt(rnd.nextInt(chars.length())));
+            sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         return sb.toString();
     }
 
@@ -443,11 +446,11 @@ public final class Util
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
-            sb.append(chars.charAt(srnd.nextInt(chars.length())));
+            sb.append(CHARS.charAt(SECURE_RANDOM.nextInt(CHARS.length())));
         return sb.toString();
     }
 
-    public static boolean hasPermissionForAction(final @NotNull UUID uuid, final @NotNull AbstractDoorBase door,
+    public static boolean hasPermissionForAction(final @NotNull UUID uuid, final @NotNull AbstractDoor door,
                                                  final @NotNull DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
@@ -455,7 +458,8 @@ public final class Util
                    .orElse(false);
     }
 
-    public static boolean hasPermissionForAction(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door,
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean hasPermissionForAction(final @NotNull IPPlayer player, final @NotNull AbstractDoor door,
                                                  final @NotNull DoorAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), door, attribute);
@@ -476,7 +480,7 @@ public final class Util
             throw new IllegalArgumentException("max must be greater than min");
         }
 
-        return rnd.nextInt((max - min) + 1) + min;
+        return RANDOM.nextInt((max - min) + 1) + min;
     }
 
     /**

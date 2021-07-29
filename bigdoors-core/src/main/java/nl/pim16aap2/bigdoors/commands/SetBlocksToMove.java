@@ -2,8 +2,9 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -36,8 +37,8 @@ public class SetBlocksToMove extends DoorTargetCommand
      *
      * @param commandSender The {@link ICommandSender} responsible for changing the blocks-to-move distance of the
      *                      door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the
-     *                      blocks-to-move distance will be modified.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the blocks-to-move
+     *                      distance will be modified.
      * @param blocksToMove  The new blocks-to-move distance.
      * @return See {@link BaseCommand#run()}.
      */
@@ -55,16 +56,16 @@ public class SetBlocksToMove extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
-        if (!(door instanceof IBlocksToMoveArchetype))
+        if (!(door instanceof IDiscreteMovement))
         {
             // TODO: Localization
             getCommandSender().sendMessage("This door has no blocks to move property!");
             return CompletableFuture.completedFuture(true);
         }
 
-        ((IBlocksToMoveArchetype) door).setBlocksToMove(blocksToMove);
+        ((IDiscreteMovement) door).setBlocksToMove(blocksToMove);
         return door.syncData().thenApply(x -> true);
     }
 

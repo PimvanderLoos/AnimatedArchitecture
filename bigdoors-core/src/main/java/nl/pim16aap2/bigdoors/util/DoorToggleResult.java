@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
@@ -18,70 +18,70 @@ public enum DoorToggleResult
     SUCCESS(Message.EMPTY),
 
     /**
-     * No {@link AbstractDoorBase}s were found, so none were toggled.
+     * No {@link DoorBase}s were found, so none were toggled.
      */
     NODOORSFOUND(Message.ERROR_NODOORSFOUND),
 
     /**
-     * The {@link AbstractDoorBase} could not be toggled because it is already 'busy': i.e. it is currently moving.
+     * The {@link DoorBase} could not be toggled because it is already 'busy': i.e. it is currently moving.
      */
     BUSY(Message.ERROR_DOORISBUSY),
 
     /**
-     * The {@link AbstractDoorBase} could not be toggled because it is locked.
+     * The {@link DoorBase} could not be toggled because it is locked.
      */
     LOCKED(Message.ERROR_DOORISLOCKED),
 
     /**
-     * Some undefined error occurred while attempting to toggle this {@link AbstractDoorBase}.
+     * Some undefined error occurred while attempting to toggle this {@link DoorBase}.
      */
     ERROR(Message.ERROR_TOGGLEFAILURE),
 
     /**
-     * The exact instance of the {@link AbstractDoorBase} that is to be toggled isn't registered in the {@link
+     * The exact instance of the {@link DoorBase} that is to be toggled isn't registered in the {@link
      * DoorRegistry}.
      */
     INSTANCE_UNREGISTERED(Message.ERROR_TOGGLEFAILURE),
 
     /**
-     * The {@link AbstractDoorBase} could not be toggled because it was cancelled.
+     * The {@link DoorBase} could not be toggled because it was cancelled.
      */
     CANCELLED(Message.ERROR_TOGGLECANCELLED),
 
     /**
-     * The {@link AbstractDoorBase} exceeded the size limit.
+     * The {@link DoorBase} exceeded the size limit.
      */
     TOOBIG(Message.ERROR_DOORTOOBIG),
 
     /**
      * The player who tried to toggle it or, if not present (e.g. when toggled via redstone), the original creator does
-     * not have permission to open to toggle the {@link AbstractDoorBase} because they are not allowed to break blocks
+     * not have permission to open to toggle the {@link DoorBase} because they are not allowed to break blocks
      * in the new location. This happens when a compatibility hook interferes (e.g. WorldGuard).
      */
     NOPERMISSION(Message.ERROR_NOPERMISSIONFORLOCATION),
 
     /**
-     * An attempt to toggle (or open/close) a {@link AbstractDoorBase} failed because it was obstructed.
+     * An attempt to toggle (or open/close) a {@link DoorBase} failed because it was obstructed.
      */
     OBSTRUCTED(Message.ERROR_DOORISOBSTRUCTED),
 
     /**
-     * The {@link AbstractDoorBase} did not have enough space to move.
+     * The {@link DoorBase} did not have enough space to move.
      */
     NODIRECTION(Message.ERROR_NOOPENDIRECTION),
 
     /**
-     * The {@link AbstractDoorBase} could not be opened because it is already open.
+     * The {@link DoorBase} could not be opened because it is already open.
      */
     ALREADYOPEN(Message.ERROR_DOORALREADYOPEN),
 
     /**
-     * The {@link AbstractDoorBase} could not be closed because it is already closed.
+     * The {@link DoorBase} could not be closed because it is already closed.
      */
     ALREADYCLOSED(Message.ERROR_DOORALREADYCLOSED),
 
     /**
-     * The {@link AbstractDoorBase} could not be toggled because its type was disabled at compile time.
+     * The {@link DoorBase} could not be toggled because its type was disabled at compile time.
      */
     TYPEDISABLED(Message.ERROR_DOORTYPEDISABLED),
     ;

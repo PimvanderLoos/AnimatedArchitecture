@@ -4,7 +4,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -24,10 +24,10 @@ import java.util.List;
 @ToString
 public class PowerBlockRelocator extends ToolUser
 {
-    private final @NotNull AbstractDoorBase door;
+    private final @NotNull AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(final @NotNull IPPlayer player, final @NotNull AbstractDoorBase door)
+    public PowerBlockRelocator(final @NotNull IPPlayer player, final @NotNull AbstractDoor door)
     {
         super(player);
         this.door = door;
@@ -76,7 +76,8 @@ public class PowerBlockRelocator extends ToolUser
             getPlayer().sendMessage("New location is the same as the old position! Nothing changed!");
         else
         {
-            door.setPowerBlockPosition(newLoc.getPosition()).syncData();
+            door.setPowerBlockPosition(newLoc.getPosition());
+            door.syncData();
             getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
                                             .getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
         }

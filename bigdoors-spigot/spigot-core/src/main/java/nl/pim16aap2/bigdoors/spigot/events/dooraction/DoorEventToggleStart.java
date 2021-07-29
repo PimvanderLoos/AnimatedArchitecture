@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.events.dooraction;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
@@ -36,7 +36,7 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventToggleStart(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+    public DoorEventToggleStart(final @NotNull AbstractDoor door, final @NotNull DoorActionCause cause,
                                 final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
                                 final double time, final boolean skipAnimation, final @NotNull Cuboid newCuboid)
     {

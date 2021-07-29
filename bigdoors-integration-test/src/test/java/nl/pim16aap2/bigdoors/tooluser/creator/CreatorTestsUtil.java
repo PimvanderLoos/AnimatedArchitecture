@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -133,11 +133,11 @@ public class CreatorTestsUtil
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
+            (Answer<CompletableFuture<Optional<DoorBase>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((DoorBase) invocation.getArguments()[0])));
         Mockito.when(databaseManager.addDoorBase(ArgumentMatchers.any(), Mockito.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoorBase>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoorBase) invocation.getArguments()[0])));
+            (Answer<CompletableFuture<Optional<DoorBase>>>) invocation ->
+                CompletableFuture.completedFuture(Optional.of((DoorBase) invocation.getArguments()[0])));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
@@ -166,14 +166,14 @@ public class CreatorTestsUtil
     }
 
 
-    protected AbstractDoorBase.DoorData constructDoorData()
+    protected DoorBase.DoorData constructDoorData()
     {
-        return new AbstractDoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world,
-                                             false, false, openDirection, doorOwner);
+        return new DoorBase.DoorData(-1, doorName, min, max, engine, powerblock, world,
+                                     false, false, openDirection, doorOwner);
     }
 
     @SneakyThrows
-    public void testCreation(final @NotNull Creator creator, @NotNull AbstractDoorBase actualDoor,
+    public void testCreation(final @NotNull Creator creator, @NotNull DoorBase actualDoor,
                              final @NotNull Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)

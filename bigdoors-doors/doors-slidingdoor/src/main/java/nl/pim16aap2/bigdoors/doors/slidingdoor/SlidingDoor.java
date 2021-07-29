@@ -4,14 +4,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -20,7 +19,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,46 +31,43 @@ import java.util.Optional;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class SlidingDoor extends AbstractDoorBase
-    implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
+public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
     private static final @NotNull DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int blocksToMove;
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoCloseTime;
 
     @Getter
     @Setter
-    @Accessors(chain = true)
     @PersistentVariable
     protected int autoOpenTime;
 
-    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
+    public SlidingDoor(final @NotNull DoorBase doorBase, final int blocksToMove, final int autoCloseTime,
                        final int autoOpenTime)
     {
-        super(doorData);
+        super(doorBase);
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    public SlidingDoor(final @NotNull DoorBase doorBase, final int blocksToMove)
     {
-        this(doorData, blocksToMove, -1, -1);
+        this(doorBase, blocksToMove, -1, -1);
     }
 
-    private SlidingDoor(final @NotNull DoorData doorData)
+    @SuppressWarnings("unused")
+    private SlidingDoor(final @NotNull DoorBase doorBase)
     {
-        this(doorData, -1); // Add tmp/default values
+        this(doorBase, -1); // Add tmp/default values
     }
 
     @Override
@@ -82,22 +77,9 @@ public class SlidingDoor extends AbstractDoorBase
     }
 
     @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
+    public boolean canSkipAnimation()
     {
-        final @NotNull Vector3Di dimensions = getDimensions();
-
-        int distanceX = 0;
-        int distanceZ = 0;
-        if (getOpenDir().equals(RotateDirection.NORTH) || getOpenDir().equals(RotateDirection.SOUTH))
-            distanceZ = (getBlocksToMove() > 0 ? Math.max(dimensions.z(), getBlocksToMove()) :
-                         Math.min(-dimensions.z(), getBlocksToMove())) / 16 + 1;
-        else
-            distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.x(), getBlocksToMove()) :
-                         Math.min(-dimensions.x(), getBlocksToMove())) / 16 + 1;
-
-        return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().x() - distanceX, getEngineChunk().y() - distanceZ),
-            new Vector2Di(getEngineChunk().x() + distanceX, getEngineChunk().y() + distanceZ)};
+        return true;
     }
 
     @Override

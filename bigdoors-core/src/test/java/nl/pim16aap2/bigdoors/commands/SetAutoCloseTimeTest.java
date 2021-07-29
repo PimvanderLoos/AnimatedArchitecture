@@ -4,8 +4,8 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 
 class SetAutoCloseTimeTest
 {
-    private AbstractDoorBase door;
+    private DoorBase door;
 
     private IBigDoorsPlatform platform;
 
@@ -42,8 +42,8 @@ class SetAutoCloseTimeTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
-        door = Mockito.mock(AbstractDoorBase.class,
-                            Mockito.withSettings().extraInterfaces(ITimerToggleableArchetype.class));
+        door = Mockito.mock(DoorBase.class,
+                            Mockito.withSettings().extraInterfaces(ITimerToggleable.class));
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
         initCommandSenderPermissions(commandSender, true, true);
@@ -58,13 +58,13 @@ class SetAutoCloseTimeTest
         final int autoCloseValue = 42;
 
         val command = new SetAutoCloseTime(commandSender, doorRetriever, autoCloseValue);
-        val altDoor = Mockito.mock(AbstractDoorBase.class);
+        val altDoor = Mockito.mock(DoorBase.class);
 
         Assertions.assertTrue(command.performAction(altDoor).get(1, TimeUnit.SECONDS));
         Mockito.verify(altDoor, Mockito.never()).syncData();
 
         Assertions.assertTrue(command.performAction(door).get(1, TimeUnit.SECONDS));
-        Mockito.verify((ITimerToggleableArchetype) door).setAutoCloseTime(autoCloseValue);
+        Mockito.verify((ITimerToggleable) door).setAutoCloseTime(autoCloseValue);
         Mockito.verify(door).syncData();
     }
 
@@ -76,7 +76,7 @@ class SetAutoCloseTimeTest
         Assertions.assertTrue(SetAutoCloseTime.run(commandSender, doorRetriever, autoCloseValue)
                                               .get(1, TimeUnit.SECONDS));
 
-        Mockito.verify((ITimerToggleableArchetype) door).setAutoCloseTime(autoCloseValue);
+        Mockito.verify((ITimerToggleable) door).setAutoCloseTime(autoCloseValue);
         Mockito.verify(door).syncData();
     }
 
@@ -94,7 +94,7 @@ class SetAutoCloseTimeTest
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
 
-        Mockito.verify((ITimerToggleableArchetype) door).setAutoCloseTime(autoCloseValue);
+        Mockito.verify((ITimerToggleable) door).setAutoCloseTime(autoCloseValue);
         Mockito.verify(door).syncData();
     }
 }

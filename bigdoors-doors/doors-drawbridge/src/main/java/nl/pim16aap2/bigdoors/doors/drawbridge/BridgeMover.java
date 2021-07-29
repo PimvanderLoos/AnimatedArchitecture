@@ -5,8 +5,9 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Pim
  */
-public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends BlockMover
+public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extends BlockMover
 {
     private final @NotNull Vector3Dd rotationCenter;
     protected final boolean NS;
@@ -36,10 +37,10 @@ public class BridgeMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoor
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param door            The {@link AbstractDoorBase}.
+     * @param door            The {@link DoorBase}.
      * @param time            The amount of time (in seconds) the door will try to toggle itself in.
      * @param skipAnimation   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param rotateDirection The direction the {@link AbstractDoorBase} will move.
+     * @param rotateDirection The direction the {@link DoorBase} will move.
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */

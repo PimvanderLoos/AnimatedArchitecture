@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -33,7 +32,7 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class DoorSerializerTest
 {
-    private static final AbstractDoorBase.DoorData doorData;
+    private static final DoorBase.DoorData doorData;
 
     static
     {
@@ -41,8 +40,8 @@ class DoorSerializerTest
         final Vector3Di pos = new Vector3Di(0, 0, 0);
         final PPlayerData playerData = new PPlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
         final DoorOwner doorOwner = new DoorOwner(1, 0, playerData);
-        doorData = new AbstractDoorBase.DoorData(1, name, pos, pos, pos, pos, new TestPWorld("worldName"),
-                                                 false, false, RotateDirection.DOWN, doorOwner);
+        doorData = new DoorBase.DoorData(1, name, pos, pos, pos, pos, new TestPWorld("worldName"),
+                                         false, false, RotateDirection.DOWN, doorOwner);
     }
 
     @BeforeEach
@@ -112,7 +111,7 @@ class DoorSerializerTest
     // of the parameters that aren't serialized anyway.
     @SuppressWarnings("ConstantConditions")
     @EqualsAndHashCode(callSuper = false)
-    private static class TestDoorType extends AbstractDoorBase
+    private static class TestDoorType extends DoorBase
     {
         @PersistentVariable
         @Getter

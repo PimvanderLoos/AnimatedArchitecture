@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +24,7 @@ public class DoorPrepareDeleteEvent extends DoorEvent implements IDoorPrepareDel
     @Setter
     private boolean isCancelled = false;
 
-    public DoorPrepareDeleteEvent(final @NotNull AbstractDoorBase door,
+    public DoorPrepareDeleteEvent(final @NotNull AbstractDoor door,
                                   final @Nullable IPPlayer responsible)
     {
         super(door, responsible);

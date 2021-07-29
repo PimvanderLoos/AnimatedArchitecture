@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -29,8 +30,8 @@ public class MovePowerBlock extends DoorTargetCommand
      * Runs the {@link MovePowerBlock} command.
      *
      * @param commandSender The {@link ICommandSender} responsible for moving the powerblock for the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the powerblock
-     *                      will be moved.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be
+     *                      moved.
      * @return See {@link BaseCommand#run()}.
      */
     public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
@@ -52,7 +53,7 @@ public class MovePowerBlock extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         BigDoors.get().getToolUserManager()
                 .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),

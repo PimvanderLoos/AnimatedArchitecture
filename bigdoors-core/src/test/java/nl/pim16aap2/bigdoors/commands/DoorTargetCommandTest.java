@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -32,7 +32,7 @@ class DoorTargetCommandTest
     private DoorRetriever doorRetriever;
 
     @Mock
-    private AbstractDoorBase door;
+    private DoorBase door;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;

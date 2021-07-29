@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.events.dooraction;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 
 /**
  * Represents the different kinds of actions that are applicable to a door.
@@ -10,17 +10,17 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
 public enum DoorActionType
 {
     /**
-     * Open a {@link AbstractDoorBase} if it is currently open, otherwise close it.
+     * Open a {@link DoorBase} if it is currently open, otherwise close it.
      */
     TOGGLE,
 
     /**
-     * Open a {@link AbstractDoorBase}, but only if it is currently closed.
+     * Open a {@link DoorBase}, but only if it is currently closed.
      */
     OPEN,
 
     /**
-     * Close a {@link AbstractDoorBase}, but only if it is currently opened.
+     * Close a {@link DoorBase}, but only if it is currently opened.
      */
     CLOSE
 }

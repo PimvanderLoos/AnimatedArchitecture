@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.doors.clock;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.windmill.WindmillMover;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -21,7 +21,7 @@ import java.util.function.Function;
  *
  * @author Pim
  */
-public class ClockMover<T extends AbstractDoorBase & IHorizontalAxisAlignedDoorArchetype> extends WindmillMover<T>
+public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends WindmillMover<T>
 {
     /**
      * Method to determine if a given {@link PBlockData} is part of the little hand or the big hand of a clock.

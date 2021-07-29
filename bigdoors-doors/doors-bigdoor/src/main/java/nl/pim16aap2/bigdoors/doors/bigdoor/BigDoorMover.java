@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -25,7 +25,7 @@ public class BigDoorMover extends BlockMover
     private final double endCos;
     private double step;
 
-    public BigDoorMover(final @NotNull AbstractDoorBase door, final @NotNull RotateDirection rotDirection,
+    public BigDoorMover(final @NotNull AbstractDoor door, final @NotNull RotateDirection rotDirection,
                         final double time, final boolean skipAnimation, final double multiplier,
                         final @NotNull IPPlayer player, final @NotNull Cuboid newCuboid,
                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)

@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.messages.Messages;
@@ -26,7 +26,7 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 class PowerBlockRelocatorTest
 {
     @Mock
-    private AbstractDoorBase door;
+    private DoorBase door;
 
     @Mock
     private IPWorld world;

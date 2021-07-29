@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
@@ -38,7 +38,7 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param animationSkipped If true, the door will skip the animation and open instantly.
      * @param newCuboid        The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventTogglePrepare(final @NotNull AbstractDoorBase door, final @NotNull DoorActionCause cause,
+    public DoorEventTogglePrepare(final @NotNull AbstractDoor door, final @NotNull DoorActionCause cause,
                                   final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
                                   final double time, final boolean animationSkipped,
                                   final @NotNull Cuboid newCuboid)

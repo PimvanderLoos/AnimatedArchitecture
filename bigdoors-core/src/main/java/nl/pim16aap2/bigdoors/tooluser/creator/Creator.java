@@ -7,7 +7,8 @@ import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
@@ -39,7 +40,7 @@ import java.util.OptionalInt;
 import java.util.logging.Level;
 
 /**
- * Represents a specialization of the {@link ToolUser} that is used for creating new {@link AbstractDoorBase}s.
+ * Represents a specialization of the {@link ToolUser} that is used for creating new {@link DoorBase}s.
  *
  * @author Pim
  */
@@ -219,23 +220,23 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Constructs the {@link AbstractDoorBase.DoorData} for the current door. This is the same for all doors.
+     * Constructs the {@link DoorBase} for the current door. This is the same for all doors.
      *
-     * @return The {@link AbstractDoorBase.DoorData} for the current door.
+     * @return The {@link DoorBase} for the current door.
      */
-    protected final @NotNull AbstractDoorBase.DoorData constructDoorData()
+    protected final @NotNull DoorBase constructDoorData()
     {
         final long doorUID = -1;
         @NotNull val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
-        return new AbstractDoorBase.DoorData(doorUID,
-                                             Util.requireNonNull(name, "Name"),
-                                             Util.requireNonNull(cuboid, "cuboid"),
-                                             Util.requireNonNull(engine, "engine"),
-                                             Util.requireNonNull(powerblock, "powerblock"),
-                                             Util.requireNonNull(world, "world"),
-                                             isOpen, isLocked,
-                                             Util.requireNonNull(openDir, "openDir"),
-                                             owner);
+        return new DoorBase(doorUID,
+                            Util.requireNonNull(name, "Name"),
+                            Util.requireNonNull(cuboid, "cuboid"),
+                            Util.requireNonNull(engine, "engine"),
+                            Util.requireNonNull(powerblock, "powerblock"),
+                            Util.requireNonNull(world, "world"),
+                            isOpen, isLocked,
+                            Util.requireNonNull(openDir, "openDir"),
+                            owner);
     }
 
     /**
@@ -343,6 +344,7 @@ public abstract class Creator extends ToolUser
      * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
      * door and the process is aborted.
      */
+    @SuppressWarnings("squid:S3516")
     protected boolean confirmPrice(final boolean confirm)
     {
         if (!confirm)
@@ -435,7 +437,7 @@ public abstract class Creator extends ToolUser
      *
      * @return The newly-created door.
      */
-    protected abstract @NotNull AbstractDoorBase constructDoor();
+    protected abstract @NotNull AbstractDoor constructDoor();
 
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
@@ -456,7 +458,7 @@ public abstract class Creator extends ToolUser
      *
      * @param door The door to send to the {@link DatabaseManager}.
      */
-    protected void insertDoor(final @NotNull AbstractDoorBase door)
+    protected void insertDoor(final @NotNull AbstractDoor door)
     {
         BigDoors.get().getDatabaseManager().addDoorBase(door, getPlayer()).whenComplete(
             (result, throwable) ->
@@ -546,7 +548,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the list of valid open directions for this type. It returns a subset of {@link
-     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link AbstractDoorBase}.
+     * DoorType#getValidOpenDirections()} based on the current physical aspects of the {@link DoorBase}.
      *
      * @return The list of valid open directions for this type given its current physical dimensions.
      */
@@ -556,8 +558,8 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link
-     * AbstractDoorBase} that is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link DoorBase} that
+     * is being created.
      *
      * @param loc The selected location of the engine.
      * @return True if the location of the area was set successfully.
@@ -598,7 +600,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Attempts to complete the step in the {@link Procedure} that sets the location of the engine for the {@link
-     * AbstractDoorBase} that is being created.
+     * DoorBase} that is being created.
      *
      * @param loc The selected location of the engine.
      * @return True if the location of the engine was set successfully.

@@ -16,7 +16,7 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -42,7 +42,7 @@ import java.util.logging.Level;
 public abstract class BlockMover implements IRestartable
 {
     protected final @NotNull IPWorld world;
-    protected final @NotNull AbstractDoorBase door;
+    protected final @NotNull AbstractDoor door;
     @Getter
     protected final @NotNull IPPlayer player;
     @Getter final @NotNull DoorActionCause cause;
@@ -84,14 +84,14 @@ public abstract class BlockMover implements IRestartable
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param door          The {@link AbstractDoorBase}.
+     * @param door          The {@link AbstractDoor}.
      * @param time          The amount of time (in seconds) the door will try to toggle itself in.
      * @param skipAnimation If the door should be opened instantly (i.e. skip animation) or not.
-     * @param openDirection The direction the {@link AbstractDoorBase} will move.
+     * @param openDirection The direction the {@link AbstractDoor} will move.
      * @param player        The player who opened this door.
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    protected BlockMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
+    protected BlockMover(final @NotNull AbstractDoor door, final double time, final boolean skipAnimation,
                          final @NotNull RotateDirection openDirection, final @NotNull IPPlayer player,
                          final @NotNull Cuboid newCuboid, final @NotNull DoorActionCause cause,
                          final @NotNull DoorActionType actionType)
@@ -223,7 +223,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Replaces all blocks of the {@link AbstractDoorBase} by Falling Blocks and starts the animation.
+     * Replaces all blocks of the {@link AbstractDoor} by Falling Blocks and starts the animation.
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
@@ -422,11 +422,11 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Updates the coordinates of a {@link AbstractDoorBase} and toggles its open status.
+     * Updates the coordinates of a {@link AbstractDoor} and toggles its open status.
      *
-     * @param door The {@link AbstractDoorBase}.
+     * @param door The {@link AbstractDoor}.
      */
-    private synchronized void updateCoords(final @NotNull AbstractDoorBase door)
+    private synchronized void updateCoords(final @NotNull AbstractDoor door)
     {
         if (newCuboid.equals(door.getCuboid()))
             return;
@@ -434,7 +434,8 @@ public abstract class BlockMover implements IRestartable
         door.setCoordinates(newCuboid);
 
         door.setOpen(!door.isOpen());
-        door.setCoordinates(newCuboid).syncData();
+        door.setCoordinates(newCuboid);
+        door.syncData();
     }
 
     /**
@@ -449,9 +450,9 @@ public abstract class BlockMover implements IRestartable
     protected abstract @NotNull IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);
 
     /**
-     * Gets the UID of the {@link AbstractDoorBase} being moved.
+     * Gets the UID of the {@link AbstractDoor} being moved.
      *
-     * @return The UID of the {@link AbstractDoorBase} being moved.
+     * @return The UID of the {@link AbstractDoor} being moved.
      */
     public final long getDoorUID()
     {
@@ -459,11 +460,11 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} being moved.
+     * Gets the {@link AbstractDoor} being moved.
      *
-     * @return The {@link AbstractDoorBase} being moved.
+     * @return The {@link AbstractDoor} being moved.
      */
-    public final @NotNull AbstractDoorBase getDoor()
+    public final @NotNull AbstractDoor getDoor()
     {
         return door;
     }

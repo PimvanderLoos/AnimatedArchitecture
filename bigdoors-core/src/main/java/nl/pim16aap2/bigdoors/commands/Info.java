@@ -3,7 +3,8 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.jetbrains.annotations.NotNull;
@@ -28,8 +29,8 @@ public class Info extends DoorTargetCommand
      *
      * @param commandSender The {@link ICommandSender} responsible for retrieving the door info and the receiver of the
      *                      door's information.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} for which the information
-     *                      will be retrieved.
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be
+     *                      retrieved.
      * @return See {@link BaseCommand#run()}.
      */
     public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
@@ -45,14 +46,14 @@ public class Info extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         getCommandSender().sendMessage(door.toString());
         highlightBlocks(door);
         return CompletableFuture.completedFuture(true);
     }
 
-    protected void highlightBlocks(final @NotNull AbstractDoorBase doorBase)
+    protected void highlightBlocks(final @NotNull AbstractDoor doorBase)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;

@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.gui;
 
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.bukkit.Material;
@@ -21,7 +22,7 @@ import java.util.Optional;
 class GUIItem
 {
     private ItemStack is;
-    private AbstractDoorBase door;
+    private AbstractDoor door;
     private List<String> lore;
     private int count;
     private String name;
@@ -163,21 +164,21 @@ class GUIItem
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} associated with this {@link GUIItem}.
+     * Gets the {@link DoorBase} associated with this {@link GUIItem}.
      *
-     * @return The {@link AbstractDoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
+     * @return The {@link DoorBase} associated with this {@link GUIItem}. Returns null if unavailable.
      */
-    public @Nullable AbstractDoorBase getDoor()
+    public @Nullable AbstractDoor getDoor()
     {
         return door;
     }
 
     /**
-     * Sets the {@link AbstractDoorBase} associated with this {@link GUIItem}.
+     * Sets the {@link AbstractDoor} associated with this {@link GUIItem}.
      *
-     * @param door The {@link AbstractDoorBase} to be associated with this {@link GUIItem}.
+     * @param door The {@link AbstractDoor} to be associated with this {@link GUIItem}.
      */
-    public void setDoor(final @NotNull AbstractDoorBase door)
+    public void setDoor(final @NotNull AbstractDoor door)
     {
         this.door = door;
     }
@@ -217,7 +218,7 @@ class GUIItem
      *
      * @return The {@link DoorOwner} of this {@link GUIItem}.
      */
-    public DoorOwner getDoorOwner()
+    public @Nullable DoorOwner getDoorOwner()
     {
         return doorOwner;
     }
@@ -227,7 +228,7 @@ class GUIItem
      *
      * @return The special value of this {@link GUIItem}.
      */
-    public Object getSpecialValue()
+    public @Nullable Object getSpecialValue()
     {
         return specialValue;
     }

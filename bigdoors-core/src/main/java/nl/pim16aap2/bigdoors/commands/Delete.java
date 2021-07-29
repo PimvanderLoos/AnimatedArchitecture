@@ -2,7 +2,8 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,7 @@ public class Delete extends DoorTargetCommand
      * Runs the {@link Delete} command.
      *
      * @param commandSender The {@link ICommandSender} responsible for deleting the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link AbstractDoorBase} which will be targeted for
+     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for
      *                      deletion.
      * @return See {@link BaseCommand#run()}.
      */
@@ -43,13 +44,13 @@ public class Delete extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoorBase door, final boolean bypassPermission)
+    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean bypassPermission)
     {
         return hasAccessToAttribute(door, DoorAttribute.DELETE, bypassPermission);
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoorBase door)
+    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager()
                        .deleteDoor(door, getCommandSender().getPlayer().orElse(null))

@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,11 +20,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<String>
 {
-    private final @NotNull List<AbstractDoorBase> options;
+    private final @NotNull List<AbstractDoor> options;
     private final @NotNull IPPlayer player;
 
     private DelayedDoorSpecificationInputRequest(final @NotNull Duration timeout,
-                                                 final @NotNull List<AbstractDoorBase> options,
+                                                 final @NotNull List<AbstractDoor> options,
                                                  final @NotNull IPPlayer player)
     {
         super(timeout.toMillis());
@@ -56,9 +56,9 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
      * @param player  The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static @NotNull CompletableFuture<Optional<AbstractDoorBase>> get(final @NotNull Duration timeout,
-                                                                             final @NotNull List<AbstractDoorBase> options,
-                                                                             final @NotNull IPPlayer player)
+    public static @NotNull CompletableFuture<Optional<AbstractDoor>> get(final @NotNull Duration timeout,
+                                                                         final @NotNull List<AbstractDoor> options,
+                                                                         final @NotNull IPPlayer player)
     {
         if (options.size() == 1)
             return CompletableFuture.completedFuture(Optional.of(options.get(0)));

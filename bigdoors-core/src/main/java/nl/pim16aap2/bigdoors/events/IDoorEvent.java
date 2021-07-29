@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.events;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -14,11 +14,11 @@ import java.util.Optional;
 public interface IDoorEvent extends IBigDoorsEvent
 {
     /**
-     * Gets the {@link AbstractDoorBase} that was created.
+     * Gets the {@link AbstractDoor} that was created.
      *
-     * @return The {@link AbstractDoorBase} that will be created.
+     * @return The {@link AbstractDoor} that will be created.
      */
-    @NotNull AbstractDoorBase getDoor();
+    @NotNull AbstractDoor getDoor();
 
     /**
      * Gets the {@link IPPlayer} that was responsible for the creation this door.
