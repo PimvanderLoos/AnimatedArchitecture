@@ -17,7 +17,7 @@ import java.util.List;
 
 class LocalizationGeneratorIntegrationTest
 {
-    private static final FileSystem FS = Jimfs.newFileSystem(Configuration.unix());
+    private static final @NotNull FileSystem FS = Jimfs.newFileSystem(Configuration.unix());
 
     private static final @NotNull String BASE_NAME = "Translation";
     private static final @NotNull String BASE_NAME_A = "Translation_A";
@@ -94,8 +94,8 @@ class LocalizationGeneratorIntegrationTest
     void testAddResources()
     {
         val localizationGenerator = new LocalizationGenerator(DIRECTORY_OUTPUT, BASE_NAME);
-        localizationGenerator.addResources(BASE_NAME_A, DIRECTORY_A);
-        localizationGenerator.addResources(BASE_NAME_B, DIRECTORY_B);
+        localizationGenerator.addResources(DIRECTORY_A, BASE_NAME_A);
+        localizationGenerator.addResources(DIRECTORY_B, BASE_NAME_B);
 
         System.out.println("Reading from file: " + OUTPUT_PATH_0);
         Assertions.assertEquals(OUTPUT_0, LocalizationGenerator.readFile(OUTPUT_PATH_0));

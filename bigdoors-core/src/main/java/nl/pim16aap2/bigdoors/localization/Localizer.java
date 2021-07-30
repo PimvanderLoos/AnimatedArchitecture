@@ -8,10 +8,10 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -24,17 +24,19 @@ import java.util.ResourceBundle;
  */
 public class Localizer extends Restartable
 {
+    public static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
+
+    private final @NotNull Path directory;
     private final @NotNull String baseName;
-    private final @NotNull File directory;
     private @Nullable URLClassLoader classLoader = null;
 
     /**
      * @param restartableHolder The {@link IRestartableHolder} to register this class with.
+     * @param directory         The directory the translation file(s) exist in.
      * @param baseName          The base name of the localization files. For example, when you have a file
      *                          "Translations_en_US.properties", the base name would be "Translations".
-     * @param directory         The directory the translation file(s) exist in.
      */
-    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull String baseName, @NotNull File directory)
+    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull Path directory, @NotNull String baseName)
     {
         super(restartableHolder);
         this.baseName = baseName;
@@ -43,11 +45,11 @@ public class Localizer extends Restartable
     }
 
     /**
-     * See {@link #Localizer(IRestartableHolder, String, File)}.
+     * See {@link #Localizer(IRestartableHolder, Path, String)}.
      */
-    public Localizer(@NotNull String baseName, @NotNull File directory)
+    public Localizer(@NotNull Path directory, @NotNull String baseName)
     {
-        this(BigDoors.get(), baseName, directory);
+        this(BigDoors.get(), directory, baseName);
     }
 
     /**
@@ -77,7 +79,7 @@ public class Localizer extends Restartable
     public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
     {
         if (classLoader == null)
-            return "Failed to localize message: " + key;
+            return KEY_NOT_FOUND_MESSAGE + key;
 
         val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
 
@@ -89,7 +91,7 @@ public class Localizer extends Restartable
     {
         try
         {
-            final URL[] urls = {directory.toURI().toURL()};
+            final URL[] urls = {directory.toUri().toURL()};
             classLoader = new URLClassLoader(urls);
         }
         catch (Exception e)

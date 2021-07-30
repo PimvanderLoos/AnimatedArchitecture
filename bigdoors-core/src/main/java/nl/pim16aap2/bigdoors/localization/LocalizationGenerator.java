@@ -44,7 +44,7 @@ public class LocalizationGenerator
     }
 
     /**
-     * See {@link #addResources(String, Path)}.
+     * See {@link #addResources(Path, String)}.
      *
      * @param localizer The {@link Localizer} to shut down before (re)generating the localization file(s). This ensures
      *                  the file isn't locked when running on *shudders* Windows.
@@ -52,13 +52,13 @@ public class LocalizationGenerator
      *                  After (re)generation, the localizer will be re-initialized.
      * @return The current {@link LocalizationGenerator} instance.
      */
-    public @NotNull LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull String baseName,
-                                                       @NotNull Path directory)
+    public @NotNull LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull Path directory,
+                                                       @NotNull String baseName)
     {
         synchronized (lck)
         {
             localizer.shutdown();
-            addResources(baseName, directory);
+            addResources(directory, baseName);
             localizer.restart();
             return this;
         }
@@ -69,17 +69,17 @@ public class LocalizationGenerator
      * <p>
      * Only files of the format "directory/basename[_locale].properties" are included. "[_locale]" is optional here.
      *
-     * @param baseName  The base name of the properties files.
      * @param directory The directory of the properties files.
+     * @param baseName  The base name of the properties files.
      * @return The current {@link LocalizationGenerator} instance.
      */
-    public @NotNull LocalizationGenerator addResources(@NotNull String baseName, @NotNull Path directory)
+    public @NotNull LocalizationGenerator addResources(@NotNull Path directory, @NotNull String baseName)
     {
         synchronized (lck)
         {
             try
             {
-                val localeFiles = getLocaleFilesInDirectory(baseName, directory);
+                val localeFiles = getLocaleFilesInDirectory(directory, baseName);
                 for (val localeFile : localeFiles)
                     mergeWithExistingLocaleFile(localeFile);
             }
@@ -267,11 +267,11 @@ public class LocalizationGenerator
     /**
      * Retrieves all the {@link LocaleFile}s in a directory.
      *
-     * @param baseName  The base name of the locale files.
      * @param directory The directory to search in.
+     * @param baseName  The base name of the locale files.
      * @return A list of {@link LocaleFile}s found in the directory.
      */
-    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull String baseName, @NotNull Path directory)
+    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @NotNull String baseName)
     {
         try (val stream = Files.list(directory))
         {
