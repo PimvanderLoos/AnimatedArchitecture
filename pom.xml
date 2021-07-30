@@ -31,6 +31,9 @@
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
+        <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
+        <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
+        <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
         <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
     </properties>
 
@@ -117,6 +120,30 @@
         <sourceDirectory>${src.dir}</sourceDirectory>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${dependency.version.maven-install}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${dependency.version.maven-jar}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${dependency.version.maven-clean}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${dependency.version.maven-resources}</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
