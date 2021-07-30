@@ -3,8 +3,6 @@ package nl.pim16aap2.bigdoors.localization;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,10 +12,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,26 +26,12 @@ import java.util.stream.Collectors;
  *
  * @author Pim
  */
-public class LocalizationGenerator extends Restartable
+public class LocalizationGenerator
 {
     private final @NotNull Object lck = new Object();
 
     private final @NotNull Path outputDirectory;
     private final @NotNull String outputBaseName;
-    private final @NotNull Map<String, LocaleFile> outputLocaleFiles = new HashMap<>();
-
-    /**
-     * @param holder          The {@link IRestartableHolder} to register this {@link Restartable} with.
-     * @param outputDirectory The output directory to write all the combined localizations into.
-     * @param outputBaseName  The base name of the properties files in the output directory.
-     */
-    public LocalizationGenerator(@NotNull IRestartableHolder holder,
-                                 @NotNull Path outputDirectory, @NotNull String outputBaseName)
-    {
-        super(holder);
-        this.outputDirectory = outputDirectory;
-        this.outputBaseName = outputBaseName;
-    }
 
     /**
      * @param outputDirectory The output directory to write all the combined localizations into.
@@ -56,7 +39,29 @@ public class LocalizationGenerator extends Restartable
      */
     public LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
     {
-        this(BigDoors.get(), outputDirectory, outputBaseName);
+        this.outputDirectory = outputDirectory;
+        this.outputBaseName = outputBaseName;
+    }
+
+    /**
+     * See {@link #addResources(String, Path)}.
+     *
+     * @param localizer The {@link Localizer} to shut down before (re)generating the localization file(s). This ensures
+     *                  the file isn't locked when running on *shudders* Windows.
+     *                  <p>
+     *                  After (re)generation, the localizer will be re-initialized.
+     * @return The current {@link LocalizationGenerator} instance.
+     */
+    public @NotNull LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull String baseName,
+                                                       @NotNull Path directory)
+    {
+        synchronized (lck)
+        {
+            localizer.shutdown();
+            addResources(baseName, directory);
+            localizer.restart();
+            return this;
+        }
     }
 
     /**
@@ -66,8 +71,9 @@ public class LocalizationGenerator extends Restartable
      *
      * @param baseName  The base name of the properties files.
      * @param directory The directory of the properties files.
+     * @return The current {@link LocalizationGenerator} instance.
      */
-    public void addResources(@NotNull String baseName, @NotNull Path directory)
+    public @NotNull LocalizationGenerator addResources(@NotNull String baseName, @NotNull Path directory)
     {
         synchronized (lck)
         {
@@ -75,21 +81,33 @@ public class LocalizationGenerator extends Restartable
             {
                 val localeFiles = getLocaleFilesInDirectory(baseName, directory);
                 for (val localeFile : localeFiles)
-                    mergeWithLocaleFile(localeFile);
+                    mergeWithExistingLocaleFile(localeFile);
             }
             catch (Exception e)
             {
                 BigDoors.get().getPLogger().logThrowable(e, "Failed to add resources from directory \"" +
                     directory + "\" with base name: \"" + baseName + "\"");
             }
+            return this;
         }
     }
 
+    /**
+     * Appends new keys from a locale file into the existing locale file.
+     * <p>
+     * The existing locale file is derived from {@link LocaleFile#path()} of the input locale file, {@link
+     * #outputDirectory}, and {@link #outputBaseName}.
+     * <p>
+     * If the output file does not exist yet, a new file will be created.
+     *
+     * @param localeFile The locale file whose files to copy into the existing file.
+     * @throws IOException When an I/O error occurred.
+     */
     @GuardedBy("lck")
-    void mergeWithLocaleFile(@NotNull LocaleFile localeFile)
+    void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
         throws IOException
     {
-        val existingLocaleFile = getExistingLocaleFile(localeFile.locale());
+        val existingLocaleFile = getOutputLocaleFile(localeFile.locale());
         ensureFileExists(existingLocaleFile);
         val existing = readFile(existingLocaleFile);
         val newlines = readFile(localeFile.path());
@@ -114,9 +132,16 @@ public class LocalizationGenerator extends Restartable
         Files.createFile(file);
     }
 
+    /**
+     * Appends a list of strings to a file.
+     * <p>
+     * Every entry in the list will be printed on its own line.
+     *
+     * @param path   The path of the file.
+     * @param append The list of Strings (lines) to append to the file.
+     */
     static void appendToFile(@NotNull Path path, @NotNull List<String> append)
     {
-        System.out.println("Writing to file: " + path);
         if (append.isEmpty())
             return;
 
@@ -163,14 +188,14 @@ public class LocalizationGenerator extends Restartable
     }
 
     /**
-     * Gets a set containing all the keys in a list of string, assuming
+     * Gets a set containing all the keys in a list of string.
      *
-     * @param lines
-     * @return
+     * @param lines The lines containing "key=value" mappings.
+     * @return A set with all the keys used in the lines.
      */
     static @NotNull Set<String> getKeySet(@NotNull List<String> lines)
     {
-        final Set<String> ret = new HashSet<>();
+        final Set<String> ret = new HashSet<>(lines.size());
         for (val line : lines)
         {
             val key = getKeyFromLine(line);
@@ -180,18 +205,40 @@ public class LocalizationGenerator extends Restartable
         return ret;
     }
 
+    /**
+     * Retrieves the key from a String with the format "key=value".
+     *
+     * @param line A string containing a key/value pair.
+     * @return The key as used in the line.
+     */
     static @Nullable String getKeyFromLine(@NotNull String line)
     {
         val parts = line.split("=", 2);
         return parts.length == 2 ? parts[0] : null;
     }
 
-    @NotNull Path getExistingLocaleFile(@NotNull String locale)
+    /**
+     * Retrieves the path of the output locale file.
+     * <p>
+     * The path is derived from {@link LocaleFile#path()} of the input locale file, {@link #outputDirectory}, and {@link
+     * #outputBaseName}.
+     *
+     * @param locale The locale used to derive the path of the output file.
+     * @return The path of the output file.
+     */
+    @NotNull Path getOutputLocaleFile(@NotNull String locale)
     {
         val fileName = String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
         return outputDirectory.resolve(fileName);
     }
 
+    /**
+     * Reads all the lines from a file.
+     *
+     * @param file A path to a file.
+     * @return A list of Strings where every string represents a single line in the provided file. If the input file is
+     * not a (valid) file, an empty list is returned.
+     */
     static @NotNull List<String> readFile(@NotNull Path file)
     {
         if (!Files.isRegularFile(file))
@@ -217,6 +264,13 @@ public class LocalizationGenerator extends Restartable
         return tmp;
     }
 
+    /**
+     * Retrieves all the {@link LocaleFile}s in a directory.
+     *
+     * @param baseName  The base name of the locale files.
+     * @param directory The directory to search in.
+     * @return A list of {@link LocaleFile}s found in the directory.
+     */
     static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull String baseName, @NotNull Path directory)
     {
         try (val stream = Files.list(directory))
@@ -251,6 +305,14 @@ public class LocalizationGenerator extends Restartable
         return ret;
     }
 
+    /**
+     * Retrieves the locale from a locale file with the format "basename[_locale].properties".
+     *
+     * @param baseName The base name of the translation files.
+     * @param fileName The name of the location file. This should only include the name of the file itself and not its
+     *                 parent directories.
+     * @return The locale as used in the filename.
+     */
     static @Nullable String parseLocaleFile(@NotNull String baseName, @NotNull String fileName)
     {
         if (!fileName.startsWith(baseName) || !fileName.endsWith(".properties"))
@@ -266,17 +328,11 @@ public class LocalizationGenerator extends Restartable
         return locale;
     }
 
-    @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
-    {
-        outputLocaleFiles.clear();
-    }
-
+    /**
+     * Represents a translation file for a specific {@link Locale}.
+     *
+     * @param path   The path of the file.
+     * @param locale The {@link Locale} this file represents.
+     */
     record LocaleFile(@NotNull Path path, @NotNull String locale) {}
 }
