@@ -104,6 +104,13 @@
             <version>${dependency.version.jdbc-sqlite}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <version>${dependency.version.jimfs}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

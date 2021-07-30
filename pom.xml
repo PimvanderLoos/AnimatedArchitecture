@@ -32,6 +32,7 @@
         <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
         <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
+        <dependency.version.jimfs>1.2</dependency.version.jimfs>
     </properties>
 
     <modules>
