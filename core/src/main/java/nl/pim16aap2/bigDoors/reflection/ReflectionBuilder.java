@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -24,7 +25,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link ClassFinder}.
      */
-    public static @NotNull ClassFinder findClass()
+    @Contract(" -> new")
+    public static ClassFinder findClass()
     {
         return new ClassFinder();
     }
@@ -35,7 +37,8 @@ public class ReflectionBuilder
      * @param names A list of class names to search for. There should be at least one.
      * @return A new {@link ClassFinder}.
      */
-    public static @NotNull ClassFinder findClass(@NotNull String... names)
+    @Contract("_ -> new")
+    public static ClassFinder findClass(@NotNull String... names)
     {
         return new ClassFinder().withNames(names);
     }
@@ -45,7 +48,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link ConstructorFinder}.
      */
-    public static @NotNull ConstructorFinder findConstructor()
+    @Contract(" -> new")
+    public static ConstructorFinder findConstructor()
     {
         return new ConstructorFinder();
     }
@@ -56,7 +60,8 @@ public class ReflectionBuilder
      * @param source The class in which the finder will look for the {@link Constructor}.
      * @return A new {@link ConstructorFinder}.
      */
-    public static @NotNull ConstructorFinder.ConstructorFinderInSource findConstructor(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public static ConstructorFinder.ConstructorFinderInSource findConstructor(@NotNull Class<?> source)
     {
         return new ConstructorFinder().inClass(source);
     }
@@ -66,7 +71,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link FieldFinder}.
      */
-    public static @NotNull FieldFinder findField()
+    @Contract(" -> new")
+    public static FieldFinder findField()
     {
         return new FieldFinder();
     }
@@ -78,7 +84,8 @@ public class ReflectionBuilder
      * @param source The class in which the finder will look for the {@link Field}.
      * @return A new {@link FieldFinder.FieldFinderInSource}.
      */
-    public static @NotNull FieldFinder.FieldFinderInSource findField(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public static FieldFinder.FieldFinderInSource findField(@NotNull Class<?> source)
     {
         return new FieldFinder().inClass(source);
     }
@@ -88,7 +95,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link MethodFinder}.
      */
-    public static @NotNull MethodFinder findMethod()
+    @Contract(" -> new")
+    public static MethodFinder findMethod()
     {
         return new MethodFinder();
     }
@@ -100,7 +108,8 @@ public class ReflectionBuilder
      * @param source The class in which the finder will look for the {@link Method}.
      * @return A new {@link MethodFinder.MethodFinderInSource}.
      */
-    public static @NotNull MethodFinder.MethodFinderInSource findMethod(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public static MethodFinder.MethodFinderInSource findMethod(@NotNull Class<?> source)
     {
         return new MethodFinder().inClass(source);
     }
@@ -110,7 +119,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link EnumValuesFinder}.
      */
-    public static @NotNull EnumValuesFinder findEnumValues()
+    @Contract(" -> new")
+    public static EnumValuesFinder findEnumValues()
     {
         return new EnumValuesFinder();
     }
@@ -121,7 +131,8 @@ public class ReflectionBuilder
      * @param source The class in which the finder will look for the enum values.
      * @return A new {@link EnumValuesFinder.EnumValuesFinderInSource}.
      */
-    public static @NotNull EnumValuesFinder.EnumValuesFinderInSource findEnumValues(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public static EnumValuesFinder.EnumValuesFinderInSource findEnumValues(@NotNull Class<?> source)
     {
         return new EnumValuesFinder().inClass(source);
     }
@@ -131,7 +142,8 @@ public class ReflectionBuilder
      *
      * @return A new {@link ParameterGroup.Builder}.
      */
-    public static @NotNull ParameterGroup.Builder parameterBuilder()
+    @Contract(" -> new")
+    public static ParameterGroup.Builder parameterBuilder()
     {
         return new ParameterGroup.Builder();
     }

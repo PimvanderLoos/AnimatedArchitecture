@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -157,6 +158,7 @@ public class ParameterGroup
          * @param types The types to add as required parameters.
          * @return The instance of the current parameter group.
          */
+        @Contract("_ -> this")
         public ParameterGroup.Builder withRequiredParameters(@NotNull Class<?>... types)
         {
             for (@NotNull Class<?> type : types)
@@ -173,7 +175,8 @@ public class ParameterGroup
          * @param types The types to add as optional parameters.
          * @return The instance of the current parameter group.
          */
-        public @NotNull ParameterGroup.Builder withOptionalParameters(@NotNull Class<?>... types)
+        @Contract("_ -> this")
+        public ParameterGroup.Builder withOptionalParameters(@NotNull Class<?>... types)
         {
             for (Class<?> type : types)
                 parameters.add(new Parameter(type, true));
@@ -185,7 +188,8 @@ public class ParameterGroup
          *
          * @return The newly created {@link ParameterGroup}.
          */
-        public @NotNull ParameterGroup construct()
+        @Contract("_ -> new")
+        public ParameterGroup construct()
         {
             return new ParameterGroup(parameters, requiredCount);
         }

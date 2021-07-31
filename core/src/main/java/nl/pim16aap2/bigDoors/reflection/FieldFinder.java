@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +27,8 @@ public class FieldFinder
      * @param source The class to analyze.
      * @return The next step in the field finding process.
      */
-    public @NotNull FieldFinder.FieldFinderInSource inClass(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public FieldFinder.FieldFinderInSource inClass(@NotNull Class<?> source)
     {
         return new FieldFinderInSource(source);
     }
@@ -49,7 +51,8 @@ public class FieldFinder
          * @param name The name of the field to look for.
          * @return The new {@link NamedFieldFinder}.
          */
-        public @NotNull NamedFieldFinder withName(@NotNull String name)
+        @Contract("_ -> new")
+        public NamedFieldFinder withName(@NotNull String name)
         {
             return new NamedFieldFinder(name, source);
         }
@@ -60,7 +63,8 @@ public class FieldFinder
          * @param type The type of the field to look for.
          * @return The new {@link TypedFieldFinder}.
          */
-        public @NotNull TypedFieldFinder ofType(@NotNull Class<?> type)
+        @Contract("_ -> new")
+        public TypedFieldFinder ofType(@NotNull Class<?> type)
         {
             return new TypedFieldFinder(source, type);
         }
@@ -71,7 +75,8 @@ public class FieldFinder
          * @param type The type of the fields to look for.
          * @return The new {@link TypedMultipleFieldsFinder}.
          */
-        public @NotNull TypedMultipleFieldsFinder allOfType(@NotNull Class<?> type)
+        @Contract("_ -> new")
+        public TypedMultipleFieldsFinder allOfType(@NotNull Class<?> type)
         {
             return new TypedMultipleFieldsFinder(source, type);
         }
@@ -107,7 +112,8 @@ public class FieldFinder
          * @param fieldType The type the field should have.
          * @return The current finder instance.
          */
-        public @NotNull NamedFieldFinder ofType(@Nullable Class<?> fieldType)
+        @Contract("_ -> this")
+        public NamedFieldFinder ofType(@Nullable Class<?> fieldType)
         {
             this.fieldType = fieldType;
             return this;
@@ -193,7 +199,8 @@ public class FieldFinder
          *            successfully.
          * @return The instance of the current finder.
          */
-        public @NotNull TypedMultipleFieldsFinder atLeast(int val)
+        @Contract("_ -> this")
+        public TypedMultipleFieldsFinder atLeast(int val)
         {
             this.atLeast = val;
             return this;
@@ -210,7 +217,8 @@ public class FieldFinder
          *            successfully.
          * @return The instance of the current finder.
          */
-        public @NotNull TypedMultipleFieldsFinder atMost(int val)
+        @Contract("_ -> this")
+        public TypedMultipleFieldsFinder atMost(int val)
         {
             this.atMost = val;
             return this;
@@ -227,7 +235,8 @@ public class FieldFinder
          *            successfully.
          * @return The instance of the current finder.
          */
-        public @NotNull TypedMultipleFieldsFinder exactCount(int val)
+        @Contract("_ -> this")
+        public TypedMultipleFieldsFinder exactCount(int val)
         {
             this.expected = val;
             return this;

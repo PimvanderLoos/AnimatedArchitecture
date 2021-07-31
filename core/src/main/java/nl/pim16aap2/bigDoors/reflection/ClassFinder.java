@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -22,7 +23,8 @@ public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
      * @param names The list of names the class might have.
      * @return The current {@link ClassFinder} instance.
      */
-    public @NotNull ClassFinder withNames(@NotNull String... names)
+    @Contract("_ -> this")
+    public ClassFinder withNames(@NotNull String... names)
     {
         this.names = Objects.requireNonNull(names, "List of lookup names cannot be null!");
         if (names.length == 0)

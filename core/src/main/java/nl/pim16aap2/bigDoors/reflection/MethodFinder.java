@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -21,7 +22,8 @@ public final class MethodFinder
      * @param source The class to analyze.
      * @return The next step in the method finding process.
      */
-    public @NotNull MethodFinderInSource inClass(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public MethodFinderInSource inClass(@NotNull Class<?> source)
     {
         return new MethodFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
     }
@@ -44,7 +46,8 @@ public final class MethodFinder
          * @param name The name of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        public @NotNull MethodFinderBase withName(@NotNull String name)
+        @Contract("_ -> new")
+        public MethodFinderBase withName(@NotNull String name)
         {
             return new NamedMethodFinder(source, name);
         }
@@ -55,7 +58,8 @@ public final class MethodFinder
          * @param returnType The return type of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        public @NotNull MethodFinderBase withReturnType(@NotNull Class<?> returnType)
+        @Contract("_ -> new")
+        public MethodFinderBase withReturnType(@NotNull Class<?> returnType)
         {
             return new TypedMethodFinder(source, returnType);
         }
@@ -95,7 +99,8 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        public @NotNull MethodFinderBase checkSuperClasses()
+        @Contract("-> this")
+        public MethodFinderBase checkSuperClasses()
         {
             this.checkSuperClasses = true;
             return this;
@@ -107,7 +112,8 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        public @NotNull MethodFinderBase ignoreSuperClasses()
+        @Contract("-> this")
+        public MethodFinderBase ignoreSuperClasses()
         {
             this.checkSuperClasses = false;
             return this;
@@ -123,7 +129,8 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        public @NotNull MethodFinderBase checkInterfaces()
+        @Contract("-> this")
+        public MethodFinderBase checkInterfaces()
         {
             this.checkInterfaces = true;
             return this;
@@ -135,7 +142,8 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        public @NotNull MethodFinderBase ignoreInterfaces()
+        @Contract("-> this")
+        public MethodFinderBase ignoreInterfaces()
         {
             this.checkInterfaces = false;
             return this;

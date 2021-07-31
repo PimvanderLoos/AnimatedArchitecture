@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -19,7 +20,8 @@ public class ConstructorFinder
      * @param source The class to analyze.
      * @return The next step in the constructor finding process.
      */
-    public @NotNull ConstructorFinderInSource inClass(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public ConstructorFinderInSource inClass(@NotNull Class<?> source)
     {
         return new ConstructorFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
     }

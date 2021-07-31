@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.reflection;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -22,7 +23,8 @@ public class EnumValuesFinder
      * @param source The class to analyze.
      * @return The next step in the enum values finding process.
      */
-    public @NotNull EnumValuesFinderInSource inClass(@NotNull Class<?> source)
+    @Contract("_ -> new")
+    public EnumValuesFinderInSource inClass(@NotNull Class<?> source)
     {
         return new EnumValuesFinderInSource(source);
     }
@@ -56,7 +58,8 @@ public class EnumValuesFinder
          * @param name The name of the enum value to look for.
          * @return The new {@link NamedEnumValueFinder}.
          */
-        public @NotNull NamedEnumValueFinder withName(@NotNull String name)
+        @Contract("_ -> new")
+        public NamedEnumValueFinder withName(@NotNull String name)
         {
             return new NamedEnumValueFinder(source, Objects
                 .requireNonNull(name, "Name of named enum constant cannot be null!"));
@@ -68,7 +71,8 @@ public class EnumValuesFinder
          * @param index The index of the enum value to look for.
          * @return The new {@link IndexedEnumValueFinder}.
          */
-        public @NotNull IndexedEnumValueFinder atIndex(int index)
+        @Contract("_ -> new")
+        public IndexedEnumValueFinder atIndex(int index)
         {
             return new IndexedEnumValueFinder(source, index);
         }
