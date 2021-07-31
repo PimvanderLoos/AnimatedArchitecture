@@ -92,20 +92,21 @@ class LocalizationGeneratorIntegrationTest
 
     @Test
     void testAddResources()
+        throws IOException
     {
         val localizationGenerator = new LocalizationGenerator(DIRECTORY_OUTPUT, BASE_NAME);
         localizationGenerator.addResources(DIRECTORY_A, BASE_NAME_A);
         localizationGenerator.addResources(DIRECTORY_B, BASE_NAME_B);
 
         System.out.println("Reading from file: " + OUTPUT_PATH_0);
-        Assertions.assertEquals(OUTPUT_0, LocalizationGenerator.readFile(OUTPUT_PATH_0));
-        Assertions.assertEquals(OUTPUT_1, LocalizationGenerator.readFile(OUTPUT_PATH_1));
+        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(OUTPUT_PATH_0)));
+        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(OUTPUT_PATH_1)));
     }
 
     private static void writeToFile(@NotNull Path file, @NotNull List<String> lines)
         throws IOException
     {
-        LocalizationGenerator.ensureFileExists(file);
-        LocalizationGenerator.appendToFile(file, lines);
+        LocalizationUtil.ensureFileExists(file);
+        LocalizationUtil.appendToFile(file, lines);
     }
 }

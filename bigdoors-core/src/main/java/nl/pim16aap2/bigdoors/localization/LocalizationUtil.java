@@ -5,7 +5,10 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -132,19 +135,15 @@ class LocalizationUtil
     }
 
     /**
-     * Reads all the lines from a file.
+     * Reads all the lines from an {@link InputStream};
      *
-     * @param file A path to a file.
-     * @return A list of Strings where every string represents a single line in the provided file. If the input file is
-     * not a (valid) file, an empty list is returned.
+     * @return A list of Strings where every string represents a single line in the provided input stream.
      */
-    static @NotNull List<String> readFile(@NotNull Path file)
+    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
     {
-        if (!Files.isRegularFile(file))
-            return Collections.emptyList();
         final ArrayList<String> tmp = new ArrayList<>();
 
-        try (val bufferedReader = Files.newBufferedReader(file))
+        try (val bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -157,7 +156,7 @@ class LocalizationUtil
         }
         catch (IOException e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to read localization file: " + file);
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to read localization file!");
             return Collections.emptyList();
         }
         return tmp;

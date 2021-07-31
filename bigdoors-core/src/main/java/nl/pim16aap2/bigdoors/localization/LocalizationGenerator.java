@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
@@ -99,10 +101,17 @@ public class LocalizationGenerator
     void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
         throws IOException
     {
-        val existingLocaleFile = getOutputLocaleFile(localeFile.locale());
+        mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
+    }
+
+    @GuardedBy("lck")
+    void mergeWithExistingLocaleFile(@NotNull InputStream inputStream, @NotNull String locale)
+        throws IOException
+    {
+        val existingLocaleFile = getOutputLocaleFile(locale);
         ensureFileExists(existingLocaleFile);
-        val existing = readFile(existingLocaleFile);
-        val newlines = readFile(localeFile.path());
+        val existing = readFile(Files.newInputStream(existingLocaleFile));
+        val newlines = readFile(inputStream);
         val appendable = getAppendable(existing, newlines);
         appendToFile(existingLocaleFile, appendable);
     }
