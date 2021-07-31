@@ -165,7 +165,7 @@ public class BigDoors extends JavaPlugin implements Listener
             setDisabled("This plugin is disabled because it failed to read config file!");
             return;
         }
-        updateManager.setEnabled(getConfigLoader().autoDLUpdate());
+        updateManager.setEnabled(getConfigLoader().autoDLUpdate(), getConfigLoader().announceUpdateCheck());
 
         messages = new Messages(this);
 
@@ -346,7 +346,7 @@ public class BigDoors extends JavaPlugin implements Listener
                           "Stats disabled, not laoding stats :(... Please consider enabling it! I am a simple man, seeing higher user numbers helps me stay motivated!");
         }
 
-        updateManager.setEnabled(getConfigLoader().autoDLUpdate());
+        updateManager.setEnabled(getConfigLoader().autoDLUpdate(), getConfigLoader().announceUpdateCheck());
 
         if (commander != null)
             commander.setCanGo(true);
