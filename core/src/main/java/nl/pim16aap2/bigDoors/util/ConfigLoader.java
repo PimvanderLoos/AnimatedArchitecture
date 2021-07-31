@@ -41,6 +41,7 @@ public class ConfigLoader
     private String languageFile;
     private int maxDoorCount;
     private int cacheTimeout;
+    private boolean announceUpdateCheck;
     private boolean autoDLUpdate;
     private long downloadDelay;
     private boolean enableRedstone;
@@ -122,6 +123,8 @@ public class ConfigLoader
                                           "Setting it to 2160 means that updates will be downloaded 36h after their release.",
                                           "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
                                           "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)." };
+        String[] announceUpdateCheckComment = { "Whether to announce that the plugin is looking for updates when no updates are available.",
+                                                "This does not affect the actual check, just the messages that it is checking (once per 12 hours)." };
         String[] autoDLUpdateComment = { "Allow this plugin to automatically download new updates. They will be applied on restart." };
         String[] allowStatsComment = { "Allow this plugin to send (anonymised) stats using bStats. Please consider keeping it enabled.",
                                        "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!",
@@ -136,14 +139,14 @@ public class ConfigLoader
                                               "A value of 6000 is 5 minutes. Use a negative value to allow unlimited values. " };
         String[] resourcePackComment = { "This plugin uses a support resource pack for things suchs as sound.",
                                          "Different packs will be used for different versions of Minecraft:",
-                                         "The resource pack for 1.11.x/1.12.x is: \'"
-                                             + RESOURCEPACKS.get(MCVersion.v1_11) + "\'",
-                                         "The resource pack for 1.13.x/1.14.x is: \'"
-                                             + RESOURCEPACKS.get(MCVersion.v1_13) + "\'",
-                                         "The resource pack for 1.15.x/1.16.x is: \'"
-                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "\'",
-                                         "The resource pack for 1.17.x is: \'"
-                                             + RESOURCEPACKS.get(MCVersion.v1_17) + "\'",
+                                         "The resource pack for 1.11.x/1.12.x is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_11) + "'",
+                                         "The resource pack for 1.13.x/1.14.x is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_13) + "'",
+                                         "The resource pack for 1.15.x/1.16.x is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_15) + "'",
+                                         "The resource pack for 1.17.x is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_17) + "'",
                                              };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
@@ -230,6 +233,9 @@ public class ConfigLoader
         dbFile = config.getString("dbFile", "doorDB.db");
         configOptionsList.add(new ConfigOption("dbFile", dbFile, dbFileComment));
 
+        announceUpdateCheck = config.getBoolean("announceUpdateCheck", true);
+        configOptionsList.add(new ConfigOption("announceUpdateCheck", announceUpdateCheck, announceUpdateCheckComment));
+
         autoDLUpdate = config.getBoolean("auto-update", true);
         configOptionsList.add(new ConfigOption("auto-update", autoDLUpdate, autoDLUpdateComment));
 
@@ -244,7 +250,7 @@ public class ConfigLoader
         for (ProtectionCompat compat : ProtectionCompat.values())
         {
             final String name = ProtectionCompat.getName(compat).toLowerCase();
-            final boolean isEnabled = config.getBoolean(name, false);
+            final boolean isEnabled = config.getBoolean(name, true);
             configOptionsList.add(new ConfigOption(name, isEnabled, ((idx++ == 0) ? compatibilityHooks : null)));
             hooksMap.put(compat, isEnabled);
         }
@@ -583,6 +589,11 @@ public class ConfigLoader
     public int maxdoorCount()
     {
         return maxDoorCount;
+    }
+
+    public boolean announceUpdateCheck()
+    {
+        return announceUpdateCheck;
     }
 
     public boolean autoDLUpdate()

@@ -316,6 +316,20 @@
             <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
         </dependency>
 
+        <!-- GriefDefender -->
+        <dependency>
+            <groupId>com.griefdefender</groupId>
+            <artifactId>griefdefender</artifactId>
+            <version>1.5.10</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.griefdefender</groupId>
+            <artifactId>griefdefenderapi</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

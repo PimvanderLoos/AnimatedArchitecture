@@ -8,7 +8,7 @@
     <property name="topDir" location="${basedir}/.."/>
     <property name="serverDir" location="${topDir}/Servers"/>
     <property name="jarDir" location="${topDir}/core/target/"/>
-    
+
     <target name="init">
         <delete file="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
         <delete file="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
@@ -18,7 +18,7 @@
         <delete file="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
         <delete file="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
     </target>
-    
+
     <target name="CreateJar" description="Create Jar file" depends="init">
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>

@@ -14,9 +14,6 @@ public enum ProtectionCompat
 {
     TOWNY ("Towny")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
@@ -37,9 +34,6 @@ public enum ProtectionCompat
 
     PLOTSQUARED ("PlotSquared")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
@@ -63,9 +57,6 @@ public enum ProtectionCompat
 
     WORLDGUARD ("WorldGuard")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
@@ -83,9 +74,6 @@ public enum ProtectionCompat
 
     GRIEFPREVENTION ("GriefPrevention")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
@@ -95,9 +83,6 @@ public enum ProtectionCompat
 
     LANDS ("Lands")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
@@ -107,13 +92,19 @@ public enum ProtectionCompat
 
     REDPROTECT ("RedProtect")
     {
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
             return RedProtectProtectionCompat.class;
+        }
+    },
+
+    GRIEF_DEFENDER ("GriefDefender")
+    {
+        @Override
+        public Class<? extends IProtectionCompat> getClass(String version)
+        {
+            return GriefDefenderProtectionCompat.class;
         }
     },
 

@@ -19,6 +19,7 @@ public final class UpdateManager
 {
     private final BigDoors plugin;
     private boolean downloadUpdates = false;
+    private boolean announceUpdateCheck = true;
     private boolean updateDownloaded = false;
 
     private UpdateChecker updater;
@@ -30,9 +31,10 @@ public final class UpdateManager
         updater = UpdateChecker.init(plugin);
     }
 
-    public void setEnabled(final boolean newDownloadUpdates)
+    public void setEnabled(boolean newDownloadUpdates, boolean announceUpdateCheck)
     {
         downloadUpdates = newDownloadUpdates;
+        this.announceUpdateCheck = announceUpdateCheck;
         initUpdater();
     }
 
@@ -67,19 +69,21 @@ public final class UpdateManager
 
     public void checkForUpdates()
     {
-        plugin.getMyLogger().info("Checking for updates...");
+        if (announceUpdateCheck)
+            plugin.getMyLogger().info("Checking for updates...");
         updater.requestUpdateCheck().whenCompleteAsync((result, throwable) ->
         {
             boolean updateAvailable = updateAvailable();
             if (!updateAvailable)
             {
-                plugin.getMyLogger().info("No new updates available.");
+                if (announceUpdateCheck)
+                    plugin.getMyLogger().info("No new updates available.");
                 return;
             }
 
             plugin.getMyLogger().info("A new update is available: " + plugin.getUpdateManager().getNewestVersion());
 
-            if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
+            if (downloadUpdates && result.getAge() >= plugin.getConfigLoader().downloadDelay())
             {
                 try
                 {
