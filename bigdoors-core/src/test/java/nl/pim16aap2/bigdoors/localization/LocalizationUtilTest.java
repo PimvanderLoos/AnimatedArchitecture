@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-class LocalizationGeneratorTest
+class LocalizationUtilTest
 {
     @Test
     void testGetLocaleFilesInDirectory()
@@ -32,20 +32,20 @@ class LocalizationGeneratorTest
         paths.add(Paths.get("./" + baseName + "nl_NL.txt"));
 
 
-        @NotNull val localeFiles = LocalizationGenerator.getLocaleFiles(baseName, paths);
+        @NotNull val localeFiles = LocalizationUtil.getLocaleFiles(baseName, paths);
         System.out.println(localeFiles);
         Assertions.assertEquals(2, localeFiles.size());
-        Assertions.assertEquals(new LocalizationGenerator.LocaleFile(path0, ""), localeFiles.get(0));
-        Assertions.assertEquals(new LocalizationGenerator.LocaleFile(path1, "en_US"), localeFiles.get(1));
+        Assertions.assertEquals(new LocalizationUtil.LocaleFile(path0, ""), localeFiles.get(0));
+        Assertions.assertEquals(new LocalizationUtil.LocaleFile(path1, "en_US"), localeFiles.get(1));
     }
 
     @Test
     void testGetKeyFromLine()
     {
-        Assertions.assertEquals("key", LocalizationGenerator.getKeyFromLine("key=value"));
-        Assertions.assertEquals("key", LocalizationGenerator.getKeyFromLine("key=value=another_value"));
-        Assertions.assertNull(LocalizationGenerator.getKeyFromLine("key"));
-        Assertions.assertNull(LocalizationGenerator.getKeyFromLine(""));
+        Assertions.assertEquals("key", LocalizationUtil.getKeyFromLine("key=value"));
+        Assertions.assertEquals("key", LocalizationUtil.getKeyFromLine("key=value=another_value"));
+        Assertions.assertNull(LocalizationUtil.getKeyFromLine("key"));
+        Assertions.assertNull(LocalizationUtil.getKeyFromLine(""));
     }
 
     @Test
@@ -58,7 +58,7 @@ class LocalizationGeneratorTest
         input.add("key2=value2");
         input.add("key3=======");
 
-        val output = LocalizationGenerator.getKeySet(input);
+        val output = LocalizationUtil.getKeySet(input);
         Assertions.assertEquals(3, output.size());
         Assertions.assertTrue(output.contains("key"));
         Assertions.assertTrue(output.contains("key2"));
@@ -101,7 +101,7 @@ class LocalizationGeneratorTest
         newLines.addAll(lstB);
         newLines.addAll(lstC);
 
-        val appendable = LocalizationGenerator.getAppendable(existing, newLines);
+        val appendable = LocalizationUtil.getAppendable(existing, newLines);
         // Real appendable exists of only list C as all keys from lists B already exist in the "existing" list.
         Assertions.assertEquals(lstC, appendable);
     }

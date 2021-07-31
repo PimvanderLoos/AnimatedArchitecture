@@ -13,10 +13,15 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +36,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipFile;
 
 /**
  * Represents various small and platform agnostic utility functions.
@@ -61,6 +67,11 @@ public final class Util
     private static final @NotNull Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
         new EnumMap<>(RotateDirection.class);
 
+    /**
+     * Looks for top-level .properties files.
+     */
+    private static final @NotNull Pattern LOCALE_FILE_PATTERN = Pattern.compile("^\\w+\\.properties");
+
     static
     {
         for (val pbf : PBlockFace.values())
@@ -77,6 +88,64 @@ public final class Util
             TO_ROTATE_DIRECTION.put(pbf, mappedRotDir);
             TO_PBLOCK_FACE.put(mappedRotDir, pbf);
         }
+    }
+
+    /**
+     * See {@link #getLocaleFilesInJar(ZipFile)}.
+     *
+     * @param jarFilePath The path to a jar file.
+     */
+    public @NotNull List<String> getLocaleFilesInJar(@NotNull String jarFilePath)
+    {
+        try (val jarFile = new ZipFile(jarFilePath))
+        {
+            return getLocaleFilesInJar(jarFile);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Gets the File of the jar that contained a specific class.
+     *
+     * @param clz The class for which to find the jar file.
+     * @return The location of the jar file.
+     */
+    public @NotNull File getJarFile(@NotNull Class<?> clz)
+    {
+        try
+        {
+            return new File(clz.getProtectionDomain().getCodeSource().getLocation().toURI());
+        }
+        catch (URISyntaxException e)
+        {
+            throw new RuntimeException("Failed to find jar file for class: " + clz, e);
+        }
+    }
+
+    /**
+     * Retrieves a list of locale files in a jar.
+     * <p>
+     * This method recognizes locale files as ".properties" files that exist in the top-level directory of the jar.
+     *
+     * @param jarFile The jar file in which to look for locale files.
+     * @return A list of locale file names found in the jar. These names are relative to the jar itself. So if the jar
+     * contains a file "Translation.properties", this method will return just that: "Translation.properties" and
+     * completely ignore the path of the jar file itself.
+     */
+    public @NotNull List<String> getLocaleFilesInJar(@NotNull ZipFile jarFile)
+    {
+        final List<String> ret = new ArrayList<>();
+        val entries = jarFile.entries();
+        while (entries.hasMoreElements())
+        {
+            val name = entries.nextElement().getName();
+            if (LOCALE_FILE_PATTERN.matcher(name).matches())
+                ret.add(name);
+        }
+        return ret;
     }
 
     /**
