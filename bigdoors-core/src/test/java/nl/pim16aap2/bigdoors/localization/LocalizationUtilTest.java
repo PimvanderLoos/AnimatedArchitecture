@@ -40,6 +40,22 @@ class LocalizationUtilTest
     }
 
     @Test
+    void testGetLocaleFilesFromNames()
+    {
+        final List<String> names = new ArrayList<>(3);
+        names.add("translation.properties");
+        names.add("translated_en_US.properties");
+        names.add("randomfile.txt");
+
+        val localeFiles = LocalizationUtil.getLocaleFiles(names);
+        Assertions.assertEquals(2, localeFiles.size());
+        Assertions.assertEquals("", localeFiles.get(0).locale());
+        Assertions.assertEquals("translation.properties", localeFiles.get(0).path().toString());
+        Assertions.assertEquals("en_US", localeFiles.get(1).locale());
+        Assertions.assertEquals("translated_en_US.properties", localeFiles.get(1).path().toString());
+    }
+
+    @Test
     void testGetKeyFromLine()
     {
         Assertions.assertEquals("key", LocalizationUtil.getKeyFromLine("key=value"));
@@ -104,5 +120,26 @@ class LocalizationUtilTest
         val appendable = LocalizationUtil.getAppendable(existing, newLines);
         // Real appendable exists of only list C as all keys from lists B already exist in the "existing" list.
         Assertions.assertEquals(lstC, appendable);
+    }
+
+    @Test
+    void testParseLocaleFileWithBaseName()
+    {
+        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation", "Translation.properties"));
+        Assertions.assertEquals("en_US",
+                                LocalizationUtil.parseLocaleFile("Translation", "Translation_en_US.properties"));
+        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translations", "Translation.properties"));
+        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation", "Translation.txt"));
+        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation", "Translated.properties"));
+    }
+
+    @Test
+    void testParseLocaleFile()
+    {
+        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation.properties"));
+        Assertions.assertEquals("en_US", LocalizationUtil.parseLocaleFile("Translation_en_US.properties"));
+        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation.properties"));
+        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translated.properties"));
+        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation.txt"));
     }
 }

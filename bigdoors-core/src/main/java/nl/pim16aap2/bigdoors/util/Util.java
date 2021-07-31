@@ -93,6 +93,23 @@ public final class Util
     /**
      * See {@link #getLocaleFilesInJar(ZipFile)}.
      *
+     * @param jarFile The jar file.
+     */
+    public List<String> getLocaleFilesInJar(@NotNull File jarFile)
+    {
+        try
+        {
+            return getLocaleFilesInJar(new ZipFile(jarFile));
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * See {@link #getLocaleFilesInJar(ZipFile)}.
+     *
      * @param jarFilePath The path to a jar file.
      */
     public @NotNull List<String> getLocaleFilesInJar(@NotNull String jarFilePath)

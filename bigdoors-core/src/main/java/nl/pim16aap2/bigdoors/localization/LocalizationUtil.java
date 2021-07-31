@@ -187,7 +187,7 @@ class LocalizationUtil
      *
      * @param baseName The base name of the translation files.
      * @param files    The list of files to look at.
-     * @return A list of {@link LocaleFile}s that includes all files that met the correct naming format of
+     * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format of
      * "directory/basename[_locale].properties".
      */
     static @NotNull List<LocaleFile> getLocaleFiles(@NotNull String baseName, @NotNull List<Path> files)
@@ -195,9 +195,31 @@ class LocalizationUtil
         final @NotNull ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
         for (val file : files)
         {
-            @Nullable val localeFile = parseLocaleFile(baseName, file.getFileName().toString());
-            if (localeFile != null)
-                ret.add(new LocaleFile(file, localeFile));
+            @Nullable val locale = parseLocaleFile(baseName, file.getFileName().toString());
+            if (locale != null)
+                ret.add(new LocaleFile(file, locale));
+        }
+        ret.trimToSize();
+        return ret;
+    }
+
+    /**
+     * Gets a list of {@link LocaleFile}s from a list of filenames.
+     * <p>
+     * The file names should not include any directories.
+     *
+     * @param resources The list of file names.
+     * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format:
+     * "whatever-filename[_locale].properties".
+     */
+    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull List<String> resources)
+    {
+        final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
+        for (val resource : resources)
+        {
+            @Nullable val locale = parseLocaleFile(resource);
+            if (locale != null)
+                ret.add(new LocaleFile(Path.of(resource), locale));
         }
         ret.trimToSize();
         return ret;
@@ -224,6 +246,14 @@ class LocalizationUtil
             locale = locale.substring(1);
         }
         return locale;
+    }
+
+    static @Nullable String parseLocaleFile(@NotNull String fileName)
+    {
+        if (!fileName.endsWith(".properties"))
+            return null;
+        val parts = fileName.replace(".properties", "").split("_", 2);
+        return parts.length == 1 ? "" : parts[1];
     }
 
     /**
