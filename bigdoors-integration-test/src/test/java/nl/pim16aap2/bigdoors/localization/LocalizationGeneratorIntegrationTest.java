@@ -14,10 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -46,6 +50,18 @@ class LocalizationGeneratorIntegrationTest
     private static final @NotNull List<String> OUTPUT_1 = List.of(
         // From INPUT_A_1
         "b_key0=val0", "b_key1=val1", "b_key2=val2", "b_key3=val3", "b_key4=val4");
+
+    /**
+     * byte array representation of the class compiled from the following source:
+     * <p>
+     * {@code package org.example.project; public class LocalizationGeneratorDummyClass { }}
+     */
+    private static final byte[] LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA = Base64.getDecoder().decode(
+        "yv66vgAAADwADQoAAgADBwAEDAAFAAYBABBqYXZhL2xhbmcvT2JqZWN0AQAGPGluaXQ+AQADKClWBwAIAQAzb3JnL2V4" +
+            "YW1wbGUvcHJvamVjdC9Mb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzAQAEQ29kZQEAD0xpbmVOdW1iZXJU" +
+            "YWJsZQEAClNvdXJjZUZpbGUBACRMb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzLmphdmEAIQAHAAIAAAAAA" +
+            "AEAAQAFAAYAAQAJAAAAHQABAAEAAAAFKrcAAbEAAAABAAoAAAAGAAEAAAABAAEACwAAAAIADA==");
+
 
     private FileSystem fs;
     private Path directoryOutput;
@@ -87,7 +103,7 @@ class LocalizationGeneratorIntegrationTest
         writeToFile(inputPathA0, INPUT_A_0);
         writeToFile(inputPathA1, INPUT_A_1);
         writeToFile(inputPathB0, INPUT_B_0);
-        
+
         val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
@@ -107,17 +123,35 @@ class LocalizationGeneratorIntegrationTest
     void testAddResourcesFromJar()
         throws IOException
     {
-        val fileDir = Files.createDirectory(fs.getPath("/input"));
-        val jarFile = Files.createFile(fileDir.resolve("test.zip"));
-        val outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
-        writeEntry(outputStream, BASE_NAME_A + ".properties", INPUT_A_0);
-        writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
-        writeEntry(outputStream, BASE_NAME_B + "_en_US.properties", INPUT_B_0);
-        outputStream.close();
+        val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        createJar(jarFile).close();
 
         val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
+        verifyJarOutput();
+    }
+
+    @Test
+    void testAddResourcesFromClass()
+        throws IOException, ClassNotFoundException
+    {
+        val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        val outputStream = createJar(jarFile);
+        writeEntry(outputStream, "org/example/project/LocalizationGeneratorDummyClass.class",
+                   LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA);
+        outputStream.close();
+
+        val dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true, loadJar(jarFile));
+        val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
+        localizationGenerator.addResources(dummyClass, null);
+
+        verifyJarOutput();
+    }
+
+    private void verifyJarOutput()
+        throws IOException
+    {
         Assertions.assertTrue(Files.exists(outputPath0));
         Assertions.assertTrue(Files.exists(outputPath1));
 
@@ -127,6 +161,23 @@ class LocalizationGeneratorIntegrationTest
         outputBase.addAll(INPUT_A_0);
         outputBase.addAll(INPUT_A_1);
         Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputPath0)));
+    }
+
+    private @NotNull ZipOutputStream createJar(@NotNull Path jarFile)
+        throws IOException
+    {
+        val outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
+        writeEntry(outputStream, BASE_NAME_A + ".properties", INPUT_A_0);
+        writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
+        writeEntry(outputStream, BASE_NAME_B + "_en_US.properties", INPUT_B_0);
+        return outputStream;
+    }
+
+    private @NotNull URLClassLoader loadJar(@NotNull Path jar)
+        throws MalformedURLException
+    {
+        return new URLClassLoader("URLClassLoader_LocalizationGeneratorIntegrationTest",
+                                  new URL[]{jar.toUri().toURL()}, getClass().getClassLoader());
     }
 
     private static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
