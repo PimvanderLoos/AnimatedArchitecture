@@ -261,6 +261,16 @@ class LocalizationUtil
         return locale;
     }
 
+    /**
+     * Parses the filename of a locale file to extract its locale.
+     *
+     * @param fileName The name of a locale file.
+     * @return The locale as extracted from the locale file or null if the file is not a properties file.
+     * <p>
+     * For example, in the case of a file "Translated_en_US.properties", this method would return "en_US".
+     * <p>
+     * If the file does not have a locale (e.g. "Translated.properties"), an empty String is returned.
+     */
     static @Nullable String parseLocaleFile(@NotNull String fileName)
     {
         if (!fileName.endsWith(".properties"))

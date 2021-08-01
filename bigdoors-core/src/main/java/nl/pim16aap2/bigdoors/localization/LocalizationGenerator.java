@@ -200,16 +200,10 @@ public class LocalizationGenerator
      * <p>
      * If the output file does not exist yet, a new file will be created.
      *
-     * @param localeFile The locale file whose files to copy into the existing file.
+     * @param inputStream The input stream to read the new lines to append to the existing locale file from.
+     * @param locale      The locale of the file to read.
      * @throws IOException When an I/O error occurred.
      */
-    @GuardedBy("lck")
-    void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
-        throws IOException
-    {
-        mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
-    }
-
     @GuardedBy("lck")
     void mergeWithExistingLocaleFile(@NotNull InputStream inputStream, @NotNull String locale)
         throws IOException
@@ -222,6 +216,15 @@ public class LocalizationGenerator
         appendToFile(existingLocaleFile, appendable);
     }
 
+    /**
+     * See {@link #mergeWithExistingLocaleFile(InputStream, String)}.
+     */
+    @GuardedBy("lck")
+    void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
+        throws IOException
+    {
+        mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
+    }
 
     /**
      * Retrieves the path of the output locale file.
