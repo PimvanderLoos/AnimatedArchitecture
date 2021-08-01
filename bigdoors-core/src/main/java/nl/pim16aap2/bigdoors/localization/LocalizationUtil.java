@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -204,22 +206,33 @@ class LocalizationUtil
     }
 
     /**
+     * See {@link #getLocaleFiles(FileSystem, List)}.
+     * <p>
+     * All paths are created on the default filesystem: {@link FileSystems#getDefault()}.
+     */
+    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull List<String> resources)
+    {
+        return getLocaleFiles(FileSystems.getDefault(), resources);
+    }
+
+    /**
      * Gets a list of {@link LocaleFile}s from a list of filenames.
      * <p>
      * The file names should not include any directories.
      *
-     * @param resources The list of file names.
+     * @param fileSystem The {@link FileSystem} to create the paths on.
+     * @param resources  The list of file names.
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format:
      * "whatever-filename[_locale].properties".
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull List<String> resources)
+    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull FileSystem fileSystem, @NotNull List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
         for (val resource : resources)
         {
             @Nullable val locale = parseLocaleFile(resource);
             if (locale != null)
-                ret.add(new LocaleFile(Path.of(resource), locale));
+                ret.add(new LocaleFile(fileSystem.getPath(resource), locale));
         }
         ret.trimToSize();
         return ret;

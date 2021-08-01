@@ -29,9 +29,10 @@ class LocalizerIntegrationTest
     private Path dutchFile;
 
     private void initFileSystem()
+        throws IOException
     {
         fs = Jimfs.newFileSystem(Configuration.unix());
-        directory = fs.getPath("/translations");
+        directory = Files.createDirectory(fs.getPath("/translations"));
         baseFile = fs.getPath("/translations/" + BASE_NAME + ".properties");
         dutchFile = fs.getPath("/translations/" + BASE_NAME + "_nl_NL.properties");
     }
@@ -41,7 +42,6 @@ class LocalizerIntegrationTest
         throws IOException
     {
         initFileSystem();
-        Files.createDirectory(directory);
         Files.write(baseFile,
                     """
                     key0=value0
@@ -80,7 +80,7 @@ class LocalizerIntegrationTest
         val localizer = new Localizer(directory, BASE_NAME);
         // Just ensure that it's loaded properly.
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
-        // Ensure that the key doens't exist (yet!).
+        // Ensure that the key doesn't exist (yet!).
         Assertions.assertThrows(MissingResourceException.class, () -> localizer.getMessage("key3"));
 
         localizer.shutdown();
