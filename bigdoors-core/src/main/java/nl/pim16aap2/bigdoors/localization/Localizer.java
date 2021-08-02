@@ -73,17 +73,21 @@ public class Localizer extends Restartable
      * @param args   The arguments of the message, if any.
      * @param locale The {@link Locale} to use.
      * @return The localized message associated with the provided key.
-     *
-     * @throws MissingResourceException When no mapping for the key can be found.
      */
     public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
     {
         if (classLoader == null)
             return KEY_NOT_FOUND_MESSAGE + key;
 
-        val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
-
-        return args.length == 0 ? msg : MessageFormat.format(msg, args);
+        try
+        {
+            val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
+            return args.length == 0 ? msg : MessageFormat.format(msg, args);
+        }
+        catch (MissingResourceException e)
+        {
+            return KEY_NOT_FOUND_MESSAGE;
+        }
     }
 
     @Initializer
