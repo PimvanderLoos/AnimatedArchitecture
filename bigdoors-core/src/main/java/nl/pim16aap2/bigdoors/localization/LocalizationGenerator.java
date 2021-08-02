@@ -169,6 +169,33 @@ public class LocalizationGenerator
     }
 
     /**
+     * Adds locale files from multiple zip files.
+     * <p>
+     * This method does not support using base names.
+     * <p>
+     * See {@link #addResourcesFromZip(Path, String)}
+     */
+    @Contract("_, -> this")
+    public LocalizationGenerator addResourcesFromZips(@NotNull Path... zipFiles)
+    {
+        for (val zipFile : zipFiles)
+            addResourcesFromZip(zipFile, null);
+        return this;
+    }
+
+    /**
+     * See {@link #addResourcesFromZips(Path...)}.
+     *
+     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
+     *                  locked.
+     */
+    @Contract("_, _ -> this")
+    public LocalizationGenerator addResourcesFromZips(@NotNull Localizer localizer, @NotNull Path... zipFiles)
+    {
+        return runWithLocalizer(localizer, () -> addResourcesFromZips(zipFiles));
+    }
+
+    /**
      * Loads the locale files from the jar file a specific {@link Class} was loaded from.
      * <p>
      * See {@link #addResourcesFromZip(Path, String)}.
@@ -190,6 +217,33 @@ public class LocalizationGenerator
                                               @Nullable String baseName)
     {
         return runWithLocalizer(localizer, () -> addResources(clz, baseName));
+    }
+
+    /**
+     * Loads the locale files from the jars file specific {@link Class}es was loaded from.
+     * <p>
+     * This method does not support using base names.
+     * <p>
+     * See {@link #addResources(Class, String)}.
+     */
+    @Contract("_ -> this")
+    public LocalizationGenerator addResources(@NotNull Class<?>... classes)
+    {
+        for (val clz : classes)
+            addResources(clz, null);
+        return this;
+    }
+
+    /**
+     * See {@link #addResources(Class...)}.
+     *
+     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
+     *                  locked.
+     */
+    @Contract("_, _ -> this")
+    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull Class<?>... classes)
+    {
+        return runWithLocalizer(localizer, () -> addResources(classes));
     }
 
     /**
