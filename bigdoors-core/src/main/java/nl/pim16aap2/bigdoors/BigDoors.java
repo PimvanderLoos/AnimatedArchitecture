@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -150,6 +151,11 @@ public final class BigDoors extends RestartableHolder
     public @NotNull DoorSpecificationManager getDoorSpecificationManager()
     {
         return getPlatform().getDoorSpecificationManager();
+    }
+
+    public @NotNull Localizer getLocalizer()
+    {
+        return getPlatform().getLocalizer();
     }
 
     /**

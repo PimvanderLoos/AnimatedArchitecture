@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -25,8 +27,11 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.localization.LocalizationGenerator;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -86,11 +91,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Represents the implementation of {@link BigDoorsSpigotAbstract}.
@@ -195,6 +202,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final @NotNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
+    @Getter
+    private Localizer localizer;
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -209,6 +219,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
+    @Initializer
     public void onEnable()
     {
         Bukkit.getLogger().setLevel(Level.FINER);
@@ -329,11 +340,29 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         configLoader.restart();
 
-        Messages messagesTmp = null;
+        initLocalization();
+
         messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         playerGUIs = new HashMap<>();
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+    }
+
+    private void initLocalization()
+    {
+        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
+                                                    .map(DoorType::getDoorClass)
+                                                    .collect(Collectors.toList());
+        val generator = new LocalizationGenerator(getDataDirectory().toPath(), "translations");
+
+        if (localizer == null)
+        {
+            generator.addResources(types);
+            generator.addResources(List.of(getClass()));
+            localizer = new Localizer(getDataDirectory().toPath(), "translations");
+        }
+        else
+            generator.addResources(localizer, types);
     }
 
     @Override
