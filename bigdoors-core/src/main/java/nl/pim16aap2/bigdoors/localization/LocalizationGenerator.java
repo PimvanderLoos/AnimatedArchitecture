@@ -176,7 +176,7 @@ public class LocalizationGenerator
      * See {@link #addResourcesFromZip(Path, String)}
      */
     @Contract("_, -> this")
-    public LocalizationGenerator addResourcesFromZips(@NotNull Path... zipFiles)
+    public LocalizationGenerator addResourcesFromZips(@NotNull List<Path> zipFiles)
     {
         for (val zipFile : zipFiles)
             addResourcesFromZip(zipFile, null);
@@ -184,13 +184,13 @@ public class LocalizationGenerator
     }
 
     /**
-     * See {@link #addResourcesFromZips(Path...)}.
+     * See {@link #addResourcesFromZips(List)}.
      *
      * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
      *                  locked.
      */
     @Contract("_, _ -> this")
-    public LocalizationGenerator addResourcesFromZips(@NotNull Localizer localizer, @NotNull Path... zipFiles)
+    public LocalizationGenerator addResourcesFromZips(@NotNull Localizer localizer, @NotNull List<Path> zipFiles)
     {
         return runWithLocalizer(localizer, () -> addResourcesFromZips(zipFiles));
     }
@@ -227,7 +227,7 @@ public class LocalizationGenerator
      * See {@link #addResources(Class, String)}.
      */
     @Contract("_ -> this")
-    public LocalizationGenerator addResources(@NotNull Class<?>... classes)
+    public LocalizationGenerator addResources(@NotNull List<Class<?>> classes)
     {
         for (val clz : classes)
             addResources(clz, null);
@@ -235,13 +235,13 @@ public class LocalizationGenerator
     }
 
     /**
-     * See {@link #addResources(Class...)}.
+     * See {@link #addResources(List)}.
      *
      * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
      *                  locked.
      */
     @Contract("_, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull Class<?>... classes)
+    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull List<Class<?>> classes)
     {
         return runWithLocalizer(localizer, () -> addResources(classes));
     }
