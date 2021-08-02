@@ -67,6 +67,18 @@ public interface Opener
     }
 
     /**
+     * Attempts to toggle a door using default values for everything.
+     *
+     * @param door                  The door to attempt to toggle.
+     * @param bypassProtectionHooks Whether or not to bypass the protection hooks when trying to toggle the door.
+     * @return The result of the toggle attempt.
+     */
+    default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, boolean bypassProtectionHooks)
+    {
+        return openDoor(door, 0.0, false, false, getChunkLoadMode(door), bypassProtectionHooks);
+    }
+
+    /**
      * See {@link #openDoor(Door, double, boolean, boolean, ChunkLoadMode, boolean)}.
      */
     default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time)
@@ -87,6 +99,19 @@ public interface Opener
      */
     default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent)
     {
+        return openDoor(door, time, instantOpen, silent, getChunkLoadMode(door));
+    }
+
+    /**
+     * Figures out which {@link ChunkLoadMode} to use for a given door.
+     * <p>
+     * The mode is determined based on the config and the current state of the door.
+     *
+     * @param door The door for which to get the {@link ChunkLoadMode}.
+     * @return The {@link ChunkLoadMode} to use for the door.
+     */
+    default @Nonnull ChunkLoadMode getChunkLoadMode(@Nonnull Door door)
+    {
         ChunkLoadMode mode = BigDoors.get().getConfigLoader().getChunkLoadMode();
 
         // When "skipUnloadedAutoCloseToggle" is enabled, doors will not try to load
@@ -95,8 +120,7 @@ public interface Opener
         if (mode == ChunkLoadMode.ATTEMPT_LOAD && (!door.isOpen()) &&
             BigDoors.get().getConfigLoader().skipUnloadedAutoCloseToggle() && door.getAutoClose() > 0)
             mode = ChunkLoadMode.VERIFY_LOADED;
-
-        return openDoor(door, time, instantOpen, silent, mode);
+        return mode;
     }
 
     /**
