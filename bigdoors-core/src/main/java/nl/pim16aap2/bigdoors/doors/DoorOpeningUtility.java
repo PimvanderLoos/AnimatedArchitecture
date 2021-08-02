@@ -55,15 +55,15 @@ public final class DoorOpeningUtility
             BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
         if (!result.equals(DoorToggleResult.NO_PERMISSION))
+        {
             if (!cause.equals(DoorActionCause.PLAYER))
                 BigDoors.get().getPLogger()
                         .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
             else
-            {
                 BigDoors.get().getMessagingInterface()
-                        .messagePlayer(responsible, BigDoors.get().getPlatform().getMessages().getString(
-                            DoorToggleResult.getMessage(result), door.getName()));
-            }
+                        .messagePlayer(responsible, BigDoors.get().getLocalizer().getMessage(
+                            result.getLocalizationKey(), door.getName()));
+        }
         return result;
     }
 
@@ -83,11 +83,11 @@ public final class DoorOpeningUtility
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return BigDoors.get().getPlatform().getProtectionCompatManager()
                        .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
-                PROT ->
+                prot ->
                 {
                     BigDoors.get().getPLogger()
-                            .warn("Player \"" + responsible.toString() + "\" is not allowed to open door " +
-                                      door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + PROT);
+                            .warn("Player \"" + responsible + "\" is not allowed to open door " +
+                                      door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + prot);
                     return false;
                 }).orElse(true);
     }

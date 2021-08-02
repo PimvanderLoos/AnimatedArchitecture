@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -59,9 +58,10 @@ public class SetOpenDirection extends DoorTargetCommand
     {
         if (!door.getDoorType().isValidOpenDirection(rotateDirection))
         {
-            // TODO: Localization
             getCommandSender().sendMessage(
-                rotateDirection.name() + " is not a valid rotation direction for door " + door.getBasicInfo());
+                BigDoors.get().getLocalizer().getMessage("commands.set_open_direction.error.invalid_rotation",
+                                                         rotateDirection.name(), door.getBasicInfo()));
+
             return CompletableFuture.completedFuture(true);
         }
 
@@ -140,6 +140,7 @@ public class SetOpenDirection extends DoorTargetCommand
      */
     private static @NotNull String inputRequestMessage()
     {
-        return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_SET_OPEN_DIR_DELAYED_INIT);
+        // TODO: Print options.
+        return BigDoors.get().getLocalizer().getMessage("commands.set_open_direction.delayed_init");
     }
 }

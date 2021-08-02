@@ -20,8 +20,8 @@ import java.util.logging.Level;
  * Represents a request for delayed additional input for a command.
  * <p>
  * Taking the {@link AddOwner} command as an example, it could be initialized using a GUI, in which case it is known who
- * the {@link ICommandSender} is and what the target {@link DoorBase} is. However, for some GUIs (e.g. Spigot),
- * it is not yet known who the target player is and what the desired permission level is. This class can then be used to
+ * the {@link ICommandSender} is and what the target {@link DoorBase} is. However, for some GUIs (e.g. Spigot), it is
+ * not yet known who the target player is and what the desired permission level is. This class can then be used to
  * retrieve the additional data that is required to execute the command.
  *
  * @param <T> The type of data that is to be retrieved from the player.
@@ -65,7 +65,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     /**
      * Constructs a new delayed command input request.
      *
-     * @param timeout             The amount of time (in ms)
+     * @param timeout             The amount of time (in ms).
      * @param commandSender       See {@link BaseCommand#getCommandSender()}.
      * @param commandDefinition   The {@link CommandDefinition} for which the delayed input will be retrieved.
      * @param executor            The function to execute after retrieving the delayed input from the command sender.
@@ -136,14 +136,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         BigDoors.get().getDelayedCommandInputManager().deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            // TODO: Localization
-            commandSender.sendMessage("Timed out waiting for input for command: " +
-                                          commandDefinition.name().toLowerCase());
+            commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("commands.base.error.timed_out",
+                                                                               commandDefinition.name().toLowerCase()));
 
         if (getStatus() == Status.CANCELLED)
-            // TODO: Localization
-            commandSender.sendMessage("Cancelled waiting for command:  " +
-                                          commandDefinition.name().toLowerCase());
+            commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("commands.base.error.cancelled",
+                                                                               commandDefinition.name().toLowerCase()));
     }
 
     /**

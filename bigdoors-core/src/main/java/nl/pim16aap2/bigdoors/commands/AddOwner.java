@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -63,9 +62,9 @@ public class AddOwner extends DoorTargetCommand
         if (targetPermissionLevel == 1 || targetPermissionLevel == 2)
             return true;
 
-        //TODO: Localization
-        getCommandSender().sendMessage("Target permission level " + targetPermissionLevel + " is invalid! " +
-                                           "It must be either 1 (admin) or 2 (user).");
+        getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                               .getMessage("commands.add_owner.error.invalid_target_permission",
+                                                           targetPermissionLevel));
         return false;
     }
 
@@ -83,12 +82,12 @@ public class AddOwner extends DoorTargetCommand
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);
 
+        val localizer = BigDoors.get().getLocalizer();
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
             if (existingPermission == 0)
             {
-                // TODO: Localization
-                getCommandSender().sendMessage("You cannot change the permission level of this player!");
+                getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.targeting_prime_owner"));
                 return false;
             }
             return true;
@@ -97,38 +96,27 @@ public class AddOwner extends DoorTargetCommand
         val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("You are not an owner of this door!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_an_owner"));
             return false;
         }
 
         final int ownerPermission = doorOwner.get().permission();
         if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.ADD_OWNER))
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("Your are not allowed to add co-owners to this door!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_allowed"));
             return false;
         }
 
         if (ownerPermission >= targetPermissionLevel)
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("You cannot only add co-owners with a higher permission level!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.cannot_assign_below_self"));
             return false;
         }
 
-        if (existingPermission <= ownerPermission)
+        if (existingPermission <= ownerPermission || existingPermission == targetPermissionLevel)
         {
-            // TODO: Localization
-            getCommandSender().sendMessage(
-                targetPlayer.asString() + " is already a (co-)owner of this door with a lower permission level!");
-            return false;
-        }
-        if (existingPermission == targetPermissionLevel)
-        {
-            // TODO: Localization
-            getCommandSender().sendMessage(
-                targetPlayer.asString() + " is already a (co-)owner of this door the same permission level!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.target_already_owner",
+                                                                targetPlayer.asString()));
             return false;
         }
 
@@ -257,7 +245,7 @@ public class AddOwner extends DoorTargetCommand
      */
     private static @NotNull String inputRequestMessage()
     {
-        return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_ADDOWNER_INIT);
+        return BigDoors.get().getLocalizer().getMessage("commands.add_owner.init");
     }
 
     /**
