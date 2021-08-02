@@ -51,11 +51,9 @@ import nl.pim16aap2.bigdoors.spigot.factories.BigDoorsEventFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PWorldFactorySpigot;
-import nl.pim16aap2.bigdoors.spigot.gui.GUI;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
-import nl.pim16aap2.bigdoors.spigot.listeners.GUIListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
@@ -88,13 +86,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -117,7 +112,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private boolean validVersion = false;
     private final @NotNull IPExecutor pExecutor;
-    private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
     @Getter
@@ -273,7 +267,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             headManager = HeadManager.init(this, getConfigLoader());
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
 
             protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
@@ -337,8 +330,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         configLoader.restart();
 
         initLocalization();
-
-        playerGUIs = new HashMap<>();
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
     }
@@ -442,8 +433,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         configLoader.restart();
 
         shutdown();
-        playerGUIs.forEach((key, value) -> value.close());
-        playerGUIs.clear();
 
         HandlerList.unregisterAll(rPackHandler);
         rPackHandler = null;
@@ -493,28 +482,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return this;
     }
 
-    public @NotNull Optional<GUI> getGUIUser(final @NotNull Player player)
-    {
-        GUI gui = null;
-        if (playerGUIs.containsKey(player.getUniqueId()))
-            gui = playerGUIs.get(player.getUniqueId());
-        return Optional.ofNullable(gui);
-    }
-
-    public void addGUIUser(final @NotNull GUI gui)
-    {
-        playerGUIs.put(gui.getGuiHolder().getUUID(), gui);
-    }
-
-    public void removeGUIUser(final @NotNull GUI gui)
-    {
-        playerGUIs.remove(gui.getGuiHolder().getUUID());
-    }
-
     public void onPlayerLogout(final @NotNull Player player)
     {
         getDelayedCommandInputManager().cancelAll(SpigotAdapter.wrapPlayer(player));
-        playerGUIs.remove(player.getUniqueId());
         toolUserManager.abortToolUser(player.getUniqueId());
     }
 
