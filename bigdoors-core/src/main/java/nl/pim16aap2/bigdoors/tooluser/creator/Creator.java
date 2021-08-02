@@ -173,7 +173,7 @@ public abstract class Creator extends ToolUser
     {
         super(player);
         if (name != null)
-            completeNamingStep(name);
+            handleInput(name);
         prepareCurrentStep();
     }
 

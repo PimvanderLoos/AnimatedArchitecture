@@ -35,7 +35,8 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void init()
     {
-        giveTool("tool_user.stick_name", "powerblock_relocator.stick_lore", "powerblock_relocator.init");
+        giveTool("tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
+                 "tool_user.powerblock_relocator.init");
     }
 
     protected boolean moveToLoc(final @NotNull IPLocation loc)
@@ -43,7 +44,7 @@ public class PowerBlockRelocator extends ToolUser
         if (!loc.getWorld().equals(door.getWorld()))
         {
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("powerblock_relocator.error.world_mismatch"));
+                                            .getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
             return false;
         }
 
@@ -70,13 +71,13 @@ public class PowerBlockRelocator extends ToolUser
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("powerblock_relocator.error.location_unchanged"));
+                                            .getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition());
             door.syncData();
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("powerblock_relocator.success"));
+                                            .getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
     }
@@ -86,12 +87,12 @@ public class PowerBlockRelocator extends ToolUser
         throws InstantiationException
     {
         Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")
-            .message("powerblock_relocator.init")
+            .message("tool_user.powerblock_relocator.init")
             .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
         Step stepPowerblockRelocatorCompleted = new Step.Factory("RELOCATE_POWER_BLOCK_COMPLETED")
-            .message("powerblock_relocator.success")
+            .message("tool_user.powerblock_relocator.success")
             .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();
 

@@ -57,8 +57,8 @@ public class Specify extends BaseCommand
     protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         if (!BigDoors.get().getDoorSpecificationManager().handleInput((IPPlayer) getCommandSender(), input))
-            // TODO: Localization
-            getCommandSender().sendMessage("We are not currently waiting for your input!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                                   .getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 }

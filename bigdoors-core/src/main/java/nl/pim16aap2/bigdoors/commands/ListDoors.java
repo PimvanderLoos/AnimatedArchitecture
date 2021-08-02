@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
 import lombok.val;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -66,13 +67,13 @@ public class ListDoors extends BaseCommand
     {
         if (doors.isEmpty())
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("No doors found!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                                   .getMessage("commands.list_doors.error.no_doors_found"));
             return;
         }
 
-        // TODO: Localization
-        final StringBuilder sb = new StringBuilder("List of doors:\n");
+        final StringBuilder sb = new StringBuilder(
+            BigDoors.get().getLocalizer().getMessage("commands.list_doors.door_list_header")).append("\n");
         for (val door : doors)
             sb.append("  ").append(door.getBasicInfo()).append("\n");
         getCommandSender().sendMessage(sb.toString());

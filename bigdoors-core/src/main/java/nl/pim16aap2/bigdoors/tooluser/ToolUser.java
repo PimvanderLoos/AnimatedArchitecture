@@ -272,7 +272,7 @@ public abstract class ToolUser implements IRestartable
                                                        "Blocked access to cuboid " + loc + " for player " +
                                                            getPlayer() + ". Reason: " + compat);
                 getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.error.no_permission_for_location"));
+                                                .getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -300,7 +300,7 @@ public abstract class ToolUser implements IRestartable
                                                            getPlayer() + " in world " + world + ". Reason: " +
                                                            compat);
                 getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.error.no_permission_for_location"));
+                                                .getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }

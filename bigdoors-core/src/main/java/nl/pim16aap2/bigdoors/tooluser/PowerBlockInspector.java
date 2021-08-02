@@ -40,8 +40,8 @@ public class PowerBlockInspector extends ToolUser
     @Override
     protected void init()
     {
-        giveTool("tool_user.stick_name", "powerblock_inspector.stick_lore",
-                 "powerblock_inspector.init");
+        giveTool("tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
+                 "tool_user.powerblock_inspector.init");
     }
 
     protected boolean inspectLoc(final @NotNull IPLocation loc)
@@ -54,7 +54,7 @@ public class PowerBlockInspector extends ToolUser
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
-            .message("powerblock_inspector.init")
+            .message("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);

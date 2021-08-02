@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -140,7 +141,14 @@ public class SetOpenDirection extends DoorTargetCommand
      */
     private static @NotNull String inputRequestMessage()
     {
-        // TODO: Print options.
-        return BigDoors.get().getLocalizer().getMessage("commands.set_open_direction.delayed_init");
+        val localizer = BigDoors.get().getLocalizer();
+        StringBuilder sb = new StringBuilder();
+        sb.append(localizer.getMessage("commands.set_open_direction.delayed_init_header")).append("\n");
+
+        // TODO: Implement something like this:
+        // for (RotateDirection rotateDirection : door.getValidOpendirection())
+        //     sb.append("  ").append(localizer.getMessage(rotateDirection.getLocalizationKey())).append("\n");
+        // return sb.toString();
+        return sb.toString();
     }
 }

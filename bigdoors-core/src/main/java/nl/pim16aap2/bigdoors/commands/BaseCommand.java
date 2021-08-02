@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -112,18 +113,18 @@ public abstract class BaseCommand
             return CompletableFuture.completedFuture(false);
         }
 
+        val localizer = BigDoors.get().getLocalizer();
         final boolean isPlayer = getCommandSender() instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
-            // TODO: Localization
-            getCommandSender().sendMessage("No permission!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
-            getCommandSender().sendMessage("Only players can use this command!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
         }
 
@@ -134,8 +135,7 @@ public abstract class BaseCommand
             {
                 BigDoors.get().getPLogger().logThrowable(throwable, "Failed to execute command: " + this);
                 if (getCommandSender().isPlayer())
-                    // TODO: Localization
-                    getCommandSender().sendMessage("Failed to execute command! Please contact an administrator!");
+                    getCommandSender().sendMessage(localizer.getMessage("commands.base.error.generic"));
                 return true;
             });
     }
@@ -148,16 +148,16 @@ public abstract class BaseCommand
      */
     protected @NotNull Boolean handleDatabaseActionResult(final @NotNull DatabaseManager.ActionResult result)
     {
-        // TODO: Localization
         switch (result)
         {
             case CANCELLED:
-                commandSender.sendMessage("Action was cancelled!");
+                commandSender.sendMessage(BigDoors.get().getLocalizer()
+                                                  .getMessage("commands.base.error.action_cancelled"));
                 break;
             case SUCCESS:
                 break;
             case FAIL:
-                commandSender.sendMessage("An error occurred! Please contact a server administrator.");
+                commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
                 break;
         }
         BigDoors.get().getPLogger().logMessage(Level.FINE,
@@ -185,8 +185,8 @@ public abstract class BaseCommand
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                    () -> "Permission for command: " + this + ": " + permissionResult);
-            // TODO: Localization
-            getCommandSender().sendMessage("No permission!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                                   .getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
         try
@@ -237,8 +237,8 @@ public abstract class BaseCommand
                                                            () -> "Retrieved door " + door + " for command: " + this);
                     if (door.isPresent())
                         return door;
-                    // TODO: Localization
-                    getCommandSender().sendMessage("Could not find the provided door!");
+                    getCommandSender().sendMessage(
+                        BigDoors.get().getLocalizer().getMessage("commands.base.error.cannot_find_target_door"));
                     return Optional.empty();
                 });
     }

@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,17 +59,6 @@ public class NewDoor extends BaseCommand
                                                           final @NotNull DoorType doorType)
     {
         return run(commandSender, doorType, null);
-    }
-
-    @Override
-    protected boolean validInput()
-    {
-        if (doorName == null || Util.isValidDoorName(doorName))
-            return true;
-
-        // TODO: Localization
-        getCommandSender().sendMessage("The name \"" + doorName + "\" is not valid! Please select a different name");
-        return false;
     }
 
     @Override

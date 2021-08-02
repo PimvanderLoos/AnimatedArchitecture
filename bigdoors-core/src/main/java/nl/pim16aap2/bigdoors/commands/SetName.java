@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,26 +53,15 @@ public class SetName extends BaseCommand
     }
 
     @Override
-    protected boolean validInput()
-    {
-        if (Util.isValidDoorName(name))
-            return true;
-
-        // TODO: Localization
-        getCommandSender().sendMessage("The name \"" + name + "\" is not valid! Please select a different name");
-        return false;
-    }
-
-    @Override
     protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
     {
         final IPPlayer player = (IPPlayer) getCommandSender();
         final Optional<ToolUser> tu = BigDoors.get().getToolUserManager().getToolUser(player.getUUID());
         if (tu.isPresent() && tu.get() instanceof Creator)
-            tu.get().handleInput(name);
-        else
-            // TODO: Localization
-            getCommandSender().sendMessage("Failed to process input: We are not waiting for any input!");
+            return CompletableFuture.completedFuture(tu.get().handleInput(name));
+
+        getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                               .getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 }
