@@ -6,10 +6,10 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -137,7 +137,7 @@ class AddOwnerTest
     @SneakyThrows
     void testDelayedInput()
     {
-        Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
+        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(Localizer.class));
         val databaseManager = mockDatabaseManager();
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
@@ -158,7 +158,7 @@ class AddOwnerTest
     void testStaticRunners()
     {
         val databaseManager = mockDatabaseManager();
-        Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
+        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(Localizer.class));
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));

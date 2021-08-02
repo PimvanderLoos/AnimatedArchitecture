@@ -109,7 +109,7 @@ public class CreatorTestsUtil
         MockitoAnnotations.openMocks(this);
         platform = initPlatform();
         BigDoors.get().setBigDoorsPlatform(platform);
-        val messages = initMessages();
+        val messages = initLocalizer();
 
         Mockito.when(platform.getLimitsManager()).thenReturn(new LimitsManager());
 

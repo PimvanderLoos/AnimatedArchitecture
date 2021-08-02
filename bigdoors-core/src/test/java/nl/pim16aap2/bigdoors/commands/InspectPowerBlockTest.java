@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,12 +42,6 @@ class InspectPowerBlockTest
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-
-        val messages = Mockito.mock(Messages.class);
-        Mockito.when(messages.getString(Mockito.any())).thenReturn("A");
-        Mockito.when(messages.getString(Mockito.any(), Mockito.any())).thenReturn("B");
-
-        Mockito.when(platform.getMessages()).thenReturn(messages);
         Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
         Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));

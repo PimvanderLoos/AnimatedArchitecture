@@ -44,23 +44,13 @@ class ToggleTest
     void init()
     {
         platform = UnitTestUtil.initPlatform();
+
         MockitoAnnotations.openMocks(this);
 
         doorOpener = Mockito.mock(DoorOpener.class);
         Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
         initCommandSenderPermissions(commandSender, true, true);
         initDoorRetriever(doorRetriever, door);
-    }
-
-    @Test
-    void testValidInput()
-    {
-        Assertions.assertTrue(new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                         Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever).validInput());
-
-        //noinspection RedundantArrayCreation
-        Assertions.assertFalse(new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                          Toggle.DEFAULT_SPEED_MULTIPLIER, new DoorRetriever[0]).validInput());
     }
 
     @Test
