@@ -178,9 +178,12 @@ public class LocalizationGenerator
     @Contract("_, -> this")
     public LocalizationGenerator addResourcesFromZips(@NotNull List<Path> zipFiles)
     {
-        for (val zipFile : zipFiles)
-            addResourcesFromZip(zipFile, null);
-        return this;
+        synchronized (lck)
+        {
+            for (val zipFile : zipFiles)
+                addResourcesFromZip(zipFile, null);
+            return this;
+        }
     }
 
     /**
@@ -229,9 +232,12 @@ public class LocalizationGenerator
     @Contract("_ -> this")
     public LocalizationGenerator addResources(@NotNull List<Class<?>> classes)
     {
-        for (val clz : classes)
-            addResources(clz, null);
-        return this;
+        synchronized (lck)
+        {
+            for (val clz : classes)
+                addResources(clz, null);
+            return this;
+        }
     }
 
     /**
