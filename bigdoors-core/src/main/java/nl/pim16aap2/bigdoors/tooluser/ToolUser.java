@@ -11,13 +11,13 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 @ToString
 public abstract class ToolUser implements IRestartable
@@ -114,21 +114,21 @@ public abstract class ToolUser implements IRestartable
     /**
      * Adds the BigDoors tool from the player's inventory.
      *
-     * @param name    The name of the tool.
-     * @param lore    The lore of the tool.
-     * @param message The message to send to the player after giving them the tool.
+     * @param nameKey    The localization key of the name of the tool.
+     * @param loreKey    The localization key of the lore of the tool.
+     * @param messageKey The localization key of the message to send to the player after giving them the tool.
      */
-    protected final void giveTool(final @NotNull Message name, final @NotNull Message lore,
-                                  final @Nullable Message message)
+    protected final void giveTool(final @NotNull String nameKey, final @NotNull String loreKey,
+                                  final @Nullable String messageKey)
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil()
                 .giveToPlayer(getPlayer(),
-                              BigDoors.get().getPlatform().getMessages().getString(name),
-                              BigDoors.get().getPlatform().getMessages().getString(lore));
+                              BigDoors.get().getLocalizer().getMessage(nameKey),
+                              BigDoors.get().getLocalizer().getMessage(loreKey));
         playerHasStick = true;
 
-        if (message != null)
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages().getString(message));
+        if (messageKey != null)
+            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage(messageKey));
     }
 
     /**
@@ -191,8 +191,7 @@ public abstract class ToolUser implements IRestartable
         catch (Exception e)
         {
             BigDoors.get().getPLogger().logThrowable(e, toString());
-            // TODO: Localization
-            getPlayer().sendMessage("An error occurred! Please contact a server administrator!");
+            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
             shutdown();
             return false;
         }
@@ -266,13 +265,14 @@ public abstract class ToolUser implements IRestartable
     {
         final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
                                                          .canBreakBlock(getPlayer(), loc);
-
         result.ifPresent(
             compat ->
             {
-                if (!compat.isEmpty())
-                    getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                    .getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+                BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                       "Blocked access to cuboid " + loc + " for player " +
+                                                           getPlayer() + ". Reason: " + compat);
+                getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                .getMessage("tool_user.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -292,13 +292,15 @@ public abstract class ToolUser implements IRestartable
         final @NotNull Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
                                                          .canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
                                                                                     cuboid.getMax(), world);
-
         result.ifPresent(
             compat ->
             {
-                if (!compat.isEmpty())
-                    getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                    .getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat));
+                BigDoors.get().getPLogger().logMessage(Level.FINE,
+                                                       "Blocked access to cuboid " + cuboid + " for player " +
+                                                           getPlayer() + " in world " + world + ". Reason: " +
+                                                           compat);
+                getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                .getMessage("tool_user.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }

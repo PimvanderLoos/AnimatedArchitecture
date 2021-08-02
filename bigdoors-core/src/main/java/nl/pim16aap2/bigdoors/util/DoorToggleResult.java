@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,96 +15,81 @@ public enum DoorToggleResult
     /**
      * No issues were encountered; everything went fine.
      */
-    SUCCESS(Message.EMPTY),
+    SUCCESS("constants.door_toggle_result.success"),
 
     /**
      * No {@link DoorBase}s were found, so none were toggled.
      */
-    NODOORSFOUND(Message.ERROR_NODOORSFOUND),
+    NO_DOORS_FOUND("constants.door_toggle_result.no_doors_found"),
 
     /**
      * The {@link DoorBase} could not be toggled because it is already 'busy': i.e. it is currently moving.
      */
-    BUSY(Message.ERROR_DOORISBUSY),
+    BUSY("constants.door_toggle_result.door_is_busy"),
 
     /**
      * The {@link DoorBase} could not be toggled because it is locked.
      */
-    LOCKED(Message.ERROR_DOORISLOCKED),
+    LOCKED("constants.door_toggle_result.door_is_locked"),
 
     /**
      * Some undefined error occurred while attempting to toggle this {@link DoorBase}.
      */
-    ERROR(Message.ERROR_TOGGLEFAILURE),
+    ERROR("constants.door_toggle_result.generic_toggle_failure"),
 
     /**
-     * The exact instance of the {@link DoorBase} that is to be toggled isn't registered in the {@link
-     * DoorRegistry}.
+     * The exact instance of the {@link DoorBase} that is to be toggled isn't registered in the {@link DoorRegistry}.
      */
-    INSTANCE_UNREGISTERED(Message.ERROR_TOGGLEFAILURE),
+    INSTANCE_UNREGISTERED("constants.door_toggle_result.invalid_state"),
 
     /**
      * The {@link DoorBase} could not be toggled because it was cancelled.
      */
-    CANCELLED(Message.ERROR_TOGGLECANCELLED),
+    CANCELLED("constants.door_toggle_result.cancelled"),
 
     /**
      * The {@link DoorBase} exceeded the size limit.
      */
-    TOOBIG(Message.ERROR_DOORTOOBIG),
+    TOO_BIG("constants.door_toggle_result.too_big"),
 
     /**
-     * The player who tried to toggle it or, if not present (e.g. when toggled via redstone), the original creator does
-     * not have permission to open to toggle the {@link DoorBase} because they are not allowed to break blocks
-     * in the new location. This happens when a compatibility hook interferes (e.g. WorldGuard).
+     * The player who tried to toggle it or, if not present (e.g. when toggled via redstone"), the original creator does
+     * not have permission to open to toggle the {@link DoorBase} because they are not allowed to break blocks in the
+     * new location. This happens when a compatibility hook interferes (e.g. WorldGuard).
      */
-    NOPERMISSION(Message.ERROR_NOPERMISSIONFORLOCATION),
+    NO_PERMISSION("constants.door_toggle_result.no_permission_for_location"),
 
     /**
      * An attempt to toggle (or open/close) a {@link DoorBase} failed because it was obstructed.
      */
-    OBSTRUCTED(Message.ERROR_DOORISOBSTRUCTED),
+    OBSTRUCTED("constants.door_toggle_result.obstructed"),
 
     /**
      * The {@link DoorBase} did not have enough space to move.
      */
-    NODIRECTION(Message.ERROR_NOOPENDIRECTION),
+    NO_DIRECTION("constants.door_toggle_result.no_direction"),
 
     /**
      * The {@link DoorBase} could not be opened because it is already open.
      */
-    ALREADYOPEN(Message.ERROR_DOORALREADYOPEN),
+    ALREADY_OPEN("constants.door_toggle_result.already_open"),
 
     /**
      * The {@link DoorBase} could not be closed because it is already closed.
      */
-    ALREADYCLOSED(Message.ERROR_DOORALREADYCLOSED),
+    ALREADY_CLOSED("constants.door_toggle_result.already_closed"),
 
     /**
      * The {@link DoorBase} could not be toggled because its type was disabled at compile time.
      */
-    TYPEDISABLED(Message.ERROR_DOORTYPEDISABLED),
+    TYPE_DISABLED("constants.door_toggle_result.type_disabled"),
     ;
 
+    @Getter
+    private final @NotNull String localizationKey;
 
-    /**
-     * The {@link Message} associated with the {@link DoorToggleResult}.
-     */
-    private final @NotNull Message message;
-
-    DoorToggleResult(@NotNull final Message message)
+    DoorToggleResult(@NotNull String localizationKey)
     {
-        this.message = message;
-    }
-
-    /**
-     * Get the Key for the translation of this {@link DoorToggleResult}.
-     *
-     * @param result The {@link DoorToggleResult}.
-     * @return The Key for the translation of this {@link DoorToggleResult}.
-     */
-    public static @NotNull Message getMessage(final @NotNull DoorToggleResult result)
-    {
-        return result.message;
+        this.localizationKey = localizationKey;
     }
 }

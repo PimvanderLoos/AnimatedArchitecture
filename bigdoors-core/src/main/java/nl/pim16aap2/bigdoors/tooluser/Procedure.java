@@ -107,8 +107,7 @@ public final class Procedure
         {
             BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException("Cannot get the current step message because there is no active step!"));
-            // TODO: Localization
-            return "An error occurred!";
+            return BigDoors.get().getLocalizer().getMessage("constants.error.generic");
         }
         return currentStep.getLocalizedMessage();
     }

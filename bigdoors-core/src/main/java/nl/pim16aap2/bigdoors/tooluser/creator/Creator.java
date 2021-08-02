@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -257,7 +256,7 @@ public abstract class Creator extends ToolUser
     /**
      * Method used to give the BigDoors tool to the user.
      * <p>
-     * Overriding methods may call {@link #giveTool(Message, Message, Message)}.
+     * Overriding methods may call {@link #giveTool(String, String, String)}.
      */
     protected abstract void giveTool();
 
@@ -276,8 +275,7 @@ public abstract class Creator extends ToolUser
         {
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
-            // TODO: Localization
-            getPlayer().sendMessage("\"" + str + "\" is an invalid door name! Please try again!");
+            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.error.invalid_name", str));
             return false;
         }
 
@@ -323,9 +321,9 @@ public abstract class Creator extends ToolUser
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
-                BigDoors.get().getPlatform().getMessages()
-                        .getString(Message.CREATOR_GENERAL_AREATOOBIG, Integer.toString(newCuboid.getVolume()),
-                                   Integer.toString(sizeLimit.getAsInt())));
+                BigDoors.get().getLocalizer()
+                        .getMessage("creator.base.error.area_too_big", Integer.toString(newCuboid.getVolume()),
+                                    Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -349,17 +347,17 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_CANCELLED));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.creation_cancelled"));
             shutdown();
             return true;
         }
         if (!buyDoor())
         {
 
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
-                                                       DECIMAL_FORMAT.format(getPrice().orElse(0))));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.insufficient_funds",
+                                                        DECIMAL_FORMAT.format(getPrice().orElse(0))));
             shutdown();
             return true;
         }
@@ -426,8 +424,8 @@ public abstract class Creator extends ToolUser
             }).orElseGet(
             () ->
             {
-                // TODO: Localization
-                getPlayer().sendMessage("\"" + str + "\" is not a valid option! Please try again.");
+                getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                .getMessage("creator.base.error.invalid_option", str));
                 return false;
             });
     }
@@ -465,15 +463,14 @@ public abstract class Creator extends ToolUser
             {
                 if (!result.first)
                 {
-                    // TODO: Localization
-                    getPlayer().sendMessage("Door creation was cancelled!");
+                    getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                    .getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
                 if (result.second.isEmpty())
                 {
-                    // TODO: Localization
-                    getPlayer().sendMessage("An error occurred, please contact a server administrator!");
+                    getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
                     BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
                 }
             }).exceptionally(Util::exceptionally);
@@ -541,8 +538,8 @@ public abstract class Creator extends ToolUser
         val sb = new StringBuilder();
         int idx = 0;
         for (RotateDirection rotateDirection : getValidOpenDirections())
-            sb.append(idx++).append(": ").append(BigDoors.get().getPlatform().getMessages()
-                                                         .getString(rotateDirection.getMessage())).append("\n");
+            sb.append(idx++).append(": ")
+              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append("\n");
         return sb.toString();
     }
 
@@ -575,8 +572,8 @@ public abstract class Creator extends ToolUser
         final @NotNull Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.powerblock_inside_door"));
             return false;
         }
         final @NotNull OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
@@ -585,10 +582,10 @@ public abstract class Creator extends ToolUser
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_POWERBLOCKTOOFAR,
-                                                       DECIMAL_FORMAT.format(distance),
-                                                       Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.powerblock_too_far",
+                                                        DECIMAL_FORMAT.format(distance),
+                                                        Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -615,8 +612,8 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 

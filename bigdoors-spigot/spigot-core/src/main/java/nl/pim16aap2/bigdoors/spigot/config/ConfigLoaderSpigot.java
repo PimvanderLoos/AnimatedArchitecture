@@ -64,7 +64,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private OptionalInt maxDoorSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private String resourcePack = "";
-    private String languageFile = "";
     private OptionalInt maxDoorCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private int cacheTimeout;
@@ -170,8 +169,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] languageFileComment = {
-            "Specify a language file to be used. Note that en_US.txt will get regenerated!"};
         String[] checkForUpdatesComment = {
             "Allow this plugin to check for updates on startup. It will not download new versions!"};
         String[] downloadDelayComment = {
@@ -258,7 +255,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
                                      OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
 
-        languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
@@ -471,12 +467,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public @NotNull String resourcePack()
     {
         return resourcePack;
-    }
-
-    @Override
-    public @NotNull String languageFile()
-    {
-        return languageFile;
     }
 
     @Override

@@ -54,7 +54,7 @@ public final class DoorOpeningUtility
         if (!result.equals(DoorToggleResult.BUSY))
             BigDoors.get().getDoorActivityManager().setDoorAvailable(door.getDoorUID());
 
-        if (!result.equals(DoorToggleResult.NOPERMISSION))
+        if (!result.equals(DoorToggleResult.NO_PERMISSION))
             if (!cause.equals(DoorActionCause.PLAYER))
                 BigDoors.get().getPLogger()
                         .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
@@ -244,15 +244,15 @@ public final class DoorOpeningUtility
             return DoorToggleResult.BUSY;
 
         if (actionType == DoorActionType.OPEN && !door.isOpenable())
-            return DoorToggleResult.ALREADYOPEN;
+            return DoorToggleResult.ALREADY_OPEN;
         else if (actionType == DoorActionType.CLOSE && !door.isCloseable())
-            return DoorToggleResult.ALREADYCLOSED;
+            return DoorToggleResult.ALREADY_CLOSED;
 
         if (door.isLocked())
             return DoorToggleResult.LOCKED;
 
         if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(door.getDoorType()))
-            return DoorToggleResult.TYPEDISABLED;
+            return DoorToggleResult.TYPE_DISABLED;
 
 //        if (!chunksLoaded(door))
 //        {

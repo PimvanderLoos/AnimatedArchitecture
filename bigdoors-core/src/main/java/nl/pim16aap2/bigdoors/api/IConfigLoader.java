@@ -79,13 +79,6 @@ public interface IConfigLoader extends IRestartable
     int cacheTimeout();
 
     /**
-     * Gets the name of the language file to use.
-     *
-     * @return The name of the language file to use.
-     */
-    @NotNull String languageFile();
-
-    /**
      * Gets the global maximum number of doors a player can own.
      *
      * @return The global maximum number of doors a player can own.

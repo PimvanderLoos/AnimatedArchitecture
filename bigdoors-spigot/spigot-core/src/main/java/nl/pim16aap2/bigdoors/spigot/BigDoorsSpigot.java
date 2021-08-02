@@ -78,7 +78,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PServer;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -115,9 +114,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
-
-    @Getter
-    private Messages messages;
 
     private boolean validVersion = false;
     private final @NotNull IPExecutor pExecutor;
@@ -342,7 +338,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         initLocalization();
 
-        messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
         playerGUIs = new HashMap<>();
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());

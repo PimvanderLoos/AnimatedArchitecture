@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -122,13 +121,6 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      * @return The instance of the {@link IMessagingInterface} for this platform.
      */
     @NotNull IMessagingInterface getMessagingInterface();
-
-    /**
-     * Gets the instance of the {@link Messages} for this platform.
-     *
-     * @return The instance of the {@link Messages} for this platform.
-     */
-    @NotNull Messages getMessages();
 
     /**
      * Gets the implementation of a {@link IMessageable} for the server.
