@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,20 +31,23 @@ public class CreatorBigDoor extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_BIGDOOR_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_BIGDOOR_STEP2).construct(),
-                             factorySetEnginePos.message(Message.CREATOR_BIGDOOR_STEP3).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.message(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_BIGDOOR_SUCCESS).construct());
+        return Arrays.asList(factorySetName.messageKey("creator.base.give_name")
+                                           .messageVariableRetriever(
+                                               () -> DoorTypeBigDoor.get().getLocalizationKey())
+                                           .construct(),
+                             factorySetFirstPos.messageKey("creator.big_door.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.big_door.step_2").construct(),
+                             factorySetEnginePos.messageKey("creator.big_door.step_3").construct(),
+                             factorySetPowerBlockPos.messageKey("creator.base.set_power_block").construct(),
+                             factorySetOpenDir.messageKey("creator.base.set_open_dir").construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.big_door.success").construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_BIGDOOR_STICKLORE, Message.CREATOR_BIGDOOR_INIT);
+        giveTool("tool_user.base.stick_name", "creator.big_door.stick_lore", "creator.big_door.init");
     }
 
     @Override

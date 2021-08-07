@@ -41,18 +41,18 @@ public class CreatorSlidingDoor extends Creator
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
-            .message(Message.CREATOR_SLIDINGDOOR_BLOCKSTOMOVE)
+            .messageKey(Message.CREATOR_SLIDINGDOOR_BLOCKSTOMOVE)
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_SLIDINGDOOR_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_SLIDINGDOOR_STEP2).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.message(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
+        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
+                             factorySetFirstPos.messageKey(Message.CREATOR_SLIDINGDOOR_STEP1).construct(),
+                             factorySetSecondPos.messageKey(Message.CREATOR_SLIDINGDOOR_STEP2).construct(),
+                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
+                             factorySetOpenDir.messageKey(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
                              stepBlocksToMove,
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_SLIDINGDOOR_SUCCESS).construct());
+                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
+                             factoryCompleteProcess.messageKey(Message.CREATOR_SLIDINGDOOR_SUCCESS).construct());
     }
 
     protected boolean setBlocksToMove(final int blocksToMove)

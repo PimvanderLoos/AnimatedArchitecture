@@ -21,7 +21,7 @@ public final class DoorTypeGarageDoor extends DoorType
     {
         super(Constants.PLUGIN_NAME, "GarageDoor", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST));
+                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.garage_door");
     }
 
     /**

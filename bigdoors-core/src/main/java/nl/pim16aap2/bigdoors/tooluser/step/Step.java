@@ -98,6 +98,12 @@ public class Step implements IStep
             return this;
         }
 
+        public @NotNull Factory messageVariableRetriever(@NotNull Supplier<String> messageVariablesRetriever)
+        {
+            messageVariablesRetrievers = List.of(messageVariablesRetriever);
+            return this;
+        }
+
         public @NotNull Factory messageVariableRetrievers(
             final @NotNull List<Supplier<String>> messageVariablesRetrievers)
         {
@@ -117,7 +123,7 @@ public class Step implements IStep
             return this;
         }
 
-        public @NotNull Factory message(final @NotNull String messageKey)
+        public @NotNull Factory messageKey(final @NotNull String messageKey)
         {
             this.messageKey = messageKey;
             return this;

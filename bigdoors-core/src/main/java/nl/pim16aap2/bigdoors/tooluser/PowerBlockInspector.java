@@ -54,7 +54,7 @@ public class PowerBlockInspector extends ToolUser
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
-            .message("tool_user.powerblock_inspector.init")
+            .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);

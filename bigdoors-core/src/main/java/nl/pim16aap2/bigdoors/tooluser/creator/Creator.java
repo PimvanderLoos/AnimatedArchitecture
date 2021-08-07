@@ -209,6 +209,7 @@ public abstract class Creator extends ToolUser
             new Step.Factory("CONFIRM_DOOR_PRICE")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
+                .messageKey("creator.base.confirm_door_price")
                 .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
                 .implicitNextStep(false);
 

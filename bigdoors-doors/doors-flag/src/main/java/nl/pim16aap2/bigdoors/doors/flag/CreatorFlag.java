@@ -39,13 +39,13 @@ public class CreatorFlag extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_FLAG_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_FLAG_STEP2).construct(),
-                             factorySetEnginePos.message(Message.CREATOR_FLAG_STEP3).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_FLAG_SUCCESS).construct());
+        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
+                             factorySetFirstPos.messageKey(Message.CREATOR_FLAG_STEP1).construct(),
+                             factorySetSecondPos.messageKey(Message.CREATOR_FLAG_STEP2).construct(),
+                             factorySetEnginePos.messageKey(Message.CREATOR_FLAG_STEP3).construct(),
+                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
+                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
+                             factoryCompleteProcess.messageKey(Message.CREATOR_FLAG_SUCCESS).construct());
     }
 
     @Override

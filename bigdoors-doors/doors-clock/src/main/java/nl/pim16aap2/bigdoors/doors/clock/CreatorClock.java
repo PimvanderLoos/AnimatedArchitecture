@@ -59,17 +59,17 @@ public class CreatorClock extends Creator
         throws InstantiationException
     {
         Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
-            .message(Message.CREATOR_CLOCK_SELECTHOURARMSIDE)
+            .messageKey(Message.CREATOR_CLOCK_SELECTHOURARMSIDE)
             .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_CLOCK_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_CLOCK_STEP2).construct(),
+        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
+                             factorySetFirstPos.messageKey(Message.CREATOR_CLOCK_STEP1).construct(),
+                             factorySetSecondPos.messageKey(Message.CREATOR_CLOCK_STEP2).construct(),
                              stepSelectHourArm,
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_CLOCK_SUCCESS).construct());
+                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
+                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
+                             factoryCompleteProcess.messageKey(Message.CREATOR_CLOCK_SUCCESS).construct());
     }
 
     /**

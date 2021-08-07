@@ -87,12 +87,12 @@ public class PowerBlockRelocator extends ToolUser
         throws InstantiationException
     {
         Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")
-            .message("tool_user.powerblock_relocator.init")
+            .messageKey("tool_user.powerblock_relocator.init")
             .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
         Step stepPowerblockRelocatorCompleted = new Step.Factory("RELOCATE_POWER_BLOCK_COMPLETED")
-            .message("tool_user.powerblock_relocator.success")
+            .messageKey("tool_user.powerblock_relocator.success")
             .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();
 
