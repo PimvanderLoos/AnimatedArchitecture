@@ -47,9 +47,9 @@ class LocalizationUtilIntegrationTest
 
         val locales = LocalizationUtil.getLocalesInDirectory(dir, base);
         Assertions.assertEquals(5, locales.size());
-        Assertions.assertEquals(Locale.getDefault(), locales.get(0));
-        Assertions.assertEquals(new Locale("en", "US"), locales.get(1));
-        Assertions.assertEquals("some_random_variation", locales.get(2).getVariant());
+        Assertions.assertEquals(Locale.ROOT, locales.get(0));
+        Assertions.assertEquals(Locale.US, locales.get(1));
+        Assertions.assertEquals(new Locale("en", "US", "some_random_variation"), locales.get(2));
         Assertions.assertEquals(new Locale("nl"), locales.get(3));
         Assertions.assertEquals(new Locale("nl", "NL"), locales.get(4));
     }

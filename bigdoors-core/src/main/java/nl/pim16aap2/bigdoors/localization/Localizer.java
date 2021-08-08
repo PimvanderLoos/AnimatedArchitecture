@@ -56,7 +56,7 @@ public class Localizer extends Restartable
     }
 
     /**
-     * Retrieves a localized message using {@link Locale#getDefault()}.
+     * Retrieves a localized message using {@link Locale#ROOT}.
      *
      * @param key  The key of the message.
      * @param args The arguments of the message, if any.
@@ -66,7 +66,7 @@ public class Localizer extends Restartable
      */
     public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
     {
-        return getMessage(key, Locale.getDefault(), args);
+        return getMessage(key, Locale.ROOT, args);
     }
 
     /**

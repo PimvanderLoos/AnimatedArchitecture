@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author Pim
  */
-class LocalizationUtil
+public class LocalizationUtil
 {
     private LocalizationUtil()
     {
@@ -293,16 +293,16 @@ class LocalizationUtil
     /**
      * Gets a {@link Locale} from a String representing a locale. E.g. "en_US".
      * <p>
-     * If the locale string is empty, the default Locale will be returned. See {@link Locale#getDefault()}.
+     * If the locale string is empty, the root locale is returned. See {@link Locale#ROOT}.
      *
      * @param localeStr A String representing a locale.
-     * @return
+     * @return The decoded Locale.
      */
-    static @Nullable Locale getLocale(@NotNull String localeStr)
+    public static @Nullable Locale getLocale(@NotNull String localeStr)
     {
         val parts = localeStr.split("_", 3);
         if (parts[0].isBlank())
-            return Locale.getDefault();
+            return Locale.ROOT;
 
         if (parts.length == 1)
             return new Locale(parts[0]);
