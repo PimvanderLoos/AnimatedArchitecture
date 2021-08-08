@@ -91,8 +91,8 @@ public class SetOpenDirection extends DoorTargetCommand
                                                 delayedInput -> delayedInputExecutor(commandSender,
                                                                                      doorRetriever,
                                                                                      delayedInput),
-                                                SetOpenDirection::inputRequestMessage, RotateDirection.class)
-            .getCommandOutput();
+                                                () -> SetOpenDirection.inputRequestMessage(doorRetriever),
+                                                RotateDirection.class).getCommandOutput();
     }
 
     /**
@@ -139,16 +139,29 @@ public class SetOpenDirection extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NotNull String inputRequestMessage()
+    private static @NotNull String inputRequestMessage(@NotNull DoorRetriever doorRetriever)
     {
         val localizer = BigDoors.get().getLocalizer();
-        StringBuilder sb = new StringBuilder();
-        sb.append(localizer.getMessage("commands.set_open_direction.delayed_init_header")).append("\n");
+        if (!doorRetriever.isAvailable())
+            return localizer.getMessage("commands.set_open_direction.init");
 
-        // TODO: Implement something like this:
-        // for (RotateDirection rotateDirection : door.getValidOpendirection())
-        //     sb.append("  ").append(localizer.getMessage(rotateDirection.getLocalizationKey())).append("\n");
-        // return sb.toString();
+        val sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed_init_header"))
+            .append("\n");
+
+        val futureDoor = doorRetriever.getDoor();
+        if (!futureDoor.isDone())
+            throw new IllegalStateException("Door that should be available is not done!");
+        val optionalDoor = futureDoor.join();
+        if (optionalDoor.isEmpty())
+            throw new IllegalStateException("Door that should be available is not present!");
+
+        val directions = optionalDoor.get().getDoorType().getValidOpenDirections();
+        for (int idx = 0; idx < directions.size(); ++idx)
+        {
+            sb.append(localizer.getMessage(directions.get(idx).getLocalizationKey()));
+            if (idx < directions.size() - 1)
+                sb.append(", ");
+        }
         return sb.toString();
     }
 }
