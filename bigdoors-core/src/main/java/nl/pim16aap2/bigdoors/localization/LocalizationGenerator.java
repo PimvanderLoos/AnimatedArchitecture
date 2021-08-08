@@ -175,7 +175,7 @@ public class LocalizationGenerator
      * <p>
      * See {@link #addResourcesFromZip(Path, String)}
      */
-    @Contract("_, -> this")
+    @Contract("_ -> this")
     public LocalizationGenerator addResourcesFromZips(@NotNull List<Path> zipFiles)
     {
         synchronized (lck)
