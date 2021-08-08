@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,12 +28,17 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  *
  * @author Pim
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class LocalizationGenerator
 {
     private final @NotNull Object lck = new Object();
 
     private final @NotNull Path outputDirectory;
+
+    /**
+     * The output .bundle (zip) that holds all the localization files.
+     */
+    private final @NotNull Path outputFile;
     private final @NotNull String outputBaseName;
 
     /**
@@ -42,6 +49,7 @@ public class LocalizationGenerator
     {
         this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
+        outputFile = this.outputDirectory.resolve(this.outputBaseName + ".bundle");
     }
 
     /**
@@ -94,11 +102,11 @@ public class LocalizationGenerator
     {
         synchronized (lck)
         {
-            try
+            try (val outputFileSystem = getOutputFileFileSystem())
             {
                 val localeFiles = getLocaleFilesInDirectory(directory, baseName);
                 for (val localeFile : localeFiles)
-                    mergeWithExistingLocaleFile(localeFile);
+                    mergeWithExistingLocaleFile(outputFileSystem, localeFile);
             }
             catch (Exception e)
             {
@@ -136,7 +144,8 @@ public class LocalizationGenerator
     {
         synchronized (lck)
         {
-            try (val zipFileSystem = FileSystems.newFileSystem(jarFile))
+            try (val zipFileSystem = FileSystems.newFileSystem(jarFile);
+                 val outputFileSystem = getOutputFileFileSystem())
             {
                 List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
                 if (baseName != null)
@@ -145,14 +154,27 @@ public class LocalizationGenerator
 
                 val localeFiles = getLocaleFiles(zipFileSystem, fileNames);
                 for (val localeFile : localeFiles)
-                    mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
+                    mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()),
+                                                localeFile.locale());
             }
-            catch (IOException e)
+            catch (IOException | URISyntaxException e)
             {
                 BigDoors.get().getPLogger().logThrowable(e, "Failed to read resource from file: " + jarFile);
             }
         }
         return this;
+    }
+
+    /**
+     * Creates a new {@link FileSystem} for {@link #outputFile}.
+     * <p>
+     * See {@link LocalizationUtil#createNewFileSystem(Path)}.
+     */
+    private @NotNull FileSystem getOutputFileFileSystem()
+        throws IOException, URISyntaxException
+    {
+        ensureZipFileExists(outputFile);
+        return createNewFileSystem(outputFile);
     }
 
     /**
@@ -265,11 +287,13 @@ public class LocalizationGenerator
      * @throws IOException When an I/O error occurred.
      */
     @GuardedBy("lck")
-    void mergeWithExistingLocaleFile(@NotNull InputStream inputStream, @NotNull String locale)
+    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull InputStream inputStream,
+                                     @NotNull String locale)
         throws IOException
     {
-        val existingLocaleFile = getOutputLocaleFile(locale);
+        val existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(locale));
         ensureFileExists(existingLocaleFile);
+        ensureFileExists(outputFile);
         val existing = readFile(Files.newInputStream(existingLocaleFile));
         val newlines = readFile(inputStream);
         val appendable = getAppendable(existing, newlines);
@@ -277,13 +301,13 @@ public class LocalizationGenerator
     }
 
     /**
-     * See {@link #mergeWithExistingLocaleFile(InputStream, String)}.
+     * See {@link #mergeWithExistingLocaleFile(FileSystem, InputStream, String)}.
      */
     @GuardedBy("lck")
-    void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
+    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull LocaleFile localeFile)
         throws IOException
     {
-        mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
+        mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()), localeFile.locale());
     }
 
     /**
@@ -297,7 +321,17 @@ public class LocalizationGenerator
      */
     @NotNull Path getOutputLocaleFile(@NotNull String locale)
     {
-        val fileName = String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
-        return outputDirectory.resolve(fileName);
+        return outputDirectory.resolve(getOutputLocaleFileName(locale));
+    }
+
+    /**
+     * Retrieves the filename of the output locale file for a specific locale.
+     *
+     * @param locale The locale for which to find the output filename.
+     * @return The filename of the output locale file for the provided locale.
+     */
+    @NotNull String getOutputLocaleFileName(@NotNull String locale)
+    {
+        return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
     }
 }

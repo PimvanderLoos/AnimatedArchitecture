@@ -20,6 +20,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileExists;
+
 /**
  * Represents a class that can be used to localize Strings.
  *
@@ -31,6 +33,7 @@ public class Localizer extends Restartable
 
     private final @NotNull Path directory;
     private final @NotNull String baseName;
+    private final @NotNull String bundleName;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
@@ -56,6 +59,7 @@ public class Localizer extends Restartable
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
+        bundleName = baseName + ".bundle";
         init();
     }
 
@@ -99,7 +103,8 @@ public class Localizer extends Restartable
      *
      * @return The list of available locales.
      */
-    public @NotNull List<Locale> getLocales()
+    @SuppressWarnings("unused")
+    public @NotNull List<Locale> getAvailableLocales()
     {
         return localeList;
     }
@@ -131,11 +136,12 @@ public class Localizer extends Restartable
     @Initializer
     private void init()
     {
+        val bundlePath = directory.resolve(bundleName);
+        ensureZipFileExists(bundlePath);
         try
         {
-            final URL[] urls = {directory.toUri().toURL()};
-            classLoader = new URLClassLoader(urls);
-            localeList = LocalizationUtil.getLocalesInDirectory(directory, baseName);
+            classLoader = getNewURLClassLoader(bundlePath, baseName);
+            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName);
         }
         catch (Exception e)
         {
@@ -143,6 +149,23 @@ public class Localizer extends Restartable
             classLoader = null;
             localeList = Collections.emptyList();
         }
+    }
+
+    private static @NotNull URLClassLoader getNewURLClassLoader(@NotNull Path bundlePath, @NotNull String baseName)
+        throws IOException
+    {
+        final URL[] urls = {bundlePath.toUri().toURL()};
+        val ucl = new URLClassLoader(urls);
+        // Get the base file (which we know exists) as stream. This is a hack to ensure
+        // that the files accessed by the ResourceBundle are current.
+        // When skipping this step, the ResourceBundle will not see any changes
+        // made to the files since the last time the UCL was recreated.
+        //noinspection EmptyTryBlock
+        try (val ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        {
+            // ignored
+        }
+        return ucl;
     }
 
     @Override

@@ -9,7 +9,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +22,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Represents a utility class with methods that can be used for the localization system.
@@ -47,7 +52,9 @@ public class LocalizationUtil
     {
         if (Files.isRegularFile(file))
             return;
-        Files.createDirectories(file.getParent());
+        val parent = file.getParent();
+        if (parent != null)
+            Files.createDirectories(parent);
         Files.createFile(file);
     }
 
@@ -280,12 +287,77 @@ public class LocalizationUtil
     }
 
     /**
-     * Gets the currently-available list of {@link Locale}s as found in the directory.
+     * Creates a new {@link FileSystem} for a zip file.
+     * <p>
+     * Don't forget to close it when you're done!
+     *
+     * @param zipFile The zip file for which to create a new FileSystem.
+     * @return The newly created FileSystem.
+     *
+     * @throws IOException                      If an I/O error occurs creating the file system.
+     * @throws FileSystemAlreadyExistsException When a FileSystem already exists for the provided file.
      */
-    static @NotNull List<Locale> getLocalesInDirectory(@NotNull Path directory, @NotNull String baseName)
+    static @NotNull FileSystem createNewFileSystem(@NotNull Path zipFile)
+        throws IOException, URISyntaxException
     {
-        return LocalizationUtil.getLocaleFilesInDirectory(directory, baseName).stream()
-                               .map(localeFile -> getLocale(localeFile.locale())).toList();
+        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
+    }
+
+    /**
+     * Ensures a given zip file exists.
+     *
+     * @throws IOException
+     */
+    static void ensureZipFileExists(@NotNull Path zipFile)
+    {
+        if (Files.exists(zipFile))
+            return;
+
+        val parent = zipFile.getParent();
+        if (parent != null)
+        {
+            try
+            {
+                Files.createDirectories(parent);
+            }
+            catch (IOException e)
+            {
+                BigDoors.get().getPLogger().logThrowable(e, "Failed to create directories: " + parent);
+                return;
+            }
+        }
+
+        // Just opening the ZipOutputStream and then letting it close
+        // on its own is enough to create a new zip file.
+        //noinspection EmptyTryBlock
+        try (val ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        {
+            // ignored
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to create file: " + zipFile);
+        }
+    }
+
+    /**
+     * Gets the currently-available list of {@link Locale}s as found in the provided zip-file.
+     *
+     * @param zipFile  The zip file in which to look for localization files.
+     * @param baseName The base name of the localization files.
+     */
+    static @NotNull List<Locale> getLocalesInZip(@NotNull Path zipFile, @NotNull String baseName)
+    {
+        try (val fs = createNewFileSystem(zipFile))
+        {
+            return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
+                                   .map(localeFile -> getLocale(localeFile.locale())).toList();
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to find locales in file: " + zipFile);
+            return Collections.emptyList();
+        }
     }
 
     /**

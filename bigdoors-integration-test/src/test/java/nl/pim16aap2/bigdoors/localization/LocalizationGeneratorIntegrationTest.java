@@ -15,14 +15,18 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -65,8 +69,6 @@ class LocalizationGeneratorIntegrationTest
 
     private FileSystem fs;
     private Path directoryOutput;
-    private Path outputPath0;
-    private Path outputPath1;
 
     @BeforeEach
     void init()
@@ -78,8 +80,6 @@ class LocalizationGeneratorIntegrationTest
 
         fs = Jimfs.newFileSystem(Configuration.unix());
         directoryOutput = Files.createDirectory(fs.getPath("/output"));
-        outputPath0 = directoryOutput.resolve(BASE_NAME + ".properties");
-        outputPath1 = directoryOutput.resolve(BASE_NAME + "_en_US.properties");
     }
 
     @AfterEach
@@ -91,7 +91,7 @@ class LocalizationGeneratorIntegrationTest
 
     @Test
     void testAddResources()
-        throws IOException
+        throws IOException, URISyntaxException
     {
         val directoryA = Files.createDirectory(fs.getPath("/input_a"));
         val directoryB = Files.createDirectory(fs.getPath("/input_b"));
@@ -108,13 +108,23 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
 
-        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputPath0)));
-        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputPath1)));
+        val outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        val outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+        val outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
+
+        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
+        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
+    }
+
+    @NotNull FileSystem createFileSystem(@NotNull Path zipFile)
+        throws URISyntaxException, IOException
+    {
+        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
     }
 
     @Test
     void testAddResourcesFromJar()
-        throws IOException
+        throws IOException, URISyntaxException
     {
         val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
         createJar(jarFile).close();
@@ -127,7 +137,7 @@ class LocalizationGeneratorIntegrationTest
 
     @Test
     void testAddResourcesFromClass()
-        throws IOException, ClassNotFoundException
+        throws IOException, ClassNotFoundException, URISyntaxException
     {
         val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
         val outputStream = createJar(jarFile);
@@ -149,17 +159,22 @@ class LocalizationGeneratorIntegrationTest
      * @throws IOException
      */
     private void verifyJarOutput()
-        throws IOException
+        throws IOException, URISyntaxException
     {
-        Assertions.assertTrue(Files.exists(outputPath0));
-        Assertions.assertTrue(Files.exists(outputPath1));
+        val outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        val outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+        val outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
-        Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputPath1)));
+
+        Assertions.assertTrue(Files.exists(outputFile0));
+        Assertions.assertTrue(Files.exists(outputFile1));
+
+        Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
 
         val outputBase = new ArrayList<>(10);
         outputBase.addAll(INPUT_A_0);
         outputBase.addAll(INPUT_A_1);
-        Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputPath0)));
+        Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
     }
 
     /**
@@ -237,8 +252,8 @@ class LocalizationGeneratorIntegrationTest
      * @param data         The data to write to the entry.
      * @throws IOException
      */
-    private static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
-                                   byte[] data)
+    static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
+                           byte[] data)
         throws IOException
     {
         outputStream.putNextEntry(new ZipEntry(fileName));
