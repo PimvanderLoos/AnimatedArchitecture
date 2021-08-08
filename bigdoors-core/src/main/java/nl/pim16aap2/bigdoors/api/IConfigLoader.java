@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.OptionalInt;
 
 // TODO: Change this description and while I'm at it, also the name of the class.
@@ -61,6 +62,8 @@ public interface IConfigLoader extends IRestartable
      * @return True if stats gathering is allowed.
      */
     boolean allowStats();
+
+    @NotNull Locale locale();
 
     /**
      * Gets the global maximum number of blocks that can be in a door.

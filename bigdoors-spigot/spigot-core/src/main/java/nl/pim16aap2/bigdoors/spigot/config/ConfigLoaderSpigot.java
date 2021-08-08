@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
@@ -29,6 +30,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -46,8 +48,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @ToString.Exclude
     private final @NotNull IPLogger logger;
 
-    private static final List<String> DEFAULTPOWERBLOCK = Collections
-        .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
+    private static final List<String> DEFAULTPOWERBLOCK = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
@@ -71,6 +72,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private long downloadDelay;
     private boolean enableRedstone;
     private boolean checkForUpdates;
+    private Locale locale;
     private int headCacheTimeout;
     private boolean consoleLogging;
     private boolean debug = false;
@@ -193,6 +195,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
+        String[] localeComment = {
+            "Determines which locale to use. Defaults to root."
+        };
         String[] resourcePackComment = {
             "This plugin uses a support resource pack for things suchs as sound.",
             "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
@@ -271,6 +276,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                               ((idx++ == 0) ? compatibilityHooksComment : null));
             hooksMap.put(compat, isEnabled);
         }
+
+        String localeStr = addNewConfigEntry(config, "locale", "root", localeComment);
+        // "root" isn't actually a valid country that can be used by a Locale.
+        // So we map it to an empty String to ensure we get Locale#ROOT instead.
+        if ("root".equalsIgnoreCase(localeStr))
+            localeStr = "";
+        locale = LocalizationUtil.getLocale(localeStr);
 
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
@@ -444,6 +456,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public boolean allowStats()
     {
         return allowStats;
+    }
+
+    @Override
+    public @NotNull Locale locale()
+    {
+        return locale;
     }
 
     @Override
