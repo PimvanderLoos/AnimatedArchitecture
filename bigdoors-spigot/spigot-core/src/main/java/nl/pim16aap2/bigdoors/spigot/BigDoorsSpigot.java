@@ -345,7 +345,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         {
             generator.addResources(types);
             generator.addResources(List.of(getClass()));
-            localizer = new Localizer(getDataDirectory().toPath(), "translations");
+            localizer = new Localizer(getDataDirectory().toPath(), "translations", getConfigLoader().locale());
         }
         else
             generator.addResources(localizer, types);

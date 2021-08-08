@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -286,8 +285,7 @@ public class LocalizationUtil
     static @NotNull List<Locale> getLocalesInDirectory(@NotNull Path directory, @NotNull String baseName)
     {
         return LocalizationUtil.getLocaleFilesInDirectory(directory, baseName).stream()
-                               .map(localeFile -> getLocale(localeFile.locale()))
-                               .filter(Objects::nonNull).toList();
+                               .map(localeFile -> getLocale(localeFile.locale())).toList();
     }
 
     /**
@@ -298,7 +296,7 @@ public class LocalizationUtil
      * @param localeStr A String representing a locale.
      * @return The decoded Locale.
      */
-    public static @Nullable Locale getLocale(@NotNull String localeStr)
+    public static @NotNull Locale getLocale(@NotNull String localeStr)
     {
         val parts = localeStr.split("_", 3);
         if (parts[0].isBlank())

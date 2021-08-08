@@ -72,7 +72,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private long downloadDelay;
     private boolean enableRedstone;
     private boolean checkForUpdates;
-    private Locale locale;
+    private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
     private boolean consoleLogging;
     private boolean debug = false;
