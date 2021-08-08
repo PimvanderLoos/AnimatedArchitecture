@@ -55,8 +55,8 @@ public class Confirm extends BaseCommand
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else
-            // TODO: Localization.
-            getCommandSender().sendMessage("Nothing to confirm!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                                   .getMessage("commands.confirm.error.no_confirmation_request"));
 
         return CompletableFuture.completedFuture(true);
     }

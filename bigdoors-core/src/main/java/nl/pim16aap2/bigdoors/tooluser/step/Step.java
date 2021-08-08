@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,7 +28,7 @@ public class Step implements IStep
     private final @NotNull StepExecutor stepExecutor;
 
     @ToString.Exclude
-    private final @NotNull Message message;
+    private final @NotNull String messageKey;
 
     @ToString.Exclude
     private final @NotNull List<Supplier<String>> messageVariablesRetrievers;
@@ -66,10 +65,10 @@ public class Step implements IStep
         final @NotNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
 
-        String[] variablesArr = new String[variables.size()];
+        Object[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
 
-        return BigDoors.get().getPlatform().getMessages().getString(message, variablesArr);
+        return BigDoors.get().getLocalizer().getMessage(messageKey, variablesArr);
     }
 
     public static class Factory
@@ -78,7 +77,7 @@ public class Step implements IStep
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
-        private @Nullable Message message = null;
+        private @Nullable String messageKey = null;
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
@@ -96,6 +95,12 @@ public class Step implements IStep
         public @NotNull Factory stepExecutor(final @NotNull StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
+            return this;
+        }
+
+        public @NotNull Factory messageVariableRetriever(@NotNull Supplier<String> messageVariablesRetriever)
+        {
+            messageVariablesRetrievers = List.of(messageVariablesRetriever);
             return this;
         }
 
@@ -118,9 +123,9 @@ public class Step implements IStep
             return this;
         }
 
-        public @NotNull Factory message(final @NotNull Message message)
+        public @NotNull Factory messageKey(final @NotNull String messageKey)
         {
-            this.message = message;
+            this.messageKey = messageKey;
             return this;
         }
 
@@ -129,18 +134,13 @@ public class Step implements IStep
         {
             if (stepExecutor == null)
                 throw new InstantiationException("Trying to instantiate a Step without stepExecutor");
-            if (message == null)
+            if (messageKey == null)
                 throw new InstantiationException("Trying to instantiate a Step without message");
 
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
 
-            if (messageVariablesRetrievers.size() != Message.getVariableCount(message))
-                throw new InstantiationException("Parameter mismatch for " + name + ". Expected: " +
-                                                     Message.getVariableCount(message) + " but received: " +
-                                                     messageVariablesRetrievers.size());
-
-            return new Step(name, stepExecutor, message, messageVariablesRetrievers,
+            return new Step(name, stepExecutor, messageKey, messageVariablesRetrievers,
                             waitForUserInput, skipCondition, implicitNextStep);
         }
     }

@@ -58,8 +58,8 @@ public abstract class DoorTargetCommand extends BaseCommand
             BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
                 "Failed to find door " + getDoorRetriever() + " for command: " + this);
 
-            // TODO: Localization
-            getCommandSender().sendMessage("Failed to find the specified door!");
+            getCommandSender().sendMessage(
+                BigDoors.get().getLocalizer().getMessage("commands.door_target_command.base.error.door_not_found"));
             return false;
         }
 
@@ -69,8 +69,8 @@ public abstract class DoorTargetCommand extends BaseCommand
                                                    () -> getCommandSender() + " does not have access to door " + door +
                                                        " for command " + this);
 
-            // TODO: Localization
-            getCommandSender().sendMessage("You do not have access to this action for this door!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer().getMessage(
+                "commands.door_target_command.base.error.no_permission_for_action"));
             return true;
         }
 

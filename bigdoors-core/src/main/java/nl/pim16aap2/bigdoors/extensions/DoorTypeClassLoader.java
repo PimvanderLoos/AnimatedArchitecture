@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class DoorTypeClassLoader extends URLClassLoader
+class DoorTypeClassLoader extends URLClassLoader
 {
     public DoorTypeClassLoader(final @NotNull URL[] urls, final @NotNull ClassLoader parent)
     {

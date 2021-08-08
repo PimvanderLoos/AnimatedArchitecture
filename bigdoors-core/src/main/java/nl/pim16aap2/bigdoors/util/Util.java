@@ -13,10 +13,16 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,6 +37,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Represents various small and platform agnostic utility functions.
@@ -61,6 +69,11 @@ public final class Util
     private static final @NotNull Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
         new EnumMap<>(RotateDirection.class);
 
+    /**
+     * Looks for top-level .properties files.
+     */
+    private static final @NotNull Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
+
     static
     {
         for (val pbf : PBlockFace.values())
@@ -77,6 +90,42 @@ public final class Util
             TO_ROTATE_DIRECTION.put(pbf, mappedRotDir);
             TO_PBLOCK_FACE.put(mappedRotDir, pbf);
         }
+    }
+
+    /**
+     * Gets the File of the jar that contained a specific class.
+     *
+     * @param clz The class for which to find the jar file.
+     * @return The location of the jar file.
+     */
+    public @NotNull Path getJarFile(@NotNull Class<?> clz)
+    {
+        try
+        {
+            return Path.of(clz.getProtectionDomain().getCodeSource().getLocation().toURI());
+        }
+        catch (IllegalArgumentException | URISyntaxException e)
+        {
+            throw new RuntimeException("Failed to find jar file for class: " + clz, e);
+        }
+    }
+
+    public @NotNull List<String> getLocaleFilesInJar(@NotNull Path jarFile)
+        throws IOException
+    {
+        final List<String> ret = new ArrayList<>();
+
+        try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
+        {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null)
+            {
+                val name = entry.getName();
+                if (LOCALE_FILE_PATTERN.matcher(name).matches())
+                    ret.add(name);
+            }
+        }
+        return ret;
     }
 
     /**

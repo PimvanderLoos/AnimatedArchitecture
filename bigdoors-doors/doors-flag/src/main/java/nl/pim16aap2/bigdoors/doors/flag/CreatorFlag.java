@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -11,7 +10,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +19,7 @@ import java.util.List;
 
 public class CreatorFlag extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeFlag.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
     public CreatorFlag(final @NotNull IPPlayer player, final @Nullable String name)
@@ -39,19 +36,19 @@ public class CreatorFlag extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_FLAG_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_FLAG_STEP2).construct(),
-                             factorySetEnginePos.message(Message.CREATOR_FLAG_STEP3).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_FLAG_SUCCESS).construct());
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.flag.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.flag.step_2").construct(),
+                             factorySetEnginePos.messageKey("creator.flag.step_3").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.flag.success").construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_FLAG_STICKLORE, Message.CREATOR_FLAG_INIT);
+        giveTool("tool_user.base.stick_name", "creator.flag.stick_lore", "creator.flag.init");
     }
 
     @Override
@@ -71,8 +68,7 @@ public class CreatorFlag extends Creator
             return super.setSecondPos(loc);
         }
 
-        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                        .getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
+        getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 
@@ -86,8 +82,8 @@ public class CreatorFlag extends Creator
             (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
             return super.completeSetEngineStep(loc);
 
-        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                        .getString(Message.CREATOR_GENERAL_POINTNOTACORNER));
+        getPlayer().sendMessage(BigDoors.get().getPlatform().getLocalizer()
+                                        .getMessage("creator.base.position_not_in_corner"));
         return false;
     }
 
@@ -102,5 +98,11 @@ public class CreatorFlag extends Creator
             openDir = engine.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
 
         return new Flag(constructDoorData(), northSouthAligned);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

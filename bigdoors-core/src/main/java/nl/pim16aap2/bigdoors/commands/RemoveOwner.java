@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -120,7 +119,7 @@ public class RemoveOwner extends DoorTargetCommand
      */
     private static @NotNull String inputRequestMessage()
     {
-        return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_REMOVEOWNER_INIT);
+        return BigDoors.get().getLocalizer().getMessage("commands.remove_owner.init");
     }
 
     @Override
@@ -142,11 +141,11 @@ public class RemoveOwner extends DoorTargetCommand
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 
+        val localizer = BigDoors.get().getLocalizer();
         val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty() && !bypassOwnership)
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("You are not an owner of this door!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_an_owner"));
             return false;
         }
 
@@ -154,25 +153,23 @@ public class RemoveOwner extends DoorTargetCommand
         final int ownerPermission = doorOwner.map(DoorOwner::permission).orElse(0);
         if (ownerPermission > DoorAttribute.getPermissionLevel(DoorAttribute.REMOVE_OWNER))
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("Your are not allowed to remove co-owners from this door!");
+            getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_allowed"));
             return false;
         }
 
         val targetDoorOwner = door.getDoorOwner(targetPlayer);
         if (targetDoorOwner.isEmpty())
         {
-            // TODO: Localization
             getCommandSender()
-                .sendMessage(targetPlayer.asString() + " is not a (co-)owner of door " + door.getBasicInfo());
+                .sendMessage(localizer.getMessage("commands.remove_owner.error.target_not_an_owner",
+                                                  targetPlayer.asString(), door.getBasicInfo()));
             return false;
         }
 
         if (targetDoorOwner.get().permission() <= ownerPermission)
         {
-            // TODO: Localization
             getCommandSender()
-                .sendMessage("You can only remove (co)owners with a higher permission level than yourself! ");
+                .sendMessage(localizer.getMessage("commands.remove_owner.error.cannot_remove_higher_permission"));
             return false;
         }
         return true;

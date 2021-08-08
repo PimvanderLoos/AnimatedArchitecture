@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,16 +35,16 @@ public class PowerBlockRelocator extends ToolUser
     @Override
     protected void init()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_PBRELOCATOR_STICKLORE,
-                 Message.CREATOR_PBRELOCATOR_INIT);
+        giveTool("tool_user.base.stick_name", "tool_user.powerblock_relocator.stick_lore",
+                 "tool_user.powerblock_relocator.init");
     }
 
     protected boolean moveToLoc(final @NotNull IPLocation loc)
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_PBRELOCATOR_LOCATIONNOTINSAMEWORLD));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
             return false;
         }
 
@@ -68,18 +67,17 @@ public class PowerBlockRelocator extends ToolUser
         {
             BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("newLoc is null, which should not be possible at this point!"));
-            // TODO: Localization
-            getPlayer().sendMessage("An error occurred! Please contact a server admin!");
+            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
-            // TODO: Localization
-            getPlayer().sendMessage("New location is the same as the old position! Nothing changed!");
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition());
             door.syncData();
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_PBRELOCATOR_SUCCESS));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
     }
@@ -89,12 +87,12 @@ public class PowerBlockRelocator extends ToolUser
         throws InstantiationException
     {
         Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")
-            .message(Message.CREATOR_PBRELOCATOR_INIT)
+            .messageKey("tool_user.powerblock_relocator.init")
             .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
         Step stepPowerblockRelocatorCompleted = new Step.Factory("RELOCATE_POWER_BLOCK_COMPLETED")
-            .message(Message.CREATOR_PBRELOCATOR_SUCCESS)
+            .messageKey("tool_user.powerblock_relocator.success")
             .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();
 

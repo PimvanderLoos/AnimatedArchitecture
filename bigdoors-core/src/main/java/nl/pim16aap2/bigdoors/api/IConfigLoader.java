@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
 import java.util.OptionalInt;
 
 // TODO: Change this description and while I'm at it, also the name of the class.
@@ -62,6 +63,8 @@ public interface IConfigLoader extends IRestartable
      */
     boolean allowStats();
 
+    @NotNull Locale locale();
+
     /**
      * Gets the global maximum number of blocks that can be in a door.
      * <p>
@@ -77,13 +80,6 @@ public interface IConfigLoader extends IRestartable
      * @return The amount of time power blocks should be kept in cache.
      */
     int cacheTimeout();
-
-    /**
-     * Gets the name of the language file to use.
-     *
-     * @return The name of the language file to use.
-     */
-    @NotNull String languageFile();
 
     /**
      * Gets the global maximum number of doors a player can own.

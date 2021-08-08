@@ -6,10 +6,10 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +96,7 @@ class SetOpenDirectionTest
     {
         final @NotNull RotateDirection rotateDirection = RotateDirection.CLOCKWISE;
         Mockito.when(doorType.isValidOpenDirection(rotateDirection)).thenReturn(true);
-        Mockito.when(platform.getMessages()).thenReturn(Mockito.mock(Messages.class));
+        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(Localizer.class));
 
         val first = SetOpenDirection.runDelayed(commandSender, doorRetriever);
         val second = SetOpenDirection.provideDelayedInput(commandSender, rotateDirection);

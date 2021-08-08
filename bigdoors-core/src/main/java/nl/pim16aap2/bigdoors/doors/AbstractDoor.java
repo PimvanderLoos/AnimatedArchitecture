@@ -226,7 +226,7 @@ public abstract class AbstractDoor implements IDoor
             return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.TOOBIG, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.TOO_BIG, cause, responsible);
 
         final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
@@ -247,7 +247,7 @@ public abstract class AbstractDoor implements IDoor
             return DoorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
 
         if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.NOPERMISSION, cause, responsible);
+            return DoorOpeningUtility.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible);
 
         CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));

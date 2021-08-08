@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
@@ -25,8 +27,11 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.localization.LocalizationGenerator;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -46,11 +51,9 @@ import nl.pim16aap2.bigdoors.spigot.factories.BigDoorsEventFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PLocationFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PPlayerFactorySpigot;
 import nl.pim16aap2.bigdoors.spigot.factories.PWorldFactorySpigot;
-import nl.pim16aap2.bigdoors.spigot.gui.GUI;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
-import nl.pim16aap2.bigdoors.spigot.listeners.GUIListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
@@ -73,7 +76,6 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PServer;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PSoundEngineSpigot;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -84,13 +86,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Represents the implementation of {@link BigDoorsSpigotAbstract}.
@@ -109,12 +110,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
-    @Getter
-    private Messages messages;
-
     private boolean validVersion = false;
     private final @NotNull IPExecutor pExecutor;
-    private Map<UUID, GUI> playerGUIs;
     private final Set<IRestartable> restartables = new HashSet<>();
 
     @Getter
@@ -195,6 +192,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Getter
     private final @NotNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
+    @Getter
+    private Localizer localizer;
+
     public BigDoorsSpigot()
     {
         INSTANCE = this;
@@ -209,6 +209,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
+    @Initializer
     public void onEnable()
     {
         Bukkit.getLogger().setLevel(Level.FINER);
@@ -266,7 +267,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             headManager = HeadManager.init(this, getConfigLoader());
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
-            Bukkit.getPluginManager().registerEvents(new GUIListener(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
 
             protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
@@ -329,11 +329,26 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         configLoader.restart();
 
-        Messages messagesTmp = null;
-        messages = new Messages(this, getDataFolder(), getConfigLoader().languageFile(), getPLogger());
-        playerGUIs = new HashMap<>();
+        initLocalization();
 
         updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+    }
+
+    private void initLocalization()
+    {
+        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
+                                                    .map(DoorType::getDoorClass)
+                                                    .collect(Collectors.toList());
+        val generator = new LocalizationGenerator(getDataDirectory().toPath(), "translations");
+
+        if (localizer == null)
+        {
+            generator.addResources(types);
+            generator.addResources(List.of(getClass()));
+            localizer = new Localizer(getDataDirectory().toPath(), "translations", getConfigLoader().locale());
+        }
+        else
+            generator.addResources(localizer, types);
     }
 
     @Override
@@ -418,8 +433,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         configLoader.restart();
 
         shutdown();
-        playerGUIs.forEach((key, value) -> value.close());
-        playerGUIs.clear();
 
         HandlerList.unregisterAll(rPackHandler);
         rPackHandler = null;
@@ -469,28 +482,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return this;
     }
 
-    public @NotNull Optional<GUI> getGUIUser(final @NotNull Player player)
-    {
-        GUI gui = null;
-        if (playerGUIs.containsKey(player.getUniqueId()))
-            gui = playerGUIs.get(player.getUniqueId());
-        return Optional.ofNullable(gui);
-    }
-
-    public void addGUIUser(final @NotNull GUI gui)
-    {
-        playerGUIs.put(gui.getGuiHolder().getUUID(), gui);
-    }
-
-    public void removeGUIUser(final @NotNull GUI gui)
-    {
-        playerGUIs.remove(gui.getGuiHolder().getUUID());
-    }
-
     public void onPlayerLogout(final @NotNull Player player)
     {
         getDelayedCommandInputManager().cancelAll(SpigotAdapter.wrapPlayer(player));
-        playerGUIs.remove(player.getUniqueId());
         toolUserManager.abortToolUser(player.getUniqueId());
     }
 

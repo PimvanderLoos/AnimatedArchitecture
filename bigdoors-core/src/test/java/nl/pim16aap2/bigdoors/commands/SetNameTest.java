@@ -41,20 +41,13 @@ class SetNameTest
 
     @Test
     @SneakyThrows
-    void testInput()
-    {
-        Assertions.assertFalse(SetName.run(commandSender, "1").get(1, TimeUnit.SECONDS));
-        Assertions.assertTrue(SetName.run(commandSender, "newDoor").get(1, TimeUnit.SECONDS));
-    }
-
-    @Test
-    @SneakyThrows
     void testExecution()
     {
         val uuid = UUID.randomUUID();
         val name = "newDoor";
 
         val toolUser = Mockito.mock(Creator.class);
+        Mockito.when(toolUser.handleInput(name)).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 

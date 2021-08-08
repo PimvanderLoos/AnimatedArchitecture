@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,21 +16,21 @@ import java.util.Optional;
  */
 public enum RotateDirection
 {
-    NONE(0, Message.GENERAL_DIRECTION_NONE),
-    CLOCKWISE(1, Message.GENERAL_DIRECTION_CLOCKWISE),
-    COUNTERCLOCKWISE(2, Message.GENERAL_DIRECTION_COUNTERCLOCKWISE),
-    UP(3, Message.GENERAL_DIRECTION_UP),
-    DOWN(4, Message.GENERAL_DIRECTION_DOWN),
-    NORTH(5, Message.GENERAL_DIRECTION_NORTH),
-    EAST(6, Message.GENERAL_DIRECTION_EAST),
-    SOUTH(7, Message.GENERAL_DIRECTION_SOUTH),
-    WEST(8, Message.GENERAL_DIRECTION_WEST);
+    NONE(0, "constants.rotate_direction.none"),
+    CLOCKWISE(1, "constants.rotate_direction.clockwise"),
+    COUNTERCLOCKWISE(2, "constants.rotate_direction.counterclockwise"),
+    UP(3, "constants.rotate_direction.up"),
+    DOWN(4, "constants.rotate_direction.down"),
+    NORTH(5, "constants.rotate_direction.north"),
+    EAST(6, "constants.rotate_direction.east"),
+    SOUTH(7, "constants.rotate_direction.south"),
+    WEST(8, "constants.rotate_direction.west");
 
     /**
      * Map of all indices with their respective {@link RotateDirection} constants as values.
      */
-    private final static @NotNull Map<Integer, RotateDirection> idMap;
-    private final static @NotNull Map<String, RotateDirection> nameMap;
+    private static final @NotNull Map<Integer, RotateDirection> idMap;
+    private static final @NotNull Map<String, RotateDirection> nameMap;
 
     static
     {
@@ -50,13 +49,12 @@ public enum RotateDirection
     private final int val;
 
     @Getter
+    private final @NotNull String localizationKey;
 
-    private final @NotNull Message message;
-
-    RotateDirection(final int val, final @NotNull Message message)
+    RotateDirection(final int val, final @NotNull String localizationKey)
     {
         this.val = val;
-        this.message = message;
+        this.localizationKey = localizationKey;
     }
 
     /**
@@ -91,17 +89,6 @@ public enum RotateDirection
     public static @NotNull Optional<RotateDirection> getRotateDirection(final @NotNull String name)
     {
         return Optional.ofNullable(nameMap.get(name));
-    }
-
-    /**
-     * Gets the {@link Message} associated with a {@link RotateDirection}.
-     *
-     * @param dir The {@link RotateDirection}.
-     * @return The {@link Message} associated with a {@link RotateDirection}.
-     */
-    public static @NotNull Message getMessage(final @NotNull RotateDirection dir)
-    {
-        return dir.message;
     }
 
     /**

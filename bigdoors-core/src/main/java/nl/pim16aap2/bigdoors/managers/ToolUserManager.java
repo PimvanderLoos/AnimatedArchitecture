@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.pair.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -128,8 +127,8 @@ public final class ToolUserManager extends Restartable
             public void run()
             {
                 if (toolUser.isActive())
-                    toolUser.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                             .getString(Message.CREATOR_GENERAL_TIMEOUT));
+                    toolUser.getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                             .getMessage("creator.base.error.timed_out"));
                 toolUser.shutdown();
             }
         };
@@ -172,8 +171,8 @@ public final class ToolUserManager extends Restartable
         if (pair.first != null)
         {
             if (pair.first.isActive())
-                pair.first.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                           .getString(Message.CREATOR_GENERAL_CANCELLED));
+                pair.first.getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                           .getMessage("creator.base.error.creation_cancelled"));
             pair.first.shutdown();
         }
 

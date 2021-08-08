@@ -1,12 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +13,7 @@ import java.util.List;
 
 public class CreatorDrawbridge extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeDrawbridge.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     public CreatorDrawbridge(final @NotNull IPPlayer player, final @Nullable String name)
     {
@@ -32,26 +29,31 @@ public class CreatorDrawbridge extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_DRAWBRIDGE_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_DRAWBRIDGE_STEP2).construct(),
-                             factorySetEnginePos.message(Message.CREATOR_DRAWBRIDGE_STEP3).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.message(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_DRAWBRIDGE_SUCCESS).construct());
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.draw_bridge.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.draw_bridge.step_2").construct(),
+                             factorySetEnginePos.messageKey("creator.draw_bridge.step_3").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.draw_bridge.success").construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_DRAWBRIDGE_STICKLORE,
-                 Message.CREATOR_DRAWBRIDGE_INIT);
+        giveTool("tool_user.base.stick_name", "creator.draw_bridge.stick_lore", "creator.draw_bridge.init");
     }
 
     @Override
     protected @NotNull AbstractDoor constructDoor()
     {
         return new Drawbridge(constructDoorData(), true);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

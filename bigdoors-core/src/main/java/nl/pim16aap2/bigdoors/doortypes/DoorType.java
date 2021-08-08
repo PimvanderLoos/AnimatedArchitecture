@@ -54,7 +54,7 @@ public abstract class DoorType
      * @return The value of this type that represents the key in the translation system.
      */
     @Getter
-    protected final String translationName;
+    protected final String localizationKey;
 
     /**
      * The fully-qualified name of this {@link DoorType}.
@@ -84,13 +84,13 @@ public abstract class DoorType
      *                    parameters of the constructor for this type need to be changed.
      */
     protected DoorType(final @NotNull String pluginName, final @NotNull String simpleName, final int typeVersion,
-                       final @NotNull List<RotateDirection> validOpenDirections)
+                       final @NotNull List<RotateDirection> validOpenDirections, @NotNull String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase();
         this.typeVersion = typeVersion;
         this.validOpenDirections = validOpenDirections;
-        translationName = "DOORTYPE_" + simpleName.toUpperCase();
+        this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
 
         DoorSerializer<?> serializer;

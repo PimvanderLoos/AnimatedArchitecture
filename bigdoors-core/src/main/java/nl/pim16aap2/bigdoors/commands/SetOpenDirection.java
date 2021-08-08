@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -8,7 +9,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
@@ -59,9 +59,10 @@ public class SetOpenDirection extends DoorTargetCommand
     {
         if (!door.getDoorType().isValidOpenDirection(rotateDirection))
         {
-            // TODO: Localization
             getCommandSender().sendMessage(
-                rotateDirection.name() + " is not a valid rotation direction for door " + door.getBasicInfo());
+                BigDoors.get().getLocalizer().getMessage("commands.set_open_direction.error.invalid_rotation",
+                                                         rotateDirection.name(), door.getBasicInfo()));
+
             return CompletableFuture.completedFuture(true);
         }
 
@@ -90,8 +91,8 @@ public class SetOpenDirection extends DoorTargetCommand
                                                 delayedInput -> delayedInputExecutor(commandSender,
                                                                                      doorRetriever,
                                                                                      delayedInput),
-                                                SetOpenDirection::inputRequestMessage, RotateDirection.class)
-            .getCommandOutput();
+                                                () -> SetOpenDirection.inputRequestMessage(doorRetriever),
+                                                RotateDirection.class).getCommandOutput();
     }
 
     /**
@@ -138,8 +139,29 @@ public class SetOpenDirection extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NotNull String inputRequestMessage()
+    private static @NotNull String inputRequestMessage(@NotNull DoorRetriever doorRetriever)
     {
-        return BigDoors.get().getPlatform().getMessages().getString(Message.COMMAND_SET_OPEN_DIR_DELAYED_INIT);
+        val localizer = BigDoors.get().getLocalizer();
+        if (!doorRetriever.isAvailable())
+            return localizer.getMessage("commands.set_open_direction.init");
+
+        val sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed_init_header"))
+            .append("\n");
+
+        val futureDoor = doorRetriever.getDoor();
+        if (!futureDoor.isDone())
+            throw new IllegalStateException("Door that should be available is not done!");
+        val optionalDoor = futureDoor.join();
+        if (optionalDoor.isEmpty())
+            throw new IllegalStateException("Door that should be available is not present!");
+
+        val directions = optionalDoor.get().getDoorType().getValidOpenDirections();
+        for (int idx = 0; idx < directions.size(); ++idx)
+        {
+            sb.append(localizer.getMessage(directions.get(idx).getLocalizationKey()));
+            if (idx < directions.size() - 1)
+                sb.append(", ");
+        }
+        return sb.toString();
     }
 }

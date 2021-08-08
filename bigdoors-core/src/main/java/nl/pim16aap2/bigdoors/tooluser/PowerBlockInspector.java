@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -41,8 +40,8 @@ public class PowerBlockInspector extends ToolUser
     @Override
     protected void init()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_PBINSPECTOR_STICKLORE,
-                 Message.CREATOR_PBINSPECTOR_INIT);
+        giveTool("tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
+                 "tool_user.powerblock_inspector.init");
     }
 
     protected boolean inspectLoc(final @NotNull IPLocation loc)
@@ -55,7 +54,7 @@ public class PowerBlockInspector extends ToolUser
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
-            .message(Message.CREATOR_PBINSPECTOR_INIT)
+            .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);

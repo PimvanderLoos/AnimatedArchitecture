@@ -4,9 +4,8 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -34,27 +33,29 @@ public class UnitTestUtil
         IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(platform);
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
+        val localizer = initLocalizer();
+        Mockito.when(platform.getLocalizer()).thenReturn(localizer);
         return platform;
     }
 
-    public static @NotNull Messages initMessages()
+    public static @NotNull Localizer initLocalizer()
     {
-        val messages = Mockito.mock(Messages.class);
-        Mockito.when(messages.getString(Mockito.any()))
-               .thenAnswer(invocation -> invocation.getArgument(0, Message.class).name());
-        Mockito.when(messages.getString(Mockito.any(), Mockito.any()))
+        val localizer = Mockito.mock(Localizer.class);
+        Mockito.when(localizer.getMessage(Mockito.anyString()))
+               .thenAnswer(invocation -> invocation.getArgument(0, String.class));
+        Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))
                .thenAnswer(invocation ->
                            {
-                               String ret = invocation.getArgument(0, Message.class).name();
+                               String ret = invocation.getArgument(0, String.class);
                                if (invocation.getArguments().length == 1)
                                    return ret;
 
                                for (int idx = 1; idx < invocation.getArguments().length; ++idx)
                                    //noinspection StringConcatenationInLoop
-                                   ret += " " + invocation.getArgument(idx, String.class);
+                                   ret += " " + invocation.getArgument(idx, Object.class);
                                return ret;
                            });
-        return messages;
+        return localizer;
     }
 
     public static @NotNull IPWorld getWorld()

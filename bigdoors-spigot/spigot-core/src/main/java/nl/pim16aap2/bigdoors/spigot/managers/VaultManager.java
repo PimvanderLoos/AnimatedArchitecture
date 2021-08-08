@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -81,7 +80,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (spigotPlayer == null)
         {
             BigDoors.get().getPLogger().logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
             return false;
         }
 
@@ -92,13 +91,13 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
-            player.sendMessage(plugin.getMessages().getString(Message.CREATOR_GENERAL_MONEYWITHDRAWN,
-                                                              Double.toString(price)));
+            player.sendMessage(plugin.getLocalizer().getMessage("creator.base.money_withdrawn",
+                                                                Double.toString(price)));
             return true;
         }
 
-        player.sendMessage(plugin.getMessages().getString(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS,
-                                                          Double.toString(price)));
+        player.sendMessage(plugin.getLocalizer().getMessage("creator.base.error.insufficient_funds",
+                                                            Double.toString(price)));
         return false;
     }
 

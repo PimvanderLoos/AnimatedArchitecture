@@ -60,6 +60,16 @@ public abstract class DoorRetriever
     }
 
     /**
+     * Checks if the door that is being retrieved is available.
+     *
+     * @return True if the door is available.
+     */
+    public boolean isAvailable()
+    {
+        return false;
+    }
+
+    /**
      * Gets the door that is referenced by this {@link DoorRetriever} if exactly 1 door matches the description.
      * <p>
      * In case the door is referenced by its name, there may be more than one match (names are not unique). When this
@@ -261,6 +271,12 @@ public abstract class DoorRetriever
             return door.getDoorOwner(player).isPresent() ?
                    getDoor() :
                    CompletableFuture.completedFuture(Optional.empty());
+        }
+
+        @Override
+        public boolean isAvailable()
+        {
+            return super.isAvailable();
         }
     }
 }

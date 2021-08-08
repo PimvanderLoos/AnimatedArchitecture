@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
@@ -29,6 +30,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -46,8 +48,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @ToString.Exclude
     private final @NotNull IPLogger logger;
 
-    private static final List<String> DEFAULTPOWERBLOCK = Collections
-        .unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
+    private static final List<String> DEFAULTPOWERBLOCK = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
 
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
@@ -64,7 +65,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private OptionalInt maxDoorSize = OptionalInt.empty();
     private OptionalInt maxPowerBlockDistance = OptionalInt.empty();
     private String resourcePack = "";
-    private String languageFile = "";
     private OptionalInt maxDoorCount = OptionalInt.empty();
     private OptionalInt maxBlocksToMove = OptionalInt.empty();
     private int cacheTimeout;
@@ -72,6 +72,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private long downloadDelay;
     private boolean enableRedstone;
     private boolean checkForUpdates;
+    private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
     private boolean consoleLogging;
     private boolean debug = false;
@@ -170,8 +171,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] languageFileComment = {
-            "Specify a language file to be used. Note that en_US.txt will get regenerated!"};
         String[] checkForUpdatesComment = {
             "Allow this plugin to check for updates on startup. It will not download new versions!"};
         String[] downloadDelayComment = {
@@ -196,6 +195,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
             "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
+        String[] localeComment = {
+            "Determines which locale to use. Defaults to root."
+        };
         String[] resourcePackComment = {
             "This plugin uses a support resource pack for things suchs as sound.",
             "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
@@ -258,7 +260,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
                                      OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
 
-        languageFile = addNewConfigEntry(config, "languageFile", "en_US", languageFileComment);
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
@@ -275,6 +276,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                               ((idx++ == 0) ? compatibilityHooksComment : null));
             hooksMap.put(compat, isEnabled);
         }
+
+        String localeStr = addNewConfigEntry(config, "locale", "root", localeComment);
+        // "root" isn't actually a valid country that can be used by a Locale.
+        // So we map it to an empty String to ensure we get Locale#ROOT instead.
+        if ("root".equalsIgnoreCase(localeStr))
+            localeStr = "";
+        locale = LocalizationUtil.getLocale(localeStr);
 
         resourcePack = addNewConfigEntry(config, "resourcePack", defResPackUrl1_13, resourcePackComment);
         headCacheTimeout = addNewConfigEntry(config, "headCacheTimeout", 120, headCacheTimeoutComment);
@@ -451,6 +459,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
+    public @NotNull Locale locale()
+    {
+        return locale;
+    }
+
+    @Override
     public @NotNull OptionalInt maxDoorSize()
     {
         return maxDoorSize;
@@ -471,12 +485,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public @NotNull String resourcePack()
     {
         return resourcePack;
-    }
-
-    @Override
-    public @NotNull String languageFile()
-    {
-        return languageFile;
     }
 
     @Override

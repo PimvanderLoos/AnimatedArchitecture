@@ -53,16 +53,6 @@ class NewDoorTest
 
     @Test
     @SneakyThrows
-    void testInput()
-    {
-        Assertions.assertTrue(new NewDoor(commandSender, doorType, null).validInput());
-        Assertions.assertTrue(new NewDoor(commandSender, doorType, "AAA").validInput());
-        Assertions.assertFalse(new NewDoor(commandSender, doorType, "1").validInput());
-        Mockito.verify(commandSender).sendMessage(Mockito.any());
-    }
-
-    @Test
-    @SneakyThrows
     void testExecution()
     {
         val name = "newDoor";

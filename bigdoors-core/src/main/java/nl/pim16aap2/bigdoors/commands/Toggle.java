@@ -103,8 +103,8 @@ public class Toggle extends BaseCommand
         if (doorRetrievers.length > 0)
             return true;
 
-        // TODO: Localization
-        getCommandSender().sendMessage("At least 1 door must be specified!");
+        getCommandSender().sendMessage(BigDoors.get().getLocalizer()
+                                               .getMessage("commands.toggle.error.not_enough_doors"));
         return false;
     }
 
@@ -145,16 +145,16 @@ public class Toggle extends BaseCommand
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("You do not have access to the command for this door!");
+            getCommandSender().sendMessage(BigDoors.get().getLocalizer().getMessage("commands.toggle.error.no_access",
+                                                                                    door.getBasicInfo()));
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
             return;
         }
         if (!canToggle(door))
         {
-            // TODO: Localization
-            getCommandSender().sendMessage("Door can not be toggled because it is not openable/closeable.");
+            getCommandSender().sendMessage(
+                BigDoors.get().getLocalizer().getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
             BigDoors.get().getPLogger()
                     .logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
             return;

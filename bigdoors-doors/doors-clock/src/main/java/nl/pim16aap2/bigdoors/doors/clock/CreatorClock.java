@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -14,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +23,7 @@ import java.util.List;
 
 public class CreatorClock extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeClock.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeClock.get();
 
     protected @Nullable PBlockFace hourArmSide;
 
@@ -59,17 +56,17 @@ public class CreatorClock extends Creator
         throws InstantiationException
     {
         Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
-            .message(Message.CREATOR_CLOCK_SELECTHOURARMSIDE)
+            .messageKey("creator.clock.step_3")
             .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_CLOCK_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_CLOCK_STEP2).construct(),
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.clock.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.clock.step_2").construct(),
                              stepSelectHourArm,
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_CLOCK_SUCCESS).construct());
+                             factorySetPowerBlockPos.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.clock.success").construct());
     }
 
     /**
@@ -157,8 +154,7 @@ public class CreatorClock extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_CLOCK_STICKLORE,
-                 Message.CREATOR_CLOCK_INIT);
+        giveTool("tool_user.base.stick_name", "creator.clock.stick_lore", "creator.clock.init");
     }
 
     /**
@@ -190,5 +186,11 @@ public class CreatorClock extends Creator
         setOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructDoorData(), northSouthAligned, hourArmSide);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

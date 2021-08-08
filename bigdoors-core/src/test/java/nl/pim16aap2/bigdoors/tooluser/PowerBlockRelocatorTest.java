@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import nl.pim16aap2.bigdoors.util.messages.Messages;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +34,6 @@ class PowerBlockRelocatorTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer player;
 
-    private Messages messages;
-
     private IProtectionCompatManager compatManager;
 
     @Mock
@@ -52,10 +48,6 @@ class PowerBlockRelocatorTest
         Mockito.when(door.getWorld()).thenReturn(world);
         Mockito.when(door.getPowerBlock()).thenReturn(currentPowerBlockLoc);
 
-        messages = Mockito.mock(Messages.class);
-        Mockito.when(messages.getString(Mockito.any())).thenReturn("A");
-        Mockito.when(messages.getString(Mockito.any(), Mockito.any())).thenReturn("B");
-
         compatManager = Mockito.mock(IProtectionCompatManager.class);
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
         Mockito.when(compatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
@@ -64,7 +56,6 @@ class PowerBlockRelocatorTest
 
         Mockito.when(platform.getProtectionCompatManager()).thenReturn(compatManager);
         Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
-        Mockito.when(platform.getMessages()).thenReturn(messages);
         Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
     }
 
@@ -73,12 +64,10 @@ class PowerBlockRelocatorTest
     {
         val relocator = new PowerBlockRelocator(player, door);
 
-        Mockito.when(messages.getString(Message.CREATOR_PBRELOCATOR_LOCATIONNOTINSAMEWORLD)).thenReturn("NOTINWORLD!");
-
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player).sendMessage("NOTINWORLD!");
+        Mockito.verify(player).sendMessage("tool_user.powerblock_relocator.error.world_mismatch");
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
     }
@@ -104,13 +93,11 @@ class PowerBlockRelocatorTest
 
         val compat = "TestCompat";
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
-        Mockito.when(messages.getString(Message.ERROR_NOPERMISSIONFORLOCATION, compat)).thenReturn(compat);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
 
         Assertions.assertFalse(relocator.moveToLoc(location));
-        Mockito.verify(player).sendMessage(compat);
     }
 
     @Test

@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,14 +48,13 @@ class CreatorTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
-        Mockito.when(creator.getPlayer()).thenReturn(player);
+        val doorType = Mockito.mock(DoorType.class);
 
-        val messages = initMessages();
+        Mockito.when(creator.getPlayer()).thenReturn(player);
+        Mockito.when(creator.getDoorType()).thenReturn(doorType);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
-
-        Mockito.when(platform.getMessages()).thenReturn(messages);
     }
 
     @Test
@@ -65,7 +63,7 @@ class CreatorTest
         val input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
-        Mockito.verify(player).sendMessage("\"" + input + "\" is an invalid door name! Please try again!");
+        Mockito.verify(player).sendMessage("creator.base.error.invalid_name " + input);
 
         Assertions.assertTrue(creator.completeNamingStep("newDoor"));
         Mockito.verify(creator).giveTool();
@@ -135,8 +133,7 @@ class CreatorTest
                .thenReturn(OptionalInt.of(cuboid.getVolume() - 1));
         // Not allowed, because the selected area is too big.
         Assertions.assertFalse(creator.setSecondPos(loc));
-        Mockito.verify(player).sendMessage(String.format("%s %d %d",
-                                                         Message.CREATOR_GENERAL_AREATOOBIG.name(),
+        Mockito.verify(player).sendMessage(String.format("creator.base.error.area_too_big %d %d",
                                                          cuboid.getVolume(), cuboid.getVolume() - 1));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any()))
@@ -159,19 +156,19 @@ class CreatorTest
         Mockito.doReturn(procedure).when(creator).getProcedure();
 
         Assertions.assertTrue(creator.confirmPrice(false));
-        Mockito.verify(player).sendMessage("CREATOR_GENERAL_CANCELLED");
+        Mockito.verify(player).sendMessage("creator.base.error.creation_cancelled");
 
         Mockito.doReturn(OptionalDouble.empty()).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
 
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS.name() + " 0");
+        Mockito.verify(player).sendMessage("creator.base.error.insufficient_funds 0");
 
         var price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
-        Mockito.verify(player).sendMessage(Message.CREATOR_GENERAL_INSUFFICIENTFUNDS.name() + " " + price);
+        Mockito.verify(player).sendMessage("creator.base.error.insufficient_funds " + price);
 
         Mockito.doReturn(true).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -281,15 +278,14 @@ class CreatorTest
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         Assertions.assertFalse(creator.completeSetPowerBlockStep(insideCuboid));
-        Mockito.verify(player).sendMessage(Message.CREATOR_GENERAL_POWERBLOCKINSIDEDOOR.name());
+        Mockito.verify(player).sendMessage("creator.base.error.powerblock_inside_door");
 
         final double distance = cuboid.getCenter().getDistance(outsideCuboid.getPosition());
         final int lowLimit = (int) (distance - 1);
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit));
 
         Assertions.assertFalse(creator.completeSetPowerBlockStep(outsideCuboid));
-        Mockito.verify(player).sendMessage(String.format("%s %.2f %d",
-                                                         Message.CREATOR_GENERAL_POWERBLOCKTOOFAR.name(),
+        Mockito.verify(player).sendMessage(String.format("creator.base.error.powerblock_too_far %.2f %d",
                                                          distance, lowLimit));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
@@ -320,7 +316,7 @@ class CreatorTest
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         // Point too far away
         Assertions.assertFalse(creator.completeSetEngineStep(getLocation(1, 1, 1, world)));
-        Mockito.verify(player).sendMessage(Message.CREATOR_GENERAL_INVALIDROTATIONPOINT.name());
+        Mockito.verify(player).sendMessage("creator.base.error.invalid_rotation_point");
 
         Assertions.assertTrue(creator.completeSetEngineStep(getLocation(11, 21, 31, world)));
     }
