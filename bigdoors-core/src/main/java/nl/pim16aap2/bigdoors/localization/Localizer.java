@@ -13,6 +13,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -29,6 +31,7 @@ public class Localizer extends Restartable
     private final @NotNull Path directory;
     private final @NotNull String baseName;
     private @Nullable URLClassLoader classLoader = null;
+    private List<Locale> localeList;
 
     /**
      * @param restartableHolder The {@link IRestartableHolder} to register this class with.
@@ -67,6 +70,16 @@ public class Localizer extends Restartable
     }
 
     /**
+     * Gets a list of {@link Locale}s that are currently available.
+     *
+     * @return The list of available locales.
+     */
+    public @NotNull List<Locale> getLocales()
+    {
+        return localeList;
+    }
+
+    /**
      * Retrieves a localized message.
      *
      * @param key    The key of the message.
@@ -97,11 +110,13 @@ public class Localizer extends Restartable
         {
             final URL[] urls = {directory.toUri().toURL()};
             classLoader = new URLClassLoader(urls);
+            localeList = LocalizationUtil.getLocalesInDirectory(directory, baseName);
         }
         catch (Exception e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to initialize localizer!");
             classLoader = null;
+            localeList = Collections.emptyList();
         }
     }
 

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -277,6 +278,37 @@ class LocalizationUtil
             return null;
         val parts = fileName.replace(".properties", "").split("_", 2);
         return parts.length == 1 ? "" : parts[1];
+    }
+
+    /**
+     * Gets the currently-available list of {@link Locale}s as found in the directory.
+     */
+    static @NotNull List<Locale> getLocalesInDirectory(@NotNull Path directory, @NotNull String baseName)
+    {
+        return LocalizationUtil.getLocaleFilesInDirectory(directory, baseName).stream()
+                               .map(localeFile -> getLocale(localeFile.locale()))
+                               .filter(Objects::nonNull).toList();
+    }
+
+    /**
+     * Gets a {@link Locale} from a String representing a locale. E.g. "en_US".
+     * <p>
+     * If the locale string is empty, the default Locale will be returned. See {@link Locale#getDefault()}.
+     *
+     * @param localeStr A String representing a locale.
+     * @return
+     */
+    static @Nullable Locale getLocale(@NotNull String localeStr)
+    {
+        val parts = localeStr.split("_", 3);
+        if (parts[0].isBlank())
+            return Locale.getDefault();
+
+        if (parts.length == 1)
+            return new Locale(parts[0]);
+        if (parts.length == 2)
+            return new Locale(parts[0], parts[1]);
+        return new Locale(parts[0], parts[1], parts[2]);
     }
 
     /**
