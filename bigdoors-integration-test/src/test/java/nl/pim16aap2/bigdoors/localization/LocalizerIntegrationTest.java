@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Locale;
-import java.util.MissingResourceException;
 
 
 class LocalizerIntegrationTest
@@ -81,7 +80,7 @@ class LocalizerIntegrationTest
         // Just ensure that it's loaded properly.
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
         // Ensure that the key doesn't exist (yet!).
-        Assertions.assertThrows(MissingResourceException.class, () -> localizer.getMessage("key3"));
+        Assertions.assertEquals(Localizer.KEY_NOT_FOUND_MESSAGE + "key3", localizer.getMessage("key3"));
 
         localizer.shutdown();
         Assertions.assertEquals(Localizer.KEY_NOT_FOUND_MESSAGE + "key0", localizer.getMessage("key0"));

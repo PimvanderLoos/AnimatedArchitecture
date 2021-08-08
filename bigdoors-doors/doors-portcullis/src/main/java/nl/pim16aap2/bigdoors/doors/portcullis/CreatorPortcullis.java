@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -11,7 +10,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,8 +19,7 @@ import java.util.OptionalInt;
 
 public class CreatorPortcullis extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypePortcullis.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     protected int blocksToMove;
 
@@ -41,18 +38,18 @@ public class CreatorPortcullis extends Creator
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
-            .messageKey(Message.CREATOR_PORTCULLIS_BLOCKSTOMOVE)
+            .messageKey("creator.portcullis.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.messageKey(Message.CREATOR_PORTCULLIS_STEP1).construct(),
-                             factorySetSecondPos.messageKey(Message.CREATOR_PORTCULLIS_STEP2).construct(),
-                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.messageKey(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.portcullis.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.portcullis.step_2").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
                              stepBlocksToMove,
-                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.messageKey(Message.CREATOR_PORTCULLIS_SUCCESS).construct());
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
     }
 
     protected boolean setBlocksToMove(final int blocksToMove)
@@ -64,10 +61,10 @@ public class CreatorPortcullis extends Creator
                                                                .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                            .getString(Message.CREATOR_GENERAL_BLOCKSTOMOVETOOFAR,
-                                                       Integer.toString(blocksToMove),
-                                                       Integer.toString(blocksToMoveLimit.getAsInt())));
+            getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                            .getMessage("creator.base.error.blocks_to_move_too_far",
+                                                        Integer.toString(blocksToMove),
+                                                        Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;
         }
 
@@ -78,8 +75,7 @@ public class CreatorPortcullis extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_PORTCULLIS_STICKLORE,
-                 Message.CREATOR_PORTCULLIS_INIT);
+        giveTool("tool_user.base.stick_name", "creator.portcullis.stick_lore", "creator.portcullis.init");
     }
 
     @Override
@@ -88,5 +84,11 @@ public class CreatorPortcullis extends Creator
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();
         return new Portcullis(constructDoorData(), blocksToMove);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.elevator;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.portcullis.CreatorPortcullis;
@@ -9,7 +8,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +16,7 @@ import java.util.List;
 
 public class CreatorElevator extends CreatorPortcullis
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeElevator.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeElevator.get();
 
     public CreatorElevator(final @NotNull IPPlayer player, final @Nullable String name)
     {
@@ -36,24 +33,24 @@ public class CreatorElevator extends CreatorPortcullis
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
-            .messageKey(Message.CREATOR_ELEVATOR_BLOCKSTOMOVE)
+            .messageKey("creator.elevator.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.messageKey(Message.CREATOR_ELEVATOR_STEP1).construct(),
-                             factorySetSecondPos.messageKey(Message.CREATOR_ELEVATOR_STEP2).construct(),
-                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.messageKey(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.elevator.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.elevator.step_2").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
                              stepBlocksToMove,
-                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.messageKey(Message.CREATOR_ELEVATOR_SUCCESS).construct());
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.elevator.success").construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_ELEVATOR_STICKLORE, Message.CREATOR_ELEVATOR_INIT);
+        giveTool("tool_user.base.stick_name", "creator.elevator.stick_lore", "creator.elevator.init");
     }
 
     @Override
@@ -62,5 +59,11 @@ public class CreatorElevator extends CreatorPortcullis
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();
         return new Elevator(constructDoorData(), blocksToMove);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -14,8 +13,7 @@ import java.util.List;
 
 public class CreatorBigDoor extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeBigDoor.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     public CreatorBigDoor(final @NotNull IPPlayer player, final @Nullable String name)
     {
@@ -31,15 +29,12 @@ public class CreatorBigDoor extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.messageKey("creator.base.give_name")
-                                           .messageVariableRetriever(
-                                               () -> DoorTypeBigDoor.get().getLocalizationKey())
-                                           .construct(),
+        return Arrays.asList(factorySetName.construct(),
                              factorySetFirstPos.messageKey("creator.big_door.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.big_door.step_2").construct(),
                              factorySetEnginePos.messageKey("creator.big_door.step_3").construct(),
-                             factorySetPowerBlockPos.messageKey("creator.base.set_power_block").construct(),
-                             factorySetOpenDir.messageKey("creator.base.set_open_dir").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.big_door.success").construct());
     }
@@ -54,5 +49,11 @@ public class CreatorBigDoor extends Creator
     protected @NotNull AbstractDoor constructDoor()
     {
         return new BigDoor(constructDoorData());
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

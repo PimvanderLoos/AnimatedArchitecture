@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,13 +25,15 @@ import java.util.logging.Level;
  */
 class CreatorFullTest extends CreatorTestsUtil
 {
+    private static DoorType doorType;
+
     @Test
     void runThroughProcess()
     {
         engine = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
 
-        @NotNull val doorType = Mockito.mock(DoorType.class);
+        doorType = Mockito.mock(DoorType.class);
         Mockito.when(doorType.getValidOpenDirections())
                .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
@@ -72,14 +73,14 @@ class CreatorFullTest extends CreatorTestsUtil
         protected @NotNull List<IStep> generateSteps()
             throws InstantiationException
         {
-            return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                                 factorySetFirstPos.messageKey(Message.CREATOR_BIGDOOR_STEP1).construct(),
-                                 factorySetSecondPos.messageKey(Message.CREATOR_BIGDOOR_STEP2).construct(),
-                                 factorySetEnginePos.messageKey(Message.CREATOR_BIGDOOR_STEP3).construct(),
-                                 factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                                 factorySetOpenDir.messageKey(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
-                                 factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                                 factoryCompleteProcess.messageKey(Message.CREATOR_BIGDOOR_SUCCESS).construct());
+            return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
+                                 factorySetFirstPos.messageKey("CREATOR_BIG_DOOR_STEP1").construct(),
+                                 factorySetSecondPos.messageKey("CREATOR_BIG_DOOR_STEP2").construct(),
+                                 factorySetEnginePos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
+                                 factorySetPowerBlockPos.messageKey("CREATOR_BASE_SET_POWER_BLOCK").construct(),
+                                 factorySetOpenDir.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
+                                 factoryConfirmPrice.messageKey("CREATOR_BASE_CONFIRM_PRICE").construct(),
+                                 factoryCompleteProcess.messageKey("CREATOR_BIG_DOOR_SUCCESS").construct());
         }
 
         @Override
@@ -96,7 +97,7 @@ class CreatorFullTest extends CreatorTestsUtil
         @Override
         protected @NotNull DoorType getDoorType()
         {
-            return door.getDoorType();
+            return doorType;
         }
     }
 }

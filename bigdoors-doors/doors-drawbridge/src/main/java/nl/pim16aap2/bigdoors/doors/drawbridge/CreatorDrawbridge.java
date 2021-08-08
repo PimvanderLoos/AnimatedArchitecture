@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -14,8 +13,7 @@ import java.util.List;
 
 public class CreatorDrawbridge extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeDrawbridge.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     public CreatorDrawbridge(final @NotNull IPPlayer player, final @Nullable String name)
     {
@@ -31,15 +29,12 @@ public class CreatorDrawbridge extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.messageKey("creator.base.give_name")
-                                           .messageVariableRetriever(
-                                               () -> DoorTypeDrawbridge.get().getLocalizationKey())
-                                           .construct(),
+        return Arrays.asList(factorySetName.construct(),
                              factorySetFirstPos.messageKey("creator.draw_bridge.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.draw_bridge.step_2").construct(),
                              factorySetEnginePos.messageKey("creator.draw_bridge.step_3").construct(),
-                             factorySetPowerBlockPos.messageKey("creator.base.set_power_block").construct(),
-                             factorySetOpenDir.messageKey("creator.base.set_open_dir").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.draw_bridge.success").construct());
     }
@@ -54,5 +49,11 @@ public class CreatorDrawbridge extends Creator
     protected @NotNull AbstractDoor constructDoor()
     {
         return new Drawbridge(constructDoorData(), true);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

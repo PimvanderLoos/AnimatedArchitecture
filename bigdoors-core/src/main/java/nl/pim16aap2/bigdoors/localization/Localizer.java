@@ -86,7 +86,7 @@ public class Localizer extends Restartable
         }
         catch (MissingResourceException e)
         {
-            return KEY_NOT_FOUND_MESSAGE;
+            return KEY_NOT_FOUND_MESSAGE + key;
         }
     }
 

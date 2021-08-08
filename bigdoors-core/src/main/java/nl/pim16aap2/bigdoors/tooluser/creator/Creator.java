@@ -95,7 +95,6 @@ public abstract class Creator extends ToolUser
      */
     protected boolean isLocked = false;
 
-
     /**
      * Factory for the {@link IStep} that sets the name.
      * <p>
@@ -172,6 +171,9 @@ public abstract class Creator extends ToolUser
     protected Creator(final @NotNull IPPlayer player, final @Nullable String name)
     {
         super(player);
+
+        player.sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.init"));
+
         if (name != null)
             handleInput(name);
         prepareCurrentStep();
@@ -182,7 +184,8 @@ public abstract class Creator extends ToolUser
     {
         factorySetName =
             new Step.Factory("SET_NAME")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep));
+                .stepExecutor(new StepExecutorString(this::completeNamingStep)).messageKey("creator.base.give_name")
+                .messageVariableRetriever(getDoorType()::getLocalizationKey);
 
         factorySetFirstPos =
             new Step.Factory("SET_FIRST_POST")
@@ -198,11 +201,13 @@ public abstract class Creator extends ToolUser
 
         factorySetPowerBlockPos =
             new Step.Factory("SET_POWER_BLOCK_POS")
+                .messageKey("creator.base.set_power_block")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
             new Step.Factory("SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
+                .messageKey("creator.base.set_open_dir")
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =

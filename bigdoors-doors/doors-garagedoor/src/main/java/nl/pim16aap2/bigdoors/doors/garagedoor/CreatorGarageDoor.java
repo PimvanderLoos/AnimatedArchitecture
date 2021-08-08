@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -11,7 +10,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.messages.Message;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +20,7 @@ import java.util.List;
 
 public class CreatorGarageDoor extends Creator
 {
-    @Getter
-    private final @NotNull DoorType doorType = DoorTypeGarageDoor.get();
+    private static final @NotNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.
@@ -53,13 +50,13 @@ public class CreatorGarageDoor extends Creator
     protected @NotNull List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.messageKey(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.messageKey(Message.CREATOR_GARAGEDOOR_STEP1).construct(),
-                             factorySetSecondPos.messageKey(Message.CREATOR_GARAGEDOOR_STEP2).construct(),
-                             factorySetPowerBlockPos.messageKey(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factorySetOpenDir.messageKey(Message.CREATOR_GENERAL_SETOPENDIR).construct(),
-                             factoryConfirmPrice.messageKey(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.messageKey(Message.CREATOR_GARAGEDOOR_SUCCESS).construct());
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.garage_door.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.garage_door.step_2").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factorySetOpenDir.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.garage_door.success").construct());
     }
 
     @Override
@@ -80,8 +77,7 @@ public class CreatorGarageDoor extends Creator
             return super.setSecondPos(loc);
         }
 
-        getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                        .getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
+        getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 
@@ -97,8 +93,7 @@ public class CreatorGarageDoor extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_GARAGEDOOR_STICKLORE,
-                 Message.CREATOR_GARAGEDOOR_INIT);
+        giveTool("tool_user.base.stick_name", "creator.garage_door.stick_lore", "creator.garage_door.init");
     }
 
     @Override
@@ -158,5 +153,11 @@ public class CreatorGarageDoor extends Creator
     {
         setEngine();
         return new GarageDoor(constructDoorData(), northSouthAligned);
+    }
+
+    @Override
+    protected @NotNull DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

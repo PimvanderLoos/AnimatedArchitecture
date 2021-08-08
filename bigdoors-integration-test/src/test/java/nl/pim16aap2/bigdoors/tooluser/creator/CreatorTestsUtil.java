@@ -43,7 +43,8 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.getWorld;
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 public class CreatorTestsUtil
 {
@@ -109,7 +110,6 @@ public class CreatorTestsUtil
         MockitoAnnotations.openMocks(this);
         platform = initPlatform();
         BigDoors.get().setBigDoorsPlatform(platform);
-        val messages = initLocalizer();
 
         Mockito.when(platform.getLimitsManager()).thenReturn(new LimitsManager());
 
@@ -123,7 +123,6 @@ public class CreatorTestsUtil
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
         Mockito.when(platform.getPowerBlockManager()).thenReturn(powerBlockManager);
-        Mockito.when(platform.getMessages()).thenReturn(messages);
         Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
         Mockito.when(platform.getPLocationFactory()).thenReturn(new TestPLocationFactory());
         Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());

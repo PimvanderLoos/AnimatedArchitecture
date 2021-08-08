@@ -48,7 +48,10 @@ class CreatorTest
         platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
+        val doorType = Mockito.mock(DoorType.class);
+
         Mockito.when(creator.getPlayer()).thenReturn(player);
+        Mockito.when(creator.getDoorType()).thenReturn(doorType);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
         Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
