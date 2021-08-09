@@ -4,8 +4,7 @@ import lombok.Setter;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileE
  *
  * @author Pim
  */
-public class Localizer extends Restartable
+public class Localizer implements IRestartable
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
@@ -45,17 +44,14 @@ public class Localizer extends Restartable
     private List<Locale> localeList;
 
     /**
-     * @param restartableHolder The {@link IRestartableHolder} to register this class with.
-     * @param directory         The directory the translation file(s) exist in.
-     * @param baseName          The base name of the localization files. For example, when you have a file
-     *                          "Translations_en_US.properties", the base name would be "Translations".
-     * @param defaultLocale     The default {@link Locale} to use when no locale is specified when requesting a
-     *                          translation. Defaults to {@link Locale#ROOT}.
+     * @param directory     The directory the translation file(s) exist in.
+     * @param baseName      The base name of the localization files. For example, when you have a file
+     *                      "Translations_en_US.properties", the base name would be "Translations".
+     * @param defaultLocale The default {@link Locale} to use when no locale is specified when requesting a translation.
+     *                      Defaults to {@link Locale#ROOT}.
      */
-    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull Path directory, @NotNull String baseName,
-                     @NotNull Locale defaultLocale)
+    public Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
     {
-        super(restartableHolder);
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
@@ -63,25 +59,12 @@ public class Localizer extends Restartable
         init();
     }
 
-    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull Path directory, @NotNull String baseName)
-    {
-        this(restartableHolder, directory, baseName, Locale.ROOT);
-    }
-
     /**
-     * See {@link #Localizer(IRestartableHolder, Path, String, Locale)}.
-     */
-    public Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
-    {
-        this(BigDoors.get(), directory, baseName, defaultLocale);
-    }
-
-    /**
-     * See {@link #Localizer(IRestartableHolder, Path, String, Locale)}.
+     * See {@link #Localizer(Path, String, Locale)}.
      */
     public Localizer(@NotNull Path directory, @NotNull String baseName)
     {
-        this(BigDoors.get(), directory, baseName);
+        this(directory, baseName, Locale.ROOT);
     }
 
     /**

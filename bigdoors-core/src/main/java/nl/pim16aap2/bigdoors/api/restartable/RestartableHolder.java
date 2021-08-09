@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.api.restartable;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -12,7 +12,7 @@ import java.util.Set;
  */
 public class RestartableHolder implements IRestartableHolder
 {
-    protected final @NotNull Set<@NotNull IRestartable> restartables = new HashSet<>();
+    protected final @NotNull Set<@NotNull IRestartable> restartables = new LinkedHashSet<>();
 
     @Override
     public void registerRestartable(final @NotNull IRestartable restartable)

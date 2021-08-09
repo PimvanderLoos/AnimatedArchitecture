@@ -147,7 +147,7 @@ class LocalizationGeneratorIntegrationTest
 
         val dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true, loadJar(jarFile));
         val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
-        localizationGenerator.addResources(dummyClass, null);
+        localizationGenerator.addResourcesFromClass(dummyClass, null);
 
         verifyJarOutput();
     }

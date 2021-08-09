@@ -19,7 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class LocalizationUtil
     /**
      * Ensures that a file exists.
      * <p>
-     * If the file does not already exists, it will be created.
+     * If the file does not already exist, it will be created.
      *
      * @param file The file whose existence to ensure.
      * @throws IOException When the file could not be created.
@@ -121,7 +121,7 @@ public class LocalizationUtil
      */
     static @NotNull Set<String> getKeySet(@NotNull List<String> lines)
     {
-        final Set<String> ret = new HashSet<>(lines.size());
+        final Set<String> ret = new LinkedHashSet<>(lines.size());
         for (val line : lines)
         {
             val key = getKeyFromLine(line);
@@ -139,8 +139,13 @@ public class LocalizationUtil
      */
     static @Nullable String getKeyFromLine(@NotNull String line)
     {
-        val parts = line.split("=", 2);
-        return parts.length == 2 ? parts[0] : null;
+        final char[] chars = new char[line.length()];
+        line.getChars(0, line.length(), chars, 0);
+
+        for (int idx = 0; idx < line.length(); ++idx)
+            if (chars[idx] == '=')
+                return line.substring(0, idx);
+        return null;
     }
 
     /**
@@ -178,7 +183,7 @@ public class LocalizationUtil
      * @param baseName  The base name of the locale files.
      * @return A list of {@link LocaleFile}s found in the directory.
      */
-    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @NotNull String baseName)
+    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @Nullable String baseName)
     {
         try (val stream = Files.list(directory))
         {
@@ -199,7 +204,7 @@ public class LocalizationUtil
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format of
      * "directory/basename[_locale].properties".
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull String baseName, @NotNull List<Path> files)
+    static @NotNull List<LocaleFile> getLocaleFiles(@Nullable String baseName, @NotNull List<Path> files)
     {
         final @NotNull ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
         for (val file : files)
@@ -253,12 +258,18 @@ public class LocalizationUtil
      *                 parent directories.
      * @return The locale as used in the filename.
      */
-    static @Nullable String parseLocaleFile(@NotNull String baseName, @NotNull String fileName)
+    static @Nullable String parseLocaleFile(@Nullable String baseName, @NotNull String fileName)
     {
-        if (!fileName.startsWith(baseName) || !fileName.endsWith(".properties"))
+        if (baseName != null && !fileName.startsWith(baseName))
             return null;
 
-        String locale = fileName.replace(baseName, "").replace(".properties", "");
+        if (!fileName.endsWith(".properties"))
+            return null;
+
+        String locale = fileName.replace(".properties", "");
+        if (baseName != null)
+            locale = locale.replace(baseName, "");
+
         if (locale.length() > 0)
         {
             if (locale.charAt(0) != '_')
@@ -305,8 +316,6 @@ public class LocalizationUtil
 
     /**
      * Ensures a given zip file exists.
-     *
-     * @throws IOException
      */
     static void ensureZipFileExists(@NotNull Path zipFile)
     {
