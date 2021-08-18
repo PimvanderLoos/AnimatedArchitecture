@@ -4,7 +4,6 @@ import lombok.Setter;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,7 +25,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileE
  *
  * @author Pim
  */
-public class Localizer implements IRestartable
+public class Localizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
@@ -50,7 +49,7 @@ public class Localizer implements IRestartable
      * @param defaultLocale The default {@link Locale} to use when no locale is specified when requesting a translation.
      *                      Defaults to {@link Locale#ROOT}.
      */
-    public Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
+    Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
     {
         this.baseName = baseName;
         this.directory = directory;
@@ -62,9 +61,39 @@ public class Localizer implements IRestartable
     /**
      * See {@link #Localizer(Path, String, Locale)}.
      */
-    public Localizer(@NotNull Path directory, @NotNull String baseName)
+    Localizer(@NotNull Path directory, @NotNull String baseName)
     {
         this(directory, baseName, Locale.ROOT);
+    }
+
+    /**
+     * Retrieves a localized message.
+     *
+     * @param key    The key of the message.
+     * @param args   The arguments of the message, if any.
+     * @param locale The {@link Locale} to use.
+     * @return The localized message associated with the provided key.
+     */
+    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
+    {
+        if (classLoader == null)
+        {
+            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
+                                                 "\"! Reason: ClassLoader is null!");
+            return KEY_NOT_FOUND_MESSAGE + key;
+        }
+
+        try
+        {
+            val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
+            return args.length == 0 ? msg : MessageFormat.format(msg, args);
+        }
+        catch (MissingResourceException e)
+        {
+            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
+                                                 "\"! Reason: Key does not exist!");
+            return KEY_NOT_FOUND_MESSAGE + key;
+        }
     }
 
     /**
@@ -93,32 +122,18 @@ public class Localizer implements IRestartable
     }
 
     /**
-     * Retrieves a localized message.
+     * Initializes this localizer.
+     * <p>
+     * Together with {@link #shutdown()}, this method can be used to re-initialize this localizer.
      *
-     * @param key    The key of the message.
-     * @param args   The arguments of the message, if any.
-     * @param locale The {@link Locale} to use.
-     * @return The localized message associated with the provided key.
+     * @throws IllegalStateException When trying to initialize this localizer while the ClassLoader is not closed.
      */
-    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
-    {
-        if (classLoader == null)
-            return KEY_NOT_FOUND_MESSAGE + key;
-
-        try
-        {
-            val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
-            return args.length == 0 ? msg : MessageFormat.format(msg, args);
-        }
-        catch (MissingResourceException e)
-        {
-            return KEY_NOT_FOUND_MESSAGE + key;
-        }
-    }
-
     @Initializer
-    private void init()
+    void init()
     {
+        if (classLoader != null)
+            throw new IllegalStateException("ClassLoader is already initialized!");
+
         val bundlePath = directory.resolve(bundleName);
         ensureZipFileExists(bundlePath);
         try
@@ -151,15 +166,12 @@ public class Localizer implements IRestartable
         return ucl;
     }
 
-    @Override
-    public void restart()
-    {
-        shutdown();
-        init();
-    }
-
-    @Override
-    public void shutdown()
+    /**
+     * Shuts down this localizer by closing the {@link #classLoader}.
+     * <p>
+     * After calling this method, all requests for localized messages will fail until {@link #init()} is called.
+     */
+    void shutdown()
     {
         if (classLoader != null)
         {
@@ -174,5 +186,16 @@ public class Localizer implements IRestartable
                         .logThrowable(e, "Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
+    }
+
+    /**
+     * Re-initializes this Localizer.
+     * <p>
+     * See {@link #shutdown()} and {@link #init()}.
+     */
+    void reInit()
+    {
+        shutdown();
+        init();
     }
 }

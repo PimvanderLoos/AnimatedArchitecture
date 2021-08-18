@@ -30,9 +30,9 @@ public class LocalizationManager extends Restartable implements ILocalizationGen
         this.baseName = baseName;
         this.configLoader = configLoader;
         this.buildID = buildID;
-        this.localizer = new Localizer(baseDir, baseName);
-        this.localizer.setDefaultLocale(configLoader.locale());
-        this.baseGenerator = new LocalizationGenerator(baseDir, baseName);
+        localizer = new Localizer(baseDir, baseName);
+        localizer.setDefaultLocale(configLoader.locale());
+        baseGenerator = new LocalizationGenerator(baseDir, baseName);
     }
 
     /**
@@ -44,18 +44,18 @@ public class LocalizationManager extends Restartable implements ILocalizationGen
         // If the localization system is not patched, shut down the localizer before running the method for the
         // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't need
         // to shut down the localizer just yet, because the localizer doesn't use the base localization files.
-        if (this.patchGenerator == null)
+        if (patchGenerator == null)
             localizer.shutdown();
 
-        method.accept(this.baseGenerator);
+        method.accept(baseGenerator);
 
-        if (this.patchGenerator != null)
+        if (patchGenerator != null)
         {
             localizer.shutdown();
-            method.accept(this.patchGenerator);
+            method.accept(patchGenerator);
         }
 
-        localizer.restart();
+        localizer.init();
     }
 
     @Override
@@ -87,7 +87,7 @@ public class LocalizationManager extends Restartable implements ILocalizationGen
     {
         shutdown();
         // TODO: Implement
-        this.localizer.setDefaultLocale(configLoader.locale());
+        localizer.setDefaultLocale(configLoader.locale());
     }
 
     @Override

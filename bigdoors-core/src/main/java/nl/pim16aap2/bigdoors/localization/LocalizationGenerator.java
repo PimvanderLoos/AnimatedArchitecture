@@ -14,7 +14,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 
@@ -26,8 +25,8 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  *
  * @author Pim
  */
-@SuppressWarnings({"unused", "UnusedReturnValue"})
-public class LocalizationGenerator implements ILocalizationGenerator
+@SuppressWarnings("unused")
+class LocalizationGenerator implements ILocalizationGenerator
 {
     private final @NotNull Path outputDirectory;
 
@@ -41,7 +40,7 @@ public class LocalizationGenerator implements ILocalizationGenerator
      * @param outputDirectory The output directory to write all the combined localizations into.
      * @param outputBaseName  The base name of the properties files in the output directory.
      */
-    public LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
+    LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
     {
         this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
@@ -85,8 +84,7 @@ public class LocalizationGenerator implements ILocalizationGenerator
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
             if (baseName != null)
-                fileNames = fileNames.stream().filter(file -> file.startsWith(baseName))
-                                     .collect(Collectors.toList());
+                fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
             val localeFiles = getLocaleFiles(zipFileSystem, fileNames);
             for (val localeFile : localeFiles)

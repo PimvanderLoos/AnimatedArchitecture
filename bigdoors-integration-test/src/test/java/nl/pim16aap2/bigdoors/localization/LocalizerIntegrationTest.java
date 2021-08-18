@@ -98,7 +98,7 @@ class LocalizerIntegrationTest
         val value3 = "THIS WAS JUST ADDED! DID ANYONE SEE THAT?";
         appendToFile(bundle, BASE_NAME + ".properties", "key3=" + value3);
 
-        localizer.restart();
+        localizer.reInit();
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
         Assertions.assertEquals(value3, localizer.getMessage("key3"));
     }
