@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
@@ -31,7 +32,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Pim
  */
-public class LocalizationUtil
+public final class LocalizationUtil
 {
     private LocalizationUtil()
     {
@@ -51,6 +52,7 @@ public class LocalizationUtil
     {
         if (Files.isRegularFile(file))
             return;
+
         final Path parent = file.getParent();
         if (parent != null)
             Files.createDirectories(parent);
@@ -113,7 +115,21 @@ public class LocalizationUtil
     }
 
     /**
-     * Gets a set containing all the keys in a list of string.
+     * Gets a set containing all the keys in an input stream.
+     *
+     * @param inputStream The input stream to read lines of Strings from. These lines are expected to be of the format
+     *                    "key=value".
+     * @return A set with all the keys used in the input stream.
+     */
+    static Set<String> getKeySet(@NotNull InputStream inputStream)
+    {
+        final Set<String> ret = new LinkedHashSet<>();
+        readFile(inputStream, line -> ret.add(getKeyFromLine(line)));
+        return ret;
+    }
+
+    /**
+     * Gets a set containing all the keys in a list of strings.
      *
      * @param lines The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
@@ -148,14 +164,13 @@ public class LocalizationUtil
     }
 
     /**
-     * Reads all the lines from an {@link InputStream};
+     * Reads all lines from an {@link InputStream} and applies a {@link Consumer} for each line.
      *
-     * @return A list of Strings where every string represents a single line in the provided input stream.
+     * @param inputStream The input stream to read the data from.
+     * @param fun         The function to apply for each line retrieved from the input stream.
      */
-    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
+    static void readFile(@NotNull InputStream inputStream, Consumer<String> fun)
     {
-        final ArrayList<String> tmp = new ArrayList<>();
-
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
@@ -164,15 +179,26 @@ public class LocalizationUtil
                     continue;
                 if (line.charAt(0) == '#')
                     continue;
-                tmp.add(line);
+                fun.accept(line);
             }
         }
         catch (IOException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to read localization file!");
-            return Collections.emptyList();
         }
-        return tmp;
+    }
+
+    /**
+     * Reads all the lines from an {@link InputStream} and stores each line in a list.
+     *
+     * @param inputStream The input stream to read the data from.
+     * @return A list of Strings where every string represents a single line in the provided input stream.
+     */
+    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
+    {
+        final List<String> ret = new ArrayList<>();
+        readFile(inputStream, ret::add);
+        return ret;
     }
 
     /**

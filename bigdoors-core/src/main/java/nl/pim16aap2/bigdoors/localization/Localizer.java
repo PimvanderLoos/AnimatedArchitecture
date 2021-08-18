@@ -25,7 +25,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileE
  *
  * @author Pim
  */
-public class Localizer
+public final class Localizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 

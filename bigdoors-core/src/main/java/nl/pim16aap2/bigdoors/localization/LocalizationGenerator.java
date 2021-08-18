@@ -12,7 +12,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 
@@ -24,8 +26,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  *
  * @author Pim
  */
-@SuppressWarnings("unused")
-class LocalizationGenerator implements ILocalizationGenerator
+final class LocalizationGenerator implements ILocalizationGenerator
 {
     private final Path outputDirectory;
 
@@ -99,6 +100,26 @@ class LocalizationGenerator implements ILocalizationGenerator
     }
 
     /**
+     * Finds the localization keys used in the root locale file in the output file.
+     *
+     * @return The set of localization keys used in the root locale file.
+     */
+    @NotNull Set<String> getOutputRootKeys()
+    {
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
+        {
+            final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(""));
+            ensureFileExists(existingLocaleFile);
+            return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to get keys from base locale file.");
+            return Collections.emptySet();
+        }
+    }
+
+    /**
      * Loads the locale files from the jar file a specific {@link Class} was loaded from.
      * <p>
      * See {@link #addResourcesFromZip(Path, String)}.
@@ -143,8 +164,9 @@ class LocalizationGenerator implements ILocalizationGenerator
      * <p>
      * If the output file does not exist yet, a new file will be created.
      *
-     * @param inputStream The input stream to read the new lines to append to the existing locale file from.
-     * @param locale      The locale of the file to read.
+     * @param outputFileSystem The filesystem of the output file.
+     * @param inputStream      The input stream to read the new lines to append to the existing locale file from.
+     * @param locale           The locale of the file to read.
      * @throws IOException When an I/O error occurred.
      */
     void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull InputStream inputStream,
@@ -178,6 +200,7 @@ class LocalizationGenerator implements ILocalizationGenerator
      * @param locale The locale used to derive the path of the output file.
      * @return The path of the output file.
      */
+    @SuppressWarnings("unused")
     @NotNull Path getOutputLocaleFile(@NotNull String locale)
     {
         return outputDirectory.resolve(getOutputLocaleFileName(locale));

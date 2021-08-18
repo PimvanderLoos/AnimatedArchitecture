@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -59,6 +60,7 @@ class LocalizationGeneratorIntegrationTest
      * <p>
      * {@code package org.example.project; public class LocalizationGeneratorDummyClass { }}
      */
+    @SuppressWarnings("SpellCheckingInspection")
     private static final byte[] LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA = Base64.getDecoder().decode(
         "yv66vgAAADwADQoAAgADBwAEDAAFAAYBABBqYXZhL2xhbmcvT2JqZWN0AQAGPGluaXQ+AQADKClWBwAIAQAzb3JnL2V4" +
             "YW1wbGUvcHJvamVjdC9Mb2NhbGl6YXRpb25HZW5lcmF0b3JEdW1teUNsYXNzAQAEQ29kZQEAD0xpbmVOdW1iZXJU" +
@@ -115,12 +117,6 @@ class LocalizationGeneratorIntegrationTest
         Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
     }
 
-    @NotNull FileSystem createFileSystem(@NotNull Path zipFile)
-        throws URISyntaxException, IOException
-    {
-        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
-    }
-
     @Test
     void testAddResourcesFromJar()
         throws IOException, URISyntaxException
@@ -132,6 +128,32 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
         verifyJarOutput();
+    }
+
+    @Test
+    void testGetRootKeys()
+        throws IOException
+    {
+        final Path outputDirectory = fs.getPath("/output");
+
+        final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+
+        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
+        writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
+        writeEntry(outputStream, BASE_NAME + "nl.properties", INPUT_A_1);
+        writeEntry(outputStream, BASE_NAME + "_en_US.properties", INPUT_B_0);
+        outputStream.close();
+
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(outputDirectory, BASE_NAME);
+
+        final Set<String> rootKeys = localizationGenerator.getOutputRootKeys();
+        Assertions.assertEquals(5, rootKeys.size());
+
+        // The rootKeys should only contain the keys from INPUT_A_0, because that's the root file (without locale).
+        final String[] realKeys = new String[]{"a_key0", "a_key1", "a_key2", "a_key3", "a_key4"};
+        final String[] foundKeys = new String[5];
+        rootKeys.toArray(foundKeys);
+        Assertions.assertArrayEquals(realKeys, foundKeys);
     }
 
     @Test
@@ -150,6 +172,12 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
         verifyJarOutput();
+    }
+
+    @NotNull FileSystem createFileSystem(@NotNull Path zipFile)
+        throws URISyntaxException, IOException
+    {
+        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
     }
 
     /**

@@ -9,9 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
-public class LocalizationManager extends Restartable implements ILocalizationGenerator
+public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
     private final @NotNull Path baseDir;
     private final @NotNull String baseName;
@@ -41,18 +42,22 @@ public class LocalizationManager extends Restartable implements ILocalizationGen
      */
     private synchronized void runForGenerators(@NotNull Consumer<ILocalizationGenerator> method)
     {
+        final Set<String> rootKeys;
         // If the localization system is not patched, shut down the localizer before running the method for the
         // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't need
         // to shut down the localizer just yet, because the localizer doesn't use the base localization files.
         if (patchGenerator == null)
-            localizer.shutdown();
-
-        method.accept(baseGenerator);
-
-        if (patchGenerator != null)
         {
             localizer.shutdown();
+            method.accept(baseGenerator);
+            rootKeys = baseGenerator.getOutputRootKeys();
+        }
+        else
+        {
+            method.accept(baseGenerator);
+            localizer.shutdown();
             method.accept(patchGenerator);
+            rootKeys = patchGenerator.getOutputRootKeys();
         }
 
         localizer.init();
