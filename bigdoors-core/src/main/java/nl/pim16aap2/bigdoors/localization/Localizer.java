@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Setter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -85,7 +85,7 @@ public class Localizer
 
         try
         {
-            val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
+            final String msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
             return args.length == 0 ? msg : MessageFormat.format(msg, args);
         }
         catch (MissingResourceException e)
@@ -134,7 +134,7 @@ public class Localizer
         if (classLoader != null)
             throw new IllegalStateException("ClassLoader is already initialized!");
 
-        val bundlePath = directory.resolve(bundleName);
+        final Path bundlePath = directory.resolve(bundleName);
         ensureZipFileExists(bundlePath);
         try
         {
@@ -153,13 +153,13 @@ public class Localizer
         throws IOException
     {
         final URL[] urls = {bundlePath.toUri().toURL()};
-        val ucl = new URLClassLoader(urls);
+        final URLClassLoader ucl = new URLClassLoader(urls);
         // Get the base file (which we know exists) as stream. This is a hack to ensure
         // that the files accessed by the ResourceBundle are current.
         // When skipping this step, the ResourceBundle will not see any changes
         // made to the files since the last time the UCL was recreated.
         //noinspection EmptyTryBlock
-        try (val ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        try (final InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
         {
             // ignored
         }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
+import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 
 class LocalizationUtilTest
 {
@@ -18,8 +20,8 @@ class LocalizationUtilTest
         final @NotNull String baseName = "Translation";
         final @NotNull List<Path> paths = new ArrayList<>(5);
 
-        val path0 = Paths.get("./" + baseName + ".properties");
-        val path1 = Paths.get("./" + baseName + "_en_US.properties");
+        final Path path0 = Paths.get("./" + baseName + ".properties");
+        final Path path1 = Paths.get("./" + baseName + "_en_US.properties");
 
         paths.add(path0);
         paths.add(path1);
@@ -31,12 +33,11 @@ class LocalizationUtilTest
         // (default file) or by _[locale].
         paths.add(Paths.get("./" + baseName + "nl_NL.txt"));
 
-
-        @NotNull val localeFiles = LocalizationUtil.getLocaleFiles(baseName, paths);
+        final List<LocaleFile> localeFiles = getLocaleFiles(baseName, paths);
         System.out.println(localeFiles);
         Assertions.assertEquals(2, localeFiles.size());
-        Assertions.assertEquals(new LocalizationUtil.LocaleFile(path0, ""), localeFiles.get(0));
-        Assertions.assertEquals(new LocalizationUtil.LocaleFile(path1, "en_US"), localeFiles.get(1));
+        Assertions.assertEquals(new LocaleFile(path0, ""), localeFiles.get(0));
+        Assertions.assertEquals(new LocaleFile(path1, "en_US"), localeFiles.get(1));
     }
 
     @Test
@@ -45,9 +46,9 @@ class LocalizationUtilTest
         final List<String> names = new ArrayList<>(3);
         names.add("translation.properties");
         names.add("translated_en_US.properties");
-        names.add("randomfile.txt");
+        names.add("randomFile.txt");
 
-        val localeFiles = LocalizationUtil.getLocaleFiles(names);
+        final List<LocaleFile> localeFiles = getLocaleFiles(names);
         Assertions.assertEquals(2, localeFiles.size());
         Assertions.assertEquals("", localeFiles.get(0).locale());
         Assertions.assertEquals("translation.properties", localeFiles.get(0).path().toString());
@@ -58,10 +59,10 @@ class LocalizationUtilTest
     @Test
     void testGetKeyFromLine()
     {
-        Assertions.assertEquals("key", LocalizationUtil.getKeyFromLine("key=value"));
-        Assertions.assertEquals("key", LocalizationUtil.getKeyFromLine("key=value=another_value"));
-        Assertions.assertNull(LocalizationUtil.getKeyFromLine("key"));
-        Assertions.assertNull(LocalizationUtil.getKeyFromLine(""));
+        Assertions.assertEquals("key", getKeyFromLine("key=value"));
+        Assertions.assertEquals("key", getKeyFromLine("key=value=another_value"));
+        Assertions.assertNull(getKeyFromLine("key"));
+        Assertions.assertNull(getKeyFromLine(""));
     }
 
     @Test
@@ -74,7 +75,7 @@ class LocalizationUtilTest
         input.add("key2=value2");
         input.add("key3=======");
 
-        val output = LocalizationUtil.getKeySet(input);
+        Set<String> output = getKeySet(input);
         Assertions.assertEquals(3, output.size());
         Assertions.assertTrue(output.contains("key"));
         Assertions.assertTrue(output.contains("key2"));
@@ -117,7 +118,7 @@ class LocalizationUtilTest
         newLines.addAll(lstB);
         newLines.addAll(lstC);
 
-        val appendable = LocalizationUtil.getAppendable(existing, newLines);
+        final List<String> appendable = getAppendable(existing, newLines);
         // Real appendable exists of only list C as all keys from lists B already exist in the "existing" list.
         Assertions.assertEquals(lstC, appendable);
     }
@@ -125,21 +126,20 @@ class LocalizationUtilTest
     @Test
     void testParseLocaleFileWithBaseName()
     {
-        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation", "Translation.properties"));
-        Assertions.assertEquals("en_US",
-                                LocalizationUtil.parseLocaleFile("Translation", "Translation_en_US.properties"));
-        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translations", "Translation.properties"));
-        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation", "Translation.txt"));
-        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation", "Translated.properties"));
+        Assertions.assertEquals("", parseLocaleFile("Translation", "Translation.properties"));
+        Assertions.assertEquals("en_US", parseLocaleFile("Translation", "Translation_en_US.properties"));
+        Assertions.assertNull(parseLocaleFile("Translations", "Translation.properties"));
+        Assertions.assertNull(parseLocaleFile("Translation", "Translation.txt"));
+        Assertions.assertNull(parseLocaleFile("Translation", "Translated.properties"));
     }
 
     @Test
     void testParseLocaleFile()
     {
-        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation.properties"));
-        Assertions.assertEquals("en_US", LocalizationUtil.parseLocaleFile("Translation_en_US.properties"));
-        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translation.properties"));
-        Assertions.assertEquals("", LocalizationUtil.parseLocaleFile("Translated.properties"));
-        Assertions.assertNull(LocalizationUtil.parseLocaleFile("Translation.txt"));
+        Assertions.assertEquals("", parseLocaleFile("Translation.properties"));
+        Assertions.assertEquals("en_US", parseLocaleFile("Translation_en_US.properties"));
+        Assertions.assertEquals("", parseLocaleFile("Translation.properties"));
+        Assertions.assertEquals("", parseLocaleFile("Translated.properties"));
+        Assertions.assertNull(parseLocaleFile("Translation.txt"));
     }
 }

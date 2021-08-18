@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -49,7 +48,7 @@ class LocalizerIntegrationTest
         initPlatform();
         initFileSystem();
 
-        val zipOutputStream = new ZipOutputStream(Files.newOutputStream(bundle));
+        final ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(bundle));
         String baseFileContents = """
                                   key0=value0
                                   key1=value1
@@ -74,9 +73,9 @@ class LocalizerIntegrationTest
     @Test
     void testGetMessage()
     {
-        val localizer = new Localizer(directory, BASE_NAME);
+        final Localizer localizer = new Localizer(directory, BASE_NAME);
         Assertions.assertEquals("waarde0", localizer.getMessage("key0", LOCALE_DUTCH));
-        val input = "A_B_C_D_E";
+        final String input = "A_B_C_D_E";
         Assertions.assertEquals(input, localizer.getMessage("key1", LOCALE_DUTCH, input));
         Assertions.assertEquals("value1", localizer.getMessage("key1", input));
         Assertions.assertEquals("value2", localizer.getMessage("key2", LOCALE_DUTCH, input));
@@ -86,7 +85,7 @@ class LocalizerIntegrationTest
     void testAppendingMessages()
         throws IOException, URISyntaxException
     {
-        val localizer = new Localizer(directory, BASE_NAME);
+        final Localizer localizer = new Localizer(directory, BASE_NAME);
         // Just ensure that it's loaded properly.
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
         // Ensure that the key doesn't exist (yet!).
@@ -95,7 +94,7 @@ class LocalizerIntegrationTest
         localizer.shutdown();
         Assertions.assertEquals(Localizer.KEY_NOT_FOUND_MESSAGE + "key0", localizer.getMessage("key0"));
 
-        val value3 = "THIS WAS JUST ADDED! DID ANYONE SEE THAT?";
+        final String value3 = "THIS WAS JUST ADDED! DID ANYONE SEE THAT?";
         appendToFile(bundle, BASE_NAME + ".properties", "key3=" + value3);
 
         localizer.reInit();
@@ -107,7 +106,7 @@ class LocalizerIntegrationTest
     private void appendToFile(@NotNull Path zipFile, @NotNull String file, @NotNull String toAppend)
         throws URISyntaxException, IOException
     {
-        val bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
+        final FileSystem bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
         Files.write(bundleFileSystem.getPath(file), toAppend.getBytes(), StandardOpenOption.APPEND);
         bundleFileSystem.close();
     }

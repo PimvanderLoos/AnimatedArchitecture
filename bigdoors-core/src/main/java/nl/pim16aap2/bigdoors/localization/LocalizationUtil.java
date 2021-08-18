@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -52,7 +51,7 @@ public class LocalizationUtil
     {
         if (Files.isRegularFile(file))
             return;
-        val parent = file.getParent();
+        final Path parent = file.getParent();
         if (parent != null)
             Files.createDirectories(parent);
         Files.createFile(file);
@@ -71,7 +70,7 @@ public class LocalizationUtil
         if (append.isEmpty())
             return;
 
-        val sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         append.forEach(line -> sb.append(line).append("\n"));
         try
         {
@@ -98,12 +97,12 @@ public class LocalizationUtil
         if (existing.isEmpty())
             return newLines;
 
-        val keys = getKeySet(existing);
-        val merged = new ArrayList<String>(newLines.size());
+        final Set<@Nullable String> keys = getKeySet(existing);
+        final ArrayList<String> merged = new ArrayList<>(newLines.size());
 
-        for (val line : newLines)
+        for (final String line : newLines)
         {
-            val key = getKeyFromLine(line);
+            final @Nullable String key = getKeyFromLine(line);
             if (key == null || keys.contains(key))
                 continue;
             merged.add(line);
@@ -119,12 +118,12 @@ public class LocalizationUtil
      * @param lines The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
      */
-    static @NotNull Set<String> getKeySet(@NotNull List<String> lines)
+    static Set<@Nullable String> getKeySet(@NotNull List<String> lines)
     {
         final Set<String> ret = new LinkedHashSet<>(lines.size());
-        for (val line : lines)
+        for (final String line : lines)
         {
-            val key = getKeyFromLine(line);
+            final @Nullable String key = getKeyFromLine(line);
             if (key != null)
                 ret.add(key);
         }
@@ -157,7 +156,7 @@ public class LocalizationUtil
     {
         final ArrayList<String> tmp = new ArrayList<>();
 
-        try (val bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -185,10 +184,9 @@ public class LocalizationUtil
      */
     static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @Nullable String baseName)
     {
-        try (val stream = Files.list(directory))
+        try (final Stream<Path> stream = Files.list(directory))
         {
-            return getLocaleFiles(baseName,
-                                  stream.filter(file -> !Files.isDirectory(file)).collect(Collectors.toList()));
+            return getLocaleFiles(baseName, stream.filter(file -> !Files.isDirectory(file)).toList());
         }
         catch (IOException e)
         {
@@ -207,9 +205,9 @@ public class LocalizationUtil
     static @NotNull List<LocaleFile> getLocaleFiles(@Nullable String baseName, @NotNull List<Path> files)
     {
         final @NotNull ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
-        for (val file : files)
+        for (final Path file : files)
         {
-            @Nullable val locale = parseLocaleFile(baseName, file.getFileName().toString());
+            final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
                 ret.add(new LocaleFile(file, locale));
         }
@@ -240,9 +238,9 @@ public class LocalizationUtil
     static @NotNull List<LocaleFile> getLocaleFiles(@NotNull FileSystem fileSystem, @NotNull List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
-        for (val resource : resources)
+        for (final String resource : resources)
         {
-            @Nullable val locale = parseLocaleFile(resource);
+            final @Nullable String locale = parseLocaleFile(resource);
             if (locale != null)
                 ret.add(new LocaleFile(fileSystem.getPath(resource), locale));
         }
@@ -293,7 +291,7 @@ public class LocalizationUtil
     {
         if (!fileName.endsWith(".properties"))
             return null;
-        val parts = fileName.replace(".properties", "").split("_", 2);
+        final String[] parts = fileName.replace(".properties", "").split("_", 2);
         return parts.length == 1 ? "" : parts[1];
     }
 
@@ -322,7 +320,7 @@ public class LocalizationUtil
         if (Files.exists(zipFile))
             return;
 
-        val parent = zipFile.getParent();
+        final Path parent = zipFile.getParent();
         if (parent != null)
         {
             try
@@ -339,7 +337,7 @@ public class LocalizationUtil
         // Just opening the ZipOutputStream and then letting it close
         // on its own is enough to create a new zip file.
         //noinspection EmptyTryBlock
-        try (val ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        try (final ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
         {
             // ignored
         }
@@ -357,7 +355,7 @@ public class LocalizationUtil
      */
     static @NotNull List<Locale> getLocalesInZip(@NotNull Path zipFile, @NotNull String baseName)
     {
-        try (val fs = createNewFileSystem(zipFile))
+        try (final FileSystem fs = createNewFileSystem(zipFile))
         {
             return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
                                    .map(localeFile -> getLocale(localeFile.locale())).toList();
@@ -379,7 +377,7 @@ public class LocalizationUtil
      */
     public static @NotNull Locale getLocale(@NotNull String localeStr)
     {
-        val parts = localeStr.split("_", 3);
+        final String[] parts = localeStr.split("_", 3);
         if (parts[0].isBlank())
             return Locale.ROOT;
 

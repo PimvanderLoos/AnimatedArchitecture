@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,8 +38,8 @@ class LocalizationUtilIntegrationTest
     void testGetLocalesInDirectory()
         throws IOException
     {
-        val zipFile = fs.getPath("./test.jar");
-        val base = "translation";
+        final Path zipFile = fs.getPath("./test.jar");
+        final String base = "translation";
         addFilesToZip(zipFile,
                       base + ".properties",
                       base + "_en_us.properties",
@@ -47,7 +47,7 @@ class LocalizationUtilIntegrationTest
                       base + "_nl.properties",
                       base + "_nl_NL.properties");
 
-        val locales = LocalizationUtil.getLocalesInZip(zipFile, base);
+        final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base);
         Assertions.assertEquals(5, locales.size());
         Assertions.assertTrue(locales.contains(Locale.ROOT));
         Assertions.assertTrue(locales.contains(Locale.US));
@@ -59,10 +59,10 @@ class LocalizationUtilIntegrationTest
     private void addFilesToZip(@NotNull Path zipFile, @NotNull String... names)
         throws IOException
     {
-        val outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
-        for (val name : names)
+        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
+        for (final String name : names)
         {
-            val data = "".getBytes();
+            final byte[] data = "".getBytes();
             outputStream.putNextEntry(new ZipEntry(name));
             outputStream.write(data, 0, data.length);
             outputStream.closeEntry();

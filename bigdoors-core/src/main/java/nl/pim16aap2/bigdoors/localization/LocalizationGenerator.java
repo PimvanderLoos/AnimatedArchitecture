@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +27,13 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 @SuppressWarnings("unused")
 class LocalizationGenerator implements ILocalizationGenerator
 {
-    private final @NotNull Path outputDirectory;
+    private final Path outputDirectory;
 
     /**
      * The output .bundle (zip) that holds all the localization files.
      */
-    private final @NotNull Path outputFile;
-    private final @NotNull String outputBaseName;
+    private final Path outputFile;
+    private final String outputBaseName;
 
     /**
      * @param outputDirectory The output directory to write all the combined localizations into.
@@ -64,10 +63,10 @@ class LocalizationGenerator implements ILocalizationGenerator
 
     void addResourcesFromDirectory(@NotNull Path directory, @Nullable String baseName)
     {
-        try (val outputFileSystem = getOutputFileFileSystem())
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            val localeFiles = getLocaleFilesInDirectory(directory, baseName);
-            for (val localeFile : localeFiles)
+            final List<LocaleFile> localeFiles = getLocaleFilesInDirectory(directory, baseName);
+            for (final LocaleFile localeFile : localeFiles)
                 mergeWithExistingLocaleFile(outputFileSystem, localeFile);
         }
         catch (Exception e)
@@ -79,17 +78,19 @@ class LocalizationGenerator implements ILocalizationGenerator
 
     void addResourcesFromZip(@NotNull Path jarFile, @Nullable String baseName)
     {
-        try (val zipFileSystem = FileSystems.newFileSystem(jarFile);
-             val outputFileSystem = getOutputFileFileSystem())
+        try (final FileSystem zipFileSystem = FileSystems.newFileSystem(jarFile);
+             final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
             if (baseName != null)
                 fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
-            val localeFiles = getLocaleFiles(zipFileSystem, fileNames);
-            for (val localeFile : localeFiles)
-                mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()),
-                                            localeFile.locale());
+            final List<LocaleFile> localeFiles = getLocaleFiles(zipFileSystem, fileNames);
+            for (final LocaleFile localeFile : localeFiles)
+                try (final InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
+                {
+                    mergeWithExistingLocaleFile(outputFileSystem, localeFileInputStream, localeFile.locale());
+                }
         }
         catch (IOException | URISyntaxException e)
         {
@@ -118,7 +119,7 @@ class LocalizationGenerator implements ILocalizationGenerator
     @Override
     public void addResourcesFromClass(@NotNull List<Class<?>> classes)
     {
-        for (val clz : classes)
+        for (final Class<?> clz : classes)
             addResourcesFromClass(clz, null);
     }
 
@@ -150,12 +151,12 @@ class LocalizationGenerator implements ILocalizationGenerator
                                      @NotNull String locale)
         throws IOException
     {
-        val existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(locale));
+        final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(locale));
         ensureFileExists(existingLocaleFile);
         ensureFileExists(outputFile);
-        val existing = readFile(Files.newInputStream(existingLocaleFile));
-        val newlines = readFile(inputStream);
-        val appendable = getAppendable(existing, newlines);
+        final List<String> existing = readFile(Files.newInputStream(existingLocaleFile));
+        final List<String> newlines = readFile(inputStream);
+        final List<String> appendable = getAppendable(existing, newlines);
         appendToFile(existingLocaleFile, appendable);
     }
 

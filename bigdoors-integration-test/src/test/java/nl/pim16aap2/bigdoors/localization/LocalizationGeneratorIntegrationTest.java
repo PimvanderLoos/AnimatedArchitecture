@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
@@ -32,26 +31,26 @@ import java.util.zip.ZipOutputStream;
 
 class LocalizationGeneratorIntegrationTest
 {
-    private static final @NotNull String BASE_NAME = "Translation";
-    private static final @NotNull String BASE_NAME_A = "Translation-A";
-    private static final @NotNull String BASE_NAME_B = "Translation-B";
+    private static final String BASE_NAME = "Translation";
+    private static final String BASE_NAME_A = "Translation-A";
+    private static final String BASE_NAME_B = "Translation-B";
 
-    private static final @NotNull List<String> INPUT_A_0 =
+    private static final List<String> INPUT_A_0 =
         List.of("a_key0=val0", "a_key1=val1", "a_key2=val2", "a_key3=val3", "a_key4=val4");
 
-    private static final @NotNull List<String> INPUT_A_1 =
+    private static final List<String> INPUT_A_1 =
         List.of("b_key0=val0", "b_key1=val1", "b_key2=val2", "b_key3=val3", "b_key4=val4");
 
-    private static final @NotNull List<String> INPUT_B_0 =
+    private static final List<String> INPUT_B_0 =
         List.of("a_key3=val100", "a_key4=val101", "a_key5=val102", "a_key6=val103", "a_key7=val104");
 
-    private static final @NotNull List<String> OUTPUT_0 = List.of(
+    private static final List<String> OUTPUT_0 = List.of(
         // From INPUT_A_0
         "a_key0=val0", "a_key1=val1", "a_key2=val2", "a_key3=val3", "a_key4=val4",
         // From INPUT_B_0
         "a_key5=val102", "a_key6=val103", "a_key7=val104");
 
-    private static final @NotNull List<String> OUTPUT_1 = List.of(
+    private static final List<String> OUTPUT_1 = List.of(
         // From INPUT_A_1
         "b_key0=val0", "b_key1=val1", "b_key2=val2", "b_key3=val3", "b_key4=val4");
 
@@ -74,7 +73,7 @@ class LocalizationGeneratorIntegrationTest
     void init()
         throws IOException
     {
-        val platform = Mockito.mock(IBigDoorsPlatform.class);
+        final IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(platform);
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
 
@@ -93,24 +92,24 @@ class LocalizationGeneratorIntegrationTest
     void testAddResources()
         throws IOException, URISyntaxException
     {
-        val directoryA = Files.createDirectory(fs.getPath("/input_a"));
-        val directoryB = Files.createDirectory(fs.getPath("/input_b"));
+        final Path directoryA = Files.createDirectory(fs.getPath("/input_a"));
+        final Path directoryB = Files.createDirectory(fs.getPath("/input_b"));
 
-        val inputPathA0 = directoryA.resolve(BASE_NAME_A + ".properties");
-        val inputPathA1 = directoryA.resolve(BASE_NAME_A + "_en_US.properties");
-        val inputPathB0 = directoryB.resolve(BASE_NAME_B + ".properties");
+        final Path inputPathA0 = directoryA.resolve(BASE_NAME_A + ".properties");
+        final Path inputPathA1 = directoryA.resolve(BASE_NAME_A + "_en_US.properties");
+        final Path inputPathB0 = directoryB.resolve(BASE_NAME_B + ".properties");
 
         writeToFile(inputPathA0, INPUT_A_0);
         writeToFile(inputPathA1, INPUT_A_1);
         writeToFile(inputPathB0, INPUT_B_0);
 
-        val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
 
-        val outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        val outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
-        val outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
+        final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+        final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
         Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
         Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
@@ -126,10 +125,10 @@ class LocalizationGeneratorIntegrationTest
     void testAddResourcesFromJar()
         throws IOException, URISyntaxException
     {
-        val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
         createJar(jarFile).close();
 
-        val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
         verifyJarOutput();
@@ -139,14 +138,15 @@ class LocalizationGeneratorIntegrationTest
     void testAddResourcesFromClass()
         throws IOException, ClassNotFoundException, URISyntaxException
     {
-        val jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
-        val outputStream = createJar(jarFile);
+        final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
+        final ZipOutputStream outputStream = createJar(jarFile);
         writeEntry(outputStream, "org/example/project/LocalizationGeneratorDummyClass.class",
                    LOCALIZATION_GENERATOR_DUMMY_CLASS_DATA);
         outputStream.close();
 
-        val dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true, loadJar(jarFile));
-        val localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
+        final Class<?> dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true,
+                                                  loadJar(jarFile));
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
         verifyJarOutput();
@@ -161,9 +161,9 @@ class LocalizationGeneratorIntegrationTest
     private void verifyJarOutput()
         throws IOException, URISyntaxException
     {
-        val outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        val outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
-        val outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
+        final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
+        final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
 
         Assertions.assertTrue(Files.exists(outputFile0));
@@ -171,7 +171,7 @@ class LocalizationGeneratorIntegrationTest
 
         Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
 
-        val outputBase = new ArrayList<>(10);
+        final List<String> outputBase = new ArrayList<>(10);
         outputBase.addAll(INPUT_A_0);
         outputBase.addAll(INPUT_A_1);
         Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
@@ -189,7 +189,7 @@ class LocalizationGeneratorIntegrationTest
     private @NotNull ZipOutputStream createJar(@NotNull Path jarFile)
         throws IOException
     {
-        val outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
+        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
         writeEntry(outputStream, BASE_NAME_A + ".properties", INPUT_A_0);
         writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
         writeEntry(outputStream, BASE_NAME_B + "_en_US.properties", INPUT_B_0);
@@ -237,8 +237,8 @@ class LocalizationGeneratorIntegrationTest
                                    @NotNull List<String> lines)
         throws IOException
     {
-        val sb = new StringBuilder();
-        for (val line : lines)
+        final StringBuilder sb = new StringBuilder();
+        for (final String line : lines)
             sb.append(line).append("\n");
         writeEntry(outputStream, fileName, sb.toString().getBytes());
     }
