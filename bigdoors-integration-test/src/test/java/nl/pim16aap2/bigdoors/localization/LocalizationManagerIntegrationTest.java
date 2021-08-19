@@ -105,7 +105,7 @@ class LocalizationManagerIntegrationTest
         localizationManager.restart();
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
-        Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("remapped"));
+        Assertions.assertEquals("remapped", localizationManager.getLocalizer().getMessage("key3"));
         Assertions.assertEquals("value6", localizationManager.getLocalizer().getMessage("key6"));
     }
 }

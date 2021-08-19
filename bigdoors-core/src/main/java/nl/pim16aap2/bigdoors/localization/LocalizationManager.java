@@ -26,7 +26,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final @NotNull String baseName;
     private final @NotNull IConfigLoader configLoader;
     private final long buildID;
-    private @NotNull Localizer localizer;
+    private final @NotNull Localizer localizer;
     private final @NotNull LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
@@ -93,7 +93,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             if (patchGenerator == null)
             {
                 patchGenerator = new LocalizationGenerator(baseDir, baseName + "_patched");
-                // TODO: Point Localizer to new files.
+                localizer.updateBundleLocation(baseDir, baseName + "_patched");
             }
 
             // Satisfy NullAway, as it doesn't realize that targetGenerator cannot be null here.
@@ -144,7 +144,6 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     public synchronized void shutdown()
     {
         localizer.shutdown();
-        // TODO: Implement
     }
 
     /**

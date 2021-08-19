@@ -66,7 +66,24 @@ final class Localizer implements ILocalizer
         this(directory, baseName, Locale.ROOT);
     }
 
-    @Override public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
+    /**
+     * Updates the location of the localization bundle being used.
+     * <p>
+     * Don't forget to use {@link #reInit()} to apply the changes.
+     *
+     * @param directory The directory the translation file(s) exist in.
+     * @param baseName  The base name of the localization files. For example, when you have a file
+     *                  "Translations_en_US.properties", the base name would be "Translations".
+     */
+    void updateBundleLocation(@NotNull Path directory, @NotNull String baseName)
+    {
+        this.baseName = baseName;
+        this.directory = directory;
+        bundleName = baseName + ".bundle";
+    }
+
+    @Override
+    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
     {
         if (classLoader == null)
         {
