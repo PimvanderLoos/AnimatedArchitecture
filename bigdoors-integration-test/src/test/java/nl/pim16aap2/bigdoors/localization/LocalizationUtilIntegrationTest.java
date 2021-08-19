@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,12 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.addFilesToZip;
+
 
 class LocalizationUtilIntegrationTest
 {
@@ -54,19 +53,5 @@ class LocalizationUtilIntegrationTest
         Assertions.assertTrue(locales.contains(new Locale("en", "US", "some_random_variation")));
         Assertions.assertTrue(locales.contains(new Locale("nl")));
         Assertions.assertTrue(locales.contains(new Locale("nl", "NL")));
-    }
-
-    private void addFilesToZip(@NotNull Path zipFile, @NotNull String... names)
-        throws IOException
-    {
-        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
-        for (final String name : names)
-        {
-            final byte[] data = "".getBytes();
-            outputStream.putNextEntry(new ZipEntry(name));
-            outputStream.write(data, 0, data.length);
-            outputStream.closeEntry();
-        }
-        outputStream.close();
     }
 }

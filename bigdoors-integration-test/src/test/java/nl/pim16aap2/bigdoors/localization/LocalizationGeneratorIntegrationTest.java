@@ -13,13 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,8 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.*;
 
 class LocalizationGeneratorIntegrationTest
 {
@@ -197,17 +193,11 @@ class LocalizationGeneratorIntegrationTest
         outputStream.close();
 
         final Class<?> dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true,
-                                                  loadJar(jarFile));
+                                                  loadJar(jarFile, getClass().getClassLoader()));
         final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
         verifyJarOutput();
-    }
-
-    @NotNull FileSystem createFileSystem(@NotNull Path zipFile)
-        throws URISyntaxException, IOException
-    {
-        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
     }
 
     /**
@@ -251,70 +241,5 @@ class LocalizationGeneratorIntegrationTest
         writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_1);
         writeEntry(outputStream, BASE_NAME_B + "_en_US.properties", INPUT_B_0);
         return outputStream;
-    }
-
-    /**
-     * Creates a new {@link URLClassLoader} and loads a jar with it.
-     *
-     * @param jar The path to the jar to load.
-     * @return A new {@link URLClassLoader}.
-     *
-     * @throws MalformedURLException
-     */
-    private @NotNull URLClassLoader loadJar(@NotNull Path jar)
-        throws MalformedURLException
-    {
-        return new URLClassLoader("URLClassLoader_LocalizationGeneratorIntegrationTest",
-                                  new URL[]{jar.toUri().toURL()}, getClass().getClassLoader());
-    }
-
-    /**
-     * Appends a list of Strings to a file. Each entry in the list will be printed on its own line.
-     *
-     * @param file  The file to append the lines to.
-     * @param lines The lines to write to the file.
-     * @throws IOException
-     */
-    private static void writeToFile(@NotNull Path file, @NotNull List<String> lines)
-        throws IOException
-    {
-        LocalizationUtil.ensureFileExists(file);
-        LocalizationUtil.appendToFile(file, lines);
-    }
-
-    /**
-     * Writes a new entry (file) in a zip file.
-     *
-     * @param outputStream The output stream to write the new entry to.
-     * @param fileName     The name of the entry (file) to write in the zip file.
-     * @param lines        The lines to write to the entry.
-     * @throws IOException
-     */
-    private static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
-                                   @NotNull List<String> lines)
-        throws IOException
-    {
-        final StringBuilder sb = new StringBuilder();
-        for (final String line : lines)
-            sb.append(line).append("\n");
-        writeEntry(outputStream, fileName, sb.toString().getBytes());
-    }
-
-
-    /**
-     * Writes a new entry (file) in a zip file.
-     *
-     * @param outputStream The output stream to write the new entry to.
-     * @param fileName     The name of the entry (file) to write in the zip file.
-     * @param data         The data to write to the entry.
-     * @throws IOException
-     */
-    static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
-                           byte[] data)
-        throws IOException
-    {
-        outputStream.putNextEntry(new ZipEntry(fileName));
-        outputStream.write(data, 0, data.length);
-        outputStream.closeEntry();
     }
 }

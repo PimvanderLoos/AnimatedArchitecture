@@ -9,19 +9,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.Locale;
-import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
-import static nl.pim16aap2.bigdoors.localization.LocalizationGeneratorIntegrationTest.writeEntry;
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.appendToFile;
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.writeEntry;
 
 
 class LocalizerIntegrationTest
@@ -100,14 +97,5 @@ class LocalizerIntegrationTest
         localizer.reInit();
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
         Assertions.assertEquals(value3, localizer.getMessage("key3"));
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void appendToFile(@NotNull Path zipFile, @NotNull String file, @NotNull String toAppend)
-        throws URISyntaxException, IOException
-    {
-        final FileSystem bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
-        Files.write(bundleFileSystem.getPath(file), toAppend.getBytes(), StandardOpenOption.APPEND);
-        bundleFileSystem.close();
     }
 }
