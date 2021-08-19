@@ -16,6 +16,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 class LocalizationPatcherIntegrationTest
 {
@@ -59,5 +60,21 @@ class LocalizationPatcherIntegrationTest
 
         Assertions.assertArrayEquals(new Object[]{"key10", "key11", "key12", "key13", "key1", "key4", "key5"},
                                      LocalizationUtil.getKeySet(file1).toArray());
+    }
+
+    @Test
+    void testGetPatches()
+        throws IOException
+    {
+        final Path file = LocalizationUtil.ensureFileExists(directoryOutput.resolve("patch.properties"));
+        LocalizationUtil.appendToFile(file, List.of("key0=", "key1= ", "key2=aab", "key3=baa"));
+
+        final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
+        final Map<String, String> patches = patcher.getPatches("");
+
+        Assertions.assertNull(patches.get("key0"));
+        Assertions.assertEquals(" ", patches.get("key1"));
+        Assertions.assertEquals("aab", patches.get("key2"));
+        Assertions.assertEquals("baa", patches.get("key3"));
     }
 }

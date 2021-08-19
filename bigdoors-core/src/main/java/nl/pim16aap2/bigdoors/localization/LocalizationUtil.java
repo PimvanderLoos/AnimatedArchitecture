@@ -225,6 +225,28 @@ public final class LocalizationUtil
     }
 
     /**
+     * Reads all the lines from a file and stores each line in a list.
+     *
+     * @param path The path to the file to read the data from.
+     * @return A list of Strings where every string represents a single line in the provided file.
+     */
+    static @NotNull List<String> readFile(@NotNull Path path)
+    {
+        if (!Files.isRegularFile(path))
+            return Collections.emptyList();
+        try (final InputStream inputStream = Files.newInputStream(path))
+        {
+            return readFile(inputStream);
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to read file: " + path);
+            return Collections.emptyList();
+        }
+
+    }
+
+    /**
      * Retrieves all the {@link LocaleFile}s in a directory.
      *
      * @param directory The directory to search in.

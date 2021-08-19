@@ -134,8 +134,6 @@ class LocalizationGeneratorIntegrationTest
     void testGetRootKeys()
         throws IOException
     {
-        final Path outputDirectory = fs.getPath("/output");
-
         final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
 
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
@@ -144,7 +142,7 @@ class LocalizationGeneratorIntegrationTest
         writeEntry(outputStream, BASE_NAME + "_en_US.properties", INPUT_B_0);
         outputStream.close();
 
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(outputDirectory, BASE_NAME);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
 
         final Set<String> rootKeys = localizationGenerator.getOutputRootKeys();
         Assertions.assertEquals(5, rootKeys.size());
@@ -154,6 +152,31 @@ class LocalizationGeneratorIntegrationTest
         final String[] foundKeys = new String[5];
         rootKeys.toArray(foundKeys);
         Assertions.assertArrayEquals(realKeys, foundKeys);
+    }
+
+    @Test
+    void testApplyPatches()
+        throws IOException
+    {
+        final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        final Map<String, String> patches = Map.of("a_key0", "a_key0= ",
+                                                   "a_key10", "a_key10=a_a_a_a");
+
+        final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
+        writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
+        outputStream.close();
+
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
+        localizationGenerator.applyPatches("", patches);
+        localizationGenerator.applyPatches("en_US", patches);
+
+        final List<String> linesBase = LocalizationUtil.readFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        Assertions.assertEquals(List.of("a_key0= ", "a_key1=val1", "a_key2=val2",
+                                        "a_key3=val3", "a_key4=val4", "a_key10=a_a_a_a"), linesBase);
+
+        // The en_US file did not exist in the output bundle, so it should contain only the patches.
+        final List<String> linesEnUS = LocalizationUtil.readFile(directoryOutput.resolve(BASE_NAME + "en_US.bundle"));
+        Assertions.assertEquals(List.of("a_key0= ", "a_key10=a_a_a_a"), linesEnUS);
     }
 
     @Test
