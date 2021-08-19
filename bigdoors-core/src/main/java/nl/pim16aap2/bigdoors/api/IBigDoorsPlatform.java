@@ -12,7 +12,7 @@ import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
-import nl.pim16aap2.bigdoors.localization.Localizer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -291,5 +291,5 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      */
     @NotNull LimitsManager getLimitsManager();
 
-    @NotNull Localizer getLocalizer();
+    @NotNull ILocalizer getLocalizer();
 }

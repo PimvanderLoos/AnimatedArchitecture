@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -12,13 +11,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+/**
+ * Represents a manager for the localization system.
+ *
+ * @author Pim
+ */
 public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
     private final @NotNull Path baseDir;
     private final @NotNull String baseName;
     private final @NotNull IConfigLoader configLoader;
     private final long buildID;
-    @Getter
     private final @NotNull Localizer localizer;
     private final @NotNull LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
@@ -99,5 +102,10 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     public synchronized void shutdown()
     {
         // TODO: Implement
+    }
+
+    public @NotNull ILocalizer getLocalizer()
+    {
+        return localizer;
     }
 }

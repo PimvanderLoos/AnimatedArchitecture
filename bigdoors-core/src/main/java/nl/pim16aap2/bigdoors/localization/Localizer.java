@@ -25,7 +25,7 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileE
  *
  * @author Pim
  */
-public final class Localizer
+final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
@@ -66,15 +66,7 @@ public final class Localizer
         this(directory, baseName, Locale.ROOT);
     }
 
-    /**
-     * Retrieves a localized message.
-     *
-     * @param key    The key of the message.
-     * @param args   The arguments of the message, if any.
-     * @param locale The {@link Locale} to use.
-     * @return The localized message associated with the provided key.
-     */
-    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
+    @Override public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
     {
         if (classLoader == null)
         {
@@ -96,26 +88,12 @@ public final class Localizer
         }
     }
 
-    /**
-     * Retrieves a localized message using {@link #defaultLocale}.
-     *
-     * @param key  The key of the message.
-     * @param args The arguments of the message, if any.
-     * @return The localized message associated with the provided key.
-     *
-     * @throws MissingResourceException When no mapping for the key can be found.
-     */
-    public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
+    @Override public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
     {
         return getMessage(key, defaultLocale, args);
     }
 
-    /**
-     * Gets a list of {@link Locale}s that are currently available.
-     *
-     * @return The list of available locales.
-     */
-    @SuppressWarnings("unused")
+    @Override @SuppressWarnings("unused")
     public @NotNull List<Locale> getAvailableLocales()
     {
         return localeList;

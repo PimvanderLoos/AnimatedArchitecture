@@ -29,8 +29,8 @@ import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
-import nl.pim16aap2.bigdoors.localization.Localizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -192,7 +192,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final @NotNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
     @Getter
-    private Localizer localizer;
+    private ILocalizer localizer;
 
     private LocalizationManager localizationManager;
 
@@ -347,7 +347,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                                                       getConfigLoader(), -1);
         localizationManager.addResourcesFromClass(types);
         localizationManager.addResourcesFromClass(List.of(getClass()));
-        this.localizer = localizationManager.getLocalizer();
+        localizer = localizationManager.getLocalizer();
     }
 
     @Override

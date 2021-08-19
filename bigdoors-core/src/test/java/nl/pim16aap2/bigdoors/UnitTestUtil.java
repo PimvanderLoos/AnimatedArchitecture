@@ -4,7 +4,7 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.localization.Localizer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -38,9 +38,9 @@ public class UnitTestUtil
         return platform;
     }
 
-    public static @NotNull Localizer initLocalizer()
+    public static @NotNull ILocalizer initLocalizer()
     {
-        val localizer = Mockito.mock(Localizer.class);
+        val localizer = Mockito.mock(ILocalizer.class);
         Mockito.when(localizer.getMessage(Mockito.anyString()))
                .thenAnswer(invocation -> invocation.getArgument(0, String.class));
         Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))
