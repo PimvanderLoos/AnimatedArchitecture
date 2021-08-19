@@ -247,13 +247,6 @@ public final class LocalizationUtil
         }
     }
 
-    static @NotNull List<String> readFile(@NotNull Path path)
-    {
-        final List<String> ret = new ArrayList<>();
-        readFile(path, ret::add);
-        return ret;
-    }
-
     /**
      * Retrieves all the {@link LocaleFile}s in a directory.
      *

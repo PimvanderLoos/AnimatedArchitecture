@@ -257,19 +257,4 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()), localeFile.locale());
     }
-
-    /**
-     * Retrieves the path of the output locale file.
-     * <p>
-     * The path is derived from {@link LocaleFile#path()} of the input locale file, {@link #outputDirectory}, and {@link
-     * #outputBaseName}.
-     *
-     * @param locale The locale used to derive the path of the output file.
-     * @return The path of the output file.
-     */
-    @SuppressWarnings("unused")
-    @NotNull Path getOutputLocaleFile(@NotNull String locale)
-    {
-        return outputDirectory.resolve(getOutputLocaleFileName(outputBaseName, locale));
-    }
 }

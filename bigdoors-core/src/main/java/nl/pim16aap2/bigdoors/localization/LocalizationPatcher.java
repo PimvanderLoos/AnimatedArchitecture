@@ -25,21 +25,14 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  */
 final class LocalizationPatcher
 {
-    private final String baseName;
-    private final Path directory;
-    private final Path patchedBundle;
     @Getter
     private final List<LocaleFile> patchFiles;
 
     LocalizationPatcher(@NotNull Path directory, @NotNull String baseName)
         throws IOException
     {
-        this.directory = directory;
-        this.baseName = baseName;
-        patchedBundle = directory.resolve(baseName + "_patched.bundle");
-
         // Ensure the base patch file exists.
-        ensureFileExists(directory.resolve(this.baseName + ".properties"));
+        ensureFileExists(directory.resolve(baseName + ".properties"));
         patchFiles = getLocaleFilesInDirectory(directory, baseName);
     }
 
