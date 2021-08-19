@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -159,8 +160,9 @@ class LocalizationGeneratorIntegrationTest
         throws IOException, URISyntaxException
     {
         final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
-        final Map<String, String> patches = Map.of("a_key0", "a_key0= ",
-                                                   "a_key10", "a_key10=a_a_a_a");
+        final Map<String, String> patches = new LinkedHashMap<>(2);
+        patches.put("a_key0", "a_key0= ");
+        patches.put("a_key10", "a_key10=a_a_a_a");
 
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));
         writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
@@ -220,7 +222,7 @@ class LocalizationGeneratorIntegrationTest
         final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
         final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
         final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
-        
+
         Assertions.assertTrue(Files.exists(outputFile0));
         Assertions.assertTrue(Files.exists(outputFile1));
 
