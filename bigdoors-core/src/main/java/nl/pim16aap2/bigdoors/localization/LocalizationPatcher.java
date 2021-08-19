@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,13 +27,20 @@ final class LocalizationPatcher
 {
     private final String baseName;
     private final Path directory;
+    private final Path patchedBundle;
+    @Getter
+    private final List<LocaleFile> patchFiles;
 
     LocalizationPatcher(@NotNull Path directory, @NotNull String baseName)
         throws IOException
     {
         this.directory = directory;
         this.baseName = baseName;
+        patchedBundle = directory.resolve(baseName + "_patched.bundle");
+
+        // Ensure the base patch file exists.
         ensureFileExists(directory.resolve(this.baseName + ".properties"));
+        patchFiles = getLocaleFilesInDirectory(directory, baseName);
     }
 
     /**
@@ -41,13 +49,10 @@ final class LocalizationPatcher
      * Any root keys not already present in the patch file(s) will be appended to the file without a value.
      *
      * @param rootKeys The localization keys in the root locale file.
-     * @return The list of patch files that were found.
      */
-    @NotNull List<LocaleFile> updatePatchKeys(@NotNull Collection<String> rootKeys)
+    void updatePatchKeys(@NotNull Collection<String> rootKeys)
     {
-        final List<LocaleFile> patchFiles = getLocaleFilesInDirectory(directory, baseName);
         patchFiles.forEach(patchFile -> updatePatchKeys(rootKeys, patchFile));
-        return patchFiles;
     }
 
     /**

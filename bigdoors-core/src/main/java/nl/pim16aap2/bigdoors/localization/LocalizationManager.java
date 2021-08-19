@@ -25,19 +25,17 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final @NotNull Path baseDir;
     private final @NotNull String baseName;
     private final @NotNull IConfigLoader configLoader;
-    private final long buildID;
     private final @NotNull Localizer localizer;
     private final @NotNull LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
     public LocalizationManager(@NotNull IRestartableHolder restartableHolder, @NotNull Path baseDir,
-                               @NotNull String baseName, @NotNull IConfigLoader configLoader, long buildID)
+                               @NotNull String baseName, @NotNull IConfigLoader configLoader)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
         this.baseName = baseName;
         this.configLoader = configLoader;
-        this.buildID = buildID;
         localizer = new Localizer(baseDir, baseName);
         localizer.setDefaultLocale(configLoader.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName);
@@ -81,8 +79,9 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         {
             final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
             final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
-            final List<LocaleFile> patchFiles = localizationPatcher.updatePatchKeys(rootKeys);
+            localizationPatcher.updatePatchKeys(rootKeys);
 
+            final List<LocaleFile> patchFiles = localizationPatcher.getPatchFiles();
             final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
             patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
 

@@ -63,7 +63,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, -1);
+                                    baseName, configLoader);
 
         localizationManager.restart();
 
@@ -91,8 +91,7 @@ class LocalizationManagerIntegrationTest
         outputStream.close();
 
         final LocalizationManager localizationManager =
-            new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput,
-                                    baseName, configLoader, -1);
+            new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput, baseName, configLoader);
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("key3"));
