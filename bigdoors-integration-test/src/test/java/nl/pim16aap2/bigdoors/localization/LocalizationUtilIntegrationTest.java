@@ -2,8 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import lombok.val;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +9,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
+
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.addFilesToZip;
+
 
 class LocalizationUtilIntegrationTest
 {
@@ -36,28 +37,21 @@ class LocalizationUtilIntegrationTest
     void testGetLocalesInDirectory()
         throws IOException
     {
-        val dir = fs.getPath(".");
-        val base = "translation";
-        createFiles(dir,
-                    base + ".properties",
-                    base + "_en_us.properties",
-                    base + "_en_us_some_random_variation.properties",
-                    base + "_nl.properties",
-                    base + "_nl_NL.properties");
+        final Path zipFile = fs.getPath("./test.jar");
+        final String base = "translation";
+        addFilesToZip(zipFile,
+                      base + ".properties",
+                      base + "_en_us.properties",
+                      base + "_en_us_some_random_variation.properties",
+                      base + "_nl.properties",
+                      base + "_nl_NL.properties");
 
-        val locales = LocalizationUtil.getLocalesInDirectory(dir, base);
+        final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base);
         Assertions.assertEquals(5, locales.size());
-        Assertions.assertEquals(Locale.ROOT, locales.get(0));
-        Assertions.assertEquals(Locale.US, locales.get(1));
-        Assertions.assertEquals(new Locale("en", "US", "some_random_variation"), locales.get(2));
-        Assertions.assertEquals(new Locale("nl"), locales.get(3));
-        Assertions.assertEquals(new Locale("nl", "NL"), locales.get(4));
-    }
-
-    private void createFiles(@NotNull Path dir, @NotNull String... names)
-        throws IOException
-    {
-        for (val name : names)
-            Files.createFile(dir.resolve(name));
+        Assertions.assertTrue(locales.contains(Locale.ROOT));
+        Assertions.assertTrue(locales.contains(Locale.US));
+        Assertions.assertTrue(locales.contains(new Locale("en", "US", "some_random_variation")));
+        Assertions.assertTrue(locales.contains(new Locale("nl")));
+        Assertions.assertTrue(locales.contains(new Locale("nl", "NL")));
     }
 }

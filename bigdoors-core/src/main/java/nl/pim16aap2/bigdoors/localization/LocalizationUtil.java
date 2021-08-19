@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,25 +8,32 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Represents a utility class with methods that can be used for the localization system.
  *
  * @author Pim
  */
-public class LocalizationUtil
+public final class LocalizationUtil
 {
     private LocalizationUtil()
     {
@@ -37,18 +43,23 @@ public class LocalizationUtil
     /**
      * Ensures that a file exists.
      * <p>
-     * If the file does not already exists, it will be created.
+     * If the file does not already exist, it will be created.
      *
      * @param file The file whose existence to ensure.
+     * @return The path to the file.
+     *
      * @throws IOException When the file could not be created.
      */
-    static void ensureFileExists(@NotNull Path file)
+    static Path ensureFileExists(@NotNull Path file)
         throws IOException
     {
         if (Files.isRegularFile(file))
-            return;
-        Files.createDirectories(file.getParent());
-        Files.createFile(file);
+            return file;
+
+        final Path parent = file.getParent();
+        if (parent != null)
+            Files.createDirectories(parent);
+        return Files.createFile(file);
     }
 
     /**
@@ -64,7 +75,7 @@ public class LocalizationUtil
         if (append.isEmpty())
             return;
 
-        val sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         append.forEach(line -> sb.append(line).append("\n"));
         try
         {
@@ -91,12 +102,12 @@ public class LocalizationUtil
         if (existing.isEmpty())
             return newLines;
 
-        val keys = getKeySet(existing);
-        val merged = new ArrayList<String>(newLines.size());
+        final Set<@Nullable String> keys = getKeySet(existing);
+        final ArrayList<String> merged = new ArrayList<>(newLines.size());
 
-        for (val line : newLines)
+        for (final String line : newLines)
         {
-            val key = getKeyFromLine(line);
+            final @Nullable String key = getKeyFromLine(line);
             if (key == null || keys.contains(key))
                 continue;
             merged.add(line);
@@ -107,17 +118,52 @@ public class LocalizationUtil
     }
 
     /**
-     * Gets a set containing all the keys in a list of string.
+     * Gets a set containing all the keys in an input stream.
+     *
+     * @param inputStream The input stream to read lines of Strings from. These lines are expected to be of the format
+     *                    "key=value".
+     * @return A set with all the keys used in the input stream.
+     */
+    static Set<String> getKeySet(@NotNull InputStream inputStream)
+    {
+        final Set<String> ret = new LinkedHashSet<>();
+        readFile(inputStream, line -> ret.add(getKeyFromLine(line)));
+        return ret;
+    }
+
+    /**
+     * Gets a set containing all the keys in a file.
+     *
+     * @param path The path to a file.
+     * @return A set with all the keys used in the file.
+     */
+    static Set<String> getKeySet(@NotNull Path path)
+    {
+        if (!Files.isRegularFile(path))
+            return Collections.emptySet();
+        try (final InputStream inputStream = Files.newInputStream(path))
+        {
+            return getKeySet(inputStream);
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to get keys from file: " + path);
+            return Collections.emptySet();
+        }
+    }
+
+    /**
+     * Gets a set containing all the keys in a list of strings.
      *
      * @param lines The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
      */
-    static @NotNull Set<String> getKeySet(@NotNull List<String> lines)
+    static Set<String> getKeySet(@NotNull List<String> lines)
     {
-        final Set<String> ret = new HashSet<>(lines.size());
-        for (val line : lines)
+        final Set<String> ret = new LinkedHashSet<>(lines.size());
+        for (final String line : lines)
         {
-            val key = getKeyFromLine(line);
+            final @Nullable String key = getKeyFromLine(line);
             if (key != null)
                 ret.add(key);
         }
@@ -132,20 +178,24 @@ public class LocalizationUtil
      */
     static @Nullable String getKeyFromLine(@NotNull String line)
     {
-        val parts = line.split("=", 2);
-        return parts.length == 2 ? parts[0] : null;
+        final char[] chars = new char[line.length()];
+        line.getChars(0, line.length(), chars, 0);
+
+        for (int idx = 0; idx < line.length(); ++idx)
+            if (chars[idx] == '=')
+                return line.substring(0, idx);
+        return null;
     }
 
     /**
-     * Reads all the lines from an {@link InputStream};
+     * Reads all lines from an {@link InputStream} and applies a {@link Consumer} for each line.
      *
-     * @return A list of Strings where every string represents a single line in the provided input stream.
+     * @param inputStream The input stream to read the data from.
+     * @param fun         The function to apply for each line retrieved from the input stream.
      */
-    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
+    static void readFile(@NotNull InputStream inputStream, @NotNull Consumer<String> fun)
     {
-        final ArrayList<String> tmp = new ArrayList<>();
-
-        try (val bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
+        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -153,15 +203,48 @@ public class LocalizationUtil
                     continue;
                 if (line.charAt(0) == '#')
                     continue;
-                tmp.add(line);
+                fun.accept(line);
             }
         }
         catch (IOException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to read localization file!");
-            return Collections.emptyList();
         }
-        return tmp;
+    }
+
+    /**
+     * Reads all the lines from an {@link InputStream} and stores each line in a list.
+     *
+     * @param inputStream The input stream to read the data from.
+     * @return A list of Strings where every string represents a single line in the provided input stream.
+     */
+    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
+    {
+        final List<String> ret = new ArrayList<>();
+        readFile(inputStream, ret::add);
+        return ret;
+    }
+
+    /**
+     * Reads all the lines from a file and stores each line in a list.
+     *
+     * @param path The path to the file to read the data from.
+     * @param fun  The function to apply for each line retrieved from the input stream.
+     * @return A list of Strings where every string represents a single line in the provided file.
+     */
+    static void readFile(@NotNull Path path, @NotNull Consumer<String> fun)
+    {
+        if (!Files.isRegularFile(path))
+            return;
+
+        try (final InputStream inputStream = Files.newInputStream(path))
+        {
+            readFile(inputStream, fun);
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to read file: " + path);
+        }
     }
 
     /**
@@ -171,12 +254,11 @@ public class LocalizationUtil
      * @param baseName  The base name of the locale files.
      * @return A list of {@link LocaleFile}s found in the directory.
      */
-    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @NotNull String baseName)
+    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @Nullable String baseName)
     {
-        try (val stream = Files.list(directory))
+        try (final Stream<Path> stream = Files.list(directory))
         {
-            return getLocaleFiles(baseName,
-                                  stream.filter(file -> !Files.isDirectory(file)).collect(Collectors.toList()));
+            return getLocaleFiles(baseName, stream.filter(file -> !Files.isDirectory(file)).toList());
         }
         catch (IOException e)
         {
@@ -192,12 +274,12 @@ public class LocalizationUtil
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format of
      * "directory/basename[_locale].properties".
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull String baseName, @NotNull List<Path> files)
+    static @NotNull List<LocaleFile> getLocaleFiles(@Nullable String baseName, @NotNull List<Path> files)
     {
         final @NotNull ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
-        for (val file : files)
+        for (final Path file : files)
         {
-            @Nullable val locale = parseLocaleFile(baseName, file.getFileName().toString());
+            final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
                 ret.add(new LocaleFile(file, locale));
         }
@@ -228,9 +310,9 @@ public class LocalizationUtil
     static @NotNull List<LocaleFile> getLocaleFiles(@NotNull FileSystem fileSystem, @NotNull List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
-        for (val resource : resources)
+        for (final String resource : resources)
         {
-            @Nullable val locale = parseLocaleFile(resource);
+            final @Nullable String locale = parseLocaleFile(resource);
             if (locale != null)
                 ret.add(new LocaleFile(fileSystem.getPath(resource), locale));
         }
@@ -246,12 +328,18 @@ public class LocalizationUtil
      *                 parent directories.
      * @return The locale as used in the filename.
      */
-    static @Nullable String parseLocaleFile(@NotNull String baseName, @NotNull String fileName)
+    static @Nullable String parseLocaleFile(@Nullable String baseName, @NotNull String fileName)
     {
-        if (!fileName.startsWith(baseName) || !fileName.endsWith(".properties"))
+        if (baseName != null && !fileName.startsWith(baseName))
             return null;
 
-        String locale = fileName.replace(baseName, "").replace(".properties", "");
+        if (!fileName.endsWith(".properties"))
+            return null;
+
+        String locale = fileName.replace(".properties", "");
+        if (baseName != null)
+            locale = locale.replace(baseName, "");
+
         if (locale.length() > 0)
         {
             if (locale.charAt(0) != '_')
@@ -275,17 +363,91 @@ public class LocalizationUtil
     {
         if (!fileName.endsWith(".properties"))
             return null;
-        val parts = fileName.replace(".properties", "").split("_", 2);
+        final String[] parts = fileName.replace(".properties", "").split("_", 2);
         return parts.length == 1 ? "" : parts[1];
     }
 
     /**
-     * Gets the currently-available list of {@link Locale}s as found in the directory.
+     * Creates a new {@link FileSystem} for a zip file.
+     * <p>
+     * Don't forget to close it when you're done!
+     *
+     * @param zipFile The zip file for which to create a new FileSystem.
+     * @return The newly created FileSystem.
+     *
+     * @throws IOException                      If an I/O error occurs creating the file system.
+     * @throws FileSystemAlreadyExistsException When a FileSystem already exists for the provided file.
      */
-    static @NotNull List<Locale> getLocalesInDirectory(@NotNull Path directory, @NotNull String baseName)
+    static @NotNull FileSystem createNewFileSystem(@NotNull Path zipFile)
+        throws IOException, URISyntaxException, ProviderNotFoundException
     {
-        return LocalizationUtil.getLocaleFilesInDirectory(directory, baseName).stream()
-                               .map(localeFile -> getLocale(localeFile.locale())).toList();
+        return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
+    }
+
+    /**
+     * Retrieves the filename of the output locale file for a specific locale.
+     *
+     * @param locale The locale for which to find the output filename.
+     * @return The filename of the output locale file for the provided locale.
+     */
+    static @NotNull String getOutputLocaleFileName(@NotNull String outputBaseName, @NotNull String locale)
+    {
+        return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
+    }
+
+    /**
+     * Ensures a given zip file exists.
+     */
+    static void ensureZipFileExists(@NotNull Path zipFile)
+    {
+        if (Files.exists(zipFile))
+            return;
+
+        final Path parent = zipFile.getParent();
+        if (parent != null)
+        {
+            try
+            {
+                Files.createDirectories(parent);
+            }
+            catch (IOException e)
+            {
+                BigDoors.get().getPLogger().logThrowable(e, "Failed to create directories: " + parent);
+                return;
+            }
+        }
+
+        // Just opening the ZipOutputStream and then letting it close
+        // on its own is enough to create a new zip file.
+        //noinspection EmptyTryBlock
+        try (final ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        {
+            // ignored
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to create file: " + zipFile);
+        }
+    }
+
+    /**
+     * Gets the currently-available list of {@link Locale}s as found in the provided zip-file.
+     *
+     * @param zipFile  The zip file in which to look for localization files.
+     * @param baseName The base name of the localization files.
+     */
+    static @NotNull List<Locale> getLocalesInZip(@NotNull Path zipFile, @NotNull String baseName)
+    {
+        try (final FileSystem fs = createNewFileSystem(zipFile))
+        {
+            return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
+                                   .map(localeFile -> getLocale(localeFile.locale())).toList();
+        }
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to find locales in file: " + zipFile);
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -298,7 +460,7 @@ public class LocalizationUtil
      */
     public static @NotNull Locale getLocale(@NotNull String localeStr)
     {
-        val parts = localeStr.split("_", 3);
+        final String[] parts = localeStr.split("_", 3);
         if (parts[0].isBlank())
             return Locale.ROOT;
 
@@ -308,12 +470,4 @@ public class LocalizationUtil
             return new Locale(parts[0], parts[1]);
         return new Locale(parts[0], parts[1], parts[2]);
     }
-
-    /**
-     * Represents a translation file for a specific {@link Locale}.
-     *
-     * @param path   The path of the file.
-     * @param locale The {@link Locale} this file represents.
-     */
-    record LocaleFile(@NotNull Path path, @NotNull String locale) {}
 }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
@@ -30,8 +29,8 @@ import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
-import nl.pim16aap2.bigdoors.localization.LocalizationGenerator;
-import nl.pim16aap2.bigdoors.localization.Localizer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -86,7 +85,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -112,7 +111,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private boolean validVersion = false;
     private final @NotNull IPExecutor pExecutor;
-    private final Set<IRestartable> restartables = new HashSet<>();
+    private final Set<IRestartable> restartables = new LinkedHashSet<>();
 
     @Getter
     private ProtectionCompatManagerSpigot protectionCompatManager;
@@ -193,7 +192,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final @NotNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
     @Getter
-    private Localizer localizer;
+    private ILocalizer localizer;
+
+    private LocalizationManager localizationManager;
 
     public BigDoorsSpigot()
     {
@@ -336,19 +337,17 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private void initLocalization()
     {
+        if (localizationManager != null)
+            return;
+
         final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
                                                     .map(DoorType::getDoorClass)
                                                     .collect(Collectors.toList());
-        val generator = new LocalizationGenerator(getDataDirectory().toPath(), "translations");
-
-        if (localizer == null)
-        {
-            generator.addResources(types);
-            generator.addResources(List.of(getClass()));
-            localizer = new Localizer(getDataDirectory().toPath(), "translations", getConfigLoader().locale());
-        }
-        else
-            generator.addResources(localizer, types);
+        localizationManager = new LocalizationManager(this, getDataDirectory().toPath().resolve(""), "translations",
+                                                      getConfigLoader());
+        localizationManager.addResourcesFromClass(types);
+        localizationManager.addResourcesFromClass(List.of(getClass()));
+        localizer = localizationManager.getLocalizer();
     }
 
     @Override

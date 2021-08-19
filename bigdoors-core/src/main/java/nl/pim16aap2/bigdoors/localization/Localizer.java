@@ -1,15 +1,13 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Setter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -20,17 +18,20 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileExists;
+
 /**
  * Represents a class that can be used to localize Strings.
  *
  * @author Pim
  */
-public class Localizer extends Restartable
+final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
-    private final @NotNull Path directory;
-    private final @NotNull String baseName;
+    private @NotNull Path directory;
+    private @NotNull String baseName;
+    private @NotNull String bundleName;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
@@ -42,100 +43,99 @@ public class Localizer extends Restartable
     private List<Locale> localeList;
 
     /**
-     * @param restartableHolder The {@link IRestartableHolder} to register this class with.
-     * @param directory         The directory the translation file(s) exist in.
-     * @param baseName          The base name of the localization files. For example, when you have a file
-     *                          "Translations_en_US.properties", the base name would be "Translations".
-     * @param defaultLocale     The default {@link Locale} to use when no locale is specified when requesting a
-     *                          translation. Defaults to {@link Locale#ROOT}.
+     * @param directory     The directory the translation file(s) exist in.
+     * @param baseName      The base name of the localization files. For example, when you have a file
+     *                      "Translations_en_US.properties", the base name would be "Translations".
+     * @param defaultLocale The default {@link Locale} to use when no locale is specified when requesting a translation.
+     *                      Defaults to {@link Locale#ROOT}.
      */
-    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull Path directory, @NotNull String baseName,
-                     @NotNull Locale defaultLocale)
+    Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
     {
-        super(restartableHolder);
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
+        bundleName = baseName + ".bundle";
         init();
     }
 
-    public Localizer(@NotNull IRestartableHolder restartableHolder, @NotNull Path directory, @NotNull String baseName)
-    {
-        this(restartableHolder, directory, baseName, Locale.ROOT);
-    }
-
     /**
-     * See {@link #Localizer(IRestartableHolder, Path, String, Locale)}.
+     * See {@link #Localizer(Path, String, Locale)}.
      */
-    public Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
+    Localizer(@NotNull Path directory, @NotNull String baseName)
     {
-        this(BigDoors.get(), directory, baseName, defaultLocale);
+        this(directory, baseName, Locale.ROOT);
     }
 
     /**
-     * See {@link #Localizer(IRestartableHolder, Path, String, Locale)}.
-     */
-    public Localizer(@NotNull Path directory, @NotNull String baseName)
-    {
-        this(BigDoors.get(), directory, baseName);
-    }
-
-    /**
-     * Retrieves a localized message using {@link #defaultLocale}.
+     * Updates the location of the localization bundle being used.
+     * <p>
+     * Don't forget to use {@link #reInit()} to apply the changes.
      *
-     * @param key  The key of the message.
-     * @param args The arguments of the message, if any.
-     * @return The localized message associated with the provided key.
-     *
-     * @throws MissingResourceException When no mapping for the key can be found.
+     * @param directory The directory the translation file(s) exist in.
+     * @param baseName  The base name of the localization files. For example, when you have a file
+     *                  "Translations_en_US.properties", the base name would be "Translations".
      */
+    void updateBundleLocation(@NotNull Path directory, @NotNull String baseName)
+    {
+        this.baseName = baseName;
+        this.directory = directory;
+        bundleName = baseName + ".bundle";
+    }
+
+    @Override
+    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
+    {
+        if (classLoader == null)
+        {
+            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
+                                                 "\"! Reason: ClassLoader is null!");
+            return KEY_NOT_FOUND_MESSAGE + key;
+        }
+
+        try
+        {
+            final String msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
+            return args.length == 0 ? msg : MessageFormat.format(msg, args);
+        }
+        catch (MissingResourceException e)
+        {
+            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
+                                                 "\"! Reason: Key does not exist!");
+            return KEY_NOT_FOUND_MESSAGE + key;
+        }
+    }
+
+    @Override
     public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
     {
         return getMessage(key, defaultLocale, args);
     }
 
-    /**
-     * Gets a list of {@link Locale}s that are currently available.
-     *
-     * @return The list of available locales.
-     */
-    public @NotNull List<Locale> getLocales()
+    @Override @SuppressWarnings("unused")
+    public @NotNull List<Locale> getAvailableLocales()
     {
         return localeList;
     }
 
     /**
-     * Retrieves a localized message.
+     * Initializes this localizer.
+     * <p>
+     * Together with {@link #shutdown()}, this method can be used to re-initialize this localizer.
      *
-     * @param key    The key of the message.
-     * @param args   The arguments of the message, if any.
-     * @param locale The {@link Locale} to use.
-     * @return The localized message associated with the provided key.
+     * @throws IllegalStateException When trying to initialize this localizer while the ClassLoader is not closed.
      */
-    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
-    {
-        if (classLoader == null)
-            return KEY_NOT_FOUND_MESSAGE + key;
-
-        try
-        {
-            val msg = ResourceBundle.getBundle(baseName, locale, classLoader).getString(key);
-            return args.length == 0 ? msg : MessageFormat.format(msg, args);
-        }
-        catch (MissingResourceException e)
-        {
-            return KEY_NOT_FOUND_MESSAGE + key;
-        }
-    }
-
     @Initializer
-    private void init()
+    void init()
     {
+        if (classLoader != null)
+            throw new IllegalStateException("ClassLoader is already initialized!");
+
+        final Path bundlePath = directory.resolve(bundleName);
+        ensureZipFileExists(bundlePath);
         try
         {
-            final URL[] urls = {directory.toUri().toURL()};
-            classLoader = new URLClassLoader(urls);
-            localeList = LocalizationUtil.getLocalesInDirectory(directory, baseName);
+            classLoader = getNewURLClassLoader(bundlePath, baseName);
+            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName);
         }
         catch (Exception e)
         {
@@ -145,15 +145,29 @@ public class Localizer extends Restartable
         }
     }
 
-    @Override
-    public void restart()
+    private static @NotNull URLClassLoader getNewURLClassLoader(@NotNull Path bundlePath, @NotNull String baseName)
+        throws IOException
     {
-        shutdown();
-        init();
+        final URL[] urls = {bundlePath.toUri().toURL()};
+        final URLClassLoader ucl = new URLClassLoader(urls);
+        // Get the base file (which we know exists) as stream. This is a hack to ensure
+        // that the files accessed by the ResourceBundle are current.
+        // When skipping this step, the ResourceBundle will not see any changes
+        // made to the files since the last time the UCL was recreated.
+        //noinspection EmptyTryBlock
+        try (final InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        {
+            // ignored
+        }
+        return ucl;
     }
 
-    @Override
-    public void shutdown()
+    /**
+     * Shuts down this localizer by closing the {@link #classLoader}.
+     * <p>
+     * After calling this method, all requests for localized messages will fail until {@link #init()} is called.
+     */
+    void shutdown()
     {
         if (classLoader != null)
         {
@@ -168,5 +182,16 @@ public class Localizer extends Restartable
                         .logThrowable(e, "Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
+    }
+
+    /**
+     * Re-initializes this Localizer.
+     * <p>
+     * See {@link #shutdown()} and {@link #init()}.
+     */
+    void reInit()
+    {
+        shutdown();
+        init();
     }
 }

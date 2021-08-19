@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
-import nl.pim16aap2.bigdoors.localization.Localizer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
@@ -85,7 +85,7 @@ class SetBlocksToMoveTest
     void testDelayedInput()
     {
         final int blocksToMove = 42;
-        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(Localizer.class));
+        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
 
         val first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
         val second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);

@@ -1,20 +1,23 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import com.google.errorprone.annotations.concurrent.GuardedBy;
-import lombok.val;
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
 
 import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 
@@ -26,176 +29,99 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  *
  * @author Pim
  */
-@SuppressWarnings("unused")
-public class LocalizationGenerator
+final class LocalizationGenerator implements ILocalizationGenerator
 {
-    private final @NotNull Object lck = new Object();
+    private final Path outputDirectory;
 
-    private final @NotNull Path outputDirectory;
-    private final @NotNull String outputBaseName;
+    /**
+     * The output .bundle (zip) that holds all the localization files.
+     */
+    @Getter
+    private final Path outputFile;
+    private final String outputBaseName;
 
     /**
      * @param outputDirectory The output directory to write all the combined localizations into.
      * @param outputBaseName  The base name of the properties files in the output directory.
      */
-    public LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
+    LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
     {
         this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
+        outputFile = this.outputDirectory.resolve(this.outputBaseName + ".bundle");
+        ensureZipFileExists(outputFile);
     }
 
-    /**
-     * Executes a {@link Runnable} and ensures that 1) the execution is synchronized and 2) the provided {@link
-     * Localizer} is restarted appropriately to ensure files aren't locked and updates are propagated.
-     *
-     * @param localizer The localizer to restart.
-     * @param runnable  The runnable to execute.
-     * @return The current {@link LocalizationGenerator} instance.
-     */
-    @Contract("_, _ -> this")
-    private LocalizationGenerator runWithLocalizer(@NotNull Localizer localizer, @NotNull Runnable runnable)
+    @Override
+    public void addResources(@NotNull Path path, @Nullable String baseName)
     {
-        synchronized (lck)
+        if (Files.isDirectory(path))
+            addResourcesFromDirectory(path, baseName);
+        else
+            addResourcesFromZip(path, baseName);
+    }
+
+    @Override
+    public void addResources(@NotNull List<Path> paths)
+    {
+        paths.forEach(path -> addResources(path, null));
+    }
+
+    void addResourcesFromDirectory(@NotNull Path directory, @Nullable String baseName)
+    {
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            localizer.shutdown();
-            runnable.run();
-            localizer.restart();
-            return this;
+            final List<LocaleFile> localeFiles = getLocaleFilesInDirectory(directory, baseName);
+            for (final LocaleFile localeFile : localeFiles)
+                mergeWithExistingLocaleFile(outputFileSystem, localeFile);
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to add resources from directory \"" +
+                directory + "\" with base name: \"" + baseName + "\"");
+        }
+    }
+
+    void addResourcesFromZip(@NotNull Path jarFile, @Nullable String baseName)
+    {
+        try (final FileSystem zipFileSystem = createNewFileSystem(jarFile);
+             final FileSystem outputFileSystem = getOutputFileFileSystem())
+        {
+            List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
+            if (baseName != null)
+                fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
+
+            final List<LocaleFile> localeFiles = getLocaleFiles(zipFileSystem, fileNames);
+            for (final LocaleFile localeFile : localeFiles)
+                try (final InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
+                {
+                    mergeWithExistingLocaleFile(outputFileSystem, localeFileInputStream, localeFile.locale());
+                }
+        }
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to read resource from file: " + jarFile);
         }
     }
 
     /**
-     * See {@link #addResources(Path, String)}.
+     * Finds the localization keys used in the root locale file in the output file.
      *
-     * @param localizer The {@link Localizer} to shut down before (re)generating the localization file(s). This ensures
-     *                  the file isn't locked when running on *shudders* Windows.
-     *                  <p>
-     *                  After (re)generation, the localizer will be re-initialized.
-     * @return The current {@link LocalizationGenerator} instance.
+     * @return The set of localization keys used in the root locale file.
      */
-    @Contract("_, _, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull Path directory,
-                                              @NotNull String baseName)
+    @NotNull Set<String> getOutputRootKeys()
     {
-        return runWithLocalizer(localizer, () -> addResources(directory, baseName));
-    }
-
-    /**
-     * Adds a new set of resources to the current localization set.
-     * <p>
-     * Only files of the format "directory/basename[_locale].properties" are included. "[_locale]" is optional here.
-     *
-     * @param directory The directory of the properties files.
-     * @param baseName  The base name of the properties files.
-     * @return The current {@link LocalizationGenerator} instance.
-     */
-    @Contract("_, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Path directory, @NotNull String baseName)
-    {
-        synchronized (lck)
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            try
-            {
-                val localeFiles = getLocaleFilesInDirectory(directory, baseName);
-                for (val localeFile : localeFiles)
-                    mergeWithExistingLocaleFile(localeFile);
-            }
-            catch (Exception e)
-            {
-                BigDoors.get().getPLogger().logThrowable(e, "Failed to add resources from directory \"" +
-                    directory + "\" with base name: \"" + baseName + "\"");
-            }
-            return this;
+            final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, ""));
+            ensureFileExists(existingLocaleFile);
+            return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
-    }
-
-    /**
-     * Adds a new set of resources to the current localization set from a specific zip file (this includes jar files, of
-     * course).
-     * <p>
-     * Only files in the top-level directory of the zip file are considered and of those, only if the have the format
-     * "baseName[_locale].properties". When no specific baseName is provided, the "baseName" part used as example in the
-     * format definition can only contain letters, numbers, and hyphens.
-     * <p>
-     * The existing locale file is derived from {@link LocaleFile#path()} of the input locale file, {@link
-     * #outputDirectory}, and {@link #outputBaseName}.
-     * <p>
-     * If the output file does not exist yet, a new file will be created.
-     *
-     * @param jarFile  The zip file to load the locale files from.
-     * @param baseName The base name of the translation files. When this is null, this property will be ignored and
-     *                 locale files will be appended purely based on their locale.
-     *                 <p>
-     *                 When a baseName is provided, only those files whose names contain only those exact characters or
-     *                 those characters followed by an underscore and the locale are considered. The ".properties" file
-     *                 extension requirement stays either way.
-     * @return The current {@link LocalizationGenerator} instance.
-     */
-    @Contract("_, _ -> this")
-    public LocalizationGenerator addResourcesFromZip(@NotNull Path jarFile, @Nullable String baseName)
-    {
-        synchronized (lck)
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            try (val zipFileSystem = FileSystems.newFileSystem(jarFile))
-            {
-                List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
-                if (baseName != null)
-                    fileNames = fileNames.stream().filter(file -> file.startsWith(baseName))
-                                         .collect(Collectors.toList());
-
-                val localeFiles = getLocaleFiles(zipFileSystem, fileNames);
-                for (val localeFile : localeFiles)
-                    mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
-            }
-            catch (IOException e)
-            {
-                BigDoors.get().getPLogger().logThrowable(e, "Failed to read resource from file: " + jarFile);
-            }
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to get keys from base locale file.");
+            return Collections.emptySet();
         }
-        return this;
-    }
-
-    /**
-     * See {@link #addResourcesFromZip(Path, String)}.
-     *
-     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
-     *                  locked.
-     */
-    @Contract("_, _, _ -> this")
-    public LocalizationGenerator addResourcesFromZip(@NotNull Localizer localizer, @NotNull Path jarFile,
-                                                     @Nullable String baseName)
-    {
-        return runWithLocalizer(localizer, () -> addResourcesFromZip(jarFile, baseName));
-    }
-
-    /**
-     * Adds locale files from multiple zip files.
-     * <p>
-     * This method does not support using base names.
-     * <p>
-     * See {@link #addResourcesFromZip(Path, String)}
-     */
-    @Contract("_ -> this")
-    public LocalizationGenerator addResourcesFromZips(@NotNull List<Path> zipFiles)
-    {
-        synchronized (lck)
-        {
-            for (val zipFile : zipFiles)
-                addResourcesFromZip(zipFile, null);
-            return this;
-        }
-    }
-
-    /**
-     * See {@link #addResourcesFromZips(List)}.
-     *
-     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
-     *                  locked.
-     */
-    @Contract("_, _ -> this")
-    public LocalizationGenerator addResourcesFromZips(@NotNull Localizer localizer, @NotNull List<Path> zipFiles)
-    {
-        return runWithLocalizer(localizer, () -> addResourcesFromZips(zipFiles));
     }
 
     /**
@@ -203,23 +129,10 @@ public class LocalizationGenerator
      * <p>
      * See {@link #addResourcesFromZip(Path, String)}.
      */
-    @Contract("_, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Class<?> clz, @Nullable String baseName)
+    @Override
+    public void addResourcesFromClass(@NotNull Class<?> clz, @Nullable String baseName)
     {
-        return addResourcesFromZip(Util.getJarFile(clz), baseName);
-    }
-
-    /**
-     * See {@link #addResources(Class, String)}.
-     *
-     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
-     *                  locked.
-     */
-    @Contract("_, _, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull Class<?> clz,
-                                              @Nullable String baseName)
-    {
-        return runWithLocalizer(localizer, () -> addResources(clz, baseName));
+        addResourcesFromZip(Util.getJarFile(clz), baseName);
     }
 
     /**
@@ -227,29 +140,87 @@ public class LocalizationGenerator
      * <p>
      * This method does not support using base names.
      * <p>
-     * See {@link #addResources(Class, String)}.
+     * See {@link #addResourcesFromClass(Class, String)}.
      */
-    @Contract("_ -> this")
-    public LocalizationGenerator addResources(@NotNull List<Class<?>> classes)
+    @Override
+    public void addResourcesFromClass(@NotNull List<Class<?>> classes)
     {
-        synchronized (lck)
+        for (final Class<?> clz : classes)
+            addResourcesFromClass(clz, null);
+    }
+
+    /**
+     * Applies a set of patches to the existing output locale file.
+     *
+     * @param localeSuffix The suffix of the locale.
+     * @param patches      The patches to apply to the locale.
+     */
+    void applyPatches(@NotNull String localeSuffix, @NotNull Map<String, String> patches)
+    {
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            for (val clz : classes)
-                addResources(clz, null);
-            return this;
+            final Path existingLocaleFile =
+                ensureFileExists(outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, localeSuffix)));
+
+            final List<String> lines = readFile(Files.newInputStream(existingLocaleFile));
+            mergeWithPatches(lines, patches);
+
+            final StringBuilder sb = new StringBuilder();
+            lines.forEach(line -> sb.append(line).append("\n"));
+            Files.write(existingLocaleFile, sb.toString().getBytes());
+        }
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to open output file!");
         }
     }
 
     /**
-     * See {@link #addResources(List)}.
+     * Merges a list of lines with a set of patches.
+     * <p>
+     * Any existing lines for which a patch exist will be replaced.
+     * <p>
+     * All patches for which no existing line exists will be appended at the end.
      *
-     * @param localizer The localizer to restart to ensure the changes are visible and that the target files aren't
-     *                  locked.
+     * @param lines   The list of lines to merge with the patches. This list is modified in-place.
+     * @param patches The patches to merge into the existing lines.
      */
-    @Contract("_, _ -> this")
-    public LocalizationGenerator addResources(@NotNull Localizer localizer, @NotNull List<Class<?>> classes)
+    static void mergeWithPatches(@NotNull List<String> lines, @NotNull Map<String, String> patches)
     {
-        return runWithLocalizer(localizer, () -> addResources(classes));
+        final Set<String> usedPatches = new HashSet<>(patches.size());
+        for (int idx = 0; idx < lines.size(); ++idx)
+        {
+            final @Nullable String key = getKeyFromLine(lines.get(idx));
+            if (key == null)
+                continue;
+            final @Nullable String newLine = patches.get(key);
+            if (newLine == null)
+                continue;
+            lines.set(idx, newLine);
+            usedPatches.add(key);
+        }
+
+        if (usedPatches.size() == patches.size())
+            return;
+
+        for (final Map.Entry<String, String> patch : patches.entrySet())
+        {
+            if (usedPatches.contains(patch.getKey()))
+                continue;
+            lines.add(patch.getValue());
+        }
+    }
+
+    /**
+     * Creates a new {@link FileSystem} for {@link #outputFile}.
+     * <p>
+     * See {@link LocalizationUtil#createNewFileSystem(Path)}.
+     */
+    private @NotNull FileSystem getOutputFileFileSystem()
+        throws IOException, URISyntaxException, ProviderNotFoundException
+    {
+        ensureZipFileExists(outputFile);
+        return createNewFileSystem(outputFile);
     }
 
     /**
@@ -260,44 +231,30 @@ public class LocalizationGenerator
      * <p>
      * If the output file does not exist yet, a new file will be created.
      *
-     * @param inputStream The input stream to read the new lines to append to the existing locale file from.
-     * @param locale      The locale of the file to read.
+     * @param outputFileSystem The filesystem of the output file.
+     * @param inputStream      The input stream to read the new lines to append to the existing locale file from.
+     * @param locale           The locale of the file to read.
      * @throws IOException When an I/O error occurred.
      */
-    @GuardedBy("lck")
-    void mergeWithExistingLocaleFile(@NotNull InputStream inputStream, @NotNull String locale)
+    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull InputStream inputStream,
+                                     @NotNull String locale)
         throws IOException
     {
-        val existingLocaleFile = getOutputLocaleFile(locale);
+        final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, locale));
         ensureFileExists(existingLocaleFile);
-        val existing = readFile(Files.newInputStream(existingLocaleFile));
-        val newlines = readFile(inputStream);
-        val appendable = getAppendable(existing, newlines);
+        ensureFileExists(outputFile);
+        final List<String> existing = readFile(Files.newInputStream(existingLocaleFile));
+        final List<String> newlines = readFile(inputStream);
+        final List<String> appendable = getAppendable(existing, newlines);
         appendToFile(existingLocaleFile, appendable);
     }
 
     /**
-     * See {@link #mergeWithExistingLocaleFile(InputStream, String)}.
+     * See {@link #mergeWithExistingLocaleFile(FileSystem, InputStream, String)}.
      */
-    @GuardedBy("lck")
-    void mergeWithExistingLocaleFile(@NotNull LocaleFile localeFile)
+    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull LocaleFile localeFile)
         throws IOException
     {
-        mergeWithExistingLocaleFile(Files.newInputStream(localeFile.path()), localeFile.locale());
-    }
-
-    /**
-     * Retrieves the path of the output locale file.
-     * <p>
-     * The path is derived from {@link LocaleFile#path()} of the input locale file, {@link #outputDirectory}, and {@link
-     * #outputBaseName}.
-     *
-     * @param locale The locale used to derive the path of the output file.
-     * @return The path of the output file.
-     */
-    @NotNull Path getOutputLocaleFile(@NotNull String locale)
-    {
-        val fileName = String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
-        return outputDirectory.resolve(fileName);
+        mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()), localeFile.locale());
     }
 }
