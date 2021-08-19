@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.localization;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +101,28 @@ final class LocalizationPatcher
      */
     @NotNull Map<String, String> getPatches(@NotNull String localeSuffix)
     {
-        // FIXME: Implement method.
-        throw new UnsupportedOperationException("UNIMPLEMENTED!");
+        final Path localeFile = directory.resolve(getOutputLocaleFileName(baseName, localeSuffix));
+        final Map<String, String> ret = new LinkedHashMap<>();
+        readFile(localeFile, line ->
+        {
+            final @Nullable String key = getKeyFromLine(line);
+            if (isValidPatch(key, line))
+                ret.put(key, line);
+        });
+        return ret;
+    }
+
+    /**
+     * Tests if a line is a valid patch.
+     *
+     * @param key  The key of the line.
+     * @param line The line itself.
+     * @return True if the patch is valid (i.e. not empty).
+     */
+    static boolean isValidPatch(@Nullable String key, @NotNull String line)
+    {
+        if (key == null)
+            return false;
+        return !(key + "=").equals(line);
     }
 }

@@ -192,7 +192,7 @@ public final class LocalizationUtil
      * @param inputStream The input stream to read the data from.
      * @param fun         The function to apply for each line retrieved from the input stream.
      */
-    static void readFile(@NotNull InputStream inputStream, Consumer<String> fun)
+    static void readFile(@NotNull InputStream inputStream, @NotNull Consumer<String> fun)
     {
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
@@ -228,22 +228,29 @@ public final class LocalizationUtil
      * Reads all the lines from a file and stores each line in a list.
      *
      * @param path The path to the file to read the data from.
+     * @param fun  The function to apply for each line retrieved from the input stream.
      * @return A list of Strings where every string represents a single line in the provided file.
      */
-    static @NotNull List<String> readFile(@NotNull Path path)
+    static void readFile(@NotNull Path path, @NotNull Consumer<String> fun)
     {
         if (!Files.isRegularFile(path))
-            return Collections.emptyList();
+            return;
+
         try (final InputStream inputStream = Files.newInputStream(path))
         {
-            return readFile(inputStream);
+            readFile(inputStream, fun);
         }
         catch (IOException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to read file: " + path);
-            return Collections.emptyList();
         }
+    }
 
+    static @NotNull List<String> readFile(@NotNull Path path)
+    {
+        final List<String> ret = new ArrayList<>();
+        readFile(path, ret::add);
+        return ret;
     }
 
     /**
@@ -381,6 +388,17 @@ public final class LocalizationUtil
         throws IOException, URISyntaxException
     {
         return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
+    }
+
+    /**
+     * Retrieves the filename of the output locale file for a specific locale.
+     *
+     * @param locale The locale for which to find the output filename.
+     * @return The filename of the output locale file for the provided locale.
+     */
+    static @NotNull String getOutputLocaleFileName(@NotNull String outputBaseName, @NotNull String locale)
+    {
+        return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
     }
 
     /**

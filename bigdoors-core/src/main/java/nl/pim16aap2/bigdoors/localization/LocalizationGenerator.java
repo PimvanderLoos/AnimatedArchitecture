@@ -109,7 +109,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         try (final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(""));
+            final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, ""));
             ensureFileExists(existingLocaleFile);
             return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
@@ -186,7 +186,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
                                      @NotNull String locale)
         throws IOException
     {
-        final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(locale));
+        final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, locale));
         ensureFileExists(existingLocaleFile);
         ensureFileExists(outputFile);
         final List<String> existing = readFile(Files.newInputStream(existingLocaleFile));
@@ -216,17 +216,6 @@ final class LocalizationGenerator implements ILocalizationGenerator
     @SuppressWarnings("unused")
     @NotNull Path getOutputLocaleFile(@NotNull String locale)
     {
-        return outputDirectory.resolve(getOutputLocaleFileName(locale));
-    }
-
-    /**
-     * Retrieves the filename of the output locale file for a specific locale.
-     *
-     * @param locale The locale for which to find the output filename.
-     * @return The filename of the output locale file for the provided locale.
-     */
-    @NotNull String getOutputLocaleFileName(@NotNull String locale)
-    {
-        return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
+        return outputDirectory.resolve(getOutputLocaleFileName(outputBaseName, locale));
     }
 }

@@ -72,9 +72,7 @@ class LocalizationPatcherIntegrationTest
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
         final Map<String, String> patches = patcher.getPatches("");
 
-        Assertions.assertNull(patches.get("key0"));
-        Assertions.assertEquals(" ", patches.get("key1"));
-        Assertions.assertEquals("aab", patches.get("key2"));
-        Assertions.assertEquals("baa", patches.get("key3"));
+        final String[] patchedLines = patches.values().toArray(new String[0]);
+        Assertions.assertArrayEquals(new String[]{"key1= ", "key2=aab", "key3=baa"}, patchedLines);
     }
 }
