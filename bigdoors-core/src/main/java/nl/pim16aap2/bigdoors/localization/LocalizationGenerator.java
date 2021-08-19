@@ -13,6 +13,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -153,8 +154,58 @@ final class LocalizationGenerator implements ILocalizationGenerator
      */
     void applyPatches(@NotNull String localeSuffix, @NotNull Map<String, String> patches)
     {
-        // FIXME: Implement method.
-        throw new UnsupportedOperationException("UNIMPLEMENTED!");
+        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
+        {
+            final Path existingLocaleFile =
+                ensureFileExists(outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, localeSuffix)));
+
+            final List<String> lines = readFile(Files.newInputStream(existingLocaleFile));
+            mergeWithPatches(lines, patches);
+
+            final StringBuilder sb = new StringBuilder();
+            lines.forEach(line -> sb.append(line).append("\n"));
+            Files.write(existingLocaleFile, sb.toString().getBytes());
+        }
+        catch (IOException | URISyntaxException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to open output file!");
+        }
+    }
+
+    /**
+     * Merges a list of lines with a set of patches.
+     * <p>
+     * Any existing lines for which a patch exist will be replaced.
+     * <p>
+     * All patches for which no existing line exists will be appended at the end.
+     *
+     * @param lines   The list of lines to merge with the patches. This list is modified in-place.
+     * @param patches The patches to merge into the existing lines.
+     */
+    static void mergeWithPatches(@NotNull List<String> lines, @NotNull Map<String, String> patches)
+    {
+        final Set<String> usedPatches = new HashSet<>(patches.size());
+        for (int idx = 0; idx < lines.size(); ++idx)
+        {
+            final @Nullable String key = getKeyFromLine(lines.get(idx));
+            if (key == null)
+                continue;
+            final @Nullable String newLine = patches.get(key);
+            if (newLine == null)
+                continue;
+            lines.set(idx, newLine);
+            usedPatches.add(key);
+        }
+
+        if (usedPatches.size() == patches.size())
+            return;
+
+        for (final Map.Entry<String, String> patch : patches.entrySet())
+        {
+            if (usedPatches.contains(patch.getKey()))
+                continue;
+            lines.add(patch.getValue());
+        }
     }
 
     /**

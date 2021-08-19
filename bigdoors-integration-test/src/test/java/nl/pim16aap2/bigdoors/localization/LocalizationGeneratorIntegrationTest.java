@@ -156,7 +156,7 @@ class LocalizationGeneratorIntegrationTest
 
     @Test
     void testApplyPatches()
-        throws IOException
+        throws IOException, URISyntaxException
     {
         final Path jarFile = Files.createFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
         final Map<String, String> patches = Map.of("a_key0", "a_key0= ",
@@ -170,12 +170,17 @@ class LocalizationGeneratorIntegrationTest
         localizationGenerator.applyPatches("", patches);
         localizationGenerator.applyPatches("en_US", patches);
 
-        final List<String> linesBase = LocalizationUtil.readFile(directoryOutput.resolve(BASE_NAME + ".bundle"));
+        final FileSystem fileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
+
+        final List<String> linesBase =
+            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + ".properties")));
+
         Assertions.assertEquals(List.of("a_key0= ", "a_key1=val1", "a_key2=val2",
                                         "a_key3=val3", "a_key4=val4", "a_key10=a_a_a_a"), linesBase);
 
         // The en_US file did not exist in the output bundle, so it should contain only the patches.
-        final List<String> linesEnUS = LocalizationUtil.readFile(directoryOutput.resolve(BASE_NAME + "en_US.bundle"));
+        final List<String> linesEnUS =
+            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + "_en_US.properties")));
         Assertions.assertEquals(List.of("a_key0= ", "a_key10=a_a_a_a"), linesEnUS);
     }
 
@@ -215,8 +220,7 @@ class LocalizationGeneratorIntegrationTest
         final FileSystem outputFileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
         final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
         final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
-
-
+        
         Assertions.assertTrue(Files.exists(outputFile0));
         Assertions.assertTrue(Files.exists(outputFile1));
 
