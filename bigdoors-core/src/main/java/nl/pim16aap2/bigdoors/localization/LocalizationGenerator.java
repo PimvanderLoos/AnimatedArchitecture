@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
@@ -142,6 +143,18 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         for (final Class<?> clz : classes)
             addResourcesFromClass(clz, null);
+    }
+
+    /**
+     * Applies a set of patches to the existing output locale file.
+     *
+     * @param localeSuffix The suffix of the locale.
+     * @param patches      The patches to apply to the locale.
+     */
+    void applyPatches(@NotNull String localeSuffix, @NotNull Map<String, String> patches)
+    {
+        // FIXME: Implement method.
+        throw new UnsupportedOperationException("UNIMPLEMENTED!");
     }
 
     /**

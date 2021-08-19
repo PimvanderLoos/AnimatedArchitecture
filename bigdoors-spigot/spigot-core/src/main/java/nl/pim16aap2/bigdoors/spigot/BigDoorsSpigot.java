@@ -343,7 +343,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
                                                     .map(DoorType::getDoorClass)
                                                     .collect(Collectors.toList());
-        localizationManager = new LocalizationManager(this, getDataDirectory().toPath(), "translations",
+        localizationManager = new LocalizationManager(this, getDataDirectory().toPath().resolve(""), "translations",
                                                       getConfigLoader(), -1);
         localizationManager.addResourcesFromClass(types);
         localizationManager.addResourcesFromClass(List.of(getClass()));

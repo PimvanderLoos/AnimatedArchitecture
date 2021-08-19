@@ -45,18 +45,20 @@ public final class LocalizationUtil
      * If the file does not already exist, it will be created.
      *
      * @param file The file whose existence to ensure.
+     * @return The path to the file.
+     *
      * @throws IOException When the file could not be created.
      */
-    static void ensureFileExists(@NotNull Path file)
+    static Path ensureFileExists(@NotNull Path file)
         throws IOException
     {
         if (Files.isRegularFile(file))
-            return;
+            return file;
 
         final Path parent = file.getParent();
         if (parent != null)
             Files.createDirectories(parent);
-        Files.createFile(file);
+        return Files.createFile(file);
     }
 
     /**
@@ -129,12 +131,33 @@ public final class LocalizationUtil
     }
 
     /**
+     * Gets a set containing all the keys in a file.
+     *
+     * @param path The path to a file.
+     * @return A set with all the keys used in the file.
+     */
+    static Set<String> getKeySet(@NotNull Path path)
+    {
+        if (!Files.isRegularFile(path))
+            return Collections.emptySet();
+        try (final InputStream inputStream = Files.newInputStream(path))
+        {
+            return getKeySet(inputStream);
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to get keys from file: " + path);
+            return Collections.emptySet();
+        }
+    }
+
+    /**
      * Gets a set containing all the keys in a list of strings.
      *
      * @param lines The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
      */
-    static Set<@Nullable String> getKeySet(@NotNull List<String> lines)
+    static Set<String> getKeySet(@NotNull List<String> lines)
     {
         final Set<String> ret = new LinkedHashSet<>(lines.size());
         for (final String line : lines)

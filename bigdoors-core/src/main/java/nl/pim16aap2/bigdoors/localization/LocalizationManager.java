@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final @NotNull String baseName;
     private final @NotNull IConfigLoader configLoader;
     private final long buildID;
-    private final @NotNull Localizer localizer;
+    private @NotNull Localizer localizer;
     private final @NotNull LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
@@ -63,7 +64,23 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             rootKeys = patchGenerator.getOutputRootKeys();
         }
 
+        try
+        {
+            applyPatches(rootKeys);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
         localizer.init();
+    }
+
+    synchronized void applyPatches(@NotNull Set<String> rootKeys)
+        throws IOException
+    {
+        final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
+        localizationPatcher.updatePatchKeys(rootKeys);
     }
 
     @Override
