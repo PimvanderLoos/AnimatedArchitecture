@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.function.Supplier;
 
 /**
@@ -20,6 +18,6 @@ public interface CheckedSupplier<T, E extends Exception>
      *
      * @throws E The exception that might be thrown.
      */
-    @NotNull T get()
+    T get()
         throws E;
 }

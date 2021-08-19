@@ -27,7 +27,6 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,22 +48,22 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLiteJDBCDriverConnectionTest
 {
-    private static final @NotNull String DELETE_DOOR_NAME = "deletemeh";
+    private static final String DELETE_DOOR_NAME = "deletemeh";
 
-    private static final @NotNull String WORLD_NAME = "TestWorld";
+    private static final String WORLD_NAME = "TestWorld";
 
-    private static final @NotNull String PLAYER_2_NAME_ALT = "TestMan";
+    private static final String PLAYER_2_NAME_ALT = "TestMan";
 
-    private static final @NotNull PPlayerData PLAYER_DATA_1 =
+    private static final PPlayerData PLAYER_DATA_1 =
         new PPlayerData(UUID.fromString("27e6c556-4f30-32bf-a005-c80a46ddd935"), "pim16aap2", 10, 11, true, true);
 
-    private static final @NotNull PPlayerData PLAYER_DATA_2 =
+    private static final PPlayerData PLAYER_DATA_2 =
         new PPlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), "TestBoiii", 20, 22, true, false);
 
-    private static final @NotNull PPlayerData PLAYER_DATA_3 =
+    private static final PPlayerData PLAYER_DATA_3 =
         new PPlayerData(UUID.fromString("b50ad385-829d-3141-a216-7e7d7539ba7f"), "thirdWheel", 30, 33, false, true);
 
-    private static final @NotNull IPWorld WORLD = new TestPWorld(WORLD_NAME);
+    private static final IPWorld WORLD = new TestPWorld(WORLD_NAME);
 
     private static AbstractDoor door1;
     private static AbstractDoor door2;
@@ -101,16 +100,16 @@ public class SQLiteJDBCDriverConnectionTest
             final int autoClose = 0;
             final boolean isOpen = false;
             final boolean isLocked = false;
-            final @NotNull String name = "massive1";
-            final @NotNull Vector3Di min = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di max = new Vector3Di(144, 131, 167);
-            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
+            final String name = "massive1";
+            final Vector3Di min = new Vector3Di(144, 75, 153);
+            final Vector3Di max = new Vector3Di(144, 131, 167);
+            final Vector3Di engine = new Vector3Di(144, 75, 153);
+            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
 
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, RotateDirection.EAST, doorOwner);
-            final @NotNull BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
+            final BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
             door1 = bigDoor;
         }
 
@@ -121,17 +120,17 @@ public class SQLiteJDBCDriverConnectionTest
             final boolean modeUp = true;
             final boolean isOpen = false;
             final boolean isLocked = false;
-            final @NotNull String name = "massive2";
-            final @NotNull Vector3Di min = new Vector3Di(144, 75, 168);
-            final @NotNull Vector3Di max = new Vector3Di(144, 131, 182);
-            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
+            final String name = "massive2";
+            final Vector3Di min = new Vector3Di(144, 75, 168);
+            final Vector3Di max = new Vector3Di(144, 131, 182);
+            final Vector3Di engine = new Vector3Di(144, 75, 153);
+            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
 
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, Util.requireNonNull(RotateDirection.valueOf(0), "Dir0"),
                                     doorOwner);
-            final @NotNull Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
+            final Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
             door2 = drawbridge;
         }
 
@@ -142,16 +141,16 @@ public class SQLiteJDBCDriverConnectionTest
             final int blocksToMove = 8;
             final boolean isOpen = false;
             final boolean isLocked = false;
-            final @NotNull String name = "massive2";
-            final @NotNull Vector3Di min = new Vector3Di(144, 70, 168);
-            final @NotNull Vector3Di max = new Vector3Di(144, 151, 112);
-            final @NotNull Vector3Di engine = new Vector3Di(144, 75, 153);
-            final @NotNull Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final @NotNull DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_2);
+            final String name = "massive2";
+            final Vector3Di min = new Vector3Di(144, 70, 168);
+            final Vector3Di max = new Vector3Di(144, 151, 112);
+            final Vector3Di engine = new Vector3Di(144, 75, 153);
+            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_2);
 
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, RotateDirection.UP, doorOwner);
-            final @NotNull Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
+            final Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
             door3 = portcullis;
         }
     }
@@ -211,7 +210,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
-        final @NotNull File oldDB = new File(DB_FILE.toString() + ".FINISHED");
+        final File oldDB = new File(DB_FILE.toString() + ".FINISHED");
 
         if (oldDB.exists())
             Assertions.assertTrue(oldDB.delete());
@@ -282,7 +281,7 @@ public class SQLiteJDBCDriverConnectionTest
      *
      * @param door The door to verify.
      */
-    private void testRetrieval(final @NotNull AbstractDoor door)
+    private void testRetrieval(final AbstractDoor door)
     {
         Assertions.assertNotNull(storage);
         Assertions.assertNotNull(door);
@@ -324,7 +323,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertTrue(storage.getDoor(PLAYER_DATA_1.getUUID(), 1).isPresent());
         Assertions.assertEquals(door1, storage.getDoor(PLAYER_DATA_1.getUUID(), 1).get());
         Assertions.assertFalse(storage.getDoor(PLAYER_DATA_1.getUUID(), 3).isPresent());
-        final @NotNull Optional<AbstractDoor> testDoor1 = storage.getDoor(1L);
+        final Optional<AbstractDoor> testDoor1 = storage.getDoor(1L);
         Assertions.assertTrue(testDoor1.isPresent());
         Assertions.assertEquals(door1.getPrimeOwner(), testDoor1.get().getPrimeOwner());
         Assertions.assertEquals(door1, testDoor1.get());
@@ -446,7 +445,7 @@ public class SQLiteJDBCDriverConnectionTest
         Assertions.assertEquals(PLAYER_DATA_2, storage.getPlayerData(PLAYER_DATA_2.getUUID()).get());
 
         // Update player 2's name to their alt name and make sure the old name is gone and the new one is reachable.
-        final @NotNull PPlayerData playerData2ALT =
+        final PPlayerData playerData2ALT =
             new PPlayerData(UUID.fromString("af5c6f36-445d-3786-803d-c2e3ba0dc3ed"), PLAYER_2_NAME_ALT,
                             20, 22, true, false);
 
@@ -514,19 +513,19 @@ public class SQLiteJDBCDriverConnectionTest
             Portcullis pc = ((Portcullis) door3);
 
             // Save the current data
-            final @NotNull RotateDirection oldDir = door3.getOpenDir();
-            final @NotNull RotateDirection newDir = RotateDirection.getOpposite(oldDir);
+            final RotateDirection oldDir = door3.getOpenDir();
+            final RotateDirection newDir = RotateDirection.getOpposite(oldDir);
             Assertions.assertNotSame(oldDir, newDir);
 
-            final @NotNull Vector3Di oldPowerBlock = door3.getPowerBlock();
-            final @NotNull Vector3Di newPowerBlock = new Vector3Di(oldPowerBlock.x(),
-                                                                   (oldPowerBlock.x() + 30) % 256,
-                                                                   oldPowerBlock.z());
+            final Vector3Di oldPowerBlock = door3.getPowerBlock();
+            final Vector3Di newPowerBlock = new Vector3Di(oldPowerBlock.x(),
+                                                          (oldPowerBlock.x() + 30) % 256,
+                                                          oldPowerBlock.z());
 
-            final @NotNull Vector3Di oldMin = door3.getMinimum();
-            final @NotNull Vector3Di oldMax = door3.getMaximum();
-            final @NotNull Vector3Di newMin = oldMin.add(0, 20, 10);
-            final @NotNull Vector3Di newMax = oldMax.add(40, 0, 20);
+            final Vector3Di oldMin = door3.getMinimum();
+            final Vector3Di oldMax = door3.getMaximum();
+            final Vector3Di newMin = oldMin.add(0, 20, 10);
+            final Vector3Di newMax = oldMax.add(40, 0, 20);
             Assertions.assertNotSame(oldMin, newMin);
             Assertions.assertNotSame(oldMax, newMax);
 
@@ -553,7 +552,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             Optional<AbstractDoor> retrievedOpt = storage.getDoor(3L);
             Assertions.assertTrue(retrievedOpt.isPresent());
-            @NotNull Portcullis retrieved = (Portcullis) retrievedOpt.get();
+            Portcullis retrieved = (Portcullis) retrievedOpt.get();
 
             // Check base data
             Assertions.assertEquals(!isLocked, retrieved.isLocked());

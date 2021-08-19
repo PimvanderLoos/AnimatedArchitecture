@@ -5,7 +5,6 @@ import com.google.common.jimfs.Jimfs;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -233,7 +232,7 @@ class LocalizationGeneratorIntegrationTest
      *
      * @throws IOException
      */
-    private @NotNull ZipOutputStream createJar(@NotNull Path jarFile)
+    private ZipOutputStream createJar(Path jarFile)
         throws IOException
     {
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(jarFile));

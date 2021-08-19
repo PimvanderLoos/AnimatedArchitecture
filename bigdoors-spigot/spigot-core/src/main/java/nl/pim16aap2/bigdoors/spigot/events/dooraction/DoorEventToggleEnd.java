@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleEnd;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventToggleEnd} for the Spigot platform.
@@ -17,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 @ToString
 public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventToggleEnd
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     /**
      * Constructs a door action event.
@@ -30,20 +29,20 @@ public class DoorEventToggleEnd extends DoorToggleEvent implements IDoorEventTog
      *                      affect the total time as well.
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      */
-    public DoorEventToggleEnd(final @NotNull AbstractDoor door, final @NotNull DoorActionCause cause,
-                              final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+    public DoorEventToggleEnd(final AbstractDoor door, final DoorActionCause cause,
+                              final DoorActionType actionType, final IPPlayer responsible,
                               final double time, final boolean skipAnimation)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

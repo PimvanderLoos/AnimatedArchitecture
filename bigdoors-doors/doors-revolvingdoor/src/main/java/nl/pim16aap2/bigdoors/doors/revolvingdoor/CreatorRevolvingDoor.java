@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -13,9 +12,9 @@ import java.util.List;
 
 public class CreatorRevolvingDoor extends CreatorBigDoor
 {
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
-    public CreatorRevolvingDoor(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorRevolvingDoor(final IPPlayer player, final @Nullable String name)
     {
         super(player);
         if (name != null)
@@ -23,13 +22,13 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
         prepareCurrentStep();
     }
 
-    public CreatorRevolvingDoor(final @NotNull IPPlayer player)
+    public CreatorRevolvingDoor(final IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.construct(),
@@ -49,7 +48,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
     }
 
     @Override
-    protected @NotNull AbstractDoor constructDoor()
+    protected AbstractDoor constructDoor()
     {
         return new RevolvingDoor(constructDoorData());
     }

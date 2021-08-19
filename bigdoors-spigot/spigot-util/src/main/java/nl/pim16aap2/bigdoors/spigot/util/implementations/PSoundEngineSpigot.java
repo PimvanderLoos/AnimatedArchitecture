@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link ISoundEngine} for the Spigot platform.
@@ -21,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 public class PSoundEngineSpigot implements ISoundEngine
 {
     @Override
-    public void playSound(final @NotNull IPLocation loc, final @NotNull PSound sound, final float volume,
+    public void playSound(final IPLocation loc, final PSound sound, final float volume,
                           final float pitch)
     {
         BigDoors.get().getPlatform().getPExecutor().runAsync(() -> SpigotUtil
@@ -29,7 +28,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull Vector3Di pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final Vector3Di pos, final IPWorld world, final PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()),
@@ -37,7 +36,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(final @NotNull Vector3Dd pos, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(final Vector3Dd pos, final IPWorld world, final PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil.playSound(new Location(Bukkit.getWorld(world.worldName()), pos.x(), pos.y(), pos.z()),
@@ -45,7 +44,7 @@ public class PSoundEngineSpigot implements ISoundEngine
     }
 
     @Override
-    public void playSound(double x, double y, double z, final @NotNull IPWorld world, final @NotNull PSound sound,
+    public void playSound(double x, double y, double z, final IPWorld world, final PSound sound,
                           final float volume, final float pitch)
     {
         SpigotUtil

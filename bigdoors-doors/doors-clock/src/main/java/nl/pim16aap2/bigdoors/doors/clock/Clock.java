@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ import java.util.Optional;
 public class Clock extends AbstractDoor implements IHorizontalAxisAligned
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeClock.get();
+    private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
      * Describes if the {@link Clock} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -60,10 +59,10 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     @Getter
     @Setter
     @PersistentVariable
-    protected @NotNull PBlockFace hourArmSide;
+    protected PBlockFace hourArmSide;
 
-    public Clock(final @NotNull DoorBase doorData, final boolean northSouthAligned,
-                 final @NotNull PBlockFace hourArmSide)
+    public Clock(final DoorBase doorData, final boolean northSouthAligned,
+                 final PBlockFace hourArmSide)
     {
         super(doorData);
         this.northSouthAligned = northSouthAligned;
@@ -71,29 +70,29 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
+                                             final boolean skipAnimation, final Cuboid newCuboid,
+                                             final IPPlayer responsible,
+                                             final DoorActionType actionType)
         throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
     }
 
     @Override
-    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboid());
     }
@@ -122,7 +121,7 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
      * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
      */
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }

@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for version 7 of WorldGuard.
@@ -21,14 +20,14 @@ import org.jetbrains.annotations.NotNull;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
-    private static final @NotNull ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
     @SuppressWarnings("unused")
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull WorldGuard worldGuard;
-    private final @NotNull WorldGuardPlugin worldGuardPlugin;
+    private final BigDoorsSpigot plugin;
+    private final WorldGuard worldGuard;
+    private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
 
-    public WorldGuard7ProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public WorldGuard7ProtectionCompat(final BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         worldGuard = WorldGuard.getInstance();
@@ -43,26 +42,26 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         success = true;
     }
 
-    private boolean canBreakBlock(final @NotNull LocalPlayer player, final @NotNull Location loc)
+    private boolean canBreakBlock(final LocalPlayer player, final Location loc)
     {
         return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player,
                                                                                      com.sk89q.worldguard.protection.flags.Flags.BUILD);
     }
 
-    private @NotNull LocalPlayer getLocalPlayer(final @NotNull Player player)
+    private LocalPlayer getLocalPlayer(final Player player)
     {
         return worldGuardPlugin.wrapPlayer(player);
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
         return canBreakBlock(getLocalPlayer(player), loc);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
+                                             final Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -97,7 +96,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return worldGuardPlugin.getName();
     }

@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,14 +29,14 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class BigDoors extends RestartableHolder
 {
-    private static final @NotNull BigDoors INSTANCE = new BigDoors();
+    private static final BigDoors INSTANCE = new BigDoors();
 
     /**
      * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
      *
      * @return The {@link DelayedCommandInputManager} registered by the platform.
      */
-    public @NotNull DelayedCommandInputManager getDelayedCommandInputManager()
+    public DelayedCommandInputManager getDelayedCommandInputManager()
     {
         return getPlatform().getDelayedCommandInputManager();
     }
@@ -56,7 +55,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The instance of this class.
      */
-    public static @NotNull BigDoors get()
+    public static BigDoors get()
     {
         return INSTANCE;
     }
@@ -66,7 +65,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @param platform The platform implementing BigDoor's internal API.
      */
-    public void setBigDoorsPlatform(final @NotNull IBigDoorsPlatform platform)
+    public void setBigDoorsPlatform(final IBigDoorsPlatform platform)
     {
         this.platform = platform;
     }
@@ -76,7 +75,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The platform implementing BigDoor's internal API.
      */
-    public @NotNull IBigDoorsPlatform getPlatform()
+    public IBigDoorsPlatform getPlatform()
     {
         if (platform == null)
             throw new IllegalStateException("No platform currently registered!");
@@ -88,7 +87,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorRegistry}.
      */
-    public @NotNull DoorRegistry getDoorRegistry()
+    public DoorRegistry getDoorRegistry()
     {
         return getPlatform().getDoorRegistry();
     }
@@ -98,7 +97,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorOpener}.
      */
-    public @NotNull DoorOpener getDoorOpener()
+    public DoorOpener getDoorOpener()
     {
         return getPlatform().getDoorOpener();
     }
@@ -108,7 +107,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link LimitsManager}.
      */
-    public @NotNull LimitsManager getLimitsManager()
+    public LimitsManager getLimitsManager()
     {
         return getPlatform().getLimitsManager();
     }
@@ -118,7 +117,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link PowerBlockManager}.
      */
-    public @NotNull PowerBlockManager getPowerBlockManager()
+    public PowerBlockManager getPowerBlockManager()
     {
         return getPlatform().getPowerBlockManager();
     }
@@ -128,7 +127,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorActivityManager} instance.
      */
-    public @NotNull DoorActivityManager getDoorActivityManager()
+    public DoorActivityManager getDoorActivityManager()
     {
         return getPlatform().getDoorActivityManager();
     }
@@ -138,7 +137,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link AutoCloseScheduler} instance.
      */
-    public @NotNull AutoCloseScheduler getAutoCloseScheduler()
+    public AutoCloseScheduler getAutoCloseScheduler()
     {
         return getPlatform().getAutoCloseScheduler();
     }
@@ -148,12 +147,12 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorSpecificationManager} instance.
      */
-    public @NotNull DoorSpecificationManager getDoorSpecificationManager()
+    public DoorSpecificationManager getDoorSpecificationManager()
     {
         return getPlatform().getDoorSpecificationManager();
     }
 
-    public @NotNull ILocalizer getLocalizer()
+    public ILocalizer getLocalizer()
     {
         return getPlatform().getLocalizer();
     }
@@ -163,7 +162,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DoorTypeManager} instance.
      */
-    public @NotNull DoorTypeManager getDoorTypeManager()
+    public DoorTypeManager getDoorTypeManager()
     {
         return getPlatform().getDoorTypeManager();
     }
@@ -173,7 +172,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link IPServer} instance.
      */
-    public @NotNull IPServer getPServer()
+    public IPServer getPServer()
     {
         return getPlatform().getPServer();
     }
@@ -183,7 +182,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link ToolUserManager} instance.
      */
-    public @NotNull ToolUserManager getToolUserManager()
+    public ToolUserManager getToolUserManager()
     {
         return getPlatform().getToolUserManager();
     }
@@ -194,7 +193,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The currently used {@link IMessagingInterface}.
      */
-    public @NotNull IMessagingInterface getMessagingInterface()
+    public IMessagingInterface getMessagingInterface()
     {
         return getPlatform().getMessagingInterface();
     }
@@ -204,7 +203,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The currently set {@link IPLogger}..
      */
-    public @NotNull IPLogger getPLogger()
+    public IPLogger getPLogger()
     {
         return getPlatform().getPLogger();
     }
@@ -214,7 +213,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DatabaseManager}.
      */
-    public @NotNull DatabaseManager getDatabaseManager()
+    public DatabaseManager getDatabaseManager()
     {
         return getPlatform().getDatabaseManager();
     }
@@ -224,7 +223,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The {@link DebugReporter}.
      */
-    public @NotNull DebugReporter getDebugReporter()
+    public DebugReporter getDebugReporter()
     {
         return getPlatform().getDebugReporter();
     }
@@ -234,7 +233,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @return The version of BigDoors that is currently running.
      */
-    public @NotNull String getVersion()
+    public String getVersion()
     {
         return getPlatform().getVersion();
     }

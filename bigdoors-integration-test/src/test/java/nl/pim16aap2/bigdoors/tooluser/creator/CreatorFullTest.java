@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -37,10 +36,10 @@ class CreatorFullTest extends CreatorTestsUtil
         Mockito.when(doorType.getValidOpenDirections())
                .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        @NotNull val door = Mockito.mock(AbstractDoor.class);
+        val door = Mockito.mock(AbstractDoor.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
-        @NotNull val creator = new CreatorTestImpl(player, door);
+        val creator = new CreatorTestImpl(player, door);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
@@ -61,16 +60,16 @@ class CreatorFullTest extends CreatorTestsUtil
 
     private static class CreatorTestImpl extends Creator
     {
-        private final @NotNull AbstractDoor door;
+        private final AbstractDoor door;
 
-        protected CreatorTestImpl(final @NotNull IPPlayer player, final @NotNull AbstractDoor door)
+        protected CreatorTestImpl(final IPPlayer player, final AbstractDoor door)
         {
             super(player, null);
             this.door = door;
         }
 
         @Override
-        protected @NotNull List<IStep> generateSteps()
+        protected List<IStep> generateSteps()
             throws InstantiationException
         {
             return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
@@ -89,13 +88,13 @@ class CreatorFullTest extends CreatorTestsUtil
         }
 
         @Override
-        protected @NotNull AbstractDoor constructDoor()
+        protected AbstractDoor constructDoor()
         {
             return door;
         }
 
         @Override
-        protected @NotNull DoorType getDoorType()
+        protected DoorType getDoorType()
         {
             return doorType;
         }

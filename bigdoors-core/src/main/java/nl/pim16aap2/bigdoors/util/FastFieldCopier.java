@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
@@ -47,7 +46,7 @@ public abstract class FastFieldCopier<S, T>
         this.offsetTarget = offsetTarget;
     }
 
-    private static Field getField(@NotNull Class<?> clz, @NotNull String name)
+    private static Field getField(Class<?> clz, String name)
         throws NoSuchFieldException
     {
         Field f = clz.getDeclaredField(name);
@@ -61,7 +60,7 @@ public abstract class FastFieldCopier<S, T>
      * @param source The source object.
      * @param target The target object.
      */
-    public abstract void copy(@NotNull S source, @NotNull T target);
+    public abstract void copy(S source, T target);
 
     /**
      * Creates a new {@link FastFieldCopier} for the provided fields.
@@ -74,8 +73,8 @@ public abstract class FastFieldCopier<S, T>
      * @param <T>         The type of the target class.
      * @return A new {@link FastFieldCopier} for the appropriate type.
      */
-    public static @NotNull <S, T> FastFieldCopier<S, T> of(@NotNull Class<S> sourceClass, @NotNull String nameSource,
-                                                           @NotNull Class<T> targetClass, @NotNull String nameTarget)
+    public static <S, T> FastFieldCopier<S, T> of(Class<S> sourceClass, String nameSource,
+                                                  Class<T> targetClass, String nameTarget)
     {
         Util.requireNonNull(UNSAFE, "Unsafe");
         final long offsetSource;
@@ -109,7 +108,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putInt(target, offsetTarget, UNSAFE.getInt(source, offsetSource));
                 }
@@ -120,7 +119,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putLong(target, offsetTarget, UNSAFE.getLong(source, offsetSource));
                 }
@@ -131,7 +130,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putBoolean(target, offsetTarget, UNSAFE.getBoolean(source, offsetSource));
                 }
@@ -142,7 +141,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putShort(target, offsetTarget, UNSAFE.getShort(source, offsetSource));
                 }
@@ -153,7 +152,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putChar(target, offsetTarget, UNSAFE.getChar(source, offsetSource));
                 }
@@ -164,7 +163,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putFloat(target, offsetTarget, UNSAFE.getFloat(source, offsetSource));
                 }
@@ -175,7 +174,7 @@ public abstract class FastFieldCopier<S, T>
             {
                 @Override
                 @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putDouble(target, offsetTarget, UNSAFE.getDouble(source, offsetSource));
                 }
@@ -185,7 +184,7 @@ public abstract class FastFieldCopier<S, T>
             return new FastFieldCopier<>(offsetSource, offsetTarget)
             {
                 @Override @SuppressWarnings("NullAway")
-                public void copy(@NotNull Object source, @NotNull Object target)
+                public void copy(Object source, Object target)
                 {
                     UNSAFE.putByte(target, offsetTarget, UNSAFE.getByte(source, offsetSource));
                 }
@@ -194,7 +193,7 @@ public abstract class FastFieldCopier<S, T>
         return new FastFieldCopier<>(offsetSource, offsetTarget)
         {
             @Override @SuppressWarnings("NullAway")
-            public void copy(@NotNull Object source, @NotNull Object target)
+            public void copy(Object source, Object target)
             {
                 UNSAFE.putObject(target, offsetTarget, UNSAFE.getObject(source, offsetSource));
             }

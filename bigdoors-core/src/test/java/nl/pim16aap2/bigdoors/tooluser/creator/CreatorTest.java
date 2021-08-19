@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -322,9 +321,9 @@ class CreatorTest
     }
 
     @SneakyThrows
-    private void setField(final @NotNull String fieldName, final @Nullable Object obj)
+    private void setField(final String fieldName, final @Nullable Object obj)
     {
-        @NotNull val f = Creator.class.getDeclaredField(fieldName);
+        val f = Creator.class.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(creator, obj);
     }

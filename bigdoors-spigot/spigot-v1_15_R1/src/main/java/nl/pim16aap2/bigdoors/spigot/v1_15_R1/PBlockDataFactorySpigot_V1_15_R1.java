@@ -9,15 +9,14 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 {
     @Override
-    public @NotNull Optional<PBlockData> create(final @NotNull IPLocation startLocation, final boolean bottom,
-                                                final float radius, final float startAngle)
+    public Optional<PBlockData> create(final IPLocation startLocation, final boolean bottom,
+                                       final float radius, final float startAngle)
         throws Exception
     {
         final World bukkitWorld = SpigotAdapter.getBukkitWorld(startLocation.getWorld());

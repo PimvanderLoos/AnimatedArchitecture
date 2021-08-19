@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -14,7 +13,7 @@ public final class DoorTypeFlag extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    private static final @NotNull DoorTypeFlag INSTANCE = new DoorTypeFlag();
+    private static final DoorTypeFlag INSTANCE = new DoorTypeFlag();
 
     private DoorTypeFlag()
     {
@@ -26,25 +25,25 @@ public final class DoorTypeFlag extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeFlag get()
+    public static DoorTypeFlag get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NotNull Class<? extends AbstractDoor> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return Flag.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(final IPPlayer player)
     {
         return new CreatorFlag(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(final IPPlayer player, final @Nullable String name)
     {
         return new CreatorFlag(player, name);
     }

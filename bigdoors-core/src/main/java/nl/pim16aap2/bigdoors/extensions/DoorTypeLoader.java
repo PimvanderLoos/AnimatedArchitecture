@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -28,8 +27,8 @@ import java.util.stream.Stream;
 
 public final class DoorTypeLoader extends Restartable
 {
-    private static final @NotNull DoorTypeLoader INSTANCE = new DoorTypeLoader();
-    private @NotNull DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
+    private static final DoorTypeLoader INSTANCE = new DoorTypeLoader();
+    private DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
 
     private DoorTypeLoader()
     {
@@ -55,12 +54,12 @@ public final class DoorTypeLoader extends Restartable
         }
     }
 
-    public static @NotNull DoorTypeLoader get()
+    public static DoorTypeLoader get()
     {
         return INSTANCE;
     }
 
-    private @NotNull Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(final @NotNull File file)
+    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(final File file)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file.toString());
         if (!file.toString().endsWith(".jar"))
@@ -71,13 +70,13 @@ public final class DoorTypeLoader extends Restartable
         }
 
         final String typeName;
-        final @NotNull String className;
+        final String className;
         @Nullable String dependencies;
         final int version;
-        try (final @NotNull FileInputStream fileInputStream = new FileInputStream(file);
-             final @NotNull JarInputStream jarStream = new JarInputStream(fileInputStream))
+        try (final FileInputStream fileInputStream = new FileInputStream(file);
+             final JarInputStream jarStream = new JarInputStream(fileInputStream))
         {
-            final @NotNull Manifest manifest = jarStream.getManifest();
+            final Manifest manifest = jarStream.getManifest();
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (className == null)
             {
@@ -96,8 +95,8 @@ public final class DoorTypeLoader extends Restartable
             }
 
             final @Nullable Attributes versionSection = manifest.getEntries().get("Version");
-            final @NotNull OptionalInt versionOpt = Util.parseInt(versionSection == null ?
-                                                                  null : versionSection.getValue("Version"));
+            final OptionalInt versionOpt = Util.parseInt(versionSection == null ?
+                                                         null : versionSection.getValue("Version"));
             if (versionOpt.isEmpty())
             {
                 BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
@@ -127,7 +126,7 @@ public final class DoorTypeLoader extends Restartable
      * <p>
      * See also {@link #loadDoorTypesFromDirectory(String)}.
      */
-    public @NotNull List<DoorType> loadDoorTypesFromDirectory()
+    public List<DoorType> loadDoorTypesFromDirectory()
     {
         return loadDoorTypesFromDirectory(
             BigDoors.get().getPlatform().getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
@@ -139,13 +138,13 @@ public final class DoorTypeLoader extends Restartable
      * @param directory The directory.
      * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    public @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
+    public List<DoorType> loadDoorTypesFromDirectory(final String directory)
     {
-        final @NotNull List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
+        final List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
 
-        try (final @NotNull Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
+        try (final Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
         {
-            final @NotNull Stream<Path> result = walk.filter(Files::isRegularFile);
+            final Stream<Path> result = walk.filter(Files::isRegularFile);
             result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfos::add));
         }
         catch (IOException e)

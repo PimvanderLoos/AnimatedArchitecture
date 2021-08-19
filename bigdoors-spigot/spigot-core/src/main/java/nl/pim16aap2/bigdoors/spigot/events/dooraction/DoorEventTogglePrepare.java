@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventTogglePrepare} for the Spigot platform.
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 @ToString
 public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoorEventTogglePrepare
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
@@ -38,21 +37,21 @@ public class DoorEventTogglePrepare extends DoorEventToggleStart implements IDoo
      * @param animationSkipped If true, the door will skip the animation and open instantly.
      * @param newCuboid        The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventTogglePrepare(final @NotNull AbstractDoor door, final @NotNull DoorActionCause cause,
-                                  final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
+    public DoorEventTogglePrepare(final AbstractDoor door, final DoorActionCause cause,
+                                  final DoorActionType actionType, final IPPlayer responsible,
                                   final double time, final boolean animationSkipped,
-                                  final @NotNull Cuboid newCuboid)
+                                  final Cuboid newCuboid)
     {
         super(door, cause, actionType, responsible, time, animationSkipped, newCuboid);
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

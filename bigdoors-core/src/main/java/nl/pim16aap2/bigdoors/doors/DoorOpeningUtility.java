@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -39,8 +38,8 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return The result.
      */
-    public @NotNull DoorToggleResult abort(final @NotNull IDoor door, final @NotNull DoorToggleResult result,
-                                           final @NotNull DoorActionCause cause, final @NotNull IPPlayer responsible)
+    public DoorToggleResult abort(final IDoor door, final DoorToggleResult result,
+                                  final DoorActionCause cause, final IPPlayer responsible)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                String.format("Aborted toggle for door %d because of %s." +
@@ -77,8 +76,8 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final @NotNull IDoor door, final @NotNull Cuboid cuboid,
-                                             final @NotNull IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(final IDoor door, final Cuboid cuboid,
+                                             final IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return BigDoors.get().getPlatform().getProtectionCompatManager()
@@ -102,10 +101,10 @@ public final class DoorOpeningUtility
      * @param world         The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(final @NotNull Cuboid newCuboid, final @NotNull Cuboid currentCuboid,
-                                   final @Nullable IPPlayer player, final @NotNull IPWorld world)
+    public boolean isLocationEmpty(final Cuboid newCuboid, final Cuboid currentCuboid,
+                                   final @Nullable IPPlayer player, final IPWorld world)
     {
-        final @NotNull IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+        final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
         final Vector3Di newMin = newCuboid.getMin();
         final Vector3Di newMax = newCuboid.getMax();
         final Vector3Di curMin = currentCuboid.getMin();
@@ -157,8 +156,8 @@ public final class DoorOpeningUtility
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
-    public int getBlocksInDir(final @NotNull Vector3Di vec, final @Nullable IPPlayer player,
-                              final @NotNull IPWorld world, final @NotNull Cuboid cuboid, final int blocksToMove)
+    public int getBlocksInDir(final Vector3Di vec, final @Nullable IPPlayer player,
+                              final IPWorld world, final Cuboid cuboid, final int blocksToMove)
     {
         final Vector3Di curMin = cuboid.getMin();
         final Vector3Di curMax = cuboid.getMax();
@@ -178,8 +177,8 @@ public final class DoorOpeningUtility
         endZ = vec.z() == 0 ? curMax.z() : startZ;
 
 
-        @NotNull Vector3Di locA = new Vector3Di(startX, startY, startZ);
-        @NotNull Vector3Di locB = new Vector3Di(endX, endY, endZ);
+        Vector3Di locA = new Vector3Di(startX, startY, startZ);
+        Vector3Di locB = new Vector3Di(endX, endY, endZ);
 
         // xLen and zLen describe the length of the door in the x and the z direction respectively.
         // If the rotation direction and the blocksToMove variable are defined, use the blocksToMove variable instead.
@@ -236,9 +235,9 @@ public final class DoorOpeningUtility
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    @NotNull DoorToggleResult canBeToggled(final @NotNull AbstractDoor door,
-                                           final @NotNull DoorActionCause cause,
-                                           final @NotNull DoorActionType actionType)
+    DoorToggleResult canBeToggled(final AbstractDoor door,
+                                  final DoorActionCause cause,
+                                  final DoorActionType actionType)
     {
         if (!BigDoors.get().getDoorActivityManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
@@ -271,7 +270,7 @@ public final class DoorOpeningUtility
 //     * @param door The door.
 //     * @return False if 1 or more chunks are not loaded and cannot be loaded.
 //     */
-//    private boolean chunksLoaded(final @NotNull IDoor door)
+//    private boolean chunksLoaded(final IDoor door)
 //    {
 //        final Vector2Di[] chunkRange = door.getChunkRange();
 //        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
@@ -287,7 +286,7 @@ public final class DoorOpeningUtility
      *
      * @param blockMover The {@link BlockMover}.
      */
-    public void registerBlockMover(final @NotNull BlockMover blockMover)
+    public void registerBlockMover(final BlockMover blockMover)
     {
         BigDoors.get().getDoorActivityManager().addBlockMover(blockMover);
     }
@@ -309,7 +308,7 @@ public final class DoorOpeningUtility
      * @param doorUID The UID of the {@link IDoor}.
      * @return The {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      */
-    public @NotNull Optional<BlockMover> getBlockMover(final long doorUID)
+    public Optional<BlockMover> getBlockMover(final long doorUID)
     {
         return BigDoors.get().getDoorActivityManager().getBlockMover(doorUID);
     }
@@ -320,7 +319,7 @@ public final class DoorOpeningUtility
      * @param door The {@link AbstractDoor}.
      * @return The speed multiplier of this {@link IDoor}.
      */
-    public double getMultiplier(final @NotNull AbstractDoor door)
+    public double getMultiplier(final AbstractDoor door)
     {
         return BigDoors.get().getPlatform().getConfigLoader().getMultiplier(door.getDoorType());
     }

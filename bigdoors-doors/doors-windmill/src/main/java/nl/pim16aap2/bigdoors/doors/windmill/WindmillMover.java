@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a {@link BlockMover} for {@link Windmill}s.
@@ -25,9 +24,9 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
 
     private double step;
 
-    public WindmillMover(final @NotNull T door, final double time, final double multiplier,
-                         final @NotNull RotateDirection rotateDirection, final @NotNull IPPlayer player,
-                         final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public WindmillMover(final T door, final double time, final double multiplier,
+                         final RotateDirection rotateDirection, final IPPlayer player,
+                         final DoorActionCause cause, final DoorActionType actionType)
         throws Exception
     {
         super(time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
@@ -41,14 +40,14 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                                 final double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                        final double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(final PBlockData block)
     {
         return block.getStartPosition();
     }
@@ -57,7 +56,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     protected void executeAnimationStep(final int ticks)
     {
         final double stepSum = step * ticks;
-        for (final @NotNull PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 

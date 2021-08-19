@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,16 +16,16 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class UpdateManager
 {
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull IPLogger logger;
+    private final BigDoorsSpigot plugin;
+    private final IPLogger logger;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
 
-    private final @NotNull UpdateChecker updater;
+    private final UpdateChecker updater;
     private @Nullable BukkitTask updateRunner = null;
 
-    public UpdateManager(final @NotNull BigDoorsSpigot plugin, final int pluginID)
+    public UpdateManager(final BigDoorsSpigot plugin, final int pluginID)
     {
         this.plugin = plugin;
         logger = plugin.getPLogger();
@@ -61,7 +60,7 @@ public final class UpdateManager
      *
      * @return The version of the latest publicly released build.
      */
-    public @NotNull String getNewestVersion()
+    public String getNewestVersion()
     {
         if (!checkForUpdates || updater.getLastResult() == null)
             return "ERROR";

@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.events;
 
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Represents a BigDoors event.
  *
@@ -15,7 +13,7 @@ public interface IBigDoorsEvent
      *
      * @return The name of this event.
      */
-    @NotNull String getEventName();
+    String getEventName();
 
     /**
      * Checks if the event is fired asynchronous.

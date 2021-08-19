@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
@@ -27,7 +26,7 @@ public class GarageDoorMover extends BlockMover
     private static final double maxSpeed = 3;
     private static final double minSpeed = 0.1;
     private final double resultHeight;
-    private final @NotNull Vector3Di directionVec;
+    private final Vector3Di directionVec;
     private BiFunction<PBlockData, Double, Vector3Dd> getVector;
     private int xLen, yLen, zLen;
     private boolean NS = false;
@@ -35,10 +34,10 @@ public class GarageDoorMover extends BlockMover
 
     private double step;
 
-    public GarageDoorMover(final @NotNull GarageDoor door, final double time, final double multiplier,
-                           final boolean skipAnimation, final @NotNull RotateDirection rotateDirection,
-                           final @NotNull IPPlayer player, final @NotNull Cuboid newCuboid,
-                           final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public GarageDoorMover(final GarageDoor door, final double time, final double multiplier,
+                           final boolean skipAnimation, final RotateDirection rotateDirection,
+                           final IPPlayer player, final Cuboid newCuboid,
+                           final DoorActionCause cause, final DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
@@ -104,7 +103,7 @@ public class GarageDoorMover extends BlockMover
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    private @NotNull Vector3Dd getVectorUp(final @NotNull PBlockData block, final double stepSum)
+    private Vector3Dd getVectorUp(final PBlockData block, final double stepSum)
     {
         final double currentHeight = Math.min(resultHeight, block.getStartY() + stepSum);
         double xMod = 0;
@@ -121,7 +120,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private @NotNull Vector3Dd getVectorDownNorth(final @NotNull PBlockData block, final double stepSum)
+    private Vector3Dd getVectorDownNorth(final PBlockData block, final double stepSum)
     {
         final double goalZ = door.getEngine().z();
         final double pivotZ = goalZ + 1.5;
@@ -140,7 +139,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private @NotNull Vector3Dd getVectorDownSouth(final @NotNull PBlockData block, final double stepSum)
+    private Vector3Dd getVectorDownSouth(final PBlockData block, final double stepSum)
     {
         final double goalZ = door.getEngine().z();
         final double pivotZ = goalZ - 1.5;
@@ -158,7 +157,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private @NotNull Vector3Dd getVectorDownEast(final @NotNull PBlockData block, final double stepSum)
+    private Vector3Dd getVectorDownEast(final PBlockData block, final double stepSum)
     {
         final double goalX = door.getEngine().x();
         final double pivotX = goalX - 1.5;
@@ -176,7 +175,7 @@ public class GarageDoorMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xMod, block.getStartY() + yMod, block.getStartZ() + zMod);
     }
 
-    private @NotNull Vector3Dd getVectorDownWest(final @NotNull PBlockData block, final double stepSum)
+    private Vector3Dd getVectorDownWest(final PBlockData block, final double stepSum)
     {
         final double goalX = door.getEngine().x();
         final double pivotX = goalX + 1.5;
@@ -196,8 +195,8 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                                 final double zAxis)
+    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
+                                        final double zAxis)
     {
         double newX, newY, newZ;
 
@@ -227,11 +226,11 @@ public class GarageDoorMover extends BlockMover
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(final PBlockData block)
     {
-        final @NotNull IPLocation startLocation = block.getStartLocation();
-        final @NotNull IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                            startLocation.getY(), startLocation.getZ());
+        final IPLocation startLocation = block.getStartLocation();
+        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
+                                                   startLocation.getY(), startLocation.getZ());
         double addX = 0;
         double addZ = 0;
         if (door.isOpen()) // The offset isn't needed when going up.

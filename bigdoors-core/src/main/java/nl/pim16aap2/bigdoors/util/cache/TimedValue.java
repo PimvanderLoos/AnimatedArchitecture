@@ -24,7 +24,6 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Clock;
@@ -40,7 +39,7 @@ import java.time.Clock;
  */
 class TimedValue<T> extends AbstractTimedValue<T>
 {
-    private final @NotNull T value;
+    private final T value;
 
     /**
      * Constructor of {@link TimedValue}.
@@ -49,7 +48,7 @@ class TimedValue<T> extends AbstractTimedValue<T>
      * @param val     The value of this {@link TimedValue}.
      * @param timeOut The amount of time (in milliseconds) before this entry expires.
      */
-    public TimedValue(final @NotNull Clock clock, final @NotNull T val, final long timeOut)
+    public TimedValue(final Clock clock, final T val, final long timeOut)
     {
         super(clock, timeOut);
         value = val;

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.logging;
 
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.function.Supplier;
@@ -12,7 +11,7 @@ public interface IPLogger
     /**
      * The format of the date to be used when writing to the log file.
      */
-    @NotNull SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
     /**
      * Formats the name properly for logging purposes. For example: '[BigDoors]'
@@ -20,7 +19,7 @@ public interface IPLogger
      * @param name The name to be used for logging purposes.
      * @return The name in the proper format.
      */
-    static @NotNull String formatName(@NotNull String name)
+    static String formatName(String name)
     {
         return "[" + name + "] ";
     }
@@ -30,7 +29,7 @@ public interface IPLogger
      *
      * @param message An optional message to be printed along with the stack trace.
      */
-    void dumpStackTrace(@NotNull String message);
+    void dumpStackTrace(String message);
 
     /**
      * Dumps the stack trace to the log file at an arbitrary location.
@@ -38,7 +37,7 @@ public interface IPLogger
      * @param level   The level at which to log the stacktrace.
      * @param message An optional message to be printed along with the stack trace.
      */
-    void dumpStackTrace(@NotNull Level level, @NotNull String message);
+    void dumpStackTrace(Level level, String message);
 
     /**
      * Writes a message of a given level to the console.
@@ -47,7 +46,7 @@ public interface IPLogger
      * @param logMessage The message to log
      * @see IMessagingInterface#writeToConsole(Level, String)
      */
-    void writeToConsole(@NotNull Level level, @NotNull LogMessage logMessage);
+    void writeToConsole(Level level, LogMessage logMessage);
 
     /**
      * Logs a message to the log file and potentially to the console as well at a given level.
@@ -55,7 +54,7 @@ public interface IPLogger
      * @param msg   The message to be logged.
      * @param level The level at which the message is logged (info, warn, etc).
      */
-    void logMessage(@NotNull Level level, @NotNull String msg);
+    void logMessage(Level level, String msg);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -63,7 +62,7 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowableSilently(@NotNull Throwable throwable, @NotNull String message);
+    void logThrowableSilently(Throwable throwable, String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -72,14 +71,14 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowableSilently(@NotNull Level level, @NotNull Throwable throwable, @NotNull String message);
+    void logThrowableSilently(Level level, Throwable throwable, String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
      *
      * @param throwable The {@link Throwable} to log.
      */
-    void logThrowableSilently(@NotNull Throwable throwable);
+    void logThrowableSilently(Throwable throwable);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -87,7 +86,7 @@ public interface IPLogger
      * @param level     The level at which to log this throwable.
      * @param throwable The {@link Throwable} to log.
      */
-    void logThrowableSilently(@NotNull Level level, @NotNull Throwable throwable);
+    void logThrowableSilently(Level level, Throwable throwable);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -96,7 +95,7 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowable(@NotNull Level level, @NotNull Throwable throwable, @NotNull String message);
+    void logThrowable(Level level, Throwable throwable, String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -104,7 +103,7 @@ public interface IPLogger
      * @param throwable The {@link Throwable} to log.
      * @param message   Message to accompany the exception.
      */
-    void logThrowable(@NotNull Throwable throwable, @NotNull String message);
+    void logThrowable(Throwable throwable, String message);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
@@ -112,14 +111,14 @@ public interface IPLogger
      * @param level     The level at which to log this throwable.
      * @param throwable The {@link Throwable} to log.
      */
-    void logThrowable(@NotNull Level level, @NotNull Throwable throwable);
+    void logThrowable(Level level, Throwable throwable);
 
     /**
      * Logs a {@link Throwable} without writing it in the console.
      *
      * @param throwable The {@link Throwable} to log.
      */
-    void logThrowable(@NotNull Throwable throwable);
+    void logThrowable(Throwable throwable);
 
     /**
      * Logs a message at a certain log {@link Level}.
@@ -131,7 +130,7 @@ public interface IPLogger
      *                        loglevel doesn't allow to log it at the provided <code>level</code>, this won't be
      *                        retrieved at all.
      */
-    void logMessage(@NotNull Level level, @NotNull String message, @NotNull Supplier<String> messageSupplier);
+    void logMessage(Level level, String message, Supplier<String> messageSupplier);
 
     /**
      * Logs a message at a certain log {@link Level}.
@@ -142,7 +141,7 @@ public interface IPLogger
      *                        loglevel doesn't allow to log it at the provided <code>level</code>, this won't be
      *                        retrieved at all.
      */
-    void logMessage(@NotNull Level level, @NotNull Supplier<String> messageSupplier);
+    void logMessage(Level level, Supplier<String> messageSupplier);
 
     /**
      * Checks if a given {@link Level} is loggable.
@@ -153,14 +152,14 @@ public interface IPLogger
      * @param level The {@link Level} to check.
      * @return True if the levels can be logged.
      */
-    boolean loggable(@NotNull Level level);
+    boolean loggable(Level level);
 
     /**
      * Logs a message at info level.
      *
      * @param str The message to log.
      */
-    default void info(@NotNull String str)
+    default void info(String str)
     {
         logMessage(Level.INFO, str);
     }
@@ -170,7 +169,7 @@ public interface IPLogger
      *
      * @param str The message to log.
      */
-    default void warn(@NotNull String str)
+    default void warn(String str)
     {
         logMessage(Level.WARNING, str);
     }
@@ -180,7 +179,7 @@ public interface IPLogger
      *
      * @param str The message to log.
      */
-    default void severe(@NotNull String str)
+    default void severe(String str)
     {
         logMessage(Level.SEVERE, str);
     }
@@ -190,7 +189,7 @@ public interface IPLogger
      *
      * @param str The message to log.
      */
-    default void debug(@NotNull String str)
+    default void debug(String str)
     {
         logMessage(Level.FINEST, str);
     }
@@ -201,7 +200,7 @@ public interface IPLogger
      *
      * @param consoleLogLevel The new log {@link Level} for logging to the log file.
      */
-    void setConsoleLogLevel(@NotNull Level consoleLogLevel);
+    void setConsoleLogLevel(Level consoleLogLevel);
 
     /**
      * Determines the log {@link Level} for this logger considering the console. {@link Level}s with a {@link
@@ -209,5 +208,5 @@ public interface IPLogger
      *
      * @param fileLogLevel The new log {@link Level} for logging to the console.
      */
-    void setFileLogLevel(@NotNull Level fileLogLevel);
+    void setFileLogLevel(Level fileLogLevel);
 }

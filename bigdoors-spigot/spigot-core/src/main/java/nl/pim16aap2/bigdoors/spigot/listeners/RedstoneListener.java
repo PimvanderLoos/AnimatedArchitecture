@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -30,11 +29,11 @@ import java.util.concurrent.CompletableFuture;
 public class RedstoneListener extends Restartable implements Listener
 {
     private static @Nullable RedstoneListener INSTANCE;
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull Set<Material> powerBlockTypes = new HashSet<>();
+    private final BigDoorsSpigot plugin;
+    private final Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
-    private RedstoneListener(final @NotNull BigDoorsSpigot plugin)
+    private RedstoneListener(final BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
@@ -48,7 +47,7 @@ public class RedstoneListener extends Restartable implements Listener
      * @param plugin The {@link BigDoorsSpigot} plugin.
      * @return The instance of this {@link RedstoneListener}.
      */
-    public static @NotNull RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
+    public static RedstoneListener init(final BigDoorsSpigot plugin)
     {
         return (INSTANCE == null) ? INSTANCE = new RedstoneListener(plugin) : INSTANCE;
     }
@@ -96,7 +95,7 @@ public class RedstoneListener extends Restartable implements Listener
         unregister();
     }
 
-    private void checkDoors(final @NotNull Location loc)
+    private void checkDoors(final Location loc)
     {
         BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getName()).whenComplete(
@@ -111,7 +110,7 @@ public class RedstoneListener extends Restartable implements Listener
      *
      * @param event The event.
      */
-    private void processRedstoneEvent(final @NotNull BlockRedstoneEvent event)
+    private void processRedstoneEvent(final BlockRedstoneEvent event)
     {
         try
         {
@@ -150,7 +149,7 @@ public class RedstoneListener extends Restartable implements Listener
      * @param event The {@link BlockRedstoneEvent}.
      */
     @EventHandler
-    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
+    public void onBlockRedstoneChange(final BlockRedstoneEvent event)
     {
         // Only boolean status is allowed, so a varying degree of "on" has no effect.
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)

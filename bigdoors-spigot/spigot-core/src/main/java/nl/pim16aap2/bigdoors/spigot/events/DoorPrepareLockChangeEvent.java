@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepareLockChangeEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
@@ -26,7 +25,7 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
 
     private final boolean newLockStatus;
 
-    public DoorPrepareLockChangeEvent(final @NotNull AbstractDoor door,
+    public DoorPrepareLockChangeEvent(final AbstractDoor door,
                                       final @Nullable IPPlayer responsible,
                                       final boolean newLockStatus)
     {
@@ -35,12 +34,12 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
@@ -32,12 +31,12 @@ public class DoorSerializer<T extends AbstractDoor>
     /**
      * The list of serializable fields in the target class {@link #doorClass}.
      */
-    private final @NotNull List<Field> fields = new ArrayList<>();
+    private final List<Field> fields = new ArrayList<>();
 
     /**
      * The target class.
      */
-    private final @NotNull Class<T> doorClass;
+    private final Class<T> doorClass;
 
     /**
      * The constructor in the {@link #doorClass} that takes exactly 1 argument of the type {@link DoorBase} if such a
@@ -70,7 +69,7 @@ public class DoorSerializer<T extends AbstractDoor>
         UNSAFE = unsafe;
     }
 
-    public DoorSerializer(final @NotNull Class<T> doorClass)
+    public DoorSerializer(final Class<T> doorClass)
         throws Exception
     {
         this.doorClass = doorClass;
@@ -154,13 +153,13 @@ public class DoorSerializer<T extends AbstractDoor>
      * @param data     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(final @NotNull DoorBase doorBase, final byte[] data)
+    public T deserialize(final DoorBase doorBase, final byte[] data)
         throws Exception
     {
         return instantiate(doorBase, fromByteArray(data));
     }
 
-    private static byte[] toByteArray(final @NotNull Serializable serializable)
+    private static byte[] toByteArray(final Serializable serializable)
         throws Exception
     {
         try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -172,7 +171,7 @@ public class DoorSerializer<T extends AbstractDoor>
     }
 
     @SuppressWarnings("unchecked")
-    private static @NotNull ArrayList<Object> fromByteArray(final byte[] arr)
+    private static ArrayList<Object> fromByteArray(final byte[] arr)
         throws Exception
     {
         try (final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
@@ -187,8 +186,8 @@ public class DoorSerializer<T extends AbstractDoor>
         }
     }
 
-    @NotNull T instantiate(final @NotNull DoorBase doorBase,
-                           final @NotNull ArrayList<Object> values)
+    T instantiate(final DoorBase doorBase,
+                  final ArrayList<Object> values)
         throws Exception
     {
         if (values.size() != fields.size())
@@ -219,32 +218,32 @@ public class DoorSerializer<T extends AbstractDoor>
      * @param doorBase The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
      * @return A new instance of {@link #doorClass} if one could be constructed.
      */
-    private @Nullable T instantiate(final @NotNull DoorBase doorBase)
+    private @Nullable T instantiate(final DoorBase doorBase)
         throws IllegalAccessException, InstantiationException, InvocationTargetException
     {
         return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
     }
 
-    private @NotNull T instantiateReflection(final @NotNull DoorBase doorBase,
-                                             final @NotNull Constructor<T> ctor)
+    private T instantiateReflection(final DoorBase doorBase,
+                                    final Constructor<T> ctor)
         throws IllegalAccessException, InvocationTargetException, InstantiationException
     {
         return ctor.newInstance(doorBase);
     }
 
-    private @Nullable T instantiateUnsafe(final @NotNull DoorBase doorBase)
+    private @Nullable T instantiateUnsafe(final DoorBase doorBase)
         throws InstantiationException
     {
         if (UNSAFE == null)
             return null;
 
         @SuppressWarnings("unchecked") //
-        final @NotNull T door = (T) UNSAFE.allocateInstance(doorClass);
+        final T door = (T) UNSAFE.allocateInstance(doorClass);
         FIELD_COPIER_DOOR_BASE.copy(door, doorBase);
         return door;
     }
 
-    public @NotNull String getDoorTypeName()
+    public String getDoorTypeName()
     {
         return doorClass.getName();
     }
@@ -257,7 +256,7 @@ public class DoorSerializer<T extends AbstractDoor>
      * @param door The {@link AbstractDoor} whose {@link PersistentVariable}s to print.
      * @return A String containing the names and values of the persistent parameters of the provided door.
      */
-    public String toString(@NotNull AbstractDoor door)
+    public String toString(AbstractDoor door)
     {
         if (!doorClass.isAssignableFrom(door.getClass()))
         {

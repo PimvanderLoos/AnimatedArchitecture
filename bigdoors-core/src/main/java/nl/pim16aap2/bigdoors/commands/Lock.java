@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -22,8 +21,7 @@ public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
 
-    protected Lock(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
-                   final boolean lockedStatus)
+    protected Lock(ICommandSender commandSender, DoorRetriever doorRetriever, boolean lockedStatus)
     {
         super(commandSender, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
@@ -38,21 +36,20 @@ public class Lock extends DoorTargetCommand
      * @param lock          The new lock status.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever,
-                                                          final boolean lock)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                                 boolean lock)
     {
         return new Lock(commandSender, doorRetriever, lock).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.LOCK;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         val event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
                             .createDoorPrepareLockChangeEvent(door, lockedStatus,

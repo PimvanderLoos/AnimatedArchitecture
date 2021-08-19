@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -24,16 +23,16 @@ import java.util.logging.Level;
 public final class OfflinePPlayerSpigot implements IPPlayer
 {
     @Delegate
-    private final @NotNull PPlayerData playerData;
+    private final PPlayerData playerData;
     private final @Nullable OfflinePlayer spigotPlayer;
 
-    public OfflinePPlayerSpigot(final @NotNull PPlayerData playerData, final @Nullable OfflinePlayer spigotPlayer)
+    public OfflinePPlayerSpigot(final PPlayerData playerData, final @Nullable OfflinePlayer spigotPlayer)
     {
         this.playerData = playerData;
         this.spigotPlayer = spigotPlayer;
     }
 
-    public OfflinePPlayerSpigot(final @NotNull PPlayerData playerData)
+    public OfflinePPlayerSpigot(final PPlayerData playerData)
     {
         this(playerData, Bukkit.getOfflinePlayer(playerData.getUUID()));
     }
@@ -43,18 +42,18 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    public void sendMessage(final Level level, final String message)
     {
     }
 
     @Override
-    public @NotNull CompletableFuture<Boolean> hasPermission(@NotNull String permission)
+    public CompletableFuture<Boolean> hasPermission(String permission)
     {
         return CompletableFuture.completedFuture(isOp());
     }
 
     @Override
-    public @NotNull CompletableFuture<BooleanPair> hasPermission(@NotNull CommandDefinition command)
+    public CompletableFuture<BooleanPair> hasPermission(CommandDefinition command)
     {
         return CompletableFuture.completedFuture(new BooleanPair(isOp(), isOp()));
     }
@@ -70,7 +69,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return asString();
     }
@@ -94,7 +93,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull OfflinePPlayerSpigot clone()
+    public OfflinePPlayerSpigot clone()
     {
         try
         {
@@ -109,7 +108,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull Optional<IPLocation> getLocation()
+    public Optional<IPLocation> getLocation()
     {
         return Optional.empty();
     }

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -18,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    protected Delete(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
+    protected Delete(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.DELETE);
     }
@@ -31,26 +30,25 @@ public class Delete extends DoorTargetCommand
      *                      deletion.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         return new Delete(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.DELETE;
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean bypassPermission)
+    protected boolean isAllowed(AbstractDoor door, boolean bypassPermission)
     {
         return hasAccessToAttribute(door, DoorAttribute.DELETE, bypassPermission);
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager()
                        .deleteDoor(door, getCommandSender().getPlayer().orElse(null))

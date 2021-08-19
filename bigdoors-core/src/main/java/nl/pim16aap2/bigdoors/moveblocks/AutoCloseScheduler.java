@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -29,7 +28,7 @@ public final class AutoCloseScheduler extends Restartable
      * <p>
      * <b>Value:</b> A {@link TimerTask} to toggle this door again after a certain amount of time.
      */
-    private final @NotNull Map<Long, TimerTask> timers = new HashMap<>();
+    private final Map<Long, TimerTask> timers = new HashMap<>();
 
     public AutoCloseScheduler()
     {
@@ -67,7 +66,7 @@ public final class AutoCloseScheduler extends Restartable
      * @param skipAnimation Whether the door should be animated or not.
      */
     synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(
-        final @NotNull IPPlayer player, final T door, double speed, boolean skipAnimation)
+        final IPPlayer player, final T door, double speed, boolean skipAnimation)
     {
         final int autoCloseTimer = door.getAutoCloseTime();
         if (autoCloseTimer < 0 || !door.isOpen())
@@ -78,7 +77,7 @@ public final class AutoCloseScheduler extends Restartable
         // Add 2 ticks to the minimum delay to make sure there's no overlap with setting the door available again.
         final int delay = Math.min(Constants.MINIMUM_DOOR_DELAY + 2, autoCloseTimer * 20);
 
-        final @NotNull TimerTask task = new TimerTask()
+        final TimerTask task = new TimerTask()
         {
             @Override
             public void run()

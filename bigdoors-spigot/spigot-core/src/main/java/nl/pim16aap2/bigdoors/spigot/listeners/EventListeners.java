@@ -19,7 +19,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -28,9 +27,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class EventListeners implements Listener
 {
-    private final @NotNull BigDoorsSpigot plugin;
+    private final BigDoorsSpigot plugin;
 
-    public EventListeners(final @NotNull BigDoorsSpigot plugin)
+    public EventListeners(final BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -104,7 +103,7 @@ public class EventListeners implements Listener
      * @param player The {@link Player}.
      * @return True if a player is a {@link ToolUser}.
      */
-    private boolean isToolUser(final @NotNull Player player)
+    private boolean isToolUser(final Player player)
     {
         return BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
     }

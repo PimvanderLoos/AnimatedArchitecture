@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,25 +20,25 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PLocationSpigot implements IPLocation
 {
-    private final @NotNull Location location;
+    private final Location location;
 
-    private final @NotNull IPWorld world;
+    private final IPWorld world;
 
-    public PLocationSpigot(final @NotNull IPWorld ipWorld, final @Nullable World bukkitWorld,
+    public PLocationSpigot(final IPWorld ipWorld, final @Nullable World bukkitWorld,
                            final double x, final double y, final double z)
     {
         location = new Location(bukkitWorld, x, y, z);
         world = ipWorld;
     }
 
-    public PLocationSpigot(final @NotNull IPWorld world, final double x, final double y, final double z)
+    public PLocationSpigot(final IPWorld world, final double x, final double y, final double z)
     {
         final @Nullable World bukkitWorld = retrieveBukkitWorld(world);
         location = new Location(bukkitWorld, x, y, z);
         this.world = world;
     }
 
-    public PLocationSpigot(final @NotNull Location location)
+    public PLocationSpigot(final Location location)
     {
         Util.requireNonNull(location.getWorld(), "world of location " + location);
         this.location = location.clone();
@@ -56,7 +55,7 @@ public final class PLocationSpigot implements IPLocation
      * @return The Bukkit world, if it could be found.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    private static @Nullable World retrieveBukkitWorld(final @NotNull IPWorld ipWorld)
+    private static @Nullable World retrieveBukkitWorld(final IPWorld ipWorld)
     {
         if (ipWorld instanceof PWorldSpigot ipWorldSpigot)
             return ipWorldSpigot.getBukkitWorld();
@@ -65,7 +64,7 @@ public final class PLocationSpigot implements IPLocation
 
     @Override
     @CheckReturnValue @Contract(value = " -> new", pure = true)
-    public @NotNull Vector2Di getChunk()
+    public Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
     }
@@ -114,42 +113,42 @@ public final class PLocationSpigot implements IPLocation
 
     @Override
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public @NotNull IPLocation setX(double newVal)
+    public IPLocation setX(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), newVal, getY(), getZ());
     }
 
     @Override
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public @NotNull IPLocation setY(double newVal)
+    public IPLocation setY(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), getX(), newVal, getZ());
     }
 
     @Override
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public @NotNull IPLocation setZ(double newVal)
+    public IPLocation setZ(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), getX(), getY(), newVal);
     }
 
     @Override
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    public @NotNull IPLocation add(final double x, final double y, final double z)
+    public IPLocation add(final double x, final double y, final double z)
     {
         return new PLocationSpigot(world, location.getWorld(), getX() + x, getY() + y, getZ() + z);
     }
 
     @Override
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public @NotNull IPLocation add(final @NotNull Vector3Di vector)
+    public IPLocation add(final Vector3Di vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public @NotNull IPLocation add(final @NotNull Vector3Dd vector)
+    public IPLocation add(final Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }
@@ -160,7 +159,7 @@ public final class PLocationSpigot implements IPLocation
      * @return The Bukkit location.
      */
     @CheckReturnValue @Contract(pure = true)
-    public @NotNull Location getBukkitLocation()
+    public Location getBukkitLocation()
     {
         return location.clone();
     }
@@ -195,7 +194,7 @@ public final class PLocationSpigot implements IPLocation
 
     @Override
     @CheckReturnValue @Contract(pure = true)
-    public @NotNull IPWorld getWorld()
+    public IPWorld getWorld()
     {
         return world;
     }

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,12 +19,11 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetAutoCloseTime extends DoorTargetCommand
 {
-    private static final @NotNull CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
+    private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.SET_AUTO_CLOSE_TIME;
 
     private final int autoCloseTime;
 
-    protected SetAutoCloseTime(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
-                               final int autoCloseTime)
+    protected SetAutoCloseTime(ICommandSender commandSender, DoorRetriever doorRetriever, int autoCloseTime)
     {
         super(commandSender, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
@@ -40,21 +38,20 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * @param autoCloseTime The new auto-close time value.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever,
-                                                          final int autoCloseTime)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                                 int autoCloseTime)
     {
         return new SetAutoCloseTime(commandSender, doorRetriever, autoCloseTime).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         if (!(door instanceof ITimerToggleable))
         {
@@ -81,8 +78,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> runDelayed(final @NotNull ICommandSender commandSender,
-                                                                 final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
@@ -106,8 +102,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      *                      opened to automatically close it again.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> provideDelayedInput(final @NotNull ICommandSender commandSender,
-                                                                          final int autoCloseTime)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, int autoCloseTime)
     {
         return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
                        .map(request -> request.provide(autoCloseTime))
@@ -127,9 +122,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
      *                      opened to automatically close it again.
      * @return See {@link BaseCommand#run()}.
      */
-    private static @NotNull CompletableFuture<Boolean> delayedInputExecutor(final @NotNull ICommandSender commandSender,
-                                                                            final @NotNull DoorRetriever doorRetriever,
-                                                                            final int autoCloseTime)
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+                                                                   DoorRetriever doorRetriever, int autoCloseTime)
     {
         return new SetAutoCloseTime(commandSender, doorRetriever, autoCloseTime).run();
     }
@@ -139,7 +133,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NotNull String inputRequestMessage()
+    private static String inputRequestMessage()
     {
         return BigDoors.get().getLocalizer().getMessage("commands.set_auto_close_timer.init");
     }

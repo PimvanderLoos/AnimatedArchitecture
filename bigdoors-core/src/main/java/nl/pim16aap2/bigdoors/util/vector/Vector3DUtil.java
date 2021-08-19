@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a set of common 3d vector methods shared by both the integer and double implementations.
@@ -26,14 +25,14 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(pure = true)
-    static double getDistance(@NotNull IVector3D from, @NotNull IVector3D to)
+    static double getDistance(IVector3D from, IVector3D to)
     {
         return getDistance(from.xD(), from.yD(), from.zD(), to.xD(), to.yD(), to.zD());
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static @NotNull Vector3Dd rotateAroundXAxis(@NotNull IVector3D basePoint, @NotNull IVector3D pivotPoint,
-                                                double radians)
+    static Vector3Dd rotateAroundXAxis(IVector3D basePoint, IVector3D pivotPoint,
+                                       double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -51,8 +50,8 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static @NotNull Vector3Dd rotateAroundYAxis(@NotNull IVector3D basePoint, @NotNull IVector3D pivotPoint,
-                                                double radians)
+    static Vector3Dd rotateAroundYAxis(IVector3D basePoint, IVector3D pivotPoint,
+                                       double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -69,8 +68,8 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static @NotNull Vector3Dd rotateAroundZAxis(@NotNull IVector3D basePoint, @NotNull IVector3D pivotPoint,
-                                                double radians)
+    static Vector3Dd rotateAroundZAxis(IVector3D basePoint, IVector3D pivotPoint,
+                                       double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -124,7 +123,7 @@ class Vector3DUtil
          */
         @CheckReturnValue
         @Contract(pure = true)
-        default double getDistance(@NotNull IVector3D point)
+        default double getDistance(IVector3D point)
         {
             return Vector3DUtil.getDistance(this, point);
         }
@@ -137,7 +136,7 @@ class Vector3DUtil
          */
         @CheckReturnValue
         @Contract(value = "_ -> new", pure = true)
-        default @NotNull IPLocation toLocation(@NotNull IPWorld world)
+        default IPLocation toLocation(IPWorld world)
         {
             return BigDoors.get().getPlatform().getPLocationFactory().create(world, xD(), yD(), zD());
         }

@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -35,8 +34,8 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-    private final @NotNull TimedCache<UUID, Optional<ItemStack>> headMap;
-    private final @NotNull ConfigLoaderSpigot config;
+    private final TimedCache<UUID, Optional<ItemStack>> headMap;
+    private final ConfigLoaderSpigot config;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -44,7 +43,7 @@ public final class HeadManager extends Restartable
      * @param holder The {@link IRestartableHolder} that manages this object.
      * @param config The BigDoors configuration.
      */
-    private HeadManager(final @NotNull IRestartableHolder holder, final @NotNull ConfigLoaderSpigot config)
+    private HeadManager(final IRestartableHolder holder, final ConfigLoaderSpigot config)
     {
         super(holder);
         this.config = config;
@@ -59,8 +58,8 @@ public final class HeadManager extends Restartable
      * @param config The BigDoors configuration.
      * @return The instance of this {@link HeadManager}.
      */
-    public static @NotNull HeadManager init(final @NotNull IRestartableHolder holder,
-                                            final @NotNull ConfigLoaderSpigot config)
+    public static HeadManager init(final IRestartableHolder holder,
+                                   final ConfigLoaderSpigot config)
     {
         return (INSTANCE == null) ? INSTANCE = new HeadManager(holder, config) : INSTANCE;
     }
@@ -70,7 +69,7 @@ public final class HeadManager extends Restartable
      *
      * @return The instance of the {@link HeadManager}.
      */
-    public static @NotNull HeadManager get()
+    public static HeadManager get()
     {
         return Util.requireNonNull(INSTANCE, "Instance");
     }
@@ -83,17 +82,17 @@ public final class HeadManager extends Restartable
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    public @NotNull CompletableFuture<Optional<ItemStack>> getPlayerHead(final @NotNull UUID playerUUID,
-                                                                         final @NotNull String displayName)
+    public CompletableFuture<Optional<ItemStack>> getPlayerHead(final UUID playerUUID,
+                                                                final String displayName)
     {
         return CompletableFuture.supplyAsync(
-            () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
-                         .flatMap(Function.identity()))
+                                    () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
+                                                 .flatMap(Function.identity()))
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
-    private @NotNull Optional<ItemStack> createItemStack(final @NotNull UUID playerUUID,
-                                                         final @NotNull String displayName)
+    private Optional<ItemStack> createItemStack(final UUID playerUUID,
+                                                final String displayName)
     {
         OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);

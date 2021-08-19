@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -42,9 +41,9 @@ public abstract class AbstractDoor implements IDoor
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
     @Getter
-    protected final @NotNull DoorBase doorBase;
+    protected final DoorBase doorBase;
 
-    protected AbstractDoor(@NotNull DoorBase doorBase)
+    protected AbstractDoor(DoorBase doorBase)
     {
         this.doorBase = doorBase;
 
@@ -52,7 +51,7 @@ public abstract class AbstractDoor implements IDoor
         if (doorBase.getDoorUID() > 0 &&
             !BigDoors.get().getDoorRegistry().registerDoor(new Registrable()))
         {
-            final @NotNull IllegalStateException exception = new IllegalStateException(
+            final IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorBase.getDoorUID() + "\" while it is already registered!");
             BigDoors.get().getPLogger().logThrowableSilently(exception);
             throw exception;
@@ -64,7 +63,7 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return The {@link DoorType} of doorBase door.
      */
-    public abstract @NotNull DoorType getDoorType();
+    public abstract DoorType getDoorType();
 
     /**
      * Checks if this door can be opened instantly (i.e. skip the animation).
@@ -91,14 +90,14 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return The {@link Cuboid} that would represent the door if it was toggled right now.
      */
-    public abstract @NotNull Optional<Cuboid> getPotentialNewCoordinates();
+    public abstract Optional<Cuboid> getPotentialNewCoordinates();
 
     /**
      * Gets the direction the door would go given its current state..
      *
      * @return The direction the door would go if it were to be toggled.
      */
-    public abstract @NotNull RotateDirection getCurrentToggleDir();
+    public abstract RotateDirection getCurrentToggleDir();
 
     /**
      * Cycle the {@link RotateDirection} direction this {@link IDoor} will open in. By default it'll set and return the
@@ -108,9 +107,9 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return The new {@link RotateDirection} direction this {@link IDoor} will open in.
      */
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
-        final @NotNull List<RotateDirection> validOpenDirections = getDoorType().getValidOpenDirections();
+        final List<RotateDirection> validOpenDirections = getDoorType().getValidOpenDirections();
         final int currentIdx = Math.max(0, validOpenDirections.indexOf(getOpenDir()));
         return validOpenDirections.get((currentIdx + 1) % validOpenDirections.size());
     }
@@ -130,11 +129,11 @@ public abstract class AbstractDoor implements IDoor
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause,
-                                                               final double time, final boolean skipAnimation,
-                                                               final @NotNull Cuboid newCuboid,
-                                                               final @NotNull IPPlayer responsible,
-                                                               final @NotNull DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(final DoorActionCause cause,
+                                                      final double time, final boolean skipAnimation,
+                                                      final Cuboid newCuboid,
+                                                      final IPPlayer responsible,
+                                                      final DoorActionType actionType)
         throws Exception;
 
 
@@ -153,11 +152,11 @@ public abstract class AbstractDoor implements IDoor
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
-    private synchronized boolean registerBlockMover(final @NotNull DoorActionCause cause,
+    private synchronized boolean registerBlockMover(final DoorActionCause cause,
                                                     final double time, final boolean skipAnimation,
-                                                    final @NotNull Cuboid newCuboid,
-                                                    final @NotNull IPPlayer responsible,
-                                                    final @NotNull DoorActionType actionType)
+                                                    final Cuboid newCuboid,
+                                                    final IPPlayer responsible,
+                                                    final DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -197,10 +196,10 @@ public abstract class AbstractDoor implements IDoor
      */
     // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
     //       These aren't necessarily the same entity.
-    final synchronized @NotNull DoorToggleResult toggle(final @NotNull DoorActionCause cause,
-                                                        final @NotNull IMessageable messageReceiver,
-                                                        final @NotNull IPPlayer responsible, final double time,
-                                                        boolean skipAnimation, final @NotNull DoorActionType actionType)
+    final synchronized DoorToggleResult toggle(final DoorActionCause cause,
+                                               final IMessageable messageReceiver,
+                                               final IPPlayer responsible, final double time,
+                                               boolean skipAnimation, final DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -221,19 +220,19 @@ public abstract class AbstractDoor implements IDoor
         if (skipAnimation && !canSkipAnimation())
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NotNull DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
+        final DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
             return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
         if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return DoorOpeningUtility.abort(this, DoorToggleResult.TOO_BIG, cause, responsible);
 
-        final @NotNull Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
+        final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
         if (newCuboid.isEmpty())
             return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
 
-        final @NotNull IDoorEventTogglePrepare prepareEvent =
+        final IDoorEventTogglePrepare prepareEvent =
             BigDoors.get().getPlatform().getBigDoorsEventFactory()
                     .createTogglePrepareEvent(this, cause, actionType, responsible,
                                               time, skipAnimation, newCuboid.get());
@@ -255,7 +254,7 @@ public abstract class AbstractDoor implements IDoor
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
-        final @NotNull IDoorEventToggleStart toggleStartEvent =
+        final IDoorEventToggleStart toggleStartEvent =
             BigDoors.get().getPlatform().getBigDoorsEventFactory()
                     .createToggleStartEvent(this, cause, actionType, responsible,
                                             time, skipAnimation, newCuboid.get());
@@ -293,7 +292,7 @@ public abstract class AbstractDoor implements IDoor
      *
      * @return True if the synchronization was successful.
      */
-    public final synchronized @NotNull CompletableFuture<Boolean> syncData()
+    public final synchronized CompletableFuture<Boolean> syncData()
     {
         if (serializer == null)
         {
@@ -314,13 +313,13 @@ public abstract class AbstractDoor implements IDoor
         return CompletableFuture.completedFuture(false);
     }
 
-    public synchronized @NotNull String getBasicInfo()
+    public synchronized String getBasicInfo()
     {
         return getDoorUID() + " (" + getPrimeOwner() + ") - " + getDoorType().getSimpleName() + ": " + getName();
     }
 
     @Override
-    public synchronized @NotNull String toString()
+    public synchronized String toString()
     {
         String ret = doorBase + "\n"
             + "Type-specific data:\n"
@@ -336,7 +335,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public @NotNull Cuboid getCuboid()
+    public Cuboid getCuboid()
     {
         return doorBase.getCuboid();
     }
@@ -354,61 +353,61 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public @NotNull List<DoorOwner> getDoorOwners()
+    public List<DoorOwner> getDoorOwners()
     {
         return doorBase.getDoorOwners();
     }
 
     @Override
-    public @NotNull Optional<DoorOwner> getDoorOwner(@NotNull IPPlayer player)
+    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
     {
         return doorBase.getDoorOwner(player);
     }
 
     @Override
-    public @NotNull Optional<DoorOwner> getDoorOwner(@NotNull UUID uuid)
+    public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return doorBase.getDoorOwner(uuid);
     }
 
     @Override
-    public void setCoordinates(@NotNull Cuboid newCuboid)
+    public void setCoordinates(Cuboid newCuboid)
     {
         doorBase.setCoordinates(newCuboid);
     }
 
     @Override
-    public void setCoordinates(@NotNull Vector3Di posA, @NotNull Vector3Di posB)
+    public void setCoordinates(Vector3Di posA, Vector3Di posB)
     {
         doorBase.setCoordinates(posA, posB);
     }
 
     @Override
-    public @NotNull Vector3Di getMinimum()
+    public Vector3Di getMinimum()
     {
         return doorBase.getMinimum();
     }
 
     @Override
-    public @NotNull Vector3Di getMaximum()
+    public Vector3Di getMaximum()
     {
         return doorBase.getMaximum();
     }
 
     @Override
-    public @NotNull Vector3Di getDimensions()
+    public Vector3Di getDimensions()
     {
         return doorBase.getDimensions();
     }
 
     @Override
-    public void setEngine(@NotNull Vector3Di pos)
+    public void setEngine(Vector3Di pos)
     {
         doorBase.setEngine(pos);
     }
 
     @Override
-    public void setPowerBlockPosition(@NotNull Vector3Di pos)
+    public void setPowerBlockPosition(Vector3Di pos)
     {
         doorBase.setPowerBlockPosition(pos);
     }
@@ -426,7 +425,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public void setName(@NotNull String name)
+    public void setName(String name)
     {
         doorBase.setName(name);
     }
@@ -438,7 +437,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public void setOpenDir(@NotNull RotateDirection openDir)
+    public void setOpenDir(RotateDirection openDir)
     {
         doorBase.setOpenDir(openDir);
     }
@@ -456,25 +455,25 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public @NotNull IPWorld getWorld()
+    public IPWorld getWorld()
     {
         return doorBase.getWorld();
     }
 
     @Override
-    public @NotNull Vector3Di getEngine()
+    public Vector3Di getEngine()
     {
         return doorBase.getEngine();
     }
 
     @Override
-    public @NotNull Vector3Di getPowerBlock()
+    public Vector3Di getPowerBlock()
     {
         return doorBase.getPowerBlock();
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return doorBase.getName();
     }
@@ -486,7 +485,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public @NotNull RotateDirection getOpenDir()
+    public RotateDirection getOpenDir()
     {
         return doorBase.getOpenDir();
     }
@@ -498,7 +497,7 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public @NotNull DoorOwner getPrimeOwner()
+    public DoorOwner getPrimeOwner()
     {
         return doorBase.getPrimeOwner();
     }
@@ -514,7 +513,7 @@ public abstract class AbstractDoor implements IDoor
          *
          * @return The {@link DoorBase} that is associated with this {@link Registrable}.
          */
-        public @NotNull AbstractDoor getAbstractDoorBase()
+        public AbstractDoor getAbstractDoorBase()
         {
             return AbstractDoor.this;
         }

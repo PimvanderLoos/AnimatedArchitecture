@@ -7,7 +7,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -43,7 +42,7 @@ class FakePlayerCreator
     private Field uuid;
     private boolean success = false;
 
-    FakePlayerCreator(final @NotNull BigDoorsSpigot plugin)
+    FakePlayerCreator(final BigDoorsSpigot plugin)
         throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
@@ -73,13 +72,13 @@ class FakePlayerCreator
         success = true;
     }
 
-    private @NotNull Class<?> getNMSClass(final @NotNull String name)
+    private Class<?> getNMSClass(final String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private @NotNull Class<?> getCraftClass(final @NotNull String name)
+    private Class<?> getCraftClass(final String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
@@ -92,7 +91,7 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    @NotNull Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
+    Optional<Player> getFakePlayer(final OfflinePlayer oPlayer, final World world)
     {
         if (!success)
             return Optional.empty();

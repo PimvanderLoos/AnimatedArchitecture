@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.api;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -17,5 +16,5 @@ public interface IConfigReader
      * @param def  The default value to return if the actual option in the config was unavailable.
      * @return The value of the config option if possible, otherwise the default value.
      */
-    @NotNull Object get(@NotNull String path, @Nullable Object def);
+    Object get(String path, @Nullable Object def);
 }

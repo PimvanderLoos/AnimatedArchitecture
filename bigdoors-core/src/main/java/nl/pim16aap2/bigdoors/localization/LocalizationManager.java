@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -22,15 +21,15 @@ import java.util.function.Consumer;
  */
 public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
-    private final @NotNull Path baseDir;
-    private final @NotNull String baseName;
-    private final @NotNull IConfigLoader configLoader;
-    private final @NotNull Localizer localizer;
-    private final @NotNull LocalizationGenerator baseGenerator;
+    private final Path baseDir;
+    private final String baseName;
+    private final IConfigLoader configLoader;
+    private final Localizer localizer;
+    private final LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
-    public LocalizationManager(@NotNull IRestartableHolder restartableHolder, @NotNull Path baseDir,
-                               @NotNull String baseName, @NotNull IConfigLoader configLoader)
+    public LocalizationManager(IRestartableHolder restartableHolder, Path baseDir,
+                               String baseName, IConfigLoader configLoader)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
@@ -45,7 +44,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
      * Runs a method for the currently installed generators while taking care of restarting the {@link #localizer} when
      * needed.
      */
-    private synchronized void runForGenerators(@NotNull Consumer<ILocalizationGenerator> method)
+    private synchronized void runForGenerators(Consumer<ILocalizationGenerator> method)
     {
         // If the localization system is not patched, shut down the localizer before running the method for the
         // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't need
@@ -96,7 +95,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             }
 
             // Satisfy NullAway, as it doesn't realize that targetGenerator cannot be null here.
-            @NotNull LocalizationGenerator targetGenerator = patchGenerator;
+            LocalizationGenerator targetGenerator = patchGenerator;
             patchGenerator.addResourcesFromZip(baseGenerator.getOutputFile(), baseName);
             patches.forEach((locale, patchMap) -> targetGenerator.applyPatches(locale.locale(), patchMap));
         }
@@ -107,25 +106,25 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     }
 
     @Override
-    public synchronized void addResources(@NotNull Path path, @Nullable String baseName)
+    public synchronized void addResources(Path path, @Nullable String baseName)
     {
         runForGenerators(generator -> generator.addResources(path, baseName));
     }
 
     @Override
-    public synchronized void addResources(@NotNull List<Path> paths)
+    public synchronized void addResources(List<Path> paths)
     {
         runForGenerators(generator -> generator.addResources(paths));
     }
 
     @Override
-    public synchronized void addResourcesFromClass(@NotNull Class<?> clz, @Nullable String baseName)
+    public synchronized void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
         runForGenerators(generator -> generator.addResourcesFromClass(clz, baseName));
     }
 
     @Override
-    public synchronized void addResourcesFromClass(@NotNull List<Class<?>> classes)
+    public synchronized void addResourcesFromClass(List<Class<?>> classes)
     {
         runForGenerators(generator -> generator.addResourcesFromClass(classes));
     }
@@ -160,7 +159,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
      *
      * @return The ILocalizer managed by this LocalizationManager.
      */
-    public @NotNull ILocalizer getLocalizer()
+    public ILocalizer getLocalizer()
     {
         return localizer;
     }

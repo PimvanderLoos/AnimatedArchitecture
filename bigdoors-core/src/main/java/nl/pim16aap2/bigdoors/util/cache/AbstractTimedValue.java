@@ -24,8 +24,7 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Clock;
 
@@ -38,9 +37,9 @@ abstract class AbstractTimedValue<T>
 {
     protected final long timeOut;
     protected long insertTime;
-    protected final @NotNull Clock clock;
+    protected final Clock clock;
 
-    protected AbstractTimedValue(final @NotNull Clock clock, final long timeOut)
+    protected AbstractTimedValue(final Clock clock, final long timeOut)
     {
         this.clock = clock;
         this.timeOut = timeOut;

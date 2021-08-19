@@ -27,7 +27,6 @@ package nl.pim16aap2.bigdoors.util.cache;
 import lombok.Builder;
 import lombok.val;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -58,7 +57,7 @@ public class TimedCache<K, V>
     /**
      * The actual data structure all values are cached in.
      */
-    private final @NotNull ConcurrentHashMap<K, AbstractTimedValue<V>> cache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<K, AbstractTimedValue<V>> cache = new ConcurrentHashMap<>();
 
     /**
      * The amount of time a variable will be available measured in milliseconds for positive non-zero values.
@@ -73,7 +72,7 @@ public class TimedCache<K, V>
      * Function that creates the specific type of {@link AbstractTimedValue} that is required according to the
      * configuration.
      */
-    private final @NotNull Function<V, AbstractTimedValue<V>> timedValueCreator;
+    private final Function<V, AbstractTimedValue<V>> timedValueCreator;
 
     /**
      * Whether to refresh entries whenever they are accessed.
@@ -95,9 +94,9 @@ public class TimedCache<K, V>
     /**
      * The clock to use to determine the insertion/cleanup times.
      */
-    private final @NotNull Clock clock;
+    private final Clock clock;
 
-    TimedCache(@NotNull Clock clock, @NotNull Duration duration, @Nullable Duration cleanup, boolean softReference,
+    TimedCache(Clock clock, Duration duration, @Nullable Duration cleanup, boolean softReference,
                boolean refresh, boolean keepAfterTimeOut)
     {
         this.clock = clock;
@@ -148,7 +147,7 @@ public class TimedCache<K, V>
      *                         When this is true, values in the cache
      */
     @Builder
-    protected TimedCache(@NotNull Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
+    protected TimedCache(Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
                          boolean keepAfterTimeOut)
     {
         this(Clock.systemUTC(), duration, cleanup, softReference, refresh, keepAfterTimeOut);
@@ -161,7 +160,7 @@ public class TimedCache<K, V>
      * @param value The value of the pair to add to the cache.
      * @return The value that was just added to the cache.
      */
-    public @NotNull V put(final @NotNull K key, final @NotNull V value)
+    public V put(final K key, final V value)
     {
         cache.put(key, timedValueCreator.apply(value));
         return value;
@@ -174,7 +173,7 @@ public class TimedCache<K, V>
      * @param value The value to be associated with the specified key.
      * @return The updated value. If no value was updated, an empty Optional.
      */
-    public @NotNull Optional<V> putIfPresent(final @NotNull K key, final @NotNull V value)
+    public Optional<V> putIfPresent(final K key, final V value)
     {
         return Optional.ofNullable(cache.compute(key, (k, tValue) ->
         {
@@ -191,9 +190,9 @@ public class TimedCache<K, V>
      * <p>
      * If a valid mapping existed for the provided key, an optional containing the mapped value is returned.
      */
-    public @NotNull Optional<V> putIfAbsent(final @NotNull K key, final @NotNull V value)
+    public Optional<V> putIfAbsent(final K key, final V value)
     {
-        final @NotNull AtomicReference<V> returnValue = new AtomicReference<>();
+        final AtomicReference<V> returnValue = new AtomicReference<>();
         cache.compute(key, (k, tValue) ->
         {
             if (tValue == null || tValue.timedOut())
@@ -213,10 +212,10 @@ public class TimedCache<K, V>
      * <p>
      * If a valid mapping existed for the provided key, an optional containing the mapped value is returned.
      */
-    public @NotNull Optional<V> computeIfAbsent(final @NotNull K key,
-                                                final @NotNull Function<K, @NotNull V> mappingFunction)
+    public Optional<V> computeIfAbsent(final K key,
+                                       final Function<K, V> mappingFunction)
     {
-        final @NotNull AtomicReference<V> returnValue = new AtomicReference<>();
+        final AtomicReference<V> returnValue = new AtomicReference<>();
         Util.requireNonNull(cache.compute(key, (k, tValue) ->
         {
             if (tValue == null || tValue.timedOut())
@@ -231,8 +230,8 @@ public class TimedCache<K, V>
     /**
      * See {@link ConcurrentHashMap#computeIfPresent(Object, BiFunction)}.
      */
-    public @NotNull Optional<V> computeIfPresent(final @NotNull K key,
-                                                 final @NotNull BiFunction<@NotNull K, V, @NotNull V> remappingFunction)
+    public Optional<V> computeIfPresent(final K key,
+                                        final BiFunction<K, V, V> remappingFunction)
     {
         return Optional.ofNullable(cache.compute(key, (k, timedValue) ->
         {
@@ -246,8 +245,8 @@ public class TimedCache<K, V>
     /**
      * See {@link ConcurrentHashMap#compute(Object, BiFunction)}.
      */
-    public @NotNull V compute(final @NotNull K key,
-                              final @NotNull BiFunction<K, V, @NotNull V> mappingFunction)
+    public V compute(final K key,
+                     final BiFunction<K, V, V> mappingFunction)
     {
         return Util.requireNonNull(cache.compute(key, (k, timedValue)
             ->
@@ -265,7 +264,7 @@ public class TimedCache<K, V>
     /**
      * See {@link ConcurrentHashMap#remove(Object)}.
      */
-    public @NotNull Optional<V> remove(final @NotNull K key)
+    public Optional<V> remove(final K key)
     {
         return getValue(cache.remove(key));
     }
@@ -279,7 +278,7 @@ public class TimedCache<K, V>
      * @param key The key of the value to look up.
      * @return The value associated with the provided key if it is available.
      */
-    public @NotNull Optional<V> get(final @NotNull K key)
+    public Optional<V> get(final K key)
     {
         final @Nullable AbstractTimedValue<V> entry = cache.get(key);
         if (entry == null)
@@ -302,7 +301,7 @@ public class TimedCache<K, V>
      * @param key The key to check.
      * @return True if the key exists and has not timed out.
      */
-    public boolean containsKey(final @NotNull K key)
+    public boolean containsKey(final K key)
     {
         return get(key).isPresent();
     }
@@ -316,7 +315,7 @@ public class TimedCache<K, V>
      * @param entry The entry to wrap.
      * @return The value stored in the entry, if any.
      */
-    protected @NotNull Optional<V> getValue(final @Nullable AbstractTimedValue<V> entry)
+    protected Optional<V> getValue(final @Nullable AbstractTimedValue<V> entry)
     {
         return entry == null ? Optional.empty() : Optional.ofNullable(entry.getValue(refresh));
     }
@@ -349,7 +348,7 @@ public class TimedCache<K, V>
      * @param key The key associated with the value to retrieve.
      * @return The value associated with the key, if it exists.
      */
-    protected @Nullable AbstractTimedValue<V> getRaw(final @NotNull K key)
+    protected @Nullable AbstractTimedValue<V> getRaw(final K key)
     {
         return cache.get(key);
     }
@@ -361,7 +360,7 @@ public class TimedCache<K, V>
      * @param val The value to wrap in an {@link AbstractTimedValue}.
      * @return The newly created {@link TimedValue}.
      */
-    private @NotNull AbstractTimedValue<V> createTimedValue(final @NotNull V val)
+    private AbstractTimedValue<V> createTimedValue(final V val)
     {
         return new TimedValue<>(clock, val, timeOut);
     }
@@ -373,7 +372,7 @@ public class TimedCache<K, V>
      * @param val The value to wrap in an {@link AbstractTimedValue}.
      * @return The newly created {@link TimedSoftValue}.
      */
-    private @NotNull AbstractTimedValue<V> createTimedSoftValue(final @NotNull V val)
+    private AbstractTimedValue<V> createTimedSoftValue(final V val)
     {
         return new TimedSoftValue<>(clock, val, timeOut, keepAfterTimeOut);
     }
@@ -403,8 +402,8 @@ public class TimedCache<K, V>
         if (period < 1)
             return;
 
-        @NotNull val taskTimer = new Timer(true);
-        @NotNull val verifyTask = new TimerTask()
+        val taskTimer = new Timer(true);
+        val verifyTask = new TimerTask()
         {
             @Override
             public void run()

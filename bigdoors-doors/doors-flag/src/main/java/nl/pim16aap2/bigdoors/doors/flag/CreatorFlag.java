@@ -11,7 +11,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -19,21 +18,21 @@ import java.util.List;
 
 public class CreatorFlag extends Creator
 {
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeFlag.get();
+    private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorFlag(final IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorFlag(final @NotNull IPPlayer player)
+    public CreatorFlag(final IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         return Arrays.asList(factorySetName.construct(),
@@ -52,14 +51,14 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocation loc)
+    protected boolean setSecondPos(final IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NotNull Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                                 loc.getBlockZ())).getDimensions();
+        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                        loc.getBlockZ())).getDimensions();
 
         // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
         if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
@@ -73,7 +72,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetEngineStep(final @NotNull IPLocation loc)
+    protected boolean completeSetEngineStep(final IPLocation loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
@@ -88,7 +87,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoor constructDoor()
+    protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         Util.requireNonNull(engine, "engine");
@@ -101,7 +100,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected @NotNull DoorType getDoorType()
+    protected DoorType getDoorType()
     {
         return DOOR_TYPE;
     }

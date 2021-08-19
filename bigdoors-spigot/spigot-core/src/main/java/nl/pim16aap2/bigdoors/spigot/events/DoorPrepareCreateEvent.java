@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,31 +17,31 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareCreateEvent extends DoorEvent implements IDoorPrepareCreateEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
     private boolean isCancelled = false;
 
-    public DoorPrepareCreateEvent(final @NotNull AbstractDoor door,
+    public DoorPrepareCreateEvent(final AbstractDoor door,
                                   final @Nullable IPPlayer responsible)
     {
         super(door, responsible);
     }
 
     @Override
-    public @NotNull AbstractDoor getDoor()
+    public AbstractDoor getDoor()
     {
         return super.getDoor();
     }
 
     @Override
-    public @NotNull HandlerList getHandlers()
+    public HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

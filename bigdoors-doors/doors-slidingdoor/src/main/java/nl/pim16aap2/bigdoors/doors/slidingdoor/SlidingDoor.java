@@ -20,7 +20,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -34,7 +33,7 @@ import java.util.Optional;
 public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
     @Getter
     @Setter
@@ -51,7 +50,7 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     @PersistentVariable
     protected int autoOpenTime;
 
-    public SlidingDoor(final @NotNull DoorBase doorBase, final int blocksToMove, final int autoCloseTime,
+    public SlidingDoor(final DoorBase doorBase, final int blocksToMove, final int autoCloseTime,
                        final int autoOpenTime)
     {
         super(doorBase);
@@ -60,19 +59,19 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
         this.autoOpenTime = autoOpenTime;
     }
 
-    public SlidingDoor(final @NotNull DoorBase doorBase, final int blocksToMove)
+    public SlidingDoor(final DoorBase doorBase, final int blocksToMove)
     {
         this(doorBase, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")
-    private SlidingDoor(final @NotNull DoorBase doorBase)
+    private SlidingDoor(final DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -84,7 +83,7 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
                getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
@@ -92,26 +91,26 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
         return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
+                                             final boolean skipAnimation, final Cuboid newCuboid,
+                                             final IPPlayer responsible,
+                                             final DoorActionType actionType)
         throws Exception
     {
-        final @NotNull RotateDirection currentToggleDir = getCurrentToggleDir();
+        final RotateDirection currentToggleDir = getCurrentToggleDir();
         return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,28 +51,28 @@ public interface IDoor
      *
      * @return The {@link Cuboid} representing the area taken up by this door.
      */
-    @NotNull Cuboid getCuboid();
+    Cuboid getCuboid();
 
     /**
      * Gets the name of this door.
      *
      * @return The name of this door.
      */
-    @NotNull String getName();
+    String getName();
 
     /**
      * Changes the name of the door.
      *
      * @param name The new name of this door.
      */
-    void setName(@NotNull String name);
+    void setName(String name);
 
     /**
      * Gets the IPWorld this {@link IDoor} exists in.
      *
      * @return The IPWorld this {@link IDoor} exists in
      */
-    @NotNull IPWorld getWorld();
+    IPWorld getWorld();
 
     /**
      * Gets the UID of the {@link IDoor} as used in the database. Guaranteed to be unique and available.
@@ -102,14 +101,14 @@ public interface IDoor
      *
      * @return The prime owner of this door.
      */
-    @NotNull DoorOwner getPrimeOwner();
+    DoorOwner getPrimeOwner();
 
     /**
      * Gets all {@link DoorOwner}s of this door, including the original creator.
      *
      * @return All {@link DoorOwner}s of this door, including the original creator.
      */
-    @NotNull List<@NotNull DoorOwner> getDoorOwners();
+    List<DoorOwner> getDoorOwners();
 
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
@@ -118,7 +117,7 @@ public interface IDoor
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
-    @NotNull Optional<DoorOwner> getDoorOwner(@NotNull IPPlayer player);
+    Optional<DoorOwner> getDoorOwner(IPPlayer player);
 
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
@@ -127,7 +126,7 @@ public interface IDoor
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
-    @NotNull Optional<DoorOwner> getDoorOwner(@NotNull UUID player);
+    Optional<DoorOwner> getDoorOwner(UUID player);
 
     /**
      * Gets the {@link RotateDirection} this {@link IDoor} will open if currently closed.
@@ -137,7 +136,7 @@ public interface IDoor
      *
      * @return The {@link RotateDirection} this {@link IDoor} will open in.
      */
-    @NotNull RotateDirection getOpenDir();
+    RotateDirection getOpenDir();
 
     /**
      * Sets the {@link RotateDirection} this {@link IDoor} will open if currently closed.
@@ -147,63 +146,63 @@ public interface IDoor
      *
      * @param rotateDirection The {@link RotateDirection} this {@link IDoor} will open in.
      */
-    void setOpenDir(@NotNull RotateDirection rotateDirection);
+    void setOpenDir(RotateDirection rotateDirection);
 
     /**
      * Gets the position of power block of this door.
      *
      * @return The position of the power block of this door.
      */
-    @NotNull Vector3Di getPowerBlock();
+    Vector3Di getPowerBlock();
 
     /**
      * Updates the position of the powerblock.
      *
      * @param pos The new position.
      */
-    void setPowerBlockPosition(@NotNull Vector3Di pos);
+    void setPowerBlockPosition(Vector3Di pos);
 
     /**
      * Gets the position of the engine of this door.
      *
      * @return The position of the engine block of this door.
      */
-    @NotNull Vector3Di getEngine();
+    Vector3Di getEngine();
 
     /**
      * Updates the position of the engine.
      *
      * @param pos The new position.
      */
-    void setEngine(@NotNull Vector3Di pos);
+    void setEngine(Vector3Di pos);
 
     /**
      * Gets the minimum position of this door.
      *
      * @return The minimum coordinates of this door.
      */
-    @NotNull Vector3Di getMinimum();
+    Vector3Di getMinimum();
 
     /**
      * Changes the position of this {@link IDoor}. The min/max order of the positions doesn't matter.
      *
      * @param posA The first new position.
      */
-    void setCoordinates(@NotNull Vector3Di posA, @NotNull Vector3Di posB);
+    void setCoordinates(Vector3Di posA, Vector3Di posB);
 
     /**
      * Changes the position of this {@link IDoor}. The min/max order of the positions doesn't matter.
      *
      * @param newCuboid The {@link Cuboid} representing the area the door will take up from now on.
      */
-    void setCoordinates(@NotNull Cuboid newCuboid);
+    void setCoordinates(Cuboid newCuboid);
 
     /**
      * Gets a copy of the maximum position of this door.
      *
      * @return A copy of the maximum position of this door.
      */
-    @NotNull Vector3Di getMaximum();
+    Vector3Di getMaximum();
 
     /**
      * Retrieve the total number of blocks this {@link IDoor} is made out of. If invalidated or not calculated * yet, it
@@ -223,7 +222,7 @@ public interface IDoor
      *
      * @return The dimensions of this door.
      */
-    @NotNull Vector3Di getDimensions();
+    Vector3Di getDimensions();
 
     /**
      * @return The simple hash of the chunk in which the power block resides.

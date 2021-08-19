@@ -5,7 +5,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an Elevator doorType.
@@ -17,26 +16,26 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = true)
 public class Elevator extends Portcullis
 {
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeElevator.get();
+    private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
 
-    public Elevator(final @NotNull DoorBase doorData, final int blocksToMove, final int autoCloseTime,
+    public Elevator(final DoorBase doorData, final int blocksToMove, final int autoCloseTime,
                     final int autoOpenTime)
     {
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    public Elevator(final @NotNull DoorBase doorBase, final int blocksToMove)
+    public Elevator(final DoorBase doorBase, final int blocksToMove)
     {
         super(doorBase, blocksToMove, -1, -1);
     }
 
-    private Elevator(final @NotNull DoorBase doorBase)
+    private Elevator(final DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }

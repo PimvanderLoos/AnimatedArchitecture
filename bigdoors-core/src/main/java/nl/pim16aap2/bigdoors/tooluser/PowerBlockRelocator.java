@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -23,10 +22,10 @@ import java.util.List;
 @ToString
 public class PowerBlockRelocator extends ToolUser
 {
-    private final @NotNull AbstractDoor door;
+    private final AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(final @NotNull IPPlayer player, final @NotNull AbstractDoor door)
+    public PowerBlockRelocator(final IPPlayer player, final AbstractDoor door)
     {
         super(player);
         this.door = door;
@@ -39,7 +38,7 @@ public class PowerBlockRelocator extends ToolUser
                  "tool_user.powerblock_relocator.init");
     }
 
-    protected boolean moveToLoc(final @NotNull IPLocation loc)
+    protected boolean moveToLoc(final IPLocation loc)
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
@@ -83,7 +82,7 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")

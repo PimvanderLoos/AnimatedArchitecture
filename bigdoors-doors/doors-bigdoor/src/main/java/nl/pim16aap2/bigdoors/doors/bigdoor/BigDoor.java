@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -32,7 +31,7 @@ import java.util.Optional;
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeBigDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
     @Getter
     @Setter
@@ -44,20 +43,20 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @PersistentVariable
     protected int autoOpenTime;
 
-    public BigDoor(final @NotNull DoorBase doorBase, final int autoCloseTime, final int autoOpenTime)
+    public BigDoor(final DoorBase doorBase, final int autoCloseTime, final int autoOpenTime)
     {
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public BigDoor(final @NotNull DoorBase doorBase)
+    public BigDoor(final DoorBase doorBase)
     {
         this(doorBase, -1, -1); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -69,22 +68,22 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
                RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
@@ -98,10 +97,10 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
+                                             final boolean skipAnimation, final Cuboid newCuboid,
+                                             final IPPlayer responsible,
+                                             final DoorActionType actionType)
         throws Exception
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,

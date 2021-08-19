@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.event.Listener;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -14,9 +13,9 @@ import org.jetbrains.annotations.Nullable;
 public class DoorEventListener implements Listener
 {
     private static @Nullable DoorEventListener INSTANCE;
-    private final @NotNull DoorOpener doorOpener;
+    private final DoorOpener doorOpener;
 
-    private DoorEventListener(final @NotNull DoorOpener doorOpener)
+    private DoorEventListener(final DoorOpener doorOpener)
     {
         this.doorOpener = doorOpener;
     }
@@ -28,7 +27,7 @@ public class DoorEventListener implements Listener
      * @param doorOpener The {@link DoorOpener} used to open, close, and toggle doors.
      * @return The instance of this {@link DoorEventListener}.
      */
-    public static @NotNull DoorEventListener init(final @NotNull DoorOpener doorOpener)
+    public static DoorEventListener init(final DoorOpener doorOpener)
     {
         return (INSTANCE == null) ? INSTANCE = new DoorEventListener(doorOpener) : INSTANCE;
     }
@@ -38,7 +37,7 @@ public class DoorEventListener implements Listener
      *
      * @return The instance of the {@link DoorEventListener}.
      */
-    public static @NotNull DoorEventListener get()
+    public static DoorEventListener get()
     {
         return Util.requireNonNull(INSTANCE, "Instance");
     }

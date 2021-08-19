@@ -23,7 +23,6 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -39,7 +38,7 @@ import java.util.logging.Level;
  */
 public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 {
-    private final @NotNull World world;
+    private final World world;
 
     private @Nullable TimerTask killTask;
 
@@ -47,13 +46,13 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
     private boolean alive = false;
 
-    private final @NotNull Map<PColor, Team> teams;
-    private final @NotNull Player player;
-    private final @NotNull IRestartableHolder restartableHolder;
+    private final Map<PColor, Team> teams;
+    private final Player player;
+    private final IRestartableHolder restartableHolder;
 
-    public GlowingBlock_V1_15_R1(final @NotNull Player player, final @NotNull World world,
-                                 final @NotNull Map<PColor, Team> teams,
-                                 final @NotNull IRestartableHolder restartableHolder)
+    public GlowingBlock_V1_15_R1(final Player player, final World world,
+                                 final Map<PColor, Team> teams,
+                                 final IRestartableHolder restartableHolder)
     {
         this.player = player;
         this.world = world;
@@ -62,7 +61,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
 
-    private @NotNull Optional<PlayerConnection> getConnection()
+    private Optional<PlayerConnection> getConnection()
     {
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
@@ -87,7 +86,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
     @Override
-    public void teleport(final @NotNull Vector3Dd position)
+    public void teleport(final Vector3Dd position)
     {
         if (!alive)
             return;
@@ -96,7 +95,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
     @Override
-    public void spawn(final @NotNull PColor pColor, final double x, final double y, final double z, final long ticks)
+    public void spawn(final PColor pColor, final double x, final double y, final double z, final long ticks)
     {
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
@@ -106,7 +105,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
             return;
         }
 
-        final @NotNull Optional<PlayerConnection> playerConnectionOpt = getConnection();
+        final Optional<PlayerConnection> playerConnectionOpt = getConnection();
         if (playerConnectionOpt.isEmpty())
             return;
 
@@ -186,11 +185,11 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public @NotNull Optional<IGlowingBlock> createGlowingBlock(final @NotNull Player player,
-                                                                   final @NotNull World world,
-                                                                   final @NotNull IRestartableHolder restartableHolder)
+        public Optional<IGlowingBlock> createGlowingBlock(final Player player,
+                                                          final World world,
+                                                          final IRestartableHolder restartableHolder)
         {
-            @NotNull Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
+            Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
             if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
                 return Optional.empty();
 

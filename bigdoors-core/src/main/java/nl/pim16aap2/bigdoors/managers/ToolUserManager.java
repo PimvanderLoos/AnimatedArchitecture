@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.pair.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -18,14 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ToolUserManager extends Restartable
 {
-    private static final @NotNull Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private static final Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
-    public ToolUserManager(final @NotNull IRestartableHolder holder)
+    public ToolUserManager(final IRestartableHolder holder)
     {
         super(holder);
     }
 
-    public void registerToolUser(final @NotNull ToolUser toolUser)
+    public void registerToolUser(final ToolUser toolUser)
     {
         @SuppressWarnings("NullAway") final @Nullable Pair<ToolUser, TimerTask> result =
             toolUsers.put(toolUser.getPlayer().getUUID(), new Pair<>(toolUser, null));
@@ -40,22 +39,22 @@ public final class ToolUserManager extends Restartable
         }
     }
 
-    public boolean isToolUser(final @NotNull IPPlayer player)
+    public boolean isToolUser(final IPPlayer player)
     {
         return isToolUser(player.getUUID());
     }
 
-    public boolean isToolUser(final @NotNull UUID uuid)
+    public boolean isToolUser(final UUID uuid)
     {
         return toolUsers.containsKey(uuid);
     }
 
-    public @NotNull Optional<ToolUser> getToolUser(final @NotNull IPPlayer player)
+    public Optional<ToolUser> getToolUser(final IPPlayer player)
     {
         return getToolUser(player.getUUID());
     }
 
-    public @NotNull Optional<ToolUser> getToolUser(final @NotNull UUID uuid)
+    public Optional<ToolUser> getToolUser(final UUID uuid)
     {
         return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.first);
     }
@@ -63,10 +62,10 @@ public final class ToolUserManager extends Restartable
     @Override
     public void restart()
     {
-        final @NotNull Iterator<Map.Entry<UUID, Pair<ToolUser, TimerTask>>> it = toolUsers.entrySet().iterator();
+        final Iterator<Map.Entry<UUID, Pair<ToolUser, TimerTask>>> it = toolUsers.entrySet().iterator();
         while (it.hasNext())
         {
-            final @NotNull Map.Entry<UUID, Pair<ToolUser, TimerTask>> entry = it.next();
+            final Map.Entry<UUID, Pair<ToolUser, TimerTask>> entry = it.next();
             abortPair(entry.getKey(), entry.getValue());
         }
 
@@ -90,7 +89,7 @@ public final class ToolUserManager extends Restartable
      *
      * @param toolUser The {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull ToolUser toolUser)
+    public void abortToolUser(final ToolUser toolUser)
     {
         abortToolUser(toolUser.getPlayer().getUUID());
     }
@@ -102,7 +101,7 @@ public final class ToolUserManager extends Restartable
      * @param toolUser The {@link ToolUser} for which to start the timer.
      * @param time     The amount of time (in seconds).
      */
-    public void startToolUser(final @NotNull ToolUser toolUser, final int time)
+    public void startToolUser(final ToolUser toolUser, final int time)
     {
         final @Nullable Pair<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
@@ -121,7 +120,7 @@ public final class ToolUserManager extends Restartable
             return;
         }
 
-        final @NotNull TimerTask timerTask = new TimerTask()
+        final TimerTask timerTask = new TimerTask()
         {
             @Override
             public void run()
@@ -143,7 +142,7 @@ public final class ToolUserManager extends Restartable
      *
      * @param player The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull IPPlayer player)
+    public void abortToolUser(final IPPlayer player)
     {
         abortToolUser(player.getUUID());
     }
@@ -156,12 +155,12 @@ public final class ToolUserManager extends Restartable
      *
      * @param playerUUID The {@link UUID} of the player whose {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull UUID playerUUID)
+    public void abortToolUser(final UUID playerUUID)
     {
         abortPair(playerUUID, toolUsers.get(playerUUID));
     }
 
-    private void abortPair(final @NotNull UUID uuid, final @Nullable Pair<ToolUser, TimerTask> pair)
+    private void abortPair(final UUID uuid, final @Nullable Pair<ToolUser, TimerTask> pair)
     {
         toolUsers.remove(uuid);
 

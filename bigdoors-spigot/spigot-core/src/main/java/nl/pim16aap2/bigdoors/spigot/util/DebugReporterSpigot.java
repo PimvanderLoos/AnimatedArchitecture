@@ -19,15 +19,14 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 public class DebugReporterSpigot extends DebugReporter
 {
-    private final @NotNull BigDoorsSpigot plugin;
+    private final BigDoorsSpigot plugin;
 
     @Override
-    public @NotNull String getDump()
+    public String getDump()
     {
         final StringBuilder sb = new StringBuilder(super.getDump());
         sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append("\n");
@@ -58,7 +57,7 @@ public class DebugReporterSpigot extends DebugReporter
         return sb.toString();
     }
 
-    private @NotNull String getListeners(final @NotNull Class<?>... classes)
+    private String getListeners(final Class<?>... classes)
     {
         final StringBuilder sb = new StringBuilder();
         for (Class<?> clz : classes)
@@ -89,7 +88,7 @@ public class DebugReporterSpigot extends DebugReporter
         return sb.toString();
     }
 
-    private static @NotNull String formatRegisteredListener(final @NotNull RegisteredListener listener)
+    private static String formatRegisteredListener(final RegisteredListener listener)
     {
         return String.format("{%s: %s (%s)}",
                              listener.getPlugin(), listener.getListener(), listener.getPriority());

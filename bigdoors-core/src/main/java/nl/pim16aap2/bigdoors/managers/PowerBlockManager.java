@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -31,10 +30,10 @@ import java.util.logging.Level;
  */
 public final class PowerBlockManager extends Restartable
 {
-    private final @NotNull Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
-    private final @NotNull IConfigLoader config;
-    private final @NotNull DatabaseManager databaseManager;
-    private final @NotNull IPLogger pLogger;
+    private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
+    private final IConfigLoader config;
+    private final DatabaseManager databaseManager;
+    private final IPLogger pLogger;
 
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
@@ -45,8 +44,8 @@ public final class PowerBlockManager extends Restartable
      * @param databaseManager   The database manager to use for power block retrieval.
      * @param pLogger           The logger used for error logging.
      */
-    public PowerBlockManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull IConfigLoader config,
-                             final @NotNull DatabaseManager databaseManager, final @NotNull IPLogger pLogger)
+    public PowerBlockManager(final IRestartableHolder restartableHolder, final IConfigLoader config,
+                             final DatabaseManager databaseManager, final IPLogger pLogger)
     {
         super(restartableHolder);
         this.config = config;
@@ -60,7 +59,7 @@ public final class PowerBlockManager extends Restartable
      *
      * @param worldName The name of the world the unload.
      */
-    public void unloadWorld(final @NotNull String worldName)
+    public void unloadWorld(final String worldName)
     {
         powerBlockWorlds.remove(worldName);
     }
@@ -70,7 +69,7 @@ public final class PowerBlockManager extends Restartable
      *
      * @param worldName The name of the world.
      */
-    public void loadWorld(final @NotNull String worldName)
+    public void loadWorld(final String worldName)
     {
         powerBlockWorlds.put(worldName, new PowerBlockWorld(worldName));
     }
@@ -83,10 +82,10 @@ public final class PowerBlockManager extends Restartable
      * @return All {@link DoorBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
-    public @NotNull CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(
-        final @NotNull Vector3Di loc, final @NotNull String worldName)
+    public CompletableFuture<List<CompletableFuture<Optional<AbstractDoor>>>> doorsFromPowerBlockLoc(
+        final Vector3Di loc, final String worldName)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
@@ -96,7 +95,7 @@ public final class PowerBlockManager extends Restartable
         return powerBlockWorld.getPowerBlocks(loc).handle(
             (list, throwable) ->
             {
-                final @NotNull List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
+                final List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
                 list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
             }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -108,9 +107,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldName The name of the world.
      * @return True if the world contains at least 1 door.
      */
-    public boolean isBigDoorsWorld(final @NotNull String worldName)
+    public boolean isBigDoorsWorld(final String worldName)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
@@ -126,12 +125,12 @@ public final class PowerBlockManager extends Restartable
      * @param oldPos The old position.
      * @param newPos The new position.
      */
-    public void updatePowerBlockLoc(final @NotNull AbstractDoor door, final @NotNull Vector3Di oldPos,
-                                    final @NotNull Vector3Di newPos)
+    public void updatePowerBlockLoc(final AbstractDoor door, final Vector3Di oldPos,
+                                    final Vector3Di newPos)
     {
         door.setPowerBlockPosition(newPos);
         door.syncData();
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING,
@@ -150,9 +149,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldName The name of the world of the door.
      * @param pos       The position of the door's power block.
      */
-    public void onDoorAddOrRemove(final @NotNull String worldName, final @NotNull Vector3Di pos)
+    public void onDoorAddOrRemove(final String worldName, final Vector3Di pos)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
@@ -168,9 +167,9 @@ public final class PowerBlockManager extends Restartable
      * @param worldName The name of the world.
      * @param chunk     The location (x,z) of the chunk in chunk-space.
      */
-    public void invalidateChunk(final @NotNull String worldName, final @NotNull Vector2Di chunk)
+    public void invalidateChunk(final String worldName, final Vector2Di chunk)
     {
-        final @NotNull PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
+        final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
             pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
@@ -199,7 +198,7 @@ public final class PowerBlockManager extends Restartable
      */
     private final class PowerBlockWorld implements IRestartable
     {
-        private final @NotNull String worldName;
+        private final String worldName;
         private volatile boolean isBigDoorsWorld = false;
 
         /**
@@ -209,11 +208,11 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
-        private final @NotNull TimedCache<Long, PowerBlockChunk> powerBlockChunks =
+        private final TimedCache<Long, PowerBlockChunk> powerBlockChunks =
             TimedCache.<Long, PowerBlockChunk>builder()
                       .duration(Duration.ofMinutes(config.cacheTimeout())).refresh(true).build();
 
-        private PowerBlockWorld(final @NotNull String worldName)
+        private PowerBlockWorld(final String worldName)
         {
             this.worldName = worldName;
             checkBigDoorsWorldStatus();
@@ -235,7 +234,7 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        private @NotNull CompletableFuture<List<Long>> getPowerBlocks(final @NotNull Vector3Di loc)
+        private CompletableFuture<List<Long>> getPowerBlocks(final Vector3Di loc)
         {
             if (!isBigDoorsWorld())
                 return CompletableFuture.completedFuture(Collections.emptyList());
@@ -244,7 +243,7 @@ public final class PowerBlockManager extends Restartable
 
             if (!powerBlockChunks.containsKey(chunkHash))
             {
-                final @NotNull PowerBlockChunk powerBlockChunk =
+                final PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
                 return BigDoors.get().getDatabaseManager().getPowerBlockData(chunkHash).handle(
@@ -252,7 +251,7 @@ public final class PowerBlockManager extends Restartable
                     {
                         powerBlockChunk.setPowerBlocks(map);
 
-                        final @NotNull List<Long> doorUIDs = new ArrayList<>(map.size());
+                        final List<Long> doorUIDs = new ArrayList<>(map.size());
                         map.forEach((key, value) -> doorUIDs.addAll(value));
                         return doorUIDs;
                     }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -268,7 +267,7 @@ public final class PowerBlockManager extends Restartable
          *
          * @param pos The position.
          */
-        private void invalidatePosition(final @NotNull Vector3Di pos)
+        private void invalidatePosition(final Vector3Di pos)
         {
             powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.x(), pos.z()));
         }
@@ -312,9 +311,9 @@ public final class PowerBlockManager extends Restartable
          * <p>
          * Value: List of UIDs of all doors whose power block occupy this space.
          */
-        private @NotNull Map<Integer, List<Long>> powerBlocks = Collections.emptyMap();
+        private Map<Integer, List<Long>> powerBlocks = Collections.emptyMap();
 
-        private void setPowerBlocks(final @NotNull Map<Integer, List<Long>> powerBlocks)
+        private void setPowerBlocks(final Map<Integer, List<Long>> powerBlocks)
         {
             this.powerBlocks = powerBlocks;
         }
@@ -325,7 +324,7 @@ public final class PowerBlockManager extends Restartable
          * @param loc The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
-        private @NotNull List<Long> getPowerBlocks(final @NotNull Vector3Di loc)
+        private List<Long> getPowerBlocks(final Vector3Di loc)
         {
             if (!isPowerBlockChunk())
                 return Collections.emptyList();

@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -19,12 +18,12 @@ import java.util.UUID;
  */
 public class LandsProtectionCompat implements IProtectionCompat
 {
-    private static final @NotNull ProtectionCompat compat = ProtectionCompat.LANDS;
-    private final @NotNull BigDoorsSpigot plugin;
+    private static final ProtectionCompat compat = ProtectionCompat.LANDS;
+    private final BigDoorsSpigot plugin;
     private boolean success = false;
-    private final @NotNull LandsIntegration landsAddon;
+    private final LandsIntegration landsAddon;
 
-    public LandsProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public LandsProtectionCompat(final BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         landsAddon = new LandsIntegration(plugin, false);
@@ -32,14 +31,14 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
         return landsAddon.getLandChunk(loc).canAction(player.getUniqueId(), RoleSetting.BLOCK_BREAK);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
+                                             final Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -72,7 +71,7 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return ProtectionCompat.getName(compat);
     }

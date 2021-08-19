@@ -7,12 +7,11 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
-import org.jetbrains.annotations.NotNull;
 
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 {
-    private static final @NotNull String VERSION = "v1_15_R1";
-    private static final @NotNull SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
+    private static final String VERSION = "v1_15_R1";
+    private static final SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
 
     @Getter
     @SuppressWarnings("NullAway.Init")
@@ -35,7 +34,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     }
 
     @Override
-    public @NotNull String getVersion()
+    public String getVersion()
     {
         return VERSION;
     }
@@ -45,13 +44,13 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
      *
      * @return The instance of this class.
      */
-    public static @NotNull SpigotPlatform_V1_15_R1 get()
+    public static SpigotPlatform_V1_15_R1 get()
     {
         return INSTANCE;
     }
 
     @Override
-    public void init(final @NotNull BigDoorsSpigotAbstract plugin)
+    public void init(final BigDoorsSpigotAbstract plugin)
     {
         fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
         pBlockDataFactory = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1();

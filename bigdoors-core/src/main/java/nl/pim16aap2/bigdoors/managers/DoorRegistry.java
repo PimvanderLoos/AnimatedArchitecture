@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoor;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -22,7 +21,7 @@ public final class DoorRegistry extends Restartable
 {
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
-    public static final @NotNull Duration CACHE_EXPIRY = Duration.ofMinutes(15);
+    public static final Duration CACHE_EXPIRY = Duration.ofMinutes(15);
 
     // It's not final, so we make it volatile to ensure it's always visible.
     // SonarLint likes to complain about making it volatile, as this doesn't
@@ -44,7 +43,7 @@ public final class DoorRegistry extends Restartable
      * @param cacheExpiry      How long to keep stuff in the cache.
      */
 //    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(int concurrencyLevel, int initialCapacity, @NotNull Duration cacheExpiry)
+    private DoorRegistry(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         super(BigDoors.get());
         init(concurrencyLevel, initialCapacity, cacheExpiry);
@@ -65,9 +64,9 @@ public final class DoorRegistry extends Restartable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static @NotNull DoorRegistry uncached()
+    public static DoorRegistry uncached()
     {
-        final @NotNull DoorRegistry doorRegistry = new DoorRegistry(-1, -1, Duration.ofMillis(-1));
+        final DoorRegistry doorRegistry = new DoorRegistry(-1, -1, Duration.ofMillis(-1));
         doorRegistry.acceptNewEntries = false;
         return doorRegistry;
     }
@@ -78,7 +77,7 @@ public final class DoorRegistry extends Restartable
      * @param doorUID The UID of the door.
      * @return The {@link DoorBase} if it has been retrieved from the database.
      */
-    public @NotNull Optional<AbstractDoor> getRegisteredDoor(final long doorUID)
+    public Optional<AbstractDoor> getRegisteredDoor(final long doorUID)
     {
         return doorCache.get(doorUID);
     }
@@ -112,7 +111,7 @@ public final class DoorRegistry extends Restartable
      * @param doorBase The door.
      * @return True if an entry exists for the exact instance of the provided {@link DoorBase}.
      */
-    public boolean isRegistered(final @NotNull IDoor doorBase)
+    public boolean isRegistered(final IDoor doorBase)
     {
         return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }
@@ -124,11 +123,11 @@ public final class DoorRegistry extends Restartable
      *                    registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final @NotNull AbstractDoor.Registrable registrable)
+    public boolean registerDoor(final AbstractDoor.Registrable registrable)
     {
         if (!acceptNewEntries)
             return true;
-        final @NotNull AbstractDoor door = registrable.getAbstractDoorBase();
+        final AbstractDoor door = registrable.getAbstractDoorBase();
         return doorCache.putIfAbsent(door.getDoorUID(), door).isEmpty();
     }
 
@@ -149,7 +148,7 @@ public final class DoorRegistry extends Restartable
      *
      * @return This {@link DoorRegistry}.
      */
-    public @NotNull DoorRegistry init()
+    public DoorRegistry init()
     {
         return init(CONCURRENCY_LEVEL, INITIAL_CAPACITY, Duration.ZERO);
     }
@@ -164,7 +163,7 @@ public final class DoorRegistry extends Restartable
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
     @Initializer
-    private @NotNull DoorRegistry init(int concurrencyLevel, int initialCapacity, @NotNull Duration cacheExpiry)
+    private DoorRegistry init(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         return init(concurrencyLevel, initialCapacity, cacheExpiry, true);
     }
@@ -180,8 +179,8 @@ public final class DoorRegistry extends Restartable
     // TODO: Implement these parameters. Once implemented, this should be public.
     @SuppressWarnings({"unused", "SameParameterValue"})
     @Initializer
-    private @NotNull DoorRegistry init(int concurrencyLevel, int initialCapacity,
-                                       @NotNull Duration cacheExpiry, boolean removalListener)
+    private DoorRegistry init(int concurrencyLevel, int initialCapacity,
+                              Duration cacheExpiry, boolean removalListener)
     {
         if (doorCache != null)
             doorCache.clear();

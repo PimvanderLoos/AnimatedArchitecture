@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.util.functional.TriIntConsumer;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -18,9 +17,9 @@ import java.util.function.Supplier;
 @Deprecated
 public class PositionIterator implements Iterable<Vector3Di>
 {
-    private final @NotNull Vector3Di posA;
-    private final @NotNull Vector3Di posB;
-    private final @NotNull IterationMode iterationMode;
+    private final Vector3Di posA;
+    private final Vector3Di posB;
+    private final IterationMode iterationMode;
     private final int dx, dy, dz;
     private final int volume;
 
@@ -35,8 +34,8 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param volume        The total number of blocks between posA and posB (inclusive). Do not use this if you do not
      *                      know this.
      */
-    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
-                            final @NotNull IterationMode iterationMode, final int volume)
+    public PositionIterator(final Vector3Di posA, final Vector3Di posB,
+                            final IterationMode iterationMode, final int volume)
     {
         if (volume < 1)
             throw new IllegalArgumentException("Volume " + volume + " cannot be smaller than 1 block!");
@@ -58,8 +57,8 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param posB          The ending values.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
-                            final @NotNull IterationMode iterationMode)
+    public PositionIterator(final Vector3Di posA, final Vector3Di posB,
+                            final IterationMode iterationMode)
     {
         this(posA, posB, iterationMode, getVolume(posA, posB));
     }
@@ -73,18 +72,18 @@ public class PositionIterator implements Iterable<Vector3Di>
      *                      Cuboid#getMax()}.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final @NotNull Cuboid cuboid, final @NotNull IterationMode iterationMode)
+    public PositionIterator(final Cuboid cuboid, final IterationMode iterationMode)
     {
         this(cuboid.getMin(), cuboid.getMax(), iterationMode, cuboid.getVolume());
     }
 
-    private static int getVolume(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB)
+    private static int getVolume(final Vector3Di posA, final Vector3Di posB)
     {
         return new Cuboid(posA, posB).getVolume();
     }
 
     @Override
-    public @NotNull CustomIterator iterator()
+    public CustomIterator iterator()
     {
         return new CustomIterator(this);
     }
@@ -95,7 +94,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      *
      * @param action The method to apply for each step.
      */
-    public void forEach(final @NotNull TriIntConsumer action)
+    public void forEach(final TriIntConsumer action)
     {
         iterator().forEach(action);
     }
@@ -110,7 +109,7 @@ public class PositionIterator implements Iterable<Vector3Di>
         private final Runnable resetMiddleLoop, resetInnerLoop;
         private int currentIndex = 0;
 
-        private CustomIterator(final @NotNull PositionIterator locationIterator)
+        private CustomIterator(final PositionIterator locationIterator)
         {
             x = posA.x();
             y = posA.y();
@@ -123,7 +122,7 @@ public class PositionIterator implements Iterable<Vector3Di>
             resetInnerLoop = getResetMethod(locationIterator.iterationMode.getIndex(2));
         }
 
-        private void forEach(final @NotNull TriIntConsumer action)
+        private void forEach(final TriIntConsumer action)
         {
             do action.accept(x, y, z);
             while (step());

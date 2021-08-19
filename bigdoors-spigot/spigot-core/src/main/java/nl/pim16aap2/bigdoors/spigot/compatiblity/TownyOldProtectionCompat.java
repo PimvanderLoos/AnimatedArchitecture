@@ -5,7 +5,6 @@ import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
@@ -16,25 +15,25 @@ import org.jetbrains.annotations.NotNull;
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
     @SuppressWarnings("unused")
-    private final @NotNull BigDoorsSpigot plugin;
+    private final BigDoorsSpigot plugin;
     private boolean success = false;
-    private static final @NotNull ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
 
-    public TownyOldProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public TownyOldProtectionCompat(final BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
         return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
+                                             final Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -61,7 +60,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return ProtectionCompat.getName(compat);
     }

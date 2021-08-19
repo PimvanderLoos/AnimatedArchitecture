@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -53,7 +52,7 @@ public abstract class AbortableTask
      *
      * @param task The BukkitTask.
      */
-    public final void setTask(final @NotNull BukkitTask task)
+    public final void setTask(final BukkitTask task)
     {
         bukkitTask = task;
     }

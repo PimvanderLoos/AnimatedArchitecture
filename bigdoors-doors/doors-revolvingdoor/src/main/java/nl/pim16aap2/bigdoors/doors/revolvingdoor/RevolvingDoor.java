@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -31,7 +30,7 @@ import java.util.Optional;
 public class RevolvingDoor extends AbstractDoor
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
@@ -43,27 +42,27 @@ public class RevolvingDoor extends AbstractDoor
     @PersistentVariable
     private int quarterCircles;
 
-    public RevolvingDoor(final @NotNull DoorBase doorBase, final int quarterCircles)
+    public RevolvingDoor(final DoorBase doorBase, final int quarterCircles)
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public RevolvingDoor(final @NotNull DoorBase doorBase)
+    public RevolvingDoor(final DoorBase doorBase)
     {
         this(doorBase, 1);
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
@@ -78,16 +77,16 @@ public class RevolvingDoor extends AbstractDoor
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
+                                             final boolean skipAnimation, final Cuboid newCuboid,
+                                             final IPPlayer responsible,
+                                             final DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

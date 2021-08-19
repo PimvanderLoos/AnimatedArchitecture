@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,10 +13,10 @@ import java.util.List;
  */
 public final class ConfigEntry<V>
 {
-    private final @NotNull IPLogger logger;
-    private final @NotNull IConfigReader config;
-    private final @NotNull String optionName;
-    private final @NotNull V defaultValue;
+    private final IPLogger logger;
+    private final IConfigReader config;
+    private final String optionName;
+    private final V defaultValue;
     private final @Nullable String[] comment;
     private final @Nullable ConfigEntry.TestValue<V> verifyValue;
     private V value;
@@ -32,8 +31,8 @@ public final class ConfigEntry<V>
      * @param comment      The comment that will preceed this option.
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
-                       final @NotNull String optionName, final @NotNull V defaultValue,
+    public ConfigEntry(final IPLogger logger, final IConfigReader config,
+                       final String optionName, final V defaultValue,
                        final @Nullable String[] comment, final @Nullable ConfigEntry.TestValue<V> verifyValue)
     {
         this.logger = logger;
@@ -54,8 +53,8 @@ public final class ConfigEntry<V>
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
-                       final @NotNull String optionName, final @NotNull V defaultValue,
+    public ConfigEntry(final IPLogger logger, final IConfigReader config,
+                       final String optionName, final V defaultValue,
                        final @Nullable String[] comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
@@ -89,7 +88,7 @@ public final class ConfigEntry<V>
      *
      * @return The value of the config option.
      */
-    public @NotNull V getValue()
+    public V getValue()
     {
         return value;
     }
@@ -111,7 +110,7 @@ public final class ConfigEntry<V>
      * @return The config option formatted for printing in the config file
      */
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         String string = "";
 
@@ -156,6 +155,6 @@ public final class ConfigEntry<V>
          * @param value The value to check.
          * @return The value if it was valid, otherwise the value made valid.
          */
-        @NotNull T test(final @NotNull T value);
+        T test(final T value);
     }
 }

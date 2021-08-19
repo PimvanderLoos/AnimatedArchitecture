@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -19,11 +18,11 @@ import org.jetbrains.annotations.Nullable;
 public class LoginResourcePackListener extends Restartable implements Listener
 {
     private static @Nullable LoginResourcePackListener INSTANCE;
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull String url;
+    private final BigDoorsSpigot plugin;
+    private final String url;
     private boolean isRegistered = false;
 
-    private LoginResourcePackListener(final @NotNull BigDoorsSpigot plugin, final @NotNull String url)
+    private LoginResourcePackListener(final BigDoorsSpigot plugin, final String url)
     {
         super(plugin);
         this.plugin = plugin;
@@ -38,8 +37,8 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * @param url    The URL of the resource pack.
      * @return The instance of this {@link LoginResourcePackListener}.
      */
-    public static @NotNull LoginResourcePackListener init(final @NotNull BigDoorsSpigot plugin,
-                                                          final @NotNull String url)
+    public static LoginResourcePackListener init(final BigDoorsSpigot plugin,
+                                                 final String url)
     {
         return (INSTANCE == null) ? INSTANCE = new LoginResourcePackListener(plugin, url) : INSTANCE;
     }
@@ -87,7 +86,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * @param event The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final @NotNull PlayerJoinEvent event)
+    public void onPlayerJoin(final PlayerJoinEvent event)
     {
         try
         {

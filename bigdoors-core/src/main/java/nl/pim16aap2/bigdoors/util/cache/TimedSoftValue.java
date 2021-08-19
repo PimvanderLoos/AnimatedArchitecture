@@ -24,7 +24,6 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -39,7 +38,7 @@ import java.time.Clock;
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
     private final boolean keepAfterTimeOut;
-    private final @NotNull SoftReference<T> value;
+    private final SoftReference<T> value;
 
     // The hard reference looks unused because it is never accessed.
     // However, its sole purpose is to keep a reference to the value
@@ -61,7 +60,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      *                         timed out, regardless of whether it may still be available. Similarly, {@link
      *                         #getValue(boolean)} will return null after the value has timed out.
      */
-    public TimedSoftValue(@NotNull Clock clock, @NotNull T val, long timeOut, boolean keepAfterTimeOut)
+    public TimedSoftValue(Clock clock, T val, long timeOut, boolean keepAfterTimeOut)
     {
         super(clock, timeOut);
         this.keepAfterTimeOut = keepAfterTimeOut;
@@ -71,7 +70,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     }
 
     @Override
-    public @Nullable T getValue(final boolean refresh)
+    public @org.checkerframework.checker.nullness.qual.Nullable T getValue(final boolean refresh)
     {
         if (!keepAfterTimeOut && timedOut())
             return null;
@@ -83,7 +82,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
         return val;
     }
 
-    private void refresh(@NotNull T val)
+    private void refresh(T val)
     {
         super.refresh();
         if (keepAfterTimeOut)
@@ -112,7 +111,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
      *
      * @return The raw value, wrapped in a {@link SoftReference}.
      */
-    public @NotNull SoftReference<T> getRawValue()
+    public SoftReference<T> getRawValue()
     {
         return value;
     }

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -15,20 +14,18 @@ public enum Limit
     BLOCKS_TO_MOVE("blockstomove", IConfigLoader::maxBlocksToMove),
     ;
 
-    @Getter
-    @NotNull final String userPermission;
-    @Getter
-    @NotNull final String adminPermission;
-    @NotNull final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
+    @Getter final String userPermission;
+    @Getter final String adminPermission;
+    final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
 
-    Limit(final @NotNull String permissionName, final @NotNull Function<IConfigLoader, OptionalInt> globalLimitSupplier)
+    Limit(final String permissionName, final Function<IConfigLoader, OptionalInt> globalLimitSupplier)
     {
         userPermission = "bigdoors.limit." + permissionName + ".";
         adminPermission = "bigdoors.admin.bypass.limit." + permissionName;
         this.globalLimitSupplier = globalLimitSupplier;
     }
 
-    public @NotNull OptionalInt getGlobalLimit(final @NotNull IConfigLoader configLoader)
+    public OptionalInt getGlobalLimit(final IConfigLoader configLoader)
     {
         return globalLimitSupplier.apply(configLoader);
     }

@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for the old version of PlotSquared.
@@ -20,13 +19,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 {
-    private static final @NotNull ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull PlotAPI plotSquared;
-    private final @NotNull JavaPlugin plotSquaredPlugin;
+    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
+    private final BigDoorsSpigot plugin;
+    private final PlotAPI plotSquared;
+    private final JavaPlugin plotSquaredPlugin;
     private boolean success = false;
 
-    public PlotSquaredOldProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public PlotSquaredOldProtectionCompat(final BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         plotSquared = new PlotAPI();
@@ -35,7 +34,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
         com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil
             .getLocation(loc);
@@ -47,7 +46,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         return canBreakBlock(player, area, area.getPlot(psLocation), loc);
     }
 
-    private boolean isHeightAllowed(final @NotNull Player player, final @NotNull PlotArea area, final int height)
+    private boolean isHeightAllowed(final Player player, final PlotArea area, final int height)
     {
         if (height == 0)
             return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.s());
@@ -57,8 +56,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 
     // Check if a given player is allowed to build in a given plot.
     // Adapted from: https://github.com/IntellectualSites/PlotSquared/blob/e4fbc23d08be268d14c8016ef1d928a2fee9b365/Bukkit/src/main/java/com/plotsquared/bukkit/listeners/PlayerEvents.java#L917
-    private boolean canBreakBlock(final @NotNull Player player, final @NotNull PlotArea area,
-                                  final @NotNull Plot plot, final @NotNull Location loc)
+    private boolean canBreakBlock(final Player player, final PlotArea area,
+                                  final Plot plot, final Location loc)
     {
         if (plot != null)
         {
@@ -87,8 +86,8 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 
     @SuppressWarnings("deprecation")
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
+                                             final Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -137,7 +136,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return plotSquaredPlugin.getName();
     }

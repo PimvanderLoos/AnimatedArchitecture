@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -19,9 +18,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class SetName extends BaseCommand
 {
-    private final @NotNull String name;
+    private final String name;
 
-    protected SetName(final @NotNull ICommandSender commandSender, final @NotNull String name)
+    protected SetName(ICommandSender commandSender, String name)
     {
         super(commandSender);
         this.name = name;
@@ -34,14 +33,13 @@ public class SetName extends BaseCommand
      * @param name          The new name specified by the command sender.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull String name)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, String name)
     {
         return new SetName(commandSender, name).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.SET_NAME;
     }
@@ -53,7 +51,7 @@ public class SetName extends BaseCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         final IPPlayer player = (IPPlayer) getCommandSender();
         final Optional<ToolUser> tu = BigDoors.get().getToolUserManager().getToolUser(player.getUUID());

@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,13 +25,13 @@ public class PowerBlockInspector extends ToolUser
      */
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(final @NotNull IPPlayer player, final boolean bypassPermission)
+    public PowerBlockInspector(final IPPlayer player, final boolean bypassPermission)
     {
         super(player);
         this.bypassPermission = bypassPermission;
     }
 
-    public PowerBlockInspector(final @NotNull IPPlayer player)
+    public PowerBlockInspector(final IPPlayer player)
     {
         this(player, false);
     }
@@ -44,13 +43,13 @@ public class PowerBlockInspector extends ToolUser
                  "tool_user.powerblock_inspector.init");
     }
 
-    protected boolean inspectLoc(final @NotNull IPLocation loc)
+    protected boolean inspectLoc(final IPLocation loc)
     {
         throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")

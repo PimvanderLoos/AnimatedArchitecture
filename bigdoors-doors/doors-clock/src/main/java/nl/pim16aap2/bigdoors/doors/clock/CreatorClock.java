@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -23,36 +22,36 @@ import java.util.List;
 
 public class CreatorClock extends Creator
 {
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeClock.get();
+    private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     protected @Nullable PBlockFace hourArmSide;
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    private static final @NotNull List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
+    private static final List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    private static final @NotNull List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
+    private static final List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
     private boolean northSouthAligned;
 
-    public CreatorClock(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorClock(final IPPlayer player, final @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorClock(final @NotNull IPPlayer player)
+    public CreatorClock(final IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
@@ -75,7 +74,7 @@ public class CreatorClock extends Creator
      * @param loc The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(final @NotNull IPLocation loc)
+    protected boolean completeSelectHourArmStep(final IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -92,14 +91,14 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocation loc)
+    protected boolean setSecondPos(final IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
         Util.requireNonNull(firstPos, "firstPos");
-        final @NotNull Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                                 loc.getBlockZ())).getDimensions();
+        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                        loc.getBlockZ())).getDimensions();
 
         // The clock has to be an odd number of blocks tall.
         if (cuboidDims.y() % 2 == 0)
@@ -143,7 +142,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull List<RotateDirection> getValidOpenDirections()
+    protected List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -180,7 +179,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoor constructDoor()
+    protected AbstractDoor constructDoor()
     {
         setEngine();
         setOpenDirection();
@@ -189,7 +188,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull DoorType getDoorType()
+    protected DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
