@@ -108,7 +108,7 @@ class LocalizationTestingUtilities
     }
 
     @SuppressWarnings("SameParameterValue")
-    static void appendToFile(@NotNull Path zipFile, @NotNull String file, @NotNull String toAppend)
+    static void appendToFileInZip(@NotNull Path zipFile, @NotNull String file, @NotNull String toAppend)
         throws URISyntaxException, IOException
     {
         final FileSystem bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());

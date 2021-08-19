@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +49,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
         outputFile = this.outputDirectory.resolve(this.outputBaseName + ".bundle");
+        ensureZipFileExists(outputFile);
     }
 
     @Override
@@ -83,7 +84,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
 
     void addResourcesFromZip(@NotNull Path jarFile, @Nullable String baseName)
     {
-        try (final FileSystem zipFileSystem = FileSystems.newFileSystem(jarFile);
+        try (final FileSystem zipFileSystem = createNewFileSystem(jarFile);
              final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
@@ -97,7 +98,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
                     mergeWithExistingLocaleFile(outputFileSystem, localeFileInputStream, localeFile.locale());
                 }
         }
-        catch (IOException | URISyntaxException e)
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to read resource from file: " + jarFile);
         }
@@ -116,7 +117,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
             ensureFileExists(existingLocaleFile);
             return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
-        catch (IOException | URISyntaxException e)
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to get keys from base locale file.");
             return Collections.emptySet();
@@ -168,7 +169,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
             lines.forEach(line -> sb.append(line).append("\n"));
             Files.write(existingLocaleFile, sb.toString().getBytes());
         }
-        catch (IOException | URISyntaxException e)
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to open output file!");
         }
@@ -216,7 +217,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * See {@link LocalizationUtil#createNewFileSystem(Path)}.
      */
     private @NotNull FileSystem getOutputFileFileSystem()
-        throws IOException, URISyntaxException
+        throws IOException, URISyntaxException, ProviderNotFoundException
     {
         ensureZipFileExists(outputFile);
         return createNewFileSystem(outputFile);

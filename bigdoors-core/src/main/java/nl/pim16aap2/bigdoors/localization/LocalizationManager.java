@@ -64,14 +64,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             method.accept(patchGenerator);
         }
 
-        try
-        {
-            applyPatches();
-        }
-        catch (IOException e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to apply localization patches!");
-        }
+        applyPatches();
 
         localizer.init();
     }
@@ -83,27 +76,35 @@ public final class LocalizationManager extends Restartable implements ILocalizat
      * @throws IOException When an I/O error occurred.
      */
     synchronized void applyPatches()
-        throws IOException
     {
-        final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
-        final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
-        final List<LocaleFile> patchFiles = localizationPatcher.updatePatchKeys(rootKeys);
-
-        final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
-        patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
-
-        final int patchCount = patches.values().stream().mapToInt(Map::size).sum();
-        if (patchCount == 0)
-            return;
-
-        if (patchGenerator == null)
+        try
         {
-            patchGenerator = new LocalizationGenerator(baseDir, baseName + "patched");
-            // TODO: Point Localizer to new files.
-        }
+            final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
+            final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
+            final List<LocaleFile> patchFiles = localizationPatcher.updatePatchKeys(rootKeys);
 
-        patchGenerator.addResourcesFromZip(baseGenerator.getOutputFile(), baseName);
-        patches.forEach((locale, patchMap) -> patchGenerator.applyPatches(locale.locale(), patchMap));
+            final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
+            patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
+
+            final int patchCount = patches.values().stream().mapToInt(Map::size).sum();
+            if (patchCount == 0)
+                return;
+
+            if (patchGenerator == null)
+            {
+                patchGenerator = new LocalizationGenerator(baseDir, baseName + "_patched");
+                // TODO: Point Localizer to new files.
+            }
+
+            // Satisfy NullAway, as it doesn't realize that targetGenerator cannot be null here.
+            @NotNull LocalizationGenerator targetGenerator = patchGenerator;
+            patchGenerator.addResourcesFromZip(baseGenerator.getOutputFile(), baseName);
+            patches.forEach((locale, patchMap) -> targetGenerator.applyPatches(locale.locale(), patchMap));
+        }
+        catch (IOException e)
+        {
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to apply localization patches!");
+        }
     }
 
     @Override
@@ -134,16 +135,33 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     public synchronized void restart()
     {
         shutdown();
-        // TODO: Implement
         localizer.setDefaultLocale(configLoader.locale());
+        applyPatches();
+        localizer.reInit();
     }
 
     @Override
     public synchronized void shutdown()
     {
+        localizer.shutdown();
         // TODO: Implement
     }
 
+    /**
+     * Checks if the localization system loaded any user-defined patches.
+     *
+     * @return True if the localization system was patched with user-defined localization values.
+     */
+    synchronized boolean isPatched()
+    {
+        return patchGenerator != null;
+    }
+
+    /**
+     * Gets the {@link ILocalizer} managed by this {@link LocalizationManager}.
+     *
+     * @return The ILocalizer managed by this LocalizationManager.
+     */
     public @NotNull ILocalizer getLocalizer()
     {
         return localizer;

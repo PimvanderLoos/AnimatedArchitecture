@@ -29,9 +29,9 @@ final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
-    private final @NotNull Path directory;
-    private final @NotNull String baseName;
-    private final @NotNull String bundleName;
+    private @NotNull Path directory;
+    private @NotNull String baseName;
+    private @NotNull String bundleName;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
@@ -88,7 +88,8 @@ final class Localizer implements ILocalizer
         }
     }
 
-    @Override public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
+    @Override
+    public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
     {
         return getMessage(key, defaultLocale, args);
     }

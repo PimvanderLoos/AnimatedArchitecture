@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.zip.ZipOutputStream;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
-import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.appendToFile;
+import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.appendToFileInZip;
 import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.writeEntry;
 
 
@@ -92,7 +92,7 @@ class LocalizerIntegrationTest
         Assertions.assertEquals(Localizer.KEY_NOT_FOUND_MESSAGE + "key0", localizer.getMessage("key0"));
 
         final String value3 = "THIS WAS JUST ADDED! DID ANYONE SEE THAT?";
-        appendToFile(bundle, BASE_NAME + ".properties", "key3=" + value3);
+        appendToFileInZip(bundle, BASE_NAME + ".properties", "key3=" + value3);
 
         localizer.reInit();
         Assertions.assertEquals("value0", localizer.getMessage("key0"));

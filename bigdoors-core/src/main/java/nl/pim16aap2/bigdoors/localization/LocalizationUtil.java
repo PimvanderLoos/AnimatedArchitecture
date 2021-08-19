@@ -15,6 +15,7 @@ import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -385,7 +386,7 @@ public final class LocalizationUtil
      * @throws FileSystemAlreadyExistsException When a FileSystem already exists for the provided file.
      */
     static @NotNull FileSystem createNewFileSystem(@NotNull Path zipFile)
-        throws IOException, URISyntaxException
+        throws IOException, URISyntaxException, ProviderNotFoundException
     {
         return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
     }
@@ -449,7 +450,7 @@ public final class LocalizationUtil
             return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
                                    .map(localeFile -> getLocale(localeFile.locale())).toList();
         }
-        catch (IOException | URISyntaxException e)
+        catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
             BigDoors.get().getPLogger().logThrowable(e, "Failed to find locales in file: " + zipFile);
             return Collections.emptyList();
