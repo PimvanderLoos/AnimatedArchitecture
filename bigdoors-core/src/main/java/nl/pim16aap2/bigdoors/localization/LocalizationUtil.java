@@ -476,12 +476,4 @@ public final class LocalizationUtil
             return new Locale(parts[0], parts[1]);
         return new Locale(parts[0], parts[1], parts[2]);
     }
-
-    /**
-     * Represents a translation file for a specific {@link Locale}.
-     *
-     * @param path   The path of the file.
-     * @param locale The {@link Locale} this file represents.
-     */
-    record LocaleFile(@NotNull Path path, @NotNull String locale) {}
 }
