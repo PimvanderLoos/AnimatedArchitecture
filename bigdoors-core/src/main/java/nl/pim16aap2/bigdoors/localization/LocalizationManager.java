@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -8,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -46,7 +49,6 @@ public final class LocalizationManager extends Restartable implements ILocalizat
      */
     private synchronized void runForGenerators(@NotNull Consumer<ILocalizationGenerator> method)
     {
-        final Set<String> rootKeys;
         // If the localization system is not patched, shut down the localizer before running the method for the
         // base generator so that the localizer sees the updated generated files. If there ARE patches, we don't need
         // to shut down the localizer just yet, because the localizer doesn't use the base localization files.
@@ -54,33 +56,54 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         {
             localizer.shutdown();
             method.accept(baseGenerator);
-            rootKeys = baseGenerator.getOutputRootKeys();
         }
         else
         {
             method.accept(baseGenerator);
             localizer.shutdown();
             method.accept(patchGenerator);
-            rootKeys = patchGenerator.getOutputRootKeys();
         }
 
         try
         {
-            applyPatches(rootKeys);
+            applyPatches();
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            BigDoors.get().getPLogger().logThrowable(e, "Failed to apply localization patches!");
         }
 
         localizer.init();
     }
 
-    synchronized void applyPatches(@NotNull Set<String> rootKeys)
+    /**
+     * Applies the user-defined patches to the {@link #patchGenerator}. If the {@link #patchGenerator} does not exist
+     * yet, a new one will be created.
+     *
+     * @throws IOException When an I/O error occurred.
+     */
+    synchronized void applyPatches()
         throws IOException
     {
         final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
-        localizationPatcher.updatePatchKeys(rootKeys);
+        final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
+        final List<LocaleFile> patchFiles = localizationPatcher.updatePatchKeys(rootKeys);
+
+        final Map<LocaleFile, Map<String, String>> patches = new HashMap<>(patchFiles.size());
+        patchFiles.forEach(localeFile -> patches.put(localeFile, localizationPatcher.getPatches(localeFile)));
+
+        final int patchCount = patches.values().stream().mapToInt(Map::size).sum();
+        if (patchCount == 0)
+            return;
+
+        if (patchGenerator == null)
+        {
+            patchGenerator = new LocalizationGenerator(baseDir, baseName + "patched");
+            // TODO: Point Localizer to new files.
+        }
+
+        patchGenerator.addResourcesFromZip(baseGenerator.getOutputFile(), baseName);
+        patches.forEach((locale, patchMap) -> patchGenerator.applyPatches(locale.locale(), patchMap));
     }
 
     @Override

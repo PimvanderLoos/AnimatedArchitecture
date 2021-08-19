@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +36,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     /**
      * The output .bundle (zip) that holds all the localization files.
      */
+    @Getter
     private final Path outputFile;
     private final String outputBaseName;
 

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,8 +26,6 @@ final class LocalizationPatcher
 {
     private final String baseName;
     private final Path directory;
-    @Getter
-    private @NotNull List<LocaleFile> patchFiles = Collections.emptyList();
 
     LocalizationPatcher(@NotNull Path directory, @NotNull String baseName)
         throws IOException
@@ -45,11 +41,13 @@ final class LocalizationPatcher
      * Any root keys not already present in the patch file(s) will be appended to the file without a value.
      *
      * @param rootKeys The localization keys in the root locale file.
+     * @return The list of patch files that were found.
      */
-    void updatePatchKeys(@NotNull Collection<String> rootKeys)
+    @NotNull List<LocaleFile> updatePatchKeys(@NotNull Collection<String> rootKeys)
     {
-        patchFiles = getLocaleFilesInDirectory(directory, baseName);
+        final List<LocaleFile> patchFiles = getLocaleFilesInDirectory(directory, baseName);
         patchFiles.forEach(patchFile -> updatePatchKeys(rootKeys, patchFile));
+        return patchFiles;
     }
 
     /**
@@ -96,14 +94,13 @@ final class LocalizationPatcher
      * <p>
      * A patch is defined in this context as a key/value pair with a non-empty value.
      *
-     * @param localeSuffix The suffix of the locale to get the patches for.
+     * @param localeFile The locale file to read the patches from.
      * @return A map of the patches. The keys are the localization keys and the values the full line (i.e. "key=value").
      */
-    @NotNull Map<String, String> getPatches(@NotNull String localeSuffix)
+    @NotNull Map<String, String> getPatches(@NotNull LocaleFile localeFile)
     {
-        final Path localeFile = directory.resolve(getOutputLocaleFileName(baseName, localeSuffix));
         final Map<String, String> ret = new LinkedHashMap<>();
-        readFile(localeFile, line ->
+        readFile(localeFile.path(), line ->
         {
             final @Nullable String key = getKeyFromLine(line);
             if (isValidPatch(key, line))

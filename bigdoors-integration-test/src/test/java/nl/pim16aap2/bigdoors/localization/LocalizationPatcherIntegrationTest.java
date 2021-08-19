@@ -70,7 +70,7 @@ class LocalizationPatcherIntegrationTest
         LocalizationUtil.appendToFile(file, List.of("key0=", "key1= ", "key2=aab", "key3=baa"));
 
         final LocalizationPatcher patcher = new LocalizationPatcher(directoryOutput, "patch");
-        final Map<String, String> patches = patcher.getPatches("");
+        final Map<String, String> patches = patcher.getPatches(new LocaleFile(file, ""));
 
         final String[] patchedLines = patches.values().toArray(new String[0]);
         Assertions.assertArrayEquals(new String[]{"key1= ", "key2=aab", "key3=baa"}, patchedLines);
