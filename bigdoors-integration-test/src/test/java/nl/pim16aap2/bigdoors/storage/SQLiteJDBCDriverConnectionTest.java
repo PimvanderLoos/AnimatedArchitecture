@@ -109,8 +109,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, RotateDirection.EAST, doorOwner);
-            final BigDoor bigDoor = new BigDoor(doorData, autoClose, autoOpen);
-            door1 = bigDoor;
+            door1 = new BigDoor(doorData, autoClose, autoOpen);
         }
 
         {
@@ -130,8 +129,7 @@ public class SQLiteJDBCDriverConnectionTest
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, Util.requireNonNull(RotateDirection.valueOf(0), "Dir0"),
                                     doorOwner);
-            final Drawbridge drawbridge = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
-            door2 = drawbridge;
+            door2 = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
         }
 
         {
@@ -150,8 +148,7 @@ public class SQLiteJDBCDriverConnectionTest
 
             doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
                                     isLocked, RotateDirection.UP, doorOwner);
-            final Portcullis portcullis = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
-            door3 = portcullis;
+            door3 = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
         }
     }
 
@@ -469,7 +466,6 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
-        @SuppressWarnings("NullableProblems") // IntelliJ doesn't like <?>.
         DoorSerializer<?> serializer =
             Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);
@@ -583,7 +579,7 @@ public class SQLiteJDBCDriverConnectionTest
     }
 
     /**
-     * Runs tests to verify that exceptions are caught when the should be and properly handled.
+     * Runs tests to verify that exceptions are caught when they should be and properly handled.
      */
     public void failures()
         throws NoSuchFieldException, IllegalAccessException

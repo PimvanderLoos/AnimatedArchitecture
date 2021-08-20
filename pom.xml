@@ -19,6 +19,7 @@
 
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
         <dependency.version.annotations>22.0.0</dependency.version.annotations>
+        <dependency.version.eclipse-annotations>2.2.600</dependency.version.eclipse-annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.8.1</dependency.version.errorprone>
@@ -117,9 +118,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <version>${dependency.version.checker-framework}</version>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
+            <version>${dependency.version.eclipse-annotations}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

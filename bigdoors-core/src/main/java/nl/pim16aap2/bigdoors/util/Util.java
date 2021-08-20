@@ -148,7 +148,6 @@ public final class Util
     public <T> T requireNonNull(@Nullable T obj, String name)
         throws NullPointerException
     {
-        //noinspection ConstantConditions
         return Objects.requireNonNull(obj, name + " must not be null!");
     }
 

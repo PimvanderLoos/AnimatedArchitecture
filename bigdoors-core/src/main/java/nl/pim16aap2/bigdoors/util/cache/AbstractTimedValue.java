@@ -24,7 +24,7 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.Clock;
 

@@ -174,8 +174,7 @@ public enum PBlockFace
                 return PBlockFace.UP;
             case UP:
                 return PBlockFace.NORTH;
-            case EAST:
-            case WEST:
+            case EAST, WEST:
             default:
                 return curFace;
         }
@@ -200,8 +199,7 @@ public enum PBlockFace
                 return PBlockFace.DOWN;
             case UP:
                 return PBlockFace.SOUTH;
-            case EAST:
-            case WEST:
+            case EAST, WEST:
             default:
                 return curFace;
         }
@@ -226,8 +224,7 @@ public enum PBlockFace
                 return PBlockFace.UP;
             case UP:
                 return PBlockFace.EAST;
-            case NORTH:
-            case SOUTH:
+            case NORTH, SOUTH:
             default:
                 return curFace;
         }
@@ -252,8 +249,7 @@ public enum PBlockFace
                 return PBlockFace.DOWN;
             case UP:
                 return PBlockFace.WEST;
-            case NORTH:
-            case SOUTH:
+            case NORTH, SOUTH:
             default:
                 return curFace;
         }
@@ -294,9 +290,7 @@ public enum PBlockFace
                 return PBlockFace::rotateClockwise;
             case COUNTERCLOCKWISE:
                 return PBlockFace::rotateCounterClockwise;
-            case DOWN:
-            case UP:
-            case NONE:
+            case DOWN, UP, NONE:
             default:
                 return null;
         }
