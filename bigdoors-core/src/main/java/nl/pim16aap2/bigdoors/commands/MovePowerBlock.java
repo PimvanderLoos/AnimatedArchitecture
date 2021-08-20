@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    protected MovePowerBlock(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
+    protected MovePowerBlock(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
     }
@@ -34,14 +33,13 @@ public class MovePowerBlock extends DoorTargetCommand
      *                      moved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         return new MovePowerBlock(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.MOVE_POWERBLOCK;
     }
@@ -53,7 +51,7 @@ public class MovePowerBlock extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         BigDoors.get().getToolUserManager()
                 .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),

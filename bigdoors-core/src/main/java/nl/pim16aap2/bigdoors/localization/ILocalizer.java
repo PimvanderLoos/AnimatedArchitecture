@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -21,7 +19,7 @@ public interface ILocalizer
      * @param locale The {@link Locale} to use.
      * @return The localized message associated with the provided key.
      */
-    @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args);
+    String getMessage(String key, Locale locale, Object... args);
 
     /**
      * Retrieves a localized message using the default locale.
@@ -32,7 +30,7 @@ public interface ILocalizer
      *
      * @throws MissingResourceException When no mapping for the key can be found.
      */
-    @NotNull String getMessage(@NotNull String key, @NotNull Object... args);
+    String getMessage(String key, Object... args);
 
     /**
      * Gets a list of {@link Locale}s that are currently available.
@@ -40,5 +38,5 @@ public interface ILocalizer
      * @return The list of available locales.
      */
     @SuppressWarnings("unused")
-    @NotNull List<Locale> getAvailableLocales();
+    List<Locale> getAvailableLocales();
 }

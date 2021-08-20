@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,11 +13,11 @@ import java.util.List;
  */
 public final class ConfigEntry<V>
 {
-    private final @NotNull IPLogger logger;
-    private final @NotNull IConfigReader config;
-    private final @NotNull String optionName;
-    private final @NotNull V defaultValue;
-    private final @Nullable String[] comment;
+    private final IPLogger logger;
+    private final IConfigReader config;
+    private final String optionName;
+    private final V defaultValue;
+    private final String @Nullable [] comment;
     private final @Nullable ConfigEntry.TestValue<V> verifyValue;
     private V value;
 
@@ -29,12 +28,11 @@ public final class ConfigEntry<V>
      * @param config       The config file to read from.
      * @param optionName   The name of this option as used in the config file.
      * @param defaultValue The default value of this option.
-     * @param comment      The comment that will preceed this option.
+     * @param comment      The comment that will precede this option.
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
-                       final @NotNull String optionName, final @NotNull V defaultValue,
-                       final @Nullable String[] comment, final @Nullable ConfigEntry.TestValue<V> verifyValue)
+    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
+                       String @Nullable [] comment, @Nullable ConfigEntry.TestValue<V> verifyValue)
     {
         this.logger = logger;
         this.config = config;
@@ -52,11 +50,10 @@ public final class ConfigEntry<V>
      * @param config       The config file to read from.
      * @param optionName   The name of this option as used in the config file.
      * @param defaultValue The default value of this option.
-     * @param comment      The comment that will preceed this option.
+     * @param comment      The comment that will precede this option.
      */
-    public ConfigEntry(final @NotNull IPLogger logger, final @NotNull IConfigReader config,
-                       final @NotNull String optionName, final @NotNull V defaultValue,
-                       final @Nullable String[] comment)
+    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
+                       String @Nullable [] comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
     }
@@ -71,8 +68,6 @@ public final class ConfigEntry<V>
         try
         {
             value = (V) config.get(optionName, defaultValue);
-            if (value == null)
-                value = defaultValue;
         }
         catch (Exception e)
         {
@@ -89,7 +84,7 @@ public final class ConfigEntry<V>
      *
      * @return The value of the config option.
      */
-    public @NotNull V getValue()
+    public V getValue()
     {
         return value;
     }
@@ -99,7 +94,7 @@ public final class ConfigEntry<V>
      *
      * @return The comment of the config option.
      */
-    public @Nullable String[] getComment()
+    public String @Nullable [] getComment()
     {
         return comment;
     }
@@ -111,32 +106,30 @@ public final class ConfigEntry<V>
      * @return The config option formatted for printing in the config file
      */
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
-        String string = "";
+        StringBuilder sb = new StringBuilder();
 
         // Print the comments, if there are any.
         if (comment != null)
             for (String comLine : comment)
                 // Prefix every line by a comment-sign (#).
-                string += "# " + comLine + "\n";
+                sb.append("# ").append(comLine).append("\n");
 
-        string += optionName + ": ";
+        sb.append(optionName).append(": ");
         if (value.getClass().isAssignableFrom(String.class))
-            string += "\'" + value.toString() + "\'";
+            sb.append("'").append(value).append("'");
         else if (value instanceof List<?>)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.append("\n");
+            sb.append("\n");
             int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
                 // Don't print newline at the end
-                builder.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");
-            string += builder.toString();
+                sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");
         }
         else
-            string += value.toString();
-        return string;
+            sb.append(value);
+        return sb.toString();
     }
 
     /**
@@ -156,6 +149,6 @@ public final class ConfigEntry<V>
          * @param value The value to check.
          * @return The value if it was valid, otherwise the value made valid.
          */
-        @NotNull T test(final @NotNull T value);
+        T test(T value);
     }
 }

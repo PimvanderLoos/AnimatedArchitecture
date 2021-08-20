@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -40,11 +39,11 @@ public enum CommandDefinition
     ;
 
     @Getter
-    private final @NotNull Optional<String> userPermission;
+    private final Optional<String> userPermission;
     @Getter
-    private final @NotNull Optional<String> adminPermission;
+    private final Optional<String> adminPermission;
 
-    CommandDefinition(final @Nullable String userPermission, final @Nullable String adminPermission)
+    CommandDefinition(@Nullable String userPermission, @Nullable String adminPermission)
     {
         this.userPermission = Optional.ofNullable(userPermission);
         this.adminPermission = Optional.ofNullable(adminPermission);

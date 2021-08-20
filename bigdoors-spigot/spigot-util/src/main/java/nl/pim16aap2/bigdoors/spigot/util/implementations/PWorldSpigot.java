@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -13,19 +12,19 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public record PWorldSpigot(@NotNull String worldName, @Nullable World world) implements IPWorld
+public record PWorldSpigot(String worldName, @Nullable World world) implements IPWorld
 {
-    public PWorldSpigot(@NotNull String worldName)
+    public PWorldSpigot(String worldName)
     {
         this(worldName, getNamedWorld(worldName));
     }
 
-    public PWorldSpigot(@NotNull World world)
+    public PWorldSpigot(World world)
     {
         this(world.getName(), world);
     }
 
-    private static @Nullable World getNamedWorld(@NotNull String worldName)
+    private static @Nullable World getNamedWorld(String worldName)
     {
         final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null)
@@ -51,7 +50,7 @@ public record PWorldSpigot(@NotNull String worldName, @Nullable World world) imp
     }
 
     @Override
-    public @NotNull WorldTime getTime()
+    public WorldTime getTime()
     {
         return new WorldTime(world == null ? 0 : world.getTime());
     }

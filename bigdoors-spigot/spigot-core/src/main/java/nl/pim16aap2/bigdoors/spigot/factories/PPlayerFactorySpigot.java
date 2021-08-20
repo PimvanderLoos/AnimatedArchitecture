@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,18 +23,18 @@ import java.util.concurrent.CompletableFuture;
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
     @Override
-    public @NotNull IPPlayer create(final @NotNull PPlayerData playerData)
+    public IPPlayer create(PPlayerData playerData)
     {
-        Player player = Bukkit.getPlayer(playerData.getUUID());
+        @Nullable Player player = Bukkit.getPlayer(playerData.getUUID());
         if (player != null)
             return new PPlayerSpigot(player);
         return new OfflinePPlayerSpigot(playerData);
     }
 
     @Override
-    public @NotNull CompletableFuture<Optional<IPPlayer>> create(final @NotNull UUID uuid)
+    public CompletableFuture<Optional<IPPlayer>> create(UUID uuid)
     {
-        Player player = Bukkit.getPlayer(uuid);
+        @Nullable Player player = Bukkit.getPlayer(uuid);
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PPlayerSpigot(player)));
 

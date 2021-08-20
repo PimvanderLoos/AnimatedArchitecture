@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    protected Info(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever)
+    protected Info(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         super(commandSender, doorRetriever, DoorAttribute.INFO);
     }
@@ -33,27 +32,26 @@ public class Info extends DoorTargetCommand
      *                      retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         return new Info(commandSender, doorRetriever).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.INFO;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         getCommandSender().sendMessage(door.toString());
         highlightBlocks(door);
         return CompletableFuture.completedFuture(true);
     }
 
-    protected void highlightBlocks(final @NotNull AbstractDoor doorBase)
+    protected void highlightBlocks(AbstractDoor doorBase)
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;

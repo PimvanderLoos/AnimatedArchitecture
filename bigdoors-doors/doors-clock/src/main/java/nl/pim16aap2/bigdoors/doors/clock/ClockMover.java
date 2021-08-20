@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -25,24 +24,24 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
 {
     /**
      * Method to determine if a given {@link PBlockData} is part of the little hand or the big hand of a clock.
-     * Represented as a {@link Function} becuase
+     * Represented as a {@link Function} because TODO: Finish this sentence
      */
-    protected final @NotNull Function<PBlockData, Boolean> isHourArm;
+    protected final Function<PBlockData, Boolean> isHourArm;
 
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
      */
-    protected static final float MINUTESTEP = (float) Math.PI / 30;
+    protected static final float MINUTE_STEP = (float) Math.PI / 30;
 
     /**
      * The step of 1 hours on a clock, or 1/12th of a circle in radians.
      */
-    protected static final float HOURSTEP = (float) Math.PI / 6;
+    protected static final float HOUR_STEP = (float) Math.PI / 6;
 
     /**
      * The step of 1 minute between two full ours on a clock, or 1/720th of a circle in radians.
      */
-    protected static final float HOURSUBSTEP = (float) Math.PI / 360;
+    protected static final float HOUR_SUB_STEP = (float) Math.PI / 360;
 
     /**
      * This value should be either 1 or -1. It is used to change the sign of the angle based on which way the clock
@@ -50,9 +49,8 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     protected final int angleDirectionMultiplier;
 
-    public ClockMover(final @NotNull T door, final @NotNull RotateDirection rotateDirection,
-                      final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
-                      final @NotNull DoorActionType actionType)
+    public ClockMover(T door, RotateDirection rotateDirection, IPPlayer player, DoorActionCause cause,
+                      DoorActionType actionType)
         throws Exception
     {
         super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
@@ -72,7 +70,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmNS(final @NotNull PBlockData block)
+    private boolean isHourArmNS(PBlockData block)
     {
         return ((int) block.getStartLocation().getZ()) == door.getEngine().z();
     }
@@ -82,21 +80,21 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmEW(final @NotNull PBlockData block)
+    private boolean isHourArmEW(PBlockData block)
     {
         return ((int) block.getStartLocation().getX()) == door.getEngine().x();
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         return block.getStartPosition();
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
-        final @NotNull WorldTime worldTime = world.getTime();
+        final WorldTime worldTime = world.getTime();
         final double hourAngle = angleDirectionMultiplier * ClockMover.hoursToAngle(worldTime.getHours(),
                                                                                     worldTime.getMinutes());
         final double minuteAngle = angleDirectionMultiplier * ClockMover.minutesToAngle(worldTime.getMinutes());
@@ -104,7 +102,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (final @NotNull PBlockData block : savedBlocks)
+        for (PBlockData block : savedBlocks)
             if (Math.abs(block.getRadius()) > EPS)
             {
                 // Move the little hand at a lower interval than the big hand.
@@ -125,9 +123,9 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      * @param minutes The time in minutes since the last full hour.
      * @return The angle.
      */
-    private static float minutesToAngle(final int minutes)
+    private static float minutesToAngle(int minutes)
     {
-        return (float) Util.clampAngleRad(-minutes * MINUTESTEP);
+        return (float) Util.clampAngleRad(-minutes * MINUTE_STEP);
     }
 
     /**
@@ -138,8 +136,8 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      * @param minutes The time in minutes since the last full hour.
      * @return The angle.
      */
-    private static float hoursToAngle(final int hours, final int minutes)
+    private static float hoursToAngle(int hours, int minutes)
     {
-        return (float) Util.clampAngleRad(-hours * HOURSTEP - minutes * HOURSUBSTEP);
+        return (float) Util.clampAngleRad(-hours * HOUR_STEP - minutes * HOUR_SUB_STEP);
     }
 }

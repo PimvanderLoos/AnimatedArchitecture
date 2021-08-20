@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ import java.util.Optional;
 public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
+    private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
     @Getter
     @Setter
@@ -52,8 +51,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     @PersistentVariable
     protected boolean modeUp;
 
-    public Drawbridge(final @NotNull DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
-                      final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
     {
         super(doorBase);
         this.autoOpenTime = autoOpenTime;
@@ -61,33 +59,33 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         this.modeUp = modeUp;
     }
 
-    public Drawbridge(final @NotNull DoorBase doorBase, final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, boolean modeUp)
     {
         this(doorBase, -1, -1, modeUp);
     }
 
     @SuppressWarnings("unused")
-    private Drawbridge(final @NotNull DoorBase doorBase)
+    private Drawbridge(DoorBase doorBase)
     {
         this(doorBase, false); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
             angle = -Math.PI / 2;
@@ -100,7 +98,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             return Optional.empty();
         }
 
-        final @NotNull Cuboid cuboid = getCuboid();
+        final Cuboid cuboid = getCuboid();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
             return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
         else
@@ -108,10 +106,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
@@ -121,7 +117,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     @Override
     public boolean isNorthSouthAligned()
     {
-        final @NotNull RotateDirection openDir = getOpenDir();
+        final RotateDirection openDir = getOpenDir();
         return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
     }
 }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.events;
 
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the event where a new owner is added to a door.
@@ -15,5 +14,5 @@ public interface IDoorPrepareAddOwnerEvent extends ICancellableBigDoorsEvent
      *
      * @return The new {@link DoorOwner}.
      */
-    @NotNull DoorOwner getNewDoorOwner();
+    DoorOwner getNewDoorOwner();
 }

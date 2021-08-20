@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,8 +33,8 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testDoubleInput()
     {
-        final @NotNull String firstInput = Util.randomInsecureString(10);
-        final @NotNull String secondInput = Util.randomInsecureString(10);
+        final String firstInput = Util.randomInsecureString(10);
+        final String secondInput = Util.randomInsecureString(10);
 
         val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         val output = request.getInputResult();
@@ -58,7 +57,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testInput()
     {
-        final @NotNull String inputString = Util.randomInsecureString(10);
+        final String inputString = Util.randomInsecureString(10);
 
         val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         val output = request.getInputResult();
@@ -126,12 +125,12 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusException()
     {
-        @NotNull val f = DelayedInputRequest.class.getDeclaredField("input");
+        val f = DelayedInputRequest.class.getDeclaredField("input");
         f.setAccessible(true);
         val request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
 
         @SuppressWarnings("unchecked")
-        @NotNull val input = (CompletableFuture<String>) f.get(request);
+        val input = (CompletableFuture<String>) f.get(request);
 
         input.completeExceptionally(new RuntimeException("ExceptionTest!"));
 
@@ -147,12 +146,12 @@ class DelayedInputRequestTest
 
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
-        public DelayedInputRequestImpl(final long timeout, final @NotNull TimeUnit timeUnit)
+        public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)
         {
             super(timeout, timeUnit);
         }
 
-        public DelayedInputRequestImpl(final long timeout)
+        public DelayedInputRequestImpl(long timeout)
         {
             this(timeout, TimeUnit.MILLISECONDS);
         }

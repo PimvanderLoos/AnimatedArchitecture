@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -15,7 +14,7 @@ public final class DoorTypeSlidingDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    private static final @NotNull DoorTypeSlidingDoor INSTANCE = new DoorTypeSlidingDoor();
+    private static final DoorTypeSlidingDoor INSTANCE = new DoorTypeSlidingDoor();
 
     private DoorTypeSlidingDoor()
     {
@@ -29,25 +28,25 @@ public final class DoorTypeSlidingDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeSlidingDoor get()
+    public static DoorTypeSlidingDoor get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NotNull Class<? extends AbstractDoor> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return SlidingDoor.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorSlidingDoor(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorSlidingDoor(player, name);
     }

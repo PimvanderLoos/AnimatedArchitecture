@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,9 +105,11 @@ class DoorSerializerTest
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }
 
-    // Don't call super for equals etc, as we don't care about the equality
-    // of the parameters that aren't serialized anyway.
+    // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
+    // It's only used for testing serialization and the methods are therefore just stubs.
     @SuppressWarnings("ConstantConditions")
+    // Don't call super for equals etc., as we don't care about the equality
+    // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
     private static class TestDoorType extends AbstractDoor
     {
@@ -132,13 +133,13 @@ class DoorSerializerTest
             Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
-        public TestDoorType(final @NotNull DoorBase doorBase)
+        @SuppressWarnings("unused")
+        public TestDoorType(DoorBase doorBase)
         {
             super(doorBase);
         }
 
-        public TestDoorType(final @NotNull DoorBase doorBase, final @NotNull String testName,
-                            final boolean isCoolType, final int blockTestCount)
+        public TestDoorType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount)
         {
             super(doorBase);
             this.testName = testName;
@@ -147,17 +148,17 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NotNull DoorType getDoorType()
+        public DoorType getDoorType()
         {
             return DOOR_TYPE;
         }
 
         @Override
-        protected @NotNull BlockMover constructBlockMover(@NotNull DoorActionCause cause,
-                                                          double time, boolean skipAnimation,
-                                                          @NotNull Cuboid newCuboid,
-                                                          @NotNull IPPlayer responsible,
-                                                          @NotNull DoorActionType actionType)
+        protected BlockMover constructBlockMover(DoorActionCause cause,
+                                                 double time, boolean skipAnimation,
+                                                 Cuboid newCuboid,
+                                                 IPPlayer responsible,
+                                                 DoorActionType actionType)
         {
             return null;
         }
@@ -169,33 +170,33 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NotNull RotateDirection getCurrentToggleDir()
+        public RotateDirection getCurrentToggleDir()
         {
             return null;
         }
 
         @Override
-        public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+        public Optional<Cuboid> getPotentialNewCoordinates()
         {
             return Optional.empty();
         }
 
         @Override
-        public @NotNull RotateDirection cycleOpenDirection()
+        public RotateDirection cycleOpenDirection()
         {
             return null;
         }
     }
 
-    @SuppressWarnings("unused") @EqualsAndHashCode(callSuper = true)
+    @EqualsAndHashCode(callSuper = true)
     private static class TestDoorSubType extends TestDoorType
     {
         @PersistentVariable
         @Getter
-        private int subclassTestValue = -1;
+        private final int subclassTestValue;
 
-        public TestDoorSubType(final @NotNull DoorBase doorBase, final @NotNull String testName,
-                               final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
+        public TestDoorSubType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
+                               int subclassTestValue)
         {
             super(doorBase, testName, isCoolType, blockTestCount);
 

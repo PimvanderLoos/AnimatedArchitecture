@@ -8,22 +8,21 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
-import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorToggleEvent
 {
     @Getter
-    protected final @NotNull AbstractDoor door;
+    protected final AbstractDoor door;
 
     @Getter
-    protected final @NotNull DoorActionCause cause;
+    protected final DoorActionCause cause;
 
     @Getter
-    protected final @NotNull DoorActionType actionType;
+    protected final DoorActionType actionType;
 
     @Getter
-    protected final @NotNull IPPlayer responsible;
+    protected final IPPlayer responsible;
 
     @Getter
     protected final double time;

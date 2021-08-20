@@ -3,9 +3,10 @@ package nl.pim16aap2.bigdoors.util.pair;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents a pair of booleans. This is a specialized version of {@link Pair} that avoids boxing.
+ * Represents a name-value pair.
  *
  * @author Pim
  */
@@ -15,8 +16,8 @@ import lombok.ToString;
 // SonarLint doesn't like non-final public member variables (S1104).
 // However, that's the point of this class and there's no reason to do it in another way.
 @SuppressWarnings("squid:S1104")
-public class BooleanPair
+public final class PairNullable<T1, T2>
 {
-    public boolean first;
-    public boolean second;
+    public @Nullable T1 first;
+    public @Nullable T2 second;
 }

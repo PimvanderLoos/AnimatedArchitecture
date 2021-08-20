@@ -26,7 +26,6 @@ package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Setter;
 import lombok.val;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -49,8 +48,8 @@ class TimedCacheTest
     @Test
     void testExpiry()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -77,8 +76,8 @@ class TimedCacheTest
     @Test
     void testKeepAfterTimeOut()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, true, false, true);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, true, false, true);
         // Set a hard reference, so the value cannot be garbage collected.
         String value = "can't touch this";
 
@@ -87,7 +86,7 @@ class TimedCacheTest
         Assertions.assertEquals(1, timedCache.getSize());
 
         // Ensure the value can be retrieved properly.
-        String result = timedCache.get("key").orElse(null);
+        @Nullable String result = timedCache.get("key").orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertSame(result, value);
 
@@ -120,7 +119,7 @@ class TimedCacheTest
         Assertions.assertTrue(tsv.canBeEvicted());
     }
 
-    private @NotNull <T> TimedSoftValue<T> getTimedSoftValue(TimedCache<String, T> cache, String keyName)
+    private <T> TimedSoftValue<T> getTimedSoftValue(TimedCache<String, T> cache, String keyName)
     {
         @Nullable AbstractTimedValue<T> retrieved = cache.getRaw(keyName);
         Assertions.assertNotNull(retrieved);
@@ -141,11 +140,11 @@ class TimedCacheTest
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new TimedCache<>(clock, Duration.ZERO, Duration.ZERO, true, false, false));
 
-        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ZERO, longDuration,
-                                                                          true, false, false);
+        TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ZERO, longDuration,
+                                                                 true, false, false);
         timedCache.put("key", "value");
 
-        @NotNull TimedSoftValue<String> retrieved = getTimedSoftValue(timedCache, "key");
+        TimedSoftValue<String> retrieved = getTimedSoftValue(timedCache, "key");
         Assertions.assertNull(retrieved.getRawHardReference());
 
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -172,8 +171,8 @@ class TimedCacheTest
     @Test
     void testRefresh()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, true, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, true, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
@@ -208,8 +207,8 @@ class TimedCacheTest
     @Test
     void computeIfAbsent()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
 
         // Make sure inserting a new item properly returns an empty optional.
         Assertions.assertFalse(timedCache.computeIfAbsent("key", (k) -> "value").isPresent());
@@ -233,8 +232,8 @@ class TimedCacheTest
     @Test
     void computeIfPresent()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
         timedCache.put("key", "value");
 
         optionalEquals(timedCache.computeIfPresent("key", (k, v) -> "newValue"), "newValue");
@@ -249,14 +248,15 @@ class TimedCacheTest
     @Test
     void compute()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
-        @NotNull String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
+        String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
         Assertions.assertEquals("value", returned);
 
         returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
+        //noinspection SpellCheckingInspection
         Assertions.assertEquals("valuevalue", returned);
 
         clock.addMillis(110);
@@ -267,8 +267,8 @@ class TimedCacheTest
     @Test
     void putIfAbsent()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
 
         Assertions.assertFalse(timedCache.putIfAbsent("key", "value").isPresent());
 
@@ -283,8 +283,8 @@ class TimedCacheTest
     @Test
     void putIfPresent()
     {
-        @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                          null, false, false, false);
+        TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                 null, false, false, false);
 
         timedCache.put("key", "value");
 
@@ -303,13 +303,13 @@ class TimedCacheTest
     @Test
     void remove()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                null, false, false, false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
         Assertions.assertEquals(1, timedCache.getSize());
 
-        final @NotNull Optional<String> result = timedCache.remove("key");
+        final Optional<String> result = timedCache.remove("key");
         Assertions.assertTrue(result.isPresent());
         Assertions.assertEquals("value", result.get());
         Assertions.assertEquals(0, timedCache.getSize());
@@ -328,9 +328,9 @@ class TimedCacheTest
     @Test
     void cleanupTask()
     {
-        final @NotNull TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
-                                                                                Duration.ofMillis(1), false, false,
-                                                                                false);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       Duration.ofMillis(1), false, false,
+                                                                       false);
 
         timedCache.put("key", "value");
         Assertions.assertTrue(timedCache.get("key").isPresent());
@@ -350,7 +350,7 @@ class TimedCacheTest
      *
      * @param millis The number of milliseconds to sleep for.
      */
-    public static void sleep(final long millis)
+    public static void sleep(long millis)
     {
         try
         {
@@ -370,7 +370,7 @@ class TimedCacheTest
      * @param val      The value to compare against the value inside the optional.
      * @param <T>      The type of the values to compare.
      */
-    public static <T> void optionalEquals(final @NotNull Optional<T> optional, final @NotNull T val)
+    public static <T> void optionalEquals(Optional<T> optional, T val)
     {
         Assertions.assertTrue(optional.isPresent());
         Assertions.assertEquals(val, optional.get());
@@ -386,12 +386,12 @@ class TimedCacheTest
         @Setter
         private long currentMillis;
 
-        public void addMillis(final long millis)
+        public void addMillis(long millis)
         {
             currentMillis += millis;
         }
 
-        public MockClock(final long currentMillis)
+        public MockClock(long currentMillis)
         {
             this.currentMillis = currentMillis;
         }

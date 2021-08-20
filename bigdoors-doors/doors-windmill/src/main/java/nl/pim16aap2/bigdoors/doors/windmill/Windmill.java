@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ import java.util.Optional;
 public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeWindmill.get();
+    private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
     /**
      * The number of quarter circles (so 90 degree rotations) this door will make before stopping.
@@ -39,21 +38,21 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
      */
     @Getter
     @PersistentVariable
-    private int quarterCircles = 1;
+    private int quarterCircles;
 
-    public Windmill(final @NotNull DoorBase doorBase, final int quarterCircles)
+    public Windmill(DoorBase doorBase, int quarterCircles)
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public Windmill(final @NotNull DoorBase doorBase)
+    public Windmill(DoorBase doorBase)
     {
         this(doorBase, 1);
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -65,13 +64,13 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     }
 
     @Override
-    public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
         return Optional.of(getCuboid());
     }
 
     @Override
-    public @NotNull RotateDirection getCurrentToggleDir()
+    public RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
@@ -83,7 +82,7 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
                getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
@@ -91,10 +90,8 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

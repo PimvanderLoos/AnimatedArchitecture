@@ -1,10 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -26,8 +24,6 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 
 class DoorTargetCommandTest
 {
-    private IBigDoorsPlatform platform;
-
     @Mock
     private DoorRetriever doorRetriever;
 
@@ -40,13 +36,10 @@ class DoorTargetCommandTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private DoorTargetCommand doorTargetCommand;
 
-    @Mock
-    private ToolUserManager toolUserManager;
-
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        initPlatform();
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);

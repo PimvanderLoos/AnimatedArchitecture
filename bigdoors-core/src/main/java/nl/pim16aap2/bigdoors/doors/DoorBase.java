@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -35,19 +34,19 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final long doorUID;
 
     @Getter
-    private final @NotNull IPWorld world;
+    private final IPWorld world;
 
     @Getter
-    private @NotNull Vector3Di engine;
+    private Vector3Di engine;
 
     @Getter
-    private @NotNull Vector3Di powerBlock;
+    private Vector3Di powerBlock;
 
     @Getter
     @Setter
-    private @NotNull String name;
+    private String name;
 
-    private @NotNull Cuboid cuboid;
+    private Cuboid cuboid;
 
     @Getter
     @Setter
@@ -55,7 +54,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @Getter
     @Setter
-    private @NotNull RotateDirection openDir;
+    private RotateDirection openDir;
 
     /**
      * Represents the locked status of this door. True = locked, False = unlocked.
@@ -66,14 +65,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @EqualsAndHashCode.Exclude
     // This is a ConcurrentHashMap to ensure serialization uses the correct type.
-    private final @NotNull Map<UUID, DoorOwner> doorOwners;
+    private final Map<UUID, DoorOwner> doorOwners;
 
     @Getter
-    private final @NotNull DoorOwner primeOwner;
+    private final DoorOwner primeOwner;
 
-    public DoorBase(long doorUID, @NotNull String name, @NotNull Cuboid cuboid, @NotNull Vector3Di engine,
-                    @NotNull Vector3Di powerBlock, @NotNull IPWorld world, boolean isOpen, boolean isLocked,
-                    @NotNull RotateDirection openDir, @NotNull DoorOwner primeOwner,
+    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
+                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner,
                     @Nullable Map<UUID, DoorOwner> doorOwners)
     {
         this.doorUID = doorUID;
@@ -88,7 +86,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.primeOwner = primeOwner;
 
         final int initSize = doorOwners == null ? 1 : doorOwners.size();
-        final @NotNull Map<UUID, DoorOwner> doorOwnersTmp = new ConcurrentHashMap<>(initSize);
+        final Map<UUID, DoorOwner> doorOwnersTmp = new ConcurrentHashMap<>(initSize);
         if (doorOwners == null)
             doorOwnersTmp.put(primeOwner.pPlayerData().getUUID(), primeOwner);
         else
@@ -96,15 +94,14 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorOwners = doorOwnersTmp;
     }
 
-    public DoorBase(long doorUID, @NotNull String name, @NotNull Cuboid cuboid, @NotNull Vector3Di engine,
-                    @NotNull Vector3Di powerBlock, @NotNull IPWorld world, boolean isOpen, boolean isLocked,
-                    @NotNull RotateDirection openDir, @NotNull DoorOwner primeOwner)
+    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
+                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner)
     {
         this(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir, primeOwner, null);
     }
 
     // Copy constructor
-    private DoorBase(@NotNull DoorBase other, @Nullable Map<UUID, DoorOwner> doorOwners)
+    private DoorBase(DoorBase other, @Nullable Map<UUID, DoorOwner> doorOwners)
     {
         doorUID = other.doorUID;
         name = other.name;
@@ -127,9 +124,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *
      * @return A full copy of this {@link DoorBase}.
      */
-    public synchronized @NotNull DoorBase getFullSnapshot()
+    public synchronized DoorBase getFullSnapshot()
     {
-        return new DoorBase(this, getDoorOwnersCopy());
+        return new DoorBase(this, new HashMap<>(doorOwners));
     }
 
     /**
@@ -140,13 +137,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *
      * @return A partial copy of this {@link DoorBase}.
      */
-    public synchronized @NotNull DoorBase getPartialSnapshot()
+    public synchronized DoorBase getPartialSnapshot()
     {
         return new DoorBase(this, null);
     }
 
     @Override
-    protected void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner)
+    protected void addOwner(UUID uuid, DoorOwner doorOwner)
     {
         if (doorOwner.permission() == 0)
         {
@@ -160,7 +157,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    protected boolean removeOwner(final @NotNull UUID uuid)
+    protected boolean removeOwner(UUID uuid)
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
@@ -173,7 +170,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public @NotNull Cuboid getCuboid()
+    public Cuboid getCuboid()
     {
         return cuboid;
     }
@@ -191,70 +188,63 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public @NotNull List<DoorOwner> getDoorOwners()
+    public List<DoorOwner> getDoorOwners()
     {
         final List<DoorOwner> ret = new ArrayList<>(doorOwners.size());
         ret.addAll(doorOwners.values());
         return ret;
     }
 
-    protected @NotNull Map<UUID, DoorOwner> getDoorOwnersCopy()
-    {
-        final @NotNull Map<UUID, DoorOwner> copy = new HashMap<>(doorOwners.size());
-        doorOwners.forEach(copy::put);
-        return copy;
-    }
-
     @Override
-    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull IPPlayer player)
+    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
     {
         return getDoorOwner(player.getUUID());
     }
 
     @Override
-    public @NotNull Optional<DoorOwner> getDoorOwner(final @NotNull UUID uuid)
+    public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return Optional.ofNullable(doorOwners.get(uuid));
     }
 
     @Override
-    public void setCoordinates(final @NotNull Cuboid newCuboid)
+    public void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
     }
 
     @Override
-    public void setCoordinates(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB)
+    public void setCoordinates(Vector3Di posA, Vector3Di posB)
     {
         cuboid = new Cuboid(posA, posB);
     }
 
     @Override
-    public @NotNull Vector3Di getMinimum()
+    public Vector3Di getMinimum()
     {
         return cuboid.getMin();
     }
 
     @Override
-    public @NotNull Vector3Di getMaximum()
+    public Vector3Di getMaximum()
     {
         return cuboid.getMax();
     }
 
     @Override
-    public @NotNull Vector3Di getDimensions()
+    public Vector3Di getDimensions()
     {
         return cuboid.getDimensions();
     }
 
     @Override
-    public synchronized void setEngine(final @NotNull Vector3Di pos)
+    public synchronized void setEngine(Vector3Di pos)
     {
         engine = pos;
     }
 
     @Override
-    public void setPowerBlockPosition(final @NotNull Vector3Di pos)
+    public void setPowerBlockPosition(Vector3Di pos)
     {
         powerBlock = pos;
     }
@@ -275,7 +265,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      * @return String with (almost) all data of this door.
      */
     @Override
-    public synchronized @NotNull String toString()
+    public synchronized String toString()
     {
         return doorUID + ": " + name + "\n"
             + formatLine("Cuboid", getCuboid())
@@ -288,9 +278,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             + formatLine("OpenDir", openDir.name());
     }
 
-    private @NotNull String formatLine(@NotNull String name, @Nullable Object obj)
+    private String formatLine(String name, @Nullable Object obj)
     {
-        final @NotNull String objString = obj == null ? "NULL" : obj.toString();
+        final String objString = obj == null ? "NULL" : obj.toString();
         return name + ": " + objString + "\n";
     }
 }

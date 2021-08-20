@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.OptionalDouble;
 
@@ -16,7 +15,7 @@ public interface IEconomyManager
      * @param blockCount The number of blocks in the door.
      * @return True if the player bought the door successfully.
      */
-    boolean buyDoor(@NotNull IPPlayer player, @NotNull IPWorld world, @NotNull DoorType type, int blockCount);
+    boolean buyDoor(IPPlayer player, IPWorld world, DoorType type, int blockCount);
 
     /**
      * Gets the price of {@link DoorType} for a specific number of blocks.
@@ -25,7 +24,7 @@ public interface IEconomyManager
      * @param blockCount The number of blocks.
      * @return The price of this {@link DoorType} with this number of blocks.
      */
-    @NotNull OptionalDouble getPrice(@NotNull DoorType type, int blockCount);
+    OptionalDouble getPrice(DoorType type, int blockCount);
 
     /**
      * Checks if the economy manager is enabled.

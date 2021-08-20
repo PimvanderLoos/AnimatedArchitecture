@@ -41,7 +41,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Represents various small and platform agnostic utility functions.
+ * Represents various small and platform-agnostic utility functions.
  *
  * @author Pim
  */
@@ -52,27 +52,27 @@ public final class Util
     /**
      * Characters to use in (secure) random strings.
      */
-    private static final @NotNull String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     /**
      * Used to generate secure random strings. It's more secure than {@link Util#RANDOM}, but slower.
      */
-    private static final @NotNull SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     /**
      * Used to generate simple random strings. It's faster than {@link Util#SECURE_RANDOM}, but not secure.
      */
-    private static final @NotNull Random RANDOM = new Random();
+    private static final Random RANDOM = new Random();
 
-    private static final @NotNull Map<PBlockFace, RotateDirection> TO_ROTATE_DIRECTION =
+    private static final Map<PBlockFace, RotateDirection> TO_ROTATE_DIRECTION =
         new EnumMap<>(PBlockFace.class);
-    private static final @NotNull Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
+    private static final Map<RotateDirection, PBlockFace> TO_PBLOCK_FACE =
         new EnumMap<>(RotateDirection.class);
 
     /**
      * Looks for top-level .properties files.
      */
-    private static final @NotNull Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
+    private static final Pattern LOCALE_FILE_PATTERN = Pattern.compile("^[\\w-]+\\.properties");
 
     static
     {
@@ -98,7 +98,7 @@ public final class Util
      * @param clz The class for which to find the jar file.
      * @return The location of the jar file.
      */
-    public @NotNull Path getJarFile(@NotNull Class<?> clz)
+    public Path getJarFile(Class<?> clz)
     {
         try
         {
@@ -110,14 +110,14 @@ public final class Util
         }
     }
 
-    public @NotNull List<String> getLocaleFilesInJar(@NotNull Path jarFile)
+    public List<String> getLocaleFilesInJar(Path jarFile)
         throws IOException
     {
         final List<String> ret = new ArrayList<>();
 
         try (val zipInputStream = new ZipInputStream(Files.newInputStream(jarFile)))
         {
-            ZipEntry entry;
+            @Nullable ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null)
             {
                 val name = entry.getName();
@@ -145,9 +145,10 @@ public final class Util
      * @throws NullPointerException If the input object to check is null.
      */
     @Contract("null, _ -> fail")
-    public <T> @NotNull T requireNonNull(final @Nullable T obj, final @NotNull String name)
+    public <T> T requireNonNull(@Nullable T obj, String name)
         throws NullPointerException
     {
+        //noinspection ConstantConditions
         return Objects.requireNonNull(obj, name + " must not be null!");
     }
 
@@ -162,8 +163,7 @@ public final class Util
      * @return The fallback value.
      */
     @Contract("_, !null -> !null")
-    @SuppressWarnings("NullAway")
-    public <T> T exceptionally(final @NotNull Throwable throwable, final T fallback)
+    public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
     {
         BigDoors.get().getPLogger().logThrowable(throwable);
         return fallback;
@@ -174,8 +174,7 @@ public final class Util
      *
      * @return Always null
      */
-    @SuppressWarnings("NullAway")
-    public @Nullable <T> T exceptionally(final @NotNull Throwable throwable)
+    public @Nullable <T> T exceptionally(Throwable throwable)
     {
         return exceptionally(throwable, null);
     }
@@ -185,7 +184,7 @@ public final class Util
      *
      * @return Always {@link Optional#empty()}.
      */
-    public <T> Optional<T> exceptionallyOptional(final @NotNull Throwable throwable)
+    public <T> Optional<T> exceptionallyOptional(Throwable throwable)
     {
         return exceptionally(throwable, Optional.empty());
     }
@@ -199,8 +198,7 @@ public final class Util
      * @param target    The {@link CompletableFuture} to complete.
      * @return The fallback value.
      */
-    public <T, U> T exceptionallyCompletion(@NotNull Throwable throwable, T fallback,
-                                            @NotNull CompletableFuture<U> target)
+    public <T, U> T exceptionallyCompletion(Throwable throwable, T fallback, CompletableFuture<U> target)
     {
         target.completeExceptionally(throwable);
         return fallback;
@@ -214,13 +212,13 @@ public final class Util
      * @param target    The {@link CompletableFuture} to complete.
      * @return Always null;
      */
-    public <T> Void exceptionallyCompletion(@NotNull Throwable throwable, @NotNull CompletableFuture<T> target)
+    public <T> Void exceptionallyCompletion(Throwable throwable, CompletableFuture<T> target)
     {
         target.completeExceptionally(throwable);
         return null;
     }
 
-    public static @NotNull OptionalInt parseInt(final @Nullable String str)
+    public static OptionalInt parseInt(@Nullable String str)
     {
         if (str == null)
             return OptionalInt.empty();
@@ -235,12 +233,12 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalInt parseInt(final @NotNull Optional<String> str)
+    public static OptionalInt parseInt(Optional<String> str)
     {
         return str.map(Util::parseInt).orElse(OptionalInt.empty());
     }
 
-    public static @NotNull OptionalDouble parseDouble(final @Nullable String str)
+    public static OptionalDouble parseDouble(@Nullable String str)
     {
         if (str == null)
             return OptionalDouble.empty();
@@ -255,12 +253,12 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalDouble parseDouble(final @NotNull Optional<String> str)
+    public static OptionalDouble parseDouble(Optional<String> str)
     {
         return str.map(Util::parseDouble).orElse(OptionalDouble.empty());
     }
 
-    public static @NotNull OptionalLong parseLong(final @Nullable String str)
+    public static OptionalLong parseLong(@Nullable String str)
     {
         if (str == null)
             return OptionalLong.empty();
@@ -275,7 +273,7 @@ public final class Util
         }
     }
 
-    public static @NotNull OptionalLong parseLong(final @NotNull Optional<String> str)
+    public static OptionalLong parseLong(Optional<String> str)
     {
         return str.map(Util::parseLong).orElse(OptionalLong.empty());
     }
@@ -285,7 +283,7 @@ public final class Util
      * <p>
      * If the player object has no location, -2 is returned.
      */
-    public static double getDistanceToDoor(final @NotNull IPPlayer player, final @NotNull AbstractDoor door)
+    public static double getDistanceToDoor(IPPlayer player, AbstractDoor door)
     {
         return player.getLocation().map(location -> getDistanceToDoor(location, door)).orElse(-2d);
     }
@@ -298,8 +296,7 @@ public final class Util
      * @param door     The door to check.
      * @return The distance between the location and the door if they lie in the same world, otherwise -1.
      */
-    public static double getDistanceToDoor(final @NotNull IPLocation location,
-                                           final @NotNull AbstractDoor door)
+    public static double getDistanceToDoor(IPLocation location, AbstractDoor door)
     {
         if (!location.getWorld().equals(door.getWorld()))
             return -1;
@@ -314,7 +311,7 @@ public final class Util
      * @param <T>      The type of the value.
      * @return The value if it is not null, otherwise the fallback.
      */
-    public @NotNull <T> T valOrDefault(final @Nullable T value, final @NotNull Supplier<T> fallback)
+    public <T> T valOrDefault(@Nullable T value, Supplier<T> fallback)
     {
         return value == null ? fallback.get() : value;
     }
@@ -328,10 +325,9 @@ public final class Util
      * @return The value in the {@link Iterable} object for which the search function returns true, otherwise {@link
      * Optional#empty()}.
      */
-    public @NotNull <T> Optional<T> searchIterable(final @NotNull Iterable<T> iterable,
-                                                   final @NotNull Predicate<T> searchPred)
+    public <T> Optional<T> searchIterable(Iterable<T> iterable, Predicate<T> searchPred)
     {
-        for (final @NotNull T val : iterable)
+        for (T val : iterable)
             if (searchPred.test(val))
                 return Optional.of(val);
         return Optional.empty();
@@ -343,7 +339,7 @@ public final class Util
      * @param statement The String.
      * @return The number of question marks in the String.
      */
-    public static int countPatternOccurrences(final @NotNull Pattern pattern, final @NotNull String statement)
+    public static int countPatternOccurrences(Pattern pattern, String statement)
     {
         int found = 0;
         final Matcher matcher = pattern.matcher(statement);
@@ -359,7 +355,7 @@ public final class Util
      * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
      * RotateDirection#NONE}.
      */
-    public static @NotNull RotateDirection getRotateDirection(final @NotNull PBlockFace pBlockFace)
+    public static RotateDirection getRotateDirection(PBlockFace pBlockFace)
     {
         return TO_ROTATE_DIRECTION.getOrDefault(pBlockFace, RotateDirection.NONE);
     }
@@ -371,7 +367,7 @@ public final class Util
      * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
      * PBlockFace#NONE}.
      */
-    public static @NotNull PBlockFace getPBlockFace(final @NotNull RotateDirection rotateDirection)
+    public static PBlockFace getPBlockFace(RotateDirection rotateDirection)
     {
         return TO_PBLOCK_FACE.getOrDefault(rotateDirection, PBlockFace.NONE);
     }
@@ -382,7 +378,7 @@ public final class Util
      * @param string The string for which to capitalize the first letter.
      * @return The same string that it received as input, but with a capizalized first letter.
      */
-    public static @NotNull String capitalizeFirstLetter(final @NotNull String string)
+    public static String capitalizeFirstLetter(String string)
     {
         return string.substring(0, 1).toUpperCase() + string.substring(1);
     }
@@ -393,11 +389,9 @@ public final class Util
      * @param angle The current angle in radians.
      * @return The angle (in radians) clamped to [-2PI ; 2PI].
      */
-    public static double clampAngleRad(final double angle)
+    public static double clampAngleRad(double angle)
     {
         return angle % (2 * Math.PI);
-//        double twoPi = 2 * Math.PI;
-//        return (angle + twoPi) % twoPi;
     }
 
     /**
@@ -406,7 +400,7 @@ public final class Util
      * @param angle The current angle in degrees.
      * @return The angle (in degrees) clamped to [-360 ; 360].
      */
-    public static double clampAngleDeg(final double angle)
+    public static double clampAngleDeg(double angle)
     {
         return angle % (2 * Math.PI);
     }
@@ -419,7 +413,7 @@ public final class Util
      * @param second Second array.
      * @return A single concatenated array.
      */
-    public static @NotNull <T> T[] concatArrays(final @NotNull T[] first, final @NotNull T[] second)
+    public static <T> T[] concatArrays(T[] first, T[] second)
     {
         T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
@@ -433,7 +427,7 @@ public final class Util
      * @param arr Array to be doubled in size
      * @return A copy of the array but with doubled size.
      */
-    public static @NotNull <T> T[] doubleArraySize(final @NotNull T[] arr)
+    public static <T> T[] doubleArraySize(T[] arr)
     {
         return Arrays.copyOf(arr, arr.length * 2);
     }
@@ -446,7 +440,7 @@ public final class Util
      * @param newLength The new length of the array.
      * @return A truncated array
      */
-    public static @NotNull <T> T[] truncateArray(final @NotNull T[] arr, final int newLength)
+    public static <T> T[] truncateArray(T[] arr, int newLength)
     {
         return Arrays.copyOf(arr, newLength);
     }
@@ -463,7 +457,7 @@ public final class Util
      * @param name The name to test for validity,
      * @return True if the name is allowed.
      */
-    public static boolean isValidDoorName(final @Nullable String name)
+    public static boolean isValidDoorName(@Nullable String name)
     {
         if (name == null || name.isBlank())
             return false;
@@ -477,7 +471,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return An insecure random alphanumeric string.
      */
-    public static @NotNull String randomInsecureString(final int length)
+    public static String randomInsecureString(int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -491,7 +485,7 @@ public final class Util
      * @param length Length of the resulting string
      * @return A secure random alphanumeric string.
      */
-    public static @NotNull String secureRandomString(final int length)
+    public static String secureRandomString(int length)
     {
         StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
@@ -499,17 +493,14 @@ public final class Util
         return sb.toString();
     }
 
-    public static boolean hasPermissionForAction(final @NotNull UUID uuid, final @NotNull AbstractDoor door,
-                                                 final @NotNull DoorAttribute attribute)
+    public static boolean hasPermissionForAction(UUID uuid, AbstractDoor door, DoorAttribute attribute)
     {
         return door.getDoorOwner(uuid)
                    .map(doorOwner -> doorOwner.permission() <= DoorAttribute.getPermissionLevel(attribute))
                    .orElse(false);
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean hasPermissionForAction(final @NotNull IPPlayer player, final @NotNull AbstractDoor door,
-                                                 final @NotNull DoorAttribute attribute)
+    public static boolean hasPermissionForAction(IPPlayer player, AbstractDoor door, DoorAttribute attribute)
     {
         return hasPermissionForAction(player.getUUID(), door, attribute);
     }
@@ -521,7 +512,7 @@ public final class Util
      * @param max The lower bound (inclusive).
      * @return A random integer value.
      */
-    public static int getRandomNumber(final int min, final int max)
+    public static int getRandomNumber(int min, int max)
     {
 
         if (min >= max)
@@ -538,7 +529,7 @@ public final class Util
      * @param position The position.
      * @return The chunk coordinates.
      */
-    public static @NotNull Vector2Di getChunkCoords(final @NotNull Vector3Di position)
+    public static Vector2Di getChunkCoords(Vector3Di position)
     {
         return new Vector2Di(position.x() << 4, position.z() << 4);
     }
@@ -551,7 +542,7 @@ public final class Util
      * @param chunkZ The z-coordinate of the chunk.
      * @return The simple hash of the chunk.
      */
-    public static long simpleChunkHashFromChunkCoordinates(final int chunkX, final int chunkZ)
+    public static long simpleChunkHashFromChunkCoordinates(int chunkX, int chunkZ)
     {
         long hash = 3;
         hash = 19 * hash + (int) (Double.doubleToLongBits(chunkX) ^ (Double.doubleToLongBits(chunkX) >>> 32));
@@ -567,7 +558,7 @@ public final class Util
      * @param posZ The z-coordinate of the location.
      * @return The simple hash of the chunk.
      */
-    public static long simpleChunkHashFromLocation(final int posX, final int posZ)
+    public static long simpleChunkHashFromLocation(int posX, int posZ)
     {
         return simpleChunkHashFromChunkCoordinates(posX >> 4, posZ >> 4);
     }
@@ -581,7 +572,7 @@ public final class Util
      * @param z The z-coordinate of the location.
      * @return The simple hash of the location.
      */
-    public static long simpleLocationhash(final int x, final int y, final int z)
+    public static long simpleLocationhash(int x, int y, int z)
     {
         int hash = 3;
         hash = 19 * hash + (int) (Double.doubleToLongBits(x) ^ Double.doubleToLongBits(x) >>> 32);
@@ -596,7 +587,7 @@ public final class Util
      * @param position The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static @NotNull Vector3Di getChunkSpacePosition(final @NotNull Vector3Di position)
+    public static Vector3Di getChunkSpacePosition(Vector3Di position)
     {
         return getChunkSpacePosition(position.x(), position.y(), position.z());
     }
@@ -609,7 +600,7 @@ public final class Util
      * @param z The z coordinate in world space.
      * @return The coordinates in chunkspace coordinates.
      */
-    public static @NotNull Vector3Di getChunkSpacePosition(final int x, final int y, final int z)
+    public static Vector3Di getChunkSpacePosition(int x, int y, int z)
     {
         return new Vector3Di(x % 16, y, z % 16);
     }
@@ -623,7 +614,7 @@ public final class Util
      * @param z The z-coordinate of the location.
      * @return The simple hash of the location in chunk-space.
      */
-    public static int simpleChunkSpaceLocationhash(final int x, final int y, final int z)
+    public static int simpleChunkSpaceLocationhash(int x, int y, int z)
     {
         int chunkSpaceX = x % 16;
         int chunkSpaceZ = z % 16;
@@ -637,7 +628,7 @@ public final class Util
      * @param mapper  The function to map objects to strings.
      * @return Resulting concatenated string.
      */
-    public static <T> @NotNull String toString(final @NotNull T[] entries, final @NotNull Function<T, String> mapper)
+    public static <T> String toString(T[] entries, Function<T, String> mapper)
     {
         return toString(Arrays.asList(entries), mapper);
     }
@@ -648,7 +639,7 @@ public final class Util
      * @param entries Input collection of objects.
      * @return Resulting concatenated string.
      */
-    public static @NotNull String toString(final @NotNull Object[] entries)
+    public static String toString(Object[] entries)
     {
         return toString(Arrays.asList(entries));
     }
@@ -659,7 +650,7 @@ public final class Util
      * @param entries Input collection of objects.
      * @return Resulting concatenated string.
      */
-    public static @NotNull String toString(final @NotNull Collection<?> entries)
+    public static String toString(Collection<?> entries)
     {
         return toString(entries, Object::toString);
     }
@@ -671,11 +662,12 @@ public final class Util
      * @param mapper  The function to map objects to strings.
      * @return Resulting concatenated string.
      */
-    public static <T> @NotNull String toString(final @NotNull Collection<T> entries,
-                                               final @NotNull Function<T, String> mapper)
+    // NullAway doesn't appear to enjoy nullable values in an enhanced for-each loop.
+    @SuppressWarnings("NullAway")
+    public static <T> String toString(Collection<@Nullable T> entries, Function<T, String> mapper)
     {
         StringBuilder builder = new StringBuilder("[");
-        for (val obj : entries)
+        for (@Nullable final T obj : entries)
             builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
 
         String result = builder.toString();
@@ -693,13 +685,13 @@ public final class Util
      * @param high Maximum value.
      * @return True if the value is in the provided range or if it equals the low and/or the high value.
      */
-    public static boolean between(final int test, final int low, final int high)
+    public static boolean between(int test, int low, int high)
     {
         return test <= high && test >= low;
     }
 
     @Deprecated
-    public static int tickRateFromSpeed(final double speed)
+    public static int tickRateFromSpeed(double speed)
     {
         int tickRate;
         if (speed > 9)
@@ -715,9 +707,7 @@ public final class Util
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
-    public static double[] calculateTimeAndTickRate(final int doorSize, double time,
-                                                    final double speedMultiplier,
-                                                    final double baseSpeed)
+    public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
         final double[] ret = new double[3];
         final double distance = Math.PI * doorSize / 2;

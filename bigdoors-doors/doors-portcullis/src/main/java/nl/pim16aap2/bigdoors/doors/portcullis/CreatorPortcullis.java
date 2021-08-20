@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
 import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -19,22 +18,22 @@ import java.util.OptionalInt;
 
 public class CreatorPortcullis extends Creator
 {
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypePortcullis.get();
+    private static final DoorType DOOR_TYPE = DoorTypePortcullis.get();
 
     protected int blocksToMove;
 
-    public CreatorPortcullis(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorPortcullis(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorPortcullis(final @NotNull IPPlayer player)
+    public CreatorPortcullis(IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
         Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
@@ -52,13 +51,13 @@ public class CreatorPortcullis extends Creator
                              factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
     }
 
-    protected boolean setBlocksToMove(final int blocksToMove)
+    protected boolean setBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
             return false;
 
-        final @NotNull OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
-                                                               .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
+        final OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
+                                                      .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
@@ -79,7 +78,7 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected @NotNull AbstractDoor constructDoor()
+    protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
         engine = cuboid.getCenterBlock();
@@ -87,7 +86,7 @@ public class CreatorPortcullis extends Creator
     }
 
     @Override
-    protected @NotNull DoorType getDoorType()
+    protected DoorType getDoorType()
     {
         return DOOR_TYPE;
     }

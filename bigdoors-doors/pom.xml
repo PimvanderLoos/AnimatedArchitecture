@@ -37,7 +37,7 @@
         <mainClass>UNDEFINED</mainClass>
         <typeName>UNDEFINED</typeName>
         <version>UNDEFINED</version>
-        <TypeDependencies></TypeDependencies>
+        <TypeDependencies/>
     </properties>
 
     <build>

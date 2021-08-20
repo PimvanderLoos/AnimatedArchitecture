@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -23,7 +22,7 @@ public interface IPBlockDataFactory
      * @param radius The radius of the block to an arbitrary point.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    @NotNull Optional<PBlockData> create(@NotNull IPLocation loc, boolean bottom, float radius, float startAngle)
+    Optional<PBlockData> create(IPLocation loc, boolean bottom, float radius, float startAngle)
         throws Exception;
 
     /**
@@ -33,7 +32,7 @@ public interface IPBlockDataFactory
      * @param bottom Whether the block is on the bottom row of an animated door.
      * @return The spawn location of the falling block.
      */
-    default @NotNull IPLocation getSpawnLocation(@NotNull IPLocation loc, boolean bottom)
+    default IPLocation getSpawnLocation(IPLocation loc, boolean bottom)
     {
         // Move the lowest blocks up a little, so the client won't predict they're
         // touching through the ground, which would make them slower than the rest.

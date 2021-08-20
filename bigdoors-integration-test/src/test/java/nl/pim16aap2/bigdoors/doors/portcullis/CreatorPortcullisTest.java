@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.doors.portcullis;
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,8 +31,8 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyDoor(true);
 
-        final @NotNull Portcullis actualDoor = new Portcullis(constructDoorBase(), blocksToMove);
-        final @NotNull CreatorPortcullis creator = new CreatorPortcullis(player);
+        final Portcullis actualDoor = new Portcullis(constructDoorBase(), blocksToMove);
+        final CreatorPortcullis creator = new CreatorPortcullis(player);
         testCreation(creator, actualDoor,
                      doorName,
                      min.toLocation(world),
@@ -47,7 +46,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     @Test
     void testBlocksToMove()
     {
-        final @NotNull CreatorPortcullis creator = new CreatorPortcullis(player);
+        final CreatorPortcullis creator = new CreatorPortcullis(player);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 

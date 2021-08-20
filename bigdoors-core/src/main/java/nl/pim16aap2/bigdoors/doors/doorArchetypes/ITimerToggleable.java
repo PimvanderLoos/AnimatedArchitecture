@@ -12,7 +12,7 @@ public interface ITimerToggleable
      *
      * @param newValue The new value of the autoCloseTimer (in seconds).
      */
-    void setAutoCloseTime(final int newValue);
+    void setAutoCloseTime(int newValue);
 
     /**
      * Gets the value of the autoCloseTimer. This value describes the number of seconds after a door was opened that a
@@ -27,7 +27,7 @@ public interface ITimerToggleable
      *
      * @param newValue The new value of the autoOpenTimer.
      */
-    void setAutoOpenTime(final int newValue);
+    void setAutoOpenTime(int newValue);
 
     /**
      * Gets the value of the autoOpenTimer. This value describes the number of seconds after a door was closed that a

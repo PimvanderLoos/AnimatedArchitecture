@@ -18,12 +18,12 @@
         <src.dir>${basedir}/src/main/java</src.dir>
 
         <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
-        <dependency.version.annotations>20.1.0</dependency.version.annotations>
+        <dependency.version.annotations>22.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
-        <dependency.version.errorprone>2.8.0</dependency.version.errorprone>
-<!--        <dependency.version.nullaway>0.9.1</dependency.version.nullaway>-->
-        <dependency.version.nullaway>0.9.3-SNAPSHOT</dependency.version.nullaway>
+        <dependency.version.errorprone>2.8.1</dependency.version.errorprone>
+        <dependency.version.nullaway>1e615ffd45</dependency.version.nullaway>
+        <dependency.version.checker-framework>3.17.0</dependency.version.checker-framework>
         <dependency.version.dagger>2.38.1</dependency.version.dagger>
         <dependency.version.mockito>3.11.2</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
@@ -118,6 +118,13 @@
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
             <version>${dependency.version.errorprone}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>${dependency.version.checker-framework}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -325,9 +332,14 @@
                                         <artifactId>error_prone_core</artifactId>
                                         <version>${dependency.version.errorprone}</version>
                                     </path>
+<!--                                    <path>-->
+<!--                                        <groupId>com.uber.nullaway</groupId>-->
+<!--                                        <artifactId>nullaway</artifactId>-->
+<!--                                        <version>${dependency.version.nullaway}</version>-->
+<!--                                    </path>-->
                                     <path>
-                                        <groupId>com.uber.nullaway</groupId>
-                                        <artifactId>nullaway</artifactId>
+                                        <groupId>com.github.PimvanderLoos</groupId>
+                                        <artifactId>NullAway</artifactId>
                                         <version>${dependency.version.nullaway}</version>
                                     </path>
                                 </annotationProcessorPaths>

@@ -27,7 +27,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
@@ -48,14 +48,13 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 public class CreatorTestsUtil
 {
-    protected @NotNull Vector3Di min = new Vector3Di(10, 15, 20);
-    protected @NotNull Vector3Di max = new Vector3Di(20, 25, 30);
-    protected @NotNull Vector3Di engine = new Vector3Di(20, 15, 25);
-    protected @NotNull Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected @NotNull String doorName = "testDoor123";
-    protected @NotNull IPWorld world = getWorld();
-    protected @NotNull IPWorld world2 = getWorld();
-    protected @NotNull RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
+    protected final Vector3Di min = new Vector3Di(10, 15, 20);
+    protected final Vector3Di max = new Vector3Di(20, 25, 30);
+    protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
+    protected final String doorName = "testDoor123";
+    protected final IPWorld world = getWorld();
+    protected Vector3Di engine = new Vector3Di(20, 15, 25);
+    protected RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected DoorOwner doorOwner;
 
@@ -174,13 +173,12 @@ public class CreatorTestsUtil
     }
 
     @SneakyThrows
-    public void testCreation(final @NotNull Creator creator, @NotNull AbstractDoor actualDoor,
-                             final @NotNull Object... input)
+    public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)
         {
             val obj = input[idx];
-            val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            @Nullable val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),

@@ -19,10 +19,10 @@ import org.jetbrains.annotations.NotNull;
 @ToString
 public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventToggleStart
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
-    private final @NotNull Cuboid newCuboid;
+    private final Cuboid newCuboid;
 
     /**
      * Constructs a door action event.
@@ -36,9 +36,8 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventToggleStart(final @NotNull AbstractDoor door, final @NotNull DoorActionCause cause,
-                                final @NotNull DoorActionType actionType, final @NotNull IPPlayer responsible,
-                                final double time, final boolean skipAnimation, final @NotNull Cuboid newCuboid)
+    public DoorEventToggleStart(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
+                                IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;
@@ -50,7 +49,9 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    // This method is identical to the getHandlers method (S4144). However, this is required for Spigot.
+    @SuppressWarnings("squid:S4144")
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

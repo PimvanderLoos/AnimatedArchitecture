@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
@@ -17,17 +16,17 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
+@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode"})
 public class FlagMover extends BlockMover
 {
-    private final @NotNull BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
+    private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
     private final boolean NS;
     private final double period;
     private final double amplitude;
     private final double waveSpeed;
 
-    public FlagMover(final double time, final @NotNull Flag door, final double multiplier,
-                     final @NotNull IPPlayer player, final @NotNull DoorActionCause cause,
-                     final @NotNull DoorActionType actionType)
+    public FlagMover(double time, Flag door, double multiplier, IPPlayer player, DoorActionCause cause,
+                     DoorActionType actionType)
         throws Exception
     {
         super(door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
@@ -63,19 +62,19 @@ public class FlagMover extends BlockMover
      * @param radius
      * @return
      */
-    private double getOffset(final int counter, final float radius)
+    private double getOffset(int counter, float radius)
     {
 //        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + radius);
 //        double maxVal = 0.25 * radius;
 //        maxVal = Math.min(maxVal, 0.75);
 //        return Math.min(baseOffset, maxVal);
 
-//        // The idea here is that blocks should never loose contact with other blocks.
-//        // Especially the blocks with radius 1 should never loose contact with the pole.
+//        // The idea here is that blocks should never lose contact with other blocks.
+//        // Especially the blocks with radius 1 should never lose contact with the pole.
 //        double maxAmplitude = radius * 0.4;
 
 
-        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3.0 + ((double) counter / 4.0));
+        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3.0 + (counter / 4.0));
 
 //        double offset;
 //        try
@@ -93,7 +92,7 @@ public class FlagMover extends BlockMover
 //        return offset;
     }
 
-    private @NotNull Vector3Dd getGoalPosNS(final @NotNull PBlockData block, final int counter)
+    private Vector3Dd getGoalPosNS(PBlockData block, int counter)
     {
         double xOff = 0;
         if (block.getRadius() > 0)
@@ -101,7 +100,7 @@ public class FlagMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private @NotNull Vector3Dd getGoalPosEW(final @NotNull PBlockData block, final int counter)
+    private Vector3Dd getGoalPosEW(PBlockData block, int counter)
     {
         double zOff = 0;
         if (block.getRadius() > 0)
@@ -110,27 +109,26 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                                 final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         return block.getStartPosition();
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
-        for (final PBlockData block : savedBlocks)
+        for (PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos.apply(block, ticks));
     }
 
     @Override
-    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (NS)
             return Math.abs((float) zAxis - door.getEngine().z());

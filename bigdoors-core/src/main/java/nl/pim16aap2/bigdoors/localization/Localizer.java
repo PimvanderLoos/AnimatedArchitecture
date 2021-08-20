@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.localization;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -29,16 +28,16 @@ final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
 
-    private @NotNull Path directory;
-    private @NotNull String baseName;
-    private @NotNull String bundleName;
+    private Path directory;
+    private String baseName;
+    private String bundleName;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
      * Locale#ROOT}.
      */
     @Setter
-    private @NotNull Locale defaultLocale;
+    private Locale defaultLocale;
     private @Nullable URLClassLoader classLoader = null;
     private List<Locale> localeList;
 
@@ -49,7 +48,7 @@ final class Localizer implements ILocalizer
      * @param defaultLocale The default {@link Locale} to use when no locale is specified when requesting a translation.
      *                      Defaults to {@link Locale#ROOT}.
      */
-    Localizer(@NotNull Path directory, @NotNull String baseName, @NotNull Locale defaultLocale)
+    Localizer(Path directory, String baseName, Locale defaultLocale)
     {
         this.baseName = baseName;
         this.directory = directory;
@@ -61,7 +60,7 @@ final class Localizer implements ILocalizer
     /**
      * See {@link #Localizer(Path, String, Locale)}.
      */
-    Localizer(@NotNull Path directory, @NotNull String baseName)
+    Localizer(Path directory, String baseName)
     {
         this(directory, baseName, Locale.ROOT);
     }
@@ -75,7 +74,7 @@ final class Localizer implements ILocalizer
      * @param baseName  The base name of the localization files. For example, when you have a file
      *                  "Translations_en_US.properties", the base name would be "Translations".
      */
-    void updateBundleLocation(@NotNull Path directory, @NotNull String baseName)
+    void updateBundleLocation(Path directory, String baseName)
     {
         this.baseName = baseName;
         this.directory = directory;
@@ -83,7 +82,7 @@ final class Localizer implements ILocalizer
     }
 
     @Override
-    public @NotNull String getMessage(@NotNull String key, @NotNull Locale locale, @NotNull Object... args)
+    public String getMessage(String key, Locale locale, Object... args)
     {
         if (classLoader == null)
         {
@@ -106,13 +105,13 @@ final class Localizer implements ILocalizer
     }
 
     @Override
-    public @NotNull String getMessage(@NotNull String key, @NotNull Object... args)
+    public String getMessage(String key, Object... args)
     {
         return getMessage(key, defaultLocale, args);
     }
 
     @Override @SuppressWarnings("unused")
-    public @NotNull List<Locale> getAvailableLocales()
+    public List<Locale> getAvailableLocales()
     {
         return localeList;
     }
@@ -145,7 +144,7 @@ final class Localizer implements ILocalizer
         }
     }
 
-    private static @NotNull URLClassLoader getNewURLClassLoader(@NotNull Path bundlePath, @NotNull String baseName)
+    private static URLClassLoader getNewURLClassLoader(Path bundlePath, String baseName)
         throws IOException
     {
         final URL[] urls = {bundlePath.toUri().toURL()};
@@ -155,7 +154,7 @@ final class Localizer implements ILocalizer
         // When skipping this step, the ResourceBundle will not see any changes
         // made to the files since the last time the UCL was recreated.
         //noinspection EmptyTryBlock
-        try (final InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
+        try (@Nullable InputStream ignored = ucl.getResourceAsStream(baseName + ".properties"))
         {
             // ignored
         }

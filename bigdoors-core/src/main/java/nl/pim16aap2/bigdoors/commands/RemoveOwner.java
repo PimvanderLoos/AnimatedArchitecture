@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -24,10 +23,9 @@ public class RemoveOwner extends DoorTargetCommand
 {
     private static final CommandDefinition COMMAND_DEFINITION = CommandDefinition.REMOVE_OWNER;
 
-    private final @NotNull IPPlayer targetPlayer;
+    private final IPPlayer targetPlayer;
 
-    protected RemoveOwner(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
-                          final @NotNull IPPlayer targetPlayer)
+    protected RemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
         super(commandSender, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
@@ -42,9 +40,8 @@ public class RemoveOwner extends DoorTargetCommand
      * @param targetPlayer  The co-owner that is requested to be removed.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever,
-                                                          final @NotNull IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                                 IPPlayer targetPlayer)
     {
         return new RemoveOwner(commandSender, doorRetriever, targetPlayer).run();
     }
@@ -62,8 +59,7 @@ public class RemoveOwner extends DoorTargetCommand
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> runDelayed(final @NotNull ICommandSender commandSender,
-                                                                 final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
@@ -85,8 +81,7 @@ public class RemoveOwner extends DoorTargetCommand
      * @param targetPlayer  The target player to attempt to remove as co-owner of this door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> provideDelayedInput(final @NotNull ICommandSender commandSender,
-                                                                          final @NotNull IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer)
     {
         return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
                        .map(request -> request.provide(targetPlayer))
@@ -105,9 +100,8 @@ public class RemoveOwner extends DoorTargetCommand
      * @param targetPlayer  The target player to attempt to remove as co-owner.
      * @return See {@link BaseCommand#run()}.
      */
-    private static @NotNull CompletableFuture<Boolean> delayedInputExecutor(final @NotNull ICommandSender commandSender,
-                                                                            final @NotNull DoorRetriever doorRetriever,
-                                                                            final @NotNull IPPlayer targetPlayer)
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+                                                                   DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
         return new RemoveOwner(commandSender, doorRetriever, targetPlayer).run();
     }
@@ -117,19 +111,19 @@ public class RemoveOwner extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NotNull String inputRequestMessage()
+    private static String inputRequestMessage()
     {
         return BigDoors.get().getLocalizer().getMessage("commands.remove_owner.init");
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager()
                        .removeOwner(door, targetPlayer, getCommandSender().getPlayer().orElse(null))
@@ -137,7 +131,7 @@ public class RemoveOwner extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean hasBypassPermission)
+    protected boolean isAllowed(AbstractDoor door, boolean hasBypassPermission)
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 

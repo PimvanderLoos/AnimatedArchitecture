@@ -25,8 +25,6 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetrieve
 
 class LockTest
 {
-    private IBigDoorsPlatform platform;
-
     @Mock
     private DoorRetriever doorRetriever;
 
@@ -42,7 +40,7 @@ class LockTest
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        IBigDoorsPlatform platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);

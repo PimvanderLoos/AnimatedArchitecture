@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,17 +19,18 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    private static final @NotNull ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
-    private final @NotNull BigDoorsSpigot plugin;
-    private final @NotNull WorldGuardPlugin worldGuard;
-    private boolean success = false;
-    private Method m;
+    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private final BigDoorsSpigot plugin;
+    private final WorldGuardPlugin worldGuard;
+    private final boolean success;
+    private final Method m;
 
-    public WorldGuard6ProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat()
     {
-        this.plugin = plugin;
+        plugin = BigDoorsSpigot.get();
 
-        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+        final @Nullable Plugin wgPlugin =
+            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))
@@ -49,7 +50,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         try
         {
@@ -62,9 +63,9 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return false;
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -91,7 +92,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return worldGuard.getName();
     }

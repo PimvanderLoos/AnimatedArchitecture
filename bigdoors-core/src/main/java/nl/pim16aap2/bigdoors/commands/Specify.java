@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -18,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Specify extends BaseCommand
 {
-    private final @NotNull String input;
+    private final String input;
 
-    protected Specify(final @NotNull ICommandSender commandSender, final @NotNull String input)
+    protected Specify(ICommandSender commandSender, String input)
     {
         super(commandSender);
         this.input = input;
@@ -34,14 +33,13 @@ public class Specify extends BaseCommand
      *                      command sender as registered by the {@link DoorSpecificationManager}.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull String name)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, String name)
     {
         return new Specify(commandSender, name).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.SPECIFY;
     }
@@ -54,7 +52,7 @@ public class Specify extends BaseCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         if (!BigDoors.get().getDoorSpecificationManager().handleInput((IPPlayer) getCommandSender(), input))
             getCommandSender().sendMessage(BigDoors.get().getLocalizer()

@@ -1,11 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,15 +24,13 @@ class DelayedCommandInputRequestTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private CommandDefinition commandDefinition;
 
-    private IBigDoorsPlatform platform;
-
     @Mock
     private ICommandSender commandSender;
 
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        IBigDoorsPlatform platform = initPlatform();
         MockitoAnnotations.openMocks(this);
         Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
     }
@@ -87,17 +83,13 @@ class DelayedCommandInputRequestTest
                                                   .get(1, TimeUnit.SECONDS));
     }
 
-    private @NotNull CompletableFuture<Boolean> verifyInput(final @NotNull DelayedInput actualInput,
-                                                            final @NotNull DelayedInput delayedInput)
+    private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)
     {
         Assertions.assertEquals(actualInput, delayedInput);
         return CompletableFuture.completedFuture(true);
     }
 
-    @Value
-    private static class DelayedInput
+    private record DelayedInput(UUID uuid, String string)
     {
-        @NotNull UUID uuid;
-        @NotNull String string;
     }
 }

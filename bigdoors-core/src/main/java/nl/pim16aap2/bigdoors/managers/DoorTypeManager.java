@@ -26,9 +26,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public final class DoorTypeManager extends Restartable
 {
-    private final @NotNull Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
-    private final @NotNull Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
-    private final @NotNull Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
+    private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
+    private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
+    private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
     /**
      * Gets all registered AND enabled {@link DoorType}s.
@@ -55,7 +55,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @return All {@link DoorType}s that are currently registered.
      */
-    public @NotNull Set<DoorType> getRegisteredDoorTypes()
+    public Set<DoorType> getRegisteredDoorTypes()
     {
         return Collections.unmodifiableSet(doorTypeStatus.keySet());
     }
@@ -65,10 +65,10 @@ public final class DoorTypeManager extends Restartable
      *
      * @return All {@link DoorType}s that are currently enabled.
      */
-    public @NotNull List<DoorType> getEnabledDoorTypes()
+    public List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
+        for (Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;
@@ -80,7 +80,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to check.
      * @return True if the {@link DoorType} is enabled, otherwise false.
      */
-    public boolean isRegistered(final @NotNull DoorType doorType)
+    public boolean isRegistered(DoorType doorType)
     {
         return doorTypeStatus.containsKey(doorType);
     }
@@ -92,7 +92,7 @@ public final class DoorTypeManager extends Restartable
      * @param typeName The name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
-    public @NotNull Optional<DoorType> getDoorType(final @NotNull String typeName)
+    public Optional<DoorType> getDoorType(String typeName)
     {
         return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase()));
     }
@@ -104,7 +104,7 @@ public final class DoorTypeManager extends Restartable
      * @param fullName The fully qualified name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
-    public @NotNull Optional<DoorType> getDoorTypeFromFullName(final @NotNull String fullName)
+    public Optional<DoorType> getDoorTypeFromFullName(String fullName)
     {
         return Optional.ofNullable(doorTypeFromFullName.get(fullName));
     }
@@ -117,7 +117,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to check.
      * @return True if this {@link DoorType} is both registered and enabled.
      */
-    public boolean isDoorTypeEnabled(final @NotNull DoorType doorType)
+    public boolean isDoorTypeEnabled(DoorType doorType)
     {
         final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeStatus.get(doorType);
         return info != null && info.status;
@@ -129,7 +129,7 @@ public final class DoorTypeManager extends Restartable
      * @param doorType The {@link DoorType} to register.
      * @return True if registration was successful.
      */
-    public void registerDoorType(final @NotNull DoorType doorType)
+    public void registerDoorType(DoorType doorType)
     {
         registerDoorType(doorType, true);
     }
@@ -138,11 +138,11 @@ public final class DoorTypeManager extends Restartable
      * Registers a {@link DoorType}.
      *
      * @param doorType  The {@link DoorType} to register.
-     * @param isEnabled Whether or not this {@link DoorType} should be enabled or not. Default = true.
+     * @param isEnabled Whether this {@link DoorType} should be enabled or not. Default = true.
      */
-    public void registerDoorType(final @NotNull DoorType doorType, final boolean isEnabled)
+    public void registerDoorType(DoorType doorType, boolean isEnabled)
     {
-        BigDoors.get().getPLogger().info("Registering door type: " + doorType.toString() + "...");
+        BigDoors.get().getPLogger().info("Registering door type: " + doorType + "...");
 
         doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
@@ -160,7 +160,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @param doorType The type to unregister.
      */
-    public void unregisterDoorType(final @NotNull DoorType doorType)
+    public void unregisterDoorType(DoorType doorType)
     {
         if (doorTypeStatus.remove(doorType) == null)
         {
@@ -178,9 +178,10 @@ public final class DoorTypeManager extends Restartable
      * Changes the status of a {@link DoorType}. If disabled, this type cannot be toggled or created.
      *
      * @param doorType  The {@link DoorType} to enabled or disable.
-     * @param isEnabled True to enabled this {@link DoorType} (default), or false to disable it.
+     * @param isEnabled True to enable this {@link DoorType} (default), or false to disable it.
      */
-    public void setDoorTypeEnabled(final @NotNull DoorType doorType, final boolean isEnabled)
+    @SuppressWarnings("unused")
+    public void setDoorTypeEnabled(DoorType doorType, boolean isEnabled)
     {
         final @Nullable DoorTypeManager.DoorRegistrationStatus info = doorTypeStatus.get(doorType);
         if (info != null)
@@ -196,7 +197,7 @@ public final class DoorTypeManager extends Restartable
      *
      * @param doorTypes The list of {@link DoorType}s to register.
      */
-    public void registerDoorTypes(final @NotNull List<DoorType> doorTypes)
+    public void registerDoorTypes(List<DoorType> doorTypes)
     {
         doorTypes.forEach(this::registerDoorType);
     }

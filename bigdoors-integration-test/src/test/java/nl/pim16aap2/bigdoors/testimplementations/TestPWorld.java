@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.testimplementations;
 
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.WorldTime;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class TestPWorld implements IPWorld
 {
@@ -10,7 +10,7 @@ public final class TestPWorld implements IPWorld
     private final boolean exists;
     private final WorldTime time;
 
-    public TestPWorld(final @NotNull String name)
+    public TestPWorld(String name)
     {
         worldName = name;
         exists = true;
@@ -18,7 +18,7 @@ public final class TestPWorld implements IPWorld
     }
 
     @Override
-    public @NotNull String worldName()
+    public String worldName()
     {
         return worldName;
     }
@@ -30,19 +30,13 @@ public final class TestPWorld implements IPWorld
     }
 
     @Override
-    public @NotNull WorldTime getTime()
+    public WorldTime getTime()
     {
         return time;
     }
 
     @Override
-    public @NotNull IPWorld clone()
-    {
-        return new TestPWorld(worldName);
-    }
-
-    @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o)
             return true;

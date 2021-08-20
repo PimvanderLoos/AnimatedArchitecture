@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +29,8 @@ public interface IGlowingBlockSpawner
      * @param color    The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, @NotNull IPWorld world,
-                                                       int time, @NotNull TimeUnit timeUnit, double x,
-                                                       double y, double z, @NotNull PColor color);
+    Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
+                                              double x, double y, double z, PColor color);
 
     /**
      * Spawns a glowing block.
@@ -46,10 +44,8 @@ public interface IGlowingBlockSpawner
      * @param color  The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player,
-                                                               @NotNull IPWorld world, int time,
-                                                               double x, double y, double z,
-                                                               @NotNull PColor color)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time,
+                                                      double x, double y, double z, PColor color)
     {
         return spawnGlowingBlock(player, world, time, TimeUnit.SECONDS, x, y, z, color);
     }
@@ -67,10 +63,8 @@ public interface IGlowingBlockSpawner
      * @param z        The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player,
-                                                               @NotNull IPWorld world, int time,
-                                                               @NotNull TimeUnit timeUnit, double x,
-                                                               double y, double z)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
+                                                      double x, double y, double z)
     {
         return spawnGlowingBlock(player, world, time, timeUnit, x, y, z, PColor.WHITE);
     }
@@ -86,9 +80,8 @@ public interface IGlowingBlockSpawner
      * @param z      The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player,
-                                                               @NotNull IPWorld world, int time,
-                                                               double x, double y, double z)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time,
+                                                      double x, double y, double z)
     {
         return spawnGlowingBlock(player, world, time, x, y, z, PColor.WHITE);
     }
@@ -103,9 +96,7 @@ public interface IGlowingBlockSpawner
      * @param location The location where the glowing block will be spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull TimeUnit timeUnit,
-                                                               @NotNull IPLocation location)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, TimeUnit timeUnit, IPLocation location)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, timeUnit, location.getX(), location.getY(),
                                  location.getZ());
@@ -119,8 +110,7 @@ public interface IGlowingBlockSpawner
      * @param location The location where the glowing block will be spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull IPLocation location)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, IPLocation location)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, location.getX(), location.getY(), location.getZ());
     }
@@ -132,8 +122,7 @@ public interface IGlowingBlockSpawner
      * @param player   The {@link IPPlayer} for whom to highlight the door.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    default @NotNull List<IGlowingBlock> spawnGlowingBlocks(@NotNull AbstractDoor doorBase,
-                                                            @NotNull IPPlayer player)
+    default List<IGlowingBlock> spawnGlowingBlocks(AbstractDoor doorBase, IPPlayer player)
     {
         List<IGlowingBlock> ret = new ArrayList<>(4);
         IPWorld world = doorBase.getWorld();
@@ -160,10 +149,8 @@ public interface IGlowingBlockSpawner
      * @param color    The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull TimeUnit timeUnit,
-                                                               @NotNull IPLocation location,
-                                                               @NotNull PColor color)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, TimeUnit timeUnit,
+                                                      IPLocation location, PColor color)
     {
         return spawnGlowingBlock(player, location.getWorld(), time, timeUnit, location.getX(), location.getY(),
                                  location.getZ(), color);
@@ -178,11 +165,9 @@ public interface IGlowingBlockSpawner
      * @param color    The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    default @NotNull Optional<IGlowingBlock> spawnGlowingBlock(@NotNull IPPlayer player, int time,
-                                                               @NotNull IPLocation location,
-                                                               @NotNull PColor color)
+    default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, IPLocation location, PColor color)
     {
-        return spawnGlowingBlock(player, location.getWorld(), time, location.getX(), location.getY(), location.getZ(),
-                                 color);
+        return spawnGlowingBlock(player, location.getWorld(), time, location.getX(),
+                                 location.getY(), location.getZ(), color);
     }
 }

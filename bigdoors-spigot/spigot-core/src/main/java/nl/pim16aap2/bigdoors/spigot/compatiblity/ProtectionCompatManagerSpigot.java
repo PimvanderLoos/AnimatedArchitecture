@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -20,11 +19,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -36,11 +35,11 @@ import java.util.logging.Level;
  */
 public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
 {
-    private final @NotNull List<IProtectionCompat> protectionCompats;
-    private final @NotNull BigDoorsSpigot plugin;
+    private final List<IProtectionCompat> protectionCompats;
+    private final BigDoorsSpigot plugin;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
 
-    @SuppressWarnings({"NullAway.Init", "java:S3008"})
+    @SuppressWarnings({"NullAway.Init"})
     private static ProtectionCompatManagerSpigot INSTANCE;
 
     /**
@@ -48,11 +47,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param plugin The instance of {@link BigDoorsSpigot}.
      */
-    private ProtectionCompatManagerSpigot(final @NotNull BigDoorsSpigot plugin)
+    private ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
-        FakePlayerCreator fakePlayerCreatorTmp = null;
+        @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
         {
             fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
@@ -74,8 +73,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param plugin The Spigot plugin.
      * @return The instance of this {@link ProtectionCompatManagerSpigot}.
      */
-    public static @NotNull ProtectionCompatManagerSpigot init(final @NotNull BigDoorsSpigot plugin)
+    public static ProtectionCompatManagerSpigot init(BigDoorsSpigot plugin)
     {
+        //noinspection ConstantConditions
         return (INSTANCE == null) ?
                INSTANCE = new ProtectionCompatManagerSpigot(plugin) : INSTANCE;
     }
@@ -85,11 +85,10 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @return The instance of the {@link ProtectionCompatManagerSpigot}.
      */
-    public static @NotNull ProtectionCompatManagerSpigot get()
+    public static ProtectionCompatManagerSpigot get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Objects.requireNonNull(INSTANCE,
+                                      "Instance has not yet been initialized. Be sure #init() has been invoked");
     }
 
     /**
@@ -119,13 +118,13 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
      */
-    private boolean canByPass(final @NotNull Player player)
+    private boolean canByPass(Player player)
     {
         if (player.isOp())
             return true;
 
         // offline players don't have permissions, so use Vault if that's the case.
-        if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
+        if (!player.hasMetadata(FakePlayerCreator.FAKE_PLAYER_METADATA))
             return player.hasPermission(Constants.COMPAT_BYPASS_PERMISSION);
         return plugin.getVaultManager().hasPermission(player, Constants.COMPAT_BYPASS_PERMISSION);
     }
@@ -140,9 +139,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @see FakePlayerCreator
      */
-    private @NotNull Optional<Player> getPlayer(final @NotNull IPPlayer player, final @NotNull World world)
+    private Optional<Player> getPlayer(IPPlayer player, World world)
     {
-        Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
+        @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null && fakePlayerCreator != null)
             bukkitPlayer = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(player.getUUID()), world)
                                             .orElse(null);
@@ -150,7 +149,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    public @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation pLoc)
+    public Optional<String> canBreakBlock(IPPlayer player, IPLocation pLoc)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
@@ -181,10 +180,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                               final @NotNull Vector3Di pos1,
-                                                               final @NotNull Vector3Di pos2,
-                                                               final @NotNull IPWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
@@ -227,7 +223,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param compatClass The class of the {@link IProtectionCompat} to check.
      * @return True if the compat has already been loaded.
      */
-    private boolean protectionAlreadyLoaded(final @NotNull Class<? extends IProtectionCompat> compatClass)
+    private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
     {
         for (IProtectionCompat compat : protectionCompats)
             if (compat.getClass().equals(compatClass))
@@ -240,7 +236,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param hook The compat to add.
      */
-    private void addProtectionCompat(final @NotNull IProtectionCompat hook)
+    private void addProtectionCompat(IProtectionCompat hook)
     {
         if (hook.success())
         {
@@ -258,7 +254,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     @SuppressWarnings("unused")
     @EventHandler
-    protected void onPluginEnable(final @NotNull PluginEnableEvent event)
+    void onPluginEnable(PluginEnableEvent event)
     {
         loadFromPluginName(event.getPlugin().getName());
     }
@@ -268,9 +264,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param compatName The name of the plugin to load a compat for.
      */
-    private void loadFromPluginName(final @NotNull String compatName)
+    private void loadFromPluginName(String compatName)
     {
-        ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
+        @Nullable ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
         if (compat == null)
             return;
 
@@ -279,8 +275,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
         try
         {
-            @Nullable Plugin otherPlugin = plugin.getServer().getPluginManager()
-                                                 .getPlugin(ProtectionCompat.getName(compat));
+            final @Nullable Plugin otherPlugin = plugin.getServer().getPluginManager()
+                                                       .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
                 BigDoors.get().getPLogger()
@@ -288,16 +284,14 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                 return;
             }
 
-            @Nullable Class<? extends IProtectionCompat> compatClass =
+            final @Nullable Class<? extends IProtectionCompat> compatClass =
                 compat.getClass(plugin.getDescription().getVersion());
 
             if (compatClass == null)
             {
-                BigDoors.get().getPLogger().logMessage(Level.SEVERE,
-                                                       "Could not find compatibility class for: \"" +
-                                                           ProtectionCompat.getName(compat) +
-                                                           "\". " +
-                                                           "This most likely means that this version is not supported!");
+                BigDoors.get().getPLogger().severe("Could not find compatibility class for: \"" +
+                                                       ProtectionCompat.getName(compat) + "\". " +
+                                                       "This most likely means that this version is not supported!");
                 return;
             }
 
@@ -305,7 +299,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getConstructor(BigDoorsSpigot.class).newInstance(plugin));
+            addProtectionCompat(compatClass.getConstructor().newInstance());
         }
         catch (NullPointerException e)
         {

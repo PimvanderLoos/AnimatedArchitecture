@@ -16,10 +16,9 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorCreatedEvent extends DoorEvent implements IDoorCreatedEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
-    public DoorCreatedEvent(final @NotNull AbstractDoor door,
-                            final @Nullable IPPlayer responsible)
+    public DoorCreatedEvent(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         super(door, responsible);
     }
@@ -30,7 +29,9 @@ public class DoorCreatedEvent extends DoorEvent implements IDoorCreatedEvent
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    // This method is identical to the getHandlers method (S4144). However, this is required for Spigot.
+    @SuppressWarnings("squid:S4144")
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

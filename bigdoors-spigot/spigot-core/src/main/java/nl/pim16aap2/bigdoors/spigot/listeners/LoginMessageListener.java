@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
@@ -17,9 +16,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LoginMessageListener implements Listener
 {
-    private final @NotNull BigDoorsSpigot plugin;
+    private final BigDoorsSpigot plugin;
 
-    public LoginMessageListener(final @NotNull BigDoorsSpigot plugin)
+    public LoginMessageListener(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -30,7 +29,7 @@ public final class LoginMessageListener implements Listener
      * @param event The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final PlayerJoinEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {

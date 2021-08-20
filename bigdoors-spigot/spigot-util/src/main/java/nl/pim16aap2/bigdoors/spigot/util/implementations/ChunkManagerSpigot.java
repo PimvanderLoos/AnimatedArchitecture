@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link IChunkManager} for the Spigot platform.
@@ -12,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ChunkManagerSpigot implements IChunkManager
 {
-    private static final @NotNull ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
+    private static final ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
 
     private ChunkManagerSpigot()
     {
@@ -23,19 +22,19 @@ public final class ChunkManagerSpigot implements IChunkManager
      *
      * @return The instance of the {@link ChunkManagerSpigot}.
      */
-    public static @NotNull ChunkManagerSpigot get()
+    public static ChunkManagerSpigot get()
     {
         return INSTANCE;
     }
 
     @Override
-    public boolean isLoaded(final @NotNull IPWorld world, final @NotNull Vector2Di chunk)
+    public boolean isLoaded(IPWorld world, Vector2Di chunk)
     {
         return true;
     }
 
     @Override
-    public @NotNull ChunkLoadResult load(final @NotNull IPWorld world, final @NotNull Vector2Di chunk)
+    public ChunkLoadResult load(IPWorld world, Vector2Di chunk)
     {
         return ChunkLoadResult.SUCCESS;
     }

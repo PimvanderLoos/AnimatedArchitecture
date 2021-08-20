@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
@@ -21,6 +20,7 @@ import java.util.function.Function;
 
 public class UnitTestUtil
 {
+    @SuppressWarnings("unused")
     public static final double EPSILON = 1E-6;
 
     /**
@@ -28,7 +28,7 @@ public class UnitTestUtil
      *
      * @return The new {@link IBigDoorsPlatform}.
      */
-    public static @NotNull IBigDoorsPlatform initPlatform()
+    public static IBigDoorsPlatform initPlatform()
     {
         IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(platform);
@@ -38,7 +38,7 @@ public class UnitTestUtil
         return platform;
     }
 
-    public static @NotNull ILocalizer initLocalizer()
+    public static ILocalizer initLocalizer()
     {
         val localizer = Mockito.mock(ILocalizer.class);
         Mockito.when(localizer.getMessage(Mockito.anyString()))
@@ -58,40 +58,42 @@ public class UnitTestUtil
         return localizer;
     }
 
-    public static @NotNull IPWorld getWorld()
+    public static IPWorld getWorld()
     {
         val world = Mockito.mock(IPWorld.class);
         Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3Dd vec)
+    @SuppressWarnings("unused")
+    public static IPLocation getLocation(Vector3Dd vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3Di vec)
+    @SuppressWarnings("unused")
+    public static IPLocation getLocation(Vector3Di vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3Dd vec, final @NotNull IPWorld world)
+    @SuppressWarnings("unused")
+    public static IPLocation getLocation(Vector3Dd vec, IPWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static @NotNull IPLocation getLocation(final @NotNull Vector3Di vec, final @NotNull IPWorld world)
+    public static IPLocation getLocation(Vector3Di vec, IPWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static @NotNull IPLocation getLocation(final double x, final double y, final double z)
+    public static IPLocation getLocation(double x, double y, double z)
     {
         return getLocation(x, y, z, getWorld());
     }
 
-    public static @NotNull IPLocation getLocation(final double x, final double y, final double z,
-                                                  final @NotNull IPWorld world)
+    public static IPLocation getLocation(double x, double y, double z, IPWorld world)
     {
         val loc = Mockito.mock(IPLocation.class);
 
@@ -121,7 +123,7 @@ public class UnitTestUtil
      * @return The object inside the Optional.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T optionalEquals(final @Nullable T obj, final @NotNull Optional<T> opt)
+    public static @Nullable <T> T optionalEquals(@Nullable T obj, Optional<T> opt)
     {
         if (obj == null)
         {
@@ -144,8 +146,7 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T, U> U optionalEquals(final @Nullable T obj, final @NotNull Optional<U> opt,
-                                          @NotNull Function<U, T> map)
+    public static @Nullable <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt, Function<U, T> map)
     {
         if (obj == null)
         {

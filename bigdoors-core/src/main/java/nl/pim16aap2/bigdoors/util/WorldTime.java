@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Represents a moment in time in hours and minutes.
  *
@@ -19,7 +17,7 @@ public final class WorldTime
      * @param hours   The time in hours.
      * @param minutes The time in minutes.
      */
-    public WorldTime(final int hours, final int minutes)
+    public WorldTime(int hours, int minutes)
     {
         this.hours = hours;
         this.minutes = minutes;
@@ -30,7 +28,7 @@ public final class WorldTime
      *
      * @param worldTime The time in a world in Minecraft time (i.e. 0 to 24000).
      */
-    public WorldTime(final long worldTime)
+    public WorldTime(long worldTime)
     {
         this(WorldTime.calculateHours(worldTime), WorldTime.calculateMinutes(worldTime));
     }
@@ -81,7 +79,7 @@ public final class WorldTime
     }
 
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return hours + ":" + minutes;
     }

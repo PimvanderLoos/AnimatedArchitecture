@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.api.factories;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a Factory for {@link ICustomCraftFallingBlock} and {@link INMSBlock}.
@@ -12,17 +11,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface IFallingBlockFactory
 {
-//    /**
-//     * Constructs {@link ICustomCraftFallingBlock}s from all blocks in the given area for allowed blocks.
-//     *
-//     * @param pWorld The world.
-//     * @param min    The lower bound coordinates.
-//     * @param max    The upper bound coordinates.
-//     * @return A list of {@link ICustomCraftFallingBlock}s constructed from the blocks in the area.
-//     */
-//    @NotNull List<PBlockData> constructFBlocks(@NotNull IPWorld pWorld, @NotNull Vector3Di min,
-//                                               @NotNull Vector3Di max);
-
     /**
      * Creates a new {@link ICustomCraftFallingBlock} at the given location made of the provided block.
      *
@@ -30,8 +18,7 @@ public interface IFallingBlockFactory
      * @param block The block that the {@link ICustomCraftFallingBlock} will be made out of.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    @NotNull ICustomCraftFallingBlock fallingBlockFactory(@NotNull IPLocation loc,
-                                                          @NotNull INMSBlock block)
+    ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception;
 
     /**
@@ -40,6 +27,6 @@ public interface IFallingBlockFactory
      * @param loc The location of the block.
      * @return The {@link INMSBlock} of the block at the provided location.
      */
-    @NotNull INMSBlock nmsBlockFactory(@NotNull IPLocation loc)
+    INMSBlock nmsBlockFactory(IPLocation loc)
         throws Exception;
 }

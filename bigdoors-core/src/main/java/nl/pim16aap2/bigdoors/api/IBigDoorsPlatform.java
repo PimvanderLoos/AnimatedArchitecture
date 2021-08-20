@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Optional;
@@ -36,133 +35,133 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      *
      * @return The directory where all data will stored.
      */
-    @NotNull File getDataDirectory();
+    File getDataDirectory();
 
     /**
      * Gets the instance of the {@link IPLocationFactory} for this platform.
      *
      * @return The instance of the {@link IPLocationFactory} for this platform.
      */
-    @NotNull IPLocationFactory getPLocationFactory();
+    IPLocationFactory getPLocationFactory();
 
     /**
      * Gets the instance of the {@link IBigDoorsToolUtil} for this platform.
      *
      * @return The instance of the {@link IBigDoorsToolUtil} for this platform.
      */
-    @NotNull IBigDoorsToolUtil getBigDoorsToolUtil();
+    IBigDoorsToolUtil getBigDoorsToolUtil();
 
     /**
      * Gets the instance of the {@link IEconomyManager} for this platform.
      *
      * @return The instance of the {@link IEconomyManager} for this platform.
      */
-    @NotNull IEconomyManager getEconomyManager();
+    IEconomyManager getEconomyManager();
 
     /**
      * Gets the instance of the {@link IPermissionsManager} for this platform.
      *
      * @return The instance of the {@link IPermissionsManager} for this platform.
      */
-    @NotNull IPermissionsManager getPermissionsManager();
+    IPermissionsManager getPermissionsManager();
 
     /**
      * Gets the instance of the {@link IProtectionCompatManager} for this platform.
      *
      * @return The instance of the {@link IProtectionCompatManager} for this platform.
      */
-    @NotNull IProtectionCompatManager getProtectionCompatManager();
+    IProtectionCompatManager getProtectionCompatManager();
 
     /**
      * Gets the instance of the {@link IPWorldFactory} for this platform.
      *
      * @return The instance of the {@link IPWorldFactory} for this platform.
      */
-    @NotNull IPWorldFactory getPWorldFactory();
+    IPWorldFactory getPWorldFactory();
 
     /**
      * Gets the instance of the {@link IPBlockDataFactory} for this platform.
      *
      * @return The instance of the {@link IPBlockDataFactory} for this platform.
      */
-    @NotNull IPBlockDataFactory getPBlockDataFactory();
+    IPBlockDataFactory getPBlockDataFactory();
 
     /**
      * Gets the instance of the {@link IFallingBlockFactory} for this platform.
      *
      * @return The instance of the {@link IFallingBlockFactory} for this platform.
      */
-    @NotNull IFallingBlockFactory getFallingBlockFactory();
+    IFallingBlockFactory getFallingBlockFactory();
 
     /**
      * Gets the instance of the {@link IPPlayerFactory} for this platform.
      *
      * @return The instance of the {@link IPPlayerFactory} for this platform.
      */
-    @NotNull IPPlayerFactory getPPlayerFactory();
+    IPPlayerFactory getPPlayerFactory();
 
     /**
      * Gets the instance of the {@link IConfigLoader} for this platform.
      *
      * @return The instance of the {@link IConfigLoader} for this platform.
      */
-    @NotNull IConfigLoader getConfigLoader();
+    IConfigLoader getConfigLoader();
 
     /**
      * Gets the instance of the {@link ISoundEngine} for this platform.
      *
      * @return The instance of the {@link ISoundEngine} for this platform.
      */
-    @NotNull ISoundEngine getSoundEngine();
+    ISoundEngine getSoundEngine();
 
     /**
      * Gets the instance of the {@link IMessagingInterface} for this platform.
      *
      * @return The instance of the {@link IMessagingInterface} for this platform.
      */
-    @NotNull IMessagingInterface getMessagingInterface();
+    IMessagingInterface getMessagingInterface();
 
     /**
      * Gets the implementation of a {@link IMessageable} for the server.
      *
      * @return The implementation of a {@link IMessageable} for the server.
      */
-    @NotNull IMessageable getMessageableServer();
+    IMessageable getMessageableServer();
 
     /**
      * Gets the instance of the {@link IBlockAnalyzer} for this platform.
      *
      * @return The instance of the {@link IBlockAnalyzer} for this platform.
      */
-    @NotNull IBlockAnalyzer getBlockAnalyzer();
+    IBlockAnalyzer getBlockAnalyzer();
 
     /**
      * Gets the instance of the {@link IPowerBlockRedstoneManager} for this platform.
      *
      * @return The instance of the {@link IPowerBlockRedstoneManager} for this platform.
      */
-    @NotNull IPowerBlockRedstoneManager getPowerBlockRedstoneManager();
+    IPowerBlockRedstoneManager getPowerBlockRedstoneManager();
 
     /**
      * Gets the instance of the {@link IChunkManager} for this platform.
      *
      * @return The instance of the {@link IChunkManager} for this platform.
      */
-    @NotNull IChunkManager getChunkManager();
+    IChunkManager getChunkManager();
 
     /**
      * Gets the instance of the {@link IBigDoorsEventFactory} for this platform.
      *
      * @return The instance of the {@link IBigDoorsEventFactory} for this platform.
      */
-    @NotNull IBigDoorsEventFactory getBigDoorsEventFactory();
+    IBigDoorsEventFactory getBigDoorsEventFactory();
 
     /**
      * Calls a {@link IBigDoorsEvent}.
      *
      * @param doorActionEvent The {@link IBigDoorsEvent} to call.
      */
-    void callDoorEvent(@NotNull IBigDoorsEvent doorActionEvent);
+    void callDoorEvent(IBigDoorsEvent doorActionEvent);
 
     /**
      * Checks if a thread is the main thread.
@@ -177,119 +176,119 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      *
      * @return A new {@link IPExecutor}.
      */
-    @NotNull IPExecutor getPExecutor();
+    IPExecutor getPExecutor();
 
     /**
      * Gets the {@link IGlowingBlockSpawner} for the current platform.
      *
      * @return The {@link IGlowingBlockSpawner} for the current platform.
      */
-    @NotNull Optional<IGlowingBlockSpawner> getGlowingBlockSpawner();
+    Optional<IGlowingBlockSpawner> getGlowingBlockSpawner();
 
     /**
      * Gets the {@link PowerBlockManager} instance.
      *
      * @return The {@link PowerBlockManager} instance.
      */
-    @NotNull PowerBlockManager getPowerBlockManager();
+    PowerBlockManager getPowerBlockManager();
 
     /**
      * Gets the {@link IPLogger} for this platform.
      *
      * @return The {@link IPLogger} for this platform.
      */
-    @NotNull IPLogger getPLogger();
+    IPLogger getPLogger();
 
     /**
      * Gets the {@link DatabaseManager}.
      *
      * @return The {@link DatabaseManager}.
      */
-    @NotNull DatabaseManager getDatabaseManager();
+    DatabaseManager getDatabaseManager();
 
     /**
      * Gets the {@link DoorRegistry}.
      *
      * @return The {@link DoorRegistry}.
      */
-    @NotNull DoorRegistry getDoorRegistry();
+    DoorRegistry getDoorRegistry();
 
     /**
      * Gets the {@link AutoCloseScheduler} instance.
      *
      * @return The {@link AutoCloseScheduler} instance.
      */
-    @NotNull AutoCloseScheduler getAutoCloseScheduler();
+    AutoCloseScheduler getAutoCloseScheduler();
 
     /**
      * Gets the {@link DoorActivityManager} instance.
      *
      * @return The {@link DoorActivityManager} instance.
      */
-    @NotNull DoorActivityManager getDoorActivityManager();
+    DoorActivityManager getDoorActivityManager();
 
     /**
      * Gets the {@link DoorSpecificationManager} instance.
      *
      * @return The {@link DoorSpecificationManager} instance.
      */
-    @NotNull DoorSpecificationManager getDoorSpecificationManager();
+    DoorSpecificationManager getDoorSpecificationManager();
 
     /**
      * Gets the {@link DoorTypeManager} instance.
      *
      * @return The {@link DoorTypeManager} instance.
      */
-    @NotNull DoorTypeManager getDoorTypeManager();
+    DoorTypeManager getDoorTypeManager();
 
     /**
      * Gets the {@link ToolUserManager} instance.
      *
      * @return The {@link ToolUserManager} instance.
      */
-    @NotNull ToolUserManager getToolUserManager();
+    ToolUserManager getToolUserManager();
 
     /**
      * Gets the {@link DoorOpener}.
      *
      * @return The {@link DoorOpener}.
      */
-    @NotNull DoorOpener getDoorOpener();
+    DoorOpener getDoorOpener();
 
     /**
      * Gets the {@link DebugReporter}.
      *
      * @return The {@link DebugReporter}.
      */
-    @NotNull DebugReporter getDebugReporter();
+    DebugReporter getDebugReporter();
 
     /**
      * Gets the build id of BigDoors that is currently running.
      *
      * @return The build id of BigDoors that is currently running.
      */
-    @NotNull String getVersion();
+    String getVersion();
 
     /**
      * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
      *
      * @return The {@link DelayedCommandInputManager} registered by the platform.
      */
-    @NotNull DelayedCommandInputManager getDelayedCommandInputManager();
+    DelayedCommandInputManager getDelayedCommandInputManager();
 
     /**
      * Gets the {@link IPServer} instance.
      *
      * @return The {@link IPServer} instance.
      */
-    @NotNull IPServer getPServer();
+    IPServer getPServer();
 
     /**
      * Gets the {@link LimitsManager}.
      *
      * @return The {@link LimitsManager}.
      */
-    @NotNull LimitsManager getLimitsManager();
+    LimitsManager getLimitsManager();
 
-    @NotNull ILocalizer getLocalizer();
+    ILocalizer getLocalizer();
 }
