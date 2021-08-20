@@ -37,6 +37,7 @@ import java.util.logging.Level;
 @EqualsAndHashCode
 public abstract class AbstractDoor implements IDoor
 {
+    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     @EqualsAndHashCode.Exclude
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 

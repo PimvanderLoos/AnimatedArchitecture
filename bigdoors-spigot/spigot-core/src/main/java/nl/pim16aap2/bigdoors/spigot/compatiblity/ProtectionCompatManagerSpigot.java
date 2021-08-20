@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import com.google.common.base.Preconditions;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -24,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -75,6 +75,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     public static ProtectionCompatManagerSpigot init(BigDoorsSpigot plugin)
     {
+        //noinspection ConstantConditions
         return (INSTANCE == null) ?
                INSTANCE = new ProtectionCompatManagerSpigot(plugin) : INSTANCE;
     }
@@ -86,9 +87,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     public static ProtectionCompatManagerSpigot get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Objects.requireNonNull(INSTANCE,
+                                      "Instance has not yet been initialized. Be sure #init() has been invoked");
     }
 
     /**

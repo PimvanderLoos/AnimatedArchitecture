@@ -86,7 +86,7 @@ class TimedCacheTest
         Assertions.assertEquals(1, timedCache.getSize());
 
         // Ensure the value can be retrieved properly.
-        String result = timedCache.get("key").orElse(null);
+        @Nullable String result = timedCache.get("key").orElse(null);
         Assertions.assertNotNull(result);
         Assertions.assertSame(result, value);
 
@@ -256,6 +256,7 @@ class TimedCacheTest
         Assertions.assertEquals("value", returned);
 
         returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
+        //noinspection SpellCheckingInspection
         Assertions.assertEquals("valuevalue", returned);
 
         clock.addMillis(110);

@@ -92,6 +92,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
         val initMessage = initMessageSupplier.get();
+        //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
             commandSender.sendMessage(initMessage);
     }

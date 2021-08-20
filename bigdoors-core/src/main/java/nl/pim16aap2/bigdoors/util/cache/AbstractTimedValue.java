@@ -63,6 +63,7 @@ abstract class AbstractTimedValue<T>
      * @param refresh Whether to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
+    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     public abstract @Nullable T getValue(boolean refresh);
 
     /**

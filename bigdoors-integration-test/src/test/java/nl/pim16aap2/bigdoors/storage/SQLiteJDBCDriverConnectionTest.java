@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLiteJDBCDriverConnectionTest
 {
-    private static final String DELETE_DOOR_NAME = "deletemeh";
+    private static final String DELETE_DOOR_NAME = "delete_meh";
 
     private static final String WORLD_NAME = "TestWorld";
 
@@ -207,7 +207,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         // Remove any old database files and append ".FINISHED" to the name of the current one, so it
         // won't interfere with the next run, but can still be used for manual inspection.
-        final File oldDB = new File(DB_FILE.toString() + ".FINISHED");
+        final File oldDB = new File(DB_FILE + ".FINISHED");
 
         if (oldDB.exists())
             Assertions.assertTrue(oldDB.delete());
@@ -466,6 +466,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
+        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         DoorSerializer<?> serializer =
             Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);

@@ -126,7 +126,12 @@ public final class LocalizationUtil
     static Set<String> getKeySet(InputStream inputStream)
     {
         final Set<String> ret = new LinkedHashSet<>();
-        readFile(inputStream, line -> ret.add(getKeyFromLine(line)));
+        readFile(inputStream, line ->
+        {
+            final @Nullable String key = getKeyFromLine(line);
+            if (key != null)
+                ret.add(key);
+        });
         return ret;
     }
 

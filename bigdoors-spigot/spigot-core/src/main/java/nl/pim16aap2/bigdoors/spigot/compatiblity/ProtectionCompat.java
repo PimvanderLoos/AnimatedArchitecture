@@ -110,7 +110,7 @@ public enum ProtectionCompat
      */
     public static @Nullable ProtectionCompat getFromName(String name)
     {
-        return nameMap.getOrDefault(name, null);
+        return nameMap.get(name);
     }
 
     /**

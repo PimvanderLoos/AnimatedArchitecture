@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
- * SQLite implementation of {@link IStorage}.
+ * An implementation of {@link IStorage} for SQLite.
  *
  * @author Pim
  */
@@ -178,9 +178,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     /**
      * Because SQLite is a PoS and decided to remove the admittedly odd behavior that just disabling foreign keys
-     * suddenly ignored all the triggers etc attached to it without actually providing a proper alternative (perhaps
+     * suddenly ignored all the triggers etc. attached to it without actually providing a proper alternative (perhaps
      * implement ALTER TABLE properly??), this method needs to be called now in order to safely modify stuff without
-     * having the foreign keys get fucked up.
+     * having the foreign keys getting fucked up.
      *
      * @param conn The connection.
      */
@@ -291,7 +291,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         // SonarLint assumes that doorType could be empty (S3655) (appears to miss the mapping operation above),
         // while this actually won't happen.
-        @SuppressWarnings("squid:S3655") //
+        // IntelliJ Struggles with <?> and nullability... :(
+        @SuppressWarnings({"squid:S3655", "NullableProblems"}) //
         final Optional<DoorSerializer<?>> serializerOpt = doorType.get().getDoorSerializer();
 
         if (serializerOpt.isEmpty())
@@ -412,6 +413,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public Optional<AbstractDoor> insert(AbstractDoor door)
     {
+        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         final Optional<DoorSerializer<?>> serializerOpt = door.getDoorType().getDoorSerializer();
         if (serializerOpt.isEmpty())
         {
@@ -420,6 +422,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return Optional.empty();
         }
 
+        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         final DoorSerializer<?> serializer = serializerOpt.get();
         final String typeName = door.getDoorType().getFullName();
         try
@@ -503,7 +506,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Attempts to construct a subclass of {@link DoorBase} from a resultset containing all data pertaining the {@link
+     * Attempts to construct a subclass of {@link DoorBase} from a ResultSet containing all data pertaining the {@link
      * DoorBase} (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission) and the
      * typeTableName.
      *
@@ -514,7 +517,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private Optional<AbstractDoor> getDoor(ResultSet doorBaseRS)
         throws Exception
     {
-        // Make sure the resultset isn't empty.
+        // Make sure the ResultSet isn't empty.
         if (!doorBaseRS.isBeforeFirst())
             return Optional.empty();
 
@@ -522,7 +525,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     /**
-     * Attempts to construct a list of subclasses of {@link DoorBase} from a resultset containing all data pertaining to
+     * Attempts to construct a list of subclasses of {@link DoorBase} from a ResultSet containing all data pertaining to
      * one or more {@link DoorBase}s (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission)
      * and the typeTableName.
      *
@@ -534,7 +537,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private List<AbstractDoor> getDoors(ResultSet doorBaseRS)
         throws Exception
     {
-        // Make sure the resultset isn't empty.
+        // Make sure the ResultSet isn't empty.
         if (!doorBaseRS.isBeforeFirst())
             return Collections.emptyList();
 

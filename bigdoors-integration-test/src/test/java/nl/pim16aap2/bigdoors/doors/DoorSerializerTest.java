@@ -105,6 +105,9 @@ class DoorSerializerTest
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }
 
+    // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
+    // It's only used for testing serialization and the methods are therefore just stubs.
+    @SuppressWarnings("ConstantConditions")
     // Don't call super for equals etc., as we don't care about the equality
     // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
