@@ -323,11 +323,6 @@
                                         <version>${dependency.version.lombok}</version>
                                     </path>
                                     <path>
-                                        <groupId>com.google.dagger</groupId>
-                                        <artifactId>dagger-compiler</artifactId>
-                                        <version>${dependency.version.dagger}</version>
-                                    </path>
-                                    <path>
                                         <groupId>com.google.errorprone</groupId>
                                         <artifactId>error_prone_core</artifactId>
                                         <version>${dependency.version.errorprone}</version>
@@ -341,6 +336,11 @@
                                         <groupId>com.github.PimvanderLoos</groupId>
                                         <artifactId>NullAway</artifactId>
                                         <version>${dependency.version.nullaway}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>com.google.dagger</groupId>
+                                        <artifactId>dagger-compiler</artifactId>
+                                        <version>${dependency.version.dagger}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
