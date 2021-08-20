@@ -71,7 +71,7 @@ public abstract class DoorType
     @Getter
     private final List<RotateDirection> validOpenDirections;
 
-    @SuppressWarnings("NullableProblems")
+    @SuppressWarnings("NullableProblems") // IntelliJ doesn't like <?>
     private final @Nullable DoorSerializer<?> doorSerializer;
 
     /**
@@ -93,7 +93,7 @@ public abstract class DoorType
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
 
-        @SuppressWarnings("NullableProblems")
+        @SuppressWarnings("NullableProblems") // IntelliJ doesn't like <?>
         @Nullable DoorSerializer<?> serializer;
         try
         {
@@ -112,7 +112,7 @@ public abstract class DoorType
      *
      * @return The {@link DoorSerializer}.
      */
-    @SuppressWarnings("NullableProblems")
+    @SuppressWarnings("NullableProblems") // IntelliJ doesn't like <?>
     public Optional<DoorSerializer<?>> getDoorSerializer()
     {
         return Optional.ofNullable(doorSerializer);

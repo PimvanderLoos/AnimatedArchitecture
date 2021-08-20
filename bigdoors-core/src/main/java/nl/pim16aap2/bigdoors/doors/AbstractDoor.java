@@ -191,7 +191,7 @@ public abstract class AbstractDoor implements IDoor
      */
     // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
     //       These aren't necessarily the same entity.
-    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it should be.
+    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
                                                IPPlayer responsible, double time, boolean skipAnimation,
                                                DoorActionType actionType)

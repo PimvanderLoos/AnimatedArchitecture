@@ -1,14 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Blocks;
 import net.minecraft.server.v1_15_R1.CrashReportSystemDetails;
-import net.minecraft.server.v1_15_R1.DataWatcher;
-import net.minecraft.server.v1_15_R1.DataWatcherObject;
-import net.minecraft.server.v1_15_R1.DataWatcherRegistry;
 import net.minecraft.server.v1_15_R1.Entity;
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
 import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.EnumMoveType;
 import net.minecraft.server.v1_15_R1.GameProfileSerializer;
@@ -16,7 +14,6 @@ import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
-import net.minecraft.server.v1_15_R1.TagsBlock;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
@@ -30,23 +27,24 @@ import org.jetbrains.annotations.Nullable;
  * @author Pim
  * @see ICustomEntityFallingBlock
  */
+@EqualsAndHashCode(callSuper = true)
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements ICustomEntityFallingBlock
 {
-    protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
-                                                                              DataWatcherRegistry.l);
-    public int ticksLived;
-    public boolean dropItem;
-    public boolean hurtEntities;
-    public @Nullable NBTTagCompound tileEntityData;
+    // ticksLived is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
+    @SuppressWarnings("squid:S2387")
+    @Setter
+    private int ticksLived;
+
+    // tileEntityData is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
+    @SuppressWarnings("squid:S2387")
+    private @Nullable NBTTagCompound tileEntityData;
+
     private IBlockData block;
-    private boolean f;
     private int fallHurtMax;
     private float fallHurtAmount;
     private final org.bukkit.World bukkitWorld;
-    private boolean g;
-    @SuppressWarnings("NullAway.Init")
-    private PlayerChunkMap.EntityTracker tracker;
+    private @Nullable PlayerChunkMap.EntityTracker tracker;
     private final WorldServer worldServer;
 
     @Getter
@@ -66,7 +64,6 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         block = iblockdata;
         i = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
-        dropItem = false;
         setNoGravity(true);
         fallHurtMax = 0;
         fallHurtAmount = 0.0F;
@@ -79,7 +76,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         currentPosition = previousPosition;
         futurePosition = currentPosition;
 
-        // try setting noclip twice, because it doesn't seem to stick.
+        // try setting noClip twice, because it doesn't seem to stick.
         noclip = true;
         a(new BlockPosition(this));
         spawn();
@@ -110,6 +107,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         futurePosition = newPosition;
     }
 
+    @SuppressWarnings("unused")
     public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
         final double distance = futurePosition.getDistance(newPosition);
@@ -123,10 +121,11 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         short relY = (short) (deltaY * 4096);
         short relZ = (short) (deltaZ * 4096);
 
-        PacketPlayOutEntity.PacketPlayOutRelEntityMove tppacket =
+        PacketPlayOutEntity.PacketPlayOutRelEntityMove tpPacket =
             new PacketPlayOutEntity.PacketPlayOutRelEntityMove(getId(), relX, relY, relZ, true);
 
-        tracker.broadcast(tppacket);
+        if (tracker != null)
+            tracker.broadcast(tpPacket);
         return true;
     }
 
@@ -172,8 +171,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     {
         nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
         nbttagcompound.setInt("Time", ticksLived);
-        nbttagcompound.setBoolean("DropItem", dropItem);
-        nbttagcompound.setBoolean("HurtEntities", hurtEntities);
+        nbttagcompound.setBoolean("DropItem", false);
+        nbttagcompound.setBoolean("HurtEntities", false);
         nbttagcompound.setFloat("FallHurtAmount", fallHurtAmount);
         nbttagcompound.setInt("FallHurtMax", fallHurtMax);
         if (tileEntityData != null)
@@ -188,15 +187,9 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         ticksLived = nbttagcompound.getInt("Time");
         if (nbttagcompound.hasKeyOfType("HurtEntities", 99))
         {
-            hurtEntities = nbttagcompound.getBoolean("HurtEntities");
             fallHurtAmount = nbttagcompound.getFloat("FallHurtAmount");
             fallHurtMax = nbttagcompound.getInt("FallHurtMax");
         }
-        else if (block.a(TagsBlock.ANVIL))
-            hurtEntities = true;
-
-        if (nbttagcompound.hasKeyOfType("DropItem", 99))
-            dropItem = nbttagcompound.getBoolean("DropItem");
 
         if (nbttagcompound.hasKeyOfType("TileEntityData", 10))
             tileEntityData = nbttagcompound.getCompound("TileEntityData");
@@ -209,7 +202,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     public void a(boolean flag)
     {
-        hurtEntities = flag;
+        // ignored
     }
 
     @Override

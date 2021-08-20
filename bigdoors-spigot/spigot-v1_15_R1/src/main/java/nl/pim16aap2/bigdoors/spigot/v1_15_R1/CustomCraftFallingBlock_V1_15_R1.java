@@ -80,7 +80,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
     {
-        return entity;
+        return (CustomEntityFallingBlock_V1_15_R1) entity;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public void setDropItem(boolean drop)
     {
-        getHandle().dropItem = false;
+        // ignored
     }
 
     @Override
@@ -135,7 +135,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public void setHurtEntities(boolean hurtEntities)
     {
-        getHandle().hurtEntities = false;
+        // ignored
     }
 
     @Override
@@ -144,7 +144,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         super.setTicksLived(value);
 
         // Second field for EntityFallingBlock
-        getHandle().ticksLived = value;
+        getHandle().setTicksLived(value);
     }
 
     /**

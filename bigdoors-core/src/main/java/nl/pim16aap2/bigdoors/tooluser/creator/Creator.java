@@ -343,10 +343,12 @@ public abstract class Creator extends ToolUser
      * Note that if the player does not end up buying the door, either because of insufficient funds or because they
      * rejected the offer, the current step is NOT advanced!
      *
-     * @param confirm Whether or not the player confirmed they want to buy this door.
+     * @param confirm Whether the player confirmed they want to buy this door.
      * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
      * door and the process is aborted.
      */
+    // This method always returns the same value (S3516). However, in the case of this method, there is no reason to
+    // return false as every input is valid and leads to a valid state.
     @SuppressWarnings("squid:S3516")
     protected boolean confirmPrice(boolean confirm)
     {

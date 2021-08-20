@@ -76,6 +76,9 @@ public final class PLogger implements IPLogger
     /**
      * Processes the queue of messages that will be logged to the log file.
      */
+    // The while (true) loop is an infinite loop without end condition (S2189).
+    // However, SonarLint doesn't know that the loop runs in its own thread
+    // and has no reason to stop for as long as the program lives.
     @SuppressWarnings("squid:S2189")
     private void processQueue()
     {

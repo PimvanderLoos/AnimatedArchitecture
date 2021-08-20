@@ -45,6 +45,7 @@ public class DoorPrepareRemoveOwnerEvent extends DoorEvent implements IDoorPrepa
         return HANDLERS_LIST;
     }
 
+    // This method is identical to the getHandlers method (S4144). However, this is required for Spigot.
     @SuppressWarnings("squid:S4144")
     public static HandlerList getHandlerList()
     {

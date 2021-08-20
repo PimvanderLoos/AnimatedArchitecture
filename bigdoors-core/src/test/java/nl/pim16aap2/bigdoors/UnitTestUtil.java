@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 public class UnitTestUtil
 {
+    @SuppressWarnings("unused")
     public static final double EPSILON = 1E-6;
 
     /**
@@ -64,16 +65,19 @@ public class UnitTestUtil
         return world;
     }
 
+    @SuppressWarnings("unused")
     public static IPLocation getLocation(Vector3Dd vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
+    @SuppressWarnings("unused")
     public static IPLocation getLocation(Vector3Di vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
+    @SuppressWarnings("unused")
     public static IPLocation getLocation(Vector3Dd vec, IPWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
@@ -119,7 +123,7 @@ public class UnitTestUtil
      * @return The object inside the Optional.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T optionalEquals(@Nullable T obj, Optional<T> opt)
+    public static @Nullable <T> T optionalEquals(@Nullable T obj, Optional<T> opt)
     {
         if (obj == null)
         {
@@ -142,8 +146,7 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt,
-                                          Function<U, T> map)
+    public static @Nullable <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt, Function<U, T> map)
     {
         if (obj == null)
         {

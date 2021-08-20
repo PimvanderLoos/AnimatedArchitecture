@@ -76,7 +76,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * The {@link DatabaseState} the database is in.
      */
+    // 'volatile' is not a substitution for thread-safety. However, that is not the goal here.
+    // The state is modified on a single thread (this class is not thread safe!), but may be read
+    // from several other threads from the getter. 'volatile' here ensures those reads are up-to-date.
     @SuppressWarnings("squid:S3077")
+    @Getter
     private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
     /**
@@ -805,12 +809,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                 .setLong(3, doorUID)) > 0;
                     }, false);
             }, false);
-    }
-
-    @Override
-    public DatabaseState getDatabaseState()
-    {
-        return databaseState;
     }
 
     /**
