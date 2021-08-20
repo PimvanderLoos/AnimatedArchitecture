@@ -23,12 +23,12 @@ import java.util.function.BiFunction;
  */
 public class GarageDoorMover extends BlockMover
 {
-    private static final double maxSpeed = 3;
-    private static final double minSpeed = 0.1;
     private final double resultHeight;
     private final Vector3Di directionVec;
-    private BiFunction<PBlockData, Double, Vector3Dd> getVector;
-    private int xLen, yLen, zLen;
+    private final BiFunction<PBlockData, Double, Vector3Dd> getVector;
+    private final int xLen;
+    private final int yLen;
+    private final int zLen;
     private boolean NS = false;
     protected int blocksToMove;
 

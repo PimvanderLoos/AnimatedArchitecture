@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -31,8 +30,6 @@ class BaseCommandTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private BaseCommand baseCommand;
 
-    private IBigDoorsPlatform platform;
-
     @Mock
     private DoorRetriever doorRetriever;
 
@@ -45,7 +42,7 @@ class BaseCommandTest
     @BeforeEach
     void init()
     {
-        platform = UnitTestUtil.initPlatform();
+        UnitTestUtil.initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(baseCommand.getCommandSender()).thenReturn(commandSender);

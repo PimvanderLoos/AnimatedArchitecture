@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -14,14 +13,11 @@ import org.bukkit.entity.Player;
  */
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
-    @SuppressWarnings("unused")
-    private final BigDoorsSpigot plugin;
-    private boolean success = false;
     private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private final boolean success;
 
-    public TownyOldProtectionCompat(BigDoorsSpigot plugin)
+    public TownyOldProtectionCompat()
     {
-        this.plugin = plugin;
         success = true;
     }
 
@@ -31,6 +27,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
         return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {

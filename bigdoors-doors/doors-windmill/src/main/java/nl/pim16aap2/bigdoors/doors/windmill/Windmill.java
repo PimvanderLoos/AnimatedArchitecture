@@ -38,7 +38,7 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
      */
     @Getter
     @PersistentVariable
-    private int quarterCircles = 1;
+    private int quarterCircles;
 
     public Windmill(DoorBase doorBase, int quarterCircles)
     {

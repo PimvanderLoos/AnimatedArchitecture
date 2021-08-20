@@ -16,6 +16,7 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
+@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode"})
 public class FlagMover extends BlockMover
 {
     private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
@@ -68,12 +69,12 @@ public class FlagMover extends BlockMover
 //        maxVal = Math.min(maxVal, 0.75);
 //        return Math.min(baseOffset, maxVal);
 
-//        // The idea here is that blocks should never loose contact with other blocks.
-//        // Especially the blocks with radius 1 should never loose contact with the pole.
+//        // The idea here is that blocks should never lose contact with other blocks.
+//        // Especially the blocks with radius 1 should never lose contact with the pole.
 //        double maxAmplitude = radius * 0.4;
 
 
-        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3.0 + ((double) counter / 4.0));
+        return Math.min(0.3 * radius, 3.2) * Math.sin(radius / 3.0 + (counter / 4.0));
 
 //        double offset;
 //        try

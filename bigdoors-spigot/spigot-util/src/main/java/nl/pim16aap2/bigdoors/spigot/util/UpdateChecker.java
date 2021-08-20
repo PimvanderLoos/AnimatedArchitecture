@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -22,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Instant;
 import java.util.Objects;
+import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -99,41 +98,33 @@ public final class UpdateChecker
         return CompletableFuture.supplyAsync(
             () ->
             {
-                int responseCode = -1;
+                int responseCode;
                 try
                 {
-                    URL url = new URL(String.format(UPDATE_URL, pluginID));
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    final URL url = new URL(String.format(UPDATE_URL, pluginID));
+                    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.addRequestProperty("User-Agent", USER_AGENT);
 
-                    InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                    final InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                     responseCode = connection.getResponseCode();
 
-                    JsonElement element = new JsonParser().parse(reader);
+                    final JsonElement element = new JsonParser().parse(reader);
                     if (!element.isJsonArray())
                         return new UpdateResult(UpdateReason.INVALID_JSON);
 
                     reader.close();
 
-                    JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
+                    final JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
 
-                    long age = -1;
-                    String ageString = versionObject.get("releaseDate").getAsString();
-                    try
-                    {
-                        age = getAge(Long.parseLong(ageString));
-                    }
-                    catch (NumberFormatException e)
-                    {
-                        BigDoors.get().getPLogger()
-                                .logThrowable(e,
-                                              "Failed to obtain age of update from ageString: \"" + ageString + "\"");
-                    }
+                    final String ageString = versionObject.get("releaseDate").getAsString();
+                    final OptionalLong ageOpt = Util.parseLong(ageString);
+                    if (ageOpt.isEmpty())
+                        throw new IllegalArgumentException("Invalid age string: \"" + ageString + "\"");
+                    final long age = ageOpt.getAsLong();
 
-
-                    String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
-                                                                                                 .getAsString();
-                    @Nullable String latest = versionScheme.compareVersions(current, newest);
+                    final String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
+                                                                                                       .getAsString();
+                    final @Nullable String latest = versionScheme.compareVersions(current, newest);
 
                     if (latest == null)
                         return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
@@ -155,18 +146,6 @@ public final class UpdateChecker
                 return new UpdateResult(
                     responseCode == 401 ? UpdateReason.UNAUTHORIZED_QUERY : UpdateReason.UNKNOWN_ERROR);
             }).exceptionally(ex -> Util.exceptionally(ex, new UpdateResult(UpdateReason.UNKNOWN_ERROR)));
-    }
-
-    /**
-     * Gets the difference in seconds between a given time and the current time.
-     *
-     * @param updateTime A moment in time to compare the current time to.
-     * @return The difference in seconds between a given time and the current time.
-     */
-    private long getAge(long updateTime)
-    {
-        long currentTime = Instant.now().getEpochSecond();
-        return currentTime - updateTime;
     }
 
     /**
@@ -218,7 +197,7 @@ public final class UpdateChecker
 
             // Follow any and all redirects until we've finally found the actual file.
             String location = downloadURL;
-            HttpURLConnection httpConnection = null;
+            HttpURLConnection httpConnection;
             for (; ; )
             {
                 URL url = new URL(location);

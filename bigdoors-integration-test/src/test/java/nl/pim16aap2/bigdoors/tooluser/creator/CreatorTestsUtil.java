@@ -48,13 +48,12 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 public class CreatorTestsUtil
 {
-    protected Vector3Di min = new Vector3Di(10, 15, 20);
-    protected Vector3Di max = new Vector3Di(20, 25, 30);
+    protected final Vector3Di min = new Vector3Di(10, 15, 20);
+    protected final Vector3Di max = new Vector3Di(20, 25, 30);
+    protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
+    protected final String doorName = "testDoor123";
+    protected final IPWorld world = getWorld();
     protected Vector3Di engine = new Vector3Di(20, 15, 25);
-    protected Vector3Di powerblock = new Vector3Di(40, 40, 40);
-    protected String doorName = "testDoor123";
-    protected IPWorld world = getWorld();
-    protected IPWorld world2 = getWorld();
     protected RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected DoorOwner doorOwner;

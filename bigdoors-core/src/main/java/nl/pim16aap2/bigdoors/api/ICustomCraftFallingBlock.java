@@ -75,20 +75,6 @@ public interface ICustomCraftFallingBlock
      */
     void setVelocity(Vector3Dd vector);
 
-    /**
-     * Sets the headPose of this entity.
-     *
-     * @param pose The new pose of this entity's head.
-     */
-    void setHeadPose(Vector3Dd pose);
-
-    /**
-     * Sets the headPose of this entity.
-     *
-     * @param eulerAngle The new pose of this entity's head described as a EulerAngle.
-     */
-    void setBodyPose(Vector3Dd eulerAngle);
-
     enum TeleportMode
     {
         SET_VELOCITY,

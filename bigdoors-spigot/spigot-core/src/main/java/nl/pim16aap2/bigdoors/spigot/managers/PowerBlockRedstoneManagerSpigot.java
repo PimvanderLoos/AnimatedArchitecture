@@ -36,6 +36,9 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
         return true;
     }
 
+    // Need to figure out if the new method works. If so, the new method is better.
+    // However, I cannot test this right now, so I'm leaving the old code here until I can.
+    @SuppressWarnings("CommentedOutCode")
     @Override
     public boolean isBlockPowered(IPWorld world, Vector3Di position)
     {

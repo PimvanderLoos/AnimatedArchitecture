@@ -20,15 +20,13 @@ import java.util.UUID;
 public class LandsProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat compat = ProtectionCompat.LANDS;
-    private final BigDoorsSpigot plugin;
-    private boolean success = false;
+    private final boolean success;
     private final LandsIntegration landsAddon;
 
-    public LandsProtectionCompat(BigDoorsSpigot plugin)
+    public LandsProtectionCompat()
     {
-        this.plugin = plugin;
-        landsAddon = new LandsIntegration(plugin, false);
-        success = landsAddon != null;
+        landsAddon = new LandsIntegration(BigDoorsSpigot.get(), false);
+        success = true;
     }
 
     @Override

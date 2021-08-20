@@ -21,12 +21,12 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
     private final BigDoorsSpigot plugin;
     private final WorldGuardPlugin worldGuard;
-    private boolean success = false;
-    private Method m;
+    private final boolean success;
+    private final Method m;
 
-    public WorldGuard6ProtectionCompat(BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat()
     {
-        this.plugin = plugin;
+        plugin = BigDoorsSpigot.get();
 
         Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
@@ -61,6 +61,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         return false;
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {

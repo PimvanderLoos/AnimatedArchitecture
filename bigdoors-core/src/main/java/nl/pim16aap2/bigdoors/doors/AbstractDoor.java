@@ -37,7 +37,7 @@ import java.util.logging.Level;
 @EqualsAndHashCode
 public abstract class AbstractDoor implements IDoor
 {
-    @SuppressWarnings("NullableProblems") @EqualsAndHashCode.Exclude
+    @EqualsAndHashCode.Exclude
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
     @Getter

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.extensions;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Value;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -67,8 +66,8 @@ final class DoorTypeInitializer
 
     /**
      * Instantiates this {@link DoorTypeInitializer}. It will attempt to assign dependency weights to all entries
-     * (stored in {@link #registrationQueue} and then sort those entries by their weight, starting at the lowest (stored
-     * in {@link #sorted}).
+     * (stored in {@link #registrationQueue}) and then sort those entries by their weight, starting at the lowest
+     * (stored in {@link #sorted}).
      *
      * @param typeInfoList The list of {@link TypeInfo}s that should be loaded.
      */
@@ -92,7 +91,7 @@ final class DoorTypeInitializer
 
     /**
      * Constructs {@link #sorted} from {@link #registrationQueue}. The sorted list contains all {@link TypeInfo} with a
-     * valid dependency weight and it is sorted by this weight value. Lower weights are assigned lower indices.
+     * valid dependency weight, and it is sorted by this weight value. Lower weights are assigned lower indices.
      *
      * @return The sorted list of {@link TypeInfo}s with valid weights.
      */
@@ -237,7 +236,7 @@ final class DoorTypeInitializer
                                       currentName + ": Failed to find dependency!");
             }
             final Dependency dependency = dependencyOpt.get();
-            final String dependencyName = dependency.getDependencyName();
+            final String dependencyName = dependency.dependencyName();
 
             // If the dependency has already been registered, it has already been loaded, obviously.
             if (BigDoors.get().getDoorTypeManager().getDoorType(dependencyName).isPresent())
@@ -266,7 +265,7 @@ final class DoorTypeInitializer
             if (dependencyWeight == null)
             {
                 final LoadResult dependencyLoadResult = processDependencies(queuedDoorType);
-                if (dependencyLoadResult.getLoadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
+                if (dependencyLoadResult.loadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
                     // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency.
                     dependencyWeight = registrationQueue.get(dependencyName).weight;
                 else
@@ -280,14 +279,14 @@ final class DoorTypeInitializer
 
             newWeight = Math.max(newWeight, dependencyWeight == null ? 0 : dependencyWeight) + 1;
 
-            if (queuedDoorType.getVersion() < dependency.getMinVersion() ||
-                queuedDoorType.getVersion() > dependency.getMaxVersion())
+            if (queuedDoorType.getVersion() < dependency.minVersion() ||
+                queuedDoorType.getVersion() > dependency.maxVersion())
             {
                 registrationQueue.replace(currentName, new TypeInfoAndWeight(doorTypeInfo, -1));
                 return new LoadResult(LoadResultType.DEPENDENCY_UNSUPPORTED_VERSION,
                                       "Version " + doorTypeInfo.getVersion() + " of type: \"" + currentName +
-                                          "\" requires " + dependency.getMinVersion() + ">= version <= " +
-                                          dependency.getMaxVersion() + " of type: \"" + dependency.getDependencyName() +
+                                          "\" requires " + dependency.minVersion() + ">= version <= " +
+                                          dependency.maxVersion() + " of type: \"" + dependency.dependencyName() +
                                           "\", but version " + queuedDoorType.getVersion() + " was found!");
             }
         }
@@ -295,17 +294,6 @@ final class DoorTypeInitializer
         registrationQueue.replace(currentName, new TypeInfoAndWeight(doorTypeInfo, newWeight));
         return new LoadResult(LoadResultType.DEPENDENCIES_AVAILABLE, "");
     }
-
-//    /**
-//     * Tries to load all the provided {@link DoorType}s as defined by their {@link TypeInfo}.
-//     *
-//     * @param typeInfo The list of {@link TypeInfo}s defining {@link DoorType}s that will be loaded.
-//     * @return All the {@link DoorType}s that were loaded successfully.
-//     */
-//    public static List<DoorType> loadDoorTypes(List<TypeInfo> typeInfo)
-//    {
-//        return new DoorTypeInitializer(typeInfo).loadDoorTypes();
-//    }
 
     public static final class TypeInfo
     {
@@ -403,13 +391,8 @@ final class DoorTypeInitializer
         }
     }
 
-    @Value
-    public static class Dependency
+    public record Dependency(String dependencyName, int minVersion, int maxVersion)
     {
-        String dependencyName;
-        int minVersion;
-        int maxVersion;
-
         @Override
         public String toString()
         {
@@ -417,11 +400,8 @@ final class DoorTypeInitializer
         }
     }
 
-    @Value
-    private static class LoadResult
+    private record LoadResult(LoadResultType loadResultType, String message)
     {
-        LoadResultType loadResultType;
-        String message;
     }
 
     private enum LoadResultType

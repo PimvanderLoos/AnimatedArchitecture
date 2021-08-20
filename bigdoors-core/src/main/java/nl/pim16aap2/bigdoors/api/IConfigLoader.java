@@ -41,13 +41,6 @@ public interface IConfigLoader extends IRestartable
      */
     String flagFormula();
 
-//    /**
-//     * Gets the name of the database file.
-//     *
-//     * @return The name of the database file.
-//     */
-//    String dbFile();
-
     /**
      * Gets the number of ticks a door should wait before it can be activated again.
      *

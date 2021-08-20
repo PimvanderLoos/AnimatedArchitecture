@@ -26,13 +26,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
 {
-    private final Map<IRestartable, Boolean> restartables = new ConcurrentHashMap<>();
+    private final Set<IRestartable> restartables = new ConcurrentHashMap<IRestartable, Boolean>().keySet();
     @Getter
     private final Map<PColor, Team> teams = new EnumMap<>(PColor.class);
     private final Scoreboard scoreboard;
@@ -92,18 +93,18 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     @Override
     public void restart()
     {
-        teams.forEach((K, V) -> V.unregister());
+        teams.forEach((color, team) -> team.unregister());
         teams.clear();
         registerTeams();
-        restartables.forEach((K, V) -> K.restart());
+        restartables.forEach(IRestartable::restart);
     }
 
     @Override
     public void shutdown()
     {
-        teams.forEach((K, V) -> V.unregister());
+        teams.forEach((color, team) -> team.unregister());
         teams.clear();
-        restartables.forEach((K, V) -> K.shutdown());
+        restartables.forEach(IRestartable::shutdown);
     }
 
     @Override
@@ -129,7 +130,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(new NullPointerException(), "Player " + player.toString() +
+            BigDoors.get().getPLogger().logThrowable(new NullPointerException(), "Player " + player +
                 " does not appear to be online! They will not receive any GlowingBlock packets!");
             return Optional.empty();
         }
@@ -142,7 +143,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
             return Optional.empty();
         }
 
-        Optional<IGlowingBlock> blockOpt =
+        final Optional<IGlowingBlock> blockOpt =
             glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
@@ -151,13 +152,13 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     @Override
     public void registerRestartable(IRestartable restartable)
     {
-        restartables.put(restartable, true);
+        restartables.add(restartable);
     }
 
     @Override
     public boolean isRestartableRegistered(IRestartable restartable)
     {
-        return restartables.containsKey(restartable);
+        return restartables.contains(restartable);
     }
 
     @Override

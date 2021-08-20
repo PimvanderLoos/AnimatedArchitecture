@@ -25,16 +25,15 @@ import java.util.Optional;
  */
 public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
     private final BigDoorsSpigot plugin;
     private final JavaPlugin plotSquaredPlugin;
-    private boolean success = false;
+    private final boolean success;
 
-    public PlotSquaredNewProtectionCompat(BigDoorsSpigot plugin)
+    public PlotSquaredNewProtectionCompat()
     {
-        this.plugin = plugin;
+        plugin = BigDoorsSpigot.get();
         plotSquaredPlugin = JavaPlugin.getPlugin(com.github.intellectualsites.plotsquared.bukkit.BukkitMain.class);
-        success = plotSquaredPlugin != null;
+        success = true;
     }
 
     @Override
@@ -93,13 +92,14 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
-        com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc1);
+        com.github.intellectualsites.plotsquared.plot.object.Location psLocation;
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
@@ -121,7 +121,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 if (!isHeightAllowed(player, area, y1) || !isHeightAllowed(player, area, y2))
                     return false;
 
-                loc.setY(area.MAX_BUILD_HEIGHT - 1);
+                loc.setY(area.MAX_BUILD_HEIGHT - 1.0);
 
                 @Nullable Plot newPlot = area.getPlot(psLocation);
                 if (checkPlot == null || !checkPlot.equals(newPlot))

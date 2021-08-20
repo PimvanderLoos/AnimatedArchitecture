@@ -53,6 +53,7 @@ public class ChunkListener implements Listener
         try
         {
             if (isCancellable)
+                //noinspection JavaReflectionMemberAccess
                 isCancelled = org.bukkit.event.world.ChunkUnloadEvent.class.getMethod("isCancelled");
             else
                 isForceLoaded = org.bukkit.Chunk.class.getMethod("isForceLoaded");
@@ -71,6 +72,7 @@ public class ChunkListener implements Listener
      *
      * @param event The {@link ChunkLoadEvent}.
      */
+    @SuppressWarnings("CommentedOutCode")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
     {
@@ -82,6 +84,7 @@ public class ChunkListener implements Listener
                         optionalDoor.ifPresent(
                             door ->
                             {
+                                // TODO: (re?)Implement this
 //                                if (door instanceof IPerpetualMover && door.isPowerBlockActive())
 //                                    BigDoors.get().getDoorOpener()
 //                                            .animateDoorAsync(door, DoorActionCause.PERPETUALMOVEMENT, null, 0,
@@ -96,6 +99,7 @@ public class ChunkListener implements Listener
      *
      * @param event The {@link ChunkUnloadEvent}.
      */
+    @SuppressWarnings("CommentedOutCode")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkUnload(ChunkUnloadEvent event)
     {

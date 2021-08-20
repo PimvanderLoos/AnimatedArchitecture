@@ -11,17 +11,6 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
  */
 public interface IFallingBlockFactory
 {
-//    /**
-//     * Constructs {@link ICustomCraftFallingBlock}s from all blocks in the given area for allowed blocks.
-//     *
-//     * @param pWorld The world.
-//     * @param min    The lower bound coordinates.
-//     * @param max    The upper bound coordinates.
-//     * @return A list of {@link ICustomCraftFallingBlock}s constructed from the blocks in the area.
-//     */
-//    List<PBlockData> constructFBlocks(IPWorld pWorld, Vector3Di min,
-//                                               Vector3Di max);
-
     /**
      * Creates a new {@link ICustomCraftFallingBlock} at the given location made of the provided block.
      *
@@ -29,8 +18,7 @@ public interface IFallingBlockFactory
      * @param block The block that the {@link ICustomCraftFallingBlock} will be made out of.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
-    ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc,
-                                                 INMSBlock block)
+    ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception;
 
     /**

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -19,16 +18,13 @@ import org.jetbrains.annotations.Nullable;
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
-    private final BigDoorsSpigot plugin;
     private final GriefPrevention griefPrevention;
-    private boolean success = false;
+    private final boolean success;
 
-    public GriefPreventionProtectionCompat(BigDoorsSpigot plugin)
+    public GriefPreventionProtectionCompat()
     {
-        this.plugin = plugin;
-
-        @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
-                                                       .getPlugin(ProtectionCompat.getName(compat));
+        final @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
+                                                             .getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))
@@ -47,6 +43,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
         return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {

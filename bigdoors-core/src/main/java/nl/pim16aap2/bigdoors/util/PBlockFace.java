@@ -114,6 +114,7 @@ public enum PBlockFace
      * @param myFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
+    @SuppressWarnings("DuplicatedCode") // It's actually different from rotating counterclockwise...
     public static PBlockFace rotateClockwise(PBlockFace myFace)
     {
         switch (myFace)
@@ -138,6 +139,7 @@ public enum PBlockFace
      * @param myFace The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
+    @SuppressWarnings("DuplicatedCode") // It's actually different from rotating clockwise...
     public static PBlockFace rotateCounterClockwise(PBlockFace myFace)
     {
         switch (myFace)

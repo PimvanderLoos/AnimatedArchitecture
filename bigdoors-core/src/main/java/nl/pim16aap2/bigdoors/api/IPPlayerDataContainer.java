@@ -50,7 +50,7 @@ interface IPPlayerDataContainer
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The maximum doorsize this player can make/operate measured in number of blocks.
+     * @return The maximum door size this player can make/operate measured in number of blocks.
      */
     int getDoorSizeLimit();
 
@@ -99,10 +99,10 @@ interface IPPlayerDataContainer
         ;
 
         @Getter
-        private static List<PermissionFlag> values = List.of(PermissionFlag.values());
+        private static final List<PermissionFlag> values = List.of(PermissionFlag.values());
 
-        private int val;
-        private Function<IPPlayerDataContainer, Boolean> fun;
+        private final int val;
+        private final Function<IPPlayerDataContainer, Boolean> fun;
 
         PermissionFlag(int val, Function<IPPlayerDataContainer, Boolean> fun)
         {

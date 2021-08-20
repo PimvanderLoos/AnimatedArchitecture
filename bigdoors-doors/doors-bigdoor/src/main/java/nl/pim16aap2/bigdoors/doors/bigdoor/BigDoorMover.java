@@ -20,8 +20,6 @@ public class BigDoorMover extends BlockMover
     private final Vector3Dd rotationCenter;
     private int halfEndCount;
     private final double angle;
-    private final double endSin;
-    private final double endCos;
     private double step;
 
     public BigDoorMover(AbstractDoor door, RotateDirection rotDirection, double time, boolean skipAnimation,
@@ -37,9 +35,6 @@ public class BigDoorMover extends BlockMover
         if (angle == 0.0D)
             BigDoors.get().getPLogger()
                     .severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
-
-        endCos = Math.cos(angle);
-        endSin = Math.sin(angle);
 
         rotationCenter = new Vector3Dd(door.getEngine().x() + 0.5, yMin, door.getEngine().z() + 0.5);
 

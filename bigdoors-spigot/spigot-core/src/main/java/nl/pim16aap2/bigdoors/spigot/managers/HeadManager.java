@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -34,7 +35,7 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-    private final TimedCache<UUID, Optional<ItemStack>> headMap;
+    private transient TimedCache<UUID, Optional<ItemStack>> headMap;
     private final ConfigLoaderSpigot config;
 
     /**
@@ -47,6 +48,12 @@ public final class HeadManager extends Restartable
     {
         super(holder);
         this.config = config;
+        init();
+    }
+
+    @Initializer
+    private void init()
+    {
         headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
                             .duration(Duration.ofMinutes(config.headCacheTimeout())).build();
     }
@@ -81,10 +88,12 @@ public final class HeadManager extends Restartable
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
+    @SuppressWarnings("unused")
     public CompletableFuture<Optional<ItemStack>> getPlayerHead(UUID playerUUID, String displayName)
     {
         return CompletableFuture.supplyAsync(
-                                    () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
+                                    () -> headMap.computeIfAbsent(playerUUID,
+                                                                  (p) -> createItemStack(playerUUID, displayName))
                                                  .flatMap(Function.identity()))
                                 .exceptionally(Util::exceptionallyOptional);
     }
@@ -106,7 +115,9 @@ public final class HeadManager extends Restartable
     @Override
     public void restart()
     {
-        headMap.clear();
+        final TimedCache<UUID, Optional<ItemStack>> oldHeadMap = headMap;
+        init();
+        oldHeadMap.clear();
     }
 
     @Override

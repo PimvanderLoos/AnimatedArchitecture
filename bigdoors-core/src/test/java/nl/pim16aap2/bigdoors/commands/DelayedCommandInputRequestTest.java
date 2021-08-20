@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -25,15 +24,13 @@ class DelayedCommandInputRequestTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private CommandDefinition commandDefinition;
 
-    private IBigDoorsPlatform platform;
-
     @Mock
     private ICommandSender commandSender;
 
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
+        IBigDoorsPlatform platform = initPlatform();
         MockitoAnnotations.openMocks(this);
         Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
     }
@@ -92,10 +89,7 @@ class DelayedCommandInputRequestTest
         return CompletableFuture.completedFuture(true);
     }
 
-    @Value
-    private static class DelayedInput
+    private record DelayedInput(UUID uuid, String string)
     {
-        UUID uuid;
-        String string;
     }
 }

@@ -108,7 +108,6 @@ public enum ProtectionCompat
      * @param name The name of the plugin to get the compat for.
      * @return The compat for a plugin.
      */
-    @SuppressWarnings("ConstantConditions")
     public static @Nullable ProtectionCompat getFromName(String name)
     {
         return nameMap.getOrDefault(name, null);

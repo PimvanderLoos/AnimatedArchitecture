@@ -272,11 +272,5 @@ public abstract class DoorRetriever
                    getDoor() :
                    CompletableFuture.completedFuture(Optional.empty());
         }
-
-        @Override
-        public boolean isAvailable()
-        {
-            return super.isAvailable();
-        }
     }
 }

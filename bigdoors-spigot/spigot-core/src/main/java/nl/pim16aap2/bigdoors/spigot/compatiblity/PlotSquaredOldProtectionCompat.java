@@ -20,18 +20,17 @@ import org.jetbrains.annotations.Nullable;
  */
 public class PlotSquaredOldProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
     private final BigDoorsSpigot plugin;
     private final PlotAPI plotSquared;
     private final JavaPlugin plotSquaredPlugin;
-    private boolean success = false;
+    private final boolean success;
 
-    public PlotSquaredOldProtectionCompat(BigDoorsSpigot plugin)
+    public PlotSquaredOldProtectionCompat()
     {
-        this.plugin = plugin;
+        plugin = BigDoorsSpigot.get();
         plotSquared = new PlotAPI();
         plotSquaredPlugin = JavaPlugin.getPlugin(com.plotsquared.bukkit.BukkitMain.class);
-        success = plotSquaredPlugin != null;
+        success = true;
     }
 
     @Override
@@ -68,23 +67,17 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
                 return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_UNOWNED.s());
 
             if (!plot.isAdded(player.getUniqueId()))
-            {
-                if (plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s()))
-                    return true;
-                return false;
-            }
+                return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s());
             else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
-            {
-                if (!plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_OTHER.s()))
-                    return false;
-            }
+                return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_OTHER.s());
+
             return true;
         }
 
         return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_ROAD.s());
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"DuplicatedCode", "deprecation"}) // This class will need to be rewritten anyway.
     @Override
     public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
@@ -94,8 +87,6 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         if (!plotSquared.isPlotWorld(loc1.getWorld()))
             return true;
 
-        com.intellectualcrafters.plot.object.Location psLocation = com.plotsquared.bukkit.util.BukkitUtil
-            .getLocation(loc1);
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
@@ -104,6 +95,7 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         @Nullable Plot checkPlot = null;
+        com.intellectualcrafters.plot.object.Location psLocation;
 
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)

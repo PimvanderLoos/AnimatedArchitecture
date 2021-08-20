@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import lombok.EqualsAndHashCode;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -22,11 +23,12 @@ import org.jetbrains.annotations.NotNull;
  * @author Pim
  * @see ICustomCraftFallingBlock
  */
+@EqualsAndHashCode(callSuper = true)
 public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements FallingBlock, ICustomCraftFallingBlock
 {
+    // field entity already exists in CraftEntity, but we want to override it on purpose.
+    @SuppressWarnings("squid:S2387")
     protected final CustomEntityFallingBlock_V1_15_R1 entity;
-    private Vector3Dd lastPos;
-    private Vector3Dd lastGoalPos;
 
     CustomCraftFallingBlock_V1_15_R1(Server server,
                                      nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 entity)
@@ -36,9 +38,6 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         setVelocity(new Vector(0, 0, 0));
         setDropItem(false);
         entity.noclip = true;
-
-        lastPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
-        lastGoalPos = new Vector3Dd(entity.locX(), entity.locY(), entity.locZ());
     }
 
     // TODO: It should apply velocity if possible, but the issue is that the last position isn't the actual last position,
@@ -80,7 +79,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomEntityFallingBlock_V1_15_R1 getHandle()
     {
-        return (CustomEntityFallingBlock_V1_15_R1) entity;
+        return entity;
     }
 
     @Override
@@ -103,15 +102,18 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
 
     @Override
     @Deprecated
+    // Deprecated tag doesn't exist here (1123), but it already exists in the super class.
+    // We do not want to remove this deprecated code (1133) because we don't own it and _have_ to override it.
+    @SuppressWarnings({"squid:S1123", "squid:S1133"})
     public @NotNull Material getMaterial()
     {
-        return CraftMagicNumbers.getMaterial(getHandle().getBlock()).getItemType();
+        return CraftMagicNumbers.getMaterial(entity.getBlock()).getItemType();
     }
 
     @Override
     public @NotNull BlockData getBlockData()
     {
-        return CraftBlockData.fromData(getHandle().getBlock());
+        return CraftBlockData.fromData(entity.getBlock());
     }
 
     @Override
@@ -144,24 +146,6 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         super.setTicksLived(value);
 
         // Second field for EntityFallingBlock
-        getHandle().setTicksLived(value);
-    }
-
-    /**
-     * @deprecated Not currently implemented.
-     */
-    @Deprecated
-    @Override
-    public void setHeadPose(Vector3Dd pose)
-    {
-    }
-
-    /**
-     * @deprecated Not currently implemented.
-     */
-    @Deprecated
-    @Override
-    public void setBodyPose(Vector3Dd eulerAngle)
-    {
+        entity.setTicksLived(value);
     }
 }

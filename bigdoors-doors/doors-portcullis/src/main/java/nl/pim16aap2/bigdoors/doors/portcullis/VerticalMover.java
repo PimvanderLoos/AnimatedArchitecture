@@ -35,8 +35,8 @@ public class VerticalMover extends BlockMover
         this.blocksToMove = blocksToMove;
 
         double speed = 1;
-        double pcMult = multiplier;
-        pcMult = pcMult == 0.0 ? 1.0 : pcMult;
+        double pcMultiplier = multiplier;
+        pcMultiplier = pcMultiplier == 0.0 ? 1.0 : pcMultiplier;
         final int maxSpeed = 6;
 
         // If the time isn't default, calculate speed.
@@ -50,7 +50,7 @@ public class VerticalMover extends BlockMover
         // speed.
         if (time == 0.0 || speed > maxSpeed)
         {
-            speed = blocksToMove < 0 ? 1.7 : 0.8 * pcMult;
+            speed = blocksToMove < 0 ? 1.7 : 0.8 * pcMultiplier;
             speed = speed > maxSpeed ? maxSpeed : speed;
             super.time = Math.abs(blocksToMove) / speed;
         }
@@ -91,9 +91,13 @@ public class VerticalMover extends BlockMover
         return pBlockData.getStartPosition().add(0, stepSum, 0);
     }
 
+    // Yes, it's bad practice to keep commented-out code around.
+    // However, I do intend to use it again in the future, and it's easier to leave it here than hide it somewhere.
+    @SuppressWarnings("CommentedOutCode")
     @Override
     protected void executeAnimationStep(int ticks)
     {
+        // TODO: Check if this is worth pursuing with the new movement system.
 //        // This isn't used currently, but the idea is to spawn solid blocks where this door is / is going to be.
 //        // A cheap way to create fake solid blocks. Should really be part of the blocks themselves, but
 //        // this was just to see how viable it is. Leaving it here for future reference.

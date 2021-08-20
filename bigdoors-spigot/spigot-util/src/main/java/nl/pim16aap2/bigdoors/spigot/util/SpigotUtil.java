@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
@@ -120,9 +121,9 @@ public final class SpigotUtil
     {
         if (loc.getWorld() == null)
             return;
-//        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
-//            if (ent instanceof Player)
-//                ((Player) ent).playSound(loc, sound, volume, pitch);
+        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+            if (ent instanceof Player player)
+                player.playSound(loc, sound, volume, pitch);
     }
 
     /**

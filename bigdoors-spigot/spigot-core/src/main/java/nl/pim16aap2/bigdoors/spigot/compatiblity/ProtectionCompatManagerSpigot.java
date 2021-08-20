@@ -124,7 +124,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             return true;
 
         // offline players don't have permissions, so use Vault if that's the case.
-        if (!player.hasMetadata(FakePlayerCreator.FAKEPLAYERMETADATA))
+        if (!player.hasMetadata(FakePlayerCreator.FAKE_PLAYER_METADATA))
             return player.hasPermission(Constants.COMPAT_BYPASS_PERMISSION);
         return plugin.getVaultManager().hasPermission(player, Constants.COMPAT_BYPASS_PERMISSION);
     }
@@ -275,8 +275,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
         try
         {
-            @Nullable Plugin otherPlugin = plugin.getServer().getPluginManager()
-                                                 .getPlugin(ProtectionCompat.getName(compat));
+            final @Nullable Plugin otherPlugin = plugin.getServer().getPluginManager()
+                                                       .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
                 BigDoors.get().getPLogger()
@@ -284,7 +284,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                 return;
             }
 
-            @Nullable Class<? extends IProtectionCompat> compatClass =
+            final @Nullable Class<? extends IProtectionCompat> compatClass =
                 compat.getClass(plugin.getDescription().getVersion());
 
             if (compatClass == null)
@@ -299,7 +299,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getConstructor(BigDoorsSpigot.class).newInstance(plugin));
+            addProtectionCompat(compatClass.getConstructor().newInstance());
         }
         catch (NullPointerException e)
         {

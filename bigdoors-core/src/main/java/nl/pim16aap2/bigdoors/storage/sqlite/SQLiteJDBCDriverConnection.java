@@ -289,10 +289,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         final long doorUID = doorBaseRS.getLong("id");
 
-        // SonarLint assumes that doorType could be not present (doesn't appear to be able to read the map), so it is
-        // ignored.
-        // Additionally, IntelliJ has issues with "<?>" and nullable inference, that is ignored as well.
-        @SuppressWarnings({"NullableProblems", "squid:S3655"}) //
+        // SonarLint assumes that doorType could be empty (S3655) (appears to miss the mapping operation above),
+        // while this actually won't happen.
+        @SuppressWarnings("squid:S3655") //
         final Optional<DoorSerializer<?>> serializerOpt = doorType.get().getDoorSerializer();
 
         if (serializerOpt.isEmpty())
@@ -413,7 +412,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public Optional<AbstractDoor> insert(AbstractDoor door)
     {
-        @SuppressWarnings("NullableProblems") // IntelliJ struggles with <?>
         final Optional<DoorSerializer<?>> serializerOpt = door.getDoorType().getDoorSerializer();
         if (serializerOpt.isEmpty())
         {
@@ -422,7 +420,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return Optional.empty();
         }
 
-        @SuppressWarnings("NullableProblems") // IntelliJ struggles with <?>
         final DoorSerializer<?> serializer = serializerOpt.get();
         final String typeName = door.getDoorType().getFullName();
         try

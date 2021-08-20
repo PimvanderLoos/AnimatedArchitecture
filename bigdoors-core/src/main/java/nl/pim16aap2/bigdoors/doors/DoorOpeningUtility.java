@@ -247,33 +247,20 @@ public final class DoorOpeningUtility
         if (!BigDoors.get().getDoorTypeManager().isDoorTypeEnabled(door.getDoorType()))
             return DoorToggleResult.TYPE_DISABLED;
 
-//        if (!chunksLoaded(door))
-//        {
-//            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
-//            return DoorToggleResult.ERROR;
-//        }
+        if (!chunksLoaded(door))
+        {
+            BigDoors.get().getPLogger().warn("Chunks for door " + door.getName() + " could not be not loaded!");
+            return DoorToggleResult.ERROR;
+        }
 
         return DoorToggleResult.SUCCESS;
     }
 
-//    /**
-//     * Checks if all chunks in range of the door (see {@link IDoor#getChunkRange()}) are loaded.
-//     * <p>
-//     * If a chunk is not loaded, an attempt to load it will be made.
-//     *
-//     * @param door The door.
-//     * @return False if 1 or more chunks are not loaded and cannot be loaded.
-//     */
-//    private boolean chunksLoaded(IDoor door)
-//    {
-//        final Vector2Di[] chunkRange = door.getChunkRange();
-//        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
-//            for (int y = chunkRange[0].y(); y <= chunkRange[1].y(); ++y)
-//                if (BigDoors.get().getPlatform().getChunkManager().load(door.getWorld(), new Vector2Di(x, y)) ==
-//                    IChunkManager.ChunkLoadResult.FAIL)
-//                    return false;
-//        return true;
-//    }
+    private boolean chunksLoaded(@SuppressWarnings({"unused", "squid:S1172"}) IDoor door)
+    {
+        // TODO: Implement this.
+        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
+    }
 
     /**
      * Registers a BlockMover with the {@link DatabaseManager}
@@ -291,6 +278,7 @@ public final class DoorOpeningUtility
      * @param doorUID The UID of the {@link IDoor}.
      * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link IDoor}.
      */
+    @SuppressWarnings("unused")
     public boolean isBlockMoverRegistered(long doorUID)
     {
         return getBlockMover(doorUID).isPresent();

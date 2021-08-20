@@ -105,9 +105,8 @@ class DoorSerializerTest
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }
 
-    // Don't call super for equals etc, as we don't care about the equality
+    // Don't call super for equals etc., as we don't care about the equality
     // of the parameters that aren't serialized anyway.
-    @SuppressWarnings("ConstantConditions")
     @EqualsAndHashCode(callSuper = false)
     private static class TestDoorType extends AbstractDoor
     {
@@ -131,6 +130,7 @@ class DoorSerializerTest
             Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
+        @SuppressWarnings("unused")
         public TestDoorType(DoorBase doorBase)
         {
             super(doorBase);
@@ -185,12 +185,12 @@ class DoorSerializerTest
         }
     }
 
-    @SuppressWarnings("unused") @EqualsAndHashCode(callSuper = true)
+    @EqualsAndHashCode(callSuper = true)
     private static class TestDoorSubType extends TestDoorType
     {
         @PersistentVariable
         @Getter
-        private int subclassTestValue = -1;
+        private final int subclassTestValue;
 
         public TestDoorSubType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
                                int subclassTestValue)

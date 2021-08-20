@@ -30,12 +30,6 @@ public class DoorPrepareCreateEvent extends DoorEvent implements IDoorPrepareCre
     }
 
     @Override
-    public AbstractDoor getDoor()
-    {
-        return super.getDoor();
-    }
-
-    @Override
     public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;

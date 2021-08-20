@@ -150,6 +150,7 @@ class CuboidTest
         val val2 = new Vector3Di(20, 30, 40);
         val cuboid = new Cuboid(val1, val2);
 
+        //noinspection ResultOfMethodCallIgnored
         Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));
         Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 0));
         Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 1));
