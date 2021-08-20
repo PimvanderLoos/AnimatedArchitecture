@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 public final class BigDoors extends RestartableHolder
 {
     private static final BigDoors INSTANCE = new BigDoors();
@@ -65,7 +66,7 @@ public final class BigDoors extends RestartableHolder
      *
      * @param platform The platform implementing BigDoor's internal API.
      */
-    public void setBigDoorsPlatform(final IBigDoorsPlatform platform)
+    public void setBigDoorsPlatform(IBigDoorsPlatform platform)
     {
         this.platform = platform;
     }

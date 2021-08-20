@@ -53,7 +53,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Dd add(final Vector3Dd other)
+    public Vector3Dd add(Vector3Dd other)
     {
         return new Vector3Dd(other.x, other.y, other.z);
     }
@@ -65,7 +65,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Dd add(final Vector3Di other)
+    public Vector3Dd add(Vector3Di other)
     {
         return new Vector3Dd(other.x(), other.y(), other.z());
     }
@@ -104,7 +104,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Dd subtract(final Vector3Dd other)
+    public Vector3Dd subtract(Vector3Dd other)
     {
         return new Vector3Dd(other.x, other.y, other.z);
     }
@@ -116,7 +116,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Dd subtract(final Vector3Di other)
+    public Vector3Dd subtract(Vector3Di other)
     {
         return new Vector3Dd(other.x(), other.y(), other.z());
     }
@@ -262,7 +262,7 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * @return A String representation of this vector.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public String toString(final int decimals)
+    public String toString(int decimals)
     {
         final String placeholder = "%." + decimals + "f";
         return String.format("Vector3Dd[x=" + placeholder + ", y=" + placeholder + ", z=" + placeholder + "]", x, y, z);

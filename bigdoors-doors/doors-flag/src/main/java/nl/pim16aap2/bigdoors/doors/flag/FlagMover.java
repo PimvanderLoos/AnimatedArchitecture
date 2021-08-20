@@ -24,9 +24,8 @@ public class FlagMover extends BlockMover
     private final double amplitude;
     private final double waveSpeed;
 
-    public FlagMover(final double time, final Flag door, final double multiplier,
-                     final IPPlayer player, final DoorActionCause cause,
-                     final DoorActionType actionType)
+    public FlagMover(double time, Flag door, double multiplier, IPPlayer player, DoorActionCause cause,
+                     DoorActionType actionType)
         throws Exception
     {
         super(door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
@@ -62,7 +61,7 @@ public class FlagMover extends BlockMover
      * @param radius
      * @return
      */
-    private double getOffset(final int counter, final float radius)
+    private double getOffset(int counter, float radius)
     {
 //        double baseOffset = Math.sin(0.5 * Math.PI * (counter * tickRate / 20) + radius);
 //        double maxVal = 0.25 * radius;
@@ -92,7 +91,7 @@ public class FlagMover extends BlockMover
 //        return offset;
     }
 
-    private Vector3Dd getGoalPosNS(final PBlockData block, final int counter)
+    private Vector3Dd getGoalPosNS(PBlockData block, int counter)
     {
         double xOff = 0;
         if (block.getRadius() > 0)
@@ -100,7 +99,7 @@ public class FlagMover extends BlockMover
         return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
     }
 
-    private Vector3Dd getGoalPosEW(final PBlockData block, final int counter)
+    private Vector3Dd getGoalPosEW(PBlockData block, int counter)
     {
         double zOff = 0;
         if (block.getRadius() > 0)
@@ -109,27 +108,26 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                        final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         return block.getStartPosition();
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
-        for (final PBlockData block : savedBlocks)
+        for (PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos.apply(block, ticks));
     }
 
     @Override
-    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         if (NS)
             return Math.abs((float) zAxis - door.getEngine().z());

@@ -347,7 +347,7 @@ public enum SQLStatement
     private final String statement;
     private final int variableCount;
 
-    SQLStatement(final String statement)
+    SQLStatement(String statement)
     {
         this.statement = statement;
         variableCount = Util.countPatternOccurrences(PPreparedStatement.QUESTION_MARK, statement);
@@ -359,7 +359,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return The statement this {@link SQLStatement} represents.
      */
-    public static String getStatement(final SQLStatement sqlStatement)
+    public static String getStatement(SQLStatement sqlStatement)
     {
         return sqlStatement.statement;
     }
@@ -370,7 +370,7 @@ public enum SQLStatement
      * @param sqlStatement The statement.
      * @return The number of variables in the statement.
      */
-    public static int getVariableCountCount(final SQLStatement sqlStatement)
+    public static int getVariableCountCount(SQLStatement sqlStatement)
     {
         return sqlStatement.variableCount;
     }
@@ -381,7 +381,7 @@ public enum SQLStatement
      * @param sqlStatement The {@link SQLStatement}.
      * @return A new {@link PPreparedStatement}.
      */
-    public static PPreparedStatement constructPPreparedStatement(final SQLStatement sqlStatement)
+    public static PPreparedStatement constructPPreparedStatement(SQLStatement sqlStatement)
     {
         return sqlStatement.constructPPreparedStatement();
     }

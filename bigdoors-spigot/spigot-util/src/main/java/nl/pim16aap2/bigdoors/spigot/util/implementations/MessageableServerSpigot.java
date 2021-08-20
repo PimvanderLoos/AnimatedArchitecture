@@ -28,7 +28,7 @@ public final class MessageableServerSpigot implements IMessageable
     }
 
     @Override
-    public void sendMessage(final Level level, final String message)
+    public void sendMessage(Level level, String message)
     {
         BigDoors.get().getPLogger().logMessage(level, ChatColor.stripColor(message));
     }

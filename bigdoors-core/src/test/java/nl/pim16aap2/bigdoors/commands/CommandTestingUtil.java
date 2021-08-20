@@ -26,7 +26,7 @@ class CommandTestingUtil
      * @param doorRetriever The retriever to set up.
      * @param door          The door to be retrieved by the retriever.
      */
-    public static void initDoorRetriever(final DoorRetriever doorRetriever, final AbstractDoor door)
+    public static void initDoorRetriever(DoorRetriever doorRetriever, AbstractDoor door)
     {
         Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
         Mockito.when(doorRetriever.getDoor(Mockito.any()))
@@ -40,8 +40,7 @@ class CommandTestingUtil
      * @param userPerm      Whether or not user permissions are true/false.
      * @param adminPerm     Whether or not admin permissions are true/false.
      */
-    public static void initCommandSenderPermissions(final ICommandSender commandSender,
-                                                    final boolean userPerm, final boolean adminPerm)
+    public static void initCommandSenderPermissions(ICommandSender commandSender, boolean userPerm, boolean adminPerm)
     {
         Mockito.doReturn(CompletableFuture.completedFuture(userPerm))
                .when(commandSender).hasPermission(Mockito.anyString());

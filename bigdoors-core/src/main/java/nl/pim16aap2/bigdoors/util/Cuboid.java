@@ -18,7 +18,6 @@ import java.util.function.UnaryOperator;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings("unused")
 public class Cuboid
 {
     /**
@@ -65,7 +64,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isPosInsideCuboid(final Vector3Di pos)
+    public boolean isPosInsideCuboid(Vector3Di pos)
     {
         return pos.x() >= min.x() && pos.x() <= max.x() &&
             pos.y() >= min.y() && pos.y() <= max.y() &&
@@ -87,7 +86,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    private static int getOuterDistance(final int test, final int min, final int max)
+    private static int getOuterDistance(int test, int min, int max)
     {
         if (Util.between(test, min, max))
             return 0;
@@ -113,7 +112,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final int x, int y, int z, final int range)
+    public boolean isInRange(int x, int y, int z, int range)
     {
         if (range < 0)
             throw new IllegalArgumentException("Range (" + range + ") cannot be smaller than 0!");
@@ -128,7 +127,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final Vector3Di pos, final int range)
+    public boolean isInRange(Vector3Di pos, int range)
     {
         return isInRange(pos.x(), pos.y(), pos.z(), range);
     }
@@ -138,7 +137,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final IPLocation loc, final int range)
+    public boolean isInRange(IPLocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
     }
@@ -181,7 +180,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_ -> new", pure = true)
-    public Cuboid updatePositions(final UnaryOperator<Vector3Di> updateFunction)
+    public Cuboid updatePositions(UnaryOperator<Vector3Di> updateFunction)
     {
         final Vector3Di newMin = updateFunction.apply(min);
         final Vector3Di newMax = updateFunction.apply(max);
@@ -198,7 +197,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_, _, _ -> new", pure = true)
-    public Cuboid move(final int x, final int y, final int z)
+    public Cuboid move(int x, int y, int z)
     {
         return new Cuboid(min.add(x, y, z), max.add(x, y, z));
     }
@@ -214,7 +213,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_, _, _ -> new", pure = true)
-    public Cuboid grow(final int x, final int y, final int z)
+    public Cuboid grow(int x, int y, int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
     }

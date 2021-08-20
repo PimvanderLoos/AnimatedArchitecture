@@ -17,7 +17,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     static
     {
         Version version;
-        ISpigotPlatform spigotPlatformTmp = null;
+        @Nullable ISpigotPlatform spigotPlatformTmp = null;
         try
         {
             String versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
@@ -26,11 +26,10 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
             if (version != Version.ERROR)
                 spigotPlatformTmp = version.getPlatform();
         }
-        catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e)
+        catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
             BigDoors.get().getPLogger().logThrowable(e);
             version = Version.ERROR;
-            spigotPlatformTmp = null;
         }
         spigotVersion = version;
         spigotPlatform = spigotPlatformTmp;
@@ -64,7 +63,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      * @param bigDoorsSpigot The {@link BigDoorsSpigot} instance.
      * @return True if a valid platform was found for the current version.
      */
-    public boolean initPlatform(final BigDoorsSpigot bigDoorsSpigot)
+    public boolean initPlatform(BigDoorsSpigot bigDoorsSpigot)
     {
         if (spigotPlatform == null)
         {

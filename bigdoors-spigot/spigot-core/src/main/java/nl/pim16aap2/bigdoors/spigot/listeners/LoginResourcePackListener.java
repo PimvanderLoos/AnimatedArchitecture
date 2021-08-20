@@ -22,7 +22,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
     private final String url;
     private boolean isRegistered = false;
 
-    private LoginResourcePackListener(final BigDoorsSpigot plugin, final String url)
+    private LoginResourcePackListener(BigDoorsSpigot plugin, String url)
     {
         super(plugin);
         this.plugin = plugin;
@@ -37,8 +37,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * @param url    The URL of the resource pack.
      * @return The instance of this {@link LoginResourcePackListener}.
      */
-    public static LoginResourcePackListener init(final BigDoorsSpigot plugin,
-                                                 final String url)
+    public static LoginResourcePackListener init(BigDoorsSpigot plugin, String url)
     {
         return (INSTANCE == null) ? INSTANCE = new LoginResourcePackListener(plugin, url) : INSTANCE;
     }
@@ -86,7 +85,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * @param event The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final PlayerJoinEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {

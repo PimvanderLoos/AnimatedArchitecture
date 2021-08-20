@@ -18,7 +18,7 @@ public final class LoginMessageListener implements Listener
 {
     private final BigDoorsSpigot plugin;
 
-    public LoginMessageListener(final BigDoorsSpigot plugin)
+    public LoginMessageListener(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -29,7 +29,7 @@ public final class LoginMessageListener implements Listener
      * @param event The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final PlayerJoinEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {

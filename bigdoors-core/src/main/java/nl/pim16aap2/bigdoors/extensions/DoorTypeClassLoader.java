@@ -6,12 +6,12 @@ import java.net.URLClassLoader;
 
 class DoorTypeClassLoader extends URLClassLoader
 {
-    public DoorTypeClassLoader(final URL[] urls, final ClassLoader parent)
+    public DoorTypeClassLoader(URL[] urls, ClassLoader parent)
     {
         super(urls, parent);
     }
 
-    public DoorTypeClassLoader(final ClassLoader parent)
+    public DoorTypeClassLoader(ClassLoader parent)
     {
         super(new URL[]{}, parent);
     }

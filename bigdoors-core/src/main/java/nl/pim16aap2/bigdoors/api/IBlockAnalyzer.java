@@ -36,7 +36,6 @@ public interface IBlockAnalyzer
      */
     boolean isAllowedBlock(IPLocation location);
 
-
     /**
      * Represents the status of a material.
      *

@@ -50,8 +50,7 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     @PersistentVariable
     protected int autoOpenTime;
 
-    public SlidingDoor(final DoorBase doorBase, final int blocksToMove, final int autoCloseTime,
-                       final int autoOpenTime)
+    public SlidingDoor(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
         this.blocksToMove = blocksToMove;
@@ -59,13 +58,13 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
         this.autoOpenTime = autoOpenTime;
     }
 
-    public SlidingDoor(final DoorBase doorBase, final int blocksToMove)
+    public SlidingDoor(DoorBase doorBase, int blocksToMove)
     {
         this(doorBase, blocksToMove, -1, -1);
     }
 
     @SuppressWarnings("unused")
-    private SlidingDoor(final DoorBase doorBase)
+    private SlidingDoor(DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
     }
@@ -104,10 +103,8 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         final RotateDirection currentToggleDir = getCurrentToggleDir();

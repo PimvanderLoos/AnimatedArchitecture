@@ -16,7 +16,7 @@ import java.util.logging.Level;
 @ToString
 public class Debug extends BaseCommand
 {
-    protected Debug(final ICommandSender commandSender)
+    protected Debug(ICommandSender commandSender)
     {
         super(commandSender);
     }

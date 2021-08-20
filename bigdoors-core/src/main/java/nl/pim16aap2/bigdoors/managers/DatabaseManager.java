@@ -50,7 +50,7 @@ public final class DatabaseManager extends Restartable
      * The number of threads to use for storage access if the storage allows multithreaded access as determined by
      * {@link IStorage#isSingleThreaded()}.
      */
-    private static final int THREADCOUNT = 10;
+    private static final int THREAD_COUNT = 10;
 
     private final IStorage db;
 
@@ -60,7 +60,7 @@ public final class DatabaseManager extends Restartable
      * @param restartableHolder The object managing restarts for this object.
      * @param dbFile            The name of the database file.
      */
-    public DatabaseManager(final IRestartableHolder restartableHolder, final File dbFile)
+    public DatabaseManager(IRestartableHolder restartableHolder, File dbFile)
     {
         this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
     }
@@ -71,14 +71,14 @@ public final class DatabaseManager extends Restartable
      * @param restartableHolder The object managing restarts for this object.
      * @param storage           The {@link IStorage} to use for all database calls.
      */
-    public DatabaseManager(final IRestartableHolder restartableHolder, final IStorage storage)
+    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage)
     {
         super(restartableHolder);
         db = storage;
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
-            threadPool = Executors.newFixedThreadPool(THREADCOUNT);
+            threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
     /**
@@ -94,11 +94,15 @@ public final class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
+        // TODO: Implement this
+        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
     }
 
     @Override
     public void shutdown()
     {
+        // TODO: Implement this
+        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
     }
 
     /**
@@ -108,8 +112,7 @@ public final class DatabaseManager extends Restartable
      * @param newDoor The new {@link AbstractDoor}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(
-        final AbstractDoor newDoor)
+    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor)
     {
         return addDoor(newDoor, null);
     }
@@ -125,8 +128,8 @@ public final class DatabaseManager extends Restartable
      * The optional {@link AbstractDoor} contains the door that was added to the database if the addition was
      * successful.
      */
-    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(
-        final AbstractDoor newDoor, final @Nullable IPPlayer responsible)
+    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor,
+                                                                            @Nullable IPPlayer responsible)
     {
         val ret = callCancellableEvent(fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
             cancelled ->
@@ -156,8 +159,7 @@ public final class DatabaseManager extends Restartable
      * @param responsible The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for
      *                    it. If not, this is null.
      */
-    private void callDoorCreatedEvent(final Pair<Boolean, Optional<AbstractDoor>> result,
-                                      final @Nullable IPPlayer responsible)
+    private void callDoorCreatedEvent(Pair<Boolean, Optional<AbstractDoor>> result, @Nullable IPPlayer responsible)
     {
         CompletableFuture.runAsync(
             () ->
@@ -179,7 +181,8 @@ public final class DatabaseManager extends Restartable
      * @param door The door.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteDoor(final AbstractDoor door)
+    @SuppressWarnings("unused")
+    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door)
     {
         return deleteDoor(door, null);
     }
@@ -192,8 +195,7 @@ public final class DatabaseManager extends Restartable
      *                    IDoorPrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> deleteDoor(final AbstractDoor door,
-                                                      final @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         return callCancellableEvent(fact -> fact.createPrepareDeleteDoorEvent(door, responsible)).thenApplyAsync(
             cancelled ->
@@ -220,7 +222,7 @@ public final class DatabaseManager extends Restartable
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
-    public CompletableFuture<List<Long>> getDoorsInChunk(final long chunkHash)
+    public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -234,8 +236,7 @@ public final class DatabaseManager extends Restartable
      * @param doorID     The name or the UID of the {@link AbstractDoor} to search for. Can be null.
      * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final UUID playerUUID,
-                                                          final String doorID)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String doorID)
     {
         // Check if the name is actually the UID of the door.
         final OptionalLong doorUID = Util.parseLong(doorID);
@@ -253,8 +254,7 @@ public final class DatabaseManager extends Restartable
     /**
      * See {@link #getDoors(UUID, String)}.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final IPPlayer player,
-                                                          final String name)
+    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player, String name)
     {
         return getDoors(player.getUUID(), name);
     }
@@ -265,7 +265,7 @@ public final class DatabaseManager extends Restartable
      * @param playerUUID The {@link UUID} of the player.
      * @return All {@link AbstractDoor} owned by a player.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final UUID playerUUID)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -274,7 +274,7 @@ public final class DatabaseManager extends Restartable
     /**
      * See {@link #getDoors(UUID)}.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final IPPlayer player)
+    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
     {
         return getDoors(player.getUUID());
     }
@@ -287,9 +287,7 @@ public final class DatabaseManager extends Restartable
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
      * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final UUID playerUUID,
-                                                          final String name,
-                                                          final int maxPermission)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -301,7 +299,7 @@ public final class DatabaseManager extends Restartable
      * @param name The name of the {@link AbstractDoor}s.
      * @return All {@link AbstractDoor}s with a specific name.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final String name)
+    public CompletableFuture<List<AbstractDoor>> getDoors(String name)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -313,7 +311,8 @@ public final class DatabaseManager extends Restartable
      * @param player The Player.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Boolean> updatePlayer(final IPPlayer player)
+    @SuppressWarnings({"unused", "UnusedReturnValue"})
+    public CompletableFuture<Boolean> updatePlayer(IPPlayer player)
     {
         return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
@@ -325,7 +324,7 @@ public final class DatabaseManager extends Restartable
      * @param uuid The {@link UUID} of a player.
      * @return The {@link PPlayerData} that represents the player.
      */
-    public CompletableFuture<Optional<PPlayerData>> getPlayerData(final UUID uuid)
+    public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
@@ -340,7 +339,8 @@ public final class DatabaseManager extends Restartable
      * @param playerName The name of the player(s).
      * @return All the players with the given name.
      */
-    public CompletableFuture<List<PPlayerData>> getPlayerData(final String playerName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<List<PPlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -352,7 +352,7 @@ public final class DatabaseManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} if it exists.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
@@ -366,8 +366,7 @@ public final class DatabaseManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(final IPPlayer player,
-                                                             final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player, long doorUID)
     {
         return getDoor(player.getUUID(), doorUID);
     }
@@ -380,8 +379,7 @@ public final class DatabaseManager extends Restartable
      * @param doorUID The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoor(final UUID uuid,
-                                                             final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
@@ -393,7 +391,8 @@ public final class DatabaseManager extends Restartable
      * @param playerUUID The {@link UUID} of the player.
      * @return The number of {@link AbstractDoor}s this player owns.
      */
-    public CompletableFuture<Integer> countDoorsOwnedByPlayer(final UUID playerUUID)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
@@ -406,8 +405,8 @@ public final class DatabaseManager extends Restartable
      * @param doorName   The name of the door.
      * @return The number of {@link AbstractDoor}s with a specific name owned by a player.
      */
-    public CompletableFuture<Integer> countDoorsOwnedByPlayer(final UUID playerUUID,
-                                                              final String doorName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID, String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
@@ -419,7 +418,8 @@ public final class DatabaseManager extends Restartable
      * @param doorName The name of the {@link AbstractDoor}.
      * @return The number of {@link AbstractDoor}s with a specific name.
      */
-    public CompletableFuture<Integer> countDoorsByName(final String doorName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsByName(String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
@@ -434,9 +434,7 @@ public final class DatabaseManager extends Restartable
      * @param permission The level of ownership.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> addOwner(final AbstractDoor door,
-                                                    final IPPlayer player,
-                                                    final int permission)
+    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission)
     {
         return addOwner(door, player, permission, null);
     }
@@ -449,10 +447,8 @@ public final class DatabaseManager extends Restartable
      * @param permission The level of ownership.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> addOwner(final AbstractDoor door,
-                                                    final IPPlayer player,
-                                                    final int permission,
-                                                    final @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission,
+                                                    @Nullable IPPlayer responsible)
     {
         if (permission < 1 || permission > 2)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
@@ -486,7 +482,7 @@ public final class DatabaseManager extends Restartable
      * @return True if the create event was cancelled, otherwise false.
      */
     private CompletableFuture<Boolean> callCancellableEvent(
-        final Function<IBigDoorsEventFactory, ICancellableBigDoorsEvent> factoryMethod)
+        Function<IBigDoorsEventFactory, ICancellableBigDoorsEvent> factoryMethod)
     {
         return CompletableFuture.supplyAsync(
             () ->
@@ -504,8 +500,7 @@ public final class DatabaseManager extends Restartable
      * @param player The {@link IPPlayer}.
      * @return True if owner removal was successful.
      */
-    public CompletableFuture<ActionResult> removeOwner(final AbstractDoor door,
-                                                       final IPPlayer player)
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player)
     {
         return removeOwner(door, player, null);
     }
@@ -519,9 +514,8 @@ public final class DatabaseManager extends Restartable
      *                    IDoorPrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(final AbstractDoor door,
-                                                       final IPPlayer player,
-                                                       final @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player,
+                                                       @Nullable IPPlayer responsible)
     {
         return removeOwner(door, player.getUUID(), responsible);
     }
@@ -534,8 +528,7 @@ public final class DatabaseManager extends Restartable
      * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(final AbstractDoor door,
-                                                       final UUID playerUUID)
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID)
     {
         return removeOwner(door, playerUUID, null);
     }
@@ -549,9 +542,8 @@ public final class DatabaseManager extends Restartable
      *                    IDoorPrepareDeleteEvent}. This may be null.
      * @return The future result of the operation.
      */
-    public CompletableFuture<ActionResult> removeOwner(final AbstractDoor door,
-                                                       final UUID playerUUID,
-                                                       final @Nullable IPPlayer responsible)
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID,
+                                                       @Nullable IPPlayer responsible)
     {
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
@@ -594,7 +586,7 @@ public final class DatabaseManager extends Restartable
      * @param typeData The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Boolean> syncDoorData(final DoorBase doorBase, final byte[] typeData)
+    public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
     {
         return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
@@ -606,7 +598,7 @@ public final class DatabaseManager extends Restartable
      * @param worldName The name of the world.
      * @return True if at least 1 door exists in the world.
      */
-    CompletableFuture<Boolean> isBigDoorsWorld(final String worldName)
+    CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
         return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
@@ -621,7 +613,7 @@ public final class DatabaseManager extends Restartable
      * @param chunkHash The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
+    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
@@ -667,7 +659,7 @@ public final class DatabaseManager extends Restartable
          * @param uuid      The {@link UUID} of the owner.
          * @param doorOwner The {@link DoorOwner} to add.
          */
-        protected abstract void addOwner(final UUID uuid, final DoorOwner doorOwner);
+        protected abstract void addOwner(UUID uuid, DoorOwner doorOwner);
 
         /**
          * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
@@ -676,6 +668,6 @@ public final class DatabaseManager extends Restartable
          * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
          * {@link UUID}.
          */
-        protected abstract boolean removeOwner(final UUID uuid);
+        protected abstract boolean removeOwner(UUID uuid);
     }
 }

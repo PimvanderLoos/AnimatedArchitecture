@@ -22,7 +22,7 @@ public class LimitsManager
      * <p>
      * If the player has a player limit as well as a global limit, the lowest value of the two will be used.
      */
-    public OptionalInt getLimit(final IPPlayer player, final Limit limit)
+    public OptionalInt getLimit(IPPlayer player, Limit limit)
     {
         final boolean hasBypass = BigDoors.get().getPlatform().getPermissionsManager()
                                           .hasPermission(player, limit.getAdminPermission());
@@ -50,8 +50,7 @@ public class LimitsManager
      * @param value  The value to compare to the limit.
      * @return True if the given value exceeds the limit for this player. If value <= limit, this will return false.
      */
-    public boolean exceedsLimit(final IPPlayer player, final Limit limit,
-                                final int value)
+    public boolean exceedsLimit(IPPlayer player, Limit limit, int value)
     {
         final OptionalInt limitValue = getLimit(player, limit);
         return limitValue.isPresent() && value > limitValue.getAsInt();

@@ -29,14 +29,15 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
         return INSTANCE;
     }
 
-    private boolean isPoweredRedstone(final Location loc)
+    @SuppressWarnings("unused")
+    private boolean isPoweredRedstone(Location loc)
     {
 //        if (loc.getBlock().isBlockIndirectlyPowered())
         return true;
     }
 
     @Override
-    public boolean isBlockPowered(final IPWorld world, final Vector3Di position)
+    public boolean isBlockPowered(IPWorld world, Vector3Di position)
     {
         final Location loc = new Location(SpigotAdapter.getBukkitWorld(world), position.x(), position.y(),
                                           position.z());

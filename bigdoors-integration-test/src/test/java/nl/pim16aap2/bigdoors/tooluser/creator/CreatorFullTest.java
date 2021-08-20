@@ -62,7 +62,7 @@ class CreatorFullTest extends CreatorTestsUtil
     {
         private final AbstractDoor door;
 
-        protected CreatorTestImpl(final IPPlayer player, final AbstractDoor door)
+        protected CreatorTestImpl(IPPlayer player, AbstractDoor door)
         {
             super(player, null);
             this.door = door;

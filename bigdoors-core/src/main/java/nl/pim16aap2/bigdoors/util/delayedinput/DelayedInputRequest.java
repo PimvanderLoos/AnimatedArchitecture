@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,7 +33,7 @@ public abstract class DelayedInputRequest<T>
     /**
      * The completable future that waits for the delayed input.
      */
-    private final CompletableFuture<T> input = new CompletableFuture<>();
+    private final CompletableFuture<@Nullable T> input = new CompletableFuture<>();
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -40,7 +41,7 @@ public abstract class DelayedInputRequest<T>
      * @param timeout  The timeout to wait before giving up. Must be larger than 0.
      * @param timeUnit The unit of time.
      */
-    protected DelayedInputRequest(final long timeout, final TimeUnit timeUnit)
+    protected DelayedInputRequest(long timeout, TimeUnit timeUnit)
     {
         final long timeoutMillis = timeUnit.toMillis(timeout);
         if (timeoutMillis < 1)
@@ -53,7 +54,8 @@ public abstract class DelayedInputRequest<T>
      *
      * @param timeout The amount of time to wait before cancelling the request.
      */
-    public DelayedInputRequest(final Duration timeout)
+    @SuppressWarnings("unused")
+    protected DelayedInputRequest(Duration timeout)
     {
         this(timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
@@ -63,12 +65,19 @@ public abstract class DelayedInputRequest<T>
      *
      * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
-    public DelayedInputRequest(final long timeout)
+    protected DelayedInputRequest(long timeout)
     {
         this(timeout, TimeUnit.MILLISECONDS);
     }
 
-    private CompletableFuture<Optional<T>> waitForResult(final long timeout)
+    @SuppressWarnings("NullAway") // NullAway doesn't like @Nullable in the input's generics.
+    private Optional<T> blockingWaitForInput(long timeout)
+        throws ExecutionException, InterruptedException, TimeoutException
+    {
+        return Optional.ofNullable(input.get(timeout, TimeUnit.MILLISECONDS));
+    }
+
+    private CompletableFuture<Optional<T>> waitForResult(long timeout)
     {
         return CompletableFuture
             .supplyAsync(
@@ -76,7 +85,7 @@ public abstract class DelayedInputRequest<T>
                 {
                     try
                     {
-                        return Optional.ofNullable(input.get(timeout, TimeUnit.MILLISECONDS));
+                        return blockingWaitForInput(timeout);
                     }
                     catch (TimeoutException e)
                     {
@@ -87,7 +96,7 @@ public abstract class DelayedInputRequest<T>
                     {
                         return Optional.<T>empty();
                     }
-                    catch (Throwable t)
+                    catch (Exception t)
                     {
                         exceptionally.set(true);
                         throw new RuntimeException(t);
@@ -115,7 +124,7 @@ public abstract class DelayedInputRequest<T>
      * <p>
      * See {@link #completed()}.
      */
-    public synchronized final void cancel()
+    public final synchronized void cancel()
     {
         inputResult.cancel(true);
     }
@@ -129,7 +138,8 @@ public abstract class DelayedInputRequest<T>
      *
      * @param value The new value.
      */
-    public synchronized final void set(final @Nullable T value)
+    @SuppressWarnings("NullAway")
+    public final synchronized void set(@Nullable T value)
     {
         input.complete(value);
     }

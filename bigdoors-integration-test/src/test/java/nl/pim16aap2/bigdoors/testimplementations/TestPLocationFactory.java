@@ -10,38 +10,38 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 public class TestPLocationFactory implements IPLocationFactory
 {
     @Override
-    public IPLocation create(final IPWorld world, final double x, final double y, final double z)
+    public IPLocation create(IPWorld world, double x, double y, double z)
     {
         return new TestPLocation(world, x, y, z);
     }
 
     @Override
-    public IPLocation create(final IPWorld world, final Vector3Di position)
+    public IPLocation create(IPWorld world, Vector3Di position)
     {
         return create(world, position.x(), position.y(), position.z());
     }
 
     @Override
-    public IPLocation create(final IPWorld world, final Vector3Dd position)
+    public IPLocation create(IPWorld world, Vector3Dd position)
     {
         return create(world, position.x(), position.y(), position.z());
     }
 
     @Override
-    public IPLocation create(final String worldName, final double x, final double y, final double z)
+    public IPLocation create(String worldName, double x, double y, double z)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName), x, y, z);
     }
 
     @Override
-    public IPLocation create(final String worldName, final Vector3Di position)
+    public IPLocation create(String worldName, Vector3Di position)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
                       position.x(), position.y(), position.z());
     }
 
     @Override
-    public IPLocation create(final String worldName, final Vector3Dd position)
+    public IPLocation create(String worldName, Vector3Dd position)
     {
         return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
                       position.x(), position.y(), position.z());

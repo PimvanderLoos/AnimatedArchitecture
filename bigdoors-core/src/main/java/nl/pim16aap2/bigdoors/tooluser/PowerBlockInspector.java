@@ -19,19 +19,20 @@ import java.util.List;
 public class PowerBlockInspector extends ToolUser
 {
     /**
-     * Whether or not this user has the bypass permission.
+     * Whether this user has the bypass permission.
      * <p>
      * When this is true, the user does not have to be an owner of the door to retrieve its location.
      */
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(final IPPlayer player, final boolean bypassPermission)
+    public PowerBlockInspector(IPPlayer player, boolean bypassPermission)
     {
         super(player);
         this.bypassPermission = bypassPermission;
     }
 
-    public PowerBlockInspector(final IPPlayer player)
+    @SuppressWarnings("unused")
+    public PowerBlockInspector(IPPlayer player)
     {
         this(player, false);
     }
@@ -43,7 +44,7 @@ public class PowerBlockInspector extends ToolUser
                  "tool_user.powerblock_inspector.init");
     }
 
-    protected boolean inspectLoc(final IPLocation loc)
+    protected boolean inspectLoc(IPLocation loc)
     {
         throw new UnsupportedOperationException("This action has not been implemented yet!");
     }

@@ -31,7 +31,7 @@ public final class SpigotAdapter
      * @param pWorld The BigDoors world.
      * @return The Spigot world.
      */
-    public static @Nullable World getBukkitWorld(final IPWorld pWorld)
+    public static @Nullable World getBukkitWorld(IPWorld pWorld)
     {
         if (pWorld instanceof PWorldSpigot)
             return ((PWorldSpigot) pWorld).getBukkitWorld();
@@ -47,7 +47,7 @@ public final class SpigotAdapter
      * @param pLocation The BigDoors location.
      * @return The Spigot location.
      */
-    public static Location getBukkitLocation(final IPLocation pLocation)
+    public static Location getBukkitLocation(IPLocation pLocation)
     {
         if (pLocation instanceof PLocationSpigot)
             return ((PLocationSpigot) pLocation).getBukkitLocation();
@@ -60,7 +60,7 @@ public final class SpigotAdapter
      * @param vector The BigDoors vector.
      * @return The bukkit vector.
      */
-    public static Vector getBukkitVector(final Vector3Di vector)
+    public static Vector getBukkitVector(Vector3Di vector)
     {
         return new Vector(vector.x(), vector.y(), vector.z());
     }
@@ -71,7 +71,7 @@ public final class SpigotAdapter
      * @param pPlayer The {@link IPPlayer}.
      * @return The online bukkit player, if possible.
      */
-    public static @Nullable Player getBukkitPlayer(final IPPlayer pPlayer)
+    public static @Nullable Player getBukkitPlayer(IPPlayer pPlayer)
     {
         return Bukkit.getPlayer(pPlayer.getUUID());
     }
@@ -82,7 +82,7 @@ public final class SpigotAdapter
      * @param pPlayer The {@link IPPlayer}.
      * @return The offline bukkit player.
      */
-    public static OfflinePlayer getOfflineBukkitPlayer(final IPPlayer pPlayer)
+    public static OfflinePlayer getOfflineBukkitPlayer(IPPlayer pPlayer)
     {
         return Bukkit.getOfflinePlayer(pPlayer.getUUID());
     }
@@ -93,7 +93,7 @@ public final class SpigotAdapter
      * @param vector The BigDoors vector.
      * @return The bukkit vector.
      */
-    public static Vector getBukkitVector(final Vector3Dd vector)
+    public static Vector getBukkitVector(Vector3Dd vector)
     {
         return new Vector(vector.x(), vector.y(), vector.z());
     }
@@ -104,7 +104,7 @@ public final class SpigotAdapter
      * @param player The Bukkit player.
      * @return The IPPlayer.
      */
-    public static IPPlayer wrapPlayer(final Player player)
+    public static IPPlayer wrapPlayer(Player player)
     {
         return new PPlayerSpigot(player);
     }
@@ -115,7 +115,7 @@ public final class SpigotAdapter
      * @param player The Bukkit player.
      * @return The IPPlayer.
      */
-    public static CompletableFuture<Optional<IPPlayer>> wrapPlayer(final OfflinePlayer player)
+    public static CompletableFuture<Optional<IPPlayer>> wrapPlayer(OfflinePlayer player)
     {
         return BigDoors.get().getPlatform().getPPlayerFactory().create(player.getUniqueId());
     }
@@ -126,7 +126,7 @@ public final class SpigotAdapter
      * @param location The Bukkit location.
      * @return The IPLocation.
      */
-    public static IPLocation wrapLocation(final Location location)
+    public static IPLocation wrapLocation(Location location)
     {
         return new PLocationSpigot(location);
     }
@@ -137,7 +137,7 @@ public final class SpigotAdapter
      * @param world The Bukkit world.
      * @return The IPWorld.
      */
-    public static IPWorld wrapWorld(final World world)
+    public static IPWorld wrapWorld(World world)
     {
         return new PWorldSpigot(world);
     }

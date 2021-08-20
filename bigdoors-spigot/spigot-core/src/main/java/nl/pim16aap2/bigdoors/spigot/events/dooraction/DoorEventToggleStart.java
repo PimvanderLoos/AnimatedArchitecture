@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Implementation of {@link IDoorEventToggleStart} for the Spigot platform.
@@ -35,20 +36,20 @@ public class DoorEventToggleStart extends DoorToggleEvent implements IDoorEventT
      * @param skipAnimation If true, the door will skip the animation and open instantly.
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    public DoorEventToggleStart(final AbstractDoor door, final DoorActionCause cause,
-                                final DoorActionType actionType, final IPPlayer responsible,
-                                final double time, final boolean skipAnimation, final Cuboid newCuboid)
+    public DoorEventToggleStart(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
+                                IPPlayer responsible, double time, boolean skipAnimation, Cuboid newCuboid)
     {
         super(door, cause, actionType, responsible, time, skipAnimation);
         this.newCuboid = newCuboid;
     }
 
     @Override
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
+    @SuppressWarnings("squid:S4144")
     public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;

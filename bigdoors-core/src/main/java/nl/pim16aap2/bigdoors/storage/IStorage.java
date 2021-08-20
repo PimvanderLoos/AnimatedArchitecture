@@ -176,8 +176,7 @@ public interface IStorage
      * @param maxPermission The maximum level of ownership (inclusive) this player has over the doors.
      * @return All the doors with the given name, owned the player with at least a certain permission level.
      */
-    List<AbstractDoor> getDoors(UUID playerUUID, String doorName,
-                                int maxPermission);
+    List<AbstractDoor> getDoors(UUID playerUUID, String doorName, int maxPermission);
 
     /**
      * Gets all the doors owned by a given player with at least a certain permission level.

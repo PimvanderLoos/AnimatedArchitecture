@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 public class TestPWorldFactory implements IPWorldFactory
 {
     @Override
-    public IPWorld create(final String worldName)
+    public IPWorld create(String worldName)
     {
         return new TestPWorld(worldName);
     }

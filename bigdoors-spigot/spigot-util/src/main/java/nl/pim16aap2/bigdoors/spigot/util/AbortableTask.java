@@ -19,7 +19,7 @@ public abstract class AbortableTask
      *
      * @param onDisable Set to true if called when the plugin is being disabled.
      */
-    public abstract void abort(final boolean onDisable);
+    public abstract void abort(boolean onDisable);
 
     /**
      * Kill this bukkitTask.
@@ -52,7 +52,7 @@ public abstract class AbortableTask
      *
      * @param task The BukkitTask.
      */
-    public final void setTask(final BukkitTask task)
+    public final void setTask(BukkitTask task)
     {
         bukkitTask = task;
     }

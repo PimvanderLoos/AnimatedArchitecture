@@ -21,12 +21,12 @@ public class CreatorFlag extends Creator
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(final IPPlayer player, final @Nullable String name)
+    public CreatorFlag(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorFlag(final IPPlayer player)
+    public CreatorFlag(IPPlayer player)
     {
         this(player, null);
     }
@@ -51,7 +51,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final IPLocation loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -72,7 +72,7 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetEngineStep(final IPLocation loc)
+    protected boolean completeSetEngineStep(IPLocation loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.

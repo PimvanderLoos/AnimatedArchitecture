@@ -81,8 +81,8 @@ public final class PBlockData
      * @param placementDeferred Whether or not placement should be deferred until all standalone blocks are placed.
      *                          Useful for torches, for example (so they don't fall off immediately).
      */
-    public PBlockData(final ICustomCraftFallingBlock newFBlock, final float radius, final INMSBlock newBlock,
-                      final IPLocation startLocation, final float startAngle, final boolean placementDeferred)
+    public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
+                      float startAngle, boolean placementDeferred)
     {
         block = newBlock;
         fBlock = newFBlock;

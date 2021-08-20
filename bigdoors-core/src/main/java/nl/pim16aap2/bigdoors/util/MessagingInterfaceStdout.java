@@ -16,32 +16,31 @@ public class MessagingInterfaceStdout implements IMessagingInterface
 {
     private final String formattedName;
 
-    public MessagingInterfaceStdout(final String name)
+    public MessagingInterfaceStdout(String name)
     {
         formattedName = IPLogger.formatName(name);
     }
 
     @Override
-    public void writeToConsole(final Level level, final String message)
+    public void writeToConsole(Level level, String message)
     {
         System.out.println(formattedName + message);
     }
 
     @Override
-    public void messagePlayer(final IPPlayer player, final String message)
+    public void messagePlayer(IPPlayer player, String message)
     {
         System.out.println(formattedName + " to player: \"" + player.getName() + "\": " + message);
     }
 
     @Override
-    public void sendMessageToTarget(final Object target, final Level level,
-                                    final String message)
+    public void sendMessageToTarget(Object target, Level level, String message)
     {
         System.out.println(formattedName + " to a target: " + message);
     }
 
     @Override
-    public void broadcastMessage(final String message)
+    public void broadcastMessage(String message)
     {
         System.out.println(message);
     }

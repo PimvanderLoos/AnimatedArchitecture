@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Restart extends BaseCommand
 {
-    protected Restart(final ICommandSender commandSender)
+    protected Restart(ICommandSender commandSender)
     {
         super(commandSender);
     }

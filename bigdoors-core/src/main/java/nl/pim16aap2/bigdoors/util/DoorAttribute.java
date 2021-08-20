@@ -72,7 +72,7 @@ public enum DoorAttribute
     @Getter
     private final int permissionLevel;
 
-    DoorAttribute(final int permissionLevel)
+    DoorAttribute(int permissionLevel)
     {
         this.permissionLevel = permissionLevel;
     }
@@ -83,7 +83,7 @@ public enum DoorAttribute
      * @param atr The attribute for which the permission level will be retrieved.
      * @return The minimum level of ownership (0 = highest) required to access a door's attribute.
      */
-    public static int getPermissionLevel(final DoorAttribute atr)
+    public static int getPermissionLevel(DoorAttribute atr)
     {
         return atr.permissionLevel;
     }

@@ -21,7 +21,7 @@ public class BasicPLogger implements IPLogger
 
     private final Consumer<String> stringConsumer;
 
-    public BasicPLogger(final Consumer<String> stringConsumer)
+    public BasicPLogger(Consumer<String> stringConsumer)
     {
         this.stringConsumer = stringConsumer;
     }
@@ -41,12 +41,6 @@ public class BasicPLogger implements IPLogger
     {
         if (loggable(level))
             stringConsumer.accept(logMessage.toString());
-    }
-
-    private void writeMessage(Level level, Supplier<LogMessage> logMessage)
-    {
-        if (loggable(level))
-            stringConsumer.accept(logMessage.get().toString());
     }
 
     private void writeMessage(Level level, @Nullable String msg)
@@ -159,5 +153,6 @@ public class BasicPLogger implements IPLogger
     @Override
     public void setFileLogLevel(Level fileLogLevel)
     {
+        // Ignored; see javadoc.
     }
 }

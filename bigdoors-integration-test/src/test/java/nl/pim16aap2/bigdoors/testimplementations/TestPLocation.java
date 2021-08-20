@@ -22,7 +22,7 @@ public final class TestPLocation implements IPLocation
     private double z;
 
 
-    public TestPLocation(final IPWorld world, final double x, final double y, final double z)
+    public TestPLocation(IPWorld world, double x, double y, double z)
     {
         this.world = world;
         this.x = x;
@@ -73,7 +73,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public IPLocation add(final double x, final double y, final double z)
+    public IPLocation add(double x, double y, double z)
     {
         this.x += x;
         this.y += y;
@@ -82,13 +82,13 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public IPLocation add(final Vector3Di vector)
+    public IPLocation add(Vector3Di vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override
-    public IPLocation add(final Vector3Dd vector)
+    public IPLocation add(Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }

@@ -51,8 +51,7 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     @PersistentVariable
     protected int autoOpenTime;
 
-    public Portcullis(final DoorBase doorBase, final int blocksToMove, final int autoCloseTime,
-                      final int autoOpenTime)
+    public Portcullis(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
         this.blocksToMove = blocksToMove;
@@ -60,12 +59,12 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         this.autoOpenTime = autoOpenTime;
     }
 
-    public Portcullis(final DoorBase doorBase, final int blocksToMove)
+    public Portcullis(DoorBase doorBase, int blocksToMove)
     {
         this(doorBase, blocksToMove, -1, -1);
     }
 
-    private Portcullis(final DoorBase doorBase)
+    private Portcullis(DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
     }
@@ -90,10 +89,8 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         final int directedBlocksToMove = getOpenDir().equals(RotateDirection.UP) ?

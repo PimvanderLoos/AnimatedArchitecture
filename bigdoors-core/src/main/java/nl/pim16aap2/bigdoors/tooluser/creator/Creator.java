@@ -167,12 +167,9 @@ public abstract class Creator extends ToolUser
         DECIMAL_FORMAT.setMaximumFractionDigits(2);
     }
 
-    protected Creator(final IPPlayer player, final @Nullable String name)
+    protected Creator(IPPlayer player, @Nullable String name)
     {
         super(player);
-
-        if (player == null)
-            ;
 
         player.sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.init"));
 
@@ -277,7 +274,7 @@ public abstract class Creator extends ToolUser
      * @param str The desired name of the door.
      * @return True if the naming step was finished successfully.
      */
-    protected boolean completeNamingStep(final String str)
+    protected boolean completeNamingStep(String str)
     {
         if (!Util.isValidDoorName(str))
         {
@@ -298,7 +295,7 @@ public abstract class Creator extends ToolUser
      * @param loc The first location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setFirstPos(final IPLocation loc)
+    protected boolean setFirstPos(IPLocation loc)
     {
         if (!playerHasAccessToLocation(loc))
             return false;
@@ -314,7 +311,7 @@ public abstract class Creator extends ToolUser
      * @param loc The second location of the cuboid.
      * @return True if setting the location was successful.
      */
-    protected boolean setSecondPos(final IPLocation loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -351,7 +348,7 @@ public abstract class Creator extends ToolUser
      * door and the process is aborted.
      */
     @SuppressWarnings("squid:S3516")
-    protected boolean confirmPrice(final boolean confirm)
+    protected boolean confirmPrice(boolean confirm)
     {
         if (!confirm)
         {
@@ -387,7 +384,7 @@ public abstract class Creator extends ToolUser
      * @return The selected {@link RotateDirection}, if it exists.
      */
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
-    protected Optional<RotateDirection> parseOpenDirection(final String str)
+    protected Optional<RotateDirection> parseOpenDirection(String str)
     {
         final String openDirName = str.toUpperCase();
         final OptionalInt idOpt = Util.parseInt(str);
@@ -422,7 +419,7 @@ public abstract class Creator extends ToolUser
      * @param str The name or index of the {@link RotateDirection} that was selected by the player.
      * @return True if the {@link #openDir} was set successfully.
      */
-    protected boolean completeSetOpenDirStep(final String str)
+    protected boolean completeSetOpenDirStep(String str)
     {
         return parseOpenDirection(str).map(
             foundOpenDir ->
@@ -451,7 +448,7 @@ public abstract class Creator extends ToolUser
      * @param targetWorld The world to check.
      * @return True if the world is the same world this door is being created in.
      */
-    protected boolean verifyWorldMatch(final IPWorld targetWorld)
+    protected boolean verifyWorldMatch(IPWorld targetWorld)
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
@@ -464,7 +461,7 @@ public abstract class Creator extends ToolUser
      *
      * @param door The door to send to the {@link DatabaseManager}.
      */
-    protected void insertDoor(final AbstractDoor door)
+    protected void insertDoor(AbstractDoor door)
     {
         BigDoors.get().getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
@@ -569,7 +566,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the area was set successfully.
      */
-    protected boolean completeSetPowerBlockStep(final IPLocation loc)
+    protected boolean completeSetPowerBlockStep(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -610,7 +607,7 @@ public abstract class Creator extends ToolUser
      * @param loc The selected location of the engine.
      * @return True if the location of the engine was set successfully.
      */
-    protected boolean completeSetEngineStep(final IPLocation loc)
+    protected boolean completeSetEngineStep(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

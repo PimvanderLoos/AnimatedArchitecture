@@ -90,10 +90,8 @@ public abstract class BlockMover implements IRestartable
      * @param player        The player who opened this door.
      * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    protected BlockMover(final AbstractDoor door, final double time, final boolean skipAnimation,
-                         final RotateDirection openDirection, final IPPlayer player,
-                         final Cuboid newCuboid, final DoorActionCause cause,
-                         final DoorActionType actionType)
+    protected BlockMover(AbstractDoor door, double time, boolean skipAnimation, RotateDirection openDirection,
+                         IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
@@ -125,11 +123,11 @@ public abstract class BlockMover implements IRestartable
      *
      * @param soundDescription The {@link PSoundDescription} containing all the properties of the sound to play.
      */
-    protected void playSound(final PSoundDescription soundDescription)
+    protected void playSound(PSoundDescription soundDescription)
     {
         BigDoors.get().getPlatform().getSoundEngine()
-                .playSound(door.getEngine(), door.getWorld(), soundDescription.getSound(), soundDescription.getVolume(),
-                           soundDescription.getPitch());
+                .playSound(door.getEngine(), door.getWorld(), soundDescription.sound(), soundDescription.volume(),
+                           soundDescription.pitch());
     }
 
     @Override
@@ -158,10 +156,10 @@ public abstract class BlockMover implements IRestartable
      * @param newBlock  The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
      * @return True if respawning was successful.
      */
-    private boolean respawnBlock(final PBlockData blockData, final INMSBlock newBlock)
+    private boolean respawnBlock(PBlockData blockData, INMSBlock newBlock)
     {
         final IPLocation loc = blockData.getFBlock().getPosition().toLocation(world);
-        final Vector3Dd veloc = blockData.getFBlock().getPVelocity();
+        final Vector3Dd pVelocity = blockData.getFBlock().getPVelocity();
 
         try
         {
@@ -169,7 +167,7 @@ public abstract class BlockMover implements IRestartable
             blockData.getFBlock().remove();
             blockData.setFBlock(fBlock);
 
-            blockData.getFBlock().setVelocity(veloc);
+            blockData.getFBlock().setVelocity(pVelocity);
             return true;
         }
         catch (Exception e)
@@ -246,7 +244,7 @@ public abstract class BlockMover implements IRestartable
             return;
         }
 
-        for (final PBlockData mbd : savedBlocks)
+        for (PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
 
         if (skipAnimation || savedBlocks.isEmpty())
@@ -261,14 +259,15 @@ public abstract class BlockMover implements IRestartable
      * @param block The {@link PBlockData}.
      * @return The final position of a {@link PBlockData}.
      */
-    protected abstract Vector3Dd getFinalPosition(final PBlockData block);
+    @SuppressWarnings("unused")
+    protected abstract Vector3Dd getFinalPosition(PBlockData block);
 
     /**
      * Runs a single step of the animation.
      *
      * @param ticks The number of ticks that have passed since the start of the animation.
      */
-    protected abstract void executeAnimationStep(final int ticks);
+    protected abstract void executeAnimationStep(int ticks);
 
     /**
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
@@ -279,7 +278,7 @@ public abstract class BlockMover implements IRestartable
         if (soundFinish != null)
             playSound(soundFinish);
 
-        for (final PBlockData savedBlock : savedBlocks)
+        for (PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         final IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
@@ -323,7 +322,7 @@ public abstract class BlockMover implements IRestartable
                     startTime = System.nanoTime();
                 ++counter;
 
-                if (soundActive != null && counter % PSound.getDuration(soundActive.getSound()) == 0)
+                if (soundActive != null && counter % PSound.getDuration(soundActive.sound()) == 0)
                     playSound(soundActive);
 
                 lastTime = currentTime;
@@ -353,7 +352,7 @@ public abstract class BlockMover implements IRestartable
      * @param zAxis The z coordinate.
      * @return The radius of a block at the given coordinates.
      */
-    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         return -1;
     }
@@ -366,7 +365,7 @@ public abstract class BlockMover implements IRestartable
      * @param zAxis The z coordinate.
      * @return The starting angle of a block at the given coordinates.
      */
-    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         return -1;
     }
@@ -377,7 +376,7 @@ public abstract class BlockMover implements IRestartable
      * @param pBlockData The {@link PBlockData}.
      * @param firstPass  Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
-    private void putSavedBlock(final PBlockData pBlockData, final boolean firstPass)
+    private void putSavedBlock(PBlockData pBlockData, boolean firstPass)
     {
         if (pBlockData.isPlacementDeferred() && firstPass)
             return;
@@ -394,7 +393,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @param onDisable Whether or not the plugin is currently being disabled.
      */
-    public final synchronized void putBlocks(final boolean onDisable)
+    public final synchronized void putBlocks(boolean onDisable)
     {
         // Only allow this method to be run once! If it can be run multiple times, it'll cause door corruption because
         // While the blocks have already been placed, the coordinates can still be toggled!
@@ -402,11 +401,11 @@ public abstract class BlockMover implements IRestartable
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (final PBlockData savedBlock : savedBlocks)
+        for (PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (final PBlockData savedBlock : savedBlocks)
+        for (PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.
@@ -425,7 +424,7 @@ public abstract class BlockMover implements IRestartable
      *
      * @param door The {@link AbstractDoor}.
      */
-    private synchronized void updateCoords(final AbstractDoor door)
+    private synchronized void updateCoords(AbstractDoor door)
     {
         if (newCuboid.equals(door.getCuboid()))
             return;

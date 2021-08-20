@@ -86,7 +86,7 @@ public class SQLiteJDBCDriverConnectionTest
     @BeforeAll
     public static void baseSetup()
     {
-        // Setup a temporary platform and logger for the base setup.
+        // Set up a temporary platform and logger for the base setup.
         // This will be overwritten by the foreach method.
         val tmpPlatform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(tmpPlatform);
@@ -281,7 +281,7 @@ public class SQLiteJDBCDriverConnectionTest
      *
      * @param door The door to verify.
      */
-    private void testRetrieval(final AbstractDoor door)
+    private void testRetrieval(AbstractDoor door)
     {
         Assertions.assertNotNull(storage);
         Assertions.assertNotNull(door);
@@ -469,6 +469,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
+        @SuppressWarnings("NullableProblems") // IntelliJ doesn't like <?>.
         DoorSerializer<?> serializer =
             Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);

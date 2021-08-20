@@ -34,8 +34,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param volume        The total number of blocks between posA and posB (inclusive). Do not use this if you do not
      *                      know this.
      */
-    public PositionIterator(final Vector3Di posA, final Vector3Di posB,
-                            final IterationMode iterationMode, final int volume)
+    public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode, int volume)
     {
         if (volume < 1)
             throw new IllegalArgumentException("Volume " + volume + " cannot be smaller than 1 block!");
@@ -57,8 +56,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      * @param posB          The ending values.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final Vector3Di posA, final Vector3Di posB,
-                            final IterationMode iterationMode)
+    public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode)
     {
         this(posA, posB, iterationMode, getVolume(posA, posB));
     }
@@ -72,12 +70,12 @@ public class PositionIterator implements Iterable<Vector3Di>
      *                      Cuboid#getMax()}.
      * @param iterationMode The mode of iteration.
      */
-    public PositionIterator(final Cuboid cuboid, final IterationMode iterationMode)
+    public PositionIterator(Cuboid cuboid, IterationMode iterationMode)
     {
         this(cuboid.getMin(), cuboid.getMax(), iterationMode, cuboid.getVolume());
     }
 
-    private static int getVolume(final Vector3Di posA, final Vector3Di posB)
+    private static int getVolume(Vector3Di posA, Vector3Di posB)
     {
         return new Cuboid(posA, posB).getVolume();
     }
@@ -94,7 +92,7 @@ public class PositionIterator implements Iterable<Vector3Di>
      *
      * @param action The method to apply for each step.
      */
-    public void forEach(final TriIntConsumer action)
+    public void forEach(TriIntConsumer action)
     {
         iterator().forEach(action);
     }
@@ -109,7 +107,7 @@ public class PositionIterator implements Iterable<Vector3Di>
         private final Runnable resetMiddleLoop, resetInnerLoop;
         private int currentIndex = 0;
 
-        private CustomIterator(final PositionIterator locationIterator)
+        private CustomIterator(PositionIterator locationIterator)
         {
             x = posA.x();
             y = posA.y();
@@ -122,7 +120,7 @@ public class PositionIterator implements Iterable<Vector3Di>
             resetInnerLoop = getResetMethod(locationIterator.iterationMode.getIndex(2));
         }
 
-        private void forEach(final TriIntConsumer action)
+        private void forEach(TriIntConsumer action)
         {
             do action.accept(x, y, z);
             while (step());
@@ -135,7 +133,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          * @return The supplier that increments an {@link #PositionIterator ::Axis}.
          */
         @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
-        private Supplier<Boolean> getIncrementor(final Axis axis)
+        private Supplier<Boolean> getIncrementor(Axis axis)
         {
             return switch (axis)
                 {
@@ -203,7 +201,7 @@ public class PositionIterator implements Iterable<Vector3Di>
          * @return The runnable that increments an {@link #PositionIterator ::Axis}.
          */
         @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
-        private Runnable getResetMethod(final Axis axis)
+        private Runnable getResetMethod(Axis axis)
         {
             return switch (axis)
                 {
@@ -289,12 +287,12 @@ public class PositionIterator implements Iterable<Vector3Di>
 
         private final Axis[] order;
 
-        IterationMode(final Axis[] order)
+        IterationMode(Axis[] order)
         {
             this.order = order;
         }
 
-        private Axis getIndex(final int idx)
+        private Axis getIndex(int idx)
         {
             return order[idx];
         }

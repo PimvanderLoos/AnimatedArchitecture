@@ -35,12 +35,12 @@ public class CreatorGarageDoor extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorGarageDoor(final IPPlayer player, final @Nullable String name)
+    public CreatorGarageDoor(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorGarageDoor(final IPPlayer player)
+    public CreatorGarageDoor(IPPlayer player)
     {
         this(player, null);
     }
@@ -59,7 +59,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final IPLocation loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -96,7 +96,7 @@ public class CreatorGarageDoor extends Creator
     }
 
     @Override
-    protected boolean completeSetOpenDirStep(final String str)
+    protected boolean completeSetOpenDirStep(String str)
     {
         if (super.completeSetOpenDirStep(str))
         {

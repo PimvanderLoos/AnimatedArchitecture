@@ -24,5 +24,5 @@ public interface IDiscreteMovement
      *
      * @param newBTM The number of blocks the {@link DoorBase} will try to move.
      */
-    void setBlocksToMove(final int newBTM);
+    void setBlocksToMove(int newBTM);
 }

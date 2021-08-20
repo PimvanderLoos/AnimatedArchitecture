@@ -56,8 +56,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private Vector3Dd futurePosition;
 
-    public CustomEntityFallingBlock_V1_15_R1(final org.bukkit.World world, final double d0, final double d1,
-                                             final double d2, final IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_15_R1(org.bukkit.World world, double d0, double d1, double d2,
+                                             IBlockData iblockdata)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -110,7 +110,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         futurePosition = newPosition;
     }
 
-    public boolean teleport(final Vector3Dd newPosition, final Vector3Dd rotation)
+    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
         final double distance = futurePosition.getDistance(newPosition);
         cyclePositions(newPosition);
@@ -155,7 +155,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
                 die();
 
             double motX = getMot().x * 0.9800000190734863D;
-            double motY = getMot().y * 1.0D;
+            double motY = getMot().y;
             double motZ = getMot().z * 0.9800000190734863D;
             setMot(motX, motY, motZ);
         }
@@ -168,7 +168,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    protected void b(final NBTTagCompound nbttagcompound)
+    protected void b(NBTTagCompound nbttagcompound)
     {
         nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
         nbttagcompound.setInt("Time", ticksLived);
@@ -182,7 +182,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    protected void a(final NBTTagCompound nbttagcompound)
+    protected void a(NBTTagCompound nbttagcompound)
     {
         block = GameProfileSerializer.d(nbttagcompound.getCompound("BlockState"));
         ticksLived = nbttagcompound.getInt("Time");
@@ -207,13 +207,13 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    public void a(final boolean flag)
+    public void a(boolean flag)
     {
         hurtEntities = flag;
     }
 
     @Override
-    public void appendEntityCrashDetails(final CrashReportSystemDetails crashreportsystemdetails)
+    public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
         crashreportsystemdetails.a("Imitating BlockState", block.toString());

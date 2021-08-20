@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 public class Mutable<T>
 {
     /**

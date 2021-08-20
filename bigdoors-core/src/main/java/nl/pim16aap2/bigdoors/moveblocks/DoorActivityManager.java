@@ -27,7 +27,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @param holder The {@link IRestartableHolder} that manages this object.
      */
-    public DoorActivityManager(final IRestartableHolder holder)
+    public DoorActivityManager(IRestartableHolder holder)
     {
         super(holder);
     }
@@ -38,7 +38,8 @@ public final class DoorActivityManager extends Restartable
      * @param doorUID The UID of the {@link DoorBase}.
      * @return True if the {@link DoorBase} is busy.
      */
-    public boolean isDoorBusy(final long doorUID)
+    @SuppressWarnings("unused")
+    public boolean isDoorBusy(long doorUID)
     {
         return busyDoors.containsKey(doorUID);
     }
@@ -51,7 +52,11 @@ public final class DoorActivityManager extends Restartable
      * @param doorUID The UID of the door to register.
      * @return True if the door was not registered before (but is now), otherwise false.
      */
-    public boolean attemptRegisterAsBusy(final long doorUID)
+    // The busyDoors map stores the values as optional and here we just want to know if a value exists for the key.
+    // If it doesn't, the value will be null, but both IntelliJ and SonarLint will complain about comparing an
+    // optional to null. Because that is _exactly_ what we want to do here, we ignore the warnings.
+    @SuppressWarnings({"OptionalAssignedToNull", "squid:S2789"})
+    public boolean attemptRegisterAsBusy(long doorUID)
     {
         return busyDoors.putIfAbsent(doorUID, Optional.empty()) == null;
     }
@@ -61,7 +66,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @param doorUID The UID of the door.
      */
-    public void setDoorAvailable(final long doorUID)
+    public void setDoorAvailable(long doorUID)
     {
         busyDoors.remove(doorUID);
     }
@@ -73,7 +78,7 @@ public final class DoorActivityManager extends Restartable
      * scheduling that is required will be performed.
      *
      * @param blockMover      The {@link BlockMover} to postprocess.
-     * @param allowReschedule Whether or not to allow rescheduling (e.g. autoclose).
+     * @param allowReschedule Whether to allow rescheduling (e.g. autoClose).
      */
     void processFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
     {
@@ -109,7 +114,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @param mover The {@link BlockMover}.
      */
-    public void addBlockMover(final BlockMover mover)
+    public void addBlockMover(BlockMover mover)
     {
         busyDoors.replace(mover.getDoorUID(), Optional.of(mover));
     }
@@ -119,6 +124,7 @@ public final class DoorActivityManager extends Restartable
      *
      * @return All the currently active {@link BlockMover}s.
      */
+    @SuppressWarnings("unused")
     public Stream<BlockMover> getBlockMovers()
     {
         return busyDoors.values().stream().filter(Optional::isPresent).map(Optional::get);
@@ -130,7 +136,7 @@ public final class DoorActivityManager extends Restartable
      * @param doorUID The UID of the {@link DoorBase}.
      * @return The {@link BlockMover} of a busy {@link DoorBase}.
      */
-    public Optional<BlockMover> getBlockMover(final long doorUID)
+    public Optional<BlockMover> getBlockMover(long doorUID)
     {
         return busyDoors.containsKey(doorUID) ? busyDoors.get(doorUID) : Optional.empty();
     }

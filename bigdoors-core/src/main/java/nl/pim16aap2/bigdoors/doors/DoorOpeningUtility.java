@@ -38,8 +38,7 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return The result.
      */
-    public DoorToggleResult abort(final IDoor door, final DoorToggleResult result,
-                                  final DoorActionCause cause, final IPPlayer responsible)
+    public DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible)
     {
         BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                String.format("Aborted toggle for door %d because of %s." +
@@ -76,8 +75,7 @@ public final class DoorOpeningUtility
      * @param responsible Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
-    public boolean canBreakBlocksBetweenLocs(final IDoor door, final Cuboid cuboid,
-                                             final IPPlayer responsible)
+    public boolean canBreakBlocksBetweenLocs(IDoor door, Cuboid cuboid, IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
         return BigDoors.get().getPlatform().getProtectionCompatManager()
@@ -101,8 +99,7 @@ public final class DoorOpeningUtility
      * @param world         The world to check the blocks in.
      * @return True if the area is not empty.
      */
-    public boolean isLocationEmpty(final Cuboid newCuboid, final Cuboid currentCuboid,
-                                   final @Nullable IPPlayer player, final IPWorld world)
+    public boolean isLocationEmpty(Cuboid newCuboid, Cuboid currentCuboid, @Nullable IPPlayer player, IPWorld world)
     {
         final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
         final Vector3Di newMin = newCuboid.getMin();
@@ -156,8 +153,7 @@ public final class DoorOpeningUtility
      * @param blocksToMove The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
-    public int getBlocksInDir(final Vector3Di vec, final @Nullable IPPlayer player,
-                              final IPWorld world, final Cuboid cuboid, final int blocksToMove)
+    public int getBlocksInDir(Vector3Di vec, @Nullable IPPlayer player, IPWorld world, Cuboid cuboid, int blocksToMove)
     {
         final Vector3Di curMin = cuboid.getMin();
         final Vector3Di curMax = cuboid.getMax();
@@ -235,9 +231,7 @@ public final class DoorOpeningUtility
      * @param actionType The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
-    DoorToggleResult canBeToggled(final AbstractDoor door,
-                                  final DoorActionCause cause,
-                                  final DoorActionType actionType)
+    DoorToggleResult canBeToggled(AbstractDoor door, DoorActionCause cause, DoorActionType actionType)
     {
         if (!BigDoors.get().getDoorActivityManager().attemptRegisterAsBusy(door.getDoorUID()))
             return DoorToggleResult.BUSY;
@@ -270,7 +264,7 @@ public final class DoorOpeningUtility
 //     * @param door The door.
 //     * @return False if 1 or more chunks are not loaded and cannot be loaded.
 //     */
-//    private boolean chunksLoaded(final IDoor door)
+//    private boolean chunksLoaded(IDoor door)
 //    {
 //        final Vector2Di[] chunkRange = door.getChunkRange();
 //        for (int x = chunkRange[0].x(); x <= chunkRange[1].x(); ++x)
@@ -286,7 +280,7 @@ public final class DoorOpeningUtility
      *
      * @param blockMover The {@link BlockMover}.
      */
-    public void registerBlockMover(final BlockMover blockMover)
+    public void registerBlockMover(BlockMover blockMover)
     {
         BigDoors.get().getDoorActivityManager().addBlockMover(blockMover);
     }
@@ -297,7 +291,7 @@ public final class DoorOpeningUtility
      * @param doorUID The UID of the {@link IDoor}.
      * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link IDoor}.
      */
-    public boolean isBlockMoverRegistered(final long doorUID)
+    public boolean isBlockMoverRegistered(long doorUID)
     {
         return getBlockMover(doorUID).isPresent();
     }
@@ -308,7 +302,7 @@ public final class DoorOpeningUtility
      * @param doorUID The UID of the {@link IDoor}.
      * @return The {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      */
-    public Optional<BlockMover> getBlockMover(final long doorUID)
+    public Optional<BlockMover> getBlockMover(long doorUID)
     {
         return BigDoors.get().getDoorActivityManager().getBlockMover(doorUID);
     }
@@ -319,7 +313,7 @@ public final class DoorOpeningUtility
      * @param door The {@link AbstractDoor}.
      * @return The speed multiplier of this {@link IDoor}.
      */
-    public double getMultiplier(final AbstractDoor door)
+    public double getMultiplier(AbstractDoor door)
     {
         return BigDoors.get().getPlatform().getConfigLoader().getMultiplier(door.getDoorType());
     }

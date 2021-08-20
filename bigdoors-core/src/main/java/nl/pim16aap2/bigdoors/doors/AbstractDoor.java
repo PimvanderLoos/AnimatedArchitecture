@@ -37,7 +37,7 @@ import java.util.logging.Level;
 @EqualsAndHashCode
 public abstract class AbstractDoor implements IDoor
 {
-    @EqualsAndHashCode.Exclude
+    @SuppressWarnings("NullableProblems") @EqualsAndHashCode.Exclude
     private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
 
     @Getter
@@ -68,8 +68,8 @@ public abstract class AbstractDoor implements IDoor
     /**
      * Checks if this door can be opened instantly (i.e. skip the animation).
      * <p>
-     * This describes whether or not skipping the animation actually does anything. When a door can skip its animation,
-     * it means that the actual toggle has an effect on the world and as such toggling it without an animation does
+     * This describes whether skipping the animation actually does anything. When a door can skip its animation, it
+     * means that the actual toggle has an effect on the world and as such toggling it without an animation does
      * something.
      * <p>
      * Doors that do not have any effect other than their animation because all their blocks start and stop at exactly
@@ -93,20 +93,21 @@ public abstract class AbstractDoor implements IDoor
     public abstract Optional<Cuboid> getPotentialNewCoordinates();
 
     /**
-     * Gets the direction the door would go given its current state..
+     * Gets the direction the door would go given its current state.
      *
      * @return The direction the door would go if it were to be toggled.
      */
     public abstract RotateDirection getCurrentToggleDir();
 
     /**
-     * Cycle the {@link RotateDirection} direction this {@link IDoor} will open in. By default it'll set and return the
+     * Cycle the {@link RotateDirection} direction this {@link IDoor} will open in. By default, it'll set and return the
      * opposite direction of the current direction.
      * <p>
      * Note that this does not actually change the open direction; it merely tells you which direction comes next!
      *
      * @return The new {@link RotateDirection} direction this {@link IDoor} will open in.
      */
+    @SuppressWarnings("unused")
     public RotateDirection cycleOpenDirection()
     {
         final List<RotateDirection> validOpenDirections = getDoorType().getValidOpenDirections();
@@ -129,11 +130,8 @@ public abstract class AbstractDoor implements IDoor
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract BlockMover constructBlockMover(final DoorActionCause cause,
-                                                      final double time, final boolean skipAnimation,
-                                                      final Cuboid newCuboid,
-                                                      final IPPlayer responsible,
-                                                      final DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                                      Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception;
 
 
@@ -152,11 +150,8 @@ public abstract class AbstractDoor implements IDoor
      * @param actionType    The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
-    private synchronized boolean registerBlockMover(final DoorActionCause cause,
-                                                    final double time, final boolean skipAnimation,
-                                                    final Cuboid newCuboid,
-                                                    final IPPlayer responsible,
-                                                    final DoorActionType actionType)
+    private synchronized boolean registerBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                                    Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -196,10 +191,10 @@ public abstract class AbstractDoor implements IDoor
      */
     // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
     //       These aren't necessarily the same entity.
-    final synchronized DoorToggleResult toggle(final DoorActionCause cause,
-                                               final IMessageable messageReceiver,
-                                               final IPPlayer responsible, final double time,
-                                               boolean skipAnimation, final DoorActionType actionType)
+    @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it should be.
+    final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
+                                               IPPlayer responsible, double time, boolean skipAnimation,
+                                               DoorActionType actionType)
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
@@ -268,10 +263,10 @@ public abstract class AbstractDoor implements IDoor
      *
      * @param newCurrent The new current of the powerblock.
      */
-    public final void onRedstoneChange(final int newCurrent)
+    @SuppressWarnings("unused")
+    public final void onRedstoneChange(int newCurrent)
     {
-        final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory()
-                                        .create(getPrimeOwner().pPlayerData());
+        final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getPrimeOwner().pPlayerData());
 
         final @Nullable DoorActionType doorActionType;
         if (newCurrent == 0 && isCloseable())

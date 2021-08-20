@@ -14,12 +14,12 @@ public class CreatorDrawbridge extends Creator
 {
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    public CreatorDrawbridge(final IPPlayer player, final @Nullable String name)
+    public CreatorDrawbridge(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorDrawbridge(final IPPlayer player)
+    public CreatorDrawbridge(IPPlayer player)
     {
         this(player, null);
     }

@@ -35,10 +35,10 @@ public final class DoorOpener
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The future result of the toggle (will be available before the door starts its animation).
      */
-    public CompletableFuture<DoorToggleResult> animateDoorAsync(
-        final CompletableFuture<Optional<AbstractDoor>> futureDoor, final DoorActionCause cause,
-        final IMessageable messageReceiver, @Nullable IPPlayer responsible, final double time,
-        final boolean skipAnimation, final DoorActionType doorActionType)
+    public CompletableFuture<DoorToggleResult> animateDoorAsync(CompletableFuture<Optional<AbstractDoor>> futureDoor,
+                                                                DoorActionCause cause, IMessageable messageReceiver,
+                                                                @Nullable IPPlayer responsible, double time,
+                                                                boolean skipAnimation, DoorActionType doorActionType)
     {
         return futureDoor.thenComposeAsync(
             doorOpt ->
@@ -72,10 +72,10 @@ public final class DoorOpener
      * @param doorActionType Whether the door should be toggled, opened, or closed.
      * @return The future result of the toggle (will be available before the door starts its animation).
      */
-    public CompletableFuture<DoorToggleResult> animateDoorAsync(
-        final CompletableFuture<Optional<AbstractDoor>> futureDoor, final DoorActionCause cause,
-        final @Nullable IPPlayer responsible, final double time, final boolean skipAnimation,
-        final DoorActionType doorActionType)
+    public CompletableFuture<DoorToggleResult> animateDoorAsync(CompletableFuture<Optional<AbstractDoor>> futureDoor,
+                                                                DoorActionCause cause, @Nullable IPPlayer responsible,
+                                                                double time, boolean skipAnimation,
+                                                                DoorActionType doorActionType)
     {
         final IMessageable messageReceiver = getMessageReceiver(responsible, cause);
         return animateDoorAsync(futureDoor, cause, messageReceiver, responsible, time, skipAnimation, doorActionType);
@@ -89,8 +89,7 @@ public final class DoorOpener
      * @param cause       The cause of the toggle.
      * @return The object that will receive all future messages regarding this toggle.
      */
-    private IMessageable getMessageReceiver(final @Nullable IPPlayer responsible,
-                                            final DoorActionCause cause)
+    private IMessageable getMessageReceiver(@Nullable IPPlayer responsible, DoorActionCause cause)
     {
         return responsible == null || cause != DoorActionCause.PLAYER ?
                BigDoors.get().getPlatform().getMessageableServer() : responsible;
@@ -109,12 +108,9 @@ public final class DoorOpener
      * @param doorActionType Whether the door should be toggled, opened, or closed.
      * @return The result of the toggle.
      */
-    public CompletableFuture<DoorToggleResult> animateDoorAsync(final AbstractDoor door,
-                                                                final DoorActionCause cause,
-                                                                final @Nullable IPPlayer responsible,
-                                                                final double time,
-                                                                final boolean skipAnimation,
-                                                                final DoorActionType doorActionType)
+    public CompletableFuture<DoorToggleResult> animateDoorAsync(AbstractDoor door, DoorActionCause cause,
+                                                                @Nullable IPPlayer responsible, double time,
+                                                                boolean skipAnimation, DoorActionType doorActionType)
     {
         final IMessageable messageReceiver = getMessageReceiver(responsible, cause);
         return animateDoorAsync(door, cause, messageReceiver, responsible, time, skipAnimation, doorActionType);
@@ -134,13 +130,10 @@ public final class DoorOpener
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The result of the toggle.
      */
-    public CompletableFuture<DoorToggleResult> animateDoorAsync(final AbstractDoor door,
-                                                                final DoorActionCause cause,
-                                                                final IMessageable messageReceiver,
-                                                                @Nullable IPPlayer responsible,
-                                                                final double time,
-                                                                final boolean skipAnimation,
-                                                                final DoorActionType doorActionType)
+    public CompletableFuture<DoorToggleResult> animateDoorAsync(AbstractDoor door, DoorActionCause cause,
+                                                                IMessageable messageReceiver,
+                                                                @Nullable IPPlayer responsible, double time,
+                                                                boolean skipAnimation, DoorActionType doorActionType)
     {
         final IPPlayer finalResponsible = responsible != null ? responsible :
                                           BigDoors.get().getPlatform().getPPlayerFactory()
@@ -162,12 +155,10 @@ public final class DoorOpener
      * @param doorActionType  Whether the door should be toggled, opened, or closed.
      * @return The result of the animation attempt.
      */
-    private CompletableFuture<DoorToggleResult> animateDoor(final AbstractDoor door,
-                                                            final DoorActionCause cause,
-                                                            final IMessageable messageReceiver,
-                                                            final IPPlayer responsible,
-                                                            final double time, boolean skipAnimation,
-                                                            final DoorActionType doorActionType)
+    private CompletableFuture<DoorToggleResult> animateDoor(AbstractDoor door, DoorActionCause cause,
+                                                            IMessageable messageReceiver, IPPlayer responsible,
+                                                            double time, boolean skipAnimation,
+                                                            DoorActionType doorActionType)
     {
         if (BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
             return CompletableFuture.completedFuture(door.toggle(cause, messageReceiver, responsible,

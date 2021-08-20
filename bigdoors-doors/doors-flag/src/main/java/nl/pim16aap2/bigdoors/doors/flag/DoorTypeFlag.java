@@ -37,13 +37,13 @@ public final class DoorTypeFlag extends DoorType
     }
 
     @Override
-    public Creator getCreator(final IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorFlag(player);
     }
 
     @Override
-    public Creator getCreator(final IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorFlag(player, name);
     }

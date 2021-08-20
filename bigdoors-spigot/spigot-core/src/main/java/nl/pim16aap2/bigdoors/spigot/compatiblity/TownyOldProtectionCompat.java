@@ -19,21 +19,20 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     private boolean success = false;
     private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
 
-    public TownyOldProtectionCompat(final BigDoorsSpigot plugin)
+    public TownyOldProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;

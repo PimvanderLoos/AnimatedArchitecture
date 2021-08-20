@@ -31,10 +31,9 @@ public class SlidingMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public SlidingMover(final AbstractDoor door, final double time, final boolean skipAnimation,
-                        final int blocksToMove, final RotateDirection openDirection, final double multiplier,
-                        final IPPlayer player, final Cuboid newCuboid,
-                        final DoorActionCause cause, final DoorActionType actionType)
+    public SlidingMover(AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
+                        RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid,
+                        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
@@ -81,14 +80,13 @@ public class SlidingMover extends BlockMover
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                        final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis + moveX, yAxis, zAxis + moveZ);
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         final Vector3Dd startLocation = block.getStartPosition();
         final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
@@ -103,19 +101,19 @@ public class SlidingMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    protected Vector3Dd getGoalPos(final PBlockData pBlockData, final double stepSum)
+    protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
     {
         return pBlockData.getStartPosition().add(NS ? 0 : stepSum, 0, NS ? stepSum : 0);
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
         if (firstBlockData == null)
             return;
 
         final double stepSum = step * ticks;
-        for (final PBlockData pBlockData : savedBlocks)
+        for (PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 }

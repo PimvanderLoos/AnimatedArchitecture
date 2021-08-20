@@ -14,7 +14,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 {
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
-    public CreatorRevolvingDoor(final IPPlayer player, final @Nullable String name)
+    public CreatorRevolvingDoor(IPPlayer player, @Nullable String name)
     {
         super(player);
         if (name != null)
@@ -22,7 +22,7 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
         prepareCurrentStep();
     }
 
-    public CreatorRevolvingDoor(final IPPlayer player)
+    public CreatorRevolvingDoor(IPPlayer player)
     {
         this(player, null);
     }
@@ -51,5 +51,11 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
     protected AbstractDoor constructDoor()
     {
         return new RevolvingDoor(constructDoorData());
+    }
+
+    @Override
+    protected DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

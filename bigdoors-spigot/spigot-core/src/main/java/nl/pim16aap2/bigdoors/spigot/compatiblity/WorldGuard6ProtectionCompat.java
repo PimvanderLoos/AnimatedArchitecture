@@ -24,7 +24,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private boolean success = false;
     private Method m;
 
-    public WorldGuard6ProtectionCompat(final BigDoorsSpigot plugin)
+    public WorldGuard6ProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
@@ -48,7 +48,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         try
         {
@@ -62,8 +62,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;

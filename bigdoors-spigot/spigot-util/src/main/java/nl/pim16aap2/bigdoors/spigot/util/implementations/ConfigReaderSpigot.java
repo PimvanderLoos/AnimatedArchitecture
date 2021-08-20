@@ -9,18 +9,11 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public class ConfigReaderSpigot implements IConfigReader
+public record ConfigReaderSpigot(FileConfiguration config) implements IConfigReader
 {
-    private final FileConfiguration config;
-
-    public ConfigReaderSpigot(final FileConfiguration config)
-    {
-        this.config = config;
-    }
-
     @Override
-    public Object get(String path, @Nullable Object def)
+    public @Nullable Object get(String path, @Nullable Object fallback)
     {
-        return config.get(path, def);
+        return config.get(path, fallback);
     }
 }

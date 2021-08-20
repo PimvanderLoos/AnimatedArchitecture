@@ -61,7 +61,7 @@ public class ListDoors extends BaseCommand
         return doors.thenAccept(this::sendDoorList).thenApply(val -> true);
     }
 
-    private void sendDoorList(final List<AbstractDoor> doors)
+    private void sendDoorList(List<AbstractDoor> doors)
     {
         if (doors.isEmpty())
         {

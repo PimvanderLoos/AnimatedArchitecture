@@ -18,7 +18,7 @@ public enum PSound
      */
     private final int duration;
 
-    PSound(final String name, final int duration)
+    PSound(String name, int duration)
     {
         this.name = name;
         this.duration = duration;
@@ -30,7 +30,7 @@ public enum PSound
      * @param sound The {@link PSound}.
      * @return The name of the {@link PSound}.
      */
-    public static String getSoundName(final PSound sound)
+    public static String getSoundName(PSound sound)
     {
         return sound.name;
     }
@@ -41,7 +41,7 @@ public enum PSound
      * @param sound The {@link PSound}.
      * @return The duration of the {@link PSound}.
      */
-    public static int getDuration(final PSound sound)
+    public static int getDuration(PSound sound)
     {
         return sound.duration;
     }

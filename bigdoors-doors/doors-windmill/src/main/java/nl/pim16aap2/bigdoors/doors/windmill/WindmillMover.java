@@ -24,9 +24,8 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
 
     private double step;
 
-    public WindmillMover(final T door, final double time, final double multiplier,
-                         final RotateDirection rotateDirection, final IPPlayer player,
-                         final DoorActionCause cause, final DoorActionType actionType)
+    public WindmillMover(T door, double time, double multiplier, RotateDirection rotateDirection, IPPlayer player,
+                         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
@@ -40,28 +39,27 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                        final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis, zAxis);
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         return block.getStartPosition();
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
-        for (final PBlockData block : savedBlocks)
+        for (PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
     @Override
-    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
@@ -71,7 +69,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.

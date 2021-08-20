@@ -64,33 +64,32 @@ public class UnitTestUtil
         return world;
     }
 
-    public static IPLocation getLocation(final Vector3Dd vec)
+    public static IPLocation getLocation(Vector3Dd vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static IPLocation getLocation(final Vector3Di vec)
+    public static IPLocation getLocation(Vector3Di vec)
     {
         return getLocation(vec.x(), vec.y(), vec.z());
     }
 
-    public static IPLocation getLocation(final Vector3Dd vec, final IPWorld world)
+    public static IPLocation getLocation(Vector3Dd vec, IPWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static IPLocation getLocation(final Vector3Di vec, final IPWorld world)
+    public static IPLocation getLocation(Vector3Di vec, IPWorld world)
     {
         return getLocation(vec.x(), vec.y(), vec.z(), world);
     }
 
-    public static IPLocation getLocation(final double x, final double y, final double z)
+    public static IPLocation getLocation(double x, double y, double z)
     {
         return getLocation(x, y, z, getWorld());
     }
 
-    public static IPLocation getLocation(final double x, final double y, final double z,
-                                         final IPWorld world)
+    public static IPLocation getLocation(double x, double y, double z, IPWorld world)
     {
         val loc = Mockito.mock(IPLocation.class);
 
@@ -120,7 +119,7 @@ public class UnitTestUtil
      * @return The object inside the Optional.
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T optionalEquals(final @Nullable T obj, final Optional<T> opt)
+    public static <T> T optionalEquals(@Nullable T obj, Optional<T> opt)
     {
         if (obj == null)
         {
@@ -143,7 +142,7 @@ public class UnitTestUtil
      * @return The object inside the Optional (so without the mapping function applied!).
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T, U> U optionalEquals(final @Nullable T obj, final Optional<U> opt,
+    public static <T, U> U optionalEquals(@Nullable T obj, Optional<U> opt,
                                           Function<U, T> map)
     {
         if (obj == null)

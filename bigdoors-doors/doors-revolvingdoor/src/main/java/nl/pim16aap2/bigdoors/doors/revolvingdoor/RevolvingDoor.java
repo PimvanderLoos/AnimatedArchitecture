@@ -42,13 +42,13 @@ public class RevolvingDoor extends AbstractDoor
     @PersistentVariable
     private int quarterCircles;
 
-    public RevolvingDoor(final DoorBase doorBase, final int quarterCircles)
+    public RevolvingDoor(DoorBase doorBase, int quarterCircles)
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public RevolvingDoor(final DoorBase doorBase)
+    public RevolvingDoor(DoorBase doorBase)
     {
         this(doorBase, 1);
     }
@@ -83,10 +83,8 @@ public class RevolvingDoor extends AbstractDoor
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

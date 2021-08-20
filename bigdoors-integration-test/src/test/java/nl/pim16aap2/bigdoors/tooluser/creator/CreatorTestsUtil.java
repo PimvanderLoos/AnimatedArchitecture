@@ -27,6 +27,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
@@ -173,13 +174,12 @@ public class CreatorTestsUtil
     }
 
     @SneakyThrows
-    public void testCreation(final Creator creator, AbstractDoor actualDoor,
-                             final Object... input)
+    public void testCreation(Creator creator, AbstractDoor actualDoor, Object... input)
     {
         for (int idx = 0; idx < input.length; ++idx)
         {
             val obj = input[idx];
-            val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            @Nullable val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),

@@ -146,12 +146,12 @@ class DelayedInputRequestTest
 
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
-        public DelayedInputRequestImpl(final long timeout, final TimeUnit timeUnit)
+        public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)
         {
             super(timeout, timeUnit);
         }
 
-        public DelayedInputRequestImpl(final long timeout)
+        public DelayedInputRequestImpl(long timeout)
         {
             this(timeout, TimeUnit.MILLISECONDS);
         }

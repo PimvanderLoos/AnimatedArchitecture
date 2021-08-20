@@ -18,18 +18,18 @@ public class Elevator extends Portcullis
 {
     private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
 
-    public Elevator(final DoorBase doorData, final int blocksToMove, final int autoCloseTime,
-                    final int autoOpenTime)
+    public Elevator(DoorBase doorData, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
         super(doorData, blocksToMove, autoCloseTime, autoOpenTime);
     }
 
-    public Elevator(final DoorBase doorBase, final int blocksToMove)
+    public Elevator(DoorBase doorBase, int blocksToMove)
     {
         super(doorBase, blocksToMove, -1, -1);
     }
 
-    private Elevator(final DoorBase doorBase)
+    @SuppressWarnings("unused")
+    private Elevator(DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
     }

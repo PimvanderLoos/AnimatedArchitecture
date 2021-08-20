@@ -70,9 +70,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter
     private final DoorOwner primeOwner;
 
-    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine,
-                    Vector3Di powerBlock, IPWorld world, boolean isOpen, boolean isLocked,
-                    RotateDirection openDir, DoorOwner primeOwner,
+    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
+                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner,
                     @Nullable Map<UUID, DoorOwner> doorOwners)
     {
         this.doorUID = doorUID;
@@ -95,9 +94,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorOwners = doorOwnersTmp;
     }
 
-    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine,
-                    Vector3Di powerBlock, IPWorld world, boolean isOpen, boolean isLocked,
-                    RotateDirection openDir, DoorOwner primeOwner)
+    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
+                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner)
     {
         this(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir, primeOwner, null);
     }
@@ -128,7 +126,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      */
     public synchronized DoorBase getFullSnapshot()
     {
-        return new DoorBase(this, getDoorOwnersCopy());
+        return new DoorBase(this, new HashMap<>(doorOwners));
     }
 
     /**
@@ -145,7 +143,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    protected void addOwner(final UUID uuid, final DoorOwner doorOwner)
+    protected void addOwner(UUID uuid, DoorOwner doorOwner)
     {
         if (doorOwner.permission() == 0)
         {
@@ -159,7 +157,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    protected boolean removeOwner(final UUID uuid)
+    protected boolean removeOwner(UUID uuid)
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
@@ -197,33 +195,26 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         return ret;
     }
 
-    protected Map<UUID, DoorOwner> getDoorOwnersCopy()
-    {
-        final Map<UUID, DoorOwner> copy = new HashMap<>(doorOwners.size());
-        doorOwners.forEach(copy::put);
-        return copy;
-    }
-
     @Override
-    public Optional<DoorOwner> getDoorOwner(final IPPlayer player)
+    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
     {
         return getDoorOwner(player.getUUID());
     }
 
     @Override
-    public Optional<DoorOwner> getDoorOwner(final UUID uuid)
+    public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return Optional.ofNullable(doorOwners.get(uuid));
     }
 
     @Override
-    public void setCoordinates(final Cuboid newCuboid)
+    public void setCoordinates(Cuboid newCuboid)
     {
         cuboid = newCuboid;
     }
 
     @Override
-    public void setCoordinates(final Vector3Di posA, final Vector3Di posB)
+    public void setCoordinates(Vector3Di posA, Vector3Di posB)
     {
         cuboid = new Cuboid(posA, posB);
     }
@@ -247,13 +238,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public synchronized void setEngine(final Vector3Di pos)
+    public synchronized void setEngine(Vector3Di pos)
     {
         engine = pos;
     }
 
     @Override
-    public void setPowerBlockPosition(final Vector3Di pos)
+    public void setPowerBlockPosition(Vector3Di pos)
     {
         powerBlock = pos;
     }

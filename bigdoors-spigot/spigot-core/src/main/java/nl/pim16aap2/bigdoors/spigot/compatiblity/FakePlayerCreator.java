@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -26,23 +27,23 @@ class FakePlayerCreator
     private final String NMSbase;
     private final String CraftBase;
     private final BigDoorsSpigot plugin;
-    private Class<?> CraftOfflinePlayer;
-    private Class<?> CraftWorld;
-    private Class<?> World;
-    private Class<?> WorldServer;
-    private Class<?> EntityPlayer;
-    private Class<?> MinecraftServer;
-    private Class<?> PlayerInteractManager;
-    private Method getProfile;
-    private Method getHandle;
-    private Method getServer;
-    private Method getBukkitEntity;
-    private Constructor<?> EntityPlayerConstructor;
+    private final Class<?> CraftOfflinePlayer;
+    private final Class<?> CraftWorld;
+    private final Class<?> World;
+    private final Class<?> WorldServer;
+    private final Class<?> EntityPlayer;
+    private final Class<?> MinecraftServer;
+    private final Class<?> PlayerInteractManager;
+    private final Method getProfile;
+    private final Method getHandle;
+    private final Method getServer;
+    private final Method getBukkitEntity;
+    private final Constructor<?> EntityPlayerConstructor;
     private Constructor<?> PlayerInteractManagerConstructor;
-    private Field uuid;
+    private final Field uuid;
     private boolean success = false;
 
-    FakePlayerCreator(final BigDoorsSpigot plugin)
+    FakePlayerCreator(BigDoorsSpigot plugin)
         throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
@@ -67,18 +68,19 @@ class FakePlayerCreator
         uuid.setAccessible(true);
 
         World = getNMSClass("World");
+        // TODO: ???
         PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
         PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
         success = true;
     }
 
-    private Class<?> getNMSClass(final String name)
+    private Class<?> getNMSClass(String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(NMSbase + name);
     }
 
-    private Class<?> getCraftClass(final String name)
+    private Class<?> getCraftClass(String name)
         throws LinkageError, ClassNotFoundException
     {
         return Class.forName(CraftBase + name);
@@ -91,12 +93,12 @@ class FakePlayerCreator
      * @param world   The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    Optional<Player> getFakePlayer(final OfflinePlayer oPlayer, final World world)
+    Optional<Player> getFakePlayer(OfflinePlayer oPlayer, World world)
     {
         if (!success)
             return Optional.empty();
 
-        Player player = null;
+        @Nullable Player player = null;
 
         try
         {

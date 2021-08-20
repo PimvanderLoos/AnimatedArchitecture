@@ -26,6 +26,7 @@ import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -50,16 +51,14 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Player player;
     private final IRestartableHolder restartableHolder;
 
-    public GlowingBlock_V1_15_R1(final Player player, final World world,
-                                 final Map<PColor, Team> teams,
-                                 final IRestartableHolder restartableHolder)
+    public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
+                                 IRestartableHolder restartableHolder)
     {
         this.player = player;
         this.world = world;
         this.teams = teams;
         this.restartableHolder = restartableHolder;
     }
-
 
     private Optional<PlayerConnection> getConnection()
     {
@@ -86,7 +85,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
     @Override
-    public void teleport(final Vector3Dd position)
+    public void teleport(Vector3Dd position)
     {
         if (!alive)
             return;
@@ -95,7 +94,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     }
 
     @Override
-    public void spawn(final PColor pColor, final double x, final double y, final double z, final long ticks)
+    public void spawn(PColor pColor, double x, double y, double z, long ticks)
     {
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
@@ -172,7 +171,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         @Override
         public void b(PacketDataSerializer var0)
         {
-            var0.d(entityID);
+            var0.d(Objects.requireNonNull(entityID, "EntityID is not set yet!"));
             var0.writeDouble(x);
             var0.writeDouble(y);
             var0.writeDouble(z);
@@ -185,9 +184,8 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public Optional<IGlowingBlock> createGlowingBlock(final Player player,
-                                                          final World world,
-                                                          final IRestartableHolder restartableHolder)
+        public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
+                                                          IRestartableHolder restartableHolder)
         {
             Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
             if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))

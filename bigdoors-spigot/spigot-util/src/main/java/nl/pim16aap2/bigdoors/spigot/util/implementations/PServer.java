@@ -16,7 +16,7 @@ public class PServer implements IPServer
 {
     private final String pluginName;
 
-    public PServer(final JavaPlugin plugin)
+    public PServer(JavaPlugin plugin)
     {
         pluginName = IPLogger.formatName(plugin.getName());
     }

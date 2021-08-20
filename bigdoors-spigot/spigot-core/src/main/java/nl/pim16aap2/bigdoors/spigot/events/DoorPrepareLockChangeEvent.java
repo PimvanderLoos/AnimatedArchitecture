@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,20 +26,19 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
 
     private final boolean newLockStatus;
 
-    public DoorPrepareLockChangeEvent(final AbstractDoor door,
-                                      final @Nullable IPPlayer responsible,
-                                      final boolean newLockStatus)
+    public DoorPrepareLockChangeEvent(AbstractDoor door, @Nullable IPPlayer responsible, boolean newLockStatus)
     {
         super(door, responsible);
         this.newLockStatus = newLockStatus;
     }
 
     @Override
-    public HandlerList getHandlers()
+    public @NotNull HandlerList getHandlers()
     {
         return HANDLERS_LIST;
     }
 
+    @SuppressWarnings("squid:S4144")
     public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;

@@ -52,7 +52,7 @@ public record Vector2Dd(double x, double y)
      * @return A new {@link Vector2Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Dd add(final Vector2Dd other)
+    public Vector2Dd add(Vector2Dd other)
     {
         return new Vector2Dd(other.x, other.y);
     }
@@ -64,7 +64,7 @@ public record Vector2Dd(double x, double y)
      * @return A new {@link Vector2Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Dd add(final Vector2Di other)
+    public Vector2Dd add(Vector2Di other)
     {
         return new Vector2Dd(other.x(), other.y());
     }
@@ -102,7 +102,7 @@ public record Vector2Dd(double x, double y)
      * @return The new {@link Vector2Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Dd subtract(final Vector2Dd other)
+    public Vector2Dd subtract(Vector2Dd other)
     {
         return new Vector2Dd(other.x, other.y);
     }
@@ -114,7 +114,7 @@ public record Vector2Dd(double x, double y)
      * @return The new {@link Vector2Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Dd subtract(final Vector2Di other)
+    public Vector2Dd subtract(Vector2Di other)
     {
         return new Vector2Dd(other.x(), other.y());
     }
@@ -257,7 +257,7 @@ public record Vector2Dd(double x, double y)
      * @return A String representation of this vector.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public String toString(final int decimals)
+    public String toString(int decimals)
     {
         final String placeholder = "%." + decimals + "f";
         return String.format("Vector2Dd[x=" + placeholder + ", y=" + placeholder + "]", x, y);

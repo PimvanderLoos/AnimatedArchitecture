@@ -26,13 +26,13 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     private final PPlayerData playerData;
     private final @Nullable OfflinePlayer spigotPlayer;
 
-    public OfflinePPlayerSpigot(final PPlayerData playerData, final @Nullable OfflinePlayer spigotPlayer)
+    public OfflinePPlayerSpigot(PPlayerData playerData, @Nullable OfflinePlayer spigotPlayer)
     {
         this.playerData = playerData;
         this.spigotPlayer = spigotPlayer;
     }
 
-    public OfflinePPlayerSpigot(final PPlayerData playerData)
+    public OfflinePPlayerSpigot(PPlayerData playerData)
     {
         this(playerData, Bukkit.getOfflinePlayer(playerData.getUUID()));
     }
@@ -42,7 +42,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
      */
     @Override
     @Deprecated
-    public void sendMessage(final Level level, final String message)
+    public void sendMessage(Level level, String message)
     {
     }
 
@@ -75,7 +75,7 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o)
             return true;

@@ -25,8 +25,7 @@ public class RemoveOwner extends DoorTargetCommand
 
     private final IPPlayer targetPlayer;
 
-    protected RemoveOwner(final ICommandSender commandSender, final DoorRetriever doorRetriever,
-                          final IPPlayer targetPlayer)
+    protected RemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
         super(commandSender, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
@@ -132,7 +131,7 @@ public class RemoveOwner extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final AbstractDoor door, final boolean hasBypassPermission)
+    protected boolean isAllowed(AbstractDoor door, boolean hasBypassPermission)
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 

@@ -19,8 +19,8 @@ public final class Constants
     public static final int COMMAND_WAITER_TIMEOUT = 60 * 1000;
 
     /**
-     * Whether or not the current build is a dev build. Certain options are enabled, disabled, or overridden depending
-     * on this variable.
+     * Whether the current build is a dev build. Certain options are enabled, disabled, or overridden depending on this
+     * variable.
      */
     public static final boolean DEV_BUILD = true;
 
@@ -33,7 +33,7 @@ public final class Constants
     /**
      * The permission node that allows a player to bypass all compatibility hooks.
      */
-    public static final String COMPAT_BYPASS_PERMISSION = "bigdoors.admin.bypasscompat";
+    public static final String COMPAT_BYPASS_PERMISSION = "bigdoors.admin.bypass_compats";
 
     /**
      * The name of this plugin.

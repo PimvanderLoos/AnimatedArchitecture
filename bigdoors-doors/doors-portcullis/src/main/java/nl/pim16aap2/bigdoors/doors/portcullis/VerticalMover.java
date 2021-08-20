@@ -27,10 +27,8 @@ public class VerticalMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public VerticalMover(final AbstractDoor door, final double time, final boolean skipAnimation,
-                         final int blocksToMove, final double multiplier, final IPPlayer player,
-                         final Cuboid newCuboid, final DoorActionCause cause,
-                         final DoorActionType actionType)
+    public VerticalMover(AbstractDoor door, double time, boolean skipAnimation, int blocksToMove, double multiplier,
+                         IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -73,7 +71,7 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         final Vector3Dd startLocation = block.getStartPosition();
         final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
@@ -88,13 +86,13 @@ public class VerticalMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    protected Vector3Dd getGoalPos(final PBlockData pBlockData, final double stepSum)
+    protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
     {
         return pBlockData.getStartPosition().add(0, stepSum, 0);
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
 //        // This isn't used currently, but the idea is to spawn solid blocks where this door is / is going to be.
 //        // A cheap way to create fake solid blocks. Should really be part of the blocks themselves, but
@@ -116,13 +114,12 @@ public class VerticalMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (final PBlockData pBlockData : savedBlocks)
+        for (PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                        final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis + blocksToMove, zAxis);
     }

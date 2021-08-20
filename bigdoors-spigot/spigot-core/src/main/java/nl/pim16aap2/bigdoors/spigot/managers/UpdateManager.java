@@ -25,7 +25,7 @@ public final class UpdateManager
     private final UpdateChecker updater;
     private @Nullable BukkitTask updateRunner = null;
 
-    public UpdateManager(final BigDoorsSpigot plugin, final int pluginID)
+    public UpdateManager(BigDoorsSpigot plugin, int pluginID)
     {
         this.plugin = plugin;
         logger = plugin.getPLogger();
@@ -38,7 +38,7 @@ public final class UpdateManager
      * @param newCheckForUpdates True if update checking should be enabled.
      * @param newDownloadUpdates True if update downloading should be enabled.
      */
-    public void setEnabled(final boolean newCheckForUpdates, final boolean newDownloadUpdates)
+    public void setEnabled(boolean newCheckForUpdates, boolean newDownloadUpdates)
     {
         checkForUpdates = newCheckForUpdates;
         downloadUpdates = newDownloadUpdates;

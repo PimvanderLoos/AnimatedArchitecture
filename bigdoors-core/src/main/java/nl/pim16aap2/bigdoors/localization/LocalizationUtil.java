@@ -104,7 +104,7 @@ public final class LocalizationUtil
         final Set<@Nullable String> keys = getKeySet(existing);
         final ArrayList<String> merged = new ArrayList<>(newLines.size());
 
-        for (final String line : newLines)
+        for (String line : newLines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key == null || keys.contains(key))
@@ -140,7 +140,7 @@ public final class LocalizationUtil
     {
         if (!Files.isRegularFile(path))
             return Collections.emptySet();
-        try (final InputStream inputStream = Files.newInputStream(path))
+        try (InputStream inputStream = Files.newInputStream(path))
         {
             return getKeySet(inputStream);
         }
@@ -160,7 +160,7 @@ public final class LocalizationUtil
     static Set<String> getKeySet(List<String> lines)
     {
         final Set<String> ret = new LinkedHashSet<>(lines.size());
-        for (final String line : lines)
+        for (String line : lines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key != null)
@@ -194,7 +194,7 @@ public final class LocalizationUtil
      */
     static void readFile(InputStream inputStream, Consumer<String> fun)
     {
-        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -236,7 +236,7 @@ public final class LocalizationUtil
         if (!Files.isRegularFile(path))
             return;
 
-        try (final InputStream inputStream = Files.newInputStream(path))
+        try (InputStream inputStream = Files.newInputStream(path))
         {
             readFile(inputStream, fun);
         }
@@ -255,7 +255,7 @@ public final class LocalizationUtil
      */
     static List<LocaleFile> getLocaleFilesInDirectory(Path directory, @Nullable String baseName)
     {
-        try (final Stream<Path> stream = Files.list(directory))
+        try (Stream<Path> stream = Files.list(directory))
         {
             return getLocaleFiles(baseName, stream.filter(file -> !Files.isDirectory(file)).toList());
         }
@@ -276,7 +276,7 @@ public final class LocalizationUtil
     static List<LocaleFile> getLocaleFiles(@Nullable String baseName, List<Path> files)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
-        for (final Path file : files)
+        for (Path file : files)
         {
             final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
@@ -309,7 +309,7 @@ public final class LocalizationUtil
     static List<LocaleFile> getLocaleFiles(FileSystem fileSystem, List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
-        for (final String resource : resources)
+        for (String resource : resources)
         {
             final @Nullable String locale = parseLocaleFile(resource);
             if (locale != null)
@@ -419,7 +419,7 @@ public final class LocalizationUtil
         // Just opening the ZipOutputStream and then letting it close
         // on its own is enough to create a new zip file.
         //noinspection EmptyTryBlock
-        try (final ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        try (ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
         {
             // ignored
         }
@@ -437,7 +437,7 @@ public final class LocalizationUtil
      */
     static List<Locale> getLocalesInZip(Path zipFile, String baseName)
     {
-        try (final FileSystem fs = createNewFileSystem(zipFile))
+        try (FileSystem fs = createNewFileSystem(zipFile))
         {
             return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
                                    .map(localeFile -> getLocale(localeFile.locale())).toList();

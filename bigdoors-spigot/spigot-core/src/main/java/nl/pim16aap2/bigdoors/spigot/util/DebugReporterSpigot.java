@@ -19,6 +19,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
+import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
 public class DebugReporterSpigot extends DebugReporter
@@ -40,7 +41,7 @@ public class DebugReporterSpigot extends DebugReporter
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
           .append("\n");
 
-        val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
+        @Nullable val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
         sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append("\n");
 
         // TODO: Implement this:
@@ -57,7 +58,7 @@ public class DebugReporterSpigot extends DebugReporter
         return sb.toString();
     }
 
-    private String getListeners(final Class<?>... classes)
+    private String getListeners(Class<?>... classes)
     {
         final StringBuilder sb = new StringBuilder();
         for (Class<?> clz : classes)
@@ -88,7 +89,7 @@ public class DebugReporterSpigot extends DebugReporter
         return sb.toString();
     }
 
-    private static String formatRegisteredListener(final RegisteredListener listener)
+    private static String formatRegisteredListener(RegisteredListener listener)
     {
         return String.format("{%s: %s (%s)}",
                              listener.getPlugin(), listener.getListener(), listener.getPriority());

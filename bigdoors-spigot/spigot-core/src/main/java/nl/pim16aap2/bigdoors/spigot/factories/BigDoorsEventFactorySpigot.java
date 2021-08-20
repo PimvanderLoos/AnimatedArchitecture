@@ -30,78 +30,64 @@ import org.jetbrains.annotations.Nullable;
 public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 {
     @Override
-    public IDoorCreatedEvent createDoorCreatedEvent(final AbstractDoor preview,
-                                                    final @Nullable IPPlayer responsible)
+    public IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview, @Nullable IPPlayer responsible)
     {
         return new DoorCreatedEvent(preview, responsible);
     }
 
     @Override
-    public IDoorPrepareCreateEvent createPrepareDoorCreateEvent(final AbstractDoor door,
-                                                                final @Nullable IPPlayer responsible)
+    public IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         return new DoorPrepareCreateEvent(door, responsible);
     }
 
     @Override
-    public IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final AbstractDoor door,
-                                                                final @Nullable IPPlayer responsible)
+    public IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         return new DoorPrepareDeleteEvent(door, responsible);
     }
 
     @Override
-    public IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(
-        final AbstractDoor door, final DoorOwner newOwner, final @Nullable IPPlayer responsible)
+    public IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(AbstractDoor door, DoorOwner newOwner,
+                                                                    @Nullable IPPlayer responsible)
     {
         return new DoorPrepareAddOwnerEvent(door, responsible, newOwner);
     }
 
     @Override
-    public IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(
-        final AbstractDoor door, final DoorOwner removedOwner,
-        final @Nullable IPPlayer responsible)
+    public IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(AbstractDoor door, DoorOwner removedOwner,
+                                                                          @Nullable IPPlayer responsible)
     {
         return new DoorPrepareRemoveOwnerEvent(door, responsible, removedOwner);
     }
 
     @Override
-    public IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(
-        final AbstractDoor door, final boolean newLockStatus, final @Nullable IPPlayer responsible)
+    public IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(AbstractDoor door, boolean newLockStatus,
+                                                                        @Nullable IPPlayer responsible)
     {
         return new DoorPrepareLockChangeEvent(door, responsible, newLockStatus);
     }
 
     @Override
-    public IDoorEventTogglePrepare createTogglePrepareEvent(final AbstractDoor door,
-                                                            final DoorActionCause cause,
-                                                            final DoorActionType actionType,
-                                                            final IPPlayer responsible,
-                                                            final double time,
-                                                            final boolean skipAnimation,
-                                                            final Cuboid newCuboid)
+    public IDoorEventTogglePrepare createTogglePrepareEvent(AbstractDoor door, DoorActionCause cause,
+                                                            DoorActionType actionType, IPPlayer responsible,
+                                                            double time, boolean skipAnimation, Cuboid newCuboid)
     {
         return new DoorEventTogglePrepare(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public IDoorEventToggleStart createToggleStartEvent(final AbstractDoor door,
-                                                        final DoorActionCause cause,
-                                                        final DoorActionType actionType,
-                                                        final IPPlayer responsible, final double time,
-                                                        final boolean skipAnimation,
-                                                        final Cuboid newCuboid)
+    public IDoorEventToggleStart createToggleStartEvent(AbstractDoor door, DoorActionCause cause,
+                                                        DoorActionType actionType, IPPlayer responsible, double time,
+                                                        boolean skipAnimation, Cuboid newCuboid)
 
     {
         return new DoorEventToggleStart(door, cause, actionType, responsible, time, skipAnimation, newCuboid);
     }
 
     @Override
-    public IDoorEventToggleEnd createToggleEndEvent(final AbstractDoor door,
-                                                    final DoorActionCause cause,
-                                                    final DoorActionType actionType,
-                                                    final IPPlayer responsible, final double time,
-                                                    final boolean skipAnimation)
+    public IDoorEventToggleEnd createToggleEndEvent(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
+                                                    IPPlayer responsible, double time, boolean skipAnimation)
     {
         return new DoorEventToggleEnd(door, cause, actionType, responsible, time, skipAnimation);
     }

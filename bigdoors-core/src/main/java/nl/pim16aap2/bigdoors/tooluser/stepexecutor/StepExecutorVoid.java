@@ -16,7 +16,7 @@ public class StepExecutorVoid extends StepExecutor
     private final Supplier<Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         if (input != null)
             BigDoors.get().getPLogger()
@@ -25,7 +25,7 @@ public class StepExecutorVoid extends StepExecutor
     }
 
     @Override
-    public boolean validInput(final @Nullable Object obj)
+    public boolean validInput(@Nullable Object obj)
     {
         return obj == null;
     }

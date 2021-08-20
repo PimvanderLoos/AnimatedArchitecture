@@ -15,7 +15,7 @@ public class StepExecutorInteger extends StepExecutor
     private final Function<Integer, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "Integer input");
         return fun.apply((Integer) input);

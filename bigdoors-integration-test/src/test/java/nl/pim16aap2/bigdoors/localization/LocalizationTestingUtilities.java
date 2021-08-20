@@ -45,7 +45,7 @@ class LocalizationTestingUtilities
         throws IOException
     {
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
-        for (final String name : names)
+        for (String name : names)
         {
             final byte[] data = "".getBytes();
             outputStream.putNextEntry(new ZipEntry(name));
@@ -77,12 +77,11 @@ class LocalizationTestingUtilities
      * @param lines        The lines to write to the entry.
      * @throws IOException
      */
-    static void writeEntry(ZipOutputStream outputStream, String fileName,
-                           List<String> lines)
+    static void writeEntry(ZipOutputStream outputStream, String fileName, List<String> lines)
         throws IOException
     {
         final StringBuilder sb = new StringBuilder();
-        for (final String line : lines)
+        for (String line : lines)
             sb.append(line).append("\n");
         writeEntry(outputStream, fileName, sb.toString().getBytes());
     }
@@ -96,8 +95,7 @@ class LocalizationTestingUtilities
      * @param data         The data to write to the entry.
      * @throws IOException
      */
-    static void writeEntry(ZipOutputStream outputStream, String fileName,
-                           byte[] data)
+    static void writeEntry(ZipOutputStream outputStream, String fileName, byte[] data)
         throws IOException
     {
         outputStream.putNextEntry(new ZipEntry(fileName));

@@ -16,7 +16,7 @@ public class StepExecutorVector3Di extends StepExecutor
     private final Function<Vector3Di, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "Vector input");
         return fun.apply((Vector3Di) input);

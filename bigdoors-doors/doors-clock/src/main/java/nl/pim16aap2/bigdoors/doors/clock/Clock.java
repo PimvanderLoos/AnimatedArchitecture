@@ -61,8 +61,7 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     @PersistentVariable
     protected PBlockFace hourArmSide;
 
-    public Clock(final DoorBase doorData, final boolean northSouthAligned,
-                 final PBlockFace hourArmSide)
+    public Clock(DoorBase doorData, boolean northSouthAligned, PBlockFace hourArmSide)
     {
         super(doorData);
         this.northSouthAligned = northSouthAligned;
@@ -82,10 +81,8 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);

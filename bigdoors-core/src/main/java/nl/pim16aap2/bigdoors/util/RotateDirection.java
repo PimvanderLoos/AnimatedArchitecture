@@ -36,7 +36,7 @@ public enum RotateDirection
         final RotateDirection[] values = RotateDirection.values();
         final Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
         final Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
-        for (final RotateDirection dir : RotateDirection.values())
+        for (RotateDirection dir : RotateDirection.values())
         {
             idMapTmp.put(dir.val, dir);
             nameMapTmp.put(dir.name(), dir);
@@ -50,7 +50,7 @@ public enum RotateDirection
     @Getter
     private final String localizationKey;
 
-    RotateDirection(final int val, final String localizationKey)
+    RotateDirection(int val, String localizationKey)
     {
         this.val = val;
         this.localizationKey = localizationKey;
@@ -62,7 +62,7 @@ public enum RotateDirection
      * @param dir The {@link RotateDirection}.
      * @return The index value of a {@link RotateDirection}.
      */
-    public static int getValue(final RotateDirection dir)
+    public static int getValue(RotateDirection dir)
     {
         return dir.val;
     }
@@ -73,7 +73,7 @@ public enum RotateDirection
      * @param dir The {@link RotateDirection}.
      * @return The {@link RotateDirection} associated with this index value.
      */
-    public static @Nullable RotateDirection valueOf(final int dir)
+    public static @Nullable RotateDirection valueOf(int dir)
     {
         try
         {
@@ -85,7 +85,7 @@ public enum RotateDirection
         }
     }
 
-    public static Optional<RotateDirection> getRotateDirection(final String name)
+    public static Optional<RotateDirection> getRotateDirection(String name)
     {
         return Optional.ofNullable(nameMap.get(name));
     }
@@ -97,7 +97,7 @@ public enum RotateDirection
      * @param dir The current {@link RotateDirection}
      * @return The opposite direction of the current {@link RotateDirection}.
      */
-    public static RotateDirection getOpposite(final RotateDirection dir)
+    public static RotateDirection getOpposite(RotateDirection dir)
     {
         switch (dir)
         {

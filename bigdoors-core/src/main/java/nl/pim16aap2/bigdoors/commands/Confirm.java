@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Confirm extends BaseCommand
 {
-    protected Confirm(final ICommandSender commandSender)
+    protected Confirm(ICommandSender commandSender)
     {
         super(commandSender);
     }

@@ -28,7 +28,7 @@ public abstract class DoorRetriever
      * @param doorID The identifier (name or UID) of the door.
      * @return The new {@link DoorRetriever}.
      */
-    public static DoorRetriever of(final String doorID)
+    public static DoorRetriever of(String doorID)
     {
         final OptionalLong doorUID = Util.parseLong(doorID);
         return doorUID.isPresent() ?
@@ -42,7 +42,7 @@ public abstract class DoorRetriever
      * @param doorUID The UID of the door.
      * @return The new {@link DoorRetriever}.
      */
-    public static DoorRetriever of(final long doorUID)
+    public static DoorRetriever of(long doorUID)
     {
         return new DoorUIDRetriever(doorUID);
     }
@@ -53,7 +53,7 @@ public abstract class DoorRetriever
      * @param door The door object itself.
      * @return The new {@link DoorRetriever}.
      */
-    public static DoorRetriever of(final AbstractDoor door)
+    public static DoorRetriever of(AbstractDoor door)
     {
         return new DoorObjectRetriever(door);
     }
@@ -88,7 +88,7 @@ public abstract class DoorRetriever
      * @param player The {@link IPPlayer} that owns the door.
      * @return The {@link AbstractDoor} if it can be found.
      */
-    public abstract CompletableFuture<Optional<AbstractDoor>> getDoor(final IPPlayer player);
+    public abstract CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player);
 
     /**
      * Attempts to retrieve a door from its specification (see {@link #getDoor(IPPlayer)}).
@@ -103,7 +103,7 @@ public abstract class DoorRetriever
      * @return The door as specified by this {@link DoorRetriever} and with user input in case more than one match was
      * found.
      */
-    public CompletableFuture<Optional<AbstractDoor>> getDoorInteractive(final IPPlayer player)
+    public CompletableFuture<Optional<AbstractDoor>> getDoorInteractive(IPPlayer player)
     {
         return getDoor(player);
     }
@@ -125,7 +125,7 @@ public abstract class DoorRetriever
      * @param player The {@link IPPlayer} that owns all matching doors.
      * @return All doors referenced by this {@link DoorRetriever}.
      */
-    public CompletableFuture<List<AbstractDoor>> getDoors(final IPPlayer player)
+    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
     {
         return optionalToList(getDoor(player));
     }
@@ -137,28 +137,10 @@ public abstract class DoorRetriever
      * @return Either an empty list (if the optional was empty) or a singleton list (if the optional was not empty).
      */
     private static CompletableFuture<List<AbstractDoor>> optionalToList(
-        final CompletableFuture<Optional<AbstractDoor>> optionalDoor)
+        CompletableFuture<Optional<AbstractDoor>> optionalDoor)
     {
         return optionalDoor.thenApply(door -> door.map(Collections::singletonList).orElseGet(Collections::emptyList))
                            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
-    }
-
-    /**
-     * Gets a single (optional/future) door from a list of (future) doors if only 1 door exists in the list.
-     *
-     * @param list The list of (future) doors.
-     * @return An optional (future) {@link AbstractDoor} if exactly 1 existed in the list, otherwise an empty optional.
-     */
-    private static CompletableFuture<Optional<AbstractDoor>> listToOptional(
-        final CompletableFuture<List<AbstractDoor>> list)
-    {
-        return list.<Optional<AbstractDoor>>thenApply(
-            doorList ->
-            {
-                if (doorList.size() == 1)
-                    return Optional.of(doorList.get(0));
-                return Optional.empty();
-            }).exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -181,7 +163,7 @@ public abstract class DoorRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractDoor>> getDoor(final IPPlayer player)
+        public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
         {
             return listToOptional(BigDoors.get().getDatabaseManager().getDoors(player, name));
         }
@@ -194,14 +176,14 @@ public abstract class DoorRetriever
         }
 
         @Override
-        public CompletableFuture<List<AbstractDoor>> getDoors(final IPPlayer player)
+        public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
         {
             return BigDoors.get().getDatabaseManager().getDoors(player, name)
                            .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractDoor>> getDoorInteractive(final IPPlayer player)
+        public CompletableFuture<Optional<AbstractDoor>> getDoorInteractive(IPPlayer player)
         {
             return getDoors(player).thenCompose(
                 doorList ->
@@ -215,6 +197,25 @@ public abstract class DoorRetriever
                     return DelayedDoorSpecificationInputRequest
                         .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
                              doorList, player);
+                }).exceptionally(Util::exceptionallyOptional);
+        }
+
+        /**
+         * Gets a single (optional/future) door from a list of (future) doors if only 1 door exists in the list.
+         *
+         * @param list The list of (future) doors.
+         * @return An optional (future) {@link AbstractDoor} if exactly 1 existed in the list, otherwise an empty
+         * optional.
+         */
+        private static CompletableFuture<Optional<AbstractDoor>> listToOptional(
+            CompletableFuture<List<AbstractDoor>> list)
+        {
+            return list.<Optional<AbstractDoor>>thenApply(
+                doorList ->
+                {
+                    if (doorList.size() == 1)
+                        return Optional.of(doorList.get(0));
+                    return Optional.empty();
                 }).exceptionally(Util::exceptionallyOptional);
         }
     }
@@ -240,7 +241,7 @@ public abstract class DoorRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractDoor>> getDoor(final IPPlayer player)
+        public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
         {
             return BigDoors.get().getDatabaseManager().getDoor(player, uid)
                            .exceptionally(Util::exceptionallyOptional);
@@ -265,7 +266,7 @@ public abstract class DoorRetriever
         }
 
         @Override
-        public CompletableFuture<Optional<AbstractDoor>> getDoor(final IPPlayer player)
+        public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
         {
             return door.getDoorOwner(player).isPresent() ?
                    getDoor() :

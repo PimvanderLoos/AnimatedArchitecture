@@ -17,7 +17,7 @@ public final class ConfigEntry<V>
     private final IConfigReader config;
     private final String optionName;
     private final V defaultValue;
-    private final @Nullable String[] comment;
+    private final String @Nullable [] comment;
     private final @Nullable ConfigEntry.TestValue<V> verifyValue;
     private V value;
 
@@ -31,9 +31,8 @@ public final class ConfigEntry<V>
      * @param comment      The comment that will preceed this option.
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(final IPLogger logger, final IConfigReader config,
-                       final String optionName, final V defaultValue,
-                       final @Nullable String[] comment, final @Nullable ConfigEntry.TestValue<V> verifyValue)
+    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
+                       String @Nullable [] comment, @Nullable ConfigEntry.TestValue<V> verifyValue)
     {
         this.logger = logger;
         this.config = config;
@@ -53,9 +52,8 @@ public final class ConfigEntry<V>
      * @param defaultValue The default value of this option.
      * @param comment      The comment that will preceed this option.
      */
-    public ConfigEntry(final IPLogger logger, final IConfigReader config,
-                       final String optionName, final V defaultValue,
-                       final @Nullable String[] comment)
+    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
+                       String @Nullable [] comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
     }
@@ -70,8 +68,6 @@ public final class ConfigEntry<V>
         try
         {
             value = (V) config.get(optionName, defaultValue);
-            if (value == null)
-                value = defaultValue;
         }
         catch (Exception e)
         {
@@ -98,7 +94,7 @@ public final class ConfigEntry<V>
      *
      * @return The comment of the config option.
      */
-    public @Nullable String[] getComment()
+    public String @Nullable [] getComment()
     {
         return comment;
     }
@@ -122,7 +118,7 @@ public final class ConfigEntry<V>
 
         string += optionName + ": ";
         if (value.getClass().isAssignableFrom(String.class))
-            string += "\'" + value.toString() + "\'";
+            string += "'" + value + "'";
         else if (value instanceof List<?>)
         {
             StringBuilder builder = new StringBuilder();
@@ -155,6 +151,6 @@ public final class ConfigEntry<V>
          * @param value The value to check.
          * @return The value if it was valid, otherwise the value made valid.
          */
-        T test(final T value);
+        T test(T value);
     }
 }

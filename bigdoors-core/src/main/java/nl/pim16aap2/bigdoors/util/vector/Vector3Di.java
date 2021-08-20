@@ -51,7 +51,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
      * @return A new {@link Vector3Di} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Di add(final Vector3Di other)
+    public Vector3Di add(Vector3Di other)
     {
         return new Vector3Di(other.x, other.y, other.z);
     }
@@ -90,7 +90,7 @@ public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
      * @return The new {@link Vector3Di} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector3Di subtract(final Vector3Di other)
+    public Vector3Di subtract(Vector3Di other)
     {
         return new Vector3Di(other.x, other.y, other.z);
     }

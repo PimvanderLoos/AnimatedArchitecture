@@ -25,7 +25,7 @@ public class PowerBlockRelocator extends ToolUser
     private final AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(final IPPlayer player, final AbstractDoor door)
+    public PowerBlockRelocator(IPPlayer player, AbstractDoor door)
     {
         super(player);
         this.door = door;
@@ -38,7 +38,7 @@ public class PowerBlockRelocator extends ToolUser
                  "tool_user.powerblock_relocator.init");
     }
 
-    protected boolean moveToLoc(final IPLocation loc)
+    protected boolean moveToLoc(IPLocation loc)
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {

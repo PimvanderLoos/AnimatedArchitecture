@@ -17,12 +17,12 @@ public class CreatorElevator extends CreatorPortcullis
 {
     private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
 
-    public CreatorElevator(final IPPlayer player, final @Nullable String name)
+    public CreatorElevator(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorElevator(final IPPlayer player)
+    public CreatorElevator(IPPlayer player)
     {
         this(player, null);
     }

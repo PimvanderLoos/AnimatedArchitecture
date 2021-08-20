@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +23,7 @@ public final class PPlayerSpigot implements IPPlayer
 {
     final Player spigotPlayer;
 
-    public PPlayerSpigot(final Player spigotPlayer)
+    public PPlayerSpigot(Player spigotPlayer)
     {
         this.spigotPlayer = spigotPlayer;
     }
@@ -86,7 +87,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public void sendMessage(final Level level, final String message)
+    public void sendMessage(Level level, String message)
     {
         spigotPlayer.sendMessage(message);
     }
@@ -108,7 +109,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o)
             return true;

@@ -380,7 +380,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public boolean isMainThread(final long compareThread)
+    public boolean isMainThread(long compareThread)
     {
         return compareThread == MAINTHREADID;
     }
@@ -391,33 +391,30 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return pExecutor;
     }
 
-    public Optional<String> canBreakBlock(final IPPlayer player, final IPLocation loc)
+    public Optional<String> canBreakBlock(IPPlayer player, IPLocation loc)
     {
         return protectionCompatManager.canBreakBlock(player, loc);
     }
 
-    public Optional<String> canBreakBlocksBetweenLocs(final IPPlayer player,
-                                                      final Vector3Di pos1,
-                                                      final Vector3Di pos2,
-                                                      final IPWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world)
     {
         return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
 
     @Override
-    public void registerRestartable(final IRestartable restartable)
+    public void registerRestartable(IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(final IRestartable restartable)
+    public boolean isRestartableRegistered(IRestartable restartable)
     {
         return restartables.contains(restartable);
     }
 
     @Override
-    public void deregisterRestartable(final IRestartable restartable)
+    public void deregisterRestartable(IRestartable restartable)
     {
         restartables.remove(restartable);
     }
@@ -480,7 +477,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return this;
     }
 
-    public void onPlayerLogout(final Player player)
+    public void onPlayerLogout(Player player)
     {
         getDelayedCommandInputManager().cancelAll(SpigotAdapter.wrapPlayer(player));
         toolUserManager.abortToolUser(player.getUniqueId());
@@ -535,7 +532,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public void callDoorEvent(final IBigDoorsEvent doorEvent)
+    public void callDoorEvent(IBigDoorsEvent doorEvent)
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
         {

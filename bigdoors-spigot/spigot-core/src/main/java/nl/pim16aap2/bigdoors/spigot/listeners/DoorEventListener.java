@@ -15,7 +15,7 @@ public class DoorEventListener implements Listener
     private static @Nullable DoorEventListener INSTANCE;
     private final DoorOpener doorOpener;
 
-    private DoorEventListener(final DoorOpener doorOpener)
+    private DoorEventListener(DoorOpener doorOpener)
     {
         this.doorOpener = doorOpener;
     }
@@ -27,7 +27,7 @@ public class DoorEventListener implements Listener
      * @param doorOpener The {@link DoorOpener} used to open, close, and toggle doors.
      * @return The instance of this {@link DoorEventListener}.
      */
-    public static DoorEventListener init(final DoorOpener doorOpener)
+    public static DoorEventListener init(DoorOpener doorOpener)
     {
         return (INSTANCE == null) ? INSTANCE = new DoorEventListener(doorOpener) : INSTANCE;
     }

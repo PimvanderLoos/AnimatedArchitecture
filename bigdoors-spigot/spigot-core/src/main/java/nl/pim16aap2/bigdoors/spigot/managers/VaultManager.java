@@ -59,7 +59,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param plugin The {@link BigDoorsSpigot} instance.
      * @return The {@link VaultManager} instance.
      */
-    public static VaultManager init(final BigDoorsSpigot plugin)
+    public static VaultManager init(BigDoorsSpigot plugin)
     {
         if (!plugin.isRestartableRegistered(INSTANCE))
             plugin.registerRestartable(INSTANCE);
@@ -69,8 +69,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean buyDoor(final IPPlayer player, final IPWorld world, final DoorType type,
-                           final int blockCount)
+    public boolean buyDoor(IPPlayer player, IPWorld world, DoorType type, int blockCount)
     {
         if (!economyEnabled)
             return true;
@@ -112,7 +111,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      *
      * @param type The {@link DoorType}.
      */
-    private void getFlatPrice(final DoorType type)
+    private void getFlatPrice(DoorType type)
     {
         Util.parseDouble(plugin.getConfigLoader().getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
@@ -133,7 +132,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param permission The permission node.
      * @return True if the player has the node.
      */
-    public boolean hasPermission(final Player player, final String permission)
+    public boolean hasPermission(Player player, String permission)
     {
         return permissionsEnabled && perms != null && perms.playerHas(player.getWorld().getName(), player, permission);
     }
@@ -145,7 +144,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param blockCount The number of blocks in the door.
      * @return The price of the door given the formula and the blockCount variabel.
      */
-    private double evaluateFormula(final String formula, final int blockCount)
+    private double evaluateFormula(String formula, int blockCount)
     {
         try
         {
@@ -160,7 +159,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalDouble getPrice(final DoorType type, final int blockCount)
+    public OptionalDouble getPrice(DoorType type, int blockCount)
     {
         if (!economyEnabled)
             return OptionalDouble.empty();
@@ -179,7 +178,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param amount The amount of money.
      * @return True if the player has at least this much money.
      */
-    private boolean has(final OfflinePlayer player, final double amount)
+    private boolean has(OfflinePlayer player, double amount)
     {
         final boolean defaultValue = true;
         if (economy == null)
@@ -209,8 +208,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param amount    The amount of money.
      * @return True if the money was successfully withdrawn from the player's accounts.
      */
-    private boolean withdrawPlayer(final OfflinePlayer player, final String worldName,
-                                   final double amount)
+    private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
     {
         final boolean defaultValue = true;
         if (economy == null)
@@ -243,7 +241,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * @param amount    The amount of money.
      * @return True if the money was successfully withdrawn from the player's accounts.
      */
-    private boolean withdrawPlayer(final Player player, final String worldName, final double amount)
+    private boolean withdrawPlayer(Player player, String worldName, double amount)
     {
         return withdrawPlayer(Bukkit.getOfflinePlayer(player.getUniqueId()), worldName, amount);
     }
@@ -274,8 +272,9 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     {
         try
         {
-            final RegisteredServiceProvider<Economy> economyProvider = plugin.getServer().getServicesManager()
-                                                                             .getRegistration(Economy.class);
+            final @Nullable RegisteredServiceProvider<Economy> economyProvider =
+                plugin.getServer().getServicesManager().getRegistration(Economy.class);
+
             if (economyProvider == null)
                 return false;
 
@@ -299,8 +298,9 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     {
         try
         {
-            final RegisteredServiceProvider<Permission> permissionProvider = plugin.getServer().getServicesManager()
-                                                                                   .getRegistration(Permission.class);
+            final @Nullable RegisteredServiceProvider<Permission> permissionProvider =
+                plugin.getServer().getServicesManager().getRegistration(Permission.class);
+
             if (permissionProvider == null)
                 return false;
 
@@ -328,8 +328,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public OptionalInt getMaxPermissionSuffix(final IPPlayer player,
-                                              final String permissionBase)
+    public OptionalInt getMaxPermissionSuffix(IPPlayer player, String permissionBase)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -342,7 +341,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final int permissionBaseLength = permissionBase.length();
         final Set<PermissionAttachmentInfo> playerPermissions = bukkitPlayer.getEffectivePermissions();
         int ret = -1;
-        for (final PermissionAttachmentInfo permission : playerPermissions)
+        for (PermissionAttachmentInfo permission : playerPermissions)
             if (permission.getPermission().startsWith(permissionBase))
             {
                 final OptionalInt suffix = Util.parseInt(permission.getPermission().substring(permissionBaseLength));
@@ -353,7 +352,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean hasPermission(final IPPlayer player, final String permissionNode)
+    public boolean hasPermission(IPPlayer player, String permissionNode)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
@@ -367,7 +366,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public boolean isOp(final IPPlayer player)
+    public boolean isOp(IPPlayer player)
     {
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)

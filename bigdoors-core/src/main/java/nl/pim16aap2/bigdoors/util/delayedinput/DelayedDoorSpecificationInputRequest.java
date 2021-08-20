@@ -22,9 +22,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
     private final List<AbstractDoor> options;
     private final IPPlayer player;
 
-    private DelayedDoorSpecificationInputRequest(final Duration timeout,
-                                                 final List<AbstractDoor> options,
-                                                 final IPPlayer player)
+    private DelayedDoorSpecificationInputRequest(Duration timeout, List<AbstractDoor> options, IPPlayer player)
     {
         super(timeout.toMillis());
         this.options = options;
@@ -48,16 +46,15 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
      * <p>
      * Note that this will block the current thread until either one of the exit conditions is met.
      *
-     * @param timeout The amount of time to give the user to provide the required input.
+     * @param timeout The amount of time to give the user to provide the input.
      *                <p>
      *                If the user fails to provide input within this timeout window, an empty result will be returned.
      * @param options The list of options they can choose from.
      * @param player  The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static CompletableFuture<Optional<AbstractDoor>> get(final Duration timeout,
-                                                                final List<AbstractDoor> options,
-                                                                final IPPlayer player)
+    public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,
+                                                                IPPlayer player)
     {
         if (options.size() == 1)
             return CompletableFuture.completedFuture(Optional.of(options.get(0)));
@@ -82,7 +79,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
     }
 
-    private void getDoorInfoList(final StringBuilder sb)
+    private void getDoorInfoList(StringBuilder sb)
     {
         final Optional<IPLocation> location = player.getLocation();
 

@@ -51,8 +51,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     @PersistentVariable
     protected boolean modeUp;
 
-    public Drawbridge(final DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
-                      final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
     {
         super(doorBase);
         this.autoOpenTime = autoOpenTime;
@@ -60,13 +59,13 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         this.modeUp = modeUp;
     }
 
-    public Drawbridge(final DoorBase doorBase, final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, boolean modeUp)
     {
         this(doorBase, -1, -1, modeUp);
     }
 
     @SuppressWarnings("unused")
-    private Drawbridge(final DoorBase doorBase)
+    private Drawbridge(DoorBase doorBase)
     {
         this(doorBase, false); // Add tmp/default values
     }
@@ -107,10 +106,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,

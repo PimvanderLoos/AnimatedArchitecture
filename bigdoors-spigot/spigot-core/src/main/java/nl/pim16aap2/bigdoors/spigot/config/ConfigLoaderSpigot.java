@@ -83,7 +83,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param plugin The Spigot core.
      * @param logger The logger used for error logging.
      */
-    private ConfigLoaderSpigot(final BigDoorsSpigot plugin, final IPLogger logger)
+    private ConfigLoaderSpigot(BigDoorsSpigot plugin, IPLogger logger)
     {
         this.plugin = plugin;
         this.logger = logger;
@@ -101,7 +101,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param logger The logger used for error logging.
      * @return The instance of this {@link ConfigLoaderSpigot}.
      */
-    public static ConfigLoaderSpigot init(final BigDoorsSpigot plugin, final IPLogger logger)
+    public static ConfigLoaderSpigot init(BigDoorsSpigot plugin, IPLogger logger)
     {
         return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
     }
@@ -293,13 +293,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
 
 
-        String[] usedMulitplierComment = multiplierComment;
-        String[] usedPricesComment = pricesComment;
-        for (final DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        String @Nullable [] usedMulitplierComment = multiplierComment;
+        String @Nullable [] usedPricesComment = pricesComment;
+        for (DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
         {
-            doorMultipliers
-                .put(type, addNewConfigEntry(config, "multiplier_" + type.toString(), 0.0D, usedMulitplierComment));
-            doorPrices.put(type, addNewConfigEntry(config, "price_" + type.toString(), "0", usedPricesComment));
+            doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMulitplierComment));
+            doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));
 
             usedMulitplierComment = null;
             usedPricesComment = null;
@@ -321,14 +320,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private void printInfo()
     {
         logger.info("Power Block Types:");
-        powerBlockTypes.forEach(mat -> logger.info(" - " + mat.toString()));
+        powerBlockTypes.forEach(mat -> logger.info(" - " + mat));
 
         if (materialBlacklist.isEmpty())
             logger.info("No materials are blacklisted!");
         else
         {
             logger.info("Blacklisted materials:");
-            materialBlacklist.forEach(mat -> logger.info(" - " + mat.toString()));
+            materialBlacklist.forEach(mat -> logger.info(" - " + mat));
         }
     }
 
@@ -342,8 +341,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param comment      The comment to accompany the option in the config.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private <T> T addNewConfigEntry(final IConfigReader config, final String optionName,
-                                    final T defaultValue, final @Nullable String[] comment)
+    private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
+                                    String @Nullable [] comment)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -361,9 +360,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
      * @return The value as read from the config file if it exists or the default value.
      */
-    private <T> T addNewConfigEntry(final IConfigReader config, final String optionName,
-                                    final T defaultValue, final String[] comment,
-                                    final ConfigEntry.TestValue<T> verifyValue)
+    private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
+                                    ConfigEntry.TestValue<T> verifyValue)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
                                                   verifyValue);
@@ -382,14 +380,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists() && !dataFolder.mkdirs())
             {
-                logger.logThrowable(new IOException("Failed to create folder: \"" + dataFolder.toString() + "\""));
+                logger.logThrowable(new IOException("Failed to create folder: \"" + dataFolder + "\""));
                 return;
             }
 
             File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists() && !saveTo.createNewFile())
             {
-                logger.logThrowable(new IOException("Failed to create file: \"" + saveTo.toString() + "\""));
+                logger.logThrowable(new IOException("Failed to create file: \"" + saveTo + "\""));
                 return;
             }
 
@@ -409,8 +407,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             try (FileWriter fw = new FileWriter(saveTo, false);
                  PrintWriter pw = new PrintWriter(fw))
             {
-                if (header != null)
-                    pw.println("# " + header + "\n");
+                pw.println("# " + header + "\n");
 
                 for (int idx = 0; idx < configEntries.size(); ++idx)
                     pw.println(configEntries.get(idx).toString() +
@@ -423,8 +420,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 logger.logThrowable(e, "Could not write to config.yml! "
                     + "Please contact pim16aap2 and show him the following stacktrace:");
             }
-
-
         }
         catch (IOException e)
         {
@@ -536,7 +531,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param hook The {@link ProtectionCompat}.
      * @return True if this {@link ProtectionCompat} is enabled.
      */
-    public boolean isHookEnabled(final ProtectionCompat hook)
+    public boolean isHookEnabled(ProtectionCompat hook)
     {
         return hooksMap.getOrDefault(hook, false);
     }
@@ -558,7 +553,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public String getPrice(final DoorType type)
+    public String getPrice(DoorType type)
     {
         String ret = doorPrices.get(type);
         if (ret != null)
@@ -568,7 +563,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public double getMultiplier(final DoorType type)
+    public double getMultiplier(DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
     }
@@ -597,7 +592,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          *
          * @param output The set to write the parsed materials to.
          */
-        private MaterialVerifier(final Set<Material> output)
+        private MaterialVerifier(Set<Material> output)
         {
             this.output = output;
             output.clear();
@@ -619,8 +614,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * @param output The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
-        private static List<String> verifyMaterials(final List<String> input,
-                                                    final Set<Material> output)
+        private static List<String> verifyMaterials(List<String> input, Set<Material> output)
         {
             output.clear();
             Iterator<String> it = input.iterator();

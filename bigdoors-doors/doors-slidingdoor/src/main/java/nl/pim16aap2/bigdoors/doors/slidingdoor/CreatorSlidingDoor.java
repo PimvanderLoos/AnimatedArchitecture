@@ -22,12 +22,12 @@ public class CreatorSlidingDoor extends Creator
 
     protected int blocksToMove;
 
-    public CreatorSlidingDoor(final IPPlayer player, final @Nullable String name)
+    public CreatorSlidingDoor(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorSlidingDoor(final IPPlayer player)
+    public CreatorSlidingDoor(IPPlayer player)
     {
         this(player, null);
     }
@@ -51,7 +51,7 @@ public class CreatorSlidingDoor extends Creator
                              factoryCompleteProcess.messageKey("creator.sliding_door.success").construct());
     }
 
-    protected boolean setBlocksToMove(final int blocksToMove)
+    protected boolean setBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
             return false;

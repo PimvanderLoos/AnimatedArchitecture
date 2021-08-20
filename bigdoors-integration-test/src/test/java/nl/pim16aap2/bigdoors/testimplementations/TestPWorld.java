@@ -9,7 +9,7 @@ public final class TestPWorld implements IPWorld
     private final boolean exists;
     private final WorldTime time;
 
-    public TestPWorld(final String name)
+    public TestPWorld(String name)
     {
         worldName = name;
         exists = true;

@@ -30,7 +30,8 @@ public final class DoorSpecificationManager extends Restartable
      * @param player The player to check.
      * @return True if there is an open door specification request for the player.
      */
-    public boolean isActive(final IPPlayer player)
+    @SuppressWarnings("unused")
+    public boolean isActive(IPPlayer player)
     {
         return requests.containsKey(player);
     }
@@ -44,7 +45,7 @@ public final class DoorSpecificationManager extends Restartable
      * @param player  The player to request.
      * @param request The request.
      */
-    public void placeRequest(final IPPlayer player, final DelayedInputRequest<String> request)
+    public void placeRequest(IPPlayer player, DelayedInputRequest<String> request)
     {
         requests.compute(
             player, (key, value) ->
@@ -63,7 +64,7 @@ public final class DoorSpecificationManager extends Restartable
      * @param input  The input to handle.
      * @return False if no request could be found for the player.
      */
-    public boolean handleInput(final IPPlayer player, final String input)
+    public boolean handleInput(IPPlayer player, String input)
     {
         final @Nullable DelayedInputRequest<String> request = requests.get(player);
         if (request == null)
@@ -78,7 +79,7 @@ public final class DoorSpecificationManager extends Restartable
      *
      * @param player The player whose requests to cancel.
      */
-    public void cancelRequest(final IPPlayer player)
+    public void cancelRequest(IPPlayer player)
     {
         Optional.ofNullable(requests.remove(player)).ifPresent(DelayedInputRequest::cancel);
     }

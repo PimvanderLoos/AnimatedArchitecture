@@ -22,12 +22,12 @@ public class CreatorPortcullis extends Creator
 
     protected int blocksToMove;
 
-    public CreatorPortcullis(final IPPlayer player, final @Nullable String name)
+    public CreatorPortcullis(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorPortcullis(final IPPlayer player)
+    public CreatorPortcullis(IPPlayer player)
     {
         this(player, null);
     }
@@ -51,7 +51,7 @@ public class CreatorPortcullis extends Creator
                              factoryCompleteProcess.messageKey("creator.portcullis.success").construct());
     }
 
-    protected boolean setBlocksToMove(final int blocksToMove)
+    protected boolean setBlocksToMove(int blocksToMove)
     {
         if (blocksToMove < 1)
             return false;

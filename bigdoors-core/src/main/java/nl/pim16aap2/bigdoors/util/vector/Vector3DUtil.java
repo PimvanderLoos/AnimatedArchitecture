@@ -31,8 +31,7 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static Vector3Dd rotateAroundXAxis(IVector3D basePoint, IVector3D pivotPoint,
-                                       double radians)
+    static Vector3Dd rotateAroundXAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -50,8 +49,7 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static Vector3Dd rotateAroundYAxis(IVector3D basePoint, IVector3D pivotPoint,
-                                       double radians)
+    static Vector3Dd rotateAroundYAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);
@@ -68,8 +66,7 @@ class Vector3DUtil
     }
 
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
-    static Vector3Dd rotateAroundZAxis(IVector3D basePoint, IVector3D pivotPoint,
-                                       double radians)
+    static Vector3Dd rotateAroundZAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
         final double sin = Math.sin(radians);

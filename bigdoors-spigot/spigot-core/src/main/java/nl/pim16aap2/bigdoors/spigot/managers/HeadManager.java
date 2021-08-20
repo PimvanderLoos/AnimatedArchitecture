@@ -43,7 +43,7 @@ public final class HeadManager extends Restartable
      * @param holder The {@link IRestartableHolder} that manages this object.
      * @param config The BigDoors configuration.
      */
-    private HeadManager(final IRestartableHolder holder, final ConfigLoaderSpigot config)
+    private HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
     {
         super(holder);
         this.config = config;
@@ -58,8 +58,7 @@ public final class HeadManager extends Restartable
      * @param config The BigDoors configuration.
      * @return The instance of this {@link HeadManager}.
      */
-    public static HeadManager init(final IRestartableHolder holder,
-                                   final ConfigLoaderSpigot config)
+    public static HeadManager init(IRestartableHolder holder, ConfigLoaderSpigot config)
     {
         return (INSTANCE == null) ? INSTANCE = new HeadManager(holder, config) : INSTANCE;
     }
@@ -82,8 +81,7 @@ public final class HeadManager extends Restartable
      * @param displayName The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
-    public CompletableFuture<Optional<ItemStack>> getPlayerHead(final UUID playerUUID,
-                                                                final String displayName)
+    public CompletableFuture<Optional<ItemStack>> getPlayerHead(UUID playerUUID, String displayName)
     {
         return CompletableFuture.supplyAsync(
                                     () -> headMap.computeIfAbsent(playerUUID, (p) -> createItemStack(playerUUID, displayName))
@@ -91,12 +89,11 @@ public final class HeadManager extends Restartable
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
-    private Optional<ItemStack> createItemStack(final UUID playerUUID,
-                                                final String displayName)
+    private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)
     {
         OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-        SkullMeta smeta = (SkullMeta) skull.getItemMeta();
+        @Nullable SkullMeta smeta = (SkullMeta) skull.getItemMeta();
         if (smeta == null)
             return Optional.empty();
         smeta.setOwningPlayer(oPlayer);

@@ -30,7 +30,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     private final JavaPlugin plotSquaredPlugin;
     private boolean success = false;
 
-    public PlotSquaredNewProtectionCompat(final BigDoorsSpigot plugin)
+    public PlotSquaredNewProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         plotSquaredPlugin = JavaPlugin.getPlugin(com.github.intellectualsites.plotsquared.bukkit.BukkitMain.class);
@@ -38,7 +38,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc);
         com.github.intellectualsites.plotsquared.plot.object.PlotArea area = psLocation.getPlotArea();
@@ -49,7 +49,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return canBreakBlock(player, area, area.getPlot(psLocation), loc);
     }
 
-    private boolean isHeightAllowed(final Player player, final PlotArea area, final int height)
+    private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
             return plugin.getVaultManager()
@@ -63,8 +63,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     // Check if a given player is allowed to build in a given plot.
     // Adapted from:
     // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
-    private boolean canBreakBlock(final Player player, final PlotArea area, @Nullable Plot plot,
-                                  final Location loc)
+    private boolean canBreakBlock(Player player, PlotArea area, @Nullable Plot plot, Location loc)
     {
         if (plot != null)
         {
@@ -95,8 +94,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -109,7 +107,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-        Plot checkPlot = null;
+        @Nullable Plot checkPlot = null;
 
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)
@@ -125,7 +123,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 
                 loc.setY(area.MAX_BUILD_HEIGHT - 1);
 
-                Plot newPlot = area.getPlot(psLocation);
+                @Nullable Plot newPlot = area.getPlot(psLocation);
                 if (checkPlot == null || !checkPlot.equals(newPlot))
                 {
                     checkPlot = newPlot;

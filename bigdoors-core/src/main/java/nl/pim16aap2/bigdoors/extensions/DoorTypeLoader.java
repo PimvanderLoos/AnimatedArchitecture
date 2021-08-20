@@ -59,29 +59,29 @@ public final class DoorTypeLoader extends Restartable
         return INSTANCE;
     }
 
-    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(final File file)
+    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(File file)
     {
-        BigDoors.get().getPLogger().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file.toString());
+        BigDoors.get().getPLogger().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file);
         if (!file.toString().endsWith(".jar"))
         {
             BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalArgumentException("\"" + file.toString() + "\" is not a valid jar file!"));
+                    .logThrowable(new IllegalArgumentException("\"" + file + "\" is not a valid jar file!"));
             return Optional.empty();
         }
 
-        final String typeName;
+        final @Nullable String typeName;
         final String className;
         @Nullable String dependencies;
         final int version;
-        try (final FileInputStream fileInputStream = new FileInputStream(file);
+        try (FileInputStream fileInputStream = new FileInputStream(file);
              final JarInputStream jarStream = new JarInputStream(fileInputStream))
         {
             final Manifest manifest = jarStream.getManifest();
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (className == null)
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its main class!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its main class!"));
                 return Optional.empty();
             }
 
@@ -89,8 +89,8 @@ public final class DoorTypeLoader extends Restartable
             typeName = typeNameSection != null ? typeNameSection.getValue("TypeName") : null;
             if (typeName == null)
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its type name!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its type name!"));
                 return Optional.empty();
             }
 
@@ -99,8 +99,8 @@ public final class DoorTypeLoader extends Restartable
                                                          null : versionSection.getValue("Version"));
             if (versionOpt.isEmpty())
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its version!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its version!"));
                 return Optional.empty();
             }
             version = versionOpt.getAsInt();
@@ -126,6 +126,7 @@ public final class DoorTypeLoader extends Restartable
      * <p>
      * See also {@link #loadDoorTypesFromDirectory(String)}.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public List<DoorType> loadDoorTypesFromDirectory()
     {
         return loadDoorTypesFromDirectory(
@@ -138,11 +139,11 @@ public final class DoorTypeLoader extends Restartable
      * @param directory The directory.
      * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    public List<DoorType> loadDoorTypesFromDirectory(final String directory)
+    public List<DoorType> loadDoorTypesFromDirectory(String directory)
     {
         final List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
 
-        try (final Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
+        try (Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
         {
             final Stream<Path> result = walk.filter(Files::isRegularFile);
             result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfos::add));

@@ -50,7 +50,7 @@ public record Vector2Di(int x, int y)
      * @return A new {@link Vector2Di} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Di add(final Vector2Di other)
+    public Vector2Di add(Vector2Di other)
     {
         return new Vector2Di(other.x, other.y);
     }
@@ -88,7 +88,7 @@ public record Vector2Di(int x, int y)
      * @return The new {@link Vector2Di} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
-    public Vector2Di subtract(final Vector2Di other)
+    public Vector2Di subtract(Vector2Di other)
     {
         return new Vector2Di(other.x, other.y);
     }

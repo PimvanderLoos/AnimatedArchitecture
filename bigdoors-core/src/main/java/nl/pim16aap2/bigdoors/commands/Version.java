@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Version extends BaseCommand
 {
-    protected Version(final ICommandSender commandSender)
+    protected Version(ICommandSender commandSender)
     {
         super(commandSender);
     }

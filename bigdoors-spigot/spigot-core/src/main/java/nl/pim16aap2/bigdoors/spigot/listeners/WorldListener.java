@@ -20,10 +20,10 @@ public class WorldListener implements Listener
 
     private final PowerBlockManager powerBlockManager;
 
-    private WorldListener(final PowerBlockManager powerBlockManager)
+    private WorldListener(PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;
-        for (final World world : Bukkit.getWorlds())
+        for (World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());
     }
 
@@ -33,19 +33,19 @@ public class WorldListener implements Listener
      * @param powerBlockManager The {@link PowerBlockManager}.
      * @return The instance of this {@link WorldListener}.
      */
-    public static WorldListener init(final PowerBlockManager powerBlockManager)
+    public static WorldListener init(PowerBlockManager powerBlockManager)
     {
         return INSTANCE == null ? INSTANCE = new WorldListener(powerBlockManager) : INSTANCE;
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onWorldLoad(final WorldLoadEvent event)
+    public void onWorldLoad(WorldLoadEvent event)
     {
         powerBlockManager.loadWorld(event.getWorld().getName());
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onWorldUnload(final WorldUnloadEvent event)
+    public void onWorldUnload(WorldUnloadEvent event)
     {
         powerBlockManager.unloadWorld(event.getWorld().getName());
     }

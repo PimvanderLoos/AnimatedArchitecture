@@ -10,18 +10,23 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Represents a procedure as defined by a series of {@link IStep}s.
+ *
+ * @author Pim
+ */
 @ToString
 public final class Procedure
 {
     @Getter
     private @Nullable IStep currentStep;
 
-    @ToString.Exclude
-    protected final ToolUser toolUser;
+    @ToString.Exclude //
+    final ToolUser toolUser;
 
     final Iterator<IStep> steps;
 
-    public Procedure(final ToolUser toolUser, final List<IStep> steps)
+    public Procedure(ToolUser toolUser, List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
@@ -64,7 +69,7 @@ public final class Procedure
      * @param goalStep The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(final IStep goalStep)
+    public boolean skipToStep(IStep goalStep)
     {
         while (steps.hasNext())
         {
@@ -84,7 +89,7 @@ public final class Procedure
      * @param obj The input to apply.
      * @return True if the application was successful.
      */
-    public boolean applyStepExecutor(final @Nullable Object obj)
+    public boolean applyStepExecutor(@Nullable Object obj)
     {
         if (currentStep == null)
         {

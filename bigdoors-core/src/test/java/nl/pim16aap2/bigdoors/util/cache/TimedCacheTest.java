@@ -349,7 +349,7 @@ class TimedCacheTest
      *
      * @param millis The number of milliseconds to sleep for.
      */
-    public static void sleep(final long millis)
+    public static void sleep(long millis)
     {
         try
         {
@@ -369,7 +369,7 @@ class TimedCacheTest
      * @param val      The value to compare against the value inside the optional.
      * @param <T>      The type of the values to compare.
      */
-    public static <T> void optionalEquals(final Optional<T> optional, final T val)
+    public static <T> void optionalEquals(Optional<T> optional, T val)
     {
         Assertions.assertTrue(optional.isPresent());
         Assertions.assertEquals(val, optional.get());
@@ -385,12 +385,12 @@ class TimedCacheTest
         @Setter
         private long currentMillis;
 
-        public void addMillis(final long millis)
+        public void addMillis(long millis)
         {
             currentMillis += millis;
         }
 
-        public MockClock(final long currentMillis)
+        public MockClock(long currentMillis)
         {
             this.currentMillis = currentMillis;
         }

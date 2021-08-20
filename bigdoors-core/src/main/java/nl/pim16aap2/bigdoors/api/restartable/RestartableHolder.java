@@ -13,19 +13,19 @@ public class RestartableHolder implements IRestartableHolder
     protected final Set<IRestartable> restartables = new LinkedHashSet<>();
 
     @Override
-    public void registerRestartable(final IRestartable restartable)
+    public void registerRestartable(IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(final IRestartable restartable)
+    public boolean isRestartableRegistered(IRestartable restartable)
     {
         return restartables.contains(restartable);
     }
 
     @Override
-    public void deregisterRestartable(final IRestartable restartable)
+    public void deregisterRestartable(IRestartable restartable)
     {
         restartables.remove(restartable);
     }

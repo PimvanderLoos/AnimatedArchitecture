@@ -45,13 +45,13 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public Flag(final DoorBase doorBase, final boolean northSouthAligned)
+    public Flag(DoorBase doorBase, boolean northSouthAligned)
     {
         super(doorBase);
         this.northSouthAligned = northSouthAligned;
     }
 
-    private Flag(final DoorBase doorBase)
+    private Flag(DoorBase doorBase)
     {
         this(doorBase, false); // Add tmp/default values
     }
@@ -76,10 +76,8 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new FlagMover(60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);

@@ -65,8 +65,8 @@ public final class AutoCloseScheduler extends Restartable
      * @param speed         The speed at which the door should move.
      * @param skipAnimation Whether the door should be animated or not.
      */
-    synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(
-        final IPPlayer player, final T door, double speed, boolean skipAnimation)
+    synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(IPPlayer player, T door,
+                                                                                    double speed, boolean skipAnimation)
     {
         final int autoCloseTimer = door.getAutoCloseTime();
         if (autoCloseTimer < 0 || !door.isOpen())

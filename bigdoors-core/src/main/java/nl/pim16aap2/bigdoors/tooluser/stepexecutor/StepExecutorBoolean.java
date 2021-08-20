@@ -15,7 +15,7 @@ public class StepExecutorBoolean extends StepExecutor
     private final Function<Boolean, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "Boolean input");
         return fun.apply((Boolean) input);

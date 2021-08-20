@@ -31,8 +31,7 @@ public interface IBigDoorsEventFactory
      * @param preview     The preview of the door that is to be created.
      * @param responsible The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorCreatedEvent createDoorCreatedEvent(final AbstractDoor preview,
-                                             final @Nullable IPPlayer responsible);
+    IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorCreatedEvent} and assumes it was not created by an {@link IPPlayer}.
@@ -42,7 +41,7 @@ public interface IBigDoorsEventFactory
      *
      * @param preview The preview of the door that is to be created.
      */
-    default IDoorCreatedEvent createDoorCreatedEvent(final AbstractDoor preview)
+    default IDoorCreatedEvent createDoorCreatedEvent(AbstractDoor preview)
     {
         return createDoorCreatedEvent(preview, null);
     }
@@ -53,8 +52,7 @@ public interface IBigDoorsEventFactory
      * @param door        The door that was created.
      * @param responsible The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareCreateEvent createPrepareDoorCreateEvent(final AbstractDoor door,
-                                                         final @Nullable IPPlayer responsible);
+    IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareCreateEvent} and assumes it was not created by an {@link IPPlayer}.
@@ -64,7 +62,7 @@ public interface IBigDoorsEventFactory
      *
      * @param door The door that was created.
      */
-    default IDoorPrepareCreateEvent createPrepareDoorCreateEvent(final AbstractDoor door)
+    default IDoorPrepareCreateEvent createPrepareDoorCreateEvent(AbstractDoor door)
     {
         return createPrepareDoorCreateEvent(door, null);
     }
@@ -75,8 +73,7 @@ public interface IBigDoorsEventFactory
      * @param door        The {@link AbstractDoor} that will be deleted.
      * @param responsible The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final AbstractDoor door,
-                                                         final @Nullable IPPlayer responsible);
+    IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door, @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
@@ -86,7 +83,7 @@ public interface IBigDoorsEventFactory
      *
      * @param door The {@link AbstractDoor} that will be deleted.
      */
-    default IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(final AbstractDoor door)
+    default IDoorPrepareDeleteEvent createPrepareDeleteDoorEvent(AbstractDoor door)
     {
         return createPrepareDeleteDoorEvent(door, null);
     }
@@ -98,9 +95,8 @@ public interface IBigDoorsEventFactory
      * @param newOwner    The new {@link DoorOwner} that is to be added to the door.
      * @param responsible The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(final AbstractDoor door,
-                                                             final DoorOwner newOwner,
-                                                             final @Nullable IPPlayer responsible);
+    IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(AbstractDoor door, DoorOwner newOwner,
+                                                             @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareAddOwnerEvent} and assumes it was not added by an {@link IPPlayer}.
@@ -111,8 +107,7 @@ public interface IBigDoorsEventFactory
      * @param door     The door to which a new owner is to be added.
      * @param newOwner The new {@link DoorOwner} that is to be added to the door.
      */
-    default IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(final AbstractDoor door,
-                                                                     final DoorOwner newOwner)
+    default IDoorPrepareAddOwnerEvent createDoorPrepareAddOwnerEvent(AbstractDoor door, DoorOwner newOwner)
     {
         return createDoorPrepareAddOwnerEvent(door, newOwner, null);
     }
@@ -124,9 +119,8 @@ public interface IBigDoorsEventFactory
      * @param removedOwner The {@link DoorOwner} that is to be removed from the door.
      * @param responsible  The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(final AbstractDoor door,
-                                                                   final DoorOwner removedOwner,
-                                                                   final @Nullable IPPlayer responsible);
+    IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(AbstractDoor door, DoorOwner removedOwner,
+                                                                   @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareRemoveOwnerEvent} and assumes the owner was not removed by an {@link
@@ -138,8 +132,7 @@ public interface IBigDoorsEventFactory
      * @param door         The door from which an owner will be removed.
      * @param removedOwner The {@link DoorOwner} that is to be removed from the door.
      */
-    default IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(
-        final AbstractDoor door, final DoorOwner removedOwner)
+    default IDoorPrepareRemoveOwnerEvent createDoorPrepareRemoveOwnerEvent(AbstractDoor door, DoorOwner removedOwner)
     {
         return createDoorPrepareRemoveOwnerEvent(door, removedOwner, null);
     }
@@ -152,9 +145,8 @@ public interface IBigDoorsEventFactory
      * @param newLockStatus The new locked status of the door.
      * @param responsible   The {@link IPPlayer} responsible for the action, if a player was responsible for it.
      */
-    IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(final AbstractDoor door,
-                                                                 final boolean newLockStatus,
-                                                                 final @Nullable IPPlayer responsible);
+    IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(AbstractDoor door, boolean newLockStatus,
+                                                                 @Nullable IPPlayer responsible);
 
     /**
      * Constructs a new {@link IDoorPrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
@@ -165,8 +157,7 @@ public interface IBigDoorsEventFactory
      * @param door          The door to which the lock status is to be changed
      * @param newLockStatus The new locked status of the door.
      */
-    default IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(final AbstractDoor door,
-                                                                         final boolean newLockStatus)
+    default IDoorPrepareLockChangeEvent createDoorPrepareLockChangeEvent(AbstractDoor door, boolean newLockStatus)
     {
         return createDoorPrepareLockChangeEvent(door, newLockStatus, null);
     }

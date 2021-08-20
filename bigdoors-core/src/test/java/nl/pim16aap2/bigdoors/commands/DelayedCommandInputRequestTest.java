@@ -86,8 +86,7 @@ class DelayedCommandInputRequestTest
                                                   .get(1, TimeUnit.SECONDS));
     }
 
-    private CompletableFuture<Boolean> verifyInput(final DelayedInput actualInput,
-                                                   final DelayedInput delayedInput)
+    private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)
     {
         Assertions.assertEquals(actualInput, delayedInput);
         return CompletableFuture.completedFuture(true);

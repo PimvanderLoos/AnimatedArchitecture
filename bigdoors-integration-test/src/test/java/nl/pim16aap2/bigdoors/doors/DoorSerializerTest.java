@@ -131,13 +131,12 @@ class DoorSerializerTest
             Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
-        public TestDoorType(final DoorBase doorBase)
+        public TestDoorType(DoorBase doorBase)
         {
             super(doorBase);
         }
 
-        public TestDoorType(final DoorBase doorBase, final String testName,
-                            final boolean isCoolType, final int blockTestCount)
+        public TestDoorType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount)
         {
             super(doorBase);
             this.testName = testName;
@@ -193,8 +192,8 @@ class DoorSerializerTest
         @Getter
         private int subclassTestValue = -1;
 
-        public TestDoorSubType(final DoorBase doorBase, final String testName,
-                               final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
+        public TestDoorSubType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
+                               int subclassTestValue)
         {
             super(doorBase, testName, isCoolType, blockTestCount);
 

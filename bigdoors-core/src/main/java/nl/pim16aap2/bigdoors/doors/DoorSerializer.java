@@ -55,7 +55,7 @@ public class DoorSerializer<T extends AbstractDoor>
     static
     {
         // Get the Unsafe instance.
-        Unsafe unsafe = null;
+        @Nullable Unsafe unsafe = null;
         try
         {
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
@@ -69,14 +69,14 @@ public class DoorSerializer<T extends AbstractDoor>
         UNSAFE = unsafe;
     }
 
-    public DoorSerializer(final Class<T> doorClass)
+    public DoorSerializer(Class<T> doorClass)
         throws Exception
     {
         this.doorClass = doorClass;
         if (Modifier.isAbstract(doorClass.getModifiers()))
             throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
 
-        Constructor<T> ctorTmp = null;
+        @Nullable Constructor<T> ctorTmp = null;
         try
         {
             ctorTmp = doorClass.getDeclaredConstructor(DoorBase.class);
@@ -109,7 +109,7 @@ public class DoorSerializer<T extends AbstractDoor>
             clazz = clazz.getSuperclass();
         }
 
-        for (final Field field : fieldList)
+        for (Field field : fieldList)
             if (field.isAnnotationPresent(PersistentVariable.class))
             {
                 field.setAccessible(true);
@@ -127,11 +127,11 @@ public class DoorSerializer<T extends AbstractDoor>
      * @param door The door.
      * @return The serialized type-specific data.
      */
-    public byte[] serialize(final AbstractDoor door)
+    public byte[] serialize(AbstractDoor door)
         throws Exception
     {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
-        for (final Field field : fields)
+        for (Field field : fields)
             try
             {
                 values.add(field.get(door));
@@ -147,22 +147,22 @@ public class DoorSerializer<T extends AbstractDoor>
     /**
      * Deserializes the serialized type-specific data of a door.
      * <p>
-     * The doorBase and the deserialized data are then used to create a instance of the door type.
+     * The doorBase and the deserialized data are then used to create an instance of the door type.
      *
      * @param doorBase The base door data.
      * @param data     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(final DoorBase doorBase, final byte[] data)
+    public T deserialize(DoorBase doorBase, byte[] data)
         throws Exception
     {
         return instantiate(doorBase, fromByteArray(data));
     }
 
-    private static byte[] toByteArray(final Serializable serializable)
+    private static byte[] toByteArray(Serializable serializable)
         throws Exception
     {
-        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
         {
             objectOutputStream.writeObject(serializable);
@@ -171,10 +171,10 @@ public class DoorSerializer<T extends AbstractDoor>
     }
 
     @SuppressWarnings("unchecked")
-    private static ArrayList<Object> fromByteArray(final byte[] arr)
+    private static ArrayList<Object> fromByteArray(byte[] arr)
         throws Exception
     {
-        try (final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
         {
             final Object obj = objectInputStream.readObject();
             if (!(obj instanceof ArrayList))
@@ -186,8 +186,7 @@ public class DoorSerializer<T extends AbstractDoor>
         }
     }
 
-    T instantiate(final DoorBase doorBase,
-                  final ArrayList<Object> values)
+    T instantiate(DoorBase doorBase, ArrayList<Object> values)
         throws Exception
     {
         if (values.size() != fields.size())
@@ -218,20 +217,19 @@ public class DoorSerializer<T extends AbstractDoor>
      * @param doorBase The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
      * @return A new instance of {@link #doorClass} if one could be constructed.
      */
-    private @Nullable T instantiate(final DoorBase doorBase)
+    private @Nullable T instantiate(DoorBase doorBase)
         throws IllegalAccessException, InstantiationException, InvocationTargetException
     {
         return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
     }
 
-    private T instantiateReflection(final DoorBase doorBase,
-                                    final Constructor<T> ctor)
+    private T instantiateReflection(DoorBase doorBase, Constructor<T> ctor)
         throws IllegalAccessException, InvocationTargetException, InstantiationException
     {
         return ctor.newInstance(doorBase);
     }
 
-    private @Nullable T instantiateUnsafe(final DoorBase doorBase)
+    private @Nullable T instantiateUnsafe(DoorBase doorBase)
         throws InstantiationException
     {
         if (UNSAFE == null)

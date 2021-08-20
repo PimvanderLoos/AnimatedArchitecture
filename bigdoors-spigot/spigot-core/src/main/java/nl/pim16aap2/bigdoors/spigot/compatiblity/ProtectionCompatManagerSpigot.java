@@ -39,7 +39,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private final BigDoorsSpigot plugin;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
 
-    @SuppressWarnings({"NullAway.Init", "java:S3008"})
+    @SuppressWarnings({"NullAway.Init"})
     private static ProtectionCompatManagerSpigot INSTANCE;
 
     /**
@@ -47,11 +47,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param plugin The instance of {@link BigDoorsSpigot}.
      */
-    private ProtectionCompatManagerSpigot(final BigDoorsSpigot plugin)
+    private ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
-        FakePlayerCreator fakePlayerCreatorTmp = null;
+        @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
         {
             fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
@@ -73,7 +73,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param plugin The Spigot plugin.
      * @return The instance of this {@link ProtectionCompatManagerSpigot}.
      */
-    public static ProtectionCompatManagerSpigot init(final BigDoorsSpigot plugin)
+    public static ProtectionCompatManagerSpigot init(BigDoorsSpigot plugin)
     {
         return (INSTANCE == null) ?
                INSTANCE = new ProtectionCompatManagerSpigot(plugin) : INSTANCE;
@@ -118,7 +118,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
      */
-    private boolean canByPass(final Player player)
+    private boolean canByPass(Player player)
     {
         if (player.isOp())
             return true;
@@ -139,9 +139,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @see FakePlayerCreator
      */
-    private Optional<Player> getPlayer(final IPPlayer player, final World world)
+    private Optional<Player> getPlayer(IPPlayer player, World world)
     {
-        Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
+        @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null && fakePlayerCreator != null)
             bukkitPlayer = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(player.getUUID()), world)
                                             .orElse(null);
@@ -149,7 +149,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    public Optional<String> canBreakBlock(final IPPlayer player, final IPLocation pLoc)
+    public Optional<String> canBreakBlock(IPPlayer player, IPLocation pLoc)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
@@ -180,10 +180,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     }
 
     @Override
-    public Optional<String> canBreakBlocksBetweenLocs(final IPPlayer player,
-                                                      final Vector3Di pos1,
-                                                      final Vector3Di pos2,
-                                                      final IPWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world)
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
@@ -226,7 +223,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param compatClass The class of the {@link IProtectionCompat} to check.
      * @return True if the compat has already been loaded.
      */
-    private boolean protectionAlreadyLoaded(final Class<? extends IProtectionCompat> compatClass)
+    private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
     {
         for (IProtectionCompat compat : protectionCompats)
             if (compat.getClass().equals(compatClass))
@@ -239,7 +236,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param hook The compat to add.
      */
-    private void addProtectionCompat(final IProtectionCompat hook)
+    private void addProtectionCompat(IProtectionCompat hook)
     {
         if (hook.success())
         {
@@ -257,7 +254,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     @SuppressWarnings("unused")
     @EventHandler
-    protected void onPluginEnable(final PluginEnableEvent event)
+    void onPluginEnable(PluginEnableEvent event)
     {
         loadFromPluginName(event.getPlugin().getName());
     }
@@ -267,9 +264,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      *
      * @param compatName The name of the plugin to load a compat for.
      */
-    private void loadFromPluginName(final String compatName)
+    private void loadFromPluginName(String compatName)
     {
-        ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
+        @Nullable ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
         if (compat == null)
             return;
 
@@ -292,11 +289,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                BigDoors.get().getPLogger().logMessage(Level.SEVERE,
-                                                       "Could not find compatibility class for: \"" +
-                                                           ProtectionCompat.getName(compat) +
-                                                           "\". " +
-                                                           "This most likely means that this version is not supported!");
+                BigDoors.get().getPLogger().severe("Could not find compatibility class for: \"" +
+                                                       ProtectionCompat.getName(compat) + "\". " +
+                                                       "This most likely means that this version is not supported!");
                 return;
             }
 

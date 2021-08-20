@@ -23,7 +23,7 @@ public abstract class FastFieldSetter<T, U>
     static
     {
         // Get the Unsafe instance.
-        Unsafe unsafe = null;
+        @Nullable Unsafe unsafe = null;
         try
         {
             Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
@@ -69,10 +69,9 @@ public abstract class FastFieldSetter<T, U>
      * @param <T>         The type of the target class.
      * @return A new {@link FastFieldSetter} for the appropriate type.
      */
-    public static <T, U> FastFieldSetter<T, U> of(Class<U> fieldType, Class<T> targetClass,
-                                                  String nameTarget)
+    public static <T, U> FastFieldSetter<T, U> of(Class<U> fieldType, Class<T> targetClass, String nameTarget)
     {
-        Util.requireNonNull(UNSAFE, "Unsafe");
+        final Unsafe unsafe = Util.requireNonNull(UNSAFE, "Unsafe");
         final long offsetTarget;
         final Class<?> targetType;
         try
@@ -84,10 +83,10 @@ public abstract class FastFieldSetter<T, U>
                                   fieldTarget.getType().getName(), fieldType.getName(),
                                   targetClass.getName()));
 
-            offsetTarget = UNSAFE.objectFieldOffset(fieldTarget);
+            offsetTarget = unsafe.objectFieldOffset(fieldTarget);
             targetType = fieldTarget.getType();
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
             RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
             BigDoors.get().getPLogger().logThrowableSilently(e);
@@ -100,10 +99,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putInt(target, offsetTarget, (int) obj);
+                    unsafe.putInt(target, offsetTarget, (int) obj);
                 }
             };
 
@@ -111,10 +109,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putLong(target, offsetTarget, (long) obj);
+                    unsafe.putLong(target, offsetTarget, (long) obj);
                 }
             };
 
@@ -122,10 +119,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putBoolean(target, offsetTarget, (boolean) obj);
+                    unsafe.putBoolean(target, offsetTarget, (boolean) obj);
                 }
             };
 
@@ -133,10 +129,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putShort(target, offsetTarget, (short) obj);
+                    unsafe.putShort(target, offsetTarget, (short) obj);
                 }
             };
 
@@ -144,10 +139,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putChar(target, offsetTarget, (char) obj);
+                    unsafe.putChar(target, offsetTarget, (char) obj);
                 }
             };
 
@@ -155,10 +149,9 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putFloat(target, offsetTarget, (float) obj);
+                    unsafe.putFloat(target, offsetTarget, (float) obj);
                 }
             };
 
@@ -166,29 +159,28 @@ public abstract class FastFieldSetter<T, U>
             return new FastFieldSetter<>(offsetTarget)
             {
                 @Override
-                @SuppressWarnings("NullAway")
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putDouble(target, offsetTarget, (double) obj);
+                    unsafe.putDouble(target, offsetTarget, (double) obj);
                 }
             };
 
         if (targetType.equals(byte.class))
             return new FastFieldSetter<>(offsetTarget)
             {
-                @Override @SuppressWarnings("NullAway")
+                @Override
                 public void copy(Object target, Object obj)
                 {
-                    UNSAFE.putByte(target, offsetTarget, (byte) obj);
+                    unsafe.putByte(target, offsetTarget, (byte) obj);
                 }
             };
 
         return new FastFieldSetter<>(offsetTarget)
         {
-            @Override @SuppressWarnings("NullAway")
+            @Override
             public void copy(Object target, Object obj)
             {
-                UNSAFE.putObject(target, offsetTarget, obj);
+                unsafe.putObject(target, offsetTarget, obj);
             }
         };
     }

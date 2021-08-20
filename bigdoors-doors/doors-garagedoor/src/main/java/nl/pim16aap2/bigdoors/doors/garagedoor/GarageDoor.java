@@ -61,8 +61,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     @PersistentVariable
     protected int autoOpenTime;
 
-    public GarageDoor(final DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
-                      final boolean northSouthAligned)
+    public GarageDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
     {
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
@@ -70,13 +69,13 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         this.northSouthAligned = northSouthAligned;
     }
 
-    public GarageDoor(final DoorBase doorBase, final boolean northSouthAligned)
+    public GarageDoor(DoorBase doorBase, boolean northSouthAligned)
     {
         this(doorBase, -1, -1, northSouthAligned);
     }
 
     @SuppressWarnings("unused")
-    private GarageDoor(final DoorBase doorBase)
+    private GarageDoor(DoorBase doorBase)
     {
         this(doorBase, false); // Add tmp/default values
     }
@@ -192,10 +191,8 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

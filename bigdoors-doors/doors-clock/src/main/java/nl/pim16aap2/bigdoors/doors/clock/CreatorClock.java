@@ -40,12 +40,12 @@ public class CreatorClock extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorClock(final IPPlayer player, final @Nullable String name)
+    public CreatorClock(IPPlayer player, @Nullable String name)
     {
         super(player, name);
     }
 
-    public CreatorClock(final IPPlayer player)
+    public CreatorClock(IPPlayer player)
     {
         this(player, null);
     }
@@ -74,7 +74,7 @@ public class CreatorClock extends Creator
      * @param loc The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(final IPLocation loc)
+    protected boolean completeSelectHourArmStep(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -91,7 +91,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected boolean setSecondPos(final IPLocation loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;

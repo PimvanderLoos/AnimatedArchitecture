@@ -16,7 +16,7 @@ abstract class DoorEvent extends BigDoorsSpigotEvent implements IDoorEvent
     @Getter
     protected final Optional<IPPlayer> responsible;
 
-    protected DoorEvent(final AbstractDoor door, final @Nullable IPPlayer responsible)
+    protected DoorEvent(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         this.door = door;
         this.responsible = Optional.ofNullable(responsible);

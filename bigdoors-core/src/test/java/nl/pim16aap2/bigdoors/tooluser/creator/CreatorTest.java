@@ -321,7 +321,7 @@ class CreatorTest
     }
 
     @SneakyThrows
-    private void setField(final String fieldName, final @Nullable Object obj)
+    private void setField(String fieldName, @Nullable Object obj)
     {
         val f = Creator.class.getDeclaredField(fieldName);
         f.setAccessible(true);

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class LandsProtectionCompat implements IProtectionCompat
     private boolean success = false;
     private final LandsIntegration landsAddon;
 
-    public LandsProtectionCompat(final BigDoorsSpigot plugin)
+    public LandsProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         landsAddon = new LandsIntegration(plugin, false);
@@ -31,20 +32,19 @@ public class LandsProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         return landsAddon.getLandChunk(loc).canAction(player.getUniqueId(), RoleSetting.BLOCK_BREAK);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
         UUID playerUUID = player.getUniqueId();
-        World world = loc1.getWorld();
+        @Nullable World world = loc1.getWorld();
 
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX()) >> 4;
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;

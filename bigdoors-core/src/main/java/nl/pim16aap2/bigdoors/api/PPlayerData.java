@@ -28,8 +28,7 @@ public final class PPlayerData implements IPPlayerDataContainer
 
     private final boolean hasProtectionBypassPermission;
 
-    public PPlayerData(final UUID uuid, final String name, final int doorSizeLimit,
-                       final int doorCountLimit, final long permissionsFlag)
+    public PPlayerData(UUID uuid, String name, int doorSizeLimit, int doorCountLimit, long permissionsFlag)
     {
         this.uuid = uuid;
         this.name = name;

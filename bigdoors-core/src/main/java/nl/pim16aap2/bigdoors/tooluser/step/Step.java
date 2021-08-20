@@ -16,7 +16,6 @@ import java.util.function.Supplier;
 
 // TODO: Consider adding another method for PrepareStep or something. For example, the setFirstPos would prepare by
 //       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if the door is free.
-// TODO: Look into https://projectlombok.org/features/Builder
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step implements IStep
@@ -80,18 +79,18 @@ public class Step implements IStep
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
-        public Factory(final String name)
+        public Factory(String name)
         {
             this.name = name;
         }
 
-        public Factory implicitNextStep(final boolean implicitNextStep)
+        public Factory implicitNextStep(boolean implicitNextStep)
         {
             this.implicitNextStep = implicitNextStep;
             return this;
         }
 
-        public Factory stepExecutor(final StepExecutor stepExecutor)
+        public Factory stepExecutor(StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
@@ -103,26 +102,25 @@ public class Step implements IStep
             return this;
         }
 
-        public Factory messageVariableRetrievers(
-            final List<Supplier<String>> messageVariablesRetrievers)
+        public Factory messageVariableRetrievers(List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public Factory skipCondition(final Supplier<Boolean> skipCondition)
+        public Factory skipCondition(Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public Factory waitForUserInput(final boolean waitForUserInput)
+        public Factory waitForUserInput(boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public Factory messageKey(final String messageKey)
+        public Factory messageKey(String messageKey)
         {
             this.messageKey = messageKey;
             return this;

@@ -28,13 +28,13 @@ public final class ChunkManagerSpigot implements IChunkManager
     }
 
     @Override
-    public boolean isLoaded(final IPWorld world, final Vector2Di chunk)
+    public boolean isLoaded(IPWorld world, Vector2Di chunk)
     {
         return true;
     }
 
     @Override
-    public ChunkLoadResult load(final IPWorld world, final Vector2Di chunk)
+    public ChunkLoadResult load(IPWorld world, Vector2Di chunk)
     {
         return ChunkLoadResult.SUCCESS;
     }

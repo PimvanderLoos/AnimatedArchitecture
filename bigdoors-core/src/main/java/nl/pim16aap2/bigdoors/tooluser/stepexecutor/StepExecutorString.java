@@ -15,7 +15,7 @@ public class StepExecutorString extends StepExecutor
     private final Function<String, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         Util.requireNonNull(input, "String input");
         return fun.apply((String) input);

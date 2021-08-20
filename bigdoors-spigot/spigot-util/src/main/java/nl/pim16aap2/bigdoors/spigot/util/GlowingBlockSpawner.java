@@ -38,7 +38,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final Scoreboard scoreboard;
     private final IGlowingBlockFactory glowingBlockFactory;
 
-    public GlowingBlockSpawner(final IRestartableHolder holder)
+    public GlowingBlockSpawner(IRestartableHolder holder)
         throws Exception
     {
         super(holder);
@@ -67,7 +67,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private void registerTeams()
     {
-        for (final PColor col : PColor.values())
+        for (PColor col : PColor.values())
             registerTeam(col, scoreboard);
     }
 
@@ -76,12 +76,12 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      *
      * @param color The color to register the team for.
      */
-    private void registerTeam(final PColor color, final Scoreboard scoreboard)
+    private void registerTeam(PColor color, Scoreboard scoreboard)
     {
         final ChatColor chatColor = SpigotUtil.toBukkitColor(color);
         final String name = "BigDoors" + color.ordinal();
         // Try to get an existing team, in case something had gone wrong unregistering them last time.
-        Team team = scoreboard.getTeam(name);
+        @Nullable Team team = scoreboard.getTeam(name);
         if (team == null)
             team = scoreboard.registerNewTeam(name);
         team.setColor(chatColor);
@@ -107,10 +107,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world,
-                                                     final int time, final TimeUnit timeUnit,
-                                                     final double x, final double y, final double z,
-                                                     final PColor pColor)
+    public Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
+                                                     double x, double y, double z, PColor pColor)
     {
         if (teams.get(pColor) == null)
         {
@@ -151,13 +149,13 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public void registerRestartable(final IRestartable restartable)
+    public void registerRestartable(IRestartable restartable)
     {
         restartables.put(restartable, true);
     }
 
     @Override
-    public boolean isRestartableRegistered(final IRestartable restartable)
+    public boolean isRestartableRegistered(IRestartable restartable)
     {
         return restartables.containsKey(restartable);
     }

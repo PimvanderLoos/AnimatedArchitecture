@@ -43,14 +43,14 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     @PersistentVariable
     protected int autoOpenTime;
 
-    public BigDoor(final DoorBase doorBase, final int autoCloseTime, final int autoOpenTime)
+    public BigDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime)
     {
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public BigDoor(final DoorBase doorBase)
+    public BigDoor(DoorBase doorBase)
     {
         this(doorBase, -1, -1); // Add tmp/default values
     }
@@ -97,10 +97,8 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,

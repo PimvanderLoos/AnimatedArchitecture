@@ -37,7 +37,7 @@ public class ChunkListener implements Listener
     // 1.14 => method.
     private @Nullable Method isForceLoaded;
 
-    public ChunkListener(final BigDoorsSpigot plugin)
+    public ChunkListener(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
@@ -72,7 +72,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkLoadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChunkLoad(final ChunkLoadEvent event)
+    public void onChunkLoad(ChunkLoadEvent event)
     {
         long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
         BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
@@ -97,7 +97,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkUnloadEvent}.
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onChunkUnload(final ChunkUnloadEvent event)
+    public void onChunkUnload(ChunkUnloadEvent event)
     {
         BigDoors.get().getPlatform().getPowerBlockManager()
                 .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
@@ -135,7 +135,7 @@ public class ChunkListener implements Listener
      * @param event The {@link ChunkUnloadEvent}.
      * @return The if the {@link ChunkUnloadEvent} is cancelled.
      */
-    private boolean isChunkUnloadCancelled(final ChunkUnloadEvent event)
+    private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
     {
         try
         {

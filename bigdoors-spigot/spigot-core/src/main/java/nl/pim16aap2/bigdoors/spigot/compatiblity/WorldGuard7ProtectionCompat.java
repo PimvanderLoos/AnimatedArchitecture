@@ -27,7 +27,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
 
-    public WorldGuard7ProtectionCompat(final BigDoorsSpigot plugin)
+    public WorldGuard7ProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
         worldGuard = WorldGuard.getInstance();
@@ -42,26 +42,25 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         success = true;
     }
 
-    private boolean canBreakBlock(final LocalPlayer player, final Location loc)
+    private boolean canBreakBlock(LocalPlayer player, Location loc)
     {
         return worldGuard.getPlatform().getRegionContainer().createQuery().testState(BukkitAdapter.adapt(loc), player,
                                                                                      com.sk89q.worldguard.protection.flags.Flags.BUILD);
     }
 
-    private LocalPlayer getLocalPlayer(final Player player)
+    private LocalPlayer getLocalPlayer(Player player)
     {
         return worldGuardPlugin.wrapPlayer(player);
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         return canBreakBlock(getLocalPlayer(player), loc);
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;

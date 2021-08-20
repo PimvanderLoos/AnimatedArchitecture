@@ -48,7 +48,7 @@ class TimedValue<T> extends AbstractTimedValue<T>
      * @param val     The value of this {@link TimedValue}.
      * @param timeOut The amount of time (in milliseconds) before this entry expires.
      */
-    public TimedValue(final Clock clock, final T val, final long timeOut)
+    public TimedValue(Clock clock, T val, long timeOut)
     {
         super(clock, timeOut);
         value = val;

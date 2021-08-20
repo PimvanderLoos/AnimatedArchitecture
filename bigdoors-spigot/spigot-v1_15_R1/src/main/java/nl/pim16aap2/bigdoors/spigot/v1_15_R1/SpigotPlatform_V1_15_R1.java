@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.Getter;
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
@@ -14,19 +15,15 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     private static final SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
 
     @Getter
-    @SuppressWarnings("NullAway.Init")
     private IFallingBlockFactory fallingBlockFactory;
 
     @Getter
-    @SuppressWarnings("NullAway.Init")
     private IPBlockDataFactory pBlockDataFactory;
 
     @Getter
-    @SuppressWarnings("NullAway.Init")
     private IBlockAnalyzer blockAnalyzer;
 
     @Getter
-    @SuppressWarnings("NullAway.Init")
     private IGlowingBlockFactory glowingBlockFactory;
 
     private SpigotPlatform_V1_15_R1()
@@ -50,7 +47,8 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     }
 
     @Override
-    public void init(final BigDoorsSpigotAbstract plugin)
+    @Initializer
+    public void init(BigDoorsSpigotAbstract plugin)
     {
         fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
         pBlockDataFactory = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1();

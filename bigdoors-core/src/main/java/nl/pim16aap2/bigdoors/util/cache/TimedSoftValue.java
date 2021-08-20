@@ -70,7 +70,7 @@ class TimedSoftValue<T> extends AbstractTimedValue<T>
     }
 
     @Override
-    public @org.checkerframework.checker.nullness.qual.Nullable T getValue(final boolean refresh)
+    public @Nullable T getValue(boolean refresh)
     {
         if (!keepAfterTimeOut && timedOut())
             return null;

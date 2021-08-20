@@ -40,13 +40,13 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     @PersistentVariable
     private int quarterCircles = 1;
 
-    public Windmill(final DoorBase doorBase, final int quarterCircles)
+    public Windmill(DoorBase doorBase, int quarterCircles)
     {
         super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public Windmill(final DoorBase doorBase)
+    public Windmill(DoorBase doorBase)
     {
         this(doorBase, 1);
     }
@@ -90,10 +90,8 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     }
 
     @Override
-    protected BlockMover constructBlockMover(final DoorActionCause cause, final double time,
-                                             final boolean skipAnimation, final Cuboid newCuboid,
-                                             final IPPlayer responsible,
-                                             final DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

@@ -13,7 +13,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 public class PWorldFactorySpigot implements IPWorldFactory
 {
     @Override
-    public IPWorld create(final String worldName)
+    public IPWorld create(String worldName)
     {
         return new PWorldSpigot(worldName);
     }

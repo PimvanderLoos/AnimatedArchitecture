@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Compatibility hook for GriefPrevention.
@@ -22,12 +23,12 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     private final GriefPrevention griefPrevention;
     private boolean success = false;
 
-    public GriefPreventionProtectionCompat(final BigDoorsSpigot plugin)
+    public GriefPreventionProtectionCompat(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
 
-        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
-                                             .getPlugin(ProtectionCompat.getName(compat));
+        @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
+                                                       .getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))
@@ -39,7 +40,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlock(final Player player, final Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         Block block = loc.getBlock();
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
@@ -47,8 +48,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1,
-                                             final Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;

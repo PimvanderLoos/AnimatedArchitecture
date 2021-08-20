@@ -43,10 +43,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      * @param multiplier      The speed multiplier.
      * @param player          The player who opened this door.
      */
-    public BridgeMover(final double time, final T door,
-                       final RotateDirection rotateDirection, final boolean skipAnimation,
-                       final double multiplier, final IPPlayer player, final Cuboid newCuboid,
-                       final DoorActionCause cause, final DoorActionType actionType)
+    public BridgeMover(double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
+                       IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
@@ -100,24 +98,24 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
-    protected Vector3Dd getGoalPos(final double angle, final double x, final double y, final double z)
+    protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
     {
         return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
     }
 
-    protected Vector3Dd getGoalPos(final double angle, final PBlockData pBlockData)
+    protected Vector3Dd getGoalPos(double angle, PBlockData pBlockData)
     {
         return getGoalPos(angle, pBlockData.getStartX(), pBlockData.getStartY(), pBlockData.getStartZ());
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(final PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
         return getGoalPos(angle, block);
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
         final boolean replace = ticks == halfEndCount;
@@ -128,12 +126,12 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         if (replace)
             BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocks);
 
-        for (final PBlockData block : savedBlocks)
+        for (PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
     @Override
-    protected float getRadius(final int xAxis, final int yAxis, final int zAxis)
+    protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
@@ -143,14 +141,13 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     }
 
     @Override
-    protected IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                        final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }
 
     @Override
-    protected float getStartAngle(final int xAxis, final int yAxis, final int zAxis)
+    protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.

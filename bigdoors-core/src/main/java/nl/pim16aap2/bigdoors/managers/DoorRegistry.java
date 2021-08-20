@@ -26,7 +26,7 @@ public final class DoorRegistry extends Restartable
     // It's not final, so we make it volatile to ensure it's always visible.
     // SonarLint likes to complain about making it volatile, as this doesn't
     // mean access to the object is thread-safe. However, we know that the
-    // object is thread-safe; we just want to ensure visibility across threads.
+    // type is thread-safe; we just want to ensure visibility across threads.
     @SuppressWarnings("squid:S3077")
     private volatile TimedCache<Long, AbstractDoor> doorCache;
 
@@ -77,7 +77,7 @@ public final class DoorRegistry extends Restartable
      * @param doorUID The UID of the door.
      * @return The {@link DoorBase} if it has been retrieved from the database.
      */
-    public Optional<AbstractDoor> getRegisteredDoor(final long doorUID)
+    public Optional<AbstractDoor> getRegisteredDoor(long doorUID)
     {
         return doorCache.get(doorUID);
     }
@@ -87,7 +87,7 @@ public final class DoorRegistry extends Restartable
      *
      * @param doorUID The UID of the {@link DoorBase} to delete.
      */
-    void deregisterDoor(final long doorUID)
+    void deregisterDoor(long doorUID)
     {
         doorCache.remove(doorUID);
     }
@@ -99,7 +99,7 @@ public final class DoorRegistry extends Restartable
      * @return True if an entry exists for the {@link DoorBase} with the given UID.
      */
     @SuppressWarnings("unused")
-    public boolean isRegistered(final long doorUID)
+    public boolean isRegistered(long doorUID)
     {
         return doorCache.containsKey(doorUID);
     }
@@ -111,7 +111,7 @@ public final class DoorRegistry extends Restartable
      * @param doorBase The door.
      * @return True if an entry exists for the exact instance of the provided {@link DoorBase}.
      */
-    public boolean isRegistered(final IDoor doorBase)
+    public boolean isRegistered(IDoor doorBase)
     {
         return doorCache.get(doorBase.getDoorUID()).map(found -> found == doorBase).orElse(false);
     }
@@ -123,7 +123,7 @@ public final class DoorRegistry extends Restartable
      *                    registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
-    public boolean registerDoor(final AbstractDoor.Registrable registrable)
+    public boolean registerDoor(AbstractDoor.Registrable registrable)
     {
         if (!acceptNewEntries)
             return true;
@@ -141,16 +141,6 @@ public final class DoorRegistry extends Restartable
     public void shutdown()
     {
         doorCache.clear();
-    }
-
-    /**
-     * (Re)initializes the {@link #doorCache}.
-     *
-     * @return This {@link DoorRegistry}.
-     */
-    public DoorRegistry init()
-    {
-        return init(CONCURRENCY_LEVEL, INITIAL_CAPACITY, Duration.ZERO);
     }
 
     /**
@@ -179,12 +169,8 @@ public final class DoorRegistry extends Restartable
     // TODO: Implement these parameters. Once implemented, this should be public.
     @SuppressWarnings({"unused", "SameParameterValue"})
     @Initializer
-    private DoorRegistry init(int concurrencyLevel, int initialCapacity,
-                              Duration cacheExpiry, boolean removalListener)
+    private DoorRegistry init(int concurrencyLevel, int initialCapacity, Duration cacheExpiry, boolean removalListener)
     {
-        if (doorCache != null)
-            doorCache.clear();
-
         doorCache = TimedCache.<Long, AbstractDoor>builder()
                               .cleanup(Duration.ofMinutes(5))
                               .softReference(true)
