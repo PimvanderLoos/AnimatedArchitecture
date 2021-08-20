@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -13,10 +12,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public final class PPlayerData implements IPPlayerDataContainer
 {
-    private final @NotNull UUID uuid;
+    private final UUID uuid;
 
     @Getter
-    private final @NotNull String name;
+    private final String name;
 
     @Getter
     private final int doorSizeLimit;
@@ -29,8 +28,7 @@ public final class PPlayerData implements IPPlayerDataContainer
 
     private final boolean hasProtectionBypassPermission;
 
-    public PPlayerData(final @NotNull UUID uuid, final @NotNull String name, final int doorSizeLimit,
-                       final int doorCountLimit, final long permissionsFlag)
+    public PPlayerData(UUID uuid, String name, int doorSizeLimit, int doorCountLimit, long permissionsFlag)
     {
         this.uuid = uuid;
         this.name = name;
@@ -41,7 +39,7 @@ public final class PPlayerData implements IPPlayerDataContainer
     }
 
     @Override
-    public @NotNull UUID getUUID()
+    public UUID getUUID()
     {
         return uuid;
     }

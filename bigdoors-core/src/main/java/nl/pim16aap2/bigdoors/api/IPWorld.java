@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.util.WorldTime;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a BigDoors world.
@@ -15,7 +14,7 @@ public interface IPWorld
      *
      * @return The name of this world.
      */
-    @NotNull String worldName();
+    String worldName();
 
     /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
@@ -29,5 +28,5 @@ public interface IPWorld
      *
      * @return Gets the time in this world.
      */
-    @NotNull WorldTime getTime();
+    WorldTime getTime();
 }

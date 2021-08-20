@@ -18,20 +18,19 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareCreateEvent extends DoorEvent implements IDoorPrepareCreateEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
     private boolean isCancelled = false;
 
-    public DoorPrepareCreateEvent(final @NotNull AbstractDoor door,
-                                  final @Nullable IPPlayer responsible)
+    public DoorPrepareCreateEvent(AbstractDoor door, @Nullable IPPlayer responsible)
     {
         super(door, responsible);
     }
 
     @Override
-    public @NotNull AbstractDoor getDoor()
+    public AbstractDoor getDoor()
     {
         return super.getDoor();
     }
@@ -42,7 +41,8 @@ public class DoorPrepareCreateEvent extends DoorEvent implements IDoorPrepareCre
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    @SuppressWarnings("squid:S4144")
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.step;
 
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -17,14 +16,14 @@ public interface IStep
      *
      * @return The name of this step.
      */
-    @NotNull String getName();
+    String getName();
 
     /**
      * Gets the localized {@link String} that belongs to the current {@link IStep}.
      *
      * @return The localized {@link String} that belongs to the current {@link IStep}.
      */
-    @NotNull String getLocalizedMessage();
+    String getLocalizedMessage();
 
     /**
      * Checks if this type of {@link IStep} waits for user input or not.
@@ -38,7 +37,7 @@ public interface IStep
      *
      * @return The {@link StepExecutor} for the current step.
      */
-    @NotNull Optional<StepExecutor> getStepExecutor();
+    Optional<StepExecutor> getStepExecutor();
 
     /**
      * Checks if this step should be skipped based on certain criteria defined by the implementation.

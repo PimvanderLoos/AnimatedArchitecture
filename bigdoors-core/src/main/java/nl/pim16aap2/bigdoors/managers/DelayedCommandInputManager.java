@@ -4,7 +4,6 @@ import lombok.val;
 import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -18,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DelayedCommandInputManager
 {
-    private final @NotNull Map<ICommandSender, DelayedCommandInputRequest<?>> requests = new ConcurrentHashMap<>();
+    private final Map<ICommandSender, DelayedCommandInputRequest<?>> requests = new ConcurrentHashMap<>();
 
     /**
      * Registers an input request for a command sender.
@@ -26,8 +25,7 @@ public class DelayedCommandInputManager
      * @param commandSender The {@link ICommandSender} for which to register the input request.
      * @param inputRequest  The {@link DelayedCommandInputRequest} to register.
      */
-    public void register(final @NotNull ICommandSender commandSender,
-                         final @NotNull DelayedCommandInputRequest<?> inputRequest)
+    public void register(ICommandSender commandSender, DelayedCommandInputRequest<?> inputRequest)
     {
         @Nullable val existing = requests.put(commandSender, inputRequest);
         if (existing != null)
@@ -41,7 +39,7 @@ public class DelayedCommandInputManager
      * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
      * When nothing was registered and nothing was removed, this method will return false.
      */
-    public void deregisterAll(final @NotNull ICommandSender commandSender)
+    public void deregisterAll(ICommandSender commandSender)
     {
         requests.remove(commandSender);
     }
@@ -51,7 +49,7 @@ public class DelayedCommandInputManager
      *
      * @param commandSender The {@link ICommandSender} for which to deregister the input requests.
      */
-    public void cancelAll(final @NotNull ICommandSender commandSender)
+    public void cancelAll(ICommandSender commandSender)
     {
         requests.computeIfPresent(commandSender, (k, v) ->
         {
@@ -72,8 +70,7 @@ public class DelayedCommandInputManager
      *                                   requests to. If the reference of the registered request and this one are the
      *                                   same, it will be deregistered.
      */
-    public void deregister(final @NotNull ICommandSender commandSender,
-                           final @NotNull DelayedCommandInputRequest<?> delayedCommandInputRequest)
+    public void deregister(ICommandSender commandSender, DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
         requests.computeIfPresent(commandSender,
                                   (sender, request) -> request == delayedCommandInputRequest ? null : request);
@@ -85,7 +82,7 @@ public class DelayedCommandInputManager
      * @param commandSender The {@link ICommandSender} for which to retrieve the input request.
      * @return The {@link DelayedCommandInputRequest} registered for a command sender, if one is registered.
      */
-    public @NotNull Optional<DelayedCommandInputRequest<?>> getInputRequest(final @NotNull ICommandSender commandSender)
+    public Optional<DelayedCommandInputRequest<?>> getInputRequest(ICommandSender commandSender)
     {
         return Optional.ofNullable(requests.get(commandSender));
     }

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.api;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -20,10 +19,10 @@ public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
      *
      * @return The current location of this player.
      */
-    @NotNull Optional<IPLocation> getLocation();
+    Optional<IPLocation> getLocation();
 
     @Override
-    default @NotNull Optional<IPPlayer> getPlayer()
+    default Optional<IPPlayer> getPlayer()
     {
         return Optional.of(this);
     }
@@ -35,8 +34,8 @@ public interface IPPlayer extends IPPlayerDataContainer, ICommandSender
     }
 
     @Override
-    @NotNull CompletableFuture<Boolean> hasPermission(@NotNull String permission);
+    CompletableFuture<Boolean> hasPermission(String permission);
 
     @Override
-    @NotNull CompletableFuture<BooleanPair> hasPermission(@NotNull CommandDefinition command);
+    CompletableFuture<BooleanPair> hasPermission(CommandDefinition command);
 }

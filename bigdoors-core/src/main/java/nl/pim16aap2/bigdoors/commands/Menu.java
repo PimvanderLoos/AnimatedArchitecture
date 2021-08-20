@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +17,7 @@ public class Menu extends BaseCommand
 {
     private final @Nullable IPPlayer target;
 
-    protected Menu(final @NotNull ICommandSender commandSender, final @Nullable IPPlayer target)
+    protected Menu(ICommandSender commandSender, @Nullable IPPlayer target)
     {
         super(commandSender);
         this.target = target;
@@ -36,8 +35,7 @@ public class Menu extends BaseCommand
      *                      When this is null (default), the command sender's own doors will be used.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @Nullable IPPlayer target)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, @Nullable IPPlayer target)
     {
         return new Menu(commandSender, target).run();
     }
@@ -49,13 +47,13 @@ public class Menu extends BaseCommand
      *
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
     {
         return run(commandSender, null);
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.MENU;
     }
@@ -67,7 +65,7 @@ public class Menu extends BaseCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
         if (!permissions.second && !getCommandSender().equals(target))

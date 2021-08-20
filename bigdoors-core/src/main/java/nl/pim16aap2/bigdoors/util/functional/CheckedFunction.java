@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.util.functional;
 
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Represents a function that throws an exception.
  *
@@ -22,6 +20,6 @@ public interface CheckedFunction<T, R, E extends Exception>
      *
      * @throws E
      */
-    @NotNull R apply(T t)
+    R apply(T t)
         throws E;
 }

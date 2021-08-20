@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -50,7 +49,7 @@ public final class LocalizationUtil
      *
      * @throws IOException When the file could not be created.
      */
-    static Path ensureFileExists(@NotNull Path file)
+    static Path ensureFileExists(Path file)
         throws IOException
     {
         if (Files.isRegularFile(file))
@@ -70,7 +69,7 @@ public final class LocalizationUtil
      * @param path   The path of the file.
      * @param append The list of Strings (lines) to append to the file.
      */
-    static void appendToFile(@NotNull Path path, @NotNull List<String> append)
+    static void appendToFile(Path path, List<String> append)
     {
         if (append.isEmpty())
             return;
@@ -97,7 +96,7 @@ public final class LocalizationUtil
      * @return A list with all lines from the existing set with any lines from the newLines set added to it where the
      * key did not exist in the existing list yet.
      */
-    static @NotNull List<String> getAppendable(@NotNull List<String> existing, @NotNull List<String> newLines)
+    static List<String> getAppendable(List<String> existing, List<String> newLines)
     {
         if (existing.isEmpty())
             return newLines;
@@ -105,7 +104,7 @@ public final class LocalizationUtil
         final Set<@Nullable String> keys = getKeySet(existing);
         final ArrayList<String> merged = new ArrayList<>(newLines.size());
 
-        for (final String line : newLines)
+        for (String line : newLines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key == null || keys.contains(key))
@@ -124,7 +123,7 @@ public final class LocalizationUtil
      *                    "key=value".
      * @return A set with all the keys used in the input stream.
      */
-    static Set<String> getKeySet(@NotNull InputStream inputStream)
+    static Set<String> getKeySet(InputStream inputStream)
     {
         final Set<String> ret = new LinkedHashSet<>();
         readFile(inputStream, line -> ret.add(getKeyFromLine(line)));
@@ -137,11 +136,11 @@ public final class LocalizationUtil
      * @param path The path to a file.
      * @return A set with all the keys used in the file.
      */
-    static Set<String> getKeySet(@NotNull Path path)
+    static Set<String> getKeySet(Path path)
     {
         if (!Files.isRegularFile(path))
             return Collections.emptySet();
-        try (final InputStream inputStream = Files.newInputStream(path))
+        try (InputStream inputStream = Files.newInputStream(path))
         {
             return getKeySet(inputStream);
         }
@@ -158,10 +157,10 @@ public final class LocalizationUtil
      * @param lines The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
      */
-    static Set<String> getKeySet(@NotNull List<String> lines)
+    static Set<String> getKeySet(List<String> lines)
     {
         final Set<String> ret = new LinkedHashSet<>(lines.size());
-        for (final String line : lines)
+        for (String line : lines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key != null)
@@ -176,7 +175,7 @@ public final class LocalizationUtil
      * @param line A string containing a key/value pair.
      * @return The key as used in the line.
      */
-    static @Nullable String getKeyFromLine(@NotNull String line)
+    static @Nullable String getKeyFromLine(String line)
     {
         final char[] chars = new char[line.length()];
         line.getChars(0, line.length(), chars, 0);
@@ -193,9 +192,9 @@ public final class LocalizationUtil
      * @param inputStream The input stream to read the data from.
      * @param fun         The function to apply for each line retrieved from the input stream.
      */
-    static void readFile(@NotNull InputStream inputStream, @NotNull Consumer<String> fun)
+    static void readFile(InputStream inputStream, Consumer<String> fun)
     {
-        try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
@@ -218,7 +217,7 @@ public final class LocalizationUtil
      * @param inputStream The input stream to read the data from.
      * @return A list of Strings where every string represents a single line in the provided input stream.
      */
-    static @NotNull List<String> readFile(@NotNull InputStream inputStream)
+    static List<String> readFile(InputStream inputStream)
     {
         final List<String> ret = new ArrayList<>();
         readFile(inputStream, ret::add);
@@ -232,12 +231,12 @@ public final class LocalizationUtil
      * @param fun  The function to apply for each line retrieved from the input stream.
      * @return A list of Strings where every string represents a single line in the provided file.
      */
-    static void readFile(@NotNull Path path, @NotNull Consumer<String> fun)
+    static void readFile(Path path, Consumer<String> fun)
     {
         if (!Files.isRegularFile(path))
             return;
 
-        try (final InputStream inputStream = Files.newInputStream(path))
+        try (InputStream inputStream = Files.newInputStream(path))
         {
             readFile(inputStream, fun);
         }
@@ -254,9 +253,9 @@ public final class LocalizationUtil
      * @param baseName  The base name of the locale files.
      * @return A list of {@link LocaleFile}s found in the directory.
      */
-    static @NotNull List<LocaleFile> getLocaleFilesInDirectory(@NotNull Path directory, @Nullable String baseName)
+    static List<LocaleFile> getLocaleFilesInDirectory(Path directory, @Nullable String baseName)
     {
-        try (final Stream<Path> stream = Files.list(directory))
+        try (Stream<Path> stream = Files.list(directory))
         {
             return getLocaleFiles(baseName, stream.filter(file -> !Files.isDirectory(file)).toList());
         }
@@ -274,10 +273,10 @@ public final class LocalizationUtil
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format of
      * "directory/basename[_locale].properties".
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@Nullable String baseName, @NotNull List<Path> files)
+    static List<LocaleFile> getLocaleFiles(@Nullable String baseName, List<Path> files)
     {
-        final @NotNull ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
-        for (final Path file : files)
+        final ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
+        for (Path file : files)
         {
             final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
@@ -292,7 +291,7 @@ public final class LocalizationUtil
      * <p>
      * All paths are created on the default filesystem: {@link FileSystems#getDefault()}.
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull List<String> resources)
+    static List<LocaleFile> getLocaleFiles(List<String> resources)
     {
         return getLocaleFiles(FileSystems.getDefault(), resources);
     }
@@ -307,10 +306,10 @@ public final class LocalizationUtil
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format:
      * "whatever-filename[_locale].properties".
      */
-    static @NotNull List<LocaleFile> getLocaleFiles(@NotNull FileSystem fileSystem, @NotNull List<String> resources)
+    static List<LocaleFile> getLocaleFiles(FileSystem fileSystem, List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
-        for (final String resource : resources)
+        for (String resource : resources)
         {
             final @Nullable String locale = parseLocaleFile(resource);
             if (locale != null)
@@ -328,7 +327,7 @@ public final class LocalizationUtil
      *                 parent directories.
      * @return The locale as used in the filename.
      */
-    static @Nullable String parseLocaleFile(@Nullable String baseName, @NotNull String fileName)
+    static @Nullable String parseLocaleFile(@Nullable String baseName, String fileName)
     {
         if (baseName != null && !fileName.startsWith(baseName))
             return null;
@@ -359,7 +358,7 @@ public final class LocalizationUtil
      * <p>
      * If the file does not have a locale (e.g. "Translated.properties"), an empty String is returned.
      */
-    static @Nullable String parseLocaleFile(@NotNull String fileName)
+    static @Nullable String parseLocaleFile(String fileName)
     {
         if (!fileName.endsWith(".properties"))
             return null;
@@ -378,7 +377,7 @@ public final class LocalizationUtil
      * @throws IOException                      If an I/O error occurs creating the file system.
      * @throws FileSystemAlreadyExistsException When a FileSystem already exists for the provided file.
      */
-    static @NotNull FileSystem createNewFileSystem(@NotNull Path zipFile)
+    static FileSystem createNewFileSystem(Path zipFile)
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
         return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
@@ -390,7 +389,7 @@ public final class LocalizationUtil
      * @param locale The locale for which to find the output filename.
      * @return The filename of the output locale file for the provided locale.
      */
-    static @NotNull String getOutputLocaleFileName(@NotNull String outputBaseName, @NotNull String locale)
+    static String getOutputLocaleFileName(String outputBaseName, String locale)
     {
         return String.format("%s%s.properties", outputBaseName, locale.length() == 0 ? "" : ("_" + locale));
     }
@@ -398,7 +397,7 @@ public final class LocalizationUtil
     /**
      * Ensures a given zip file exists.
      */
-    static void ensureZipFileExists(@NotNull Path zipFile)
+    static void ensureZipFileExists(Path zipFile)
     {
         if (Files.exists(zipFile))
             return;
@@ -420,7 +419,7 @@ public final class LocalizationUtil
         // Just opening the ZipOutputStream and then letting it close
         // on its own is enough to create a new zip file.
         //noinspection EmptyTryBlock
-        try (final ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
+        try (ZipOutputStream ignored = new ZipOutputStream(Files.newOutputStream(zipFile)))
         {
             // ignored
         }
@@ -436,9 +435,9 @@ public final class LocalizationUtil
      * @param zipFile  The zip file in which to look for localization files.
      * @param baseName The base name of the localization files.
      */
-    static @NotNull List<Locale> getLocalesInZip(@NotNull Path zipFile, @NotNull String baseName)
+    static List<Locale> getLocalesInZip(Path zipFile, String baseName)
     {
-        try (final FileSystem fs = createNewFileSystem(zipFile))
+        try (FileSystem fs = createNewFileSystem(zipFile))
         {
             return LocalizationUtil.getLocaleFilesInDirectory(fs.getPath("."), baseName).stream()
                                    .map(localeFile -> getLocale(localeFile.locale())).toList();
@@ -458,7 +457,7 @@ public final class LocalizationUtil
      * @param localeStr A String representing a locale.
      * @return The decoded Locale.
      */
-    public static @NotNull Locale getLocale(@NotNull String localeStr)
+    public static Locale getLocale(String localeStr)
     {
         final String[] parts = localeStr.split("_", 3);
         if (parts[0].isBlank())

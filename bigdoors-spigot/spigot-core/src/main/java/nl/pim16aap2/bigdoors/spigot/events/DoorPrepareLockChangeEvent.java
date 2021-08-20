@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepareLockChangeEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
@@ -26,9 +26,7 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
 
     private final boolean newLockStatus;
 
-    public DoorPrepareLockChangeEvent(final @NotNull AbstractDoor door,
-                                      final @Nullable IPPlayer responsible,
-                                      final boolean newLockStatus)
+    public DoorPrepareLockChangeEvent(AbstractDoor door, @Nullable IPPlayer responsible, boolean newLockStatus)
     {
         super(door, responsible);
         this.newLockStatus = newLockStatus;
@@ -40,7 +38,8 @@ public class DoorPrepareLockChangeEvent extends DoorEvent implements IDoorPrepar
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    @SuppressWarnings("squid:S4144")
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

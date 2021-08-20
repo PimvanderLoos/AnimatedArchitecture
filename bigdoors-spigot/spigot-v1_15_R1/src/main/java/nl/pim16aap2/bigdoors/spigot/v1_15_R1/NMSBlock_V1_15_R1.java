@@ -27,7 +27,6 @@ import org.bukkit.block.data.Waterlogged;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
@@ -57,8 +56,7 @@ import java.util.Set;
      * @param y      The y coordinate of the NMS block.
      * @param z      The z coordinate of the NMS block.
      */
-    @SuppressWarnings("squid:S1874") //
-    NMSBlock_V1_15_R1(final @NotNull PWorldSpigot pWorld, final int x, final int y, final int z)
+    NMSBlock_V1_15_R1(PWorldSpigot pWorld, int x, int y, int z)
     {
         super(net.minecraft.server.v1_15_R1.Block.Info
                   .a(((CraftWorld) pWorld.getBukkitWorld()).getHandle().getType(new BlockPosition(x, y, z))
@@ -96,7 +94,7 @@ import java.util.Set;
      * @return The IBlockData (NMS) of this block.
      */
     @Synchronized("blockDataLock")
-    @NotNull IBlockData getMyBlockData()
+    IBlockData getMyBlockData()
     {
         return blockData;
     }
@@ -111,7 +109,7 @@ import java.util.Set;
 
     @Override
     @Synchronized("blockDataLock")
-    public void rotateBlock(final @NotNull RotateDirection rotDir)
+    public void rotateBlock(RotateDirection rotDir)
     {
         BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
@@ -137,7 +135,7 @@ import java.util.Set;
      */
     @Override
     @Synchronized("blockDataLock")
-    public void putBlock(@NotNull IPLocation loc)
+    public void putBlock(IPLocation loc)
     {
         World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
         if (bukkitWorld == null)
@@ -163,7 +161,7 @@ import java.util.Set;
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateOrientable(final @NotNull Orientable bd, final @NotNull RotateDirection dir)
+    private void rotateOrientable(Orientable bd, RotateDirection dir)
     {
         rotateOrientable(bd, dir, 1);
     }
@@ -176,7 +174,7 @@ import java.util.Set;
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateOrientable(final @NotNull Orientable bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateOrientable(Orientable bd, RotateDirection dir, int steps)
     {
         Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
@@ -220,7 +218,7 @@ import java.util.Set;
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir)
+    private void rotateDirectional(Directional bd, RotateDirection dir)
     {
         rotateDirectional(bd, dir, 1);
     }
@@ -233,7 +231,7 @@ import java.util.Set;
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateDirectional(final @NotNull Directional bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
         @Nullable val mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
@@ -257,7 +255,7 @@ import java.util.Set;
      * @param dir The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
-    private void rotateMultipleFacing(final @NotNull MultipleFacing bd, final @NotNull RotateDirection dir)
+    private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir)
     {
         rotateMultipleFacing(bd, dir, 1);
     }
@@ -270,7 +268,7 @@ import java.util.Set;
      * @param steps the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateMultipleFacing(final @NotNull MultipleFacing bd, final @NotNull RotateDirection dir, int steps)
+    private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir, int steps)
     {
         @Nullable val mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
@@ -301,7 +299,7 @@ import java.util.Set;
 
     @Override
     @Synchronized("blockDataLock")
-    public @NotNull String toString()
+    public String toString()
     {
         return blockData.toString();
     }

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ final class LocalizationPatcher
     @Getter
     private final List<LocaleFile> patchFiles;
 
-    LocalizationPatcher(@NotNull Path directory, @NotNull String baseName)
+    LocalizationPatcher(Path directory, String baseName)
         throws IOException
     {
         // Ensure the base patch file exists.
@@ -43,7 +42,7 @@ final class LocalizationPatcher
      *
      * @param rootKeys The localization keys in the root locale file.
      */
-    void updatePatchKeys(@NotNull Collection<String> rootKeys)
+    void updatePatchKeys(Collection<String> rootKeys)
     {
         patchFiles.forEach(patchFile -> updatePatchKeys(rootKeys, patchFile));
     }
@@ -56,7 +55,7 @@ final class LocalizationPatcher
      * @param rootKeys   The localization keys in the root locale file.
      * @param localeFile The locale file to append any missing localization keys to.
      */
-    void updatePatchKeys(@NotNull Collection<String> rootKeys, @NotNull LocaleFile localeFile)
+    void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
         final Set<String> patchKeys = getKeySet(localeFile.path());
         final Set<String> appendableKeys = new LinkedHashSet<>(rootKeys);
@@ -70,7 +69,7 @@ final class LocalizationPatcher
      * @param localeFile     The locale file to append the keys to.
      * @param appendableKeys The localization keys to append to the locale file.
      */
-    void appendKeys(@NotNull LocaleFile localeFile, @NotNull Set<String> appendableKeys)
+    void appendKeys(LocaleFile localeFile, Set<String> appendableKeys)
     {
         if (appendableKeys.isEmpty())
             return;
@@ -95,7 +94,7 @@ final class LocalizationPatcher
      * @param localeFile The locale file to read the patches from.
      * @return A map of the patches. The keys are the localization keys and the values the full line (i.e. "key=value").
      */
-    @NotNull Map<String, String> getPatches(@NotNull LocaleFile localeFile)
+    Map<String, String> getPatches(LocaleFile localeFile)
     {
         final Map<String, String> ret = new LinkedHashMap<>();
         readFile(localeFile.path(), line ->
@@ -114,7 +113,7 @@ final class LocalizationPatcher
      * @param line The line itself.
      * @return True if the patch is valid (i.e. not empty).
      */
-    static boolean isValidPatch(@Nullable String key, @NotNull String line)
+    static boolean isValidPatch(@Nullable String key, String line)
     {
         if (key == null)
             return false;

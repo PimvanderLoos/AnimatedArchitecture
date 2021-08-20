@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public abstract class DoorType
      * @return The name of the plugin that owns this {@link DoorType}.
      */
     @Getter
-    protected final @NotNull String pluginName;
+    protected final String pluginName;
 
     /**
      * Gets the name of this {@link DoorType}. Note that this is always in lower case!
@@ -37,7 +36,7 @@ public abstract class DoorType
      * @return The name of this {@link DoorType}.
      */
     @Getter
-    protected final @NotNull String simpleName;
+    protected final String simpleName;
 
     /**
      * Gets the version of this {@link DoorType}. Note that changing the version creates a whole new {@link DoorType}
@@ -60,7 +59,7 @@ public abstract class DoorType
      * The fully-qualified name of this {@link DoorType}.
      */
     @Getter
-    private final @NotNull String fullName;
+    private final String fullName;
 
     /**
      * Gets a list of all theoretically valid {@link RotateDirection} for this given type. It does NOT take the physical
@@ -70,8 +69,9 @@ public abstract class DoorType
      * @return A list of all valid {@link RotateDirection} for this given type.
      */
     @Getter
-    private final @NotNull List<RotateDirection> validOpenDirections;
+    private final List<RotateDirection> validOpenDirections;
 
+    @SuppressWarnings("NullableProblems")
     private final @Nullable DoorSerializer<?> doorSerializer;
 
     /**
@@ -83,8 +83,8 @@ public abstract class DoorType
      *                    new {@link DoorType}, as far as the database is concerned. This fact can be used if the
      *                    parameters of the constructor for this type need to be changed.
      */
-    protected DoorType(final @NotNull String pluginName, final @NotNull String simpleName, final int typeVersion,
-                       final @NotNull List<RotateDirection> validOpenDirections, @NotNull String localizationKey)
+    protected DoorType(String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
+                       String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase();
@@ -93,12 +93,13 @@ public abstract class DoorType
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
 
-        DoorSerializer<?> serializer;
+        @SuppressWarnings("NullableProblems")
+        @Nullable DoorSerializer<?> serializer;
         try
         {
             serializer = new DoorSerializer<>(getDoorClass());
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
             serializer = null;
             BigDoors.get().getPLogger().logThrowable(t, "Failed to intialize serializer for type: " + getFullName());
@@ -111,7 +112,8 @@ public abstract class DoorType
      *
      * @return The {@link DoorSerializer}.
      */
-    public @NotNull Optional<DoorSerializer<?>> getDoorSerializer()
+    @SuppressWarnings("NullableProblems")
+    public Optional<DoorSerializer<?>> getDoorSerializer()
     {
         return Optional.ofNullable(doorSerializer);
     }
@@ -122,7 +124,7 @@ public abstract class DoorType
      * @param rotateDirection The {@link RotateDirection} to check.
      * @return True if the provided {@link RotateDirection} is valid for this type, otherwise false.
      */
-    public final boolean isValidOpenDirection(final @NotNull RotateDirection rotateDirection)
+    public final boolean isValidOpenDirection(RotateDirection rotateDirection)
     {
         return validOpenDirections.contains(rotateDirection);
     }
@@ -132,7 +134,7 @@ public abstract class DoorType
      *
      * @return THe class of the door.
      */
-    public abstract @NotNull Class<? extends AbstractDoor> getDoorClass();
+    public abstract Class<? extends AbstractDoor> getDoorClass();
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.
@@ -140,7 +142,7 @@ public abstract class DoorType
      * @param player The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
-    public abstract @NotNull Creator getCreator(final @NotNull IPPlayer player);
+    public abstract Creator getCreator(IPPlayer player);
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.
@@ -149,10 +151,10 @@ public abstract class DoorType
      * @param name   The name that will be given to the door.
      * @return The newly created {@link Creator}.
      */
-    public abstract @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name);
+    public abstract Creator getCreator(IPPlayer player, @Nullable String name);
 
     @Override
-    public final @NotNull String toString()
+    public final String toString()
     {
         return getPluginName() + ":" + getSimpleName() + ":" + getTypeVersion();
     }
@@ -165,7 +167,7 @@ public abstract class DoorType
     }
 
     @Override
-    public final boolean equals(final @Nullable Object obj)
+    public final boolean equals(@Nullable Object obj)
     {
         // There may only ever exist 1 instance of each DoorType.
         return super.equals(obj);

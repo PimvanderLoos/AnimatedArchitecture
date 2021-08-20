@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represent the possible outcomes of trying to toggle a door.
@@ -86,9 +85,9 @@ public enum DoorToggleResult
     ;
 
     @Getter
-    private final @NotNull String localizationKey;
+    private final String localizationKey;
 
-    DoorToggleResult(@NotNull String localizationKey)
+    DoorToggleResult(String localizationKey)
     {
         this.localizationKey = localizationKey;
     }

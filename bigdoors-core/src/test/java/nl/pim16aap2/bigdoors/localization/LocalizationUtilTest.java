@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +16,8 @@ class LocalizationUtilTest
     @Test
     void testGetLocaleFilesInDirectory()
     {
-        final @NotNull String baseName = "Translation";
-        final @NotNull List<Path> paths = new ArrayList<>(5);
+        final String baseName = "Translation";
+        final List<Path> paths = new ArrayList<>(5);
 
         final Path path0 = Paths.get("./" + baseName + ".properties");
         final Path path1 = Paths.get("./" + baseName + "_en_US.properties");

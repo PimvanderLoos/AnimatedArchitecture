@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -17,7 +16,7 @@ public enum ProtectionCompat
     PLOTSQUARED("PlotSquared")
         {
             @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            public Class<? extends IProtectionCompat> getClass(String version)
             {
                 return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
                        PlotSquaredOldProtectionCompat.class;
@@ -27,7 +26,7 @@ public enum ProtectionCompat
     TOWNY("Towny")
         {
             @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            public @Nullable Class<? extends IProtectionCompat> getClass(String version)
             {
                 int[] lastOldVersion = {0, 94, 0, 1};
 
@@ -47,7 +46,7 @@ public enum ProtectionCompat
     WORLDGUARD("WorldGuard")
         {
             @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            public @Nullable Class<? extends IProtectionCompat> getClass(String version)
             {
                 if (version.startsWith("7."))
                     return WorldGuard7ProtectionCompat.class;
@@ -61,7 +60,7 @@ public enum ProtectionCompat
     GRIEFPREVENTION("GriefPrevention")
         {
             @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            public Class<? extends IProtectionCompat> getClass(String version)
             {
                 return GriefPreventionProtectionCompat.class;
             }
@@ -70,7 +69,7 @@ public enum ProtectionCompat
     LANDS("Lands")
         {
             @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version)
+            public Class<? extends IProtectionCompat> getClass(String version)
             {
                 return LandsProtectionCompat.class;
             }
@@ -87,7 +86,7 @@ public enum ProtectionCompat
 
     private final String name;
 
-    ProtectionCompat(final @NotNull String name)
+    ProtectionCompat(String name)
     {
         this.name = name;
     }
@@ -98,7 +97,7 @@ public enum ProtectionCompat
      * @param compat The compat the get the name of the plugin for.
      * @return The name of the plugin the given compat hooks into.
      */
-    public static @NotNull String getName(final @NotNull ProtectionCompat compat)
+    public static String getName(ProtectionCompat compat)
     {
         return compat.name;
     }
@@ -109,7 +108,8 @@ public enum ProtectionCompat
      * @param name The name of the plugin to get the compat for.
      * @return The compat for a plugin.
      */
-    public static @Nullable ProtectionCompat getFromName(final @NotNull String name)
+    @SuppressWarnings("ConstantConditions")
+    public static @Nullable ProtectionCompat getFromName(String name)
     {
         return nameMap.getOrDefault(name, null);
     }
@@ -120,5 +120,5 @@ public enum ProtectionCompat
      * @param version The version of the plugin to load the hook for.
      * @return The {@link IProtectionCompat} class of the compat.
      */
-    public abstract @Nullable Class<? extends IProtectionCompat> getClass(final @NotNull String version);
+    public abstract @Nullable Class<? extends IProtectionCompat> getClass(String version);
 }

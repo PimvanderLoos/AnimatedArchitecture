@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -15,7 +14,7 @@ public final class DoorTypeClock extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    private static final @NotNull DoorTypeClock INSTANCE = new DoorTypeClock();
+    private static final DoorTypeClock INSTANCE = new DoorTypeClock();
 
     private DoorTypeClock()
     {
@@ -29,25 +28,25 @@ public final class DoorTypeClock extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeClock get()
+    public static DoorTypeClock get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NotNull Class<? extends AbstractDoor> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return Clock.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorClock(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorClock(player, name);
     }

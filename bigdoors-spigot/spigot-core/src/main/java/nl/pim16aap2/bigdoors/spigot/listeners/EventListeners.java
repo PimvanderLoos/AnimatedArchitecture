@@ -18,8 +18,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -28,9 +29,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public class EventListeners implements Listener
 {
-    private final @NotNull BigDoorsSpigot plugin;
+    private final BigDoorsSpigot plugin;
 
-    public EventListeners(final @NotNull BigDoorsSpigot plugin)
+    public EventListeners(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -41,7 +42,7 @@ public class EventListeners implements Listener
      * @param event The {@link PlayerInteractEvent}.
      */
     @EventHandler
-    public void onLeftClick(final PlayerInteractEvent event)
+    public void onLeftClick(PlayerInteractEvent event)
     {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
@@ -67,7 +68,7 @@ public class EventListeners implements Listener
      * @param event The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onLogin(final PlayerJoinEvent event)
+    public void onLogin(PlayerJoinEvent event)
     {
         try
         {
@@ -85,7 +86,7 @@ public class EventListeners implements Listener
      * @param event The {@link PlayerQuitEvent}.
      */
     @EventHandler
-    public void onLogout(final PlayerQuitEvent event)
+    public void onLogout(PlayerQuitEvent event)
     {
         try
         {
@@ -104,9 +105,9 @@ public class EventListeners implements Listener
      * @param player The {@link Player}.
      * @return True if a player is a {@link ToolUser}.
      */
-    private boolean isToolUser(final @NotNull Player player)
+    private boolean isToolUser(@Nullable Player player)
     {
-        return BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
+        return player != null && BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
     }
 
     /**
@@ -147,10 +148,16 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getBigDoorsToolUtil().isTool(event.getCurrentItem()))
+            final @Nullable ItemStack currentItem = event.getCurrentItem();
+            if (currentItem != null && !plugin.getBigDoorsToolUtil().isTool(currentItem))
                 return;
+
+            final @Nullable Inventory clickedInventory = event.getClickedInventory();
+            if (clickedInventory == null)
+                return;
+
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
-                !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
+                !clickedInventory.getType().equals(InventoryType.PLAYER))
             {
                 if (event.getWhoClicked() instanceof Player)
                 {
@@ -180,9 +187,9 @@ public class EventListeners implements Listener
         try
         {
             event.getNewItems().forEach(
-                (K, V) ->
+                (key, value) ->
                 {
-                    if (plugin.getBigDoorsToolUtil().isTool(V))
+                    if (plugin.getBigDoorsToolUtil().isTool(value))
                         event.setCancelled(true);
                 });
         }

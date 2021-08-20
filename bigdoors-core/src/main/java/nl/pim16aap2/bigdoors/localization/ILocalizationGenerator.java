@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
@@ -33,7 +32,7 @@ interface ILocalizationGenerator
      *                 those characters followed by an underscore and the locale are considered. The ".properties" file
      *                 extension requirement stays either way.
      */
-    void addResources(@NotNull Path path, @Nullable String baseName);
+    void addResources(Path path, @Nullable String baseName);
 
     /**
      * Adds locale files from multiple paths.
@@ -42,14 +41,14 @@ interface ILocalizationGenerator
      * <p>
      * See {@link #addResources(Path, String)}
      */
-    void addResources(@NotNull List<Path> paths);
+    void addResources(List<Path> paths);
 
     /**
      * Loads the locale files from the jar file a specific {@link Class} was loaded from.
      * <p>
      * See {@link #addResources(Path, String)}.
      */
-    void addResourcesFromClass(@NotNull Class<?> clz, @Nullable String baseName);
+    void addResourcesFromClass(Class<?> clz, @Nullable String baseName);
 
     /**
      * Loads the locale files from the jars file specific {@link Class}es was loaded from.
@@ -58,5 +57,5 @@ interface ILocalizationGenerator
      * <p>
      * See {@link #addResourcesFromClass(Class, String)}.
      */
-    void addResourcesFromClass(@NotNull List<Class<?>> classes);
+    void addResourcesFromClass(List<Class<?>> classes);
 }

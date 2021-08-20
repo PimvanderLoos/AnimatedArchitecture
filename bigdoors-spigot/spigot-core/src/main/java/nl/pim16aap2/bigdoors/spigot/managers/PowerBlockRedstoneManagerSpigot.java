@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents an implementation of {@link IPowerBlockRedstoneManager} for the Spigot platform.
@@ -14,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
-    private static final @NotNull PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
+    private static final PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
 
     private PowerBlockRedstoneManagerSpigot()
     {
@@ -25,19 +24,20 @@ public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedston
      *
      * @return The instance of this {@link PowerBlockRedstoneManagerSpigot}.
      */
-    public static @NotNull PowerBlockRedstoneManagerSpigot get()
+    public static PowerBlockRedstoneManagerSpigot get()
     {
         return INSTANCE;
     }
 
-    private boolean isPoweredRedstone(final @NotNull Location loc)
+    @SuppressWarnings("unused")
+    private boolean isPoweredRedstone(Location loc)
     {
 //        if (loc.getBlock().isBlockIndirectlyPowered())
         return true;
     }
 
     @Override
-    public boolean isBlockPowered(final @NotNull IPWorld world, final @NotNull Vector3Di position)
+    public boolean isBlockPowered(IPWorld world, Vector3Di position)
     {
         final Location loc = new Location(SpigotAdapter.getBukkitWorld(world), position.x(), position.y(),
                                           position.z());

@@ -24,8 +24,7 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Clock;
 
@@ -38,9 +37,9 @@ abstract class AbstractTimedValue<T>
 {
     protected final long timeOut;
     protected long insertTime;
-    protected final @NotNull Clock clock;
+    protected final Clock clock;
 
-    protected AbstractTimedValue(final @NotNull Clock clock, final long timeOut)
+    protected AbstractTimedValue(Clock clock, long timeOut)
     {
         this.clock = clock;
         this.timeOut = timeOut;
@@ -61,7 +60,7 @@ abstract class AbstractTimedValue<T>
      * If this value is not accessible (e.g. exceeds {@link #timeOut} or the value itself has become invalid), null is
      * returned.
      *
-     * @param refresh Whether or not to refresh the value. See {@link #refresh()}.
+     * @param refresh Whether to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
     public abstract @Nullable T getValue(boolean refresh);

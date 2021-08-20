@@ -22,7 +22,6 @@ import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -34,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
     implements ICustomEntityFallingBlock
 {
-    protected static final @NotNull DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
-                                                                                       DataWatcherRegistry.l);
+    protected static final DataWatcherObject<BlockPosition> d = DataWatcher.a(EntityFallingBlock.class,
+                                                                              DataWatcherRegistry.l);
     public int ticksLived;
     public boolean dropItem;
     public boolean hurtEntities;
@@ -57,8 +56,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private Vector3Dd futurePosition;
 
-    public CustomEntityFallingBlock_V1_15_R1(final @NotNull org.bukkit.World world, final double d0, final double d1,
-                                             final double d2, final @NotNull IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_15_R1(org.bukkit.World world, double d0, double d1, double d2,
+                                             IBlockData iblockdata)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -104,14 +103,14 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
             throw new Exception("Failed to obtain EntityTracker for FallingBlock: " + getId());
     }
 
-    private void cyclePositions(@NotNull Vector3Dd newPosition)
+    private void cyclePositions(Vector3Dd newPosition)
     {
         previousPosition = currentPosition;
         currentPosition = futurePosition;
         futurePosition = newPosition;
     }
 
-    public boolean teleport(final @NotNull Vector3Dd newPosition, final @NotNull Vector3Dd rotation)
+    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
         final double distance = futurePosition.getDistance(newPosition);
         cyclePositions(newPosition);
@@ -156,7 +155,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
                 die();
 
             double motX = getMot().x * 0.9800000190734863D;
-            double motY = getMot().y * 1.0D;
+            double motY = getMot().y;
             double motZ = getMot().z * 0.9800000190734863D;
             setMot(motX, motY, motZ);
         }
@@ -169,7 +168,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    protected void b(final @NotNull NBTTagCompound nbttagcompound)
+    protected void b(NBTTagCompound nbttagcompound)
     {
         nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
         nbttagcompound.setInt("Time", ticksLived);
@@ -183,7 +182,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    protected void a(final @NotNull NBTTagCompound nbttagcompound)
+    protected void a(NBTTagCompound nbttagcompound)
     {
         block = GameProfileSerializer.d(nbttagcompound.getCompound("BlockState"));
         ticksLived = nbttagcompound.getInt("Time");
@@ -208,20 +207,20 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     }
 
     @Override
-    public void a(final boolean flag)
+    public void a(boolean flag)
     {
         hurtEntities = flag;
     }
 
     @Override
-    public void appendEntityCrashDetails(final @NotNull CrashReportSystemDetails crashreportsystemdetails)
+    public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
         crashreportsystemdetails.a("Imitating BlockState", block.toString());
     }
 
     @Override
-    public @NotNull IBlockData getBlock()
+    public IBlockData getBlock()
     {
         return block;
     }

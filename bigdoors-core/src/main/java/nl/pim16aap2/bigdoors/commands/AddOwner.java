@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -35,15 +34,15 @@ public class AddOwner extends DoorTargetCommand
      * If this player is already an owner of the target door, their permission will be overridden provided that the
      * command sender is allowed to add/remove co-owners at both the old and the new target permission level.
      */
-    private final @NotNull IPPlayer targetPlayer;
+    private final IPPlayer targetPlayer;
 
     /**
      * The permission level of the new owner's ownership. 1 = admin, 2 = user.
      */
     private final int targetPermissionLevel;
 
-    AddOwner(final @NotNull ICommandSender commandSender, final @NotNull DoorRetriever doorRetriever,
-             final @NotNull IPPlayer targetPlayer, final int targetPermissionLevel)
+    AddOwner(ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer,
+             int targetPermissionLevel)
     {
         super(commandSender, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
@@ -51,7 +50,7 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return COMMAND_DEFINITION;
     }
@@ -69,7 +68,7 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> performAction(final @NotNull AbstractDoor door)
+    protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
         return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel,
                                                             getCommandSender().getPlayer().orElse(null))
@@ -77,7 +76,7 @@ public class AddOwner extends DoorTargetCommand
     }
 
     @Override
-    protected boolean isAllowed(final @NotNull AbstractDoor door, final boolean hasBypassPermission)
+    protected boolean isAllowed(AbstractDoor door, boolean hasBypassPermission)
     {
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);
@@ -137,10 +136,8 @@ public class AddOwner extends DoorTargetCommand
      * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever,
-                                                          final @NotNull IPPlayer targetPlayer,
-                                                          final int targetPermissionLevel)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                                 IPPlayer targetPlayer, int targetPermissionLevel)
     {
         return new AddOwner(commandSender, doorRetriever, targetPlayer, targetPermissionLevel).run();
     }
@@ -150,9 +147,8 @@ public class AddOwner extends DoorTargetCommand
      * <p>
      * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender,
-                                                          final @NotNull DoorRetriever doorRetriever,
-                                                          final @NotNull IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                                 IPPlayer targetPlayer)
     {
         return run(commandSender, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
     }
@@ -170,8 +166,7 @@ public class AddOwner extends DoorTargetCommand
      * @param doorRetriever A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> runDelayed(final @NotNull ICommandSender commandSender,
-                                                                 final @NotNull DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
@@ -198,9 +193,8 @@ public class AddOwner extends DoorTargetCommand
      * @param targetPermissionLevel The permission level of the new owner's ownership. 1 = admin, 2 = user.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> provideDelayedInput(final @NotNull ICommandSender commandSender,
-                                                                          final @NotNull IPPlayer targetPlayer,
-                                                                          final int targetPermissionLevel)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer,
+                                                                 int targetPermissionLevel)
     {
         return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
                        .map(request -> request.provide(new DelayedInput(targetPlayer, targetPermissionLevel)))
@@ -212,8 +206,7 @@ public class AddOwner extends DoorTargetCommand
      * <p>
      * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
      */
-    public static @NotNull CompletableFuture<Boolean> provideDelayedInput(final @NotNull ICommandSender commandSender,
-                                                                          final @NotNull IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer)
     {
         return provideDelayedInput(commandSender, targetPlayer, DEFAULT_PERMISSION_LEVEL);
     }
@@ -230,9 +223,9 @@ public class AddOwner extends DoorTargetCommand
      * @param delayedInput  The delayed input that was retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    private static @NotNull CompletableFuture<Boolean> delayedInputExecutor(final @NotNull ICommandSender commandSender,
-                                                                            final @NotNull DoorRetriever doorRetriever,
-                                                                            final @NotNull DelayedInput delayedInput)
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+                                                                   DoorRetriever doorRetriever,
+                                                                   DelayedInput delayedInput)
     {
         return new AddOwner(commandSender, doorRetriever, delayedInput.getTargetPlayer(),
                             delayedInput.getPermission()).run();
@@ -243,7 +236,7 @@ public class AddOwner extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static @NotNull String inputRequestMessage()
+    private static String inputRequestMessage()
     {
         return BigDoors.get().getLocalizer().getMessage("commands.add_owner.init");
     }
@@ -256,7 +249,7 @@ public class AddOwner extends DoorTargetCommand
     @Value
     private static class DelayedInput
     {
-        @NotNull IPPlayer targetPlayer;
+        IPPlayer targetPlayer;
         int permission;
     }
 }

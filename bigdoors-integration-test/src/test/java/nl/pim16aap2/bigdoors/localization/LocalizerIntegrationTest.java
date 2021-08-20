@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +22,8 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.wr
 
 class LocalizerIntegrationTest
 {
-    private static final @NotNull Locale LOCALE_DUTCH = new Locale("nl", "NL");
-    private static final @NotNull String BASE_NAME = "Translation";
+    private static final Locale LOCALE_DUTCH = new Locale("nl", "NL");
+    private static final String BASE_NAME = "Translation";
 
     private FileSystem fs;
     private Path directory;

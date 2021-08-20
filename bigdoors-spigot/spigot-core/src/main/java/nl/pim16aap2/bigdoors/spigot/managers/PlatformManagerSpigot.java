@@ -6,19 +6,18 @@ import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import org.bukkit.Bukkit;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
-    private static final @NotNull PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
+    private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
     private static final @Nullable ISpigotPlatform spigotPlatform;
-    private static final @NotNull Version spigotVersion;
+    private static final Version spigotVersion;
 
     static
     {
         Version version;
-        ISpigotPlatform spigotPlatformTmp = null;
+        @Nullable ISpigotPlatform spigotPlatformTmp = null;
         try
         {
             String versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
@@ -27,11 +26,10 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
             if (version != Version.ERROR)
                 spigotPlatformTmp = version.getPlatform();
         }
-        catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e)
+        catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
             BigDoors.get().getPLogger().logThrowable(e);
             version = Version.ERROR;
-            spigotPlatformTmp = null;
         }
         spigotVersion = version;
         spigotPlatform = spigotPlatformTmp;
@@ -42,13 +40,13 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      *
      * @return The instance of this class.
      */
-    public static @NotNull PlatformManagerSpigot get()
+    public static PlatformManagerSpigot get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NotNull ISpigotPlatform getSpigotPlatform()
+    public ISpigotPlatform getSpigotPlatform()
     {
         if (spigotPlatform == null)
         {
@@ -65,7 +63,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      * @param bigDoorsSpigot The {@link BigDoorsSpigot} instance.
      * @return True if a valid platform was found for the current version.
      */
-    public boolean initPlatform(final @NotNull BigDoorsSpigot bigDoorsSpigot)
+    public boolean initPlatform(BigDoorsSpigot bigDoorsSpigot)
     {
         if (spigotPlatform == null)
         {

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.events.dooraction;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
-import org.jetbrains.annotations.NotNull;
 
 public interface IDoorToggleEvent extends IBigDoorsEvent
 {
@@ -12,14 +11,14 @@ public interface IDoorToggleEvent extends IBigDoorsEvent
      *
      * @return The door.
      */
-    @NotNull AbstractDoor getDoor();
+    AbstractDoor getDoor();
 
     /**
      * Gets what caused the door action request to be created.
      *
      * @return The cause of the door action request.
      */
-    @NotNull DoorActionCause getCause();
+    DoorActionCause getCause();
 
     /**
      * Gets the UUID of the player responsible for this door action. This either means the player who directly requested
@@ -28,14 +27,14 @@ public interface IDoorToggleEvent extends IBigDoorsEvent
      *
      * @return The player that is responsible for this event.
      */
-    @NotNull IPPlayer getResponsible();
+    IPPlayer getResponsible();
 
     /**
      * Gets the type of the requested action.
      *
      * @return The type of the requested action.
      */
-    @NotNull DoorActionType getActionType();
+    DoorActionType getActionType();
 
     /**
      * Checks if the event requested the door to skip its animation and open instantly.

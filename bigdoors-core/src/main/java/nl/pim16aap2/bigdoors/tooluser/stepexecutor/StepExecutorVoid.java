@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -14,10 +13,10 @@ import java.util.logging.Level;
 public class StepExecutorVoid extends StepExecutor
 {
     @ToString.Exclude
-    private final @NotNull Supplier<Boolean> fun;
+    private final Supplier<Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
         if (input != null)
             BigDoors.get().getPLogger()
@@ -26,13 +25,13 @@ public class StepExecutorVoid extends StepExecutor
     }
 
     @Override
-    public boolean validInput(final @Nullable Object obj)
+    public boolean validInput(@Nullable Object obj)
     {
         return obj == null;
     }
 
     @Override
-    public @NotNull Class<?> getInputClass()
+    public Class<?> getInputClass()
     {
         return Object.class;
     }

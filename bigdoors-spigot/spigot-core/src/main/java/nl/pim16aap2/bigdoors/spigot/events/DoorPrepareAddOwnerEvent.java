@@ -19,18 +19,16 @@ import org.jetbrains.annotations.Nullable;
 @ToString
 public class DoorPrepareAddOwnerEvent extends DoorEvent implements IDoorPrepareAddOwnerEvent
 {
-    private static final @NotNull HandlerList HANDLERS_LIST = new HandlerList();
+    private static final HandlerList HANDLERS_LIST = new HandlerList();
 
     @Getter
     @Setter
     private boolean isCancelled = false;
 
     @Getter
-    private final @NotNull DoorOwner newDoorOwner;
+    private final DoorOwner newDoorOwner;
 
-    public DoorPrepareAddOwnerEvent(final @NotNull AbstractDoor door,
-                                    final @Nullable IPPlayer responsible,
-                                    final @NotNull DoorOwner newDoorOwner)
+    public DoorPrepareAddOwnerEvent(AbstractDoor door, @Nullable IPPlayer responsible, DoorOwner newDoorOwner)
     {
         super(door, responsible);
         this.newDoorOwner = newDoorOwner;
@@ -42,7 +40,8 @@ public class DoorPrepareAddOwnerEvent extends DoorEvent implements IDoorPrepareA
         return HANDLERS_LIST;
     }
 
-    public static @NotNull HandlerList getHandlerList()
+    @SuppressWarnings("squid:S4144")
+    public static HandlerList getHandlerList()
     {
         return HANDLERS_LIST;
     }

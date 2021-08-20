@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -169,7 +168,7 @@ class AddOwnerTest
                                                                    commandSender.getPlayer().orElse(null));
     }
 
-    private @NotNull DatabaseManager mockDatabaseManager()
+    private DatabaseManager mockDatabaseManager()
     {
         val databaseManager = Mockito.mock(DatabaseManager.class);
         Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);

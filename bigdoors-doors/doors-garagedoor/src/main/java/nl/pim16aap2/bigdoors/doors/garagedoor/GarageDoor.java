@@ -21,7 +21,6 @@ import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ import java.util.Optional;
 public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
-    private static final @NotNull DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
+    private static final DoorType DOOR_TYPE = DoorTypeGarageDoor.get();
 
     /**
      * Describes if the {@link GarageDoor} is situated along the North/South axis <b>(= TRUE)</b> or along the East/West
@@ -62,8 +61,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     @PersistentVariable
     protected int autoOpenTime;
 
-    public GarageDoor(final @NotNull DoorBase doorBase, final int autoCloseTime, final int autoOpenTime,
-                      final boolean northSouthAligned)
+    public GarageDoor(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean northSouthAligned)
     {
         super(doorBase);
         this.autoCloseTime = autoCloseTime;
@@ -71,25 +69,25 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         this.northSouthAligned = northSouthAligned;
     }
 
-    public GarageDoor(final @NotNull DoorBase doorBase, final boolean northSouthAligned)
+    public GarageDoor(DoorBase doorBase, boolean northSouthAligned)
     {
         this(doorBase, -1, -1, northSouthAligned);
     }
 
     @SuppressWarnings("unused")
-    private GarageDoor(final @NotNull DoorBase doorBase)
+    private GarageDoor(DoorBase doorBase)
     {
         this(doorBase, false); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         RotateDirection rotDir = getOpenDir();
         if (isOpen())
@@ -98,7 +96,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         if (isNorthSouthAligned())
             return getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.WEST : RotateDirection.EAST;
@@ -106,14 +104,14 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
-        final @NotNull Cuboid cuboid = getCuboid();
+        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final Cuboid cuboid = getCuboid();
 
-        final @NotNull Vector3Di dimensions = cuboid.getDimensions();
-        final @NotNull Vector3Di minimum = cuboid.getMin();
-        final @NotNull Vector3Di maximum = cuboid.getMax();
+        final Vector3Di dimensions = cuboid.getDimensions();
+        final Vector3Di minimum = cuboid.getMin();
+        final Vector3Di maximum = cuboid.getMax();
 
         int minX = minimum.x();
         int minY = minimum.y();
@@ -125,7 +123,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         int yLen = dimensions.y();
         int zLen = dimensions.z();
 
-        final @NotNull Vector3Di rotateVec;
+        final Vector3Di rotateVec;
         try
         {
             rotateVec = PBlockFace.getDirection(Util.getPBlockFace(rotateDirection));
@@ -193,10 +191,8 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull Cuboid newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.

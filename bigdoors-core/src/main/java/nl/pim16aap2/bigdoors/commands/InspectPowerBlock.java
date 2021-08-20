@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -19,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class InspectPowerBlock extends BaseCommand
 {
-    protected InspectPowerBlock(final @NotNull ICommandSender commandSender)
+    protected InspectPowerBlock(ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -29,17 +28,17 @@ public class InspectPowerBlock extends BaseCommand
      *
      * @param commandSender The {@link ICommandSender} responsible for inspecting the powerblocks.
      *                      <p>
-     *                      They can only discover {@link DoorBase}s attached to specific locations if they both
-     *                      have access to the specific location and access to the specific door(s).
+     *                      They can only discover {@link DoorBase}s attached to specific locations if they both have
+     *                      access to the specific location and access to the specific door(s).
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
     {
         return new InspectPowerBlock(commandSender).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.INSPECT_POWERBLOCK;
     }
@@ -51,7 +50,7 @@ public class InspectPowerBlock extends BaseCommand
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         BigDoors.get().getToolUserManager()
                 .startToolUser(new PowerBlockInspector((IPPlayer) getCommandSender(), permissions.second),

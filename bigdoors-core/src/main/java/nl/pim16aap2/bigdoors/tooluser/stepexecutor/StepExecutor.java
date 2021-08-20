@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -19,7 +18,7 @@ public abstract class StepExecutor
      *
      * @param input The object to give to the {@link BiFunction}.
      */
-    public final boolean apply(final @Nullable Object input)
+    public final boolean apply(@Nullable Object input)
     {
         if (validInput(input))
             return protectedAccept(input);
@@ -38,7 +37,7 @@ public abstract class StepExecutor
      *
      * @param obj The object to give to the {@link BiFunction}.
      */
-    protected abstract boolean protectedAccept(final @Nullable Object obj);
+    protected abstract boolean protectedAccept(@Nullable Object obj);
 
     /**
      * Checks if an object is a valid input type.
@@ -46,7 +45,7 @@ public abstract class StepExecutor
      * @param obj The object to check.
      * @return True if this object is valid for the current type.
      */
-    public boolean validInput(final @Nullable Object obj)
+    public boolean validInput(@Nullable Object obj)
     {
         return getInputClass().isInstance(obj);
     }
@@ -56,5 +55,5 @@ public abstract class StepExecutor
      *
      * @return The {@link Class} of the input object.
      */
-    protected abstract @NotNull Class<?> getInputClass();
+    protected abstract Class<?> getInputClass();
 }

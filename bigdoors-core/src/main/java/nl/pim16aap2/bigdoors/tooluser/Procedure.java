@@ -5,24 +5,28 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Represents a procedure as defined by a series of {@link IStep}s.
+ *
+ * @author Pim
+ */
 @ToString
 public final class Procedure
 {
     @Getter
     private @Nullable IStep currentStep;
 
-    @ToString.Exclude
-    protected final @NotNull ToolUser toolUser;
+    @ToString.Exclude //
+    final ToolUser toolUser;
 
-    final @NotNull Iterator<IStep> steps;
+    final Iterator<IStep> steps;
 
-    public Procedure(final @NotNull ToolUser toolUser, final @NotNull List<IStep> steps)
+    public Procedure(ToolUser toolUser, List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
@@ -65,7 +69,7 @@ public final class Procedure
      * @param goalStep The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(final @NotNull IStep goalStep)
+    public boolean skipToStep(IStep goalStep)
     {
         while (steps.hasNext())
         {
@@ -85,7 +89,7 @@ public final class Procedure
      * @param obj The input to apply.
      * @return True if the application was successful.
      */
-    public boolean applyStepExecutor(final @Nullable Object obj)
+    public boolean applyStepExecutor(@Nullable Object obj)
     {
         if (currentStep == null)
         {
@@ -101,7 +105,7 @@ public final class Procedure
      *
      * @return The message for the current step.
      */
-    public @NotNull String getMessage()
+    public String getMessage()
     {
         if (currentStep == null)
         {
@@ -117,7 +121,7 @@ public final class Procedure
      *
      * @return The name of the current step.
      */
-    public @NotNull String getCurrentStepName()
+    public String getCurrentStepName()
     {
         if (currentStep == null)
         {

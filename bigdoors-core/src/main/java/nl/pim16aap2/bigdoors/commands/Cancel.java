@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Cancel extends BaseCommand
 {
-    protected Cancel(final @NotNull ICommandSender commandSender)
+    protected Cancel(ICommandSender commandSender)
     {
         super(commandSender);
     }
@@ -28,25 +27,25 @@ public class Cancel extends BaseCommand
      * @param commandSender The {@link ICommandSender} for which to cancel any active processes.
      * @return See {@link BaseCommand#run()}.
      */
-    public static @NotNull CompletableFuture<Boolean> run(final @NotNull ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
     {
         return new Cancel(commandSender).run();
     }
 
     @Override
-    public @NotNull CommandDefinition getCommand()
+    public CommandDefinition getCommand()
     {
         return CommandDefinition.CANCEL;
     }
 
     @Override
-    protected @NotNull CompletableFuture<Boolean> executeCommand(final @NotNull BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         getCommandSender().getPlayer().ifPresent(this::cancelPlayer);
         return CompletableFuture.completedFuture(true);
     }
 
-    private void cancelPlayer(final @NotNull IPPlayer player)
+    private void cancelPlayer(IPPlayer player)
     {
         BigDoors.get().getToolUserManager().getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
         BigDoors.get().getDoorSpecificationManager().cancelRequest(player);

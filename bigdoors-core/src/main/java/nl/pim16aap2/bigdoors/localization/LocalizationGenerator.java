@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.localization;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -44,7 +43,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * @param outputDirectory The output directory to write all the combined localizations into.
      * @param outputBaseName  The base name of the properties files in the output directory.
      */
-    LocalizationGenerator(@NotNull Path outputDirectory, @NotNull String outputBaseName)
+    LocalizationGenerator(Path outputDirectory, String outputBaseName)
     {
         this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
@@ -53,7 +52,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     }
 
     @Override
-    public void addResources(@NotNull Path path, @Nullable String baseName)
+    public void addResources(Path path, @Nullable String baseName)
     {
         if (Files.isDirectory(path))
             addResourcesFromDirectory(path, baseName);
@@ -62,17 +61,17 @@ final class LocalizationGenerator implements ILocalizationGenerator
     }
 
     @Override
-    public void addResources(@NotNull List<Path> paths)
+    public void addResources(List<Path> paths)
     {
         paths.forEach(path -> addResources(path, null));
     }
 
-    void addResourcesFromDirectory(@NotNull Path directory, @Nullable String baseName)
+    void addResourcesFromDirectory(Path directory, @Nullable String baseName)
     {
-        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
+        try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             final List<LocaleFile> localeFiles = getLocaleFilesInDirectory(directory, baseName);
-            for (final LocaleFile localeFile : localeFiles)
+            for (LocaleFile localeFile : localeFiles)
                 mergeWithExistingLocaleFile(outputFileSystem, localeFile);
         }
         catch (Exception e)
@@ -82,9 +81,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
     }
 
-    void addResourcesFromZip(@NotNull Path jarFile, @Nullable String baseName)
+    void addResourcesFromZip(Path jarFile, @Nullable String baseName)
     {
-        try (final FileSystem zipFileSystem = createNewFileSystem(jarFile);
+        try (FileSystem zipFileSystem = createNewFileSystem(jarFile);
              final FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
@@ -92,8 +91,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
                 fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
             final List<LocaleFile> localeFiles = getLocaleFiles(zipFileSystem, fileNames);
-            for (final LocaleFile localeFile : localeFiles)
-                try (final InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
+            for (LocaleFile localeFile : localeFiles)
+                try (InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
                 {
                     mergeWithExistingLocaleFile(outputFileSystem, localeFileInputStream, localeFile.locale());
                 }
@@ -109,9 +108,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
      *
      * @return The set of localization keys used in the root locale file.
      */
-    @NotNull Set<String> getOutputRootKeys()
+    Set<String> getOutputRootKeys()
     {
-        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
+        try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, ""));
             ensureFileExists(existingLocaleFile);
@@ -130,7 +129,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * See {@link #addResourcesFromZip(Path, String)}.
      */
     @Override
-    public void addResourcesFromClass(@NotNull Class<?> clz, @Nullable String baseName)
+    public void addResourcesFromClass(Class<?> clz, @Nullable String baseName)
     {
         addResourcesFromZip(Util.getJarFile(clz), baseName);
     }
@@ -143,9 +142,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * See {@link #addResourcesFromClass(Class, String)}.
      */
     @Override
-    public void addResourcesFromClass(@NotNull List<Class<?>> classes)
+    public void addResourcesFromClass(List<Class<?>> classes)
     {
-        for (final Class<?> clz : classes)
+        for (Class<?> clz : classes)
             addResourcesFromClass(clz, null);
     }
 
@@ -155,9 +154,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * @param localeSuffix The suffix of the locale.
      * @param patches      The patches to apply to the locale.
      */
-    void applyPatches(@NotNull String localeSuffix, @NotNull Map<String, String> patches)
+    void applyPatches(String localeSuffix, Map<String, String> patches)
     {
-        try (final FileSystem outputFileSystem = getOutputFileFileSystem())
+        try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             final Path existingLocaleFile =
                 ensureFileExists(outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, localeSuffix)));
@@ -185,7 +184,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * @param lines   The list of lines to merge with the patches. This list is modified in-place.
      * @param patches The patches to merge into the existing lines.
      */
-    static void mergeWithPatches(@NotNull List<String> lines, @NotNull Map<String, String> patches)
+    static void mergeWithPatches(List<String> lines, Map<String, String> patches)
     {
         final Set<String> usedPatches = new HashSet<>(patches.size());
         for (int idx = 0; idx < lines.size(); ++idx)
@@ -203,7 +202,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         if (usedPatches.size() == patches.size())
             return;
 
-        for (final Map.Entry<String, String> patch : patches.entrySet())
+        for (Map.Entry<String, String> patch : patches.entrySet())
         {
             if (usedPatches.contains(patch.getKey()))
                 continue;
@@ -216,7 +215,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * <p>
      * See {@link LocalizationUtil#createNewFileSystem(Path)}.
      */
-    private @NotNull FileSystem getOutputFileFileSystem()
+    private FileSystem getOutputFileFileSystem()
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
         ensureZipFileExists(outputFile);
@@ -236,8 +235,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * @param locale           The locale of the file to read.
      * @throws IOException When an I/O error occurred.
      */
-    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull InputStream inputStream,
-                                     @NotNull String locale)
+    void mergeWithExistingLocaleFile(FileSystem outputFileSystem, InputStream inputStream, String locale)
         throws IOException
     {
         final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, locale));
@@ -252,7 +250,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     /**
      * See {@link #mergeWithExistingLocaleFile(FileSystem, InputStream, String)}.
      */
-    void mergeWithExistingLocaleFile(@NotNull FileSystem outputFileSystem, @NotNull LocaleFile localeFile)
+    void mergeWithExistingLocaleFile(FileSystem outputFileSystem, LocaleFile localeFile)
         throws IOException
     {
         mergeWithExistingLocaleFile(outputFileSystem, Files.newInputStream(localeFile.path()), localeFile.locale());

@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -19,6 +18,6 @@ public interface IGlowingBlockFactory
      *                          (de)registered when it is (de)spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
-    @NotNull Optional<IGlowingBlock> createGlowingBlock(@NotNull Player player, @NotNull World world,
-                                                        @NotNull IRestartableHolder restartableHolder);
+    Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
+                                               IRestartableHolder restartableHolder);
 }

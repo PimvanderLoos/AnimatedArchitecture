@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +20,7 @@ public interface IPPlayerFactory
      * @param playerData The {@link PPlayerData} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NotNull IPPlayer create(@NotNull PPlayerData playerData);
+    IPPlayer create(PPlayerData playerData);
 
     /**
      * Creates a new {@link IPPlayer}.
@@ -29,5 +28,5 @@ public interface IPPlayerFactory
      * @param uuid The {@link UUID} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NotNull CompletableFuture<Optional<IPPlayer>> create(@NotNull UUID uuid);
+    CompletableFuture<Optional<IPPlayer>> create(UUID uuid);
 }

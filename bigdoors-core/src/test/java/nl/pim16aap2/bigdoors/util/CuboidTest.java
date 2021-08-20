@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util;
 import lombok.val;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,9 +13,9 @@ class CuboidTest
     @Test
     void getVolume()
     {
-        final @NotNull Vector3Di min = new Vector3Di(0, 0, 0);
-        final @NotNull Vector3Di max = new Vector3Di(10, -10, 10);
-        final @NotNull Cuboid cuboid = new Cuboid(min, max);
+        final Vector3Di min = new Vector3Di(0, 0, 0);
+        final Vector3Di max = new Vector3Di(10, -10, 10);
+        final Cuboid cuboid = new Cuboid(min, max);
 
         Assertions.assertEquals(11 * 11 * 11, cuboid.getVolume());
     }
@@ -24,13 +23,13 @@ class CuboidTest
     @Test
     void moveTest()
     {
-        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
-        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 88);
+        final Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final Vector3Di max0 = new Vector3Di(22, 65, 88);
 
-        final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 76);
-        final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
+        final Vector3Di min1 = new Vector3Di(13, 49, 76);
+        final Vector3Di max1 = new Vector3Di(23, 69, 96);
 
-        @NotNull Cuboid cuboid = new Cuboid(min0, max0);
+        Cuboid cuboid = new Cuboid(min0, max0);
         cuboid = cuboid.move(1, 4, 8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
@@ -39,13 +38,13 @@ class CuboidTest
     @Test
     void changeDimensionsTest()
     {
-        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
-        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 88);
+        final Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final Vector3Di max0 = new Vector3Di(22, 65, 88);
 
-        final @NotNull Vector3Di min1 = new Vector3Di(11, 41, 60);
-        final @NotNull Vector3Di max1 = new Vector3Di(23, 69, 96);
+        final Vector3Di min1 = new Vector3Di(11, 41, 60);
+        final Vector3Di max1 = new Vector3Di(23, 69, 96);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).grow(1, 4, 8);
+        final Cuboid cuboid = new Cuboid(min0, max0).grow(1, 4, 8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -53,13 +52,13 @@ class CuboidTest
     @Test
     void changeDimensionsInvTest()
     {
-        final @NotNull Vector3Di min0 = new Vector3Di(12, 45, 68);
-        final @NotNull Vector3Di max0 = new Vector3Di(22, 65, 70);
+        final Vector3Di min0 = new Vector3Di(12, 45, 68);
+        final Vector3Di max0 = new Vector3Di(22, 65, 70);
 
-        final @NotNull Vector3Di min1 = new Vector3Di(13, 49, 62);
-        final @NotNull Vector3Di max1 = new Vector3Di(21, 61, 76);
+        final Vector3Di min1 = new Vector3Di(13, 49, 62);
+        final Vector3Di max1 = new Vector3Di(21, 61, 76);
 
-        final @NotNull Cuboid cuboid = new Cuboid(min0, max0).grow(-1, -4, -8);
+        final Cuboid cuboid = new Cuboid(min0, max0).grow(-1, -4, -8);
         Assertions.assertEquals(min1, cuboid.getMin());
         Assertions.assertEquals(max1, cuboid.getMax());
     }
@@ -67,15 +66,15 @@ class CuboidTest
     @Test
     void isPosInsideCuboid()
     {
-        final @NotNull Vector3Di min = new Vector3Di(0, 0, 0);
-        final @NotNull Vector3Di max = new Vector3Di(10, 10, 10);
-        final @NotNull Cuboid cuboid = new Cuboid(min, max);
+        final Vector3Di min = new Vector3Di(0, 0, 0);
+        final Vector3Di max = new Vector3Di(10, 10, 10);
+        final Cuboid cuboid = new Cuboid(min, max);
 
-        final @NotNull Vector3Di pos0 = new Vector3Di(5, 5, 5);
-        final @NotNull Vector3Di pos1 = new Vector3Di(10, 0, 5);
-        final @NotNull Vector3Di pos2 = new Vector3Di(11, 0, 5);
-        final @NotNull Vector3Di pos3 = new Vector3Di(10, 11, 0);
-        final @NotNull Vector3Di pos4 = new Vector3Di(11, 11, 11);
+        final Vector3Di pos0 = new Vector3Di(5, 5, 5);
+        final Vector3Di pos1 = new Vector3Di(10, 0, 5);
+        final Vector3Di pos2 = new Vector3Di(11, 0, 5);
+        final Vector3Di pos3 = new Vector3Di(10, 11, 0);
+        final Vector3Di pos4 = new Vector3Di(11, 11, 11);
 
         Assertions.assertTrue(cuboid.isPosInsideCuboid(pos0));
         Assertions.assertTrue(cuboid.isPosInsideCuboid(pos1));
@@ -87,58 +86,58 @@ class CuboidTest
     @Test
     void getMin()
     {
-        final @NotNull Vector3Di val1 = new Vector3Di(10, -10, 10);
-        final @NotNull Vector3Di val2 = new Vector3Di(11, 20, 9);
+        final Vector3Di val1 = new Vector3Di(10, -10, 10);
+        final Vector3Di val2 = new Vector3Di(11, 20, 9);
 
-        final @NotNull Vector3Di actualMin = new Vector3Di(10, -10, 9);
+        final Vector3Di actualMin = new Vector3Di(10, -10, 9);
 
-        @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMin, cuboid.getMin());
     }
 
     @Test
     void getMax()
     {
-        final @NotNull Vector3Di val1 = new Vector3Di(10, -10, 10);
-        final @NotNull Vector3Di val2 = new Vector3Di(11, 20, 9);
+        final Vector3Di val1 = new Vector3Di(10, -10, 10);
+        final Vector3Di val2 = new Vector3Di(11, 20, 9);
 
-        final @NotNull Vector3Di actualMax = new Vector3Di(11, 20, 10);
+        final Vector3Di actualMax = new Vector3Di(11, 20, 10);
 
-        @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(actualMax, cuboid.getMax());
     }
 
     @Test
     void getCenterBlock()
     {
-        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
-        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+        final Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final Vector3Di val2 = new Vector3Di(10, 0, 30);
 
-        final @NotNull Vector3Di center = new Vector3Di(5, 5, 30);
+        final Vector3Di center = new Vector3Di(5, 5, 30);
 
-        final @NotNull Cuboid cuboid = new Cuboid(val1, val2);
+        final Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(center, cuboid.getCenterBlock());
     }
 
     @Test
     void getDimensions()
     {
-        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
-        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+        final Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final Vector3Di val2 = new Vector3Di(10, 0, 30);
 
-        final @NotNull Vector3Di dimensions = new Vector3Di(11, 12, 1);
+        final Vector3Di dimensions = new Vector3Di(11, 12, 1);
         Assertions.assertEquals(dimensions, new Cuboid(val1, val2).getDimensions());
     }
 
     @Test
     void getCenter()
     {
-        final @NotNull Vector3Di val1 = new Vector3Di(0, 11, 30);
-        final @NotNull Vector3Di val2 = new Vector3Di(10, 0, 30);
+        final Vector3Di val1 = new Vector3Di(0, 11, 30);
+        final Vector3Di val2 = new Vector3Di(10, 0, 30);
 
-        final @NotNull Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
+        final Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
 
-        final @NotNull Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
+        final Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
         Assertions.assertTrue(Math.abs(center.x() - foundCenter.x()) < EPSILON);
         Assertions.assertTrue(Math.abs(center.y() - foundCenter.y()) < EPSILON);
         Assertions.assertTrue(Math.abs(center.z() - foundCenter.z()) < EPSILON);
@@ -147,9 +146,9 @@ class CuboidTest
     @Test
     void testIsInRange()
     {
-        @NotNull val val1 = new Vector3Di(-10, 0, 10);
-        @NotNull val val2 = new Vector3Di(20, 30, 40);
-        @NotNull val cuboid = new Cuboid(val1, val2);
+        val val1 = new Vector3Di(-10, 0, 10);
+        val val2 = new Vector3Di(20, 30, 40);
+        val cuboid = new Cuboid(val1, val2);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));
         Assertions.assertTrue(cuboid.isInRange(cuboid.getCenterBlock(), 0));

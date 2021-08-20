@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.function.UnaryOperator;
 
@@ -19,7 +18,6 @@ import java.util.function.UnaryOperator;
  */
 @ToString
 @EqualsAndHashCode
-@SuppressWarnings("unused")
 public class Cuboid
 {
     /**
@@ -47,9 +45,9 @@ public class Cuboid
      */
     @Getter
     @EqualsAndHashCode.Exclude
-    private final @NotNull Vector3Di dimensions;
+    private final Vector3Di dimensions;
 
-    public Cuboid(@NotNull Vector3Di a, @NotNull Vector3Di b)
+    public Cuboid(Vector3Di a, Vector3Di b)
     {
         final Vector3Di[] minmax = getSortedCoordinates(a, b);
         min = minmax[0];
@@ -66,7 +64,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isPosInsideCuboid(final @NotNull Vector3Di pos)
+    public boolean isPosInsideCuboid(Vector3Di pos)
     {
         return pos.x() >= min.x() && pos.x() <= max.x() &&
             pos.y() >= min.y() && pos.y() <= max.y() &&
@@ -88,7 +86,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    private static int getOuterDistance(final int test, final int min, final int max)
+    private static int getOuterDistance(int test, int min, int max)
     {
         if (Util.between(test, min, max))
             return 0;
@@ -114,7 +112,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final int x, int y, int z, final int range)
+    public boolean isInRange(int x, int y, int z, int range)
     {
         if (range < 0)
             throw new IllegalArgumentException("Range (" + range + ") cannot be smaller than 0!");
@@ -129,7 +127,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final @NotNull Vector3Di pos, final int range)
+    public boolean isInRange(Vector3Di pos, int range)
     {
         return isInRange(pos.x(), pos.y(), pos.z(), range);
     }
@@ -139,7 +137,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(pure = true)
-    public boolean isInRange(final @NotNull IPLocation loc, final int range)
+    public boolean isInRange(IPLocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
     }
@@ -151,7 +149,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = " -> new", pure = true)
-    public @NotNull Vector3Dd getCenter()
+    public Vector3Dd getCenter()
     {
         final double cX = max.x() - ((max.x() - min.x()) / 2.0f);
         final double cY = max.y() - ((max.y() - min.y()) / 2.0f);
@@ -166,7 +164,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = " -> new", pure = true)
-    public @NotNull Vector3Di getCenterBlock()
+    public Vector3Di getCenterBlock()
     {
         final int cX = (int) (max.x() - ((max.x() - min.x()) / 2.0f));
         final int cY = (int) (max.y() - ((max.y() - min.y()) / 2.0f));
@@ -182,10 +180,10 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_ -> new", pure = true)
-    public @NotNull Cuboid updatePositions(final @NotNull UnaryOperator<Vector3Di> updateFunction)
+    public Cuboid updatePositions(UnaryOperator<Vector3Di> updateFunction)
     {
-        final @NotNull Vector3Di newMin = updateFunction.apply(min);
-        final @NotNull Vector3Di newMax = updateFunction.apply(max);
+        final Vector3Di newMin = updateFunction.apply(min);
+        final Vector3Di newMax = updateFunction.apply(max);
         return new Cuboid(newMin, newMax);
     }
 
@@ -199,7 +197,7 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_, _, _ -> new", pure = true)
-    public @NotNull Cuboid move(final int x, final int y, final int z)
+    public Cuboid move(int x, int y, int z)
     {
         return new Cuboid(min.add(x, y, z), max.add(x, y, z));
     }
@@ -215,14 +213,14 @@ public class Cuboid
      */
     @CheckReturnValue
     @Contract(value = "_, _, _ -> new", pure = true)
-    public @NotNull Cuboid grow(final int x, final int y, final int z)
+    public Cuboid grow(int x, int y, int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
     }
 
     @CheckReturnValue
     @Contract(value = "_, _ -> new", pure = true)
-    private static @NotNull Vector3Di[] getSortedCoordinates(@NotNull Vector3Di a, @NotNull Vector3Di b)
+    private static Vector3Di[] getSortedCoordinates(Vector3Di a, Vector3Di b)
     {
         final int minX = Math.min(a.x(), b.x());
         final int minY = Math.min(a.y(), b.y());
@@ -232,8 +230,8 @@ public class Cuboid
         final int maxY = Math.max(a.y(), b.y());
         final int maxZ = Math.max(a.z(), b.z());
 
-        final @NotNull Vector3Di min = new Vector3Di(minX, minY, minZ);
-        final @NotNull Vector3Di max = new Vector3Di(maxX, maxY, maxZ);
+        final Vector3Di min = new Vector3Di(minX, minY, minZ);
+        final Vector3Di max = new Vector3Di(maxX, maxY, maxZ);
         return new Vector3Di[]{min, max};
     }
 
@@ -249,7 +247,7 @@ public class Cuboid
 
     @CheckReturnValue
     @Contract(value = " -> new", pure = true)
-    private @NotNull Vector3Di calculateDimensions()
+    private Vector3Di calculateDimensions()
     {
         final int x = max.x() - min.x() + 1;
         final int y = max.y() - min.y() + 1;

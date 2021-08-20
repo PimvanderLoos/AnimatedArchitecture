@@ -5,7 +5,6 @@ import lombok.Value;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,8 +86,7 @@ class DelayedCommandInputRequestTest
                                                   .get(1, TimeUnit.SECONDS));
     }
 
-    private @NotNull CompletableFuture<Boolean> verifyInput(final @NotNull DelayedInput actualInput,
-                                                            final @NotNull DelayedInput delayedInput)
+    private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)
     {
         Assertions.assertEquals(actualInput, delayedInput);
         return CompletableFuture.completedFuture(true);
@@ -97,7 +95,7 @@ class DelayedCommandInputRequestTest
     @Value
     private static class DelayedInput
     {
-        @NotNull UUID uuid;
-        @NotNull String string;
+        UUID uuid;
+        String string;
     }
 }

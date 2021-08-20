@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -21,7 +19,7 @@ import java.util.zip.ZipOutputStream;
 class LocalizationTestingUtilities
 {
 
-    static @NotNull FileSystem createFileSystem(@NotNull Path zipFile)
+    static FileSystem createFileSystem(Path zipFile)
         throws URISyntaxException, IOException
     {
         return FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
@@ -36,18 +34,18 @@ class LocalizationTestingUtilities
      *
      * @throws MalformedURLException
      */
-    static @NotNull URLClassLoader loadJar(@NotNull Path jar, ClassLoader parentClassLoader)
+    static URLClassLoader loadJar(Path jar, ClassLoader parentClassLoader)
         throws MalformedURLException
     {
         return new URLClassLoader("URLClassLoader_LocalizationGeneratorIntegrationTest",
                                   new URL[]{jar.toUri().toURL()}, parentClassLoader);
     }
 
-    static void addFilesToZip(@NotNull Path zipFile, @NotNull String... names)
+    static void addFilesToZip(Path zipFile, String... names)
         throws IOException
     {
         final ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(zipFile));
-        for (final String name : names)
+        for (String name : names)
         {
             final byte[] data = "".getBytes();
             outputStream.putNextEntry(new ZipEntry(name));
@@ -64,7 +62,7 @@ class LocalizationTestingUtilities
      * @param lines The lines to write to the file.
      * @throws IOException
      */
-    static void writeToFile(@NotNull Path file, @NotNull List<String> lines)
+    static void writeToFile(Path file, List<String> lines)
         throws IOException
     {
         LocalizationUtil.ensureFileExists(file);
@@ -79,12 +77,11 @@ class LocalizationTestingUtilities
      * @param lines        The lines to write to the entry.
      * @throws IOException
      */
-    static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
-                           @NotNull List<String> lines)
+    static void writeEntry(ZipOutputStream outputStream, String fileName, List<String> lines)
         throws IOException
     {
         final StringBuilder sb = new StringBuilder();
-        for (final String line : lines)
+        for (String line : lines)
             sb.append(line).append("\n");
         writeEntry(outputStream, fileName, sb.toString().getBytes());
     }
@@ -98,8 +95,7 @@ class LocalizationTestingUtilities
      * @param data         The data to write to the entry.
      * @throws IOException
      */
-    static void writeEntry(@NotNull ZipOutputStream outputStream, @NotNull String fileName,
-                           byte[] data)
+    static void writeEntry(ZipOutputStream outputStream, String fileName, byte[] data)
         throws IOException
     {
         outputStream.putNextEntry(new ZipEntry(fileName));
@@ -108,7 +104,7 @@ class LocalizationTestingUtilities
     }
 
     @SuppressWarnings("SameParameterValue")
-    static void appendToFileInZip(@NotNull Path zipFile, @NotNull String file, @NotNull String toAppend)
+    static void appendToFileInZip(Path zipFile, String file, String toAppend)
         throws URISyntaxException, IOException
     {
         final FileSystem bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());

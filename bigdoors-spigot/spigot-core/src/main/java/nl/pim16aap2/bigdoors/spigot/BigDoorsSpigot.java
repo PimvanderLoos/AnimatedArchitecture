@@ -80,7 +80,6 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -103,14 +102,14 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private static BigDoorsSpigot INSTANCE;
     private static long MAINTHREADID = -1;
 
-    private final @NotNull PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
+    private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
     @Getter
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
 
     private boolean validVersion = false;
-    private final @NotNull IPExecutor pExecutor;
+    private final IPExecutor pExecutor;
     private final Set<IRestartable> restartables = new LinkedHashSet<>();
 
     @Getter
@@ -126,7 +125,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private IGlowingBlockSpawner glowingBlockSpawner;
 
     @Getter
-    private final @NotNull LimitsManager limitsManager = new LimitsManager();
+    private final LimitsManager limitsManager = new LimitsManager();
 
     @Getter
     private HeadManager headManager;
@@ -135,61 +134,61 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private boolean successfulInit = true;
 
     @Getter
-    private final @NotNull IPServer pServer = new PServer(this);
+    private final IPServer pServer = new PServer(this);
 
     @Getter
-    private final @NotNull IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
+    private final IPLocationFactory pLocationFactory = new PLocationFactorySpigot();
 
     @Getter
-    private final @NotNull IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
+    private final IPWorldFactory pWorldFactory = new PWorldFactorySpigot();
 
     @Getter
-    private final @NotNull IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
+    private final IPPlayerFactory pPlayerFactory = new PPlayerFactorySpigot();
 
     @Getter
-    private final @NotNull ISoundEngine soundEngine = new PSoundEngineSpigot();
+    private final ISoundEngine soundEngine = new PSoundEngineSpigot();
 
     @Getter
-    private final @NotNull IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
+    private final IMessagingInterface messagingInterface = new MessagingInterfaceSpigot(this);
 
     @Getter
-    private final @NotNull IChunkManager chunkManager = ChunkManagerSpigot.get();
+    private final IChunkManager chunkManager = ChunkManagerSpigot.get();
 
     @Getter
-    private final @NotNull IBigDoorsEventFactory bigDoorsEventFactory = new BigDoorsEventFactorySpigot();
+    private final IBigDoorsEventFactory bigDoorsEventFactory = new BigDoorsEventFactorySpigot();
 
     @Getter
-    private final @NotNull IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
+    private final IPowerBlockRedstoneManager powerBlockRedstoneManager = PowerBlockRedstoneManagerSpigot.get();
 
     @Getter
-    private final @NotNull BigDoorsToolUtilSpigot bigDoorsToolUtil;
+    private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
 
     @Getter
     private DatabaseManager databaseManager;
 
     @Getter
-    private final @NotNull DoorOpener doorOpener;
+    private final DoorOpener doorOpener;
 
     @Getter
-    private final @NotNull DoorRegistry doorRegistry = new DoorRegistry();
+    private final DoorRegistry doorRegistry = new DoorRegistry();
 
     @Getter
-    private final @NotNull AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
+    private final AutoCloseScheduler autoCloseScheduler = new AutoCloseScheduler();
 
     @Getter
-    private final @NotNull DoorActivityManager doorActivityManager = new DoorActivityManager(this);
+    private final DoorActivityManager doorActivityManager = new DoorActivityManager(this);
 
     @Getter
-    private final @NotNull DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
+    private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
 
     @Getter
-    private final @NotNull DoorTypeManager doorTypeManager = new DoorTypeManager();
+    private final DoorTypeManager doorTypeManager = new DoorTypeManager();
 
     @Getter
-    private final @NotNull ToolUserManager toolUserManager = new ToolUserManager(this);
+    private final ToolUserManager toolUserManager = new ToolUserManager(this);
 
     @Getter
-    private final @NotNull DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
+    private final DelayedCommandInputManager delayedCommandInputManager = new DelayedCommandInputManager();
 
     @Getter
     private ILocalizer localizer;
@@ -299,8 +298,8 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      */
     private void registerDoorTypes()
     {
-        final @NotNull File extensionsDir = new File(BigDoors.get().getPlatform().getDataDirectory() +
-                                                         Constants.BIGDOORS_EXTENSIONS_FOLDER);
+        final File extensionsDir = new File(BigDoors.get().getPlatform().getDataDirectory() +
+                                                Constants.BIGDOORS_EXTENSIONS_FOLDER);
         if (!extensionsDir.exists() && !extensionsDir.mkdirs())
         {
             BigDoors.get().getPLogger()
@@ -313,12 +312,12 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull IPlatformManagerSpigot getPlatformManagerSpigot()
+    public IPlatformManagerSpigot getPlatformManagerSpigot()
     {
         return PlatformManagerSpigot.get();
     }
 
-    public static @NotNull BigDoorsSpigot get()
+    public static BigDoorsSpigot get()
     {
         return INSTANCE;
     }
@@ -351,74 +350,71 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull File getDataDirectory()
+    public File getDataDirectory()
     {
         return getDataFolder();
     }
 
     @Override
-    public @NotNull IPBlockDataFactory getPBlockDataFactory()
+    public IPBlockDataFactory getPBlockDataFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getPBlockDataFactory();
     }
 
     @Override
-    public @NotNull IFallingBlockFactory getFallingBlockFactory()
+    public IFallingBlockFactory getFallingBlockFactory()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
     @Override
-    public @NotNull IMessageable getMessageableServer()
+    public IMessageable getMessageableServer()
     {
         return MessageableServerSpigot.get();
     }
 
     @Override
-    public @NotNull IBlockAnalyzer getBlockAnalyzer()
+    public IBlockAnalyzer getBlockAnalyzer()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getBlockAnalyzer();
     }
 
     @Override
-    public boolean isMainThread(final long compareThread)
+    public boolean isMainThread(long compareThread)
     {
         return compareThread == MAINTHREADID;
     }
 
     @Override
-    public @NotNull IPExecutor getPExecutor()
+    public IPExecutor getPExecutor()
     {
         return pExecutor;
     }
 
-    public @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocation loc)
+    public Optional<String> canBreakBlock(IPPlayer player, IPLocation loc)
     {
         return protectionCompatManager.canBreakBlock(player, loc);
     }
 
-    public @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                               final @NotNull Vector3Di pos1,
-                                                               final @NotNull Vector3Di pos2,
-                                                               final @NotNull IPWorld world)
+    public Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world)
     {
         return protectionCompatManager.canBreakBlocksBetweenLocs(player, pos1, pos2, world);
     }
 
     @Override
-    public void registerRestartable(final @NotNull IRestartable restartable)
+    public void registerRestartable(IRestartable restartable)
     {
         restartables.add(restartable);
     }
 
     @Override
-    public boolean isRestartableRegistered(final @NotNull IRestartable restartable)
+    public boolean isRestartableRegistered(IRestartable restartable)
     {
         return restartables.contains(restartable);
     }
 
     @Override
-    public void deregisterRestartable(final @NotNull IRestartable restartable)
+    public void deregisterRestartable(IRestartable restartable)
     {
         restartables.remove(restartable);
     }
@@ -454,54 +450,54 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public @NotNull IEconomyManager getEconomyManager()
+    public IEconomyManager getEconomyManager()
     {
         return vaultManager;
     }
 
     @Override
-    public @NotNull IPermissionsManager getPermissionsManager()
+    public IPermissionsManager getPermissionsManager()
     {
         return vaultManager;
     }
 
-    public @NotNull IFallingBlockFactory getFABF()
+    public IFallingBlockFactory getFABF()
     {
         return PlatformManagerSpigot.get().getSpigotPlatform().getFallingBlockFactory();
     }
 
     @Override
-    public @NotNull Optional<IGlowingBlockSpawner> getGlowingBlockSpawner()
+    public Optional<IGlowingBlockSpawner> getGlowingBlockSpawner()
     {
         return Optional.ofNullable(glowingBlockSpawner);
     }
 
-    public @NotNull BigDoorsSpigot getPlugin()
+    public BigDoorsSpigot getPlugin()
     {
         return this;
     }
 
-    public void onPlayerLogout(final @NotNull Player player)
+    public void onPlayerLogout(Player player)
     {
         getDelayedCommandInputManager().cancelAll(SpigotAdapter.wrapPlayer(player));
         toolUserManager.abortToolUser(player.getUniqueId());
     }
 
     @Override
-    public @NotNull String getVersion()
+    public String getVersion()
     {
         return BigDoorsSpigot.get().getDescription().getVersion();
     }
 
     @Override
-    public @NotNull DebugReporter getDebugReporter()
+    public DebugReporter getDebugReporter()
     {
         return new DebugReporterSpigot(this);
     }
 
     // Get the logger.
     @Override
-    public @NotNull IPLogger getPLogger()
+    public IPLogger getPLogger()
     {
         return pLogger;
     }
@@ -513,7 +509,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
      *
      * @return The message to send to admins and OPs when they log in.
      */
-    public @NotNull String getLoginMessage()
+    public String getLoginMessage()
     {
         String ret = "";
         if (Constants.DEV_BUILD)
@@ -536,7 +532,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public void callDoorEvent(final @NotNull IBigDoorsEvent doorEvent)
+    public void callDoorEvent(IBigDoorsEvent doorEvent)
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
         {

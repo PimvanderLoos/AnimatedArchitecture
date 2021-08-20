@@ -7,7 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
 
@@ -19,32 +19,30 @@ import java.util.logging.Level;
  */
 public class MessagingInterfaceSpigot implements IMessagingInterface
 {
-    private final @NotNull String formattedName;
+    private final String formattedName;
 
-    public MessagingInterfaceSpigot(final @NotNull JavaPlugin plugin)
+    public MessagingInterfaceSpigot(JavaPlugin plugin)
     {
         formattedName = IPLogger.formatName(plugin.getName());
     }
 
     @Override
-    public void writeToConsole(final @NotNull Level level, final @NotNull String message)
+    public void writeToConsole(Level level, String message)
     {
         Bukkit.getLogger().log(level, formattedName + message);
     }
 
     @Override
-    public void messagePlayer(@NotNull IPPlayer player, @NotNull String message)
+    public void messagePlayer(IPPlayer player, String message)
     {
-
-        Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
+        @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null)
             return;
         SpigotUtil.messagePlayer(bukkitPlayer, message);
     }
 
     @Override
-    public void sendMessageToTarget(final @NotNull Object target, final @NotNull Level level,
-                                    final @NotNull String message)
+    public void sendMessageToTarget(Object target, Level level, String message)
     {
         if (target instanceof Player)
             SpigotUtil.messagePlayer((Player) target, message);
@@ -53,7 +51,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
     }
 
     @Override
-    public void broadcastMessage(final @NotNull String message)
+    public void broadcastMessage(String message)
     {
         Bukkit.broadcastMessage(message);
     }
