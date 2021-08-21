@@ -26,13 +26,15 @@ public class Menu extends BaseCommand
     /**
      * Runs the {@link Menu} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for opening the menu.
-     *                      <p>
-     *                      This is the entity to which the menu will be shown, and as such this must be an {@link
-     *                      IPPlayer} (menus aren't supported for servers/command blocks).
-     * @param target        The {@link IPPlayer} whose doors will be used.
-     *                      <p>
-     *                      When this is null (default), the command sender's own doors will be used.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for opening the menu.
+     *     <p>
+     *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
+     *     aren't supported for servers/command blocks).
+     * @param target
+     *     The {@link IPPlayer} whose doors will be used.
+     *     <p>
+     *     When this is null (default), the command sender's own doors will be used.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, @Nullable IPPlayer target)

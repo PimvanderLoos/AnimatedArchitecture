@@ -12,8 +12,10 @@ public interface IChunkManager
     /**
      * Checks if a chunk is loaded.
      *
-     * @param world The world the chunk is in.
-     * @param chunk The coordinates of the chunk.
+     * @param world
+     *     The world the chunk is in.
+     * @param chunk
+     *     The coordinates of the chunk.
      * @return True if the chunk is loaded.
      */
     boolean isLoaded(IPWorld world, Vector2Di chunk);
@@ -21,8 +23,10 @@ public interface IChunkManager
     /**
      * Attempts to load a chunk (if it is not already loaded).
      *
-     * @param world The world the chunk is in.
-     * @param chunk The coordinates of the chunk.
+     * @param world
+     *     The world the chunk is in.
+     * @param chunk
+     *     The coordinates of the chunk.
      * @return The result of the load attempt.
      */
     ChunkLoadResult load(IPWorld world, Vector2Di chunk);

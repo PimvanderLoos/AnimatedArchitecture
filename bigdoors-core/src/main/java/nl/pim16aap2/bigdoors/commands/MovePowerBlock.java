@@ -28,9 +28,10 @@ public class MovePowerBlock extends DoorTargetCommand
     /**
      * Runs the {@link MovePowerBlock} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for moving the powerblock for the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be
-     *                      moved.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for moving the powerblock for the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be moved.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)

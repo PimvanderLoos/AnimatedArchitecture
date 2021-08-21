@@ -44,8 +44,10 @@ public abstract class DoorTargetCommand extends BaseCommand
     /**
      * Handles the result of retrieving the door.
      *
-     * @param door        The result of trying to retrieve the door.
-     * @param permissions Whether the ICommandSender has user and/or admin permissions respectively.
+     * @param door
+     *     The result of trying to retrieve the door.
+     * @param permissions
+     *     Whether the ICommandSender has user and/or admin permissions respectively.
      * @return The result of running the command, see {@link BaseCommand#run()}.
      */
     private boolean processDoorResult(Optional<AbstractDoor> door, BooleanPair permissions)
@@ -84,8 +86,10 @@ public abstract class DoorTargetCommand extends BaseCommand
     /**
      * Checks if execution of this command is allowed for the given {@link AbstractDoor}.
      *
-     * @param door             The {@link AbstractDoor} that is the target for this command.
-     * @param bypassPermission Whether or not the {@link ICommandSender} has bypass access.
+     * @param door
+     *     The {@link AbstractDoor} that is the target for this command.
+     * @param bypassPermission
+     *     Whether or not the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
     protected boolean isAllowed(AbstractDoor door, boolean bypassPermission)
@@ -96,7 +100,8 @@ public abstract class DoorTargetCommand extends BaseCommand
     /**
      * Performs the action of this command on the {@link AbstractDoor}.
      *
-     * @param door The {@link DoorBase} to perform the action on.
+     * @param door
+     *     The {@link DoorBase} to perform the action on.
      * @return True if everything was successful.
      */
     protected abstract CompletableFuture<Boolean> performAction(AbstractDoor door);

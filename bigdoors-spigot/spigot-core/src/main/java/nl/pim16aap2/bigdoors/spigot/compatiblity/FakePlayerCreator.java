@@ -84,8 +84,10 @@ class FakePlayerCreator
     /**
      * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
      *
-     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online {@link Player}.
-     * @param world   The world the fake {@link Player} is supposedly in.
+     * @param oPlayer
+     *     The {@link OfflinePlayer} to use as base for the fake online {@link Player}.
+     * @param world
+     *     The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
     Optional<Player> getFakePlayer(OfflinePlayer oPlayer, World world)

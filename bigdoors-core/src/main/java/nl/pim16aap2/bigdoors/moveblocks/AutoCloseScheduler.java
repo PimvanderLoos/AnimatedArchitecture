@@ -38,7 +38,8 @@ public final class AutoCloseScheduler extends Restartable
     /**
      * Cancels and deleted the {@link TimerTask} of a door if it exists.
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      */
     private synchronized void deleteTimer(long doorUID)
     {
@@ -50,7 +51,8 @@ public final class AutoCloseScheduler extends Restartable
     /**
      * Unschedules automatically closing a door.
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      */
     public synchronized void unscheduleAutoClose(long doorUID)
     {
@@ -60,10 +62,14 @@ public final class AutoCloseScheduler extends Restartable
     /**
      * Schedules closing a door.
      *
-     * @param player        The player who requested the door toggle. May be null.
-     * @param door          The door to close.
-     * @param speed         The speed at which the door should move.
-     * @param skipAnimation Whether the door should be animated or not.
+     * @param player
+     *     The player who requested the door toggle. May be null.
+     * @param door
+     *     The door to close.
+     * @param speed
+     *     The speed at which the door should move.
+     * @param skipAnimation
+     *     Whether the door should be animated or not.
      */
     synchronized <T extends AbstractDoor & ITimerToggleable> void scheduleAutoClose(IPPlayer player, T door,
                                                                                     double speed, boolean skipAnimation)

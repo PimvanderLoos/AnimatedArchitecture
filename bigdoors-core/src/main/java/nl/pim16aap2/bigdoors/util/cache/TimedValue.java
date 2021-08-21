@@ -34,7 +34,8 @@ import java.time.Clock;
  * The value wrapped inside will be available until the timeOut is exceeded. After this point, null will always be
  * returned.
  *
- * @param <T> The type of the value to store.
+ * @param <T>
+ *     The type of the value to store.
  * @author Pim
  */
 class TimedValue<T> extends AbstractTimedValue<T>
@@ -44,9 +45,12 @@ class TimedValue<T> extends AbstractTimedValue<T>
     /**
      * Constructor of {@link TimedValue}.
      *
-     * @param clock   The {@link Clock} to use to determine anything related to time (insertion, age).
-     * @param val     The value of this {@link TimedValue}.
-     * @param timeOut The amount of time (in milliseconds) before this entry expires.
+     * @param clock
+     *     The {@link Clock} to use to determine anything related to time (insertion, age).
+     * @param val
+     *     The value of this {@link TimedValue}.
+     * @param timeOut
+     *     The amount of time (in milliseconds) before this entry expires.
      */
     public TimedValue(Clock clock, T val, long timeOut)
     {

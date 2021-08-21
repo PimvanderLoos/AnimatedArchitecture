@@ -39,7 +39,8 @@ public class EventListeners implements Listener
     /**
      * Listens to players interacting with the world to check if they are using a BigDoors tool.
      *
-     * @param event The {@link PlayerInteractEvent}.
+     * @param event
+     *     The {@link PlayerInteractEvent}.
      */
     @EventHandler
     public void onLeftClick(PlayerInteractEvent event)
@@ -65,7 +66,8 @@ public class EventListeners implements Listener
     /**
      * Listens for the {@link PlayerJoinEvent} to make sure their latest name is updated in the database.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
     public void onLogin(PlayerJoinEvent event)
@@ -83,7 +85,8 @@ public class EventListeners implements Listener
     /**
      * Listens for the {@link PlayerQuitEvent} to make sure all processes they are active in are cancelled properly.
      *
-     * @param event The {@link PlayerQuitEvent}.
+     * @param event
+     *     The {@link PlayerQuitEvent}.
      */
     @EventHandler
     public void onLogout(PlayerQuitEvent event)
@@ -102,7 +105,8 @@ public class EventListeners implements Listener
     /**
      * Checks if a player is a {@link ToolUser} or not.
      *
-     * @param player The {@link Player}.
+     * @param player
+     *     The {@link Player}.
      * @return True if a player is a {@link ToolUser}.
      */
     private boolean isToolUser(@Nullable Player player)
@@ -116,7 +120,8 @@ public class EventListeners implements Listener
      * If they aren't a {@link ToolUser}, the stick is deleted, as they shouldn't have had it in the first place.
      * Otherwise, it's just cancelled.
      *
-     * @param event The {@link PlayerDropItemEvent}.
+     * @param event
+     *     The {@link PlayerDropItemEvent}.
      */
     @EventHandler
     public void onItemDropEvent(PlayerDropItemEvent event)
@@ -141,7 +146,8 @@ public class EventListeners implements Listener
      * Listens to players interacting with an inventory, to make sure they cannot move the BigDoors stick to another
      * inventory.
      *
-     * @param event The {@link InventoryClickEvent}.
+     * @param event
+     *     The {@link InventoryClickEvent}.
      */
     @EventHandler
     public void inventoryClickEvent(InventoryClickEvent event)
@@ -179,7 +185,8 @@ public class EventListeners implements Listener
      * Listens to players interacting with an inventory, to make sure they cannot move the BigDoors stick to another
      * inventory.
      *
-     * @param event The {@link InventoryDragEvent}.
+     * @param event
+     *     The {@link InventoryDragEvent}.
      */
     @EventHandler
     public void inventoryDragEvent(InventoryDragEvent event)
@@ -202,7 +209,8 @@ public class EventListeners implements Listener
     /**
      * Listens to players attempting to move the BigDoors stick to another inventory.
      *
-     * @param event The {@link InventoryMoveItemEvent}.
+     * @param event
+     *     The {@link InventoryMoveItemEvent}.
      */
     @EventHandler
     public void onItemMoved(InventoryMoveItemEvent event)

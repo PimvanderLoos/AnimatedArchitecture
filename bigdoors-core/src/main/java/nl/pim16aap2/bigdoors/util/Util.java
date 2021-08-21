@@ -95,7 +95,8 @@ public final class Util
     /**
      * Gets the File of the jar that contained a specific class.
      *
-     * @param clz The class for which to find the jar file.
+     * @param clz
+     *     The class for which to find the jar file.
      * @return The location of the jar file.
      */
     public Path getJarFile(Class<?> clz)
@@ -136,13 +137,16 @@ public final class Util
      * This is basically the same as {@link Objects#requireNonNull(Object, String)} with the only difference being that
      * this will create a full "must not be null" message for the provided variable name.
      *
-     * @param obj  The object to check.
-     * @param name The name of the input object. This is used in the NPE message with the format "{name} must not be
-     *             null!".
-     * @param <T>  The type of the input object.
+     * @param obj
+     *     The object to check.
+     * @param name
+     *     The name of the input object. This is used in the NPE message with the format "{name} must not be null!".
+     * @param <T>
+     *     The type of the input object.
      * @return The input object, if it is not null.
      *
-     * @throws NullPointerException If the input object to check is null.
+     * @throws NullPointerException
+     *     If the input object to check is null.
      */
     @Contract("null, _ -> fail")
     public <T> T requireNonNull(@Nullable T obj, String name)
@@ -157,9 +161,12 @@ public final class Util
      * <p>
      * Mostly useful for {@link CompletableFuture#exceptionally(Function)}.
      *
-     * @param throwable The throwable to send to the logger.
-     * @param fallback  The fallback value to return.
-     * @param <T>       The type of the fallback value.
+     * @param throwable
+     *     The throwable to send to the logger.
+     * @param fallback
+     *     The fallback value to return.
+     * @param <T>
+     *     The type of the fallback value.
      * @return The fallback value.
      */
     @Contract("_, !null -> !null")
@@ -193,9 +200,12 @@ public final class Util
      * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
      * exceptionally as well, to propagate the exception.
      *
-     * @param throwable The {@link Throwable} to log.
-     * @param fallback  The fallback value to return.
-     * @param target    The {@link CompletableFuture} to complete.
+     * @param throwable
+     *     The {@link Throwable} to log.
+     * @param fallback
+     *     The fallback value to return.
+     * @param target
+     *     The {@link CompletableFuture} to complete.
      * @return The fallback value.
      */
     public <T, U> T exceptionallyCompletion(Throwable throwable, T fallback, CompletableFuture<U> target)
@@ -208,8 +218,10 @@ public final class Util
      * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
      * exceptionally as well, to propagate the exception.
      *
-     * @param throwable The {@link Throwable} to log.
-     * @param target    The {@link CompletableFuture} to complete.
+     * @param throwable
+     *     The {@link Throwable} to log.
+     * @param target
+     *     The {@link CompletableFuture} to complete.
      * @return Always null;
      */
     public <T> Void exceptionallyCompletion(Throwable throwable, CompletableFuture<T> target)
@@ -292,8 +304,10 @@ public final class Util
      * Gets the distance between a location and a door. If the location and the door are not in the same world, -1 is
      * returned.
      *
-     * @param location The location to check.
-     * @param door     The door to check.
+     * @param location
+     *     The location to check.
+     * @param door
+     *     The door to check.
      * @return The distance between the location and the door if they lie in the same world, otherwise -1.
      */
     public static double getDistanceToDoor(IPLocation location, AbstractDoor door)
@@ -306,9 +320,12 @@ public final class Util
     /**
      * Gets a {@link NotNull} value from a {@link Nullable} one, with a provided fallback in case the value is null.
      *
-     * @param value    The value that may or may not be null.
-     * @param fallback A {@link Supplier} to supply a fallback to return in case the value is null.
-     * @param <T>      The type of the value.
+     * @param value
+     *     The value that may or may not be null.
+     * @param fallback
+     *     A {@link Supplier} to supply a fallback to return in case the value is null.
+     * @param <T>
+     *     The type of the value.
      * @return The value if it is not null, otherwise the fallback.
      */
     public <T> T valOrDefault(@Nullable T value, Supplier<T> fallback)
@@ -319,9 +336,12 @@ public final class Util
     /**
      * Searches through an {@link Iterable} object using a provided search function.
      *
-     * @param iterable   The {@link Iterable} object to search through.
-     * @param searchPred The search predicate to use.
-     * @param <T>        The type of objects stored in the {@link Iterable}.
+     * @param iterable
+     *     The {@link Iterable} object to search through.
+     * @param searchPred
+     *     The search predicate to use.
+     * @param <T>
+     *     The type of objects stored in the {@link Iterable}.
      * @return The value in the {@link Iterable} object for which the search function returns true, otherwise {@link
      * Optional#empty()}.
      */
@@ -336,7 +356,8 @@ public final class Util
     /**
      * Obtains the numbers of question marks in a String.
      *
-     * @param statement The String.
+     * @param statement
+     *     The String.
      * @return The number of question marks in the String.
      */
     public static int countPatternOccurrences(Pattern pattern, String statement)
@@ -351,7 +372,8 @@ public final class Util
     /**
      * Gets the {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists.
      *
-     * @param pBlockFace The {@link PBlockFace}.
+     * @param pBlockFace
+     *     The {@link PBlockFace}.
      * @return The {@link RotateDirection} equivalent of a {@link PBlockFace} if it exists and otherwise {@link
      * RotateDirection#NONE}.
      */
@@ -363,7 +385,8 @@ public final class Util
     /**
      * Gets the {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists.
      *
-     * @param rotateDirection The {@link RotateDirection}.
+     * @param rotateDirection
+     *     The {@link RotateDirection}.
      * @return The {@link PBlockFace} equivalent of a {@link RotateDirection} if it exists and otherwise {@link
      * PBlockFace#NONE}.
      */
@@ -375,7 +398,8 @@ public final class Util
     /**
      * Capitalizes the first letter. The rest of the String is left intact.
      *
-     * @param string The string for which to capitalize the first letter.
+     * @param string
+     *     The string for which to capitalize the first letter.
      * @return The same string that it received as input, but with a capizalized first letter.
      */
     public static String capitalizeFirstLetter(String string)
@@ -386,7 +410,8 @@ public final class Util
     /**
      * Clamp an angle to [-2PI ; 2PI].
      *
-     * @param angle The current angle in radians.
+     * @param angle
+     *     The current angle in radians.
      * @return The angle (in radians) clamped to [-2PI ; 2PI].
      */
     public static double clampAngleRad(double angle)
@@ -397,7 +422,8 @@ public final class Util
     /**
      * Clamp an angle to [-360 ; 360].
      *
-     * @param angle The current angle in degrees.
+     * @param angle
+     *     The current angle in degrees.
      * @return The angle (in degrees) clamped to [-360 ; 360].
      */
     public static double clampAngleDeg(double angle)
@@ -409,8 +435,10 @@ public final class Util
      * Concatenate two arrays.
      *
      * @param <T>
-     * @param first  First array.
-     * @param second Second array.
+     * @param first
+     *     First array.
+     * @param second
+     *     Second array.
      * @return A single concatenated array.
      */
     public static <T> T[] concatArrays(T[] first, T[] second)
@@ -424,7 +452,8 @@ public final class Util
      * Double the size of a provided array
      *
      * @param <T>
-     * @param arr Array to be doubled in size
+     * @param arr
+     *     Array to be doubled in size
      * @return A copy of the array but with doubled size.
      */
     public static <T> T[] doubleArraySize(T[] arr)
@@ -436,8 +465,10 @@ public final class Util
      * Truncate an array after a provided new length.
      *
      * @param <T>
-     * @param arr       The array to truncate
-     * @param newLength The new length of the array.
+     * @param arr
+     *     The array to truncate
+     * @param newLength
+     *     The new length of the array.
      * @return A truncated array
      */
     public static <T> T[] truncateArray(T[] arr, int newLength)
@@ -454,7 +485,8 @@ public final class Util
      * <p>
      * - Input containing spaces.
      *
-     * @param name The name to test for validity,
+     * @param name
+     *     The name to test for validity,
      * @return True if the name is allowed.
      */
     public static boolean isValidDoorName(@Nullable String name)
@@ -468,7 +500,8 @@ public final class Util
     /**
      * Generate an insecure random alphanumeric string of a given length.
      *
-     * @param length Length of the resulting string
+     * @param length
+     *     Length of the resulting string
      * @return An insecure random alphanumeric string.
      */
     public static String randomInsecureString(int length)
@@ -482,7 +515,8 @@ public final class Util
     /**
      * Generate a secure random alphanumeric string of a given length.
      *
-     * @param length Length of the resulting string
+     * @param length
+     *     Length of the resulting string
      * @return A secure random alphanumeric string.
      */
     public static String secureRandomString(int length)
@@ -508,8 +542,10 @@ public final class Util
     /**
      * Obtains a random integer value.
      *
-     * @param min The lower bound (inclusive).
-     * @param max The lower bound (inclusive).
+     * @param min
+     *     The lower bound (inclusive).
+     * @param max
+     *     The lower bound (inclusive).
      * @return A random integer value.
      */
     public static int getRandomNumber(int min, int max)
@@ -526,7 +562,8 @@ public final class Util
     /**
      * Gets the chunk coordinates of a position.
      *
-     * @param position The position.
+     * @param position
+     *     The position.
      * @return The chunk coordinates.
      */
     public static Vector2Di getChunkCoords(Vector3Di position)
@@ -538,8 +575,10 @@ public final class Util
      * Gets the 'simple' hash of the chunk given its coordinates. 'simple' here refers to the fact that the world of
      * this chunk will not be taken into account.
      *
-     * @param chunkX The x-coordinate of the chunk.
-     * @param chunkZ The z-coordinate of the chunk.
+     * @param chunkX
+     *     The x-coordinate of the chunk.
+     * @param chunkZ
+     *     The z-coordinate of the chunk.
      * @return The simple hash of the chunk.
      */
     public static long simpleChunkHashFromChunkCoordinates(int chunkX, int chunkZ)
@@ -554,8 +593,10 @@ public final class Util
      * Gets the 'simple' hash of the chunk that encompasses the given coordinates. 'simple' here refers to the fact that
      * the world of this chunk will not be taken into account.
      *
-     * @param posX The x-coordinate of the location.
-     * @param posZ The z-coordinate of the location.
+     * @param posX
+     *     The x-coordinate of the location.
+     * @param posZ
+     *     The z-coordinate of the location.
      * @return The simple hash of the chunk.
      */
     public static long simpleChunkHashFromLocation(int posX, int posZ)
@@ -567,9 +608,12 @@ public final class Util
      * Gets the 'simple' hash of a location. 'simple' here refers to the fact that the world of this location will not
      * be taken into account.
      *
-     * @param x The x-coordinate of the location.
-     * @param y The z-coordinate of the location.
-     * @param z The z-coordinate of the location.
+     * @param x
+     *     The x-coordinate of the location.
+     * @param y
+     *     The z-coordinate of the location.
+     * @param z
+     *     The z-coordinate of the location.
      * @return The simple hash of the location.
      */
     public static long simpleLocationhash(int x, int y, int z)
@@ -584,7 +628,8 @@ public final class Util
     /**
      * Converts worldspace coordinates to chunkspace coordinates.
      *
-     * @param position The position in world space coordinates.
+     * @param position
+     *     The position in world space coordinates.
      * @return The coordinates in chunkspace coordinates.
      */
     public static Vector3Di getChunkSpacePosition(Vector3Di position)
@@ -595,9 +640,12 @@ public final class Util
     /**
      * Converts world space coordinates to chunk space coordinates.
      *
-     * @param x The x coordinate in world space.
-     * @param y The y coordinate in world space.
-     * @param z The z coordinate in world space.
+     * @param x
+     *     The x coordinate in world space.
+     * @param y
+     *     The y coordinate in world space.
+     * @param z
+     *     The z coordinate in world space.
      * @return The coordinates in chunkspace coordinates.
      */
     public static Vector3Di getChunkSpacePosition(int x, int y, int z)
@@ -609,9 +657,12 @@ public final class Util
      * Gets the 'simple' hash of a location in chunk-space. 'simple' here refers to the fact that the world of this
      * location will not be taken into account.
      *
-     * @param x The x-coordinate of the location.
-     * @param y The z-coordinate of the location.
-     * @param z The z-coordinate of the location.
+     * @param x
+     *     The x-coordinate of the location.
+     * @param y
+     *     The z-coordinate of the location.
+     * @param z
+     *     The z-coordinate of the location.
      * @return The simple hash of the location in chunk-space.
      */
     public static int simpleChunkSpaceLocationhash(int x, int y, int z)
@@ -624,8 +675,10 @@ public final class Util
     /**
      * Convert a collection of objects into a single string.
      *
-     * @param entries Input collection of objects.
-     * @param mapper  The function to map objects to strings.
+     * @param entries
+     *     Input collection of objects.
+     * @param mapper
+     *     The function to map objects to strings.
      * @return Resulting concatenated string.
      */
     public static <T> String toString(T[] entries, Function<T, String> mapper)
@@ -636,7 +689,8 @@ public final class Util
     /**
      * Convert a collection of objects into a single string.
      *
-     * @param entries Input collection of objects.
+     * @param entries
+     *     Input collection of objects.
      * @return Resulting concatenated string.
      */
     public static String toString(Object[] entries)
@@ -647,7 +701,8 @@ public final class Util
     /**
      * Convert a collection of objects into a single string.
      *
-     * @param entries Input collection of objects.
+     * @param entries
+     *     Input collection of objects.
      * @return Resulting concatenated string.
      */
     public static String toString(Collection<?> entries)
@@ -658,8 +713,10 @@ public final class Util
     /**
      * Convert a collection of objects into a single string.
      *
-     * @param entries Input collection of objects.
-     * @param mapper  The function to map objects to strings.
+     * @param entries
+     *     Input collection of objects.
+     * @param mapper
+     *     The function to map objects to strings.
      * @return Resulting concatenated string.
      */
     // NullAway doesn't appear to enjoy nullable values in an enhanced for-each loop.
@@ -680,9 +737,12 @@ public final class Util
     /**
      * Check if a given value is between two other values. Matches inclusively.
      *
-     * @param test Value to be compared.
-     * @param low  Minimum value.
-     * @param high Maximum value.
+     * @param test
+     *     Value to be compared.
+     * @param low
+     *     Minimum value.
+     * @param high
+     *     Maximum value.
      * @return True if the value is in the provided range or if it equals the low and/or the high value.
      */
     public static boolean between(int test, int low, int high)

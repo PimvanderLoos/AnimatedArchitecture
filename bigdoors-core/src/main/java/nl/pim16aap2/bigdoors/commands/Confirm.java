@@ -27,7 +27,8 @@ public class Confirm extends BaseCommand
     /**
      * Runs the {@link Confirm} command.
      *
-     * @param commandSender The {@link ICommandSender} for which to confirm any active processes.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to confirm any active processes.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

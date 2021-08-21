@@ -58,9 +58,12 @@ public abstract class BaseCommand
     /**
      * Checks if the {@link #commandSender} has access to a given {@link DoorAttribute} for a given door.
      *
-     * @param door                The door to check.
-     * @param doorAttribute       The {@link DoorAttribute} to check.
-     * @param hasBypassPermission Whether the {@link #commandSender} has bypass permission or not.
+     * @param door
+     *     The door to check.
+     * @param doorAttribute
+     *     The {@link DoorAttribute} to check.
+     * @param hasBypassPermission
+     *     Whether the {@link #commandSender} has bypass permission or not.
      * @return True if the command sender has access to the provided attribute for the given door.
      */
     protected boolean hasAccessToAttribute(AbstractDoor door, DoorAttribute doorAttribute, boolean hasBypassPermission)
@@ -140,7 +143,8 @@ public abstract class BaseCommand
     /**
      * Handles the results of a database action by informing the user of any non-success states.
      *
-     * @param result The result obtained from the database.
+     * @param result
+     *     The result obtained from the database.
      * @return True in all cases, as it is assumed that this is not user error.
      */
     protected Boolean handleDatabaseActionResult(DatabaseManager.ActionResult result)
@@ -201,7 +205,8 @@ public abstract class BaseCommand
      * <p>
      * Note that this method is called asynchronously.
      *
-     * @param permissions Whether the {@link ICommandSender} has user and/or admin permissions respectively.
+     * @param permissions
+     *     Whether the {@link ICommandSender} has user and/or admin permissions respectively.
      * @return True if the method execution was successful.
      */
     protected abstract CompletableFuture<Boolean> executeCommand(BooleanPair permissions);
@@ -221,7 +226,8 @@ public abstract class BaseCommand
      * <p>
      * If no door is found, the {@link ICommandSender} will be informed.
      *
-     * @param doorRetriever The {@link DoorRetriever} to use
+     * @param doorRetriever
+     *     The {@link DoorRetriever} to use
      * @return The {@link DoorBase} if one could be retrieved.
      */
     protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever doorRetriever)

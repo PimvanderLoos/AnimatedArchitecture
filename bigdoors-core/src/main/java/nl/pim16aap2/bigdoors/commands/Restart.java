@@ -22,7 +22,8 @@ public class Restart extends BaseCommand
     /**
      * Runs the {@link Restart} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for restarting BigDoors.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for restarting BigDoors.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

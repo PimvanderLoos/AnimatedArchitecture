@@ -16,7 +16,8 @@ public abstract class StepExecutor
     /**
      * Applies an object to the {@link BiFunction} of this step.
      *
-     * @param input The object to give to the {@link BiFunction}.
+     * @param input
+     *     The object to give to the {@link BiFunction}.
      */
     public final boolean apply(@Nullable Object input)
     {
@@ -35,14 +36,16 @@ public abstract class StepExecutor
     /**
      * Protected version of {@link #apply(Object)}. That method takes care of input type verification.
      *
-     * @param obj The object to give to the {@link BiFunction}.
+     * @param obj
+     *     The object to give to the {@link BiFunction}.
      */
     protected abstract boolean protectedAccept(@Nullable Object obj);
 
     /**
      * Checks if an object is a valid input type.
      *
-     * @param obj The object to check.
+     * @param obj
+     *     The object to check.
      * @return True if this object is valid for the current type.
      */
     public boolean validInput(@Nullable Object obj)

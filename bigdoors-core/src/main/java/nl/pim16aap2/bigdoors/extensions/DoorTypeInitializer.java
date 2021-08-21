@@ -69,7 +69,8 @@ final class DoorTypeInitializer
      * (stored in {@link #registrationQueue}) and then sort those entries by their weight, starting at the lowest
      * (stored in {@link #sorted}).
      *
-     * @param typeInfoList The list of {@link TypeInfo}s that should be loaded.
+     * @param typeInfoList
+     *     The list of {@link TypeInfo}s that should be loaded.
      */
     public DoorTypeInitializer(List<TypeInfo> typeInfoList, DoorTypeClassLoader doorTypeClassLoader)
     {
@@ -135,7 +136,8 @@ final class DoorTypeInitializer
     /**
      * Attempts to load a jar.
      *
-     * @param file The jar file.
+     * @param file
+     *     The jar file.
      * @return True if the jar loaded successfully.
      */
     private boolean loadJar(File file)
@@ -155,7 +157,8 @@ final class DoorTypeInitializer
     /**
      * Attempts to load a {@link TypeInfo} from its {@link TypeInfo#getMainClass()}.
      *
-     * @param typeInfo The {@link TypeInfo} to load.
+     * @param typeInfo
+     *     The {@link TypeInfo} to load.
      * @return The {@link DoorType} that resulted from loading the {@link TypeInfo}, if possible.
      */
     private Optional<DoorType> loadDoorType(TypeInfo typeInfo)
@@ -209,7 +212,8 @@ final class DoorTypeInitializer
      * Once checked, it will assign the {@link TypeInfo} it checked with a dependency weight, where a higher weight
      * means it must be loaded after any other {@link TypeInfo}s with a lower weight.
      *
-     * @param doorTypeInfo The {@link TypeInfo} whose dependencies to check.
+     * @param doorTypeInfo
+     *     The {@link TypeInfo} whose dependencies to check.
      * @return The {@link LoadResult} of the current {@link DoorType}.
      */
     private LoadResult processDependencies(TypeInfo doorTypeInfo)

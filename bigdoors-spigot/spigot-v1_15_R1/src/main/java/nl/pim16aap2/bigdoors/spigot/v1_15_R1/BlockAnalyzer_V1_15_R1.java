@@ -47,7 +47,8 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * Checks if a material is white-, grey-, or blacklisted.
      *
-     * @param mat The material.
+     * @param mat
+     *     The material.
      * @return The listing status of the material.
      */
     private static MaterialStatus getMaterialStatus(Material mat)
@@ -751,7 +752,8 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
     /**
      * Gets the material of a block at an {@link IPLocation}.
      *
-     * @param location The location.
+     * @param location
+     *     The location.
      * @return The material of the block at the location.
      */
     private static Material getMaterial(IPLocation location)

@@ -32,10 +32,14 @@ public final class DoorOpeningUtility
     /**
      * Aborts an attempt to toggle a {@link IDoor} and cleans up leftover data from this attempt.
      *
-     * @param door        The {@link IDoor}.
-     * @param result      The reason the action was aborted.
-     * @param cause       What caused the toggle in the first place.
-     * @param responsible Who is responsible for the action.
+     * @param door
+     *     The {@link IDoor}.
+     * @param result
+     *     The reason the action was aborted.
+     * @param cause
+     *     What caused the toggle in the first place.
+     * @param responsible
+     *     Who is responsible for the action.
      * @return The result.
      */
     public DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible)
@@ -70,9 +74,12 @@ public final class DoorOpeningUtility
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
      *
-     * @param door        The {@link IDoor} being opened.
-     * @param cuboid      The area of blocks to check.
-     * @param responsible Who is responsible for the action.
+     * @param door
+     *     The {@link IDoor} being opened.
+     * @param cuboid
+     *     The area of blocks to check.
+     * @param responsible
+     *     Who is responsible for the action.
      * @return True if the player is allowed to break the block(s).
      */
     public boolean canBreakBlocksBetweenLocs(IDoor door, Cuboid cuboid, IPPlayer responsible)
@@ -92,11 +99,15 @@ public final class DoorOpeningUtility
     /**
      * Checks if an area is empty. "Empty" here means that there no blocks that are not air or liquid.
      *
-     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
-     * @param currentCuboid The {@link Cuboid} representing the area the door currently takes up. Any parts of the new
-     *                      cuboid overlapping this cuboid will be ignored.
-     * @param player        The {@link IPPlayer} to notify of violations. May be null.
-     * @param world         The world to check the blocks in.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param currentCuboid
+     *     The {@link Cuboid} representing the area the door currently takes up. Any parts of the new cuboid overlapping
+     *     this cuboid will be ignored.
+     * @param player
+     *     The {@link IPPlayer} to notify of violations. May be null.
+     * @param world
+     *     The world to check the blocks in.
      * @return True if the area is not empty.
      */
     public boolean isLocationEmpty(Cuboid newCuboid, Cuboid currentCuboid, @Nullable IPPlayer player, IPWorld world)
@@ -146,11 +157,16 @@ public final class DoorOpeningUtility
      * <p>
      * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
      *
-     * @param vec          Which direction to count the number of available blocks in.
-     * @param player       The player for whom to check. May be null.
-     * @param world        The world to check the blocks in.
-     * @param cuboid       The {@link Cuboid} representing the area the door currently takes up.
-     * @param blocksToMove The number of blocks to try move.
+     * @param vec
+     *     Which direction to count the number of available blocks in.
+     * @param player
+     *     The player for whom to check. May be null.
+     * @param world
+     *     The world to check the blocks in.
+     * @param cuboid
+     *     The {@link Cuboid} representing the area the door currently takes up.
+     * @param blocksToMove
+     *     The number of blocks to try move.
      * @return Gets the number of blocks this door can move in the given direction.
      */
     public int getBlocksInDir(Vector3Di vec, @Nullable IPPlayer player, IPWorld world, Cuboid cuboid, int blocksToMove)
@@ -226,9 +242,12 @@ public final class DoorOpeningUtility
      * <p>
      * - All chunks this {@link AbstractDoor} might interact with are loaded.
      *
-     * @param door       The {@link AbstractDoor}.
-     * @param cause      Who or what initiated this action.
-     * @param actionType The type of action.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param cause
+     *     Who or what initiated this action.
+     * @param actionType
+     *     The type of action.
      * @return {@link DoorToggleResult#SUCCESS} if it can be toggled
      */
     DoorToggleResult canBeToggled(AbstractDoor door, DoorActionCause cause, DoorActionType actionType)
@@ -265,7 +284,8 @@ public final class DoorOpeningUtility
     /**
      * Registers a BlockMover with the {@link DatabaseManager}
      *
-     * @param blockMover The {@link BlockMover}.
+     * @param blockMover
+     *     The {@link BlockMover}.
      */
     public void registerBlockMover(BlockMover blockMover)
     {
@@ -275,7 +295,8 @@ public final class DoorOpeningUtility
     /**
      * Checks if a {@link BlockMover} of a {@link IDoor} has been registered with the {@link DatabaseManager}.
      *
-     * @param doorUID The UID of the {@link IDoor}.
+     * @param doorUID
+     *     The UID of the {@link IDoor}.
      * @return True if a {@link BlockMover} has been registered with the {@link DatabaseManager} for the {@link IDoor}.
      */
     @SuppressWarnings("unused")
@@ -287,7 +308,8 @@ public final class DoorOpeningUtility
     /**
      * Gets the {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      *
-     * @param doorUID The UID of the {@link IDoor}.
+     * @param doorUID
+     *     The UID of the {@link IDoor}.
      * @return The {@link BlockMover} of a {@link IDoor} if it has been registered with the {@link DatabaseManager}.
      */
     public Optional<BlockMover> getBlockMover(long doorUID)
@@ -298,7 +320,8 @@ public final class DoorOpeningUtility
     /**
      * Gets the speed multiplier of a {@link IDoor} from the config based on its {@link DoorType}.
      *
-     * @param door The {@link AbstractDoor}.
+     * @param door
+     *     The {@link AbstractDoor}.
      * @return The speed multiplier of this {@link IDoor}.
      */
     public double getMultiplier(AbstractDoor door)

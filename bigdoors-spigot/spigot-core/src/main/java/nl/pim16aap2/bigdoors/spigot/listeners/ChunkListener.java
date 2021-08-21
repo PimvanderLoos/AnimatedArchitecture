@@ -70,7 +70,8 @@ public class ChunkListener implements Listener
     /**
      * Listens to chunks being loaded and checks if they contain doors that move perpetually (doors, clocks, etc).
      *
-     * @param event The {@link ChunkLoadEvent}.
+     * @param event
+     *     The {@link ChunkLoadEvent}.
      */
     @SuppressWarnings("CommentedOutCode")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -97,7 +98,8 @@ public class ChunkListener implements Listener
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
      * DoorBase}s.
      *
-     * @param event The {@link ChunkUnloadEvent}.
+     * @param event
+     *     The {@link ChunkUnloadEvent}.
      */
     @SuppressWarnings("CommentedOutCode")
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -136,7 +138,8 @@ public class ChunkListener implements Listener
     /**
      * Checks if a {@link ChunkUnloadEvent} is cancelled or not.
      *
-     * @param event The {@link ChunkUnloadEvent}.
+     * @param event
+     *     The {@link ChunkUnloadEvent}.
      * @return The if the {@link ChunkUnloadEvent} is cancelled.
      */
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)

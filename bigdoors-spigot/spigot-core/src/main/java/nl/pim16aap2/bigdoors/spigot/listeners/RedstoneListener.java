@@ -46,7 +46,8 @@ public class RedstoneListener extends Restartable implements Listener
      * Initializes the {@link RedstoneListener}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param plugin The {@link BigDoorsSpigot} plugin.
+     * @param plugin
+     *     The {@link BigDoorsSpigot} plugin.
      * @return The instance of this {@link RedstoneListener}.
      */
     public static RedstoneListener init(BigDoorsSpigot plugin)
@@ -111,7 +112,8 @@ public class RedstoneListener extends Restartable implements Listener
     /**
      * Processes a redstone event. This means that it looks for any power blocks around the block that was changed.
      *
-     * @param event The event.
+     * @param event
+     *     The event.
      */
     private void processRedstoneEvent(BlockRedstoneEvent event)
     {
@@ -151,7 +153,8 @@ public class RedstoneListener extends Restartable implements Listener
      * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
      * toggled, if possible.
      *
-     * @param event The {@link BlockRedstoneEvent}.
+     * @param event
+     *     The {@link BlockRedstoneEvent}.
      */
     @EventHandler
     public void onBlockRedstoneChange(BlockRedstoneEvent event)

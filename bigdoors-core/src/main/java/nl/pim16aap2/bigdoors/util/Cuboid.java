@@ -59,7 +59,8 @@ public class Cuboid
     /**
      * Checks if a position is inside this cuboid. This includes the edges.
      *
-     * @param pos The position to check.
+     * @param pos
+     *     The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
     @CheckReturnValue
@@ -78,9 +79,12 @@ public class Cuboid
      * <p>
      * If the test value exists within the provided range, 0 is returned.
      *
-     * @param test The test value.
-     * @param min  The lower bound value of the range.
-     * @param max  The upper bound value of the range.
+     * @param test
+     *     The test value.
+     * @param min
+     *     The lower bound value of the range.
+     * @param max
+     *     The upper bound value of the range.
      * @return The distance between the test value and the provided range, or 0 if the test value lies on the provided
      * range.
      */
@@ -103,11 +107,15 @@ public class Cuboid
      * For example, a range of 1 would include the cuboid itself as well as a 1 deep layer of blocks around it
      * (including corners).
      *
-     * @param x     The x-coordinate to check.
-     * @param y     The y-coordinate to check.
-     * @param z     The z-coordinate to check.
-     * @param range The range the position might be in. A range of 0 gives the same result as {@link
-     *              #isPosInsideCuboid(Vector3Di)}.
+     * @param x
+     *     The x-coordinate to check.
+     * @param y
+     *     The y-coordinate to check.
+     * @param z
+     *     The z-coordinate to check.
+     * @param range
+     *     The range the position might be in. A range of 0 gives the same result as {@link
+     *     #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
      */
     @CheckReturnValue
@@ -175,7 +183,8 @@ public class Cuboid
     /**
      * Applies an update function to both {@link #min} and {@link #max}.
      *
-     * @param updateFunction The update function used to update both {@link Vector3Di}s.
+     * @param updateFunction
+     *     The update function used to update both {@link Vector3Di}s.
      * @return A new {@link Cuboid}.
      */
     @CheckReturnValue
@@ -190,9 +199,12 @@ public class Cuboid
     /**
      * Moves this {@link Cuboid}.
      *
-     * @param x The number of blocks to move in the x-axis.
-     * @param y The number of blocks to move in the y-axis.
-     * @param z The number of blocks to move in the z-axis.
+     * @param x
+     *     The number of blocks to move in the x-axis.
+     * @param y
+     *     The number of blocks to move in the y-axis.
+     * @param z
+     *     The number of blocks to move in the z-axis.
      * @return A new {@link Cuboid}.
      */
     @CheckReturnValue
@@ -206,9 +218,12 @@ public class Cuboid
      * Changes the dimensions of this {@link Cuboid}. The changes are applied symmetrically. So a change of 1 in the
      * x-axis, means that the length of the x-axis is increased by 2 (1 subtracted from min and 1 added to max).
      *
-     * @param x The number of blocks to change in the x-axis.
-     * @param y The number of blocks to change in the y-axis.
-     * @param z The number of blocks to change in the z-axis.
+     * @param x
+     *     The number of blocks to change in the x-axis.
+     * @param y
+     *     The number of blocks to change in the y-axis.
+     * @param z
+     *     The number of blocks to change in the z-axis.
      * @return A new {@link Cuboid}.
      */
     @CheckReturnValue

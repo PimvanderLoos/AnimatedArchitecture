@@ -122,13 +122,19 @@ public abstract class AbstractDoor implements IDoor
      * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
      * synchronously)
      *
-     * @param cause         What caused doorBase action.
-     * @param time          The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is
-     *                      limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
-     * @param responsible   The {@link IPPlayer} responsible for the door action.
-     * @param actionType    The type of action that will be performed by the BlockMover.
+     * @param cause
+     *     What caused doorBase action.
+     * @param time
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
+     *     certain point lower values will not increase door speed.
+     * @param skipAnimation
+     *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for the door action.
+     * @param actionType
+     *     The type of action that will be performed by the BlockMover.
      * @return The {@link BlockMover} for doorBase class.
      */
     protected abstract BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
@@ -142,13 +148,19 @@ public abstract class AbstractDoor implements IDoor
      * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
      * synchronously)
      *
-     * @param cause         What caused doorBase action.
-     * @param time          The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is
-     *                      limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
-     * @param responsible   The {@link IPPlayer} responsible for the door action.
-     * @param actionType    The type of action that will be performed by the BlockMover.
+     * @param cause
+     *     What caused doorBase action.
+     * @param time
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
+     *     certain point lower values will not increase door speed.
+     * @param skipAnimation
+     *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for the door action.
+     * @param actionType
+     *     The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
     private synchronized boolean registerBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
@@ -180,14 +192,20 @@ public abstract class AbstractDoor implements IDoor
      * DoorOpener#animateDoorAsync(AbstractDoor, DoorActionCause, IMessageable, IPPlayer, double, boolean,
      * DoorActionType)}.
      *
-     * @param cause           What caused doorBase action.
-     * @param messageReceiver Who will receive any messages that have to be sent.
-     * @param responsible     Who is responsible for doorBase door. Either the player who directly toggled it (via a
-     *                        command or the GUI), or the prime owner when doorBase data is not available.
-     * @param time            The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is
-     *                        limited, so at a certain point lower values will not increase door speed.
-     * @param skipAnimation   If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param actionType      The type of action.
+     * @param cause
+     *     What caused doorBase action.
+     * @param messageReceiver
+     *     Who will receive any messages that have to be sent.
+     * @param responsible
+     *     Who is responsible for doorBase door. Either the player who directly toggled it (via a command or the GUI),
+     *     or the prime owner when doorBase data is not available.
+     * @param time
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
+     *     certain point lower values will not increase door speed.
+     * @param skipAnimation
+     *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param actionType
+     *     The type of action.
      * @return The result of the attempt.
      */
     // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
@@ -262,7 +280,8 @@ public abstract class AbstractDoor implements IDoor
     /**
      * Handles a change in redstone current for this door's powerblock.
      *
-     * @param newCurrent The new current of the powerblock.
+     * @param newCurrent
+     *     The new current of the powerblock.
      */
     @SuppressWarnings("unused")
     public final void onRedstoneChange(int newCurrent)

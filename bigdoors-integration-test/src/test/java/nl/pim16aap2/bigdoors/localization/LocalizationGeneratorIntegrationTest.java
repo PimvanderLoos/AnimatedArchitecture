@@ -226,7 +226,8 @@ class LocalizationGeneratorIntegrationTest
     /**
      * Creates a jar file with three locale files.
      *
-     * @param jarFile An (existing) jar file.
+     * @param jarFile
+     *     An (existing) jar file.
      * @return The {@link ZipOutputStream} with the jar file. This can be used to append more data. Don't forget to
      * close this.
      *

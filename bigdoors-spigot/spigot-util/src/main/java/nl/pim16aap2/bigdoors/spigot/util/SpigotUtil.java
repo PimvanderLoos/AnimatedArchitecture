@@ -53,7 +53,8 @@ public final class SpigotUtil
     /**
      * Gets the bukkit version of a {@link PColor}.
      *
-     * @param pColor The {@link PColor}.
+     * @param pColor
+     *     The {@link PColor}.
      * @return The bukkit version of the {@link PColor}.
      */
     public static ChatColor toBukkitColor(PColor pColor)
@@ -64,9 +65,12 @@ public final class SpigotUtil
     /**
      * Send a colored message to a specific player.
      *
-     * @param player The player that will receive the message.
-     * @param color  Color of the message
-     * @param msg    The message to be sent.
+     * @param player
+     *     The player that will receive the message.
+     * @param color
+     *     Color of the message
+     * @param msg
+     *     The message to be sent.
      */
     public static void messagePlayer(Player player, ChatColor color, String msg)
     {
@@ -76,7 +80,8 @@ public final class SpigotUtil
     /**
      * Get the {@link PBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf {@link PBlockFace} that will be converted.
+     * @param mbf
+     *     {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
     public static BlockFace getBukkitFace(PBlockFace mbf)
@@ -94,7 +99,8 @@ public final class SpigotUtil
     /**
      * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link PBlockFace}.
      *
-     * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
+     * @param bf
+     *     {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
      */
     public static PBlockFace getPBlockFace(BlockFace bf)
@@ -112,10 +118,14 @@ public final class SpigotUtil
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
      *
-     * @param loc    The location of the sound.
-     * @param sound  The name of the sound.
-     * @param volume The volume
-     * @param pitch  The pitch
+     * @param loc
+     *     The location of the sound.
+     * @param sound
+     *     The name of the sound.
+     * @param volume
+     *     The volume
+     * @param pitch
+     *     The pitch
      */
     public static void playSound(Location loc, String sound, float volume, float pitch)
     {
@@ -129,8 +139,10 @@ public final class SpigotUtil
     /**
      * Send a white message to a player.
      *
-     * @param player Player to receive the message.
-     * @param msg    The message.
+     * @param player
+     *     Player to receive the message.
+     * @param msg
+     *     The message.
      */
     public static void messagePlayer(Player player, String msg)
     {
@@ -140,7 +152,8 @@ public final class SpigotUtil
     /**
      * Certain material types need to be refreshed when being placed down.
      *
-     * @param mat Material to be checked.
+     * @param mat
+     *     Material to be checked.
      * @return True if it needs to be refreshed.
      *
      * @deprecated I'm pretty sure this is no longer needed.

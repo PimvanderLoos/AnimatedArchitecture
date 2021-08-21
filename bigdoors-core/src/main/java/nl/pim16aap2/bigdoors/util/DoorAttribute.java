@@ -80,7 +80,8 @@ public enum DoorAttribute
     /**
      * Gets the minimum level of ownership (0 = highest) required to access a door's attribute.
      *
-     * @param atr The attribute for which the permission level will be retrieved.
+     * @param atr
+     *     The attribute for which the permission level will be retrieved.
      * @return The minimum level of ownership (0 = highest) required to access a door's attribute.
      */
     public static int getPermissionLevel(DoorAttribute atr)

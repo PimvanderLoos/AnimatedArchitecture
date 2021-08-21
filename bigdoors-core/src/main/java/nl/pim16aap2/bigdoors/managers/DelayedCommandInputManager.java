@@ -22,8 +22,10 @@ public class DelayedCommandInputManager
     /**
      * Registers an input request for a command sender.
      *
-     * @param commandSender The {@link ICommandSender} for which to register the input request.
-     * @param inputRequest  The {@link DelayedCommandInputRequest} to register.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to register the input request.
+     * @param inputRequest
+     *     The {@link DelayedCommandInputRequest} to register.
      */
     public void register(ICommandSender commandSender, DelayedCommandInputRequest<?> inputRequest)
     {
@@ -35,7 +37,8 @@ public class DelayedCommandInputManager
     /**
      * Deregisters all registered {@link DelayedCommandInputRequest}s for an {@link ICommandSender}.
      *
-     * @param commandSender The {@link ICommandSender} for which to deregister the input requests.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to deregister the input requests.
      * @return True if a {@link DelayedCommandInputRequest} was previously registered for the {@link ICommandSender}.
      * When nothing was registered and nothing was removed, this method will return false.
      */
@@ -47,7 +50,8 @@ public class DelayedCommandInputManager
     /**
      * Deregisters and cancels all registered {@link DelayedCommandInputRequest}s for an {@link ICommandSender}.
      *
-     * @param commandSender The {@link ICommandSender} for which to deregister the input requests.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to deregister the input requests.
      */
     public void cancelAll(ICommandSender commandSender)
     {
@@ -65,10 +69,11 @@ public class DelayedCommandInputManager
      * This method is useful if the goal is to remove the exact request and not any new requests that may have
      * overridden it.
      *
-     * @param commandSender              The {@link ICommandSender} for which to deregister the input request.
-     * @param delayedCommandInputRequest The {@link DelayedCommandInputRequest} instance to compare any registered
-     *                                   requests to. If the reference of the registered request and this one are the
-     *                                   same, it will be deregistered.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to deregister the input request.
+     * @param delayedCommandInputRequest
+     *     The {@link DelayedCommandInputRequest} instance to compare any registered requests to. If the reference of
+     *     the registered request and this one are the same, it will be deregistered.
      */
     public void deregister(ICommandSender commandSender, DelayedCommandInputRequest<?> delayedCommandInputRequest)
     {
@@ -79,7 +84,8 @@ public class DelayedCommandInputManager
     /**
      * Gets the {@link DelayedCommandInputRequest} registered for a command sender if one exists.
      *
-     * @param commandSender The {@link ICommandSender} for which to retrieve the input request.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to retrieve the input request.
      * @return The {@link DelayedCommandInputRequest} registered for a command sender, if one is registered.
      */
     public Optional<DelayedCommandInputRequest<?>> getInputRequest(ICommandSender commandSender)

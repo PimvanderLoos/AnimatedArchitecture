@@ -31,7 +31,8 @@ import java.time.Clock;
 /**
  * Represents a value in a {@link TimedCache}. It holds the value and the time of insertion.
  *
- * @param <T> Type of the value.
+ * @param <T>
+ *     Type of the value.
  */
 abstract class AbstractTimedValue<T>
 {
@@ -60,7 +61,8 @@ abstract class AbstractTimedValue<T>
      * If this value is not accessible (e.g. exceeds {@link #timeOut} or the value itself has become invalid), null is
      * returned.
      *
-     * @param refresh Whether to refresh the value. See {@link #refresh()}.
+     * @param refresh
+     *     Whether to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
     @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(

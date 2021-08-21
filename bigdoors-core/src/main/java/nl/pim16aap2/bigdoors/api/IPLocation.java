@@ -18,7 +18,8 @@ public interface IPLocation
     /**
      * Changes the x coordinate.
      *
-     * @param newVal The new coordinate.
+     * @param newVal
+     *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -27,7 +28,8 @@ public interface IPLocation
     /**
      * Changes the y coordinate.
      *
-     * @param newVal The new coordinate.
+     * @param newVal
+     *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -36,7 +38,8 @@ public interface IPLocation
     /**
      * Changes the z coordinate.@CheckReturnValue
      *
-     * @param newVal The new coordinate.
+     * @param newVal
+     *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -45,9 +48,12 @@ public interface IPLocation
     /**
      * Adds values to the coordinates of this location.
      *
-     * @param x The value to add to the x coordinate.
-     * @param y The value to add to the y coordinate.
-     * @param z The value to add to the z coordinate.
+     * @param x
+     *     The value to add to the x coordinate.
+     * @param y
+     *     The value to add to the y coordinate.
+     * @param z
+     *     The value to add to the z coordinate.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
@@ -56,7 +62,8 @@ public interface IPLocation
     /**
      * Adds values to the coordinates of this location.
      *
-     * @param vector The vector to add to the coordinates.
+     * @param vector
+     *     The vector to add to the coordinates.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -65,7 +72,8 @@ public interface IPLocation
     /**
      * Adds values to the coordinates of this location.
      *
-     * @param vector The vector to add to the coordinates.
+     * @param vector
+     *     The vector to add to the coordinates.
      * @return A new {@link IPLocation}.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)

@@ -94,7 +94,8 @@ public enum ProtectionCompat
     /**
      * Get the name of the plugin the given compat hooks into.
      *
-     * @param compat The compat the get the name of the plugin for.
+     * @param compat
+     *     The compat the get the name of the plugin for.
      * @return The name of the plugin the given compat hooks into.
      */
     public static String getName(ProtectionCompat compat)
@@ -105,7 +106,8 @@ public enum ProtectionCompat
     /**
      * Get the compat for a plugin.
      *
-     * @param name The name of the plugin to get the compat for.
+     * @param name
+     *     The name of the plugin to get the compat for.
      * @return The compat for a plugin.
      */
     public static @Nullable ProtectionCompat getFromName(String name)
@@ -116,7 +118,8 @@ public enum ProtectionCompat
     /**
      * Get the class of the given hook for a specific version of the plugin to load the compat for.
      *
-     * @param version The version of the plugin to load the hook for.
+     * @param version
+     *     The version of the plugin to load the hook for.
      * @return The {@link IProtectionCompat} class of the compat.
      */
     public abstract @Nullable Class<? extends IProtectionCompat> getClass(String version);

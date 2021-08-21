@@ -112,9 +112,11 @@ public final class PLogger implements IPLogger
      * Adds a message to the queue of messages that will be written to the log file and the console. The respective log
      * levels for both methods will be checked before logging the {@link LogMessage}.
      *
-     * @param logMessageSupplier The {@link Supplier} that will create the {@link LogMessage} that is to be written to
-     *                           the log file and the console.
-     * @param level              The level of the message (info, warn, etc.)
+     * @param logMessageSupplier
+     *     The {@link Supplier} that will create the {@link LogMessage} that is to be written to the log file and the
+     *     console.
+     * @param level
+     *     The level of the message (info, warn, etc.)
      */
     private void addToMessageQueue(Level level, Supplier<LogMessage> logMessageSupplier)
     {
@@ -135,9 +137,10 @@ public final class PLogger implements IPLogger
      * <p>
      * It will <b>not</b> log anything to the console.
      *
-     * @param logMessageSupplier The {@link Supplier} that will create the {@link LogMessage} that is to be written to
-     *                           the log file.
-     * @param level              The level of the message (info, warn, etc.)
+     * @param logMessageSupplier
+     *     The {@link Supplier} that will create the {@link LogMessage} that is to be written to the log file.
+     * @param level
+     *     The level of the message (info, warn, etc.)
      */
     private void addToSilentMessageQueue(Level level, Supplier<LogMessage> logMessageSupplier)
     {
@@ -196,8 +199,10 @@ public final class PLogger implements IPLogger
     /**
      * Writes a message of a given level to the console.
      *
-     * @param level  The level of the message.
-     * @param string The message to log
+     * @param level
+     *     The level of the message.
+     * @param string
+     *     The message to log
      * @see IMessagingInterface#writeToConsole(Level, String)
      */
     private void writeToConsole(Level level, String string)
@@ -220,7 +225,8 @@ public final class PLogger implements IPLogger
     /**
      * Writes a message to the log file.
      *
-     * @param msg The message to be written.
+     * @param msg
+     *     The message to be written.
      */
     private void writeToLog(String msg)
     {

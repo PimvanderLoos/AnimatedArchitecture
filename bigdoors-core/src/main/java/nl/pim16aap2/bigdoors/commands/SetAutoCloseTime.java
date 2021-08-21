@@ -32,10 +32,12 @@ public class SetAutoCloseTime extends DoorTargetCommand
     /**
      * Runs the {@link SetAutoCloseTime} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for changing the auto-close timer of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the auto-close timer
-     *                      will be modified.
-     * @param autoCloseTime The new auto-close time value.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for changing the auto-close timer of the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the auto-close timer will be modified.
+     * @param autoCloseTime
+     *     The new auto-close time value.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
@@ -73,9 +75,11 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, int)}.
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
@@ -96,10 +100,12 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
      * informed about it.
      *
-     * @param commandSender The {@link ICommandSender} for which to look for an active {@link
-     *                      DelayedCommandInputRequest} that can be fulfilled.
-     * @param autoCloseTime The new auto-close timer. This is the amount of time (in seconds) after which a door is
-     *                      opened to automatically close it again.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to look for an active {@link DelayedCommandInputRequest} that can be
+     *     fulfilled.
+     * @param autoCloseTime
+     *     The new auto-close timer. This is the amount of time (in seconds) after which a door is opened to
+     *     automatically close it again.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, int autoCloseTime)
@@ -115,11 +121,14 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * It processes the new input and executes the command using the previously-provided data (see {@link
      * #runDelayed(ICommandSender, DoorRetriever)}).
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
-     * @param autoCloseTime The new auto-close timer. This is the amount of time (in seconds) after which a door is
-     *                      opened to automatically close it again.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
+     * @param autoCloseTime
+     *     The new auto-close timer. This is the amount of time (in seconds) after which a door is opened to
+     *     automatically close it again.
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,

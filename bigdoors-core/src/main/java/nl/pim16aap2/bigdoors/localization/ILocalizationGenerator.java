@@ -23,14 +23,16 @@ interface ILocalizationGenerator
      * they have the format "baseName[_locale].properties". When no specific baseName is provided, the "baseName" part
      * used as example in the format definition can only contain letters, numbers, and hyphens.
      *
-     * @param path     The path to a directory containing properties files or the path to a  zip file containing
-     *                 properties files in its top-level directory.
-     * @param baseName The base name of the translation files. When this is null, this property will be ignored and
-     *                 locale files will be appended purely based on their locale.
-     *                 <p>
-     *                 When a baseName is provided, only those files whose names contain only those exact characters or
-     *                 those characters followed by an underscore and the locale are considered. The ".properties" file
-     *                 extension requirement stays either way.
+     * @param path
+     *     The path to a directory containing properties files or the path to a  zip file containing properties files in
+     *     its top-level directory.
+     * @param baseName
+     *     The base name of the translation files. When this is null, this property will be ignored and locale files
+     *     will be appended purely based on their locale.
+     *     <p>
+     *     When a baseName is provided, only those files whose names contain only those exact characters or those
+     *     characters followed by an underscore and the locale are considered. The ".properties" file extension
+     *     requirement stays either way.
      */
     void addResources(Path path, @Nullable String baseName);
 

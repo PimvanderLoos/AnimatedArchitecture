@@ -23,8 +23,10 @@ class CommandTestingUtil
      * Sets up a {@link DoorRetriever} with a specific {@link DoorBase} such that requesting the door from the retriever
      * will return the specified door.
      *
-     * @param doorRetriever The retriever to set up.
-     * @param door          The door to be retrieved by the retriever.
+     * @param doorRetriever
+     *     The retriever to set up.
+     * @param door
+     *     The door to be retrieved by the retriever.
      */
     public static void initDoorRetriever(DoorRetriever doorRetriever, AbstractDoor door)
     {
@@ -36,9 +38,12 @@ class CommandTestingUtil
     /**
      * Sets up the permissions for an {@link ICommandSender}.
      *
-     * @param commandSender The command sender for which to set up the permissions.
-     * @param userPerm      Whether or not user permissions are true/false.
-     * @param adminPerm     Whether or not admin permissions are true/false.
+     * @param commandSender
+     *     The command sender for which to set up the permissions.
+     * @param userPerm
+     *     Whether or not user permissions are true/false.
+     * @param adminPerm
+     *     Whether or not admin permissions are true/false.
      */
     public static void initCommandSenderPermissions(ICommandSender commandSender, boolean userPerm, boolean adminPerm)
     {

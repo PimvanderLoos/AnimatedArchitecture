@@ -11,14 +11,16 @@ public interface IRestartableHolder
     /**
      * Register a {@link IRestartable} object with this object, so this object can restart the provided object.
      *
-     * @param restartable A {@link IRestartable} object that can be restarted by this object.
+     * @param restartable
+     *     A {@link IRestartable} object that can be restarted by this object.
      */
     void registerRestartable(IRestartable restartable);
 
     /**
      * Checks if a {@link IRestartable} has been registered with this object.
      *
-     * @param restartable The {@link IRestartable} to check.
+     * @param restartable
+     *     The {@link IRestartable} to check.
      * @return True if the {@link IRestartable} has been registered with this object.
      */
     boolean isRestartableRegistered(IRestartable restartable);
@@ -26,7 +28,8 @@ public interface IRestartableHolder
     /**
      * Deregisters an {@link IRestartable} if it is currently registered.
      *
-     * @param restartable The {@link IRestartable} to deregister.
+     * @param restartable
+     *     The {@link IRestartable} to deregister.
      */
     void deregisterRestartable(IRestartable restartable);
 }

@@ -42,11 +42,14 @@ final class Localizer implements ILocalizer
     private List<Locale> localeList;
 
     /**
-     * @param directory     The directory the translation file(s) exist in.
-     * @param baseName      The base name of the localization files. For example, when you have a file
-     *                      "Translations_en_US.properties", the base name would be "Translations".
-     * @param defaultLocale The default {@link Locale} to use when no locale is specified when requesting a translation.
-     *                      Defaults to {@link Locale#ROOT}.
+     * @param directory
+     *     The directory the translation file(s) exist in.
+     * @param baseName
+     *     The base name of the localization files. For example, when you have a file "Translations_en_US.properties",
+     *     the base name would be "Translations".
+     * @param defaultLocale
+     *     The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to
+     *     {@link Locale#ROOT}.
      */
     Localizer(Path directory, String baseName, Locale defaultLocale)
     {
@@ -70,9 +73,11 @@ final class Localizer implements ILocalizer
      * <p>
      * Don't forget to use {@link #reInit()} to apply the changes.
      *
-     * @param directory The directory the translation file(s) exist in.
-     * @param baseName  The base name of the localization files. For example, when you have a file
-     *                  "Translations_en_US.properties", the base name would be "Translations".
+     * @param directory
+     *     The directory the translation file(s) exist in.
+     * @param baseName
+     *     The base name of the localization files. For example, when you have a file "Translations_en_US.properties",
+     *     the base name would be "Translations".
      */
     void updateBundleLocation(Path directory, String baseName)
     {
@@ -121,7 +126,8 @@ final class Localizer implements ILocalizer
      * <p>
      * Together with {@link #shutdown()}, this method can be used to re-initialize this localizer.
      *
-     * @throws IllegalStateException When trying to initialize this localizer while the ClassLoader is not closed.
+     * @throws IllegalStateException
+     *     When trying to initialize this localizer while the ClassLoader is not closed.
      */
     @Initializer
     void init()

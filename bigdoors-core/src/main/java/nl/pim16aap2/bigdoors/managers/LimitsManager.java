@@ -13,8 +13,10 @@ public class LimitsManager
      * Gets the value of the {@link Limit} for the given player. It checks the global limit, any admin bypass
      * permission, and the player's personal limit.
      *
-     * @param player The player for whom to check the limit.
-     * @param limit  The {@link Limit} to check.
+     * @param player
+     *     The player for whom to check the limit.
+     * @param limit
+     *     The {@link Limit} to check.
      * @return The value of the limit for the given player, or an empty OptionalInt if none was found.
      * <p>
      * If there is a global limit in place (see {@link Limit#getGlobalLimit(IConfigLoader)}), the returned value cannot
@@ -45,9 +47,12 @@ public class LimitsManager
      * Checks if a given value exceeds the limit for this player. For more info, see {@link #getLimit(IPPlayer,
      * Limit)}.
      *
-     * @param player The player for whom to check the limit.
-     * @param limit  The {@link Limit} to check.
-     * @param value  The value to compare to the limit.
+     * @param player
+     *     The player for whom to check the limit.
+     * @param limit
+     *     The {@link Limit} to check.
+     * @param value
+     *     The value to compare to the limit.
      * @return True if the given value exceeds the limit for this player. If value <= limit, this will return false.
      */
     public boolean exceedsLimit(IPPlayer player, Limit limit, int value)

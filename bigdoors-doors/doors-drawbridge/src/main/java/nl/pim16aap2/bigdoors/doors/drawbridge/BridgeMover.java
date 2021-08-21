@@ -36,12 +36,18 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param door            The {@link DoorBase}.
-     * @param time            The amount of time (in seconds) the door will try to toggle itself in.
-     * @param skipAnimation   If the door should be opened instantly (i.e. skip animation) or not.
-     * @param rotateDirection The direction the {@link DoorBase} will move.
-     * @param multiplier      The speed multiplier.
-     * @param player          The player who opened this door.
+     * @param door
+     *     The {@link DoorBase}.
+     * @param time
+     *     The amount of time (in seconds) the door will try to toggle itself in.
+     * @param skipAnimation
+     *     If the door should be opened instantly (i.e. skip animation) or not.
+     * @param rotateDirection
+     *     The direction the {@link DoorBase} will move.
+     * @param multiplier
+     *     The speed multiplier.
+     * @param player
+     *     The player who opened this door.
      */
     public BridgeMover(double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
                        IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)

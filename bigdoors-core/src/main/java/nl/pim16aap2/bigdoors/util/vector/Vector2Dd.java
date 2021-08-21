@@ -35,8 +35,10 @@ public record Vector2Dd(double x, double y)
     /**
      * Adds values to the current values.
      *
-     * @param x The x value to add to the current x value.
-     * @param y The y value to add to the current y value.
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
      * @return A new {@link Vector2Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -48,7 +50,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Adds another {@link Vector2Dd} to the current values.
      *
-     * @param other The other {@link Vector2Dd} to add to the current one.
+     * @param other
+     *     The other {@link Vector2Dd} to add to the current one.
      * @return A new {@link Vector2Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -60,7 +63,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Adds another {@link Vector2Di} to the current values.
      *
-     * @param other The other {@link Vector2Di} to add to the current one.
+     * @param other
+     *     The other {@link Vector2Di} to add to the current one.
      * @return A new {@link Vector2Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -72,7 +76,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Adds a value to both the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param val The value to add to both the x and the y values.
+     * @param val
+     *     The value to add to both the x and the y values.
      * @return A new {@link Vector2Dd} with the value added to the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -85,8 +90,10 @@ public record Vector2Dd(double x, double y)
     /**
      * Subtracts values from the current values.
      *
-     * @param x The x value to subtract from the current x value.
-     * @param y The y value to subtract from the current y value.
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
      * @return A new {@link Vector2Dd} with the subtracted values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -98,7 +105,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Subtracts another {@link Vector2Dd} from both the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param other The other {@link Vector2Dd} to subtract from the x and the y values.
+     * @param other
+     *     The other {@link Vector2Dd} to subtract from the x and the y values.
      * @return The new {@link Vector2Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -110,7 +118,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Subtracts another {@link Vector2Di} from both the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param other The other {@link Vector2Di} to subtract from the x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to subtract from the x and the y values.
      * @return The new {@link Vector2Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -122,7 +131,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Subtracts a value from both the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param val The value to subtract from both the x and the y values.
+     * @param val
+     *     The value to subtract from both the x and the y values.
      * @return A new {@link Vector2Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -135,8 +145,10 @@ public record Vector2Dd(double x, double y)
     /**
      * Multiplies values with the current values.
      *
-     * @param x The x value to multiply with the current x value.
-     * @param y The y value to multiply with the current y value.
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
      * @return A new {@link Vector2Dd} with the multiplied values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -148,7 +160,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Multiplies another {@link Vector2Dd} from with the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param other The other {@link Vector2Dd} to multiply with the x and the y values.
+     * @param other
+     *     The other {@link Vector2Dd} to multiply with the x and the y values.
      * @return The new {@link Vector2Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -160,7 +173,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Multiplies another {@link Vector2Di} from with the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param other The other {@link Vector2Di} to multiply with the x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to multiply with the x and the y values.
      * @return The new {@link Vector2Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -172,7 +186,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Multiplies a value with both the x and the y values of the current {@link Vector2Dd}.
      *
-     * @param val The value to multiply from both the x and the y values.
+     * @param val
+     *     The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -184,8 +199,10 @@ public record Vector2Dd(double x, double y)
     /**
      * Divides the current values with values.
      *
-     * @param x The x value to use as divisor for the current x value.
-     * @param y The y value to use as divisor for the current y value.
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -198,7 +215,8 @@ public record Vector2Dd(double x, double y)
      * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
      * Vector2Dd}.
      *
-     * @param other The other {@link Vector2Dd} to use as divisor for the current x and the y values.
+     * @param other
+     *     The other {@link Vector2Dd} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -211,7 +229,8 @@ public record Vector2Dd(double x, double y)
      * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
      * Vector2Di}.
      *
-     * @param other The other {@link Vector2Di} to use as divisor for the current x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -223,7 +242,8 @@ public record Vector2Dd(double x, double y)
     /**
      * Divides both the x and the y values of the current {@link Vector2Dd} with a provided value.
      *
-     * @param val The value to use as divisor for both the x and the y values.
+     * @param val
+     *     The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -253,7 +273,8 @@ public record Vector2Dd(double x, double y)
      * Returns a String representation of this 2d vector. The output will be the same as {@link #toString()} with the
      * only difference being that the x/y coordinate values will be formatted to a specific number of decimal places.
      *
-     * @param decimals The number of decimals to print for each value.
+     * @param decimals
+     *     The number of decimals to print for each value.
      * @return A String representation of this vector.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)

@@ -22,7 +22,8 @@ public interface IDiscreteMovement
      * suggestion. It will never move more blocks than possible. Values less than 1 will use the default value for this
      * {@link DoorBase}.
      *
-     * @param newBTM The number of blocks the {@link DoorBase} will try to move.
+     * @param newBTM
+     *     The number of blocks the {@link DoorBase} will try to move.
      */
     void setBlocksToMove(int newBTM);
 }

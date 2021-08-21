@@ -39,10 +39,14 @@ public final class PowerBlockManager extends Restartable
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param restartableHolder The {@link IRestartableHolder} that manages this object.
-     * @param config            The configuration of this plugin.
-     * @param databaseManager   The database manager to use for power block retrieval.
-     * @param pLogger           The logger used for error logging.
+     * @param restartableHolder
+     *     The {@link IRestartableHolder} that manages this object.
+     * @param config
+     *     The configuration of this plugin.
+     * @param databaseManager
+     *     The database manager to use for power block retrieval.
+     * @param pLogger
+     *     The logger used for error logging.
      */
     public PowerBlockManager(IRestartableHolder restartableHolder, IConfigLoader config,
                              DatabaseManager databaseManager, IPLogger pLogger)
@@ -57,7 +61,8 @@ public final class PowerBlockManager extends Restartable
     /**
      * Unloads a world from the cache.
      *
-     * @param worldName The name of the world the unload.
+     * @param worldName
+     *     The name of the world the unload.
      */
     public void unloadWorld(String worldName)
     {
@@ -67,7 +72,8 @@ public final class PowerBlockManager extends Restartable
     /**
      * Loads a world.
      *
-     * @param worldName The name of the world.
+     * @param worldName
+     *     The name of the world.
      */
     public void loadWorld(String worldName)
     {
@@ -77,8 +83,10 @@ public final class PowerBlockManager extends Restartable
     /**
      * Gets all {@link DoorBase}s that have a powerblock at a location in a world.
      *
-     * @param loc       The location.
-     * @param worldName The name of the world.
+     * @param loc
+     *     The location.
+     * @param worldName
+     *     The name of the world.
      * @return All {@link DoorBase}s that have a powerblock at a location in a world.
      */
     // TODO: Try to have about 50% less CompletableFuture here.
@@ -104,7 +112,8 @@ public final class PowerBlockManager extends Restartable
     /**
      * Checks if a world is a BigDoors world. In other words, it checks if a world contains more than 0 doors.
      *
-     * @param worldName The name of the world.
+     * @param worldName
+     *     The name of the world.
      * @return True if the world contains at least 1 door.
      */
     public boolean isBigDoorsWorld(String worldName)
@@ -121,9 +130,12 @@ public final class PowerBlockManager extends Restartable
     /**
      * Updates the position of the power block of a {@link DoorBase} in the database.
      *
-     * @param door   The {@link DoorBase}.
-     * @param oldPos The old position.
-     * @param newPos The new position.
+     * @param door
+     *     The {@link DoorBase}.
+     * @param oldPos
+     *     The old position.
+     * @param newPos
+     *     The new position.
      */
     @SuppressWarnings("unused")
     public void updatePowerBlockLoc(AbstractDoor door, Vector3Di oldPos, Vector3Di newPos)
@@ -146,8 +158,10 @@ public final class PowerBlockManager extends Restartable
     /**
      * Invalidates the cache for when a door is either added to a world or removed from it.
      *
-     * @param worldName The name of the world of the door.
-     * @param pos       The position of the door's power block.
+     * @param worldName
+     *     The name of the world of the door.
+     * @param pos
+     *     The position of the door's power block.
      */
     public void onDoorAddOrRemove(String worldName, Vector3Di pos)
     {
@@ -164,8 +178,10 @@ public final class PowerBlockManager extends Restartable
     /**
      * Invalidates the cache of a chunk in a world.
      *
-     * @param worldName The name of the world.
-     * @param chunk     The location (x,z) of the chunk in chunk-space.
+     * @param worldName
+     *     The name of the world.
+     * @param chunk
+     *     The location (x,z) of the chunk in chunk-space.
      */
     public void invalidateChunk(String worldName, Vector2Di chunk)
     {
@@ -231,7 +247,8 @@ public final class PowerBlockManager extends Restartable
         /**
          * Gets all UIDs of doors whose power blocks are in the given location.
          *
-         * @param loc The location to check.
+         * @param loc
+         *     The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         private CompletableFuture<List<Long>> getPowerBlocks(Vector3Di loc)
@@ -265,7 +282,8 @@ public final class PowerBlockManager extends Restartable
         /**
          * Removes the chunk of a position from the cache.
          *
-         * @param pos The position.
+         * @param pos
+         *     The position.
          */
         private void invalidatePosition(Vector3Di pos)
         {
@@ -321,7 +339,8 @@ public final class PowerBlockManager extends Restartable
         /**
          * Gets all UIDs of doors whose power blocks are in the given location.
          *
-         * @param loc The location to check.
+         * @param loc
+         *     The location to check.
          * @return All UIDs of doors whose power blocks are in the given location.
          */
         private List<Long> getPowerBlocks(Vector3Di loc)

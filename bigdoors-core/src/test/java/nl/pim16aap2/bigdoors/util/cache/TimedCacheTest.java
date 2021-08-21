@@ -348,7 +348,8 @@ class TimedCacheTest
      * <p>
      * When interrupted, the test will fail.
      *
-     * @param millis The number of milliseconds to sleep for.
+     * @param millis
+     *     The number of milliseconds to sleep for.
      */
     public static void sleep(long millis)
     {
@@ -366,9 +367,12 @@ class TimedCacheTest
     /**
      * Makes sure that an {@link Optional} is both present and that its result matches the provided value.
      *
-     * @param optional The {@link Optional} to check.
-     * @param val      The value to compare against the value inside the optional.
-     * @param <T>      The type of the values to compare.
+     * @param optional
+     *     The {@link Optional} to check.
+     * @param val
+     *     The value to compare against the value inside the optional.
+     * @param <T>
+     *     The type of the values to compare.
      */
     public static <T> void optionalEquals(Optional<T> optional, T val)
     {

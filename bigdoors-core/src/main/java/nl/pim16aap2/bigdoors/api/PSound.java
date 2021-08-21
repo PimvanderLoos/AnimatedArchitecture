@@ -27,7 +27,8 @@ public enum PSound
     /**
      * Gets the name of a {@link PSound}.
      *
-     * @param sound The {@link PSound}.
+     * @param sound
+     *     The {@link PSound}.
      * @return The name of the {@link PSound}.
      */
     public static String getSoundName(PSound sound)
@@ -38,7 +39,8 @@ public enum PSound
     /**
      * Gets the duration of the {@link PSound}, measured in ticks.
      *
-     * @param sound The {@link PSound}.
+     * @param sound
+     *     The {@link PSound}.
      * @return The duration of the {@link PSound}.
      */
     public static int getDuration(PSound sound)

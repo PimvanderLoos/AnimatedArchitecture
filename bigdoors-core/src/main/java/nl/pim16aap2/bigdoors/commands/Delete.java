@@ -25,9 +25,10 @@ public class Delete extends DoorTargetCommand
     /**
      * Runs the {@link Delete} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for deleting the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for
-     *                      deletion.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for deleting the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for deletion.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)

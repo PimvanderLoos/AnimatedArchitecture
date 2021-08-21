@@ -33,8 +33,10 @@ public record Vector2Di(int x, int y)
     /**
      * Adds values to the current values.
      *
-     * @param x The x value to add to the current x value.
-     * @param y The y value to add to the current y value.
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
      * @return A new {@link Vector2Di} with the added values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -46,7 +48,8 @@ public record Vector2Di(int x, int y)
     /**
      * Adds another {@link Vector2Di} to the current values.
      *
-     * @param other The other {@link Vector2Di} to add to the current one.
+     * @param other
+     *     The other {@link Vector2Di} to add to the current one.
      * @return A new {@link Vector2Di} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -58,7 +61,8 @@ public record Vector2Di(int x, int y)
     /**
      * Adds a value to both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to add to both the x and the y values.
+     * @param val
+     *     The value to add to both the x and the y values.
      * @return A new {@link Vector2Di} with the value added to the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -71,8 +75,10 @@ public record Vector2Di(int x, int y)
     /**
      * Subtracts values from the current values.
      *
-     * @param x The x value to subtract from the current x value.
-     * @param y The y value to subtract from the current y value.
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
      * @return A new {@link Vector2Di} with the subtracted values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -84,7 +90,8 @@ public record Vector2Di(int x, int y)
     /**
      * Subtracts another {@link Vector2Di} from both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param other The other {@link Vector2Di} to subtract from the x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to subtract from the x and the y values.
      * @return The new {@link Vector2Di} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -96,7 +103,8 @@ public record Vector2Di(int x, int y)
     /**
      * Subtracts a value from both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to subtract from both the x and the y values.
+     * @param val
+     *     The value to subtract from both the x and the y values.
      * @return A new {@link Vector2Di} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -109,8 +117,10 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies values with the current values.
      *
-     * @param x The x value to multiply with the current x value.
-     * @param y The y value to multiply with the current y value.
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -122,7 +132,8 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies another {@link Vector2Di} from with the x and the y values of the current {@link Vector2Di}.
      *
-     * @param other The other {@link Vector2Di} to multiply with the x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -134,7 +145,8 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies a value with both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to multiply from both the x and the y values.
+     * @param val
+     *     The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -147,8 +159,10 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies values with the current values.
      *
-     * @param x The x value to multiply with the current x value.
-     * @param y The y value to multiply with the current y value.
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
      * @return A new {@link Vector2Di} with the multiplied values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -160,7 +174,8 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies another {@link Vector2Dd} from with the x and the y values of the current {@link Vector2Di}.
      *
-     * @param other The other {@link Vector2Dd} to multiply with the x and the y values.
+     * @param other
+     *     The other {@link Vector2Dd} to multiply with the x and the y values.
      * @return The new {@link Vector2Di} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -172,7 +187,8 @@ public record Vector2Di(int x, int y)
     /**
      * Multiplies a value with both the x and the y values of the current {@link Vector2Di}.
      *
-     * @param val The value to multiply from both the x and the y values.
+     * @param val
+     *     The value to multiply from both the x and the y values.
      * @return A new {@link Vector2Di} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -185,8 +201,10 @@ public record Vector2Di(int x, int y)
     /**
      * Divides the current values with values.
      *
-     * @param x The x value to use as divisor for the current x value.
-     * @param y The y value to use as divisor for the current y value.
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -199,7 +217,8 @@ public record Vector2Di(int x, int y)
      * Divides the x and y values of the current {@link Vector2Di} with the x and the y values of the provided {@link
      * Vector2Di}.
      *
-     * @param other The other {@link Vector2Di} to use as divisor for the current x and the y values.
+     * @param other
+     *     The other {@link Vector2Di} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -211,7 +230,8 @@ public record Vector2Di(int x, int y)
     /**
      * Divides both the x and the y values of the current {@link Vector2Di} with a provided value.
      *
-     * @param val The value to use as divisor for both the x and the y values.
+     * @param val
+     *     The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -224,8 +244,10 @@ public record Vector2Di(int x, int y)
     /**
      * Divides the current values with values.
      *
-     * @param x The x value to use as divisor for the current x value.
-     * @param y The y value to use as divisor for the current y value.
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -238,7 +260,8 @@ public record Vector2Di(int x, int y)
      * Divides the x and y values of the current {@link Vector2Di} with the x and the y values of the provided {@link
      * Vector2Dd}.
      *
-     * @param other The other {@link Vector2Dd} to use as divisor for the current x and the y values.
+     * @param other
+     *     The other {@link Vector2Dd} to use as divisor for the current x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -250,7 +273,8 @@ public record Vector2Di(int x, int y)
     /**
      * Divides both the x and the y values of the current {@link Vector2Di} with a provided value.
      *
-     * @param val The value to use as divisor for both the x and the y values.
+     * @param val
+     *     The value to use as divisor for both the x and the y values.
      * @return A new {@link Vector2Di} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)

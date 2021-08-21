@@ -17,9 +17,12 @@ public interface IPBlockDataFactory
     /**
      * Creates a new {@link PBlockData} of the block at the location if allowed and possible.
      *
-     * @param loc    The location at which the {@link ICustomCraftFallingBlock} will be spawned.
-     * @param bottom True if this is the lowest block of the object to move.
-     * @param radius The radius of the block to an arbitrary point.
+     * @param loc
+     *     The location at which the {@link ICustomCraftFallingBlock} will be spawned.
+     * @param bottom
+     *     True if this is the lowest block of the object to move.
+     * @param radius
+     *     The radius of the block to an arbitrary point.
      * @return The {@link ICustomCraftFallingBlock} that was constructed.
      */
     Optional<PBlockData> create(IPLocation loc, boolean bottom, float radius, float startAngle)
@@ -28,8 +31,10 @@ public interface IPBlockDataFactory
     /**
      * Gets the spawn location of a falling block based on the location of a block.
      *
-     * @param loc    The location of the block that will be replaced by an animated block.
-     * @param bottom Whether the block is on the bottom row of an animated door.
+     * @param loc
+     *     The location of the block that will be replaced by an animated block.
+     * @param bottom
+     *     Whether the block is on the bottom row of an animated door.
      * @return The spawn location of the falling block.
      */
     default IPLocation getSpawnLocation(IPLocation loc, boolean bottom)
