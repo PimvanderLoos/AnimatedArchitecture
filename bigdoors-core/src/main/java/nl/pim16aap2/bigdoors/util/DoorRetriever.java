@@ -25,7 +25,8 @@ public abstract class DoorRetriever
     /**
      * Creates a new {@link DoorRetriever} from its ID.
      *
-     * @param doorID The identifier (name or UID) of the door.
+     * @param doorID
+     *     The identifier (name or UID) of the door.
      * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever of(String doorID)
@@ -39,7 +40,8 @@ public abstract class DoorRetriever
     /**
      * Creates a new {@link DoorRetriever} from its UID.
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever of(long doorUID)
@@ -50,7 +52,8 @@ public abstract class DoorRetriever
     /**
      * Creates a new {@link DoorRetriever} from the door object itself.
      *
-     * @param door The door object itself.
+     * @param door
+     *     The door object itself.
      * @return The new {@link DoorRetriever}.
      */
     public static DoorRetriever of(AbstractDoor door)
@@ -85,7 +88,8 @@ public abstract class DoorRetriever
      * In case the door is referenced by its name, there may be more than one match (names are not unique). When this
      * happens, no doors are returned.
      *
-     * @param player The {@link IPPlayer} that owns the door.
+     * @param player
+     *     The {@link IPPlayer} that owns the door.
      * @return The {@link AbstractDoor} if it can be found.
      */
     public abstract CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player);
@@ -99,7 +103,8 @@ public abstract class DoorRetriever
      * <p>
      * See {@link DelayedDoorSpecificationInputRequest}.
      *
-     * @param player The player for whom to get the door.
+     * @param player
+     *     The player for whom to get the door.
      * @return The door as specified by this {@link DoorRetriever} and with user input in case more than one match was
      * found.
      */
@@ -122,7 +127,8 @@ public abstract class DoorRetriever
      * Gets all doors referenced by this {@link DoorRetriever} where the provided player is a (co)owner of with any
      * permission level.
      *
-     * @param player The {@link IPPlayer} that owns all matching doors.
+     * @param player
+     *     The {@link IPPlayer} that owns all matching doors.
      * @return All doors referenced by this {@link DoorRetriever}.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
@@ -133,7 +139,8 @@ public abstract class DoorRetriever
     /**
      * Gets a list of (future) doors from an optional one.
      *
-     * @param optionalDoor The (future) optional door.
+     * @param optionalDoor
+     *     The (future) optional door.
      * @return Either an empty list (if the optional was empty) or a singleton list (if the optional was not empty).
      */
     private static CompletableFuture<List<AbstractDoor>> optionalToList(
@@ -203,7 +210,8 @@ public abstract class DoorRetriever
         /**
          * Gets a single (optional/future) door from a list of (future) doors if only 1 door exists in the list.
          *
-         * @param list The list of (future) doors.
+         * @param list
+         *     The list of (future) doors.
          * @return An optional (future) {@link AbstractDoor} if exactly 1 existed in the list, otherwise an empty
          * optional.
          */

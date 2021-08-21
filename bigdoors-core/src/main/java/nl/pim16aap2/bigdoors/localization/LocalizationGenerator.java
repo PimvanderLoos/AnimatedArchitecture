@@ -40,8 +40,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
     private final String outputBaseName;
 
     /**
-     * @param outputDirectory The output directory to write all the combined localizations into.
-     * @param outputBaseName  The base name of the properties files in the output directory.
+     * @param outputDirectory
+     *     The output directory to write all the combined localizations into.
+     * @param outputBaseName
+     *     The base name of the properties files in the output directory.
      */
     LocalizationGenerator(Path outputDirectory, String outputBaseName)
     {
@@ -151,8 +153,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
     /**
      * Applies a set of patches to the existing output locale file.
      *
-     * @param localeSuffix The suffix of the locale.
-     * @param patches      The patches to apply to the locale.
+     * @param localeSuffix
+     *     The suffix of the locale.
+     * @param patches
+     *     The patches to apply to the locale.
      */
     void applyPatches(String localeSuffix, Map<String, String> patches)
     {
@@ -181,8 +185,10 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * <p>
      * All patches for which no existing line exists will be appended at the end.
      *
-     * @param lines   The list of lines to merge with the patches. This list is modified in-place.
-     * @param patches The patches to merge into the existing lines.
+     * @param lines
+     *     The list of lines to merge with the patches. This list is modified in-place.
+     * @param patches
+     *     The patches to merge into the existing lines.
      */
     static void mergeWithPatches(List<String> lines, Map<String, String> patches)
     {
@@ -230,10 +236,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * <p>
      * If the output file does not exist yet, a new file will be created.
      *
-     * @param outputFileSystem The filesystem of the output file.
-     * @param inputStream      The input stream to read the new lines to append to the existing locale file from.
-     * @param locale           The locale of the file to read.
-     * @throws IOException When an I/O error occurred.
+     * @param outputFileSystem
+     *     The filesystem of the output file.
+     * @param inputStream
+     *     The input stream to read the new lines to append to the existing locale file from.
+     * @param locale
+     *     The locale of the file to read.
+     * @throws IOException
+     *     When an I/O error occurred.
      */
     void mergeWithExistingLocaleFile(FileSystem outputFileSystem, InputStream inputStream, String locale)
         throws IOException

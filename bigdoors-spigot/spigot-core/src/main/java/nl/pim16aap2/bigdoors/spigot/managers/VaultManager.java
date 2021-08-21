@@ -56,7 +56,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Initializes this object.
      *
-     * @param plugin The {@link BigDoorsSpigot} instance.
+     * @param plugin
+     *     The {@link BigDoorsSpigot} instance.
      * @return The {@link VaultManager} instance.
      */
     public static VaultManager init(BigDoorsSpigot plugin)
@@ -109,7 +110,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      * Tries to get a flat price from the config for a {@link DoorType}. Useful in case the price is set to zero, so the
      * plugin won't have to parse the formula every time if it is disabled.
      *
-     * @param type The {@link DoorType}.
+     * @param type
+     *     The {@link DoorType}.
      */
     private void getFlatPrice(DoorType type)
     {
@@ -128,8 +130,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Checks if a player has a specific permission node.
      *
-     * @param player     The player.
-     * @param permission The permission node.
+     * @param player
+     *     The player.
+     * @param permission
+     *     The permission node.
      * @return True if the player has the node.
      */
     public boolean hasPermission(Player player, String permission)
@@ -140,8 +144,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Evaluates the price formula given a specific blockCount using {@link JCalculator}
      *
-     * @param formula    The formula of the price.
-     * @param blockCount The number of blocks in the door.
+     * @param formula
+     *     The formula of the price.
+     * @param blockCount
+     *     The number of blocks in the door.
      * @return The price of the door given the formula and the blockCount variabel.
      */
     private double evaluateFormula(String formula, int blockCount)
@@ -174,8 +180,10 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Checks if the player has a certain amount of money in their bank account.
      *
-     * @param player The player whose bank account to check.
-     * @param amount The amount of money.
+     * @param player
+     *     The player whose bank account to check.
+     * @param amount
+     *     The amount of money.
      * @return True if the player has at least this much money.
      */
     private boolean has(OfflinePlayer player, double amount)
@@ -203,9 +211,12 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Withdraw a certain amount of money from a player's bank account in a certain world.
      *
-     * @param player    The player.
-     * @param worldName The name of the world.
-     * @param amount    The amount of money.
+     * @param player
+     *     The player.
+     * @param worldName
+     *     The name of the world.
+     * @param amount
+     *     The amount of money.
      * @return True if the money was successfully withdrawn from the player's accounts.
      */
     private boolean withdrawPlayer(OfflinePlayer player, String worldName, double amount)
@@ -236,9 +247,12 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     /**
      * Withdraw a certain amount of money from a player's bank account in a certain world.
      *
-     * @param player    The player.
-     * @param worldName The name of the world.
-     * @param amount    The amount of money.
+     * @param player
+     *     The player.
+     * @param worldName
+     *     The name of the world.
+     * @param amount
+     *     The amount of money.
      * @return True if the money was successfully withdrawn from the player's accounts.
      */
     private boolean withdrawPlayer(Player player, String worldName, double amount)

@@ -90,7 +90,8 @@ public final class ToolUserManager extends Restartable
      * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the {@link
      * ToolUser}.
      *
-     * @param toolUser The {@link ToolUser} to stop and remove.
+     * @param toolUser
+     *     The {@link ToolUser} to stop and remove.
      */
     public void abortToolUser(ToolUser toolUser)
     {
@@ -101,8 +102,10 @@ public final class ToolUserManager extends Restartable
      * Starts a timer for a {@link ToolUser}. After the provided number of seconds have passed, the {@link ToolUser}
      * will be aborted if this h
      *
-     * @param toolUser The {@link ToolUser} for which to start the timer.
-     * @param time     The amount of time (in seconds).
+     * @param toolUser
+     *     The {@link ToolUser} for which to start the timer.
+     * @param time
+     *     The amount of time (in seconds).
      */
     public void startToolUser(ToolUser toolUser, int time)
     {
@@ -143,7 +146,8 @@ public final class ToolUserManager extends Restartable
      * Stops and removes an {@link IPPlayer} if it is currently active. "Stop" here means that it will make sure to
      * properly clean up the {@link ToolUser}.
      *
-     * @param player The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
+     * @param player
+     *     The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
      */
     @SuppressWarnings("unused")
     public void abortToolUser(IPPlayer player)
@@ -157,7 +161,8 @@ public final class ToolUserManager extends Restartable
      * <p>
      * If no {@link ToolUser} is active for the given player, nothing happens.
      *
-     * @param playerUUID The {@link UUID} of the player whose {@link ToolUser} to stop and remove.
+     * @param playerUUID
+     *     The {@link UUID} of the player whose {@link ToolUser} to stop and remove.
      */
     public void abortToolUser(UUID playerUUID)
     {

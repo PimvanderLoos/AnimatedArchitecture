@@ -32,11 +32,13 @@ public class SetBlocksToMove extends DoorTargetCommand
     /**
      * Runs the {@link SetBlocksToMove} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for changing the blocks-to-move distance of the
-     *                      door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the blocks-to-move
-     *                      distance will be modified.
-     * @param blocksToMove  The new blocks-to-move distance.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for changing the blocks-to-move distance of the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the blocks-to-move distance will be
+     *     modified.
+     * @param blocksToMove
+     *     The new blocks-to-move distance.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
@@ -74,9 +76,11 @@ public class SetBlocksToMove extends DoorTargetCommand
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, int)}.
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
@@ -97,9 +101,11 @@ public class SetBlocksToMove extends DoorTargetCommand
      * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
      * informed about it.
      *
-     * @param commandSender The {@link ICommandSender} for which to look for an active {@link
-     *                      DelayedCommandInputRequest} that can be fulfilled.
-     * @param blocksToMove  The distance the door should move measured in number of blocks.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to look for an active {@link DelayedCommandInputRequest} that can be
+     *     fulfilled.
+     * @param blocksToMove
+     *     The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, int blocksToMove)
@@ -115,10 +121,13 @@ public class SetBlocksToMove extends DoorTargetCommand
      * It processes the new input and executes the command using the previously-provided data (see {@link
      * #runDelayed(ICommandSender, DoorRetriever)}).
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
-     * @param blocksToMove  The distance the door should move measured in number of blocks.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
+     * @param blocksToMove
+     *     The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,

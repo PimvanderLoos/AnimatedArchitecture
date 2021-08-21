@@ -28,7 +28,8 @@ public final class SpigotAdapter
      * If the {@link IPLocation} is an {@link PWorldSpigot}, only a simple cast is performed. Otherwise, a new {@link
      * World} is constructed.
      *
-     * @param pWorld The BigDoors world.
+     * @param pWorld
+     *     The BigDoors world.
      * @return The Spigot world.
      */
     public static @Nullable World getBukkitWorld(IPWorld pWorld)
@@ -44,7 +45,8 @@ public final class SpigotAdapter
      * If the {@link IPLocation} is an {@link PLocationSpigot}, only a simple cast is performed. Otherwise, a new {@link
      * Location} is constructed.
      *
-     * @param pLocation The BigDoors location.
+     * @param pLocation
+     *     The BigDoors location.
      * @return The Spigot location.
      */
     public static Location getBukkitLocation(IPLocation pLocation)
@@ -57,7 +59,8 @@ public final class SpigotAdapter
     /**
      * Gets a Bukkit vector from a BigDoors vector.
      *
-     * @param vector The BigDoors vector.
+     * @param vector
+     *     The BigDoors vector.
      * @return The bukkit vector.
      */
     public static Vector getBukkitVector(Vector3Di vector)
@@ -68,7 +71,8 @@ public final class SpigotAdapter
     /**
      * Tries to get an online Bukkit player represented by an {@link IPPlayer}.
      *
-     * @param pPlayer The {@link IPPlayer}.
+     * @param pPlayer
+     *     The {@link IPPlayer}.
      * @return The online bukkit player, if possible.
      */
     public static @Nullable Player getBukkitPlayer(IPPlayer pPlayer)
@@ -79,7 +83,8 @@ public final class SpigotAdapter
     /**
      * Tries to get an offline Bukkit player represented by an {@link IPPlayer}.
      *
-     * @param pPlayer The {@link IPPlayer}.
+     * @param pPlayer
+     *     The {@link IPPlayer}.
      * @return The offline bukkit player.
      */
     public static OfflinePlayer getOfflineBukkitPlayer(IPPlayer pPlayer)
@@ -90,7 +95,8 @@ public final class SpigotAdapter
     /**
      * Gets a Bukkit vector from a BigDoors vector.
      *
-     * @param vector The BigDoors vector.
+     * @param vector
+     *     The BigDoors vector.
      * @return The bukkit vector.
      */
     public static Vector getBukkitVector(Vector3Dd vector)
@@ -101,7 +107,8 @@ public final class SpigotAdapter
     /**
      * Wraps a Bukkit player in an IPPlayer.
      *
-     * @param player The Bukkit player.
+     * @param player
+     *     The Bukkit player.
      * @return The IPPlayer.
      */
     public static IPPlayer wrapPlayer(Player player)
@@ -112,7 +119,8 @@ public final class SpigotAdapter
     /**
      * Wraps an offline Bukkit player in an IPPlayer.
      *
-     * @param player The Bukkit player.
+     * @param player
+     *     The Bukkit player.
      * @return The IPPlayer.
      */
     public static CompletableFuture<Optional<IPPlayer>> wrapPlayer(OfflinePlayer player)
@@ -123,7 +131,8 @@ public final class SpigotAdapter
     /**
      * Wraps a Bukkit location in an IPLocation.
      *
-     * @param location The Bukkit location.
+     * @param location
+     *     The Bukkit location.
      * @return The IPLocation.
      */
     public static IPLocation wrapLocation(Location location)
@@ -134,7 +143,8 @@ public final class SpigotAdapter
     /**
      * Wraps a Bukkit world in an IPWorld.
      *
-     * @param world The Bukkit world.
+     * @param world
+     *     The Bukkit world.
      * @return The IPWorld.
      */
     public static IPWorld wrapWorld(World world)

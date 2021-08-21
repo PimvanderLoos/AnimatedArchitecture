@@ -35,8 +35,10 @@ public final class UpdateManager
     /**
      * Enables or disables update checking and/or downloading.
      *
-     * @param newCheckForUpdates True if update checking should be enabled.
-     * @param newDownloadUpdates True if update downloading should be enabled.
+     * @param newCheckForUpdates
+     *     True if update checking should be enabled.
+     * @param newDownloadUpdates
+     *     True if update downloading should be enabled.
      */
     public void setEnabled(boolean newCheckForUpdates, boolean newDownloadUpdates)
     {

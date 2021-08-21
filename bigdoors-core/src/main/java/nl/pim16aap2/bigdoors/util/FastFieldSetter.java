@@ -9,8 +9,10 @@ import java.lang.reflect.Field;
 /**
  * Uses {@link Unsafe} to quickly copy primitives and objects from one object to another.
  *
- * @param <T> The type of the target object.
- * @param <U> The type of the field to be set.
+ * @param <T>
+ *     The type of the target object.
+ * @param <U>
+ *     The type of the field to be set.
  * @author Pim
  */
 public abstract class FastFieldSetter<T, U>
@@ -55,18 +57,24 @@ public abstract class FastFieldSetter<T, U>
     /**
      * Copies the data from the source to the target from and to the previously defined fields.
      *
-     * @param target The target object.
-     * @param obj    The object to be set in the target object.
+     * @param target
+     *     The target object.
+     * @param obj
+     *     The object to be set in the target object.
      */
     public abstract void copy(T target, U obj);
 
     /**
      * Creates a new {@link FastFieldSetter} for the provided fields.
      *
-     * @param fieldType   The type of the field to be set.
-     * @param targetClass The target class where the value that is to be copied is copied into.
-     * @param nameTarget  The name of the target {@link Field}.
-     * @param <T>         The type of the target class.
+     * @param fieldType
+     *     The type of the field to be set.
+     * @param targetClass
+     *     The target class where the value that is to be copied is copied into.
+     * @param nameTarget
+     *     The name of the target {@link Field}.
+     * @param <T>
+     *     The type of the target class.
      * @return A new {@link FastFieldSetter} for the appropriate type.
      */
     public static <T, U> FastFieldSetter<T, U> of(Class<U> fieldType, Class<T> targetClass, String nameTarget)

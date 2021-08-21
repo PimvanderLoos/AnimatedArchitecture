@@ -115,7 +115,8 @@ class Vector3DUtil
         /**
          * Gets the distance to a point.
          *
-         * @param point The point.
+         * @param point
+         *     The point.
          * @return The distance to the other point.
          */
         @CheckReturnValue
@@ -128,7 +129,8 @@ class Vector3DUtil
         /**
          * Creates a new {@link IPLocation} using the current x/y/z coordinates.
          *
-         * @param world The world in which the {@link IPLocation} will exist.
+         * @param world
+         *     The world in which the {@link IPLocation} will exist.
          * @return A new {@link IPLocation}.
          */
         @CheckReturnValue

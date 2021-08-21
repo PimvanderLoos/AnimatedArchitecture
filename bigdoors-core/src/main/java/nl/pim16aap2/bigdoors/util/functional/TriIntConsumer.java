@@ -12,9 +12,12 @@ public interface TriIntConsumer
     /**
      * Applies this function to the given arguments.
      *
-     * @param x The first function argument.
-     * @param y The second function argument.
-     * @param z The third function argument.
+     * @param x
+     *     The first function argument.
+     * @param y
+     *     The second function argument.
+     * @param z
+     *     The third function argument.
      */
     void accept(int x, int y, int z);
 }

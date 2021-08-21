@@ -39,7 +39,8 @@ public abstract class LogMessage
     /**
      * Formats a message. If it's null or empty, it'll return an empty String.
      *
-     * @param str The message to format.
+     * @param str
+     *     The message to format.
      * @return The formatted message.
      */
     protected static String checkMessage(@Nullable String str)
@@ -74,7 +75,8 @@ public abstract class LogMessage
         /**
          * Converts the stack trace of a {@link Throwable} to a string.
          *
-         * @param throwable The {@link Throwable} whose stack trace to retrieve as String.
+         * @param throwable
+         *     The {@link Throwable} whose stack trace to retrieve as String.
          * @return A string of the stack trace.
          */
         private static String throwableStackTraceToString(Throwable throwable)
@@ -96,10 +98,14 @@ public abstract class LogMessage
         /**
          * Logs a new stack trace.
          *
-         * @param stackTrace The stack trace to log.
-         * @param message    The message to log as the header.
-         * @param logLevel   The level at which to log the resulting message.
-         * @param skip       The number of elements in the stack trace to skip.
+         * @param stackTrace
+         *     The stack trace to log.
+         * @param message
+         *     The message to log as the header.
+         * @param logLevel
+         *     The level at which to log the resulting message.
+         * @param skip
+         *     The number of elements in the stack trace to skip.
          */
         LogMessageStackTrace(StackTraceElement[] stackTrace, String message, Level logLevel, int skip)
         {

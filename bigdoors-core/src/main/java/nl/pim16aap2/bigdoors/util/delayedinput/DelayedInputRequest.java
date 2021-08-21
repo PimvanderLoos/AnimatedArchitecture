@@ -17,7 +17,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Represents a request for delayed input. E.g. by waiting for user input.
  *
- * @param <T> The type of data to request.
+ * @param <T>
+ *     The type of data to request.
  */
 public abstract class DelayedInputRequest<T>
 {
@@ -38,8 +39,10 @@ public abstract class DelayedInputRequest<T>
     /**
      * Instantiates a new {@link DelayedInputRequest}.
      *
-     * @param timeout  The timeout to wait before giving up. Must be larger than 0.
-     * @param timeUnit The unit of time.
+     * @param timeout
+     *     The timeout to wait before giving up. Must be larger than 0.
+     * @param timeUnit
+     *     The unit of time.
      */
     protected DelayedInputRequest(long timeout, TimeUnit timeUnit)
     {
@@ -52,7 +55,8 @@ public abstract class DelayedInputRequest<T>
     /**
      * Instantiates a new {@link DelayedInputRequest}.
      *
-     * @param timeout The amount of time to wait before cancelling the request.
+     * @param timeout
+     *     The amount of time to wait before cancelling the request.
      */
     @SuppressWarnings("unused")
     protected DelayedInputRequest(Duration timeout)
@@ -63,7 +67,8 @@ public abstract class DelayedInputRequest<T>
     /**
      * Instantiates a new {@link DelayedInputRequest}.
      *
-     * @param timeout The timeout (in ms) to wait before giving up. Must be larger than 0.
+     * @param timeout
+     *     The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
     protected DelayedInputRequest(long timeout)
     {
@@ -136,7 +141,8 @@ public abstract class DelayedInputRequest<T>
      * <p>
      * See {@link #completed()}.
      *
-     * @param value The new value.
+     * @param value
+     *     The new value.
      */
     @SuppressWarnings("NullAway")
     public final synchronized void set(@Nullable T value)

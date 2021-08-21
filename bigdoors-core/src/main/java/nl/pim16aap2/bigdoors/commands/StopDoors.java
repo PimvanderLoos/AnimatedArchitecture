@@ -22,7 +22,8 @@ public class StopDoors extends BaseCommand
     /**
      * Runs the {@link StopDoors} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for stopping all active doors.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for stopping all active doors.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

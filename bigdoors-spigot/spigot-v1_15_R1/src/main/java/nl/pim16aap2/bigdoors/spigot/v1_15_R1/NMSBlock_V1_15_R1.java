@@ -61,10 +61,14 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
      * Constructs a {@link NMSBlock_V1_15_R1}. Wraps the NMS block found in the given world at the provided
      * coordinates.
      *
-     * @param pWorld The world the NMS block is in.
-     * @param x      The x coordinate of the NMS block.
-     * @param y      The y coordinate of the NMS block.
-     * @param z      The z coordinate of the NMS block.
+     * @param pWorld
+     *     The world the NMS block is in.
+     * @param x
+     *     The x coordinate of the NMS block.
+     * @param y
+     *     The y coordinate of the NMS block.
+     * @param z
+     *     The z coordinate of the NMS block.
      */
     NMSBlock_V1_15_R1(PWorldSpigot pWorld, int x, int y, int z)
     {
@@ -137,7 +141,8 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Places the block at a given location.
      *
-     * @param loc The location where the block will be placed.
+     * @param loc
+     *     The location where the block will be placed.
      */
     @Override
     @Synchronized("blockDataLock")
@@ -163,8 +168,10 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link Orientable} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd  The {@link Orientable} blockData that will be rotated.
-     * @param dir The {@link RotateDirection} the blockData will be rotated in.
+     * @param bd
+     *     The {@link Orientable} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
     private void rotateOrientable(Orientable bd, RotateDirection dir)
@@ -175,9 +182,12 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link Orientable} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd    The {@link Orientable} blockData that will be rotated.
-     * @param dir   The {@link RotateDirection} the blockData will be rotated in.
-     * @param steps the number of times the blockData will be rotated in the given direction.
+     * @param bd
+     *     The {@link Orientable} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
+     * @param steps
+     *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
     private void rotateOrientable(Orientable bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
@@ -220,8 +230,10 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link Directional} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd  The {@link Directional} blockData that will be rotated.
-     * @param dir The {@link RotateDirection} the blockData will be rotated in.
+     * @param bd
+     *     The {@link Directional} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
     private void rotateDirectional(Directional bd, RotateDirection dir)
@@ -232,9 +244,12 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link Directional} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd    The {@link Directional} blockData that will be rotated.
-     * @param dir   The {@link RotateDirection} the blockData will be rotated in.
-     * @param steps the number of times the blockData will be rotated in the given direction.
+     * @param bd
+     *     The {@link Directional} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
+     * @param steps
+     *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
@@ -257,8 +272,10 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link MultipleFacing} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd  The {@link MultipleFacing} blockData that will be rotated.
-     * @param dir The {@link RotateDirection} the blockData will be rotated in.
+     * @param bd
+     *     The {@link MultipleFacing} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
      */
     @GuardedBy("blockDataLock")
     private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir)
@@ -269,9 +286,12 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     /**
      * Rotates {@link MultipleFacing} blockData in the provided {@link RotateDirection}.
      *
-     * @param bd    The {@link MultipleFacing} blockData that will be rotated.
-     * @param dir   The {@link RotateDirection} the blockData will be rotated in.
-     * @param steps the number of times the blockData will be rotated in the given direction.
+     * @param bd
+     *     The {@link MultipleFacing} blockData that will be rotated.
+     * @param dir
+     *     The {@link RotateDirection} the blockData will be rotated in.
+     * @param steps
+     *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
     private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir,

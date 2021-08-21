@@ -25,7 +25,8 @@ public final class DoorActivityManager extends Restartable
     /**
      * Constructs a new {@link DoorActivityManager}.
      *
-     * @param holder The {@link IRestartableHolder} that manages this object.
+     * @param holder
+     *     The {@link IRestartableHolder} that manages this object.
      */
     public DoorActivityManager(IRestartableHolder holder)
     {
@@ -35,7 +36,8 @@ public final class DoorActivityManager extends Restartable
     /**
      * Checks if a {@link DoorBase} is 'busy', i.e. currently being animated.
      *
-     * @param doorUID The UID of the {@link DoorBase}.
+     * @param doorUID
+     *     The UID of the {@link DoorBase}.
      * @return True if the {@link DoorBase} is busy.
      */
     @SuppressWarnings("unused")
@@ -49,7 +51,8 @@ public final class DoorActivityManager extends Restartable
      * it will be registered now and this method will return <code>true</code>. If it was already registered as busy, it
      * will not touch it and return <code>false</code>.
      *
-     * @param doorUID The UID of the door to register.
+     * @param doorUID
+     *     The UID of the door to register.
      * @return True if the door was not registered before (but is now), otherwise false.
      */
     // The busyDoors map stores the values as optional and here we just want to know if a value exists for the key.
@@ -64,7 +67,8 @@ public final class DoorActivityManager extends Restartable
     /**
      * Register a door as available.
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      */
     public void setDoorAvailable(long doorUID)
     {
@@ -77,8 +81,10 @@ public final class DoorActivityManager extends Restartable
      * The {@link DoorBase} that was being used by the {@link BlockMover} will be registered as inactive and any
      * scheduling that is required will be performed.
      *
-     * @param blockMover      The {@link BlockMover} to postprocess.
-     * @param allowReschedule Whether to allow rescheduling (e.g. autoClose).
+     * @param blockMover
+     *     The {@link BlockMover} to postprocess.
+     * @param allowReschedule
+     *     Whether to allow rescheduling (e.g. autoClose).
      */
     void processFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
     {
@@ -112,7 +118,8 @@ public final class DoorActivityManager extends Restartable
     /**
      * Stores a {@link BlockMover} in the appropriate slot in {@link #busyDoors}
      *
-     * @param mover The {@link BlockMover}.
+     * @param mover
+     *     The {@link BlockMover}.
      */
     public void addBlockMover(BlockMover mover)
     {
@@ -133,7 +140,8 @@ public final class DoorActivityManager extends Restartable
     /**
      * Gets the {@link BlockMover} of a busy {@link DoorBase}, if it has been registered.
      *
-     * @param doorUID The UID of the {@link DoorBase}.
+     * @param doorUID
+     *     The UID of the {@link DoorBase}.
      * @return The {@link BlockMover} of a busy {@link DoorBase}.
      */
     public Optional<BlockMover> getBlockMover(long doorUID)

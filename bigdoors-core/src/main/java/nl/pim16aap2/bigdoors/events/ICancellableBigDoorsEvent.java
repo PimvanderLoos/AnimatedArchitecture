@@ -18,7 +18,8 @@ public interface ICancellableBigDoorsEvent extends IBigDoorsEvent
     /**
      * Sets the cancelled status of this event.
      *
-     * @param status True to cancel the event.
+     * @param status
+     *     True to cancel the event.
      */
     void setCancelled(boolean status);
 }

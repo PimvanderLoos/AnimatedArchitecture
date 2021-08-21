@@ -38,9 +38,12 @@ public final class DoorRegistry extends Restartable
     /**
      * Constructs a new {@link #DoorRegistry}.
      *
-     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
-     * @param initialCapacity  The initial size of the cache to reserve.
-     * @param cacheExpiry      How long to keep stuff in the cache.
+     * @param concurrencyLevel
+     *     The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity
+     *     The initial size of the cache to reserve.
+     * @param cacheExpiry
+     *     How long to keep stuff in the cache.
      */
 //    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
     private DoorRegistry(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
@@ -74,7 +77,8 @@ public final class DoorRegistry extends Restartable
     /**
      * Attempts to get the {@link DoorBase} associated the given UID. It will only search
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      * @return The {@link DoorBase} if it has been retrieved from the database.
      */
     public Optional<AbstractDoor> getRegisteredDoor(long doorUID)
@@ -85,7 +89,8 @@ public final class DoorRegistry extends Restartable
     /**
      * Deletes an {@link DoorBase} from the registry.
      *
-     * @param doorUID The UID of the {@link DoorBase} to delete.
+     * @param doorUID
+     *     The UID of the {@link DoorBase} to delete.
      */
     void deregisterDoor(long doorUID)
     {
@@ -95,7 +100,8 @@ public final class DoorRegistry extends Restartable
     /**
      * Checks if a {@link DoorBase} associated with a given UID has been registered.
      *
-     * @param doorUID The UID of the door.
+     * @param doorUID
+     *     The UID of the door.
      * @return True if an entry exists for the {@link DoorBase} with the given UID.
      */
     @SuppressWarnings("unused")
@@ -108,7 +114,8 @@ public final class DoorRegistry extends Restartable
      * Checks if the exact instance of the provided {@link DoorBase} has been registered. (i.e. it uses '==' to check if
      * the cached entry is the same).
      *
-     * @param doorBase The door.
+     * @param doorBase
+     *     The door.
      * @return True if an entry exists for the exact instance of the provided {@link DoorBase}.
      */
     public boolean isRegistered(IDoor doorBase)
@@ -119,8 +126,8 @@ public final class DoorRegistry extends Restartable
     /**
      * Registers an {@link DoorBase} if it hasn't been registered yet.
      *
-     * @param registrable The {@link AbstractDoor.Registrable} that belongs to the {@link DoorBase} that is to be
-     *                    registered.
+     * @param registrable
+     *     The {@link AbstractDoor.Registrable} that belongs to the {@link DoorBase} that is to be registered.
      * @return True if the door was added successfully (and didn't exist yet).
      */
     public boolean registerDoor(AbstractDoor.Registrable registrable)
@@ -146,9 +153,12 @@ public final class DoorRegistry extends Restartable
     /**
      * (Re)initializes the {@link #doorCache}.
      *
-     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
-     * @param initialCapacity  The initial size of the cache to reserve.
-     * @param cacheExpiry      How long to keep the doors in the cache.
+     * @param concurrencyLevel
+     *     The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity
+     *     The initial size of the cache to reserve.
+     * @param cacheExpiry
+     *     How long to keep the doors in the cache.
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.
@@ -161,9 +171,12 @@ public final class DoorRegistry extends Restartable
     /**
      * (Re)initializes the {@link #doorCache}.
      *
-     * @param concurrencyLevel The concurrency level (see Guava docs) of the cache.
-     * @param initialCapacity  The initial size of the cache to reserve.
-     * @param cacheExpiry      How long to keep the doors in the cache.
+     * @param concurrencyLevel
+     *     The concurrency level (see Guava docs) of the cache.
+     * @param initialCapacity
+     *     The initial size of the cache to reserve.
+     * @param cacheExpiry
+     *     How long to keep the doors in the cache.
      * @return This {@link DoorRegistry}.
      */
     // TODO: Implement these parameters. Once implemented, this should be public.

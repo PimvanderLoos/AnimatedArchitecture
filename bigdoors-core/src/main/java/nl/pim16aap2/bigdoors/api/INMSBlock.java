@@ -19,14 +19,16 @@ public interface INMSBlock
     /**
      * Rotates this block in a provided {@link RotateDirection}.
      *
-     * @param rotDir The {@link RotateDirection} to rotate this block in.
+     * @param rotDir
+     *     The {@link RotateDirection} to rotate this block in.
      */
     void rotateBlock(RotateDirection rotDir);
 
     /**
      * Places the block at a given location.
      *
-     * @param loc The location where the block will be placed.
+     * @param loc
+     *     The location where the block will be placed.
      */
     void putBlock(IPLocation loc);
 

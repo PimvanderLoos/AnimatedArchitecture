@@ -34,10 +34,12 @@ public class RemoveOwner extends DoorTargetCommand
     /**
      * Runs the {@link RemoveOwner} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for removing a co-owner of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which a co-owner is requested
-     *                      to be removed.
-     * @param targetPlayer  The co-owner that is requested to be removed.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for removing a co-owner of the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which a co-owner is requested to be removed.
+     * @param targetPlayer
+     *     The co-owner that is requested to be removed.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
@@ -54,9 +56,11 @@ public class RemoveOwner extends DoorTargetCommand
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer)}.
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
@@ -76,9 +80,11 @@ public class RemoveOwner extends DoorTargetCommand
      * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
      * informed about it.
      *
-     * @param commandSender The {@link ICommandSender} for which to look for an active {@link
-     *                      DelayedCommandInputRequest} that can be fulfilled.
-     * @param targetPlayer  The target player to attempt to remove as co-owner of this door.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to look for an active {@link DelayedCommandInputRequest} that can be
+     *     fulfilled.
+     * @param targetPlayer
+     *     The target player to attempt to remove as co-owner of this door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer)
@@ -94,10 +100,13 @@ public class RemoveOwner extends DoorTargetCommand
      * It processes the new input and executes the command using the previously-provided data (see {@link
      * #runDelayed(ICommandSender, DoorRetriever)}).
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
-     * @param targetPlayer  The target player to attempt to remove as co-owner.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
+     * @param targetPlayer
+     *     The target player to attempt to remove as co-owner.
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,

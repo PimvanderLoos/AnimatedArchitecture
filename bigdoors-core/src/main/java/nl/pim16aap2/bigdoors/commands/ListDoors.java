@@ -32,10 +32,12 @@ public class ListDoors extends BaseCommand
     /**
      * Runs the {@link ListDoors} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for retrieving the information for the doors.
-     *                      <p>
-     *                      This is also the entity that will be informed about the doors that were found.
-     * @param doorRetriever A {@link DoorRetriever} representing any number of {@link DoorBase}s.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for retrieving the information for the doors.
+     *     <p>
+     *     This is also the entity that will be informed about the doors that were found.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing any number of {@link DoorBase}s.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)

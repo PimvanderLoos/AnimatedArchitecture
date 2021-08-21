@@ -86,7 +86,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Constructor of the SQLite driver connection.
      *
-     * @param dbFile The file to store the database in.
+     * @param dbFile
+     *     The file to store the database in.
      */
     public SQLiteJDBCDriverConnection(File dbFile)
     {
@@ -136,8 +137,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Establishes a connection with the database.
      *
-     * @param state    The state from which the connection was requested.
-     * @param readMode The {@link ReadMode} to use for the database.
+     * @param state
+     *     The state from which the connection was requested.
+     * @param readMode
+     *     The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
     private @Nullable Connection getConnection(DatabaseState state, ReadMode readMode)
@@ -168,7 +171,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Establishes a connection with the database, assuming a database state of {@link DatabaseState#OK}.
      *
-     * @param readMode The {@link ReadMode} to use for the database.
+     * @param readMode
+     *     The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
     private @Nullable Connection getConnection(ReadMode readMode)
@@ -182,7 +186,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * implement ALTER TABLE properly??), this method needs to be called now in order to safely modify stuff without
      * having the foreign keys getting fucked up.
      *
-     * @param conn The connection.
+     * @param conn
+     *     The connection.
      */
     @SuppressWarnings("unused")
     private void disableForeignKeys(Connection conn)
@@ -195,7 +200,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * The anti method of {@link #disableForeignKeys(Connection)}. Only needs to be called if that was called first.
      *
-     * @param conn The connection.
+     * @param conn
+     *     The connection.
      */
     @SuppressWarnings("unused")
     private void reEnableForeignKeys(Connection conn)
@@ -491,8 +497,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Gets the ID player in the "players" table. If the player isn't in the database yet, they are added first.
      *
-     * @param conn      The connection to the database.
-     * @param doorOwner The doorOwner with the player to retrieve.
+     * @param conn
+     *     The connection to the database.
+     * @param doorOwner
+     *     The doorOwner with the player to retrieve.
      * @return The database ID of the player.
      */
     private long getPlayerID(Connection conn, DoorOwner doorOwner)
@@ -510,8 +518,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * DoorBase} (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission) and the
      * typeTableName.
      *
-     * @param doorBaseRS The {@link ResultSet} containing a row from the "DoorBase" table as well as a row from the
-     *                   "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     * @param doorBaseRS
+     *     The {@link ResultSet} containing a row from the "DoorBase" table as well as a row from the "DoorOwnerPlayer"
+     *     table and "typeTableName" from the "DoorType" table.
      * @return An instance of a subclass of {@link DoorBase} if it could be created.
      */
     private Optional<AbstractDoor> getDoor(ResultSet doorBaseRS)
@@ -529,8 +538,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * one or more {@link DoorBase}s (as stored in the "DoorBase" table), as well as the owner (name, UUID, permission)
      * and the typeTableName.
      *
-     * @param doorBaseRS The {@link ResultSet} containing one or more rows from the "DoorBase" table as well as matching
-     *                   rows from the "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
+     * @param doorBaseRS
+     *     The {@link ResultSet} containing one or more rows from the "DoorBase" table as well as matching rows from the
+     *     "DoorOwnerPlayer" table and "typeTableName" from the "DoorType" table.
      * @return An optional with a list of {@link DoorBase}s if any could be constructed. If none could be constructed,
      * an empty {@link Optional} is returned instead.
      */
@@ -817,7 +827,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * If the database version is invalid for this version of the database class, an error will be printed and the
      * appropriate {@link #databaseState} will be set.
      *
-     * @param conn A connection to the database.
+     * @param conn
+     *     A connection to the database.
      * @return The version of the database, or -1 if something went wrong.
      */
     private int verifyDatabaseVersion(Connection conn)
@@ -921,7 +932,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Updates the version of the database and sets it to {@link #DATABASE_VERSION}.
      *
-     * @param conn An active connection to the database.
+     * @param conn
+     *     An active connection to the database.
      */
     private void updateDBVersion(Connection conn)
     {
@@ -938,7 +950,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Upgrades the database to V11.
      *
-     * @param conn Opened database connection.
+     * @param conn
+     *     Opened database connection.
      */
     /*
      * Changes in V11:
@@ -971,7 +984,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes an update defined by a {@link PPreparedStatement}.
      *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
      * @return Either the number of rows modified by the update, or -1 if an error occurred.
      */
     private int executeUpdate(PPreparedStatement pPreparedStatement)
@@ -995,8 +1009,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes an update defined by a {@link PPreparedStatement}.
      *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param conn
+     *     A connection to the database.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
      * @return Either the number of rows modified by the update, or -1 if an error occurred.
      */
     private int executeUpdate(Connection conn, PPreparedStatement pPreparedStatement)
@@ -1017,7 +1033,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
      * Statement#RETURN_GENERATED_KEYS}.
      *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
      * @return The generated key index if possible, otherwise -1.
      */
     @SuppressWarnings("unused")
@@ -1043,8 +1060,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * Executes an update defined by a {@link PPreparedStatement} and returns the generated key index. See {@link
      * Statement#RETURN_GENERATED_KEYS}.
      *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
+     * @param conn
+     *     A connection to the database.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
      * @return The generated key index if possible, otherwise -1.
      */
     private int executeUpdateReturnGeneratedKeys(Connection conn, PPreparedStatement pPreparedStatement)
@@ -1072,10 +1091,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
      *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param <T>                The type of the result to return.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
+     * @param fun
+     *     The function to apply to the {@link ResultSet}.
+     * @param fallback
+     *     The value to return in case the result is null or if an error occurred.
+     * @param <T>
+     *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Contract(" _, _, !null -> !null;")
@@ -1102,11 +1125,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes a batched query defined by a {@link PPreparedStatement} and applies a function to the result.
      *
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param readMode           The {@link ReadMode} to use for the database.
-     * @param <T>                The type of the result to return.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
+     * @param fun
+     *     The function to apply to the {@link ResultSet}.
+     * @param fallback
+     *     The value to return in case the result is null or if an error occurred.
+     * @param readMode
+     *     The {@link ReadMode} to use for the database.
+     * @param <T>
+     *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @SuppressWarnings("unused") @Contract(" _, _, !null ,_ -> !null;")
@@ -1137,11 +1165,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes a query defined by a {@link PPreparedStatement} and applies a function to the result.
      *
-     * @param conn               A connection to the database.
-     * @param pPreparedStatement The {@link PPreparedStatement}.
-     * @param fun                The function to apply to the {@link ResultSet}.
-     * @param fallback           The value to return in case the result is null or if an error occurred.
-     * @param <T>                The type of the result to return.
+     * @param conn
+     *     A connection to the database.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement}.
+     * @param fun
+     *     The function to apply to the {@link ResultSet}.
+     * @param fallback
+     *     The value to return in case the result is null or if an error occurred.
+     * @param <T>
+     *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
     @Contract(" _, _, _, !null -> !null")
@@ -1164,10 +1197,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes a {@link CheckedFunction} given an active Connection.
      *
-     * @param fun      The function to execute.
-     * @param fallback The fallback value to return in case of failure.
-     * @param readMode The {@link ReadMode} to use for the database.
-     * @param <T>      The type of the result to return.
+     * @param fun
+     *     The function to execute.
+     * @param fallback
+     *     The fallback value to return in case of failure.
+     * @param readMode
+     *     The {@link ReadMode} to use for the database.
+     * @param <T>
+     *     The type of the result to return.
      * @return The result of the Function.
      */
     @SuppressWarnings("unused") @Contract(" _, !null, _  -> !null")
@@ -1180,11 +1217,16 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Executes a {@link CheckedFunction} given an active Connection.
      *
-     * @param fun           The function to execute.
-     * @param fallback      The fallback value to return in case of failure.
-     * @param failureAction The action to take when an exception is caught.
-     * @param readMode      The {@link ReadMode} to use for the database.
-     * @param <T>           The type of the result to return.
+     * @param fun
+     *     The function to execute.
+     * @param fallback
+     *     The fallback value to return in case of failure.
+     * @param failureAction
+     *     The action to take when an exception is caught.
+     * @param readMode
+     *     The {@link ReadMode} to use for the database.
+     * @param <T>
+     *     The type of the result to return.
      * @return The result of the Function.
      */
     @Contract(" _, !null, _, _ -> !null")
@@ -1217,9 +1259,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * Executes a {@link CheckedFunction} given an active Connection as a transaction. In case an error was caught, it
      * will attempt to roll back to the state before the action was applied.
      *
-     * @param fun      The function to execute.
-     * @param fallback The fallback value to return in case of failure.
-     * @param <T>      The type of the result to return.
+     * @param fun
+     *     The function to execute.
+     * @param fallback
+     *     The fallback value to return in case of failure.
+     * @param <T>
+     *     The type of the result to return.
      * @return The result of the Function.
      */
     @Contract(" _, !null -> !null")
@@ -1238,7 +1283,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Logs a {@link PPreparedStatement} to the logger.
      *
-     * @param pPreparedStatement The {@link PPreparedStatement} to log.
+     * @param pPreparedStatement
+     *     The {@link PPreparedStatement} to log.
      */
     private void logStatement(PPreparedStatement pPreparedStatement)
     {

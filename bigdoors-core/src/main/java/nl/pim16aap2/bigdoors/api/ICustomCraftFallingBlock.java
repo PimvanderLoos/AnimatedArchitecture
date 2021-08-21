@@ -12,9 +12,12 @@ public interface ICustomCraftFallingBlock
     /**
      * Teleports the entity to the provided position.
      *
-     * @param newPosition  The location that the entity will be reported to.
-     * @param rotation     The local rotations of the entity.
-     * @param teleportMode How to handle the teleport.
+     * @param newPosition
+     *     The location that the entity will be reported to.
+     * @param rotation
+     *     The local rotations of the entity.
+     * @param teleportMode
+     *     How to handle the teleport.
      * @return True if the teleport was successful.
      */
     boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode);
@@ -22,8 +25,10 @@ public interface ICustomCraftFallingBlock
     /**
      * Teleports the entity to the provided position.
      *
-     * @param newPosition The location that the entity will be reported to.
-     * @param rotation    The local rotations of the entity.
+     * @param newPosition
+     *     The location that the entity will be reported to.
+     * @param rotation
+     *     The local rotations of the entity.
      * @return True if the teleport was successful.
      */
     default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
@@ -34,7 +39,8 @@ public interface ICustomCraftFallingBlock
     /**
      * Teleports the entity to the provided position.
      *
-     * @param newPosition The location that the entity will be reported to.
+     * @param newPosition
+     *     The location that the entity will be reported to.
      * @return True if the teleport was successful.
      */
     default boolean teleport(Vector3Dd newPosition)
@@ -71,7 +77,8 @@ public interface ICustomCraftFallingBlock
     /**
      * Sets the velocity of the entity.
      *
-     * @param vector The new velocity of the entity.
+     * @param vector
+     *     The new velocity of the entity.
      */
     void setVelocity(Vector3Dd vector);
 

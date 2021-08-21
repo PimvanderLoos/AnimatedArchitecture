@@ -41,8 +41,10 @@ public final class HeadManager extends Restartable
     /**
      * Constructs a new {@link HeadManager}.
      *
-     * @param holder The {@link IRestartableHolder} that manages this object.
-     * @param config The BigDoors configuration.
+     * @param holder
+     *     The {@link IRestartableHolder} that manages this object.
+     * @param config
+     *     The BigDoors configuration.
      */
     private HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
     {
@@ -61,8 +63,10 @@ public final class HeadManager extends Restartable
     /**
      * Initializes the {@link HeadManager}. If it has already been initialized, it'll return that instance instead.
      *
-     * @param holder The {@link IRestartableHolder} that manages this object.
-     * @param config The BigDoors configuration.
+     * @param holder
+     *     The {@link IRestartableHolder} that manages this object.
+     * @param config
+     *     The BigDoors configuration.
      * @return The instance of this {@link HeadManager}.
      */
     public static HeadManager init(IRestartableHolder holder, ConfigLoaderSpigot config)
@@ -84,8 +88,10 @@ public final class HeadManager extends Restartable
      * Requests the ItemStack of a head with the texture of the player's head. This is done asynchronously because it
      * can take quite a bit of time.
      *
-     * @param playerUUID  The {@link UUID} of the player whose head to get.
-     * @param displayName The display name to give assign to the {@link ItemStack}.
+     * @param playerUUID
+     *     The {@link UUID} of the player whose head to get.
+     * @param displayName
+     *     The display name to give assign to the {@link ItemStack}.
      * @return The ItemStack of a head with the texture of the player's head if possible.
      */
     @SuppressWarnings("unused")

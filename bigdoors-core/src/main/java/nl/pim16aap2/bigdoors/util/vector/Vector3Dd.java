@@ -35,9 +35,12 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Adds values to the current values.
      *
-     * @param x The x value to add to the current x value.
-     * @param y The y value to add to the current y value.
-     * @param z The z value to add to the current z value.
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
+     * @param z
+     *     The z value to add to the current z value.
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
@@ -49,7 +52,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Adds another {@link Vector3Dd} to the current values.
      *
-     * @param other The other {@link Vector3Dd} to add to the current one.
+     * @param other
+     *     The other {@link Vector3Dd} to add to the current one.
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -61,7 +65,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Adds another {@link Vector3Di} to the current values.
      *
-     * @param other The other {@link Vector3Di} to add to the current one.
+     * @param other
+     *     The other {@link Vector3Di} to add to the current one.
      * @return A new {@link Vector3Dd} with the added values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -73,7 +78,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Adds a value to both the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param val The value to add to both the x, y, and z values.
+     * @param val
+     *     The value to add to both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value added to the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -86,9 +92,12 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Subtracts values from the current values.
      *
-     * @param x The x value to subtract from the current x value.
-     * @param y The y value to subtract from the current y value.
-     * @param z The z value to subtract from the current z value.
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
+     * @param z
+     *     The z value to subtract from the current z value.
      * @return A new {@link Vector3Dd} with the subtracted values.
      */
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
@@ -100,7 +109,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Subtracts another {@link Vector3Dd} from both the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param other The other {@link Vector3Dd} to subtract from the x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Dd} to subtract from the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -112,7 +122,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Subtracts another {@link Vector3Di} from both the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param other The other {@link Vector3Di} to subtract from the x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Di} to subtract from the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -124,7 +135,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Subtracts a value from both the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param val The value to subtract from both the x, y, and z values.
+     * @param val
+     *     The value to subtract from both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value subtracted from the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -137,9 +149,12 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Multiplies values with the current values.
      *
-     * @param x The x value to multiply with the current x value.
-     * @param y The y value to multiply with the current y value.
-     * @param z The z value to multiply with the current z value.
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
+     * @param z
+     *     The z value to multiply with the current z value.
      * @return A new {@link Vector3Dd} with the multiplied values.
      */
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
@@ -151,7 +166,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Multiplies another {@link Vector3Dd} from with the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param other The other {@link Vector3Dd} to multiply with the x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Dd} to multiply with the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -163,7 +179,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Multiplies another {@link Vector3Di} from with the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param other The other {@link Vector3Di} to multiply with the x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Di} to multiply with the x, y, and z values.
      * @return The new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -175,7 +192,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Multiplies a value with both the x, y, and z values of the current {@link Vector3Dd}.
      *
-     * @param val The value to multiply from both the x, y, and z values.
+     * @param val
+     *     The value to multiply from both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the value multiplied with the values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -187,9 +205,12 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Divides the current values with values.
      *
-     * @param x The x value to use as divisor for the current x value.
-     * @param y The y value to use as divisor for the current y value.
-     * @param z The z value to use as divisor for the current z value.
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
+     * @param z
+     *     The z value to use as divisor for the current z value.
      * @return A new {@link Vector3Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
@@ -202,7 +223,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * Divides the x, y, and z values of the current {@link Vector3Dd} with the x, y, and z values of the provided
      * {@link Vector3Dd}.
      *
-     * @param other The other {@link Vector3Dd} to use as divisor for the current x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Dd} to use as divisor for the current x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -215,7 +237,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * Divides the x, y, and z values of the current {@link Vector3Dd} with the x, y, and z values of the provided
      * {@link Vector3Di}.
      *
-     * @param other The other {@link Vector3Di} to use as divisor for the current x, y, and z values.
+     * @param other
+     *     The other {@link Vector3Di} to use as divisor for the current x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -227,7 +250,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Divides both the x, y, and z values of the current {@link Vector3Dd} with a provided value.
      *
-     * @param val The value to use as divisor for both the x, y, and z values.
+     * @param val
+     *     The value to use as divisor for both the x, y, and z values.
      * @return A new {@link Vector3Dd} with the divided values.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -258,7 +282,8 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
      * Returns a String representation of this 3d vector. The output will be the same as {@link #toString()} with the
      * only difference being that the x/y/z coordinate values will be formatted to a specific number of decimal places.
      *
-     * @param decimals The number of decimals to print for each value.
+     * @param decimals
+     *     The number of decimals to print for each value.
      * @return A String representation of this vector.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)
@@ -271,8 +296,10 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Rotates this point around another point along the x axis.
      *
-     * @param pivotPoint The point around which to rotate this point.
-     * @param radians    How far to rotate this point (in radians).
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -284,8 +311,10 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Rotates this point around another point along the y axis.
      *
-     * @param pivotPoint The point around which to rotate this point.
-     * @param radians    How far to rotate this point (in radians).
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
@@ -297,8 +326,10 @@ public record Vector3Dd(double x, double y, double z) implements Vector3DUtil.IV
     /**
      * Rotates this point around another point along the z axis.
      *
-     * @param pivotPoint The point around which to rotate this point.
-     * @param radians    How far to rotate this point (in radians).
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
      * @return A new {@link Vector3Dd} rotated around the pivot point.
      */
     @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)

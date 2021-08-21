@@ -66,7 +66,8 @@ public final class Procedure
      * <p>
      * If the step could not be found, the procedure will skip to the last step.
      *
-     * @param goalStep The {@link IStep} to jump to.
+     * @param goalStep
+     *     The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
     public boolean skipToStep(IStep goalStep)
@@ -86,7 +87,8 @@ public final class Procedure
     /**
      * Applies some kind of input to the {@link StepExecutor} for the current step.
      *
-     * @param obj The input to apply.
+     * @param obj
+     *     The input to apply.
      * @return True if the application was successful.
      */
     public boolean applyStepExecutor(@Nullable Object obj)

@@ -50,7 +50,8 @@ public final class PLocationSpigot implements IPLocation
      * If the IPWorld object is a PWorldSpigot subclass, the world is retrieved from its member variable. Otherwise its
      * name is used to retrieve it from Bukkit.
      *
-     * @param ipWorld The {@link IPWorld}.
+     * @param ipWorld
+     *     The {@link IPWorld}.
      * @return The Bukkit world, if it could be found.
      */
     @CheckReturnValue @Contract(value = "_ -> new", pure = true)

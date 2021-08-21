@@ -80,7 +80,8 @@ public abstract class ToolUser implements IRestartable
      *
      * @return The list of {@link IStep}s that together will make up the {@link #procedure}.
      *
-     * @throws InstantiationException When a step's factory is incomplete or otherwise invalid.
+     * @throws InstantiationException
+     *     When a step's factory is incomplete or otherwise invalid.
      */
     protected abstract List<IStep> generateSteps()
         throws InstantiationException;
@@ -113,9 +114,12 @@ public abstract class ToolUser implements IRestartable
     /**
      * Adds the BigDoors tool from the player's inventory.
      *
-     * @param nameKey    The localization key of the name of the tool.
-     * @param loreKey    The localization key of the lore of the tool.
-     * @param messageKey The localization key of the message to send to the player after giving them the tool.
+     * @param nameKey
+     *     The localization key of the name of the tool.
+     * @param loreKey
+     *     The localization key of the lore of the tool.
+     * @param messageKey
+     *     The localization key of the message to send to the player after giving them the tool.
      */
     protected final void giveTool(String nameKey, String loreKey, @Nullable String messageKey)
     {
@@ -179,7 +183,8 @@ public abstract class ToolUser implements IRestartable
     /**
      * Applies an input object to the current step in the {@link #procedure}.
      *
-     * @param obj The object to apply.
+     * @param obj
+     *     The object to apply.
      * @return The result of running the step executor on the provided input.
      */
     private boolean applyInput(@Nullable Object obj)
@@ -200,7 +205,8 @@ public abstract class ToolUser implements IRestartable
     /**
      * Handles user input for the given step.
      *
-     * @param obj The input to handle. What actual type is expected depends on the step.
+     * @param obj
+     *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
     public boolean handleInput(@Nullable Object obj)
@@ -258,7 +264,8 @@ public abstract class ToolUser implements IRestartable
      * If the player is not allowed to break blocks in the location, a message will be sent to them (provided the name
      * of the compat isn't empty).
      *
-     * @param loc The location to check.
+     * @param loc
+     *     The location to check.
      * @return True if the player is allowed to break the block at the given location.
      */
     public boolean playerHasAccessToLocation(IPLocation loc)
@@ -283,8 +290,10 @@ public abstract class ToolUser implements IRestartable
      * If the player is not allowed to break one or more blocks in the cuboid, a message will be sent to them. (provided
      * the name of the compat isn't empty).
      *
-     * @param cuboid The cuboid to check.
-     * @param world  The world to check in.
+     * @param cuboid
+     *     The cuboid to check.
+     * @param world
+     *     The world to check in.
      * @return True if the player is allowed to break all blocks inside the cuboid.
      */
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IPWorld world)

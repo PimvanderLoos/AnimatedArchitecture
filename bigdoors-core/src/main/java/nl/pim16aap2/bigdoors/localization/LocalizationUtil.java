@@ -44,10 +44,12 @@ public final class LocalizationUtil
      * <p>
      * If the file does not already exist, it will be created.
      *
-     * @param file The file whose existence to ensure.
+     * @param file
+     *     The file whose existence to ensure.
      * @return The path to the file.
      *
-     * @throws IOException When the file could not be created.
+     * @throws IOException
+     *     When the file could not be created.
      */
     static Path ensureFileExists(Path file)
         throws IOException
@@ -66,8 +68,10 @@ public final class LocalizationUtil
      * <p>
      * Every entry in the list will be printed on its own line.
      *
-     * @param path   The path of the file.
-     * @param append The list of Strings (lines) to append to the file.
+     * @param path
+     *     The path of the file.
+     * @param append
+     *     The list of Strings (lines) to append to the file.
      */
     static void appendToFile(Path path, List<String> append)
     {
@@ -91,8 +95,10 @@ public final class LocalizationUtil
      * <p>
      * A line can be appended when its key does not appear in the list of existing Strings.
      *
-     * @param existing The base list of lines.
-     * @param newLines The set of new lines to try to append to
+     * @param existing
+     *     The base list of lines.
+     * @param newLines
+     *     The set of new lines to try to append to
      * @return A list with all lines from the existing set with any lines from the newLines set added to it where the
      * key did not exist in the existing list yet.
      */
@@ -119,8 +125,8 @@ public final class LocalizationUtil
     /**
      * Gets a set containing all the keys in an input stream.
      *
-     * @param inputStream The input stream to read lines of Strings from. These lines are expected to be of the format
-     *                    "key=value".
+     * @param inputStream
+     *     The input stream to read lines of Strings from. These lines are expected to be of the format "key=value".
      * @return A set with all the keys used in the input stream.
      */
     static Set<String> getKeySet(InputStream inputStream)
@@ -138,7 +144,8 @@ public final class LocalizationUtil
     /**
      * Gets a set containing all the keys in a file.
      *
-     * @param path The path to a file.
+     * @param path
+     *     The path to a file.
      * @return A set with all the keys used in the file.
      */
     static Set<String> getKeySet(Path path)
@@ -159,7 +166,8 @@ public final class LocalizationUtil
     /**
      * Gets a set containing all the keys in a list of strings.
      *
-     * @param lines The lines containing "key=value" mappings.
+     * @param lines
+     *     The lines containing "key=value" mappings.
      * @return A set with all the keys used in the lines.
      */
     static Set<String> getKeySet(List<String> lines)
@@ -177,7 +185,8 @@ public final class LocalizationUtil
     /**
      * Retrieves the key from a String with the format "key=value".
      *
-     * @param line A string containing a key/value pair.
+     * @param line
+     *     A string containing a key/value pair.
      * @return The key as used in the line.
      */
     static @Nullable String getKeyFromLine(String line)
@@ -194,8 +203,10 @@ public final class LocalizationUtil
     /**
      * Reads all lines from an {@link InputStream} and applies a {@link Consumer} for each line.
      *
-     * @param inputStream The input stream to read the data from.
-     * @param fun         The function to apply for each line retrieved from the input stream.
+     * @param inputStream
+     *     The input stream to read the data from.
+     * @param fun
+     *     The function to apply for each line retrieved from the input stream.
      */
     static void readFile(InputStream inputStream, Consumer<String> fun)
     {
@@ -219,7 +230,8 @@ public final class LocalizationUtil
     /**
      * Reads all the lines from an {@link InputStream} and stores each line in a list.
      *
-     * @param inputStream The input stream to read the data from.
+     * @param inputStream
+     *     The input stream to read the data from.
      * @return A list of Strings where every string represents a single line in the provided input stream.
      */
     static List<String> readFile(InputStream inputStream)
@@ -232,8 +244,10 @@ public final class LocalizationUtil
     /**
      * Reads all the lines from a file and stores each line in a list.
      *
-     * @param path The path to the file to read the data from.
-     * @param fun  The function to apply for each line retrieved from the input stream.
+     * @param path
+     *     The path to the file to read the data from.
+     * @param fun
+     *     The function to apply for each line retrieved from the input stream.
      * @return A list of Strings where every string represents a single line in the provided file.
      */
     static void readFile(Path path, Consumer<String> fun)
@@ -254,8 +268,10 @@ public final class LocalizationUtil
     /**
      * Retrieves all the {@link LocaleFile}s in a directory.
      *
-     * @param directory The directory to search in.
-     * @param baseName  The base name of the locale files.
+     * @param directory
+     *     The directory to search in.
+     * @param baseName
+     *     The base name of the locale files.
      * @return A list of {@link LocaleFile}s found in the directory.
      */
     static List<LocaleFile> getLocaleFilesInDirectory(Path directory, @Nullable String baseName)
@@ -273,8 +289,10 @@ public final class LocalizationUtil
     /**
      * Gets a list of {@link LocaleFile}s from a base name and a list of files.
      *
-     * @param baseName The base name of the translation files.
-     * @param files    The list of files to look at.
+     * @param baseName
+     *     The base name of the translation files.
+     * @param files
+     *     The list of files to look at.
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format of
      * "directory/basename[_locale].properties".
      */
@@ -306,8 +324,10 @@ public final class LocalizationUtil
      * <p>
      * The file names should not include any directories.
      *
-     * @param fileSystem The {@link FileSystem} to create the paths on.
-     * @param resources  The list of file names.
+     * @param fileSystem
+     *     The {@link FileSystem} to create the paths on.
+     * @param resources
+     *     The list of file names.
      * @return A list of {@link LocaleFile}s that includes all files that meet the correct naming format:
      * "whatever-filename[_locale].properties".
      */
@@ -327,9 +347,11 @@ public final class LocalizationUtil
     /**
      * Retrieves the locale from a locale file with the format "basename[_locale].properties".
      *
-     * @param baseName The base name of the translation files.
-     * @param fileName The name of the location file. This should only include the name of the file itself and not its
-     *                 parent directories.
+     * @param baseName
+     *     The base name of the translation files.
+     * @param fileName
+     *     The name of the location file. This should only include the name of the file itself and not its parent
+     *     directories.
      * @return The locale as used in the filename.
      */
     static @Nullable String parseLocaleFile(@Nullable String baseName, String fileName)
@@ -356,7 +378,8 @@ public final class LocalizationUtil
     /**
      * Parses the filename of a locale file to extract its locale.
      *
-     * @param fileName The name of a locale file.
+     * @param fileName
+     *     The name of a locale file.
      * @return The locale as extracted from the locale file or null if the file is not a properties file.
      * <p>
      * For example, in the case of a file "Translated_en_US.properties", this method would return "en_US".
@@ -376,11 +399,14 @@ public final class LocalizationUtil
      * <p>
      * Don't forget to close it when you're done!
      *
-     * @param zipFile The zip file for which to create a new FileSystem.
+     * @param zipFile
+     *     The zip file for which to create a new FileSystem.
      * @return The newly created FileSystem.
      *
-     * @throws IOException                      If an I/O error occurs creating the file system.
-     * @throws FileSystemAlreadyExistsException When a FileSystem already exists for the provided file.
+     * @throws IOException
+     *     If an I/O error occurs creating the file system.
+     * @throws FileSystemAlreadyExistsException
+     *     When a FileSystem already exists for the provided file.
      */
     static FileSystem createNewFileSystem(Path zipFile)
         throws IOException, URISyntaxException, ProviderNotFoundException
@@ -391,7 +417,8 @@ public final class LocalizationUtil
     /**
      * Retrieves the filename of the output locale file for a specific locale.
      *
-     * @param locale The locale for which to find the output filename.
+     * @param locale
+     *     The locale for which to find the output filename.
      * @return The filename of the output locale file for the provided locale.
      */
     static String getOutputLocaleFileName(String outputBaseName, String locale)
@@ -437,8 +464,10 @@ public final class LocalizationUtil
     /**
      * Gets the currently-available list of {@link Locale}s as found in the provided zip-file.
      *
-     * @param zipFile  The zip file in which to look for localization files.
-     * @param baseName The base name of the localization files.
+     * @param zipFile
+     *     The zip file in which to look for localization files.
+     * @param baseName
+     *     The base name of the localization files.
      */
     static List<Locale> getLocalesInZip(Path zipFile, String baseName)
     {
@@ -459,7 +488,8 @@ public final class LocalizationUtil
      * <p>
      * If the locale string is empty, the root locale is returned. See {@link Locale#ROOT}.
      *
-     * @param localeStr A String representing a locale.
+     * @param localeStr
+     *     A String representing a locale.
      * @return The decoded Locale.
      */
     public static Locale getLocale(String localeStr)

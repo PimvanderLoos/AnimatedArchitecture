@@ -12,8 +12,7 @@ public interface IDoorPrepareLockChangeEvent extends IDoorEvent, ICancellableBig
     /**
      * The new lock status of the {@link DoorBase} that will be applied if this event is not cancelled.
      *
-     * @return The new lock status of the {@link DoorBase}, where true indicates locked, and false indicates
-     * unlocked.
+     * @return The new lock status of the {@link DoorBase}, where true indicates locked, and false indicates unlocked.
      */
     boolean newLockStatus();
 }

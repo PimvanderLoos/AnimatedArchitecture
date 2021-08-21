@@ -26,7 +26,8 @@ public final class LoginMessageListener implements Listener
     /**
      * Listens to {@link Player}s logging in and sends them the login message.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)

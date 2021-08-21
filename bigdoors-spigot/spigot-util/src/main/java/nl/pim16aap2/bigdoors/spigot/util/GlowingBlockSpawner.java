@@ -75,7 +75,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     /**
      * Registers a new team with a specific color.
      *
-     * @param color The color to register the team for.
+     * @param color
+     *     The color to register the team for.
      */
     private void registerTeam(PColor color, Scoreboard scoreboard)
     {

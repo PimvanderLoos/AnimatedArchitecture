@@ -356,7 +356,8 @@ public enum SQLStatement
     /**
      * Gets the statement this {@link SQLStatement} represents.
      *
-     * @param sqlStatement The {@link SQLStatement}.
+     * @param sqlStatement
+     *     The {@link SQLStatement}.
      * @return The statement this {@link SQLStatement} represents.
      */
     public static String getStatement(SQLStatement sqlStatement)
@@ -367,7 +368,8 @@ public enum SQLStatement
     /**
      * Gets the number of variables in the statement.
      *
-     * @param sqlStatement The statement.
+     * @param sqlStatement
+     *     The statement.
      * @return The number of variables in the statement.
      */
     public static int getVariableCountCount(SQLStatement sqlStatement)
@@ -378,7 +380,8 @@ public enum SQLStatement
     /**
      * Constructs a new {@link PPreparedStatement} from the {@link SQLStatement}.
      *
-     * @param sqlStatement The {@link SQLStatement}.
+     * @param sqlStatement
+     *     The {@link SQLStatement}.
      * @return A new {@link PPreparedStatement}.
      */
     public static PPreparedStatement constructPPreparedStatement(SQLStatement sqlStatement)

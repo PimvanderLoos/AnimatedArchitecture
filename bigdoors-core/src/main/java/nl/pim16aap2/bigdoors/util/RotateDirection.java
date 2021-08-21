@@ -59,7 +59,8 @@ public enum RotateDirection
     /**
      * Gets the index value of a {@link RotateDirection}.
      *
-     * @param dir The {@link RotateDirection}.
+     * @param dir
+     *     The {@link RotateDirection}.
      * @return The index value of a {@link RotateDirection}.
      */
     public static int getValue(RotateDirection dir)
@@ -70,7 +71,8 @@ public enum RotateDirection
     /**
      * Gets the {@link RotateDirection} from an index value.
      *
-     * @param dir The {@link RotateDirection}.
+     * @param dir
+     *     The {@link RotateDirection}.
      * @return The {@link RotateDirection} associated with this index value.
      */
     public static @Nullable RotateDirection valueOf(int dir)
@@ -94,7 +96,8 @@ public enum RotateDirection
      * Get the {@link RotateDirection} that's the exact opposite of the provided one. For example, the opposite side of
      * {@link RotateDirection#UP} is {@link RotateDirection#DOWN}.
      *
-     * @param dir The current {@link RotateDirection}
+     * @param dir
+     *     The current {@link RotateDirection}
      * @return The opposite direction of the current {@link RotateDirection}.
      */
     public static RotateDirection getOpposite(RotateDirection dir)

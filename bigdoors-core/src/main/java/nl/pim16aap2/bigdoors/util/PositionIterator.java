@@ -28,11 +28,14 @@ public class PositionIterator implements Iterable<Vector3Di>
      * the ending values are the last result. If the starting and ending values are the same, there will be a single
      * result.
      *
-     * @param posA          The starting values.
-     * @param posB          The ending values.
-     * @param iterationMode The mode of iteration.
-     * @param volume        The total number of blocks between posA and posB (inclusive). Do not use this if you do not
-     *                      know this.
+     * @param posA
+     *     The starting values.
+     * @param posB
+     *     The ending values.
+     * @param iterationMode
+     *     The mode of iteration.
+     * @param volume
+     *     The total number of blocks between posA and posB (inclusive). Do not use this if you do not know this.
      */
     public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode, int volume)
     {
@@ -52,9 +55,12 @@ public class PositionIterator implements Iterable<Vector3Di>
      * the ending values are the last result. If the starting and ending values are the same, there will be a single
      * result.
      *
-     * @param posA          The starting values.
-     * @param posB          The ending values.
-     * @param iterationMode The mode of iteration.
+     * @param posA
+     *     The starting values.
+     * @param posB
+     *     The ending values.
+     * @param iterationMode
+     *     The mode of iteration.
      */
     public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode)
     {
@@ -66,9 +72,10 @@ public class PositionIterator implements Iterable<Vector3Di>
      * the ending values are the last result. If the starting and ending values are the same, there will be a single
      * result.
      *
-     * @param cuboid        The {@link Cuboid} to iterate over, from {@link Cuboid#getMin()} to {@link
-     *                      Cuboid#getMax()}.
-     * @param iterationMode The mode of iteration.
+     * @param cuboid
+     *     The {@link Cuboid} to iterate over, from {@link Cuboid#getMin()} to {@link Cuboid#getMax()}.
+     * @param iterationMode
+     *     The mode of iteration.
      */
     public PositionIterator(Cuboid cuboid, IterationMode iterationMode)
     {
@@ -90,7 +97,8 @@ public class PositionIterator implements Iterable<Vector3Di>
      * Works similar to {@link #forEach(Consumer)}, but with the exception that each step will be applied without
      * constructing a new {@link Vector3Di}.
      *
-     * @param action The method to apply for each step.
+     * @param action
+     *     The method to apply for each step.
      */
     public void forEach(TriIntConsumer action)
     {
@@ -129,7 +137,8 @@ public class PositionIterator implements Iterable<Vector3Di>
         /**
          * Gets the increment supplier for a specified {@link #PositionIterator ::Axis}.
          *
-         * @param axis The {@link #PositionIterator ::Axis}.
+         * @param axis
+         *     The {@link #PositionIterator ::Axis}.
          * @return The supplier that increments an {@link #PositionIterator ::Axis}.
          */
         @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
@@ -197,7 +206,8 @@ public class PositionIterator implements Iterable<Vector3Di>
         /**
          * Gets the reset runnable for a specified {@link #PositionIterator ::Axis}.
          *
-         * @param axis The {@link #PositionIterator ::Axis}.
+         * @param axis
+         *     The {@link #PositionIterator ::Axis}.
          * @return The runnable that increments an {@link #PositionIterator ::Axis}.
          */
         @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289

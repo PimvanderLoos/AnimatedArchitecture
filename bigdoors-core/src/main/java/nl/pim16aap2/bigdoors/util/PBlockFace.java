@@ -52,7 +52,8 @@ public enum PBlockFace
      * Get the {@link PBlockFace} that's the exact opposite of the provided one. For example, the opposite side of
      * {@link PBlockFace#UP} is {@link PBlockFace#DOWN}.
      *
-     * @param dir The current {@link PBlockFace}
+     * @param dir
+     *     The current {@link PBlockFace}
      * @return The opposite direction of the current {@link PBlockFace}.
      */
     @SuppressWarnings("unused")
@@ -81,7 +82,8 @@ public enum PBlockFace
     /**
      * Gets the integer value of a {@link PBlockFace}.
      *
-     * @param dir The {@link PBlockFace}.
+     * @param dir
+     *     The {@link PBlockFace}.
      * @return The integer value of a {@link PBlockFace}.
      */
     public static int getValue(PBlockFace dir)
@@ -99,7 +101,8 @@ public enum PBlockFace
     /**
      * Get the {@link PBlockFace#directionVector} of this {@link PBlockFace}
      *
-     * @param myFace The direction.
+     * @param myFace
+     *     The direction.
      * @return The vector of the direction.
      */
     public static Vector3Di getDirection(PBlockFace myFace)
@@ -111,7 +114,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in clockwise direction from a perspective of looking down on the world. For
      * example, {@link PBlockFace#NORTH} would return {@link PBlockFace#EAST}.
      *
-     * @param myFace The current {@link PBlockFace}.
+     * @param myFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     @SuppressWarnings("DuplicatedCode") // It's actually different from rotating counterclockwise...
@@ -136,7 +140,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in counter clockwise direction from a perspective of looking down on the world. For
      * example, {@link PBlockFace#NORTH} would return {@link PBlockFace#WEST}.
      *
-     * @param myFace The current {@link PBlockFace}.
+     * @param myFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     @SuppressWarnings("DuplicatedCode") // It's actually different from rotating clockwise...
@@ -161,7 +166,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in northern direction on the vertical plane. For example, {@link PBlockFace#UP}
      * would return {@link PBlockFace#NORTH} and {@link PBlockFace#NORTH} would return {@link PBlockFace#DOWN}.
      *
-     * @param curFace The current {@link PBlockFace}.
+     * @param curFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     public static PBlockFace rotateVerticallyNorth(PBlockFace curFace)
@@ -186,7 +192,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in southern direction on the vertical plane. For example, {@link PBlockFace#UP}
      * would return {@link PBlockFace#SOUTH} and {@link PBlockFace#SOUTH} would return {@link PBlockFace#DOWN}.
      *
-     * @param curFace The current {@link PBlockFace}.
+     * @param curFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     public static PBlockFace rotateVerticallySouth(PBlockFace curFace)
@@ -211,7 +218,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in eastern direction on the vertical plane. For example, {@link PBlockFace#UP}
      * would return {@link PBlockFace#EAST} and {@link PBlockFace#EAST} would return {@link PBlockFace#DOWN}.
      *
-     * @param curFace The current {@link PBlockFace}.
+     * @param curFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     public static PBlockFace rotateVerticallyEast(PBlockFace curFace)
@@ -236,7 +244,8 @@ public enum PBlockFace
      * Rotate the {@link PBlockFace} in western direction on the vertical plane. For example, {@link PBlockFace#UP}
      * would return {@link PBlockFace#WEST} and {@link PBlockFace#WEST} would return {@link PBlockFace#DOWN}.
      *
-     * @param curFace The current {@link PBlockFace}.
+     * @param curFace
+     *     The current {@link PBlockFace}.
      * @return The rotated {@link PBlockFace}.
      */
     public static PBlockFace rotateVerticallyWest(PBlockFace curFace)
@@ -260,7 +269,8 @@ public enum PBlockFace
     /**
      * Get the blockFace from a {@link PBlockFace#directionVector} value.
      *
-     * @param dir The {@link PBlockFace#directionVector}.
+     * @param dir
+     *     The {@link PBlockFace#directionVector}.
      * @return The {@link PBlockFace} associated with this {@link PBlockFace#directionVector}.
      */
     @SuppressWarnings("unused")
@@ -272,7 +282,8 @@ public enum PBlockFace
     /**
      * Get the appropriate function for rotating a BlockFace. Different rotation directions use different methods.
      *
-     * @param rotDir The {@link RotateDirection} to rotate in.
+     * @param rotDir
+     *     The {@link RotateDirection} to rotate in.
      * @return The appropriate function for rotating the {@link PBlockFace} in the given direction.
      */
     // TODO: OPTIONAL
@@ -301,9 +312,12 @@ public enum PBlockFace
     /**
      * Rotate a PBlockFace in a given direction for a number of steps.
      *
-     * @param pbf   The {@link PBlockFace} that will be rotated.
-     * @param steps The number of times to apply the rotation.
-     * @param dir   The function the applies the rotation.
+     * @param pbf
+     *     The {@link PBlockFace} that will be rotated.
+     * @param steps
+     *     The number of times to apply the rotation.
+     * @param dir
+     *     The function the applies the rotation.
      * @return The rotated {@link PBlockFace}.
      *
      * @see PBlockFace#getDirFun

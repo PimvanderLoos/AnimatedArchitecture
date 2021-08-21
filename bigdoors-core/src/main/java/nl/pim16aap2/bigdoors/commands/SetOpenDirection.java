@@ -34,10 +34,12 @@ public class SetOpenDirection extends DoorTargetCommand
     /**
      * Runs the {@link SetOpenDirection} command.
      *
-     * @param commandSender   The {@link ICommandSender} responsible for changing open direction of the door.
-     * @param doorRetriever   A {@link DoorRetriever} representing the {@link DoorBase} for which the open direction
-     *                        will be modified.
-     * @param rotateDirection The new open direction.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for changing open direction of the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the open direction will be modified.
+     * @param rotateDirection
+     *     The new open direction.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
@@ -76,9 +78,11 @@ public class SetOpenDirection extends DoorTargetCommand
      * <p>
      * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, RotateDirection)}.
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
@@ -99,9 +103,11 @@ public class SetOpenDirection extends DoorTargetCommand
      * If no active {@link DelayedCommandInputRequest} can be found for the command sender, the command sender will be
      * informed about it.
      *
-     * @param commandSender The {@link ICommandSender} for which to look for an active {@link
-     *                      DelayedCommandInputRequest} that can be fulfilled.
-     * @param openDir       The new open direction for the door.
+     * @param commandSender
+     *     The {@link ICommandSender} for which to look for an active {@link DelayedCommandInputRequest} that can be
+     *     fulfilled.
+     * @param openDir
+     *     The new open direction for the door.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, RotateDirection openDir)
@@ -117,10 +123,13 @@ public class SetOpenDirection extends DoorTargetCommand
      * It processes the new input and executes the command using the previously-provided data (see {@link
      * #runDelayed(ICommandSender, DoorRetriever)}).
      *
-     * @param commandSender The entity that sent the command and is held responsible (i.e. permissions, communication)
-     *                      for its execution.
-     * @param doorRetriever A {@link DoorRetriever} that references the target door.
-     * @param openDir       The new open direction for the door.
+     * @param commandSender
+     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
+     *     execution.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} that references the target door.
+     * @param openDir
+     *     The new open direction for the door.
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,

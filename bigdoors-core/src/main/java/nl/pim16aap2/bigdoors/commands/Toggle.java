@@ -40,16 +40,19 @@ public class Toggle extends BaseCommand
     /**
      * Runs the {@link Toggle} command.
      *
-     * @param commandSender   The {@link ICommandSender} to hold responsible for the toggle action.
-     * @param doorActionType  The type of action to apply.
-     *                        <p>
-     *                        For example, when {@link DoorActionType#OPEN} is used, the door can only be toggled if it
-     *                        is possible to open it (in most cases that would mean that it is currently closed).
-     *                        <p>
-     *                        {@link DoorActionType#TOGGLE}, however, is possible regardless of its current open/close
-     *                        status.
-     * @param speedMultiplier The speed multiplier to apply to the animation.
-     * @param doorRetrievers  The door(s) to toggle.
+     * @param commandSender
+     *     The {@link ICommandSender} to hold responsible for the toggle action.
+     * @param doorActionType
+     *     The type of action to apply.
+     *     <p>
+     *     For example, when {@link DoorActionType#OPEN} is used, the door can only be toggled if it is possible to open
+     *     it (in most cases that would mean that it is currently closed).
+     *     <p>
+     *     {@link DoorActionType#TOGGLE}, however, is possible regardless of its current open/close status.
+     * @param speedMultiplier
+     *     The speed multiplier to apply to the animation.
+     * @param doorRetrievers
+     *     The door(s) to toggle.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorActionType doorActionType,
@@ -114,7 +117,8 @@ public class Toggle extends BaseCommand
      * For example, if the action is {@link DoorActionType#CLOSE} and the door is already closed, the action is not
      * possible.
      *
-     * @param door The door for which to check whether it can be toggled.
+     * @param door
+     *     The door for which to check whether it can be toggled.
      * @return True if the toggle action is possible, otherwise false.
      */
     protected final boolean canToggle(AbstractDoor door)

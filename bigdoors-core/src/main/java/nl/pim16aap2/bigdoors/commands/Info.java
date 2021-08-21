@@ -26,10 +26,11 @@ public class Info extends DoorTargetCommand
     /**
      * Runs the {@link Info} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for retrieving the door info and the receiver of the
-     *                      door's information.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be
-     *                      retrieved.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for retrieving the door info and the receiver of the door's
+     *     information.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be retrieved.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)

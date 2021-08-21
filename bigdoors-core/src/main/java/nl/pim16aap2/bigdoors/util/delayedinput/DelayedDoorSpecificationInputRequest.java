@@ -46,11 +46,14 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
      * <p>
      * Note that this will block the current thread until either one of the exit conditions is met.
      *
-     * @param timeout The amount of time to give the user to provide the input.
-     *                <p>
-     *                If the user fails to provide input within this timeout window, an empty result will be returned.
-     * @param options The list of options they can choose from.
-     * @param player  The player that is asked to make a choice.
+     * @param timeout
+     *     The amount of time to give the user to provide the input.
+     *     <p>
+     *     If the user fails to provide input within this timeout window, an empty result will be returned.
+     * @param options
+     *     The list of options they can choose from.
+     * @param player
+     *     The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
     public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,

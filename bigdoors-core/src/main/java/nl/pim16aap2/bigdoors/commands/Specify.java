@@ -28,9 +28,11 @@ public class Specify extends BaseCommand
     /**
      * Runs the {@link Specify} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible specifying a door.
-     * @param name          The name/index that specifies a door based on the {@link DelayedInputRequest} for the
-     *                      command sender as registered by the {@link DoorSpecificationManager}.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible specifying a door.
+     * @param name
+     *     The name/index that specifies a door based on the {@link DelayedInputRequest} for the command sender as
+     *     registered by the {@link DoorSpecificationManager}.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, String name)

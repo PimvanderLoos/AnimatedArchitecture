@@ -70,7 +70,8 @@ public final class LocalizationManager extends Restartable implements ILocalizat
      * Applies the user-defined patches to the {@link #patchGenerator}. If the {@link #patchGenerator} does not exist
      * yet, a new one will be created.
      *
-     * @throws IOException When an I/O error occurred.
+     * @throws IOException
+     *     When an I/O error occurred.
      */
     synchronized void applyPatches()
     {
