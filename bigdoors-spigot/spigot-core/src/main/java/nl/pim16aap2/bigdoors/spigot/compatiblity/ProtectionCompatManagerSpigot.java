@@ -45,7 +45,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
      *
-     * @param plugin The instance of {@link BigDoorsSpigot}.
+     * @param plugin
+     *     The instance of {@link BigDoorsSpigot}.
      */
     private ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
     {
@@ -70,7 +71,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * Initializes the {@link ProtectionCompatManagerSpigot}. If it has already been initialized, it'll return that
      * instance instead.
      *
-     * @param plugin The Spigot plugin.
+     * @param plugin
+     *     The Spigot plugin.
      * @return The instance of this {@link ProtectionCompatManagerSpigot}.
      */
     public static ProtectionCompatManagerSpigot init(BigDoorsSpigot plugin)
@@ -115,7 +117,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * Check if a player is allowed to bypass the compatibility checks. Players can bypass the check if they are OP or
      * if they have the {@link Constants#COMPAT_BYPASS_PERMISSION} permission node.
      *
-     * @param player The {@link Player} to check the permissions for.
+     * @param player
+     *     The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
      */
     private boolean canByPass(Player player)
@@ -133,8 +136,10 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * Get an online player from a player {@link UUID} in a given world. If the player with the given UUID is not
      * online, a fake-online player is created.
      *
-     * @param player The {@link IPPlayer}.
-     * @param world  The {@link World} the player is in.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param world
+     *     The {@link World} the player is in.
      * @return An online {@link Player}. Either fake or real.
      *
      * @see FakePlayerCreator
@@ -220,7 +225,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /**
      * Check if an {@link IProtectionCompat} is already loaded.
      *
-     * @param compatClass The class of the {@link IProtectionCompat} to check.
+     * @param compatClass
+     *     The class of the {@link IProtectionCompat} to check.
      * @return True if the compat has already been loaded.
      */
     private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
@@ -234,7 +240,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /**
      * Add a {@link IProtectionCompat} to the list of loaded compats if it loaded successfully.
      *
-     * @param hook The compat to add.
+     * @param hook
+     *     The compat to add.
      */
     private void addProtectionCompat(IProtectionCompat hook)
     {
@@ -250,7 +257,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /**
      * Load a compat for the plugin enabled in the event if needed.
      *
-     * @param event The event of the plugin that is loaded.
+     * @param event
+     *     The event of the plugin that is loaded.
      */
     @SuppressWarnings("unused")
     @EventHandler
@@ -262,7 +270,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     /**
      * Load a compat for a plugin with a given name if allowed and possible.
      *
-     * @param compatName The name of the plugin to load a compat for.
+     * @param compatName
+     *     The name of the plugin to load a compat for.
      */
     private void loadFromPluginName(String compatName)
     {

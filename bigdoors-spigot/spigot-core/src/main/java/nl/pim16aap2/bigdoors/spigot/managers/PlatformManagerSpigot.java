@@ -60,7 +60,8 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     /**
      * Initializes the correct platform.
      *
-     * @param bigDoorsSpigot The {@link BigDoorsSpigot} instance.
+     * @param bigDoorsSpigot
+     *     The {@link BigDoorsSpigot} instance.
      * @return True if a valid platform was found for the current version.
      */
     public boolean initPlatform(BigDoorsSpigot bigDoorsSpigot)

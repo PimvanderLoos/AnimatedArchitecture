@@ -276,7 +276,8 @@ public class SQLiteJDBCDriverConnectionTest
     /**
      * Checks if a door was successfully added to the database and that all data in intact.
      *
-     * @param door The door to verify.
+     * @param door
+     *     The door to verify.
      */
     private void testRetrieval(AbstractDoor door)
     {

@@ -10,7 +10,8 @@ public interface ITimerToggleable
     /**
      * Changes the autoCloseTimer value. See {@link #getAutoCloseTime()}.
      *
-     * @param newValue The new value of the autoCloseTimer (in seconds).
+     * @param newValue
+     *     The new value of the autoCloseTimer (in seconds).
      */
     void setAutoCloseTime(int newValue);
 
@@ -25,7 +26,8 @@ public interface ITimerToggleable
     /**
      * Changes the autoCloseTimer value. See {@link #getAutoOpenTime()}.
      *
-     * @param newValue The new value of the autoOpenTimer.
+     * @param newValue
+     *     The new value of the autoOpenTimer.
      */
     void setAutoOpenTime(int newValue);
 

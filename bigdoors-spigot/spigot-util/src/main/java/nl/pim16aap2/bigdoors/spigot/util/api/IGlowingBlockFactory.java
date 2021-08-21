@@ -12,10 +12,13 @@ public interface IGlowingBlockFactory
     /**
      * Spawns a glowing block.
      *
-     * @param player            The player who will see the glowing block.
-     * @param world             The world in which the glowing block will be spawned.
-     * @param restartableHolder The {@link IRestartableHolder} where the resulting {@link IGlowingBlock} will be
-     *                          (de)registered when it is (de)spawned.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned.
+     * @param restartableHolder
+     *     The {@link IRestartableHolder} where the resulting {@link IGlowingBlock} will be (de)registered when it is
+     *     (de)spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     Optional<IGlowingBlock> createGlowingBlock(Player player, World world,

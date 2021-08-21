@@ -22,8 +22,9 @@ public class Version extends BaseCommand
     /**
      * Runs the {@link Version} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for executing the command and the target for sending
-     *                      the message containing the current version.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for executing the command and the target for sending the message
+     *     containing the current version.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

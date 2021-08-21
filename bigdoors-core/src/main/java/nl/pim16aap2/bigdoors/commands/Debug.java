@@ -24,7 +24,8 @@ public class Debug extends BaseCommand
     /**
      * Runs the {@link Debug} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for the execution of this command.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for the execution of this command.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

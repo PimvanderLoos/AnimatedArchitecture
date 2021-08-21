@@ -64,7 +64,8 @@ public final class BigDoors extends RestartableHolder
     /**
      * Sets the platform implementing BigDoor's internal API.
      *
-     * @param platform The platform implementing BigDoor's internal API.
+     * @param platform
+     *     The platform implementing BigDoor's internal API.
      */
     public void setBigDoorsPlatform(IBigDoorsPlatform platform)
     {

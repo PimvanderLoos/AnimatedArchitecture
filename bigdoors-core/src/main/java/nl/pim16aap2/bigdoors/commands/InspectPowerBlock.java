@@ -26,10 +26,11 @@ public class InspectPowerBlock extends BaseCommand
     /**
      * Runs the {@link InspectPowerBlock} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for inspecting the powerblocks.
-     *                      <p>
-     *                      They can only discover {@link DoorBase}s attached to specific locations if they both have
-     *                      access to the specific location and access to the specific door(s).
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for inspecting the powerblocks.
+     *     <p>
+     *     They can only discover {@link DoorBase}s attached to specific locations if they both have access to the
+     *     specific location and access to the specific door(s).
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender)

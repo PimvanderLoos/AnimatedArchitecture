@@ -31,12 +31,15 @@ public class NewDoor extends BaseCommand
     /**
      * Runs the {@link NewDoor} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for creating a new door.
-     * @param doorType      The type of door that will be created.
-     * @param doorName      The name of the door, if it has been specified already.
-     *                      <p>
-     *                      When this is null, the creator will start at the first step (specifying the name). If it has
-     *                      been specified, this step will be skipped.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for creating a new door.
+     * @param doorType
+     *     The type of door that will be created.
+     * @param doorName
+     *     The name of the door, if it has been specified already.
+     *     <p>
+     *     When this is null, the creator will start at the first step (specifying the name). If it has been specified,
+     *     this step will be skipped.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorType doorType,

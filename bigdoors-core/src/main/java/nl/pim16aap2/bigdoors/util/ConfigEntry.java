@@ -24,12 +24,18 @@ public final class ConfigEntry<V>
     /**
      * ConfigEntry Constructor.
      *
-     * @param logger       The logger to use for exception reporting.
-     * @param config       The config file to read from.
-     * @param optionName   The name of this option as used in the config file.
-     * @param defaultValue The default value of this option.
-     * @param comment      The comment that will precede this option.
-     * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
+     * @param logger
+     *     The logger to use for exception reporting.
+     * @param config
+     *     The config file to read from.
+     * @param optionName
+     *     The name of this option as used in the config file.
+     * @param defaultValue
+     *     The default value of this option.
+     * @param comment
+     *     The comment that will precede this option.
+     * @param verifyValue
+     *     Function to use to verify the validity of a value and change it if necessary.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
                        String @Nullable [] comment, @Nullable ConfigEntry.TestValue<V> verifyValue)
@@ -46,11 +52,16 @@ public final class ConfigEntry<V>
     /**
      * ConfigEntry Constructor.
      *
-     * @param logger       The logger to use for exception reporting.
-     * @param config       The config file to read from.
-     * @param optionName   The name of this option as used in the config file.
-     * @param defaultValue The default value of this option.
-     * @param comment      The comment that will precede this option.
+     * @param logger
+     *     The logger to use for exception reporting.
+     * @param config
+     *     The config file to read from.
+     * @param optionName
+     *     The name of this option as used in the config file.
+     * @param defaultValue
+     *     The default value of this option.
+     * @param comment
+     *     The comment that will precede this option.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
                        String @Nullable [] comment)
@@ -135,7 +146,8 @@ public final class ConfigEntry<V>
     /**
      * Interface that can be used to verify config values.
      *
-     * @param <T> The type of the value.
+     * @param <T>
+     *     The type of the value.
      * @author Pim
      */
     public interface TestValue<T>
@@ -146,7 +158,8 @@ public final class ConfigEntry<V>
          * <p>
          * For example to check if a value doesn't exceed a certain threshold.
          *
-         * @param value The value to check.
+         * @param value
+         *     The value to check.
          * @return The value if it was valid, otherwise the value made valid.
          */
         T test(T value);

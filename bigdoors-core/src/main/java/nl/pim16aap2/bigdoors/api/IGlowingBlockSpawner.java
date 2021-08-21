@@ -18,15 +18,23 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param world    The world in which the glowing block will be spawned
-     * @param time     How long the glowing block will be visible.
-     * @param timeUnit The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest
-     *                 value possible! Any values less than that will mean nothing is spawned.
-     * @param x        The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param y        The y-coordinate of the glowing block.
-     * @param z        The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param color    The color of the outline.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned
+     * @param time
+     *     How long the glowing block will be visible.
+     * @param timeUnit
+     *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
+     *     Any values less than that will mean nothing is spawned.
+     * @param x
+     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param y
+     *     The y-coordinate of the glowing block.
+     * @param z
+     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param color
+     *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
@@ -35,13 +43,20 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player The player who will see the glowing block.
-     * @param world  The world in which the glowing block will be spawned
-     * @param time   How long the glowing block will be visible (in seconds).
-     * @param x      The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param y      The y-coordinate of the glowing block.
-     * @param z      The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param color  The color of the outline.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param x
+     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param y
+     *     The y-coordinate of the glowing block.
+     * @param z
+     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param color
+     *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time,
@@ -53,14 +68,21 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param world    The world in which the glowing block will be spawned
-     * @param time     How long the glowing block will be visible.
-     * @param timeUnit The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest
-     *                 value possible! Any values less than that will mean nothing is spawned.
-     * @param x        The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param y        The y-coordinate of the glowing block.
-     * @param z        The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned
+     * @param time
+     *     How long the glowing block will be visible.
+     * @param timeUnit
+     *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
+     *     Any values less than that will mean nothing is spawned.
+     * @param x
+     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param y
+     *     The y-coordinate of the glowing block.
+     * @param z
+     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
@@ -72,12 +94,18 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player The player who will see the glowing block.
-     * @param world  The world in which the glowing block will be spawned
-     * @param time   How long the glowing block will be visible (in seconds).
-     * @param x      The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
-     * @param y      The y-coordinate of the glowing block.
-     * @param z      The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param world
+     *     The world in which the glowing block will be spawned
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param x
+     *     The x-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
+     * @param y
+     *     The y-coordinate of the glowing block.
+     * @param z
+     *     The z-coordinate of the glowing block. An offset of 0.5 is applied to make it align by default.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time,
@@ -89,11 +117,15 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param time     How long the glowing block will be visible (in seconds).
-     * @param timeUnit The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest
-     *                 value possible! Any values less than that will mean nothing is spawned.
-     * @param location The location where the glowing block will be spawned.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param timeUnit
+     *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
+     *     Any values less than that will mean nothing is spawned.
+     * @param location
+     *     The location where the glowing block will be spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, TimeUnit timeUnit, IPLocation location)
@@ -105,9 +137,12 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param time     How long the glowing block will be visible (in seconds).
-     * @param location The location where the glowing block will be spawned.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param location
+     *     The location where the glowing block will be spawned.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, IPLocation location)
@@ -118,8 +153,10 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns the glowing blocks required to highlight a door.
      *
-     * @param doorBase The door to highlight.
-     * @param player   The {@link IPPlayer} for whom to highlight the door.
+     * @param doorBase
+     *     The door to highlight.
+     * @param player
+     *     The {@link IPPlayer} for whom to highlight the door.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
     default List<IGlowingBlock> spawnGlowingBlocks(AbstractDoor doorBase, IPPlayer player)
@@ -141,12 +178,17 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param location The location where the glowing block will be spawned.
-     * @param time     How long the glowing block will be visible (in seconds).
-     * @param timeUnit The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest
-     *                 value possible! Any values less than that will mean nothing is spawned.
-     * @param color    The color of the outline.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param location
+     *     The location where the glowing block will be spawned.
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param timeUnit
+     *     The unit of the <code>time</code>. Note that one tick is 50ms, so that is the absolute lowest value possible!
+     *     Any values less than that will mean nothing is spawned.
+     * @param color
+     *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, TimeUnit timeUnit,
@@ -159,10 +201,14 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns a glowing block.
      *
-     * @param player   The player who will see the glowing block.
-     * @param location The location where the glowing block will be spawned.
-     * @param time     How long the glowing block will be visible (in seconds).
-     * @param color    The color of the outline.
+     * @param player
+     *     The player who will see the glowing block.
+     * @param location
+     *     The location where the glowing block will be spawned.
+     * @param time
+     *     How long the glowing block will be visible (in seconds).
+     * @param color
+     *     The color of the outline.
      * @return The {@link IGlowingBlock} that was spawned.
      */
     default Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, int time, IPLocation location, PColor color)

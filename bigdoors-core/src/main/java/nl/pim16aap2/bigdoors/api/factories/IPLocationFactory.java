@@ -15,10 +15,14 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param world The world.
-     * @param x     The x coordinate.
-     * @param y     The y coordinate.
-     * @param z     The z coordinate.
+     * @param world
+     *     The world.
+     * @param x
+     *     The x coordinate.
+     * @param y
+     *     The y coordinate.
+     * @param z
+     *     The z coordinate.
      * @return A new IPLocation object.
      */
     IPLocation create(IPWorld world, double x, double y, double z);
@@ -26,8 +30,10 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param world    The world.
-     * @param position The position in the world
+     * @param world
+     *     The world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
     IPLocation create(IPWorld world, Vector3Di position);
@@ -35,8 +41,10 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param world    The world.
-     * @param position The position in the world
+     * @param world
+     *     The world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
     IPLocation create(IPWorld world, Vector3Dd position);
@@ -44,10 +52,14 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param x         The x coordinate.
-     * @param y         The y coordinate.
-     * @param z         The z coordinate.
+     * @param worldName
+     *     The name of the world.
+     * @param x
+     *     The x coordinate.
+     * @param y
+     *     The y coordinate.
+     * @param z
+     *     The z coordinate.
      * @return A new IPLocation object.
      */
     IPLocation create(String worldName, double x, double y, double z);
@@ -55,8 +67,10 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param position  The position in the world
+     * @param worldName
+     *     The name of the world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
     IPLocation create(String worldName, Vector3Di position);
@@ -64,8 +78,10 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param position  The position in the world
+     * @param worldName
+     *     The name of the world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
     IPLocation create(String worldName, Vector3Dd position);

@@ -29,8 +29,10 @@ public class SetName extends BaseCommand
     /**
      * Runs the {@link SetName} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for providing the name.
-     * @param name          The new name specified by the command sender.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for providing the name.
+     * @param name
+     *     The new name specified by the command sender.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, String name)

@@ -73,13 +73,19 @@ public final class PBlockData
     /**
      * Constructs of {@link PBlockData}.
      *
-     * @param newFBlock         The {@link ICustomCraftFallingBlock} that will be animated.
-     * @param radius            The number of blocks between this block and the rotation point.
-     * @param newBlock          If this block can be rotated, this contains the rotated {@link INMSBlock}.
-     * @param startLocation     The location the block was spawned at initially.
-     * @param startAngle        The angle the block had in regards to the rotation point when it was first spawned.
-     * @param placementDeferred Whether or not placement should be deferred until all standalone blocks are placed.
-     *                          Useful for torches, for example (so they don't fall off immediately).
+     * @param newFBlock
+     *     The {@link ICustomCraftFallingBlock} that will be animated.
+     * @param radius
+     *     The number of blocks between this block and the rotation point.
+     * @param newBlock
+     *     If this block can be rotated, this contains the rotated {@link INMSBlock}.
+     * @param startLocation
+     *     The location the block was spawned at initially.
+     * @param startAngle
+     *     The angle the block had in regards to the rotation point when it was first spawned.
+     * @param placementDeferred
+     *     Whether or not placement should be deferred until all standalone blocks are placed. Useful for torches, for
+     *     example (so they don't fall off immediately).
      */
     public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
                       float startAngle, boolean placementDeferred)

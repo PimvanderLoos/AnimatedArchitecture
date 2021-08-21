@@ -136,7 +136,8 @@ public final class DoorTypeLoader extends Restartable
     /**
      * Attempts to load and register all jars in a given directory.
      *
-     * @param directory The directory.
+     * @param directory
+     *     The directory.
      * @return The list of {@link DoorType}s that were loaded successfully.
      */
     public List<DoorType> loadDoorTypesFromDirectory(String directory)

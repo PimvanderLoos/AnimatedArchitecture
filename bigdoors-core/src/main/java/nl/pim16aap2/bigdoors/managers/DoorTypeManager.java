@@ -77,7 +77,8 @@ public final class DoorTypeManager extends Restartable
     /**
      * Checks if an {@link DoorType} is enabled.
      *
-     * @param doorType The {@link DoorType} to check.
+     * @param doorType
+     *     The {@link DoorType} to check.
      * @return True if the {@link DoorType} is enabled, otherwise false.
      */
     public boolean isRegistered(DoorType doorType)
@@ -89,7 +90,8 @@ public final class DoorTypeManager extends Restartable
      * Tries to get a {@link DoorType} from it name as defined by {@link DoorType#getSimpleName()}. This method is
      * case-insensitive.
      *
-     * @param typeName The name of the type.
+     * @param typeName
+     *     The name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
     public Optional<DoorType> getDoorType(String typeName)
@@ -101,7 +103,8 @@ public final class DoorTypeManager extends Restartable
      * Tries to get a {@link DoorType} from its fully qualified name as defined by {@link DoorType#getSimpleName()}.
      * This method is case-sensitive.
      *
-     * @param fullName The fully qualified name of the type.
+     * @param fullName
+     *     The fully qualified name of the type.
      * @return The {@link DoorType} to retrieve, if possible.
      */
     public Optional<DoorType> getDoorTypeFromFullName(String fullName)
@@ -114,7 +117,8 @@ public final class DoorTypeManager extends Restartable
      * <p>
      * {@link DoorType}s that are not registered, are disabled by definition.
      *
-     * @param doorType The {@link DoorType} to check.
+     * @param doorType
+     *     The {@link DoorType} to check.
      * @return True if this {@link DoorType} is both registered and enabled.
      */
     public boolean isDoorTypeEnabled(DoorType doorType)
@@ -126,7 +130,8 @@ public final class DoorTypeManager extends Restartable
     /**
      * Registers a {@link DoorType}.
      *
-     * @param doorType The {@link DoorType} to register.
+     * @param doorType
+     *     The {@link DoorType} to register.
      * @return True if registration was successful.
      */
     public void registerDoorType(DoorType doorType)
@@ -137,8 +142,10 @@ public final class DoorTypeManager extends Restartable
     /**
      * Registers a {@link DoorType}.
      *
-     * @param doorType  The {@link DoorType} to register.
-     * @param isEnabled Whether this {@link DoorType} should be enabled or not. Default = true.
+     * @param doorType
+     *     The {@link DoorType} to register.
+     * @param isEnabled
+     *     Whether this {@link DoorType} should be enabled or not. Default = true.
      */
     public void registerDoorType(DoorType doorType, boolean isEnabled)
     {
@@ -158,7 +165,8 @@ public final class DoorTypeManager extends Restartable
      * <p>
      * Once unregistered, this type will be completely disabled and doors of this type cannot be used for anything.
      *
-     * @param doorType The type to unregister.
+     * @param doorType
+     *     The type to unregister.
      */
     public void unregisterDoorType(DoorType doorType)
     {
@@ -177,8 +185,10 @@ public final class DoorTypeManager extends Restartable
     /**
      * Changes the status of a {@link DoorType}. If disabled, this type cannot be toggled or created.
      *
-     * @param doorType  The {@link DoorType} to enabled or disable.
-     * @param isEnabled True to enable this {@link DoorType} (default), or false to disable it.
+     * @param doorType
+     *     The {@link DoorType} to enabled or disable.
+     * @param isEnabled
+     *     True to enable this {@link DoorType} (default), or false to disable it.
      */
     @SuppressWarnings("unused")
     public void setDoorTypeEnabled(DoorType doorType, boolean isEnabled)
@@ -195,7 +205,8 @@ public final class DoorTypeManager extends Restartable
     /**
      * Registers a list of {@link DoorType}s. See {@link #registerDoorType(DoorType)}.
      *
-     * @param doorTypes The list of {@link DoorType}s to register.
+     * @param doorTypes
+     *     The list of {@link DoorType}s to register.
      */
     public void registerDoorTypes(List<DoorType> doorTypes)
     {

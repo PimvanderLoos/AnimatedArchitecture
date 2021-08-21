@@ -33,8 +33,10 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * Initializes the {@link LoginResourcePackListener}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param plugin The {@link BigDoorsSpigot} plugin.
-     * @param url    The URL of the resource pack.
+     * @param plugin
+     *     The {@link BigDoorsSpigot} plugin.
+     * @param url
+     *     The URL of the resource pack.
      * @return The instance of this {@link LoginResourcePackListener}.
      */
     public static LoginResourcePackListener init(BigDoorsSpigot plugin, String url)
@@ -82,7 +84,8 @@ public class LoginResourcePackListener extends Restartable implements Listener
     /**
      * Listens to {@link Player}s logging in and sends them the resource pack.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)

@@ -71,7 +71,8 @@ public class CreatorClock extends Creator
     /**
      * Selects the side of the hour arm that will be the hour arm of the clock.
      *
-     * @param loc The selected location.
+     * @param loc
+     *     The selected location.
      * @return True if step finished successfully.
      */
     protected boolean completeSelectHourArmStep(IPLocation loc)

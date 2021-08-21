@@ -23,7 +23,8 @@ import java.util.logging.Level;
 /**
  * Manages the serialization aspects of the doors.
  *
- * @param <T> The type of door.
+ * @param <T>
+ *     The type of door.
  * @author Pim
  */
 public class DoorSerializer<T extends AbstractDoor>
@@ -124,7 +125,8 @@ public class DoorSerializer<T extends AbstractDoor>
     /**
      * Serializes the type-specific data of a door.
      *
-     * @param door The door.
+     * @param door
+     *     The door.
      * @return The serialized type-specific data.
      */
     public byte[] serialize(AbstractDoor door)
@@ -149,8 +151,10 @@ public class DoorSerializer<T extends AbstractDoor>
      * <p>
      * The doorBase and the deserialized data are then used to create an instance of the door type.
      *
-     * @param doorBase The base door data.
-     * @param data     The serialized type-specific data.
+     * @param doorBase
+     *     The base door data.
+     * @param data
+     *     The serialized type-specific data.
      * @return The newly created instance.
      */
     public T deserialize(DoorBase doorBase, byte[] data)
@@ -214,7 +218,8 @@ public class DoorSerializer<T extends AbstractDoor>
      * When {@link #ctor} is available, {@link #instantiateReflection(DoorBase, Constructor)} is used. If that is not
      * the case, {@link #instantiateUnsafe(DoorBase)} is used instead.
      *
-     * @param doorBase The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
+     * @param doorBase
+     *     The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
      * @return A new instance of {@link #doorClass} if one could be constructed.
      */
     private @Nullable T instantiate(DoorBase doorBase)
@@ -251,7 +256,8 @@ public class DoorSerializer<T extends AbstractDoor>
      * <p>
      * 1 field per line.
      *
-     * @param door The {@link AbstractDoor} whose {@link PersistentVariable}s to print.
+     * @param door
+     *     The {@link AbstractDoor} whose {@link PersistentVariable}s to print.
      * @return A String containing the names and values of the persistent parameters of the provided door.
      */
     public String toString(AbstractDoor door)

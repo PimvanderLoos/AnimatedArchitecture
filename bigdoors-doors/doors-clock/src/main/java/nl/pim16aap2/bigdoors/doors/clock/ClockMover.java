@@ -120,7 +120,8 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      * Converts a time in minutes (60 per circle) to an angle in radians, with 0 minutes pointing up, and 30 minutes
      * pointing down.
      *
-     * @param minutes The time in minutes since the last full hour.
+     * @param minutes
+     *     The time in minutes since the last full hour.
      * @return The angle.
      */
     private static float minutesToAngle(int minutes)
@@ -132,8 +133,10 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      * Converts a time in hours (12 per circle) to an angle in radians, with 0, 12 hours pointing up, and 6, 18 hours
      * pointing down.
      *
-     * @param hours   The time in hours.
-     * @param minutes The time in minutes since the last full hour.
+     * @param hours
+     *     The time in hours.
+     * @param minutes
+     *     The time in minutes since the last full hour.
      * @return The angle.
      */
     private static float hoursToAngle(int hours, int minutes)

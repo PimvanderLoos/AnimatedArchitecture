@@ -48,8 +48,10 @@ import java.util.function.Function;
  * Expired entries cannot be retrieved or used in any way, but they will still show up in the size arguments. If
  * configured, a separate thread may perform regular cleanup.
  *
- * @param <K> Type of the Key of the map.
- * @param <V> Type of the value of the map.
+ * @param <K>
+ *     Type of the Key of the map.
+ * @param <V>
+ *     Type of the value of the map.
  * @author Pim
  */
 public class TimedCache<K, V>
@@ -117,34 +119,34 @@ public class TimedCache<K, V>
     /**
      * Constructor of {@link TimedCache}
      *
-     * @param duration         The amount of time a cached entry remains valid.
-     *                         <p>
-     *                         Note that this value is used for millisecond precision. Anything smaller than that will
-     *                         be ignored.
-     *                         <p>
-     *                         Setting this value to 0 means that values will never be evicted from the cache based on
-     *                         their age. This is a valid configuration in combination with the softReference option and
-     *                         a non-zero cleanup duration. This will cause all entries to exist in the cache until they
-     *                         are no longer referenced.
-     * @param cleanup          The duration between each cleanup cycle. During cleanup, all expired entries will be
-     *                         removed from the cache. When null (default) or 0, entries are evicted from the cache
-     *                         whenever they are accessed after they have expired. This value also uses millisecond
-     *                         precision.
-     * @param softReference    Whether to wrap values in {@link SoftReference}s or not. This allows the garbage
-     *                         collector to clear up any values as it sees fit.
-     * @param refresh          Whether to refresh entries whenever they are accessed.
-     *                         <p>
-     *                         When set to false, entries will expire after the configured amount of time after their
-     *                         insertion time.
-     *                         <p>
-     *                         When set to true, entries will expire  after the configured amount of time after they
-     *                         were last retrieved.
-     * @param keepAfterTimeOut Whether to keep values after their timeOut value is exceeded.
-     *                         <p>
-     *                         This is used when using either soft or weak references and results in values remaining in
-     *                         the cache until they are removed by the garbage collector.
-     *                         <p>
-     *                         When this is true, values in the cache
+     * @param duration
+     *     The amount of time a cached entry remains valid.
+     *     <p>
+     *     Note that this value is used for millisecond precision. Anything smaller than that will be ignored.
+     *     <p>
+     *     Setting this value to 0 means that values will never be evicted from the cache based on their age. This is a
+     *     valid configuration in combination with the softReference option and a non-zero cleanup duration. This will
+     *     cause all entries to exist in the cache until they are no longer referenced.
+     * @param cleanup
+     *     The duration between each cleanup cycle. During cleanup, all expired entries will be removed from the cache.
+     *     When null (default) or 0, entries are evicted from the cache whenever they are accessed after they have
+     *     expired. This value also uses millisecond precision.
+     * @param softReference
+     *     Whether to wrap values in {@link SoftReference}s or not. This allows the garbage collector to clear up any
+     *     values as it sees fit.
+     * @param refresh
+     *     Whether to refresh entries whenever they are accessed.
+     *     <p>
+     *     When set to false, entries will expire after the configured amount of time after their insertion time.
+     *     <p>
+     *     When set to true, entries will expire  after the configured amount of time after they were last retrieved.
+     * @param keepAfterTimeOut
+     *     Whether to keep values after their timeOut value is exceeded.
+     *     <p>
+     *     This is used when using either soft or weak references and results in values remaining in the cache until
+     *     they are removed by the garbage collector.
+     *     <p>
+     *     When this is true, values in the cache
      */
     @Builder
     protected TimedCache(Duration duration, @Nullable Duration cleanup, boolean softReference, boolean refresh,
@@ -156,8 +158,10 @@ public class TimedCache<K, V>
     /**
      * Puts a new key/value pair in the cache.
      *
-     * @param key   The key of the pair to add to the cache.
-     * @param value The value of the pair to add to the cache.
+     * @param key
+     *     The key of the pair to add to the cache.
+     * @param value
+     *     The value of the pair to add to the cache.
      * @return The value that was just added to the cache.
      */
     public V put(K key, V value)
@@ -169,8 +173,10 @@ public class TimedCache<K, V>
     /**
      * Updates a value if it currently exists in the cache.
      *
-     * @param key   The key with which the specified value is to be associated.
-     * @param value The value to be associated with the specified key.
+     * @param key
+     *     The key with which the specified value is to be associated.
+     * @param value
+     *     The value to be associated with the specified key.
      * @return The updated value. If no value was updated, an empty Optional.
      */
     public Optional<V> putIfPresent(K key, V value)
@@ -277,7 +283,8 @@ public class TimedCache<K, V>
      * If the value has expired but still exists in the map, it will be evicted and treated as if it did not exist at
      * all.
      *
-     * @param key The key of the value to look up.
+     * @param key
+     *     The key of the value to look up.
      * @return The value associated with the provided key if it is available.
      */
     public Optional<V> get(K key)
@@ -300,7 +307,8 @@ public class TimedCache<K, V>
      * <p>
      * If {@link #refresh} is enabled, the key will be refreshed.
      *
-     * @param key The key to check.
+     * @param key
+     *     The key to check.
      * @return True if the key exists and has not timed out.
      */
     public boolean containsKey(K key)
@@ -314,7 +322,8 @@ public class TimedCache<K, V>
      * <p>
      * See {@link AbstractTimedValue#getValue(boolean)}.
      *
-     * @param entry The entry to wrap.
+     * @param entry
+     *     The entry to wrap.
      * @return The value stored in the entry, if any.
      */
     protected Optional<V> getValue(@Nullable AbstractTimedValue<V> entry)
@@ -347,7 +356,8 @@ public class TimedCache<K, V>
      * <p>
      * This does not respect any kind of timeouts.
      *
-     * @param key The key associated with the value to retrieve.
+     * @param key
+     *     The key associated with the value to retrieve.
      * @return The value associated with the key, if it exists.
      */
     protected @Nullable AbstractTimedValue<V> getRaw(K key)
@@ -359,7 +369,8 @@ public class TimedCache<K, V>
      * Creates a new {@link TimedValue}. This method should not be called directly. Instead, use to {@link
      * #timedValueCreator}.
      *
-     * @param val The value to wrap in an {@link AbstractTimedValue}.
+     * @param val
+     *     The value to wrap in an {@link AbstractTimedValue}.
      * @return The newly created {@link TimedValue}.
      */
     private AbstractTimedValue<V> createTimedValue(V val)
@@ -371,7 +382,8 @@ public class TimedCache<K, V>
      * Creates a new {@link TimedSoftValue}. This method should not be called directly. Instead, use to {@link
      * #timedValueCreator}.
      *
-     * @param val The value to wrap in an {@link AbstractTimedValue}.
+     * @param val
+     *     The value to wrap in an {@link AbstractTimedValue}.
      * @return The newly created {@link TimedSoftValue}.
      */
     private AbstractTimedValue<V> createTimedSoftValue(V val)
@@ -396,8 +408,9 @@ public class TimedCache<K, V>
      * <p>
      * See {@link #cleanupCache()}.
      *
-     * @param period The amount of time (in milliseconds) between each cleanup run. If this value is less than 1,
-     *               nothing happens.
+     * @param period
+     *     The amount of time (in milliseconds) between each cleanup run. If this value is less than 1, nothing
+     *     happens.
      */
     private void setupCleanupTask(long period)
     {

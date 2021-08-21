@@ -23,7 +23,8 @@ import java.util.logging.Level;
  * not yet known who the target player is and what the desired permission level is. This class can then be used to
  * retrieve the additional data that is required to execute the command.
  *
- * @param <T> The type of data that is to be retrieved from the player.
+ * @param <T>
+ *     The type of data that is to be retrieved from the player.
  * @author Pim
  */
 @ToString
@@ -64,15 +65,21 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     /**
      * Constructs a new delayed command input request.
      *
-     * @param timeout             The amount of time (in ms).
-     * @param commandSender       See {@link BaseCommand#getCommandSender()}.
-     * @param commandDefinition   The {@link CommandDefinition} for which the delayed input will be retrieved.
-     * @param executor            The function to execute after retrieving the delayed input from the command sender.
-     * @param initMessageSupplier The supplier used to retrieve the message that will be sent to the command sender when
-     *                            this request is initialized (after calling {@link BaseCommand#run()}).
-     *                            <p>
-     *                            If the resulting message is blank, nothing will be sent to the user.
-     * @param inputClass          The class of the input object that is expected.
+     * @param timeout
+     *     The amount of time (in ms).
+     * @param commandSender
+     *     See {@link BaseCommand#getCommandSender()}.
+     * @param commandDefinition
+     *     The {@link CommandDefinition} for which the delayed input will be retrieved.
+     * @param executor
+     *     The function to execute after retrieving the delayed input from the command sender.
+     * @param initMessageSupplier
+     *     The supplier used to retrieve the message that will be sent to the command sender when this request is
+     *     initialized (after calling {@link BaseCommand#run()}).
+     *     <p>
+     *     If the resulting message is blank, nothing will be sent to the user.
+     * @param inputClass
+     *     The class of the input object that is expected.
      */
     DelayedCommandInputRequest(long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
                                Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
@@ -110,7 +117,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * If the provided input is not of the correct type as defined by {@link #inputClass}, a future containing a false
      * boolean is returned to indicate incorrect command usage.
      *
-     * @param input The input object to provide.
+     * @param input
+     *     The input object to provide.
      * @return When the input is of the correct type, {@link #commandOutput} is returned, otherwise false.
      */
     CompletableFuture<Boolean> provide(Object input)

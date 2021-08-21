@@ -28,14 +28,16 @@ public interface IDoor
     /**
      * Changes the open-status of this door. True if open, False if closed.
      *
-     * @param bool The new open-status of the door.
+     * @param bool
+     *     The new open-status of the door.
      */
     void setOpen(boolean bool);
 
     /**
      * Changes the lock status of this door. Locked doors cannot be opened.
      *
-     * @param locked New lock status.
+     * @param locked
+     *     New lock status.
      */
     void setLocked(boolean locked);
 
@@ -63,7 +65,8 @@ public interface IDoor
     /**
      * Changes the name of the door.
      *
-     * @param name The new name of this door.
+     * @param name
+     *     The new name of this door.
      */
     void setName(String name);
 
@@ -113,7 +116,8 @@ public interface IDoor
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
      *
-     * @param player The player that may or may not be an owner of this door.
+     * @param player
+     *     The player that may or may not be an owner of this door.
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
@@ -122,7 +126,8 @@ public interface IDoor
     /**
      * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
      *
-     * @param player The UUID of the player that may or may not be an owner of this door.
+     * @param player
+     *     The UUID of the player that may or may not be an owner of this door.
      * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
      * door.
      */
@@ -144,7 +149,8 @@ public interface IDoor
      * Note that if it's currently in the open status, it is supposed go in the opposite direction, as the closing
      * direction is the opposite of the opening direction.
      *
-     * @param rotateDirection The {@link RotateDirection} this {@link IDoor} will open in.
+     * @param rotateDirection
+     *     The {@link RotateDirection} this {@link IDoor} will open in.
      */
     void setOpenDir(RotateDirection rotateDirection);
 
@@ -158,7 +164,8 @@ public interface IDoor
     /**
      * Updates the position of the powerblock.
      *
-     * @param pos The new position.
+     * @param pos
+     *     The new position.
      */
     void setPowerBlockPosition(Vector3Di pos);
 
@@ -172,7 +179,8 @@ public interface IDoor
     /**
      * Updates the position of the engine.
      *
-     * @param pos The new position.
+     * @param pos
+     *     The new position.
      */
     void setEngine(Vector3Di pos);
 
@@ -186,14 +194,16 @@ public interface IDoor
     /**
      * Changes the position of this {@link IDoor}. The min/max order of the positions doesn't matter.
      *
-     * @param posA The first new position.
+     * @param posA
+     *     The first new position.
      */
     void setCoordinates(Vector3Di posA, Vector3Di posB);
 
     /**
      * Changes the position of this {@link IDoor}. The min/max order of the positions doesn't matter.
      *
-     * @param newCuboid The {@link Cuboid} representing the area the door will take up from now on.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up from now on.
      */
     void setCoordinates(Cuboid newCuboid);
 

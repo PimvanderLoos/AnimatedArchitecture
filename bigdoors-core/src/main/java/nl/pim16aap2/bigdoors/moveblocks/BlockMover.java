@@ -83,12 +83,18 @@ public abstract class BlockMover implements IRestartable
     /**
      * Constructs a {@link BlockMover}.
      *
-     * @param door          The {@link AbstractDoor}.
-     * @param time          The amount of time (in seconds) the door will try to toggle itself in.
-     * @param skipAnimation If the door should be opened instantly (i.e. skip animation) or not.
-     * @param openDirection The direction the {@link AbstractDoor} will move.
-     * @param player        The player who opened this door.
-     * @param newCuboid     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param time
+     *     The amount of time (in seconds) the door will try to toggle itself in.
+     * @param skipAnimation
+     *     If the door should be opened instantly (i.e. skip animation) or not.
+     * @param openDirection
+     *     The direction the {@link AbstractDoor} will move.
+     * @param player
+     *     The player who opened this door.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
     protected BlockMover(AbstractDoor door, double time, boolean skipAnimation, RotateDirection openDirection,
                          IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
@@ -121,7 +127,8 @@ public abstract class BlockMover implements IRestartable
     /**
      * Plays a sound at the engine of a door.
      *
-     * @param soundDescription The {@link PSoundDescription} containing all the properties of the sound to play.
+     * @param soundDescription
+     *     The {@link PSoundDescription} containing all the properties of the sound to play.
      */
     protected void playSound(PSoundDescription soundDescription)
     {
@@ -152,8 +159,10 @@ public abstract class BlockMover implements IRestartable
     /**
      * Respawns a {@link ICustomCraftFallingBlock}.
      *
-     * @param blockData The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
-     * @param newBlock  The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
+     * @param blockData
+     *     The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
+     * @param newBlock
+     *     The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
      * @return True if respawning was successful.
      */
     private boolean respawnBlock(PBlockData blockData, INMSBlock newBlock)
@@ -256,7 +265,8 @@ public abstract class BlockMover implements IRestartable
     /**
      * Gets the final position of a {@link PBlockData}.
      *
-     * @param block The {@link PBlockData}.
+     * @param block
+     *     The {@link PBlockData}.
      * @return The final position of a {@link PBlockData}.
      */
     @SuppressWarnings("unused")
@@ -265,7 +275,8 @@ public abstract class BlockMover implements IRestartable
     /**
      * Runs a single step of the animation.
      *
-     * @param ticks The number of ticks that have passed since the start of the animation.
+     * @param ticks
+     *     The number of ticks that have passed since the start of the animation.
      */
     protected abstract void executeAnimationStep(int ticks);
 
@@ -347,9 +358,12 @@ public abstract class BlockMover implements IRestartable
     /**
      * Gets the radius of a block at the given coordinates.
      *
-     * @param xAxis The x coordinate.
-     * @param yAxis The y coordinate.
-     * @param zAxis The z coordinate.
+     * @param xAxis
+     *     The x coordinate.
+     * @param yAxis
+     *     The y coordinate.
+     * @param zAxis
+     *     The z coordinate.
      * @return The radius of a block at the given coordinates.
      */
     protected float getRadius(int xAxis, int yAxis, int zAxis)
@@ -360,9 +374,12 @@ public abstract class BlockMover implements IRestartable
     /**
      * Gets the starting angle of a block (in rads) at the given coordinates.
      *
-     * @param xAxis The x coordinate.
-     * @param yAxis The y coordinate.
-     * @param zAxis The z coordinate.
+     * @param xAxis
+     *     The x coordinate.
+     * @param yAxis
+     *     The y coordinate.
+     * @param zAxis
+     *     The z coordinate.
      * @return The starting angle of a block at the given coordinates.
      */
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
@@ -373,8 +390,10 @@ public abstract class BlockMover implements IRestartable
     /**
      * Places the block of a {@link PBlockData}.
      *
-     * @param pBlockData The {@link PBlockData}.
-     * @param firstPass  Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
+     * @param pBlockData
+     *     The {@link PBlockData}.
+     * @param firstPass
+     *     Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
     private void putSavedBlock(PBlockData pBlockData, boolean firstPass)
     {
@@ -391,7 +410,8 @@ public abstract class BlockMover implements IRestartable
      * <p>
      * When the plugin is currently not in the process of disabling, it also schedules the auto close.
      *
-     * @param onDisable Whether or not the plugin is currently being disabled.
+     * @param onDisable
+     *     Whether or not the plugin is currently being disabled.
      */
     public final synchronized void putBlocks(boolean onDisable)
     {
@@ -422,7 +442,8 @@ public abstract class BlockMover implements IRestartable
     /**
      * Updates the coordinates of a {@link AbstractDoor} and toggles its open status.
      *
-     * @param door The {@link AbstractDoor}.
+     * @param door
+     *     The {@link AbstractDoor}.
      */
     private synchronized void updateCoords(AbstractDoor door)
     {
@@ -439,10 +460,14 @@ public abstract class BlockMover implements IRestartable
     /**
      * Gets the new location of a block from its old coordinates.
      *
-     * @param radius The radius of the block.
-     * @param xAxis  The old x-coordinate of the block.
-     * @param yAxis  The old y-coordinate of the block.
-     * @param zAxis  The old z-coordinate of the block.
+     * @param radius
+     *     The radius of the block.
+     * @param xAxis
+     *     The old x-coordinate of the block.
+     * @param yAxis
+     *     The old y-coordinate of the block.
+     * @param zAxis
+     *     The old z-coordinate of the block.
      * @return The new Location of the block.
      */
     protected abstract IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis);

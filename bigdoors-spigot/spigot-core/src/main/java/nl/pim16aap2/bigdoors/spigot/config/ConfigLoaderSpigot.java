@@ -80,8 +80,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Constructs a new {@link ConfigLoaderSpigot}.
      *
-     * @param plugin The Spigot core.
-     * @param logger The logger used for error logging.
+     * @param plugin
+     *     The Spigot core.
+     * @param logger
+     *     The logger used for error logging.
      */
     private ConfigLoaderSpigot(BigDoorsSpigot plugin, IPLogger logger)
     {
@@ -97,8 +99,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * Initializes the {@link ConfigLoaderSpigot}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param plugin The spigot core.
-     * @param logger The logger used for error logging.
+     * @param plugin
+     *     The spigot core.
+     * @param logger
+     *     The logger used for error logging.
      * @return The instance of this {@link ConfigLoaderSpigot}.
      */
     public static ConfigLoaderSpigot init(BigDoorsSpigot plugin, IPLogger logger)
@@ -334,11 +338,16 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Read a new config option from the config if it exists. Otherwise, use the default value.
      *
-     * @param <T>          The type of the option.
-     * @param config       The config.
-     * @param optionName   The name of the option in the config file.
-     * @param defaultValue The default value of the option. To be used if no/invalid option is in the config already.
-     * @param comment      The comment to accompany the option in the config.
+     * @param <T>
+     *     The type of the option.
+     * @param config
+     *     The config.
+     * @param optionName
+     *     The name of the option in the config file.
+     * @param defaultValue
+     *     The default value of the option. To be used if no/invalid option is in the config already.
+     * @param comment
+     *     The comment to accompany the option in the config.
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
@@ -352,12 +361,18 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Read a new config option from the config if it exists. Otherwise, use the default value.
      *
-     * @param <T>          The type of the option.
-     * @param config       The config.
-     * @param optionName   The name of the option in the config file.
-     * @param defaultValue The default value of the option. To be used if no/invalid option is in the config already.
-     * @param comment      The comment to accompany the option in the config.
-     * @param verifyValue  Function to use to verify the validity of a value and change it if necessary.
+     * @param <T>
+     *     The type of the option.
+     * @param config
+     *     The config.
+     * @param optionName
+     *     The name of the option in the config file.
+     * @param defaultValue
+     *     The default value of the option. To be used if no/invalid option is in the config already.
+     * @param comment
+     *     The comment to accompany the option in the config.
+     * @param verifyValue
+     *     Function to use to verify the validity of a value and change it if necessary.
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
@@ -528,7 +543,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Checks if a {@link ProtectionCompat} is enabled or not.
      *
-     * @param hook The {@link ProtectionCompat}.
+     * @param hook
+     *     The {@link ProtectionCompat}.
      * @return True if this {@link ProtectionCompat} is enabled.
      */
     public boolean isHookEnabled(ProtectionCompat hook)
@@ -590,7 +606,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * <p>
          * Note that the output set is cleared!
          *
-         * @param output The set to write the parsed materials to.
+         * @param output
+         *     The set to write the parsed materials to.
          */
         private MaterialVerifier(Set<Material> output)
         {
@@ -610,8 +627,10 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * <p>
          * All valid materials are added to the output set.
          *
-         * @param input  The list of Strings of potential materials.
-         * @param output The set to put all valid materials in.
+         * @param input
+         *     The list of Strings of potential materials.
+         * @param output
+         *     The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
         private static List<String> verifyMaterials(List<String> input, Set<Material> output)

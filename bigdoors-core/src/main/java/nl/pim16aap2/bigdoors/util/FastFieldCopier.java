@@ -9,8 +9,10 @@ import java.lang.reflect.Field;
 /**
  * Uses {@link Unsafe} to quickly copy primitives and objects from one object to another.
  *
- * @param <S> The type of the source object.
- * @param <T> The type of the target object.
+ * @param <S>
+ *     The type of the source object.
+ * @param <T>
+ *     The type of the target object.
  * @author Pim
  */
 @SuppressWarnings("unused")
@@ -58,20 +60,28 @@ public abstract class FastFieldCopier<S, T>
     /**
      * Copies the data from the source to the target from and to the previously defined fields.
      *
-     * @param source The source object.
-     * @param target The target object.
+     * @param source
+     *     The source object.
+     * @param target
+     *     The target object.
      */
     public abstract void copy(S source, T target);
 
     /**
      * Creates a new {@link FastFieldCopier} for the provided fields.
      *
-     * @param sourceClass The source class where the value that is to be copied is copied from.
-     * @param nameSource  The name of the source {@link Field}.
-     * @param targetClass The target class where the value that is to be copied is copied into.
-     * @param nameTarget  The name of the target {@link Field}.
-     * @param <S>         The type of the source class.
-     * @param <T>         The type of the target class.
+     * @param sourceClass
+     *     The source class where the value that is to be copied is copied from.
+     * @param nameSource
+     *     The name of the source {@link Field}.
+     * @param targetClass
+     *     The target class where the value that is to be copied is copied into.
+     * @param nameTarget
+     *     The name of the target {@link Field}.
+     * @param <S>
+     *     The type of the source class.
+     * @param <T>
+     *     The type of the target class.
      * @return A new {@link FastFieldCopier} for the appropriate type.
      */
     public static <S, T> FastFieldCopier<S, T> of(Class<S> sourceClass, String nameSource,

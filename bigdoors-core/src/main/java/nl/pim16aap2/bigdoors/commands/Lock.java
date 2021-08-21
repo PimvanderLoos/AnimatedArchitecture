@@ -30,10 +30,12 @@ public class Lock extends DoorTargetCommand
     /**
      * Runs the {@link Lock} command.
      *
-     * @param commandSender The {@link ICommandSender} responsible for changing the locked status of the door.
-     * @param doorRetriever A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will
-     *                      be modified.
-     * @param lock          The new lock status.
+     * @param commandSender
+     *     The {@link ICommandSender} responsible for changing the locked status of the door.
+     * @param doorRetriever
+     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will be modified.
+     * @param lock
+     *     The new lock status.
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,

@@ -40,7 +40,8 @@ final class LocalizationPatcher
      * <p>
      * Any root keys not already present in the patch file(s) will be appended to the file without a value.
      *
-     * @param rootKeys The localization keys in the root locale file.
+     * @param rootKeys
+     *     The localization keys in the root locale file.
      */
     void updatePatchKeys(Collection<String> rootKeys)
     {
@@ -52,8 +53,10 @@ final class LocalizationPatcher
      * <p>
      * Any root keys not already present in the patch file will be appended to the file without a value.
      *
-     * @param rootKeys   The localization keys in the root locale file.
-     * @param localeFile The locale file to append any missing localization keys to.
+     * @param rootKeys
+     *     The localization keys in the root locale file.
+     * @param localeFile
+     *     The locale file to append any missing localization keys to.
      */
     void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
@@ -66,8 +69,10 @@ final class LocalizationPatcher
     /**
      * Appends localization keys to a locale file.
      *
-     * @param localeFile     The locale file to append the keys to.
-     * @param appendableKeys The localization keys to append to the locale file.
+     * @param localeFile
+     *     The locale file to append the keys to.
+     * @param appendableKeys
+     *     The localization keys to append to the locale file.
      */
     void appendKeys(LocaleFile localeFile, Set<String> appendableKeys)
     {
@@ -91,7 +96,8 @@ final class LocalizationPatcher
      * <p>
      * A patch is defined in this context as a key/value pair with a non-empty value.
      *
-     * @param localeFile The locale file to read the patches from.
+     * @param localeFile
+     *     The locale file to read the patches from.
      * @return A map of the patches. The keys are the localization keys and the values the full line (i.e. "key=value").
      */
     Map<String, String> getPatches(LocaleFile localeFile)
@@ -109,8 +115,10 @@ final class LocalizationPatcher
     /**
      * Tests if a line is a valid patch.
      *
-     * @param key  The key of the line.
-     * @param line The line itself.
+     * @param key
+     *     The key of the line.
+     * @param line
+     *     The line itself.
      * @return True if the patch is valid (i.e. not empty).
      */
     static boolean isValidPatch(@Nullable String key, String line)

@@ -57,8 +57,10 @@ public final class DatabaseManager extends Restartable
     /**
      * Constructs a new {@link DatabaseManager}.
      *
-     * @param restartableHolder The object managing restarts for this object.
-     * @param dbFile            The name of the database file.
+     * @param restartableHolder
+     *     The object managing restarts for this object.
+     * @param dbFile
+     *     The name of the database file.
      */
     public DatabaseManager(IRestartableHolder restartableHolder, File dbFile)
     {
@@ -68,8 +70,10 @@ public final class DatabaseManager extends Restartable
     /**
      * Constructs a new {@link DatabaseManager}.
      *
-     * @param restartableHolder The object managing restarts for this object.
-     * @param storage           The {@link IStorage} to use for all database calls.
+     * @param restartableHolder
+     *     The object managing restarts for this object.
+     * @param storage
+     *     The {@link IStorage} to use for all database calls.
      */
     public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage)
     {
@@ -109,7 +113,8 @@ public final class DatabaseManager extends Restartable
      * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an {@link
      * IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
      *
-     * @param newDoor The new {@link AbstractDoor}.
+     * @param newDoor
+     *     The new {@link AbstractDoor}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor)
@@ -120,9 +125,11 @@ public final class DatabaseManager extends Restartable
     /**
      * Inserts a {@link AbstractDoor} into the database.
      *
-     * @param newDoor     The new {@link AbstractDoor}.
-     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
-     *                    IDoorPrepareCreateEvent} and the {@link IDoorCreatedEvent}. This may be null.
+     * @param newDoor
+     *     The new {@link AbstractDoor}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareCreateEvent}
+     *     and the {@link IDoorCreatedEvent}. This may be null.
      * @return The future result of the operation. The result contains a pair of a boolean and an optional door. The
      * boolean flag indicates if the addition was cancelled by {@link IDoorPrepareCreateEvent} (true) or not (false).
      * The optional {@link AbstractDoor} contains the door that was added to the database if the addition was
@@ -155,9 +162,11 @@ public final class DatabaseManager extends Restartable
     /**
      * Calls the {@link IDoorCreatedEvent}.
      *
-     * @param result      The result of trying to add a door to the database.
-     * @param responsible The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for
-     *                    it. If not, this is null.
+     * @param result
+     *     The result of trying to add a door to the database.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
+     *     is null.
      */
     private void callDoorCreatedEvent(Pair<Boolean, Optional<AbstractDoor>> result, @Nullable IPPlayer responsible)
     {
@@ -178,7 +187,8 @@ public final class DatabaseManager extends Restartable
      * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an {@link
      * IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
      *
-     * @param door The door.
+     * @param door
+     *     The door.
      * @return The future result of the operation.
      */
     @SuppressWarnings("unused")
@@ -190,9 +200,11 @@ public final class DatabaseManager extends Restartable
     /**
      * Removes a {@link AbstractDoor} from the database.
      *
-     * @param door        The door that will be deleted.
-     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
-     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @param door
+     *     The door that will be deleted.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door, @Nullable IPPlayer responsible)
@@ -219,7 +231,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets a list of door UIDs that have their engine in a given chunk.
      *
-     * @param chunkHash The hash of the chunk the doors are in.
+     * @param chunkHash
+     *     The hash of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
     public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
@@ -232,8 +245,10 @@ public final class DatabaseManager extends Restartable
      * Gets all {@link AbstractDoor} owned by a player. Only searches for {@link AbstractDoor} with a given name if one
      * was provided.
      *
-     * @param playerUUID The {@link UUID} of the payer.
-     * @param doorID     The name or the UID of the {@link AbstractDoor} to search for. Can be null.
+     * @param playerUUID
+     *     The {@link UUID} of the payer.
+     * @param doorID
+     *     The name or the UID of the {@link AbstractDoor} to search for. Can be null.
      * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String doorID)
@@ -262,7 +277,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets all {@link AbstractDoor} owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
      * @return All {@link AbstractDoor} owned by a player.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
@@ -282,9 +298,12 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets all {@link AbstractDoor} owned by a player with a specific name.
      *
-     * @param playerUUID    The {@link UUID} of the payer.
-     * @param name          The name of the {@link AbstractDoor} to search for.
-     * @param maxPermission The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
+     * @param playerUUID
+     *     The {@link UUID} of the payer.
+     * @param name
+     *     The name of the {@link AbstractDoor} to search for.
+     * @param maxPermission
+     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
      * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
@@ -296,7 +315,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets all {@link AbstractDoor}s with a specific name, regardless over ownership.
      *
-     * @param name The name of the {@link AbstractDoor}s.
+     * @param name
+     *     The name of the {@link AbstractDoor}s.
      * @return All {@link AbstractDoor}s with a specific name.
      */
     public CompletableFuture<List<AbstractDoor>> getDoors(String name)
@@ -308,7 +328,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the name of a player in the database, to make sure the player's name and UUID don't go out of sync.
      *
-     * @param player The Player.
+     * @param player
+     *     The Player.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     @SuppressWarnings({"unused", "UnusedReturnValue"})
@@ -321,7 +342,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
      *
-     * @param uuid The {@link UUID} of a player.
+     * @param uuid
+     *     The {@link UUID} of a player.
      * @return The {@link PPlayerData} that represents the player.
      */
     public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
@@ -336,7 +358,8 @@ public final class DatabaseManager extends Restartable
      * <p>
      * If you know the player's UUID, it is recommended to use {@link #getPlayerData(UUID)} instead.
      *
-     * @param playerName The name of the player(s).
+     * @param playerName
+     *     The name of the player(s).
      * @return All the players with the given name.
      */
     @SuppressWarnings("unused")
@@ -349,7 +372,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets the {@link AbstractDoor} with a specific UID.
      *
-     * @param doorUID The UID of the {@link AbstractDoor}.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} if it exists.
      */
     public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
@@ -362,8 +386,10 @@ public final class DatabaseManager extends Restartable
      * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the
      * provided door, no door will be returned.
      *
-     * @param player  The {@link IPPlayer}.
-     * @param doorUID The UID of the {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
     public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player, long doorUID)
@@ -375,8 +401,10 @@ public final class DatabaseManager extends Restartable
      * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the *
      * provided door, no door will be returned.
      *
-     * @param uuid    The {@link UUID} of the player.
-     * @param doorUID The UID of the {@link AbstractDoor}.
+     * @param uuid
+     *     The {@link UUID} of the player.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
      * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
     public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
@@ -388,7 +416,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets the number of {@link AbstractDoor}s owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
      * @return The number of {@link AbstractDoor}s this player owns.
      */
     @SuppressWarnings("unused")
@@ -401,8 +430,10 @@ public final class DatabaseManager extends Restartable
     /**
      * Counts the number of {@link AbstractDoor}s with a specific name owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
-     * @param doorName   The name of the door.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
+     * @param doorName
+     *     The name of the door.
      * @return The number of {@link AbstractDoor}s with a specific name owned by a player.
      */
     @SuppressWarnings("unused")
@@ -415,7 +446,8 @@ public final class DatabaseManager extends Restartable
     /**
      * The number of {@link AbstractDoor}s in the database with a specific name.
      *
-     * @param doorName The name of the {@link AbstractDoor}.
+     * @param doorName
+     *     The name of the {@link AbstractDoor}.
      * @return The number of {@link AbstractDoor}s with a specific name.
      */
     @SuppressWarnings("unused")
@@ -429,9 +461,12 @@ public final class DatabaseManager extends Restartable
      * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership and assumes that the door was NOT
      * deleted by an {@link * IPPlayer}. See {@link #addOwner(AbstractDoor, IPPlayer, int, IPPlayer)}.
      *
-     * @param door       The {@link AbstractDoor}.
-     * @param player     The {@link IPPlayer}.
-     * @param permission The level of ownership.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param permission
+     *     The level of ownership.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission)
@@ -442,9 +477,12 @@ public final class DatabaseManager extends Restartable
     /**
      * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership.
      *
-     * @param door       The {@link AbstractDoor}.
-     * @param player     The {@link IPPlayer}.
-     * @param permission The level of ownership.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param permission
+     *     The level of ownership.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission,
@@ -478,7 +516,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Calls an {@link ICancellableBigDoorsEvent} and checks if it was cancelled or not.
      *
-     * @param factoryMethod The method to use to construct the event.
+     * @param factoryMethod
+     *     The method to use to construct the event.
      * @return True if the create event was cancelled, otherwise false.
      */
     private CompletableFuture<Boolean> callCancellableEvent(
@@ -496,8 +535,10 @@ public final class DatabaseManager extends Restartable
     /**
      * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
      *
-     * @param door   The {@link AbstractDoor}.
-     * @param player The {@link IPPlayer}.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
      * @return True if owner removal was successful.
      */
     public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player)
@@ -508,10 +549,13 @@ public final class DatabaseManager extends Restartable
     /**
      * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
      *
-     * @param door        The {@link AbstractDoor}.
-     * @param player      The {@link IPPlayer}.
-     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
-     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player,
@@ -524,8 +568,10 @@ public final class DatabaseManager extends Restartable
      * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor} and assumes that the door was NOT deleted by an
      * {@link IPPlayer}. See {@link #removeOwner(AbstractDoor, UUID, IPPlayer)}.
      *
-     * @param door       The {@link AbstractDoor}.
-     * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param playerUUID
+     *     The {@link UUID} of the {@link IPPlayer}.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID)
@@ -536,10 +582,13 @@ public final class DatabaseManager extends Restartable
     /**
      * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
      *
-     * @param door        The {@link AbstractDoor}.
-     * @param playerUUID  The {@link UUID} of the {@link IPPlayer}.
-     * @param responsible The {@link IPPlayer} responsible for creating the door. This is used for the {@link
-     *                    IDoorPrepareDeleteEvent}. This may be null.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param playerUUID
+     *     The {@link UUID} of the {@link IPPlayer}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
      * @return The future result of the operation.
      */
     public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID,
@@ -582,8 +631,10 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
      *
-     * @param doorBase The {@link DoorBase} that describes the base data of door.
-     * @param typeData The type-specific data of this door.
+     * @param doorBase
+     *     The {@link DoorBase} that describes the base data of door.
+     * @param typeData
+     *     The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
     public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
@@ -595,7 +646,8 @@ public final class DatabaseManager extends Restartable
     /**
      * Checks if a world contains any big doors.
      *
-     * @param worldName The name of the world.
+     * @param worldName
+     *     The name of the world.
      * @return True if at least 1 door exists in the world.
      */
     CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
@@ -610,7 +662,8 @@ public final class DatabaseManager extends Restartable
      * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
      * occupies that location.
      *
-     * @param chunkHash The hash of the chunk the doors are in.
+     * @param chunkHash
+     *     The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
     CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
@@ -656,15 +709,18 @@ public final class DatabaseManager extends Restartable
         /**
          * Adds an owner to the map of Owners.
          *
-         * @param uuid      The {@link UUID} of the owner.
-         * @param doorOwner The {@link DoorOwner} to add.
+         * @param uuid
+         *     The {@link UUID} of the owner.
+         * @param doorOwner
+         *     The {@link DoorOwner} to add.
          */
         protected abstract void addOwner(UUID uuid, DoorOwner doorOwner);
 
         /**
          * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
          *
-         * @param uuid The {@link UUID} of the {@link DoorOwner} that is to be removed.
+         * @param uuid
+         *     The {@link UUID} of the {@link DoorOwner} that is to be removed.
          * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
          * {@link UUID}.
          */

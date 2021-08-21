@@ -271,7 +271,8 @@ public abstract class Creator extends ToolUser
      * <p>
      * Note that there are some requirements that the name must meet. See {@link Util#isValidDoorName(String)}.
      *
-     * @param str The desired name of the door.
+     * @param str
+     *     The desired name of the door.
      * @return True if the naming step was finished successfully.
      */
     protected boolean completeNamingStep(String str)
@@ -292,7 +293,8 @@ public abstract class Creator extends ToolUser
     /**
      * Sets the first location of the selection and advances the procedure if successful.
      *
-     * @param loc The first location of the cuboid.
+     * @param loc
+     *     The first location of the cuboid.
      * @return True if setting the location was successful.
      */
     protected boolean setFirstPos(IPLocation loc)
@@ -308,7 +310,8 @@ public abstract class Creator extends ToolUser
     /**
      * Sets the second location of the selection and advances the procedure if successful.
      *
-     * @param loc The second location of the cuboid.
+     * @param loc
+     *     The second location of the cuboid.
      * @return True if setting the location was successful.
      */
     protected boolean setSecondPos(IPLocation loc)
@@ -343,7 +346,8 @@ public abstract class Creator extends ToolUser
      * Note that if the player does not end up buying the door, either because of insufficient funds or because they
      * rejected the offer, the current step is NOT advanced!
      *
-     * @param confirm Whether the player confirmed they want to buy this door.
+     * @param confirm
+     *     Whether the player confirmed they want to buy this door.
      * @return Always returns true, because either they can and do buy the door, or they cannot or refuse to buy the
      * door and the process is aborted.
      */
@@ -382,7 +386,8 @@ public abstract class Creator extends ToolUser
      * If the String is not an integer value, it will try to match it to the name of a {@link RotateDirection}. Note
      * that it has to be an exact match.
      *
-     * @param str The name or index of the selected open direction.
+     * @param str
+     *     The name or index of the selected open direction.
      * @return The selected {@link RotateDirection}, if it exists.
      */
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
@@ -418,7 +423,8 @@ public abstract class Creator extends ToolUser
      * <p>
      * If no valid open direction for this type can be found, nothing changes.
      *
-     * @param str The name or index of the {@link RotateDirection} that was selected by the player.
+     * @param str
+     *     The name or index of the {@link RotateDirection} that was selected by the player.
      * @return True if the {@link #openDir} was set successfully.
      */
     protected boolean completeSetOpenDirStep(String str)
@@ -447,7 +453,8 @@ public abstract class Creator extends ToolUser
     /**
      * Verifies that the world of the selected location matches the world that this door is being created in.
      *
-     * @param targetWorld The world to check.
+     * @param targetWorld
+     *     The world to check.
      * @return True if the world is the same world this door is being created in.
      */
     protected boolean verifyWorldMatch(IPWorld targetWorld)
@@ -461,7 +468,8 @@ public abstract class Creator extends ToolUser
     /**
      * Takes care of inserting the door.
      *
-     * @param door The door to send to the {@link DatabaseManager}.
+     * @param door
+     *     The door to send to the {@link DatabaseManager}.
      */
     protected void insertDoor(AbstractDoor door)
     {
@@ -565,7 +573,8 @@ public abstract class Creator extends ToolUser
      * Attempts to complete the step in the {@link Procedure} that sets the second position of the {@link AbstractDoor}
      * that is being created.
      *
-     * @param loc The selected location of the engine.
+     * @param loc
+     *     The selected location of the engine.
      * @return True if the location of the area was set successfully.
      */
     protected boolean completeSetPowerBlockStep(IPLocation loc)
@@ -606,7 +615,8 @@ public abstract class Creator extends ToolUser
      * Attempts to complete the step in the {@link Procedure} that sets the location of the engine for the {@link
      * AbstractDoor} that is being created.
      *
-     * @param loc The selected location of the engine.
+     * @param loc
+     *     The selected location of the engine.
      * @return True if the location of the engine was set successfully.
      */
     protected boolean completeSetEngineStep(IPLocation loc)

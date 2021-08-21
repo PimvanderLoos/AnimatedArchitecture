@@ -27,7 +27,8 @@ public interface ICommandSender extends IMessageable
     /**
      * Checks if this sender has a given permission.
      *
-     * @param permission The permission node to check.
+     * @param permission
+     *     The permission node to check.
      * @return True if the player has access to the provided permission, otherwise false.
      */
     default CompletableFuture<Boolean> hasPermission(String permission)
@@ -42,7 +43,8 @@ public interface ICommandSender extends IMessageable
      * Both the user permission (See {@link CommandDefinition#getUserPermission()}) and the admin permission (See {@link
      * CommandDefinition#getAdminPermission()} are checked.
      *
-     * @param command The {@link CommandDefinition} of a command to check.
+     * @param command
+     *     The {@link CommandDefinition} of a command to check.
      * @return A {@link BooleanPair} that is true if the player has access to the provided permissions, otherwise false
      * for the user and the admin permission nodes respectively.
      */

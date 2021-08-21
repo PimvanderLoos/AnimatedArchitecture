@@ -28,8 +28,10 @@ class LocalizationTestingUtilities
     /**
      * Creates a new {@link URLClassLoader} and loads a jar with it.
      *
-     * @param jar               The path to the jar to load.
-     * @param parentClassLoader The parent class loader.
+     * @param jar
+     *     The path to the jar to load.
+     * @param parentClassLoader
+     *     The parent class loader.
      * @return A new {@link URLClassLoader}.
      *
      * @throws MalformedURLException
@@ -58,8 +60,10 @@ class LocalizationTestingUtilities
     /**
      * Appends a list of Strings to a file. Each entry in the list will be printed on its own line.
      *
-     * @param file  The file to append the lines to.
-     * @param lines The lines to write to the file.
+     * @param file
+     *     The file to append the lines to.
+     * @param lines
+     *     The lines to write to the file.
      * @throws IOException
      */
     static void writeToFile(Path file, List<String> lines)
@@ -72,9 +76,12 @@ class LocalizationTestingUtilities
     /**
      * Writes a new entry (file) in a zip file.
      *
-     * @param outputStream The output stream to write the new entry to.
-     * @param fileName     The name of the entry (file) to write in the zip file.
-     * @param lines        The lines to write to the entry.
+     * @param outputStream
+     *     The output stream to write the new entry to.
+     * @param fileName
+     *     The name of the entry (file) to write in the zip file.
+     * @param lines
+     *     The lines to write to the entry.
      * @throws IOException
      */
     static void writeEntry(ZipOutputStream outputStream, String fileName, List<String> lines)
@@ -90,9 +97,12 @@ class LocalizationTestingUtilities
     /**
      * Writes a new entry (file) in a zip file.
      *
-     * @param outputStream The output stream to write the new entry to.
-     * @param fileName     The name of the entry (file) to write in the zip file.
-     * @param data         The data to write to the entry.
+     * @param outputStream
+     *     The output stream to write the new entry to.
+     * @param fileName
+     *     The name of the entry (file) to write in the zip file.
+     * @param data
+     *     The data to write to the entry.
      * @throws IOException
      */
     static void writeEntry(ZipOutputStream outputStream, String fileName, byte[] data)

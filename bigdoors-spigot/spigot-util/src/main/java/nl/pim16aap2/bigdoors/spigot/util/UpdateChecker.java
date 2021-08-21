@@ -247,12 +247,16 @@ public final class UpdateChecker
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
      *
-     * @param plugin        the plugin for which to check updates. Cannot be null.
-     * @param pluginID      the ID of the plugin as identified in the SpigotMC resource link. For example,
-     *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a
-     *                      value. The value must be greater than 0
-     * @param versionScheme a custom version scheme parser. Cannot be null
-     * @param logger        The {@link PLogger} to use for logging.
+     * @param plugin
+     *     the plugin for which to check updates. Cannot be null.
+     * @param pluginID
+     *     the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *     "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The value must
+     *     be greater than 0
+     * @param versionScheme
+     *     a custom version scheme parser. Cannot be null
+     * @param logger
+     *     The {@link PLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
     public static UpdateChecker init(JavaPlugin plugin, int pluginID, VersionScheme versionScheme, IPLogger logger)
@@ -267,11 +271,14 @@ public final class UpdateChecker
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
      *
-     * @param plugin   the plugin for which to check updates. Cannot be null
-     * @param pluginID the ID of the plugin as identified in the SpigotMC resource link. For example,
-     *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The
-     *                 value must be greater than 0
-     * @param logger   The {@link IPLogger} to use for logging.
+     * @param plugin
+     *     the plugin for which to check updates. Cannot be null
+     * @param pluginID
+     *     the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *     "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The value must
+     *     be greater than 0
+     * @param logger
+     *     The {@link IPLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
     public static UpdateChecker init(JavaPlugin plugin, int pluginID, IPLogger logger)
@@ -311,8 +318,10 @@ public final class UpdateChecker
          * Compare two versions and return the higher of the two. If null is returned, it is assumed that at least one
          * of the two versions are unsupported by this version scheme parser.
          *
-         * @param first  the first version to check
-         * @param second the second version to check
+         * @param first
+         *     the first version to check
+         * @param second
+         *     the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
         @Nullable String compareVersions(String first, String second);

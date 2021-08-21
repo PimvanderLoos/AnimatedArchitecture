@@ -77,11 +77,14 @@ public abstract class DoorType
     /**
      * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
      *
-     * @param pluginName  The name of the plugin that owns this {@link DoorType}.
-     * @param simpleName  The 'simple' name of this {@link DoorType}. E.g. "Flag", or "Windmill".
-     * @param typeVersion The version of this {@link DoorType}. Note that changing the version results in a completely
-     *                    new {@link DoorType}, as far as the database is concerned. This fact can be used if the
-     *                    parameters of the constructor for this type need to be changed.
+     * @param pluginName
+     *     The name of the plugin that owns this {@link DoorType}.
+     * @param simpleName
+     *     The 'simple' name of this {@link DoorType}. E.g. "Flag", or "Windmill".
+     * @param typeVersion
+     *     The version of this {@link DoorType}. Note that changing the version results in a completely new {@link
+     *     DoorType}, as far as the database is concerned. This fact can be used if the parameters of the constructor
+     *     for this type need to be changed.
      */
     protected DoorType(String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
                        String localizationKey)
@@ -121,7 +124,8 @@ public abstract class DoorType
     /**
      * Checks if a given {@link RotateDirection} is valid for this type.
      *
-     * @param rotateDirection The {@link RotateDirection} to check.
+     * @param rotateDirection
+     *     The {@link RotateDirection} to check.
      * @return True if the provided {@link RotateDirection} is valid for this type, otherwise false.
      */
     public final boolean isValidOpenDirection(RotateDirection rotateDirection)
@@ -139,7 +143,8 @@ public abstract class DoorType
     /**
      * Creates (and registers) a new {@link Creator} for this type.
      *
-     * @param player The player who will own the {@link Creator}.
+     * @param player
+     *     The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
     public abstract Creator getCreator(IPPlayer player);
@@ -147,8 +152,10 @@ public abstract class DoorType
     /**
      * Creates (and registers) a new {@link Creator} for this type.
      *
-     * @param player The player who will own the {@link Creator}.
-     * @param name   The name that will be given to the door.
+     * @param player
+     *     The player who will own the {@link Creator}.
+     * @param name
+     *     The name that will be given to the door.
      * @return The newly created {@link Creator}.
      */
     public abstract Creator getCreator(IPPlayer player, @Nullable String name);

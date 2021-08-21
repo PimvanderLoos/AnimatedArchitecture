@@ -30,7 +30,8 @@ public class WorldListener implements Listener
     /**
      * Initializes the {@link WorldListener}. If it has already been initialized, it'll return that instance instead.
      *
-     * @param powerBlockManager The {@link PowerBlockManager}.
+     * @param powerBlockManager
+     *     The {@link PowerBlockManager}.
      * @return The instance of this {@link WorldListener}.
      */
     public static WorldListener init(PowerBlockManager powerBlockManager)
