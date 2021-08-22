@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionXpathFilter Experimental Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2_xpath_experimental.dtd">
+<suppressions>
+
+    <!-- disable checks against lombok annotations -->
+    <suppress-xpath checks="HideUtilityClassConstructor"
+                    query="//CLASS_DEF[.//ANNOTATION/IDENT[@text='UtilityClass']]"/>
+    <suppress-xpath checks="VisibilityModifier"
+                    query="//CLASS_DEF[.//ANNOTATION/IDENT[@text='Value']]"/>
+</suppressions>
+
+
+        <!--<suppressions>-->
+        <!--    <suppress-xpath id="MethodName" query='//METHOD_DEF[.//ANNOTATION/IDENT[@text="Generated"]]'/>-->
+        <!--    <suppress-xpath id="MethodName" query='//METHOD_DEF[./ANNOTATION/IDENT[@text="Generated"]]'/>-->
+        <!--    <suppress-xpath id="MethodName" query='/METHOD_DEF[.//ANNOTATION/IDENT[@text="Generated"]]'/>-->
+        <!--    <suppress-xpath id="MethodName" query='/METHOD_DEF/MODIFIERS/ANNOTATION/IDENT[@text="Generated"]'/>-->
+        <!--    <suppress-xpath checks="." query="//METHOD_DEF[.//ANNOTATION/IDENT[@text='Generated']]"/>-->
+        <!--    &lt;!&ndash;    <suppress-xpath&ndash;&gt;-->
+        <!--    &lt;!&ndash;            checks="TypeNameCheck"&ndash;&gt;-->
+        <!--    &lt;!&ndash;            query="/INTERFACE_DEF/IDENT[@text='TriConsumer']"/>&ndash;&gt;-->
+        <!--    &lt;!&ndash;    <suppress-xpath&ndash;&gt;-->
+        <!--    &lt;!&ndash;            checks="TypeNameCheck"&ndash;&gt;-->
+        <!--    &lt;!&ndash;            query="/INTERFACE_DEF/MODIFIERS/ANNOTATION/IDENT[@text='FunctionalInterface']"/>&ndash;&gt;-->
+        <!--    &lt;!&ndash;    <suppress-xpath&ndash;&gt;-->
+        <!--    &lt;!&ndash;            checks="TypeNameCheck"&ndash;&gt;-->
+        <!--    &lt;!&ndash;            query="/INTERFACE_DEF/MODIFIERS/ANNOTATION/IDENT[@text='FunctionalInterface']"/>&ndash;&gt;-->
+        <!--    &lt;!&ndash;    <suppress-xpath&ndash;&gt;-->
+        <!--    &lt;!&ndash;            checks="TypeNameCheck"&ndash;&gt;-->
+        <!--    &lt;!&ndash;            query="//INTERFACE_DEF[.//ANNOTATION/IDENT[@text='TriConsumer']]"/>&ndash;&gt;-->
+        <!--</suppressions>-->
+
+
+        <!--<?xml version="1.0"?>-->
+
+        <!--<!DOCTYPE suppressions PUBLIC-->
+        <!--        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"-->
+        <!--        "https://checkstyle.org/dtds/suppressions_1_2.dtd">-->
+
+        <!--<suppressions>-->
+        <!--    <suppress files="[/\\]\.+" checks=".*"/>-->
+        <!--    <suppress checks="JavadocStyleCheck"-->
+        <!--              files="AbstractComplexityCheck.java"-->
+        <!--              lines="82,108-122"/>-->
+        <!--    <suppress checks="MagicNumberCheck"-->
+        <!--              files="JavadocStyleCheck.java"-->
+        <!--              lines="221"/>-->
+        <!--    <suppress message="Missing a Javadoc comment"/>-->
+        <!--    <suppress id="TypeName" files="TriConsumer.java"/>-->
+        <!--</suppressions>-->
+
+
+        <!--<suppressions>-->
+        <!--    &lt;!&ndash;    <suppress-xpath checks="." query="//INTERFACE_DEF[&ndash;&gt;-->
+        <!--    &lt;!&ndash;            .//ANNOTATION/IDENT[@text='FunctionalInterface']]"/>&ndash;&gt;-->
+        <!--    <suppress checks=".*"-->
+        <!--              files=".+\.(?:java)$"/>-->
+        <!--    <suppress files="[/\\]\.+" checks=".*"/>-->
+        <!--</suppressions>-->

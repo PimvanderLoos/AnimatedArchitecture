@@ -9,6 +9,11 @@
 
     <module name="FileTabCharacter"/>
 
+    <module name="SuppressionFilter">
+        <property name="file" value="checkstyle/checkstyle-suppressions.xml"/>
+        <property name="optional" value="false"/>
+    </module>
+
     <module name="TreeWalker">
         <!-- FunctionalInterfaces are excluded from the requirement that interfaces must start with "I" -->
         <module name="SuppressionXpathSingleFilter">
@@ -20,8 +25,6 @@
 
         <module name="MethodName"/>
 
-        <module name="ModifierOrder"/>
-
         <module name="UpperEll"/>
 
         <module name="GenericWhitespace"/>
@@ -32,9 +35,10 @@
 
         <module name="UnusedImports"/>
 
-        <module name="VisibilityModifier">
-            <property name="protectedAllowed" value="true"/>
-        </module>
+        <!-- Disabled because it complains about Lombok's @Value -->
+        <!--        <module name="VisibilityModifier">-->
+        <!--            <property name="protectedAllowed" value="true"/>-->
+        <!--        </module>-->
 
         <module name="PackageName">
             <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
