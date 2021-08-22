@@ -92,8 +92,8 @@ public abstract class ToolUser extends Abortable
                                  false, 0, type, engineSide, powerB, openDir, -1, false);
 
             int doorSize = door.getBlockCount();
-            int sizeLimit = Util.getLowestPositiveNumber(Util.getMaxDoorSizeForPlayer(player),
-                                                         plugin.getConfigLoader().maxDoorSize());
+            int sizeLimit = Util.minPositive(Util.getMaxDoorSizeForPlayer(player),
+                                             plugin.getConfigLoader().maxDoorSize());
 
             if (sizeLimit >= 0 && sizeLimit <= doorSize)
                 Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.TooManyBlocks") + " " + sizeLimit);

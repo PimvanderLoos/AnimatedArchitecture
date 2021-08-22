@@ -125,6 +125,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private static final boolean IS_ON_FLATTENED_VERSION = MC_VERSION.isAtLeast(MCVersion.v1_13);
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
+    private final WorldHeightManager worldHeightManager = new WorldHeightManager();
 
     public BigDoors()
     {
@@ -229,6 +230,11 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         isEnabled = true;
+    }
+
+    public WorldHeightManager getWorldHeightManager()
+    {
+        return worldHeightManager;
     }
 
     /**

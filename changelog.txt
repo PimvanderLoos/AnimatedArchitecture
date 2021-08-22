@@ -11,6 +11,7 @@ Alpha 0.1.8.31
 - Added protection hook for GriefDefender. Thanks, anon_fawkes, for the suggestion!
 - Added alias for "/BDM": "/doors". This opens the doors GUI. This is much easier to remember for new users. Thanks, GodsDead, for the suggestion!
 - Added config option to disable update checking messages to avoid "spamming" the log.
+- Use variable min/max world height in anticipation of 1.18.
 
 Alpha 0.1.8.30
 - Add full support for Minecraft 1.17.

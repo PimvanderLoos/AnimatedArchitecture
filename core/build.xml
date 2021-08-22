@@ -14,7 +14,7 @@
         <delete file="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <delete file="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
         <delete file="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
-        <delete file="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
+<!--        <delete file="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>-->
         <delete file="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
         <delete file="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
     </target>
@@ -24,7 +24,7 @@
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>
+<!--        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>-->
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
         <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
     </target>
