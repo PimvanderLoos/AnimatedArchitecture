@@ -291,10 +291,10 @@ public class SlidingDoorOpener implements Opener
         zLen = door.getOpenDir() == RotateDirection.NONE || door.getBlocksToMove() < 1 ? zLen : door.getBlocksToMove();
 
         final int sizeLimit = BigDoors.get().getConfigLoader().getMaxBlocksToMove();
-        xLen = Util.getLowestPositiveNumber(sizeLimit, xLen, 0);
-        zLen = Util.getLowestPositiveNumber(sizeLimit, zLen, 0);
+        xLen = Util.minPositive(sizeLimit, xLen);
+        zLen = Util.minPositive(sizeLimit, zLen);
 
-        if (xLen == 0 && zLen == 0)
+        if (xLen <= 0 && zLen <= 0)
             return 0;
 
         int xAxis, yAxis, zAxis;

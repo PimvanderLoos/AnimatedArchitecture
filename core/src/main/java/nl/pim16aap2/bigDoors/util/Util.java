@@ -329,33 +329,24 @@ public final class Util
     }
 
     /**
-     * Gets the lowest positive integer out of 2. If both values are negative, the fallback value is returned instead.
+     * Gets the lowest value from a number of integers where value >= 0.
      *
-     * @param a The first int.
-     * @param b The second int.
-     * @return The lowest positive integer or 0 if both inputs are negative.
+     * @param values The integers for which to find the lowest positive value.
+     * @return The lowest positive value of the provided integers or -1 if all values were negative.
      */
-    public static int getLowestPositiveNumber(final int a, final int b, final int fallback)
+    public static int minPositive(final int... values)
     {
-        if (a < 0 && b < 0)
-            return fallback;
-        if (a < 0)
-            return b;
-        if (b < 0)
-            return a;
-        return Math.min(a, b);
-    }
-
-    /**
-     * Gets the lowest positive integer out of 2.
-     *
-     * @param a The first int.
-     * @param b The second int.
-     * @return The lowest positive integer or -1 if both inputs are negative.
-     */
-    public static int getLowestPositiveNumber(final int a, final int b)
-    {
-        return getLowestPositiveNumber(a, b, -1);
+        boolean foundPositive = false;
+        int lowest = Integer.MAX_VALUE;
+        for (int value : values)
+        {
+            if (value < 0)
+                continue;
+            foundPositive = true;
+            if (value < lowest)
+                lowest = value;
+        }
+        return foundPositive ? lowest : -1;
     }
 
     private static int getHighestPermissionSuffix(Player player, String permissionNode)
@@ -365,7 +356,7 @@ public final class Util
             if (perms.getPermission().startsWith(permissionNode))
                 try
                 {
-                    ret = Math.max(ret, Integer.valueOf(perms.getPermission().split(permissionNode)[1]));
+                    ret = Math.max(ret, Integer.parseInt(perms.getPermission().split(permissionNode)[1]));
                 }
                 catch (Exception e)
                 {

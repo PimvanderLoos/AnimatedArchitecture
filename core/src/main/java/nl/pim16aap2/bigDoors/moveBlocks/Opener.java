@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.moveBlocks;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.WorldHeightManager;
 import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
 import nl.pim16aap2.bigDoors.events.DoorEventTogglePrepare;
 import nl.pim16aap2.bigDoors.events.DoorEventToggleStart;
@@ -14,6 +15,7 @@ import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
+import nl.pim16aap2.bigDoors.util.WorldHeightLimits;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -44,6 +46,7 @@ public interface Opener
      * @return A pair of coordinates in chunk-space (hence 2d) containing the lower-bound coordinates first and the
      * upper bound second.
      */
+    @SuppressWarnings("unused")
     Pair<Vector2D, Vector2D> getChunkRange(Door door);
 
     /**
@@ -70,7 +73,7 @@ public interface Opener
      * Attempts to toggle a door using default values for everything.
      *
      * @param door                  The door to attempt to toggle.
-     * @param bypassProtectionHooks Whether or not to bypass the protection hooks when trying to toggle the door.
+     * @param bypassProtectionHooks Whether to bypass the protection hooks when trying to toggle the door.
      * @return The result of the toggle attempt.
      */
     default @Nonnull DoorOpenResult openDoor(@Nonnull Door door, boolean bypassProtectionHooks)
@@ -143,9 +146,9 @@ public interface Opener
      *                              <p>
      *                              Setting this value to 0 will result in the default time value being used.
      * @param instantOpen           When this is true, the animation will be skipped.
-     * @param silent                Whether or not to suppress messages.
+     * @param silent                Whether to suppress messages.
      * @param mode                  Determines how to deal with unloaded chunks. See {@link ConfigLoader#getChunkLoadMode()}.
-     * @param bypassProtectionHooks Whether or not to bypass the protection hooks when trying to toggle the door.
+     * @param bypassProtectionHooks Whether to bypass the protection hooks when trying to toggle the door.
      * @return The result of the toggle attempt.
      */
     @Nonnull DoorOpenResult openDoor(@Nonnull Door door, double time, boolean instantOpen, boolean silent,
@@ -159,6 +162,26 @@ public interface Opener
         if (reason != DoorOpenResult.BUSY)
             BigDoors.get().getCommander().setDoorAvailable(doorUID);
         return reason;
+    }
+
+    /**
+     * Gets the number of blocks between this door and the world limit
+     *
+     * @param door               The door for which to find the distances to the world limits.
+     * @param worldHeightManager The world height manager.
+     * @param upDown             Whether to check in the up or down direction.
+     * @return The number of blocks to the world limit in either up or down direction.
+     * @throws IllegalArgumentException When the provided upDown direction is not either {@link RotateDirection#UP} or
+     * {@link RotateDirection#DOWN}.
+     */
+    default int getDistanceToWorldLimit(Door door, WorldHeightManager worldHeightManager, RotateDirection upDown)
+    {
+        final WorldHeightLimits worldLimits = worldHeightManager.getWorldHeightLimits(door.getWorld());
+        if (upDown.equals(RotateDirection.UP))
+            return worldLimits.getUpperLimit() - door.getMaximum().getBlockY();
+        else if (upDown.equals(RotateDirection.DOWN))
+            return door.getMinimum().getBlockY() - worldLimits.getLowerLimit();
+        throw new IllegalArgumentException("Cannot check distance to world limit in direction: " + upDown.name());
     }
 
     RotateDirection getRotateDirection(Door door);
@@ -198,6 +221,7 @@ public interface Opener
      * @param door The door for which to find the new coordinates.
      * @return The new minimum and maximum coordinates the door would take up if it were toggled now.
      */
+    @SuppressWarnings("unused")
     @Nonnull Optional<Pair<Location, Location>> getNewCoordinates(@Nonnull Door door);
 
     default int getSizeLimit(final Door door)
@@ -206,7 +230,7 @@ public interface Opener
         Player player = Bukkit.getPlayer(door.getPlayerUUID());
         int personalLimit = player == null ? -1 : Util.getMaxDoorSizeForPlayer(player);
 
-        return Util.getLowestPositiveNumber(personalLimit, globalLimit);
+        return Util.minPositive(personalLimit, globalLimit);
     }
 
     /**
@@ -216,10 +240,15 @@ public interface Opener
      * @param min   The minimum coordinates.
      * @param max   The maximum coordinates.
      * @return True if all blocks in the region defined by the min/max coordinates do not obstruct doors (e.g. water or
-     * air).
+     * air). If any blocks are in the way or if the locations are out of range of the
+     * {@link WorldHeightManager#getWorldHeightLimits(World)}, this method will return false.
      */
     default boolean isPosFree(@Nonnull World world, @Nonnull Location min, @Nonnull Location max)
     {
+        final WorldHeightLimits worldLimits = BigDoors.get().getWorldHeightManager().getWorldHeightLimits(world);
+        if (min.getBlockY() < worldLimits.getLowerLimit() || max.getBlockY() > worldLimits.getUpperLimit())
+            return false;
+
         for (int xAxis = min.getBlockX(); xAxis <= max.getBlockX(); ++xAxis)
             for (int yAxis = min.getBlockY(); yAxis <= max.getBlockY(); ++yAxis)
                 for (int zAxis = min.getBlockZ(); zAxis <= max.getBlockZ(); ++zAxis)
@@ -246,8 +275,8 @@ public interface Opener
      * @param door   The door which data to use for check the owner's access to the new and the old locations.
      * @param newMin The new minimum coordinates.
      * @param newMax The new maximum coordinates.
-     * @return True if the owner of the door has access to both the current area of the door as well as the new area of
-     * the door.
+     * @return True if the owner of the door has access to both the current area of the door and the new area of the
+     * door.
      */
     default boolean hasAccessToLocations(@Nonnull Door door, @Nonnull Location newMin, @Nonnull Location newMax)
     {

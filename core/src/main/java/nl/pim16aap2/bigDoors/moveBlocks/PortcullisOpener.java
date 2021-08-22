@@ -178,9 +178,13 @@ public class PortcullisOpener implements Opener
         zMax = door.getMaximum().getBlockZ();
         yLen = yMax - yMin + 1;
 
-        final int sizeLimit = BigDoors.get().getConfigLoader().getMaxBlocksToMove();
-        final int distanceToCheck =
-            Util.getLowestPositiveNumber(sizeLimit, door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove(), 0);
+        final int blocksToMoveLimit = BigDoors.get().getConfigLoader().getMaxBlocksToMove();
+        final int distanceToWorldLimit = getDistanceToWorldLimit(door, plugin.getWorldHeightManager(), upDown);
+        final int blocksToMove = door.getBlocksToMove() < 1 ? yLen : door.getBlocksToMove();
+
+        final int distanceToCheck = Util.minPositive(blocksToMove, blocksToMoveLimit, distanceToWorldLimit);
+        if (distanceToCheck <= 0)
+            return 0;
 
         int xAxis, yAxis, zAxis, yGoal;
         World world = door.getWorld();

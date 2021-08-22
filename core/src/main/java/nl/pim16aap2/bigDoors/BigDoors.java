@@ -136,9 +136,10 @@ public class BigDoors extends JavaPlugin implements Listener
     private HeadManager headManager;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
-    private static final MCVersion mcVersion = BigDoors.calculateMCVersion();
+    private static final MCVersion MC_VERSION = BigDoors.calculateMCVersion();
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
+    private final WorldHeightManager worldHeightManager = new WorldHeightManager();
 
     public BigDoors()
     {
@@ -240,6 +241,11 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         isEnabled = true;
+    }
+
+    public WorldHeightManager getWorldHeightManager()
+    {
+        return worldHeightManager;
     }
 
     /**
@@ -656,7 +662,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public static MCVersion getMCVersion()
     {
-        return mcVersion;
+        return MC_VERSION;
     }
 
     private void readConfigValues()
@@ -956,6 +962,9 @@ public class BigDoors extends JavaPlugin implements Listener
         v1_18,
         v1_19,
         v1_20,
+        v1_21,
+        v1_22,
+        v1_23,
     }
 
 //    public long createNewDoor(Location min, Location max, Location engine,

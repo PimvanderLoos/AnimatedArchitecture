@@ -60,7 +60,7 @@ public class CommandHandler implements CommandExecutor
 
         int globalLimit = BigDoors.get().getConfigLoader().maxDoorSize();
         int personalLimit = sender instanceof Player ? Util.getMaxDoorSizeForPlayer((Player) sender) : -1;
-        int sizeLimit = Util.getLowestPositiveNumber(personalLimit, globalLimit);
+        int sizeLimit = Util.minPositive(personalLimit, globalLimit);
         if (sizeLimit > 0 && sizeLimit <= door.getBlockCount())
         {
             plugin.getMyLogger().returnToSender(sender, Level.INFO, ChatColor.RED,
