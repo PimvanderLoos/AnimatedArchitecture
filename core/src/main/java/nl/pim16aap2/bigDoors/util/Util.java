@@ -63,11 +63,8 @@ public final class Util
         WHITELIST.clear();
         BLACKLIST.clear();
 
-        for (Material mat : configLoader.getWhitelist())
-            WHITELIST.add(mat);
-
-        for (Material mat : configLoader.getBlacklist())
-            BLACKLIST.add(mat);
+        WHITELIST.addAll(configLoader.getWhitelist());
+        BLACKLIST.addAll(configLoader.getBlacklist());
 
         for (Material mat : Material.values())
         {
@@ -291,7 +288,7 @@ public final class Util
     public static String getFullDoorInfo(Door door)
     {
 
-        return door == null ? "Door not found!" : door.getDoorUID() + ": " + door.getName().toString() + ", Min("
+        return door == null ? "Door not found!" : door.getDoorUID() + ": " + door.getName() + ", Min("
             + door.getMinimum().getBlockX() + ";" + door.getMinimum().getBlockY() + ";" + door.getMinimum().getBlockZ()
             + ")" + ", Max(" + door.getMaximum().getBlockX() + ";" + door.getMaximum().getBlockY() + ";"
             + door.getMaximum().getBlockZ() + ")" + ", Engine(" + door.getEngine().getBlockX() + ";"
@@ -394,7 +391,7 @@ public final class Util
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
-        double ret[] = new double[3];
+        double[] ret = new double[3];
         double distance = Math.PI * doorSize / 2;
         if (time == 0.0)
             time = baseSpeed + doorSize / 3.5;
@@ -559,7 +556,11 @@ public final class Util
         if (name.contains("POLISHED") || name.contains("SMOOTH") || name.contains("BRICKS") || name.contains("DEEPSLATE"))
             return true;
 
-        if (name.endsWith("TULIP"))
+        if (name.endsWith("BANNER") || name.endsWith("SHULKER_BOX") || name.endsWith("DOOR") ||
+            name.endsWith("CARPET") || name.endsWith("BUTTON") || name.endsWith("BED") ||
+            name.endsWith("PRESSURE_PLATE") || name.endsWith("SIGN") || name.endsWith("SAPLING") ||
+            name.endsWith("TORCH") || name.endsWith("HEAD") || name.endsWith("SKULL") || name.endsWith("RAIL") ||
+            name.endsWith("TULIP"))
             return false;
 
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
@@ -591,52 +592,6 @@ public final class Util
         case FURNACE_MINECART:
         case CAKE:
 
-        case WHITE_SHULKER_BOX:
-        case YELLOW_SHULKER_BOX:
-        case PURPLE_SHULKER_BOX:
-        case LIGHT_BLUE_SHULKER_BOX:
-        case GRAY_SHULKER_BOX:
-        case GREEN_SHULKER_BOX:
-        case BLACK_SHULKER_BOX:
-        case LIME_SHULKER_BOX:
-        case BLUE_SHULKER_BOX:
-        case BROWN_SHULKER_BOX:
-        case CYAN_SHULKER_BOX:
-        case RED_SHULKER_BOX:
-
-        case ACACIA_TRAPDOOR:
-        case BIRCH_TRAPDOOR:
-        case DARK_OAK_TRAPDOOR:
-        case IRON_TRAPDOOR:
-        case JUNGLE_TRAPDOOR:
-        case OAK_TRAPDOOR:
-        case SPRUCE_TRAPDOOR:
-        case ACACIA_DOOR:
-        case BIRCH_DOOR:
-        case IRON_DOOR:
-        case JUNGLE_DOOR:
-        case OAK_DOOR:
-        case SPRUCE_DOOR:
-        case DARK_OAK_DOOR:
-
-        case CREEPER_HEAD:
-        case CREEPER_WALL_HEAD:
-        case DRAGON_HEAD:
-        case DRAGON_WALL_HEAD:
-        case PISTON_HEAD:
-        case PLAYER_HEAD:
-        case PLAYER_WALL_HEAD:
-        case ZOMBIE_HEAD:
-        case ZOMBIE_WALL_HEAD:
-        case SKELETON_SKULL:
-        case SKELETON_WALL_SKULL:
-        case WITHER_SKELETON_SKULL:
-        case WITHER_SKELETON_WALL_SKULL:
-
-        case RAIL:
-        case DETECTOR_RAIL:
-        case ACTIVATOR_RAIL:
-        case POWERED_RAIL:
         case LEVER:
 
         case REDSTONE:
@@ -644,10 +599,6 @@ public final class Util
         case TRAPPED_CHEST:
         case TRIPWIRE:
         case TRIPWIRE_HOOK:
-        case REDSTONE_TORCH:
-        case REDSTONE_WALL_TORCH:
-        case TORCH:
-        case WALL_TORCH:
 
         case BROWN_MUSHROOM:
         case RED_MUSHROOM:
@@ -655,31 +606,6 @@ public final class Util
         case FERN:
         case LARGE_FERN:
         case CONDUIT:
-
-        case BLACK_CARPET:
-        case BLUE_CARPET:
-        case BROWN_CARPET:
-        case CYAN_CARPET:
-        case GRAY_CARPET:
-        case GREEN_CARPET:
-        case LIGHT_BLUE_CARPET:
-        case LIGHT_GRAY_CARPET:
-        case LIME_CARPET:
-        case MAGENTA_CARPET:
-        case ORANGE_CARPET:
-        case PINK_CARPET:
-        case PURPLE_CARPET:
-        case RED_CARPET:
-        case WHITE_CARPET:
-        case YELLOW_CARPET:
-
-        case ACACIA_BUTTON:
-        case BIRCH_BUTTON:
-        case DARK_OAK_BUTTON:
-        case JUNGLE_BUTTON:
-        case OAK_BUTTON:
-        case SPRUCE_BUTTON:
-        case STONE_BUTTON:
 
         case ROSE_BUSH:
         case ATTACHED_MELON_STEM:
@@ -714,75 +640,7 @@ public final class Util
         case SEAGRASS:
         case TALL_SEAGRASS:
 
-        case ACACIA_SAPLING:
-        case BIRCH_SAPLING:
-        case DARK_OAK_SAPLING:
-        case JUNGLE_SAPLING:
-        case OAK_SAPLING:
-        case SPRUCE_SAPLING:
-        case SHULKER_BOX:
-        case LIGHT_GRAY_SHULKER_BOX:
-        case MAGENTA_SHULKER_BOX:
-        case ORANGE_SHULKER_BOX:
-        case PINK_SHULKER_BOX:
-
-        case BLACK_BED:
-        case BLUE_BED:
-        case BROWN_BED:
-        case CYAN_BED:
-        case GRAY_BED:
-        case GREEN_BED:
-        case LIME_BED:
-        case MAGENTA_BED:
-        case ORANGE_BED:
-        case PINK_BED:
-        case RED_BED:
-        case WHITE_BED:
-        case YELLOW_BED:
-        case LIGHT_BLUE_BED:
-        case LIGHT_GRAY_BED:
-
-        case BLACK_BANNER:
-        case BLACK_WALL_BANNER:
-        case BLUE_BANNER:
-        case BLUE_WALL_BANNER:
-        case BROWN_BANNER:
-        case BROWN_WALL_BANNER:
-        case CYAN_BANNER:
-        case CYAN_WALL_BANNER:
-        case GRAY_BANNER:
-        case GRAY_WALL_BANNER:
-        case GREEN_BANNER:
-        case GREEN_WALL_BANNER:
-        case LIME_BANNER:
-        case LIME_WALL_BANNER:
-        case MAGENTA_BANNER:
-        case MAGENTA_WALL_BANNER:
-        case ORANGE_BANNER:
-        case ORANGE_WALL_BANNER:
-        case PINK_BANNER:
-        case PINK_WALL_BANNER:
-        case RED_BANNER:
-        case RED_WALL_BANNER:
-        case WHITE_BANNER:
-        case WHITE_WALL_BANNER:
-        case YELLOW_BANNER:
-        case YELLOW_WALL_BANNER:
-        case LIGHT_BLUE_BANNER:
-        case LIGHT_BLUE_WALL_BANNER:
-        case LIGHT_GRAY_BANNER:
-        case LIGHT_GRAY_WALL_BANNER:
-
         case LADDER:
-        case STONE_PRESSURE_PLATE:
-        case HEAVY_WEIGHTED_PRESSURE_PLATE:
-        case LIGHT_WEIGHTED_PRESSURE_PLATE:
-        case OAK_PRESSURE_PLATE:
-        case SPRUCE_PRESSURE_PLATE:
-        case BIRCH_PRESSURE_PLATE:
-        case JUNGLE_PRESSURE_PLATE:
-        case ACACIA_PRESSURE_PLATE:
-        case DARK_OAK_PRESSURE_PLATE:
 
         case STRUCTURE_BLOCK:
         case STRUCTURE_VOID:
@@ -794,19 +652,7 @@ public final class Util
         case LILY_OF_THE_VALLEY:
         case WITHER_ROSE:
         case BARREL:
-        case ACACIA_SIGN:
-        case BIRCH_SIGN:
-        case DARK_OAK_SIGN:
-        case JUNGLE_SIGN:
-        case OAK_SIGN:
-        case SPRUCE_SIGN:
 
-        case ACACIA_WALL_SIGN:
-        case BIRCH_WALL_SIGN:
-        case DARK_OAK_WALL_SIGN:
-        case JUNGLE_WALL_SIGN:
-        case OAK_WALL_SIGN:
-        case SPRUCE_WALL_SIGN:
         case BLAST_FURNACE:
         case CARTOGRAPHY_TABLE:
         case COMPOSTER:
@@ -828,10 +674,6 @@ public final class Util
         case BEEHIVE:
         case BEE_NEST:
             /* 1.15 end */
-
-            /* 1.16 start */
-        case BAMBOO_SAPLING:
-            /* 1.16 end */
 
             /* 1.17 start */
         case CAVE_VINES:
