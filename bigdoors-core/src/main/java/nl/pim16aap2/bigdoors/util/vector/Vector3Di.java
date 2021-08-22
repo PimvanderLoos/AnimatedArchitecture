@@ -1,217 +1,381 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jetbrains.annotations.Contract;
 
 /**
- * Represents an integer vector or vertex in 3D space.
+ * Represents an integer x/y/z set.
+ * <p>
+ * This class is thread-safe, as all modifications return a new instance.
  *
  * @author Pim
  */
-public final class Vector3Di extends Vector3DiConst
+@SuppressWarnings("unused")
+public record Vector3Di(int x, int y, int z) implements Vector3DUtil.IVector3D
 {
-    public Vector3Di(final int x, final int y, final int z)
+    /**
+     * Creates a new double-based 3d vector from this integer-based 3d vector.
+     *
+     * @return A new double-based vector.
+     */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    public Vector3Dd toDouble()
     {
-        super(x, y, z);
+        return Vector3Dd.fromInteger(this);
     }
 
-    public Vector3Di(final @NotNull Vector3DiConst other)
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    static Vector3Di fromDouble(Vector3Dd doubleVec)
     {
-        super(other);
+        return new Vector3Di(round(doubleVec.x()), round(doubleVec.y()), round(doubleVec.z()));
     }
 
-    // TODO: Test this.
-    public @NotNull Vector3Di rotateAroundXAxis(final double radians)
+    /**
+     * Adds values to the current values.
+     *
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
+     * @param z
+     *     The z value to add to the current z value.
+     * @return A new {@link Vector3Di} with the added values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di add(int x, int y, int z)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
-
-        double newY = cos * (double) getY() - sin * (double) getZ();
-        double newZ = sin * (double) getY() + cos * (double) getZ();
-
-        setY((int) newY);
-        setZ((int) newZ);
-        return this;
+        return new Vector3Di(this.x + x, this.y + y, this.z + z);
     }
 
-    public @NotNull Vector3Di rotateAroundXAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
+    /**
+     * Adds another {@link Vector3Di} to the current values.
+     *
+     * @param other
+     *     The other {@link Vector3Di} to add to the current one.
+     * @return A new {@link Vector3Di} with the added values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di add(Vector3Di other)
     {
-        final double cos = Math.cos(radians);
-        final double sin = Math.sin(radians);
-
-        final double translatedY = y - pivotPoint.getY();
-        final double translatedZ = z - pivotPoint.getZ();
-
-        final double changeY = cos * translatedY - sin * translatedZ;
-        final double changeZ = sin * translatedY + cos * translatedZ;
-
-        setY((int) (pivotPoint.getY() + changeY));
-        setZ((int) (pivotPoint.getZ() + changeZ));
-        return this;
+        return new Vector3Di(other.x, other.y, other.z);
     }
 
-    // TODO: Test this.
-    public @NotNull Vector3Di rotateAroundYAxis(final double radians)
+    /**
+     * Adds a value to the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The value to add to the x, y, and z values.
+     * @return A new {@link Vector3Di} with the value added to the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di add(int val)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
-
-        double newX = cos * (double) getX() + sin * (double) getZ();
-        double newZ = -sin * (double) getX() + cos * (double) getZ();
-
-        setX((int) newX);
-        setZ((int) newZ);
-        return this;
+        return add(val, val, val);
     }
 
-    public @NotNull Vector3Di rotateAroundYAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
+
+    /**
+     * Subtracts values from the current values.
+     *
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
+     * @param z
+     *     The z value to subtract from the current z value.
+     * @return A new {@link Vector3Di} with the subtracted values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di subtract(int x, int y, int z)
     {
-        final double cos = Math.cos(radians);
-        final double sin = Math.sin(radians);
-
-        final double translatedX = x - pivotPoint.getX();
-        final double translatedZ = z - pivotPoint.getZ();
-
-        final double changeX = cos * translatedX - sin * translatedZ;
-        final double changeZ = sin * translatedX + cos * translatedZ;
-
-        setX((int) (pivotPoint.getX() + changeX));
-        setZ((int) (pivotPoint.getZ() + changeZ));
-        return this;
+        return add(-x, -y, -z);
     }
 
-    // TODO: Test this.
-    public @NotNull Vector3Di rotateAroundZAxis(final double radians)
+    /**
+     * Subtracts another {@link Vector3Di} from the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param other
+     *     The other {@link Vector3Di} to subtract from the x, y, and z values.
+     * @return The new {@link Vector3Di} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di subtract(Vector3Di other)
     {
-        double cos = Math.cos(radians);
-        double sin = Math.sin(radians);
-
-        double newX = cos * (double) getX() - sin * (double) getY();
-        double newY = sin * (double) getX() + cos * (double) getY();
-
-        setX((int) newX);
-        setY((int) newY);
-
-        return this;
+        return new Vector3Di(other.x, other.y, other.z);
     }
 
-    public @NotNull Vector3Di rotateAroundZAxis(final @NotNull Vector3DiConst pivotPoint, final double radians)
+    /**
+     * Subtracts a value from the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The value to subtract from the x, y, and z values.
+     * @return A new {@link Vector3Di} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di subtract(int val)
     {
-        final double cos = Math.cos(radians);
-        final double sin = Math.sin(radians);
-
-        final double translatedY = y - pivotPoint.getY();
-        final double translatedX = x - pivotPoint.getX();
-
-        final double changeY = cos * translatedY - sin * translatedX;
-        final double changeX = sin * translatedY + cos * translatedX;
-
-        setY((int) (pivotPoint.getY() + changeY));
-        setX((int) (pivotPoint.getX() + changeX));
-        return this;
+        return add(val, val, val);
     }
 
-    public @NotNull Vector3Di add(final @NotNull Vector3DiConst other)
+
+    /**
+     * Multiplies values with the current values.
+     *
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
+     * @param z
+     *     The z value to multiply with the current z value.
+     * @return A new {@link Vector3Di} with the multiplied values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di multiply(int x, int y, int z)
     {
-        add(other.getX(), other.getY(), other.getZ());
-        return this;
+        return new Vector3Di(this.x * x, this.y * y, this.z * z);
     }
 
-    public @NotNull Vector3Di subtract(final @NotNull Vector3DiConst other)
+    /**
+     * Multiplies another {@link Vector3Di} from with the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param other
+     *     The other {@link Vector3Di} to multiply with the x, y, and z values.
+     * @return The new {@link Vector3Di} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di multiply(Vector3Di other)
     {
-        add(-other.getX(), -other.getY(), -other.getZ());
-        return this;
+        return multiply(other.x, other.y, other.z);
     }
 
-    public @NotNull Vector3Di multiply(final @NotNull Vector3DiConst other)
+    /**
+     * Multiplies a value with the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The value to multiply from the x, y, and z values.
+     * @return A new {@link Vector3Di} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di multiply(int val)
     {
-        x *= other.getX();
-        y *= other.getY();
-        z *= other.getZ();
-        return this;
+        return multiply(val, val, val);
     }
 
-    public @NotNull Vector3Di divide(final @NotNull Vector3DiConst other)
+
+    /**
+     * Multiplies values with the current values.
+     *
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
+     * @param z
+     *     The z value to multiply with the current z value.
+     * @return A new {@link Vector3Di} with the multiplied values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di multiply(double x, double y, double z)
     {
-        x /= other.getX();
-        y /= other.getY();
-        z /= other.getZ();
-        return this;
+        return new Vector3Di(round(this.x * x), round(this.y * y), round(this.z * z));
     }
 
-    public @NotNull Vector3Di multiply(final double val)
+    /**
+     * Multiplies another {@link Vector3Dd} from with the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param other
+     *     The other {@link Vector3Dd} to multiply with the x, y, and z values.
+     * @return The new {@link Vector3Di} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di multiply(Vector3Dd other)
     {
-        x *= val;
-        y *= val;
-        z *= val;
-        return this;
+        return multiply(other.x(), other.y(), other.z());
     }
 
-    public @NotNull Vector3Di divide(final double val)
+    /**
+     * Multiplies a value with the x, y, and z values of the current {@link Vector3Di}.
+     *
+     * @param val
+     *     The value to multiply from the x, y, and z values.
+     * @return A new {@link Vector3Di} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di multiply(double val)
     {
-        x /= val;
-        y /= val;
-        z /= val;
-        return this;
+        return multiply(val, val, val);
     }
 
-    public @NotNull Vector3Di addX(int val)
+
+    /**
+     * Divides the current values with values.
+     *
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di divide(int x, int y, int z)
     {
-        x += val;
-        return this;
+        return new Vector3Di(round(this.x / (double) x), round(this.y / (double) y), round(this.z / (double) z));
     }
 
-    public @NotNull Vector3Di addY(int val)
+    /**
+     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided {@link
+     * Vector3Di}.
+     *
+     * @param other
+     *     The other {@link Vector3Di} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di divide(Vector3Di other)
     {
-        y += val;
-        return this;
+        return divide(other.x, other.y, other.z);
     }
 
-    public @NotNull Vector3Di addZ(int val)
+    /**
+     * Divides the x, y, and z values of the current {@link Vector3Di} with a provided value.
+     *
+     * @param val
+     *     The value to use as divisor for the x, y, and z values.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di divide(int val)
     {
-        z += val;
-        return this;
+        return divide(val, val, val);
     }
 
-    public @NotNull Vector3Di setX(int newVal)
+
+    /**
+     * Divides the current values with values.
+     *
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
+     * @param z
+     *     The z value to use as divisor for the current z value.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    public Vector3Di divide(double x, double y, double z)
     {
-        x = newVal;
-        return this;
+        return new Vector3Di(round(this.x / x), round(this.y / y), round(this.z / z));
     }
 
-    public @NotNull Vector3Di setY(int newVal)
+    /**
+     * Divides the x and y values of the current {@link Vector3Di} with the x, y, and z values of the provided {@link
+     * Vector3Dd}.
+     *
+     * @param other
+     *     The other {@link Vector3Dd} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di divide(Vector3Dd other)
     {
-        y = newVal;
-        return this;
+        return divide(other.x(), other.y(), other.z());
     }
 
-    public @NotNull Vector3Di setZ(int newVal)
+    /**
+     * Divides the x, y, and z values of the current {@link Vector3Di} with a provided value.
+     *
+     * @param val
+     *     The value to use as divisor for the x, y, and z values.
+     * @return A new {@link Vector3Di} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector3Di divide(double val)
     {
-        z = newVal;
-        return this;
+        return divide(val, val, val);
     }
 
-    public @NotNull Vector3Di add(int x, int y, int z)
+    /**
+     * Normalizes this {@link Vector3Di}.
+     *
+     * @return A new {@link Vector3Di} with normalized
+     */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    public Vector3Di normalized()
     {
-        this.x += x;
-        this.y += y;
-        this.z += z;
-        return this;
+        final double length = Math.sqrt((double) x * x + y * y + z * z);
+
+        final int newX = round(x / length);
+        final int newY = round(y / length);
+        final int newZ = round(z / length);
+
+        return new Vector3Di(newX, newY, newZ);
+    }
+
+    /**
+     * Rotates this point around another point along the x axis.
+     *
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
+     * @return A new {@link Vector3Di} rotated around the pivot point.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector3Di rotateAroundXAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    {
+        return fromDouble(Vector3DUtil.rotateAroundXAxis(this, pivotPoint, radians));
+    }
+
+    /**
+     * Rotates this point around another point along the y axis.
+     *
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
+     * @return A new {@link Vector3Di} rotated around the pivot point.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector3Di rotateAroundYAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    {
+        return fromDouble(Vector3DUtil.rotateAroundYAxis(this, pivotPoint, radians));
+    }
+
+    /**
+     * Rotates this point around another point along the z axis.
+     *
+     * @param pivotPoint
+     *     The point around which to rotate this point.
+     * @param radians
+     *     How far to rotate this point (in radians).
+     * @return A new {@link Vector3Di} rotated around the pivot point.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector3Di rotateAroundZAxis(Vector3DUtil.IVector3D pivotPoint, double radians)
+    {
+        return fromDouble(Vector3DUtil.rotateAroundZAxis(this, pivotPoint, radians));
+    }
+
+    @CheckReturnValue @Contract(pure = true)
+    private static int round(double val)
+    {
+        return (int) Math.round(val);
     }
 
     @Override
-    public @NotNull Vector3Di clone()
+    public double xD()
     {
-        return new Vector3Di(this);
+        return x;
     }
 
-    public @NotNull Vector3Di normalize()
+    @Override
+    public double yD()
     {
-        double length = Math.sqrt(x * x + y * y + z * z);
+        return y;
+    }
 
-        x /= length;
-        y /= length;
-        z /= length;
-
-        return this;
+    @Override
+    public double zD()
+    {
+        return z;
     }
 }

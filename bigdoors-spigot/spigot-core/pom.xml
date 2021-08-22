@@ -21,16 +21,15 @@
         <!-- WorldGuard -->
         <repository>
             <id>sk89q-repo</id>
-            <url>http://maven.sk89q.com/repo/</url>
+            <url>https://maven.sk89q.com/repo/</url>
         </repository>
 
         <!-- Vault -->
         <repository>
             <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
+            <url>https://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
     </repositories>
-
 
     <dependencies>
         <dependency>
@@ -70,7 +69,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>1.8</version>
+            <version>2.2.1</version>
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
@@ -97,7 +96,7 @@
             <artifactId>Towny</artifactId>
             <version>0.95.2.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Towny-0.95.2.0.jar</systemPath>
+            <systemPath>${basedir}/../../lib/Towny-0.95.2.0.jar</systemPath>
         </dependency>
 
         <!-- Old Towny -->
@@ -106,7 +105,7 @@
             <artifactId>Towny</artifactId>
             <version>0.94.0.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Towny_0_94_0_0.jar</systemPath>
+            <systemPath>${basedir}/../../lib/Towny_0_94_0_0.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -143,7 +142,7 @@
             <artifactId>PlotSquared-Legacy</artifactId>
             <scope>system</scope>
             <version>latest</version>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
+            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -151,40 +150,30 @@
             <artifactId>PlotSquared-Breaking</artifactId>
             <scope>system</scope>
             <version>4.347</version>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.347.jar</systemPath>
+            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-4.347.jar</systemPath>
         </dependency>
     </dependencies>
 
     <build>
         <directory>../../target/</directory>
         <finalName>BigDoors-Spigot</finalName>
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>plugin.yml</include>
-                    <include>config.yml</include>
-                    <include>en_US.txt</include>
-                </includes>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${dependency.version.maven-shade}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${dependency.version.jacoco}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${dependency.version.maven-compiler}</version>
             </plugin>
         </plugins>
     </build>

@@ -7,7 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -22,111 +22,92 @@ import java.util.Optional;
  */
 class FakePlayerCreator
 {
-    static final String FAKEPLAYERMETADATA = "isBigDoorsFakePlayer";
+    static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";
 
-    private final String NMSbase;
-    private final String CraftBase;
+    private final String nmsBase;
+    private final String craftBase;
     private final BigDoorsSpigot plugin;
-    private Class<?> CraftOfflinePlayer;
-    private Class<?> CraftWorld;
-    private Class<?> World;
-    private Class<?> WorldServer;
-    private Class<?> EntityPlayer;
-    private Class<?> MinecraftServer;
-    private Class<?> PlayerInteractManager;
-    private Method getProfile;
-    private Method getHandle;
-    private Method getServer;
-    private Method getBukkitEntity;
-    private Constructor<?> EntityPlayerConstructor;
-    private Constructor<?> PlayerInteractManagerConstructor;
-    private Field uuid;
-    private boolean success = false;
+    private final Class<?> craftOfflinePlayer;
+    private final Class<?> craftWorld;
+    private final Method getProfile;
+    private final Method getHandle;
+    private final Method getServer;
+    private final Method getBukkitEntity;
+    private final Constructor<?> entityPlayerConstructor;
+    private final Constructor<?> playerInteractManagerConstructor;
+    private final Field uuid;
+    private final boolean success;
 
-    FakePlayerCreator(final @NotNull BigDoorsSpigot plugin)
+    FakePlayerCreator(BigDoorsSpigot plugin)
+        throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
 
-        NMSbase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        CraftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
+        nmsBase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
+        craftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
             + ".";
-        try
-        {
-            CraftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
-            CraftWorld = getCraftClass("CraftWorld");
-            WorldServer = getNMSClass("WorldServer");
-            EntityPlayer = getNMSClass("EntityPlayer");
-            MinecraftServer = getNMSClass("MinecraftServer");
-            PlayerInteractManager = getNMSClass("PlayerInteractManager");
-            EntityPlayerConstructor = EntityPlayer.getConstructor(MinecraftServer, WorldServer, GameProfile.class,
-                                                                  PlayerInteractManager);
-            getBukkitEntity = EntityPlayer.getMethod("getBukkitEntity");
-            getHandle = CraftWorld.getMethod("getHandle");
-            getProfile = CraftOfflinePlayer.getMethod("getProfile");
-            getServer = MinecraftServer.getMethod("getServer");
-            uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
-            uuid.setAccessible(true);
 
-            World = getNMSClass("World");
-            try
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(WorldServer);
-            }
-            catch (Exception e)
-            {
-                PlayerInteractManagerConstructor = PlayerInteractManager.getConstructor(World);
-            }
-        }
-        catch (ClassNotFoundException | NoSuchMethodException | SecurityException | NoSuchFieldException e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
-        catch (LinkageError e)
-        {
-            plugin.getPLogger().logThrowable(e);
-            return;
-        }
+        craftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
+        craftWorld = getCraftClass("CraftWorld");
+        Class<?> worldServer = getNMSClass("WorldServer");
+        Class<?> entityPlayer = getNMSClass("EntityPlayer");
+        Class<?> minecraftServer = getNMSClass("MinecraftServer");
+        Class<?> playerInteractManager = getNMSClass("PlayerInteractManager");
+        entityPlayerConstructor = entityPlayer.getConstructor(minecraftServer, worldServer, GameProfile.class,
+                                                              playerInteractManager);
+        getBukkitEntity = entityPlayer.getMethod("getBukkitEntity");
+        getHandle = craftWorld.getMethod("getHandle");
+        getProfile = craftOfflinePlayer.getMethod("getProfile");
+        getServer = minecraftServer.getMethod("getServer");
+        uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
+        uuid.setAccessible(true);
+
+        Class<?> world = getNMSClass("World");
+        // TODO: wtf is this???
+//        PlayerInteractManagerConstructor = playerInteractManager.getConstructor(worldServer);
+        playerInteractManagerConstructor = playerInteractManager.getConstructor(world);
         success = true;
     }
 
-    private @NotNull Class<?> getNMSClass(final @NotNull String name)
+    private Class<?> getNMSClass(String name)
         throws LinkageError, ClassNotFoundException
     {
-        return Class.forName(NMSbase + name);
+        return Class.forName(nmsBase + name);
     }
 
-    private @NotNull Class<?> getCraftClass(final @NotNull String name)
+    private Class<?> getCraftClass(String name)
         throws LinkageError, ClassNotFoundException
     {
-        return Class.forName(CraftBase + name);
+        return Class.forName(craftBase + name);
     }
 
     /**
      * Construct a fake-online {@link Player} from an {@link OfflinePlayer}.
      *
-     * @param oPlayer The {@link OfflinePlayer} to use as base for the fake online {@link Player}.
-     * @param world   The world the fake {@link Player} is supposedly in.
+     * @param oPlayer
+     *     The {@link OfflinePlayer} to use as base for the fake online {@link Player}.
+     * @param world
+     *     The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    @NotNull Optional<Player> getFakePlayer(final @NotNull OfflinePlayer oPlayer, final @NotNull World world)
+    Optional<Player> getFakePlayer(OfflinePlayer oPlayer, World world)
     {
         if (!success)
             return Optional.empty();
 
-        Player player = null;
+        @Nullable Player player = null;
 
         try
         {
-            Object coPlayer = CraftOfflinePlayer.cast(oPlayer);
+            Object coPlayer = craftOfflinePlayer.cast(oPlayer);
             GameProfile gProfile = (GameProfile) getProfile.invoke(coPlayer);
 
-            Object craftServer = CraftWorld.cast(world);
+            Object craftServer = craftWorld.cast(world);
             Object worldServer = getHandle.invoke(craftServer);
             Object minecraftServer = getServer.invoke(worldServer);
-            Object playerInteractManager = PlayerInteractManagerConstructor.newInstance(worldServer);
+            Object playerInteractManager = playerInteractManagerConstructor.newInstance(worldServer);
 
-            Object ePlayer = EntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
+            Object ePlayer = entityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
                                                                  playerInteractManager);
             uuid.set(ePlayer, oPlayer.getUniqueId());
             player = (Player) getBukkitEntity.invoke(ePlayer);
@@ -137,7 +118,7 @@ class FakePlayerCreator
         }
 
         if (player != null)
-            player.setMetadata(FAKEPLAYERMETADATA, new FixedMetadataValue(plugin, true));
+            player.setMetadata(FAKE_PLAYER_METADATA, new FixedMetadataValue(plugin, true));
 
         return Optional.ofNullable(player);
     }

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a moment in time in hours and minutes.
@@ -15,10 +14,12 @@ public final class WorldTime
     /**
      * Constructs a new WorldTime.
      *
-     * @param hours   The time in hours.
-     * @param minutes The time in minutes.
+     * @param hours
+     *     The time in hours.
+     * @param minutes
+     *     The time in minutes.
      */
-    public WorldTime(final int hours, final int minutes)
+    public WorldTime(int hours, int minutes)
     {
         this.hours = hours;
         this.minutes = minutes;
@@ -27,9 +28,10 @@ public final class WorldTime
     /**
      * Constructs a new WorldTime.
      *
-     * @param worldTime The time in a world in Minecraft time (i.e. 0 to 24000).
+     * @param worldTime
+     *     The time in a world in Minecraft time (i.e. 0 to 24000).
      */
-    public WorldTime(final long worldTime)
+    public WorldTime(long worldTime)
     {
         this(WorldTime.calculateHours(worldTime), WorldTime.calculateMinutes(worldTime));
     }
@@ -37,7 +39,8 @@ public final class WorldTime
     /**
      * Calculates what hour it is from a given time in Minecraft time.
      *
-     * @param worldTime The current time in Minecraft time (i.e. 0 to 24000).
+     * @param worldTime
+     *     The current time in Minecraft time (i.e. 0 to 24000).
      * @return The current Minecraft hour.
      */
     private static int calculateHours(long worldTime)
@@ -50,7 +53,8 @@ public final class WorldTime
     /**
      * Calculates how many minutes since the last full hours have passed from Minecraft time.
      *
-     * @param worldTime The current time in Minecraft time (i.e. 0 to 24000).
+     * @param worldTime
+     *     The current time in Minecraft time (i.e. 0 to 24000).
      * @return The number of Minecraft minutes since the last hour..
      */
     private static int calculateMinutes(long worldTime)
@@ -80,7 +84,7 @@ public final class WorldTime
     }
 
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return hours + ":" + minutes;
     }

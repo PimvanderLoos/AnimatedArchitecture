@@ -24,7 +24,6 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Clock;
@@ -32,15 +31,16 @@ import java.time.Clock;
 /**
  * Represents a value in a {@link TimedCache}. It holds the value and the time of insertion.
  *
- * @param <T> Type of the value.
+ * @param <T>
+ *     Type of the value.
  */
 abstract class AbstractTimedValue<T>
 {
     protected final long timeOut;
     protected long insertTime;
-    protected final @NonNull Clock clock;
+    protected final Clock clock;
 
-    protected AbstractTimedValue(final @NonNull Clock clock, final long timeOut)
+    protected AbstractTimedValue(Clock clock, long timeOut)
     {
         this.clock = clock;
         this.timeOut = timeOut;
@@ -50,7 +50,7 @@ abstract class AbstractTimedValue<T>
     /**
      * Refreshes the insertion time of this timed value. This updates the {@link #insertTime} to the current time.
      */
-    public void refresh()
+    protected void refresh()
     {
         insertTime = clock.millis();
     }
@@ -61,9 +61,12 @@ abstract class AbstractTimedValue<T>
      * If this value is not accessible (e.g. exceeds {@link #timeOut} or the value itself has become invalid), null is
      * returned.
      *
+     * @param refresh
+     *     Whether to refresh the value. See {@link #refresh()}.
      * @return The value wrapped inside this {@link AbstractTimedValue}.
      */
-    public abstract @Nullable T getValue();
+    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
+    public abstract @Nullable T getValue(boolean refresh);
 
     /**
      * Check if this {@link AbstractTimedValue} was inserted more than milliseconds ago. If so, it's considered "timed
@@ -78,5 +81,15 @@ abstract class AbstractTimedValue<T>
         if (timeOut < 0)
             return true;
         return (clock.millis() - insertTime) > timeOut;
+    }
+
+    /**
+     * Checks if this value can be evicted from the cache.
+     *
+     * @return True if this value is ready for eviction from the cache.
+     */
+    public boolean canBeEvicted()
+    {
+        return timedOut();
     }
 }

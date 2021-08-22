@@ -10,8 +10,32 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.11</maven.compiler.source>
-        <maven.compiler.target>1.11</maven.compiler.target>
+        <lombok.encoding>UTF-8</lombok.encoding>
+        <maven.compiler.release>16</maven.compiler.release>
+
+        <lombok.inputDir>${project.basedir}</lombok.inputDir>
+        <lombok.outputDir>${project.build.directory}/generated-sources/delombok</lombok.outputDir>
+        <src.dir>${basedir}/src/main/java</src.dir>
+
+        <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
+        <dependency.version.annotations>22.0.0</dependency.version.annotations>
+        <dependency.version.lombok>1.18.20</dependency.version.lombok>
+        <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
+        <dependency.version.errorprone>2.8.1</dependency.version.errorprone>
+        <dependency.version.nullaway>1e615ffd45</dependency.version.nullaway>
+        <dependency.version.checker-framework>3.17.0</dependency.version.checker-framework>
+        <dependency.version.mockito>3.11.2</dependency.version.mockito>
+        <dependency.version.junit>5.8.0-M1</dependency.version.junit>
+        <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
+        <dependency.version.jacoco>0.8.7</dependency.version.jacoco>
+        <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
+        <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
+        <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
+        <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
+        <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
+        <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
+        <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
+        <dependency.version.jimfs>1.2</dependency.version.jimfs>
     </properties>
 
     <modules>
@@ -26,6 +50,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -33,7 +61,7 @@
             <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>JCalculator</artifactId>
-                <version>1.7</version>
+                <version>${dependency.version.jcalculator}</version>
                 <scope>compile</scope>
                 <optional>true</optional>
             </dependency>
@@ -44,56 +72,92 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>20.1.0</version>
+            <version>${dependency.version.annotations}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.0</version>
+            <version>${dependency.version.junit}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.7.0</version>
+            <version>${dependency.version.junit}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.7.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.0.0-M5</version>
+            <version>${dependency.version.mockito}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>3.7.0</version>
+            <version>${dependency.version.mockito}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
+            <version>${dependency.version.lombok}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>${dependency.version.errorprone}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>${dependency.version.checker-framework}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <sourceDirectory>${src.dir}</sourceDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>${dependency.version.maven-install}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${dependency.version.maven-jar}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${dependency.version.maven-clean}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${dependency.version.maven-resources}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.0.0-M5</version>
+                    <version>${dependency.version.surefire}</version>
                     <configuration>
+                        <argLine>--enable-preview</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
                     </configuration>
@@ -118,7 +182,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.4</version>
+                    <version>${dependency.version.maven-shade}</version>
                     <configuration>
                         <relocations>
                             <relocation>
@@ -128,6 +192,10 @@
                             <relocation>
                                 <pattern>nl.pim16aap2.jcalculator</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.jcalculator</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.errorprone</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>
@@ -144,7 +212,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.6</version>
+                    <version>${dependency.version.jacoco}</version>
                     <executions>
                         <execution>
                             <goals>
@@ -162,48 +230,121 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok-maven-plugin</artifactId>
+                    <version>${dependency.version.lombok-plugin}</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>delombok</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <source>11</source>
-                        <target>11</target>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>1.18.12</version>
-                            </path>
-                        </annotationProcessorPaths>
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                        <formatPreferences>
+                            <generateDelombokComment>skip</generateDelombokComment>
+                            <javaLangAsFQN>skip</javaLangAsFQN>
+                            <suppressWarnings>skip</suppressWarnings>
+                        </formatPreferences>
                     </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${dependency.version.maven-compiler}</version>
+                            <configuration>
+                                <compilerArgs>--enable-preview</compilerArgs>
+                                <encoding>UTF-8</encoding>
+                                <release>${maven.compiler.release}</release>
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.projectlombok</groupId>
+                                        <artifactId>lombok</artifactId>
+                                        <version>${dependency.version.lombok}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <profile>
+            <id>errorprone</id>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>${dependency.version.maven-compiler}</version>
+
+                            <configuration>
+                                <encoding>UTF-8</encoding>
+                                <fork>true</fork>
+                                <release>${maven.compiler.release}</release>
+                                <compilerArgs>
+                                    <arg>--enable-preview</arg>
+                                    <arg>-XDcompilePolicy=simple</arg>
+                                    <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
+                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode
+                                        -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR
+                                        -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2 -XepExcludedPaths:.*/test/.*
+                                    </arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+                                    <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                                    <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+                                    <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                                </compilerArgs>
+                                <annotationProcessorPaths>
+                                    <path>
+                                        <groupId>org.projectlombok</groupId>
+                                        <artifactId>lombok</artifactId>
+                                        <version>${dependency.version.lombok}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>com.google.errorprone</groupId>
+                                        <artifactId>error_prone_core</artifactId>
+                                        <version>${dependency.version.errorprone}</version>
+                                    </path>
+                                    <!--                                    <path>-->
+                                    <!--                                        <groupId>com.uber.nullaway</groupId>-->
+                                    <!--                                        <artifactId>nullaway</artifactId>-->
+                                    <!--                                        <version>${dependency.version.nullaway}</version>-->
+                                    <!--                                    </path>-->
+                                    <path>
+                                        <groupId>com.github.PimvanderLoos</groupId>
+                                        <artifactId>NullAway</artifactId>
+                                        <version>${dependency.version.nullaway}</version>
+                                    </path>
+                                </annotationProcessorPaths>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 </project>
-
-
-        <!--            <plugin>-->
-        <!--                <groupId>org.apache.maven.plugins</groupId>-->
-        <!--                <artifactId>maven-gpg-plugin</artifactId>-->
-        <!--                <version>1.6</version>-->
-        <!--                <executions>-->
-        <!--                    <execution>-->
-        <!--                        <id>sign-artifacts</id>-->
-        <!--                        <phase>verify</phase>-->
-        <!--                        <goals>-->
-        <!--                            <goal>sign</goal>-->
-        <!--                        </goals>-->
-        <!--                        <configuration>-->
-        <!--                            <keyname>D155920059B679E4A7BFBC41559FF2948BB19D2F</keyname>-->
-        <!--                        </configuration>-->
-        <!--                    </execution>-->
-        <!--                </executions>-->
-        <!--                <dependencies>-->
-        <!--                    <dependency>-->
-        <!--                        <groupId>org.apache.maven.plugins</groupId>-->
-        <!--                        <artifactId>maven-gpg-plugin</artifactId>-->
-        <!--                        <version>1.6</version>-->
-        <!--                    </dependency>-->
-        <!--                </dependencies>-->
-        <!--            </plugin>-->

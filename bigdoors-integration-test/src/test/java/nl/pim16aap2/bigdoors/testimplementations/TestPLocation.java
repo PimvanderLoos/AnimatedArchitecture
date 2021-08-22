@@ -1,36 +1,28 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
 import lombok.Getter;
-import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 public final class TestPLocation implements IPLocation
 {
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    @NotNull
-    private IPWorld world;
+    @Getter
+    private final IPWorld world;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
+    @Getter
     private double x;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
+    @Getter
     private double y;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
+    @Getter
     private double z;
 
 
-    public TestPLocation(final @NotNull IPWorld world, final double x, final double y, final double z)
+    public TestPLocation(IPWorld world, double x, double y, double z)
     {
         this.world = world;
         this.x = x;
@@ -39,7 +31,7 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NotNull Vector2Di getChunk()
+    public Vector2Di getChunk()
     {
         return new Vector2Di(getBlockX() << 4, getBlockZ() << 4);
     }
@@ -63,7 +55,25 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NotNull IPLocation add(final double x, final double y, final double z)
+    public IPLocation setX(double newVal)
+    {
+        return new TestPLocation(world, x + newVal, y, z);
+    }
+
+    @Override
+    public IPLocation setY(double newVal)
+    {
+        return new TestPLocation(world, x, y + newVal, z);
+    }
+
+    @Override
+    public IPLocation setZ(double newVal)
+    {
+        return new TestPLocation(world, x, y, z + newVal);
+    }
+
+    @Override
+    public IPLocation add(double x, double y, double z)
     {
         this.x += x;
         this.y += y;
@@ -72,33 +82,15 @@ public final class TestPLocation implements IPLocation
     }
 
     @Override
-    public @NotNull IPLocation add(final @NotNull Vector3DiConst vector)
+    public IPLocation add(Vector3Di vector)
     {
-        return add(vector.getX(), vector.getY(), vector.getZ());
+        return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override
-    public @NotNull IPLocation add(final @NotNull Vector3DdConst vector)
+    public IPLocation add(Vector3Dd vector)
     {
-        return add(vector.getX(), vector.getY(), vector.getZ());
-    }
-
-    @Override
-    public @NotNull IPLocation clone()
-    {
-        try
-        {
-            TestPLocation cloned = (TestPLocation) super.clone();
-            cloned.world = world.clone();
-            return cloned;
-        }
-        catch (CloneNotSupportedException e)
-        {
-            // TODO: Only log to file! It's already dumped in the console because it's thrown.
-            Error er = new Error(e);
-            BigDoors.get().getPLogger().logThrowable(er);
-            throw er;
-        }
+        return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override

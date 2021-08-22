@@ -1,18 +1,16 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
-import lombok.Getter;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -20,85 +18,90 @@ import java.util.List;
 
 public class CreatorFlag extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final DoorType doorType = DoorTypeFlag.get();
+    private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorFlag(IPPlayer player, @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
-    public CreatorFlag(final @NotNull IPPlayer player)
+    public CreatorFlag(IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_FLAG_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_FLAG_STEP2).construct(),
-                             factorySetEnginePos.message(Message.CREATOR_FLAG_STEP3).construct(),
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_FLAG_SUCCESS).construct());
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.flag.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.flag.step_2").construct(),
+                             factorySetEnginePos.messageKey("creator.flag.step_3").construct(),
+                             factorySetPowerBlockPos.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.flag.success").construct());
     }
 
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_FLAG_STICKLORE, Message.CREATOR_FLAG_INIT);
+        giveTool("tool_user.base.stick_name", "creator.flag.stick_lore", "creator.flag.init");
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                            loc.getBlockZ())).getDimensions();
+        Util.requireNonNull(firstPos, "firstPos");
+        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                        loc.getBlockZ())).getDimensions();
 
         // Flags must have a dimension of 1 along either the x or z axis, as it's a `2d` shape.
-        if ((cuboidDims.getX() == 1) ^ (cuboidDims.getZ() == 1))
+        if ((cuboidDims.x() == 1) ^ (cuboidDims.z() == 1))
         {
-            northSouthAligned = cuboidDims.getX() == 1;
+            northSouthAligned = cuboidDims.x() == 1;
             return super.setSecondPos(loc);
         }
 
-        player.sendMessage(messages.getString(Message.CREATOR_GENERAL_2NDPOSNOT2D));
+        getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 
     @Override
-    protected boolean completeSetEngineStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSetEngineStep(IPLocation loc)
     {
+        Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
         // It doesn't make sense to have it in the middle or something; that's now how flags work.
-        if ((loc.getBlockX() == cuboid.getMin().getX() || loc.getBlockX() == cuboid.getMax().getX()) &&
-            (loc.getBlockZ() == cuboid.getMin().getZ() || loc.getBlockZ() == cuboid.getMax().getZ()))
+        if ((loc.getBlockX() == cuboid.getMin().x() || loc.getBlockX() == cuboid.getMax().x()) &&
+            (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
             return super.completeSetEngineStep(loc);
 
-        player.sendMessage(messages.getString(Message.CREATOR_GENERAL_POINTNOTACORNER));
+        getPlayer().sendMessage(BigDoors.get().getPlatform().getLocalizer()
+                                        .getMessage("creator.base.position_not_in_corner"));
         return false;
     }
 
     @Override
-    protected @NotNull AbstractDoorBase constructDoor()
+    protected AbstractDoor constructDoor()
     {
+        Util.requireNonNull(cuboid, "cuboid");
+        Util.requireNonNull(engine, "engine");
         if (northSouthAligned)
-            opendir = engine.getZ() == cuboid.getMin().getZ() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            openDir = engine.z() == cuboid.getMin().z() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            opendir = engine.getX() == cuboid.getMin().getX() ? RotateDirection.EAST : RotateDirection.WEST;
+            openDir = engine.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
 
         return new Flag(constructDoorData(), northSouthAligned);
+    }
+
+    @Override
+    protected DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

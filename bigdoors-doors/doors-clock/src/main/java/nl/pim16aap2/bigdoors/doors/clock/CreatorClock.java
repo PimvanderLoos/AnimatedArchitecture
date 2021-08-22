@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -13,10 +12,8 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.messages.Message;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -25,120 +22,111 @@ import java.util.List;
 
 public class CreatorClock extends Creator
 {
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final DoorType doorType = DoorTypeClock.get();
+    private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
-    protected PBlockFace hourArmSide;
+    protected @Nullable PBlockFace hourArmSide;
 
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    @NotNull
     private static final List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    @NotNull
     private static final List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
     private boolean northSouthAligned;
 
-    public CreatorClock(final @NotNull IPPlayer player, final @Nullable String name)
+    public CreatorClock(IPPlayer player, @Nullable String name)
     {
-        super(player);
-        if (name != null)
-            completeNamingStep(name);
-        prepareCurrentStep();
+        super(player, name);
     }
 
-    public CreatorClock(final @NotNull IPPlayer player)
+    public CreatorClock(IPPlayer player)
     {
         this(player, null);
     }
 
     @Override
-    protected @NotNull
-    List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step<CreatorClock> stepSelectHourArm = new Step.Factory<CreatorClock>("SELECT_HOUR_ARM")
-            .message(Message.CREATOR_CLOCK_SELECTHOURARMSIDE)
+        Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
+            .messageKey("creator.clock.step_3")
             .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
-        return Arrays.asList(factorySetName.message(Message.CREATOR_GENERAL_GIVENAME).construct(),
-                             factorySetFirstPos.message(Message.CREATOR_CLOCK_STEP1).construct(),
-                             factorySetSecondPos.message(Message.CREATOR_CLOCK_STEP2).construct(),
+        return Arrays.asList(factorySetName.construct(),
+                             factorySetFirstPos.messageKey("creator.clock.step_1").construct(),
+                             factorySetSecondPos.messageKey("creator.clock.step_2").construct(),
                              stepSelectHourArm,
-                             factorySetPowerBlockPos.message(Message.CREATOR_GENERAL_SETPOWERBLOCK).construct(),
-                             factoryConfirmPrice.message(Message.CREATOR_GENERAL_CONFIRMPRICE).construct(),
-                             factoryCompleteProcess.message(Message.CREATOR_CLOCK_SUCCESS).construct());
+                             factorySetPowerBlockPos.construct(),
+                             factoryConfirmPrice.construct(),
+                             factoryCompleteProcess.messageKey("creator.clock.success").construct());
     }
 
     /**
      * Selects the side of the hour arm that will be the hour arm of the clock.
      *
-     * @param loc The selected location.
+     * @param loc
+     *     The selected location.
      * @return True if step finished successfully.
      */
-    protected boolean completeSelectHourArmStep(final @NotNull IPLocationConst loc)
+    protected boolean completeSelectHourArmStep(IPLocation loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
+        Util.requireNonNull(cuboid, "cuboid");
         if (northSouthAligned)
-            hourArmSide = loc.getBlockZ() == cuboid.getMin().getZ() ? PBlockFace.NORTH :
-                          loc.getBlockZ() == cuboid.getMax().getZ() ? PBlockFace.SOUTH : null;
+            hourArmSide = loc.getBlockZ() == cuboid.getMin().z() ? PBlockFace.NORTH :
+                          loc.getBlockZ() == cuboid.getMax().z() ? PBlockFace.SOUTH : null;
         else
-            hourArmSide = loc.getBlockX() == cuboid.getMin().getX() ? PBlockFace.WEST :
-                          loc.getBlockX() == cuboid.getMax().getX() ? PBlockFace.EAST : null;
+            hourArmSide = loc.getBlockX() == cuboid.getMin().x() ? PBlockFace.WEST :
+                          loc.getBlockX() == cuboid.getMax().x() ? PBlockFace.EAST : null;
 
-        boolean result = hourArmSide != null;
-        if (result)
-            procedure.goToNextStep();
-        return result;
+        return hourArmSide != null;
     }
 
     @Override
-    protected boolean setSecondPos(final @NotNull IPLocationConst loc)
+    protected boolean setSecondPos(IPLocation loc)
     {
-        if (!verifyWorldMatch(loc))
+        if (!verifyWorldMatch(loc.getWorld()))
             return false;
 
-        final @NotNull Vector3DiConst cuboidDims = new Cuboid(new Vector3Di(firstPos),
-                                                              new Vector3Di(loc.getBlockX(), loc.getBlockY(),
-                                                                            loc.getBlockZ())).getDimensions();
+        Util.requireNonNull(firstPos, "firstPos");
+        final Vector3Di cuboidDims = new Cuboid(firstPos, new Vector3Di(loc.getBlockX(), loc.getBlockY(),
+                                                                        loc.getBlockZ())).getDimensions();
 
         // The clock has to be an odd number of blocks tall.
-        if (cuboidDims.getY() % 2 == 0)
+        if (cuboidDims.y() % 2 == 0)
         {
             BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + player.asString() +
+                    .debug("ClockCreator: " + getPlayer().asString() +
                                ": The height of the selected area for the clock is not odd!");
             return false;
         }
 
-        if (cuboidDims.getX() % 2 == 0)
+        if (cuboidDims.x() % 2 == 0)
         {
             // It has to be a square.
-            if (cuboidDims.getY() != cuboidDims.getZ())
+            if (cuboidDims.y() != cuboidDims.z())
             {
-                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The x-axis is valid.");
                 return false;
             }
             northSouthAligned = false;
         }
-        else if (cuboidDims.getZ() % 2 == 0)
+        else if (cuboidDims.z() % 2 == 0)
         {
             // It has to be a square.
-            if (cuboidDims.getY() != cuboidDims.getX())
+            if (cuboidDims.y() != cuboidDims.x())
             {
-                BigDoors.get().getPLogger().debug("ClockCreator: " + player.asString() +
+                BigDoors.get().getPLogger().debug("ClockCreator: " + getPlayer().asString() +
                                                       ": The selected Clock area is not square! The z-axis is valid.");
                 return false;
             }
@@ -147,7 +135,7 @@ public class CreatorClock extends Creator
         else
         {
             BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + player.asString() + ": Selected Clock area is not valid!");
+                    .debug("ClockCreator: " + getPlayer().asString() + ": Selected Clock area is not valid!");
             return false;
         }
 
@@ -155,8 +143,7 @@ public class CreatorClock extends Creator
     }
 
     @Override
-    protected @NotNull
-    List<RotateDirection> getValidOpenDirections()
+    protected List<RotateDirection> getValidOpenDirections()
     {
         if (isOpen)
             return getDoorType().getValidOpenDirections();
@@ -167,8 +154,7 @@ public class CreatorClock extends Creator
     @Override
     protected void giveTool()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_CLOCK_STICKLORE,
-                 Message.CREATOR_CLOCK_INIT);
+        giveTool("tool_user.base.stick_name", "creator.clock.stick_lore", "creator.clock.init");
     }
 
     /**
@@ -188,17 +174,23 @@ public class CreatorClock extends Creator
     protected void setOpenDirection()
     {
         if (northSouthAligned)
-            opendir = hourArmSide == PBlockFace.NORTH ? RotateDirection.WEST : RotateDirection.EAST;
+            openDir = hourArmSide == PBlockFace.NORTH ? RotateDirection.WEST : RotateDirection.EAST;
         else
-            opendir = hourArmSide == PBlockFace.EAST ? RotateDirection.NORTH : RotateDirection.SOUTH;
+            openDir = hourArmSide == PBlockFace.EAST ? RotateDirection.NORTH : RotateDirection.SOUTH;
     }
 
     @Override
-    protected @NotNull
-    AbstractDoorBase constructDoor()
+    protected AbstractDoor constructDoor()
     {
         setEngine();
         setOpenDirection();
+        Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructDoorData(), northSouthAligned, hourArmSide);
+    }
+
+    @Override
+    protected DoorType getDoorType()
+    {
+        return DOOR_TYPE;
     }
 }

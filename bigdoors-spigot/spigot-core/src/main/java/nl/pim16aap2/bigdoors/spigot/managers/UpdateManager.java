@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class that manages all update-related stuff.
@@ -16,20 +16,16 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class UpdateManager
 {
-    @NotNull
     private final BigDoorsSpigot plugin;
-    @NotNull
     private final IPLogger logger;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
 
-    @NotNull
-    private UpdateChecker updater;
-    @NotNull
-    private BukkitTask updateRunner = null;
+    private final UpdateChecker updater;
+    private @Nullable BukkitTask updateRunner = null;
 
-    public UpdateManager(final @NotNull BigDoorsSpigot plugin, final int pluginID)
+    public UpdateManager(BigDoorsSpigot plugin, int pluginID)
     {
         this.plugin = plugin;
         logger = plugin.getPLogger();
@@ -39,10 +35,12 @@ public final class UpdateManager
     /**
      * Enables or disables update checking and/or downloading.
      *
-     * @param newCheckForUpdates True if update checking should be enabled.
-     * @param newDownloadUpdates True if update downloading should be enabled.
+     * @param newCheckForUpdates
+     *     True if update checking should be enabled.
+     * @param newDownloadUpdates
+     *     True if update downloading should be enabled.
      */
-    public void setEnabled(final boolean newCheckForUpdates, final boolean newDownloadUpdates)
+    public void setEnabled(boolean newCheckForUpdates, boolean newDownloadUpdates)
     {
         checkForUpdates = newCheckForUpdates;
         downloadUpdates = newDownloadUpdates;
@@ -64,7 +62,7 @@ public final class UpdateManager
      *
      * @return The version of the latest publicly released build.
      */
-    public @NotNull String getNewestVersion()
+    public String getNewestVersion()
     {
         if (!checkForUpdates || updater.getLastResult() == null)
             return "ERROR";
@@ -88,7 +86,7 @@ public final class UpdateManager
             return true;
 
         // The plugin is "up-to-date", but this is a dev-build, so it must be newer.
-        return Constants.DEVBUILD && updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
+        return Constants.DEV_BUILD && updater.getLastResult().getReason().equals(UpdateChecker.UpdateReason.UP_TO_DATE);
     }
 
     /**
@@ -106,11 +104,11 @@ public final class UpdateManager
                 if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
-                    if (updateDownloaded)
+                    if (updateDownloaded && updater.getLastResult() != null)
                         logger.info("Update downloaded! Restart to apply it! " +
                                         "New version is " + updater.getLastResult().getNewestVersion() +
                                         ", Currently running " + plugin.getDescription().getVersion() +
-                                        (Constants.DEVBUILD ? " (but a DEV-build)" : ""));
+                                        (Constants.DEV_BUILD ? " (but a DEV-build)" : ""));
                     else
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());

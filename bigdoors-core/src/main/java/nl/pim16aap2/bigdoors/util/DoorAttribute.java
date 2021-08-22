@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
-import org.jetbrains.annotations.NotNull;
+
+import lombok.Getter;
 
 /**
  * Represent the possible attributes of a door.
@@ -38,59 +39,40 @@ public enum DoorAttribute
     /**
      * Relocate the power block.
      */
-    RELOCATEPOWERBLOCK(1),
+    RELOCATE_POWERBLOCK(1),
 
     /**
      * The auto close timer of this door. i.e. the amount of time it will wait before automatically closing.
      */
-    CHANGETIMER(1),
+    AUTO_CLOSE_TIMER(1),
 
     /**
-     * The direction of a vertical and straight animation (e.g. portcullis).
+     * The open direction of a door.
      */
-    DIRECTION_STRAIGHT_VERTICAL(1),
-
-    /**
-     * The direction of a a vertical and straight animation (e.g. sliding door).
-     */
-    DIRECTION_STRAIGHT_HORIZONTAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
-
-    /**
-     * The direction of a vertical rotaion animation (e.g. the drawbridge).
-     */
-    DIRECTION_ROTATE_VERTICAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
-
-    /**
-     * This is stupid. Needs to be removed.
-     */
-    DIRECTION_ROTATE_VERTICAL2(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel), // TODO: REMOVE
-
-    /**
-     * The direction of a horizonta rotating aniamtion (e.g. the bigdoor).
-     */
-    DIRECTION_ROTATE_HORIZONTAL(DoorAttribute.DIRECTION_STRAIGHT_VERTICAL.permissionLevel),
+    OPEN_DIRECTION(2),
 
     /**
      * The number of blocks an animated will try to move.
      */
-    BLOCKSTOMOVE(1),
+    BLOCKS_TO_MOVE(1),
 
     /**
      * Add an owner.
      */
-    ADDOWNER(0),
+    ADD_OWNER(1),
 
     /**
      * Remove an owner.
      */
-    REMOVEOWNER(0);
+    REMOVE_OWNER(1);
 
     /**
      * The minimum level of ownership (0 = highest) required to access an attribute.
      */
+    @Getter
     private final int permissionLevel;
 
-    DoorAttribute(final int permissionLevel)
+    DoorAttribute(int permissionLevel)
     {
         this.permissionLevel = permissionLevel;
     }
@@ -98,10 +80,11 @@ public enum DoorAttribute
     /**
      * Gets the minimum level of ownership (0 = highest) required to access a door's attribute.
      *
-     * @param atr The attribute for which the permission level will be retrieved.
+     * @param atr
+     *     The attribute for which the permission level will be retrieved.
      * @return The minimum level of ownership (0 = highest) required to access a door's attribute.
      */
-    public static int getPermissionLevel(final @NotNull DoorAttribute atr)
+    public static int getPermissionLevel(DoorAttribute atr)
     {
         return atr.permissionLevel;
     }

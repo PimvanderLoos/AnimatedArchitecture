@@ -2,33 +2,35 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
+import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
+
 class DoorSerializerTest
 {
-    private static final AbstractDoorBase.DoorData doorData;
+    private static final DoorBase doorData;
 
     static
     {
@@ -36,49 +38,80 @@ class DoorSerializerTest
         final Vector3Di pos = new Vector3Di(0, 0, 0);
         final PPlayerData playerData = new PPlayerData(UUID.randomUUID(), "player", -1, -1, true, true);
         final DoorOwner doorOwner = new DoorOwner(1, 0, playerData);
-        doorData = new AbstractDoorBase.DoorData(1, name, pos, pos, pos, pos, new TestPWorld("worldName"),
-                                                 false, false, RotateDirection.DOWN, doorOwner);
+        doorData = new DoorBase(1, name, new Cuboid(pos, pos), pos, pos, new TestPWorld("worldName"),
+                                false, false, RotateDirection.DOWN, doorOwner);
+    }
+
+    @BeforeEach
+    void init()
+    {
+        val platform = initPlatform();
+        val doorRegistry = Mockito.mock(DoorRegistry.class);
+        Mockito.when(platform.getDoorRegistry()).thenReturn(doorRegistry);
+        Mockito.when(doorRegistry.registerDoor(Mockito.any())).thenReturn(true);
     }
 
     @Test
     void instantiate()
     {
-        final DoorSerializer<TestDoorType> instantiator = new DoorSerializer<>(TestDoorType.class);
+        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType base = new TestDoorType(doorData, "test", true, 42);
 
-        TestDoorType test = instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("test", true, 42)));
+        TestDoorType test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("test", true, 42))));
         Assertions.assertEquals(base, test);
 
-        test = instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("alternativeName", true, 42)));
+        test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("alternativeName", true, 42))));
+        Assertions.assertEquals("alternativeName", test.getTestName());
+    }
+
+    @Test
+    void instantiateUnsafe()
+    {
+        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
+        final TestDoorSubType base = new TestDoorSubType(doorData, "test", true, 42, 1);
+
+        TestDoorType test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("test", true, 42, 1))));
+        Assertions.assertEquals(base, test);
+
+        test = Assertions.assertDoesNotThrow(
+            () -> instantiator.instantiate(doorData, new ArrayList<>(Arrays.asList("alternativeName", true, 42, 1))));
         Assertions.assertEquals("alternativeName", test.getTestName());
     }
 
     @Test
     void serialize()
     {
-        final DoorSerializer<TestDoorType> instantiator = new DoorSerializer<>(TestDoorType.class);
+        final DoorSerializer<TestDoorType> instantiator =
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType testDoorType1 = new TestDoorType(doorData, "test", true, 42);
 
-        final byte[] serialized = instantiator.serialize(testDoorType1);
-        Assertions.assertEquals(testDoorType1, instantiator.deserialize(doorData, serialized));
+        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorType1));
+        Assertions.assertEquals(testDoorType1,
+                                Assertions.assertDoesNotThrow(() -> instantiator.deserialize(doorData, serialized)));
     }
 
     @Test
     void subclass()
     {
-        final DoorSerializer<TestDoorSubType> instantiator = new DoorSerializer<>(TestDoorSubType.class);
+        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType testDoorSubType1 = new TestDoorSubType(doorData, "test", true, 42, 6);
 
-        final byte[] serialized = instantiator.serialize(testDoorSubType1);
-        final TestDoorSubType testDoorSubType2 = instantiator.deserialize(doorData, serialized);
+        final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorSubType1));
+        val testDoorSubType2 = Assertions.assertDoesNotThrow(() -> instantiator.deserialize(doorData, serialized));
 
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }
 
-    // Don't call super for equals etc, as we don't care about the equality
+    // This class is a nullability nightmare, but that doesn't matter, because none of the methods are used;
+    // It's only used for testing serialization and the methods are therefore just stubs.
+    @SuppressWarnings("ConstantConditions")
+    // Don't call super for equals etc., as we don't care about the equality
     // of the parameters that aren't serialized anyway.
     @EqualsAndHashCode(callSuper = false)
-    private static class TestDoorType extends AbstractDoorBase
+    private static class TestDoorType extends AbstractDoor
     {
         @PersistentVariable
         @Getter
@@ -92,32 +125,40 @@ class DoorSerializerTest
         @Getter
         private int blockTestCount;
 
-        public TestDoorType(final @NonNull DoorData doorData)
+        private static final DoorType DOOR_TYPE;
+
+        static
         {
-            super(doorData);
+            DOOR_TYPE = Mockito.mock(DoorType.class);
+            Mockito.when(DOOR_TYPE.getDoorSerializer()).thenReturn(Optional.empty());
         }
 
-        public TestDoorType(final @NonNull DoorData doorData, final @NonNull String testName,
-                            final boolean isCoolType, final int blockTestCount)
+        @SuppressWarnings("unused")
+        public TestDoorType(DoorBase doorBase)
         {
-            this(doorData);
+            super(doorBase);
+        }
+
+        public TestDoorType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount)
+        {
+            super(doorBase);
             this.testName = testName;
             this.isCoolType = isCoolType;
             this.blockTestCount = blockTestCount;
         }
 
         @Override
-        public @NotNull DoorType getDoorType()
+        public DoorType getDoorType()
         {
-            return null;
+            return DOOR_TYPE;
         }
 
         @Override
-        protected @NotNull BlockMover constructBlockMover(@NotNull DoorActionCause cause,
-                                                          double time, boolean skipAnimation,
-                                                          @NotNull CuboidConst newCuboid,
-                                                          @NotNull IPPlayer responsible,
-                                                          @NotNull DoorActionType actionType)
+        protected BlockMover constructBlockMover(DoorActionCause cause,
+                                                 double time, boolean skipAnimation,
+                                                 Cuboid newCuboid,
+                                                 IPPlayer responsible,
+                                                 DoorActionType actionType)
         {
             return null;
         }
@@ -129,27 +170,21 @@ class DoorSerializerTest
         }
 
         @Override
-        public @NotNull RotateDirection getCurrentToggleDir()
+        public RotateDirection getCurrentToggleDir()
         {
             return null;
         }
 
         @Override
-        public @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+        public Optional<Cuboid> getPotentialNewCoordinates()
         {
             return Optional.empty();
         }
 
         @Override
-        public @NotNull RotateDirection cycleOpenDirection()
+        public RotateDirection cycleOpenDirection()
         {
             return null;
-        }
-
-        @Override
-        public @NotNull Vector2Di[] calculateChunkRange()
-        {
-            return new Vector2Di[0];
         }
     }
 
@@ -158,17 +193,12 @@ class DoorSerializerTest
     {
         @PersistentVariable
         @Getter
-        private int subclassTestValue = -1;
+        private final int subclassTestValue;
 
-        public TestDoorSubType(final @NonNull DoorData doorData)
+        public TestDoorSubType(DoorBase doorBase, String testName, boolean isCoolType, int blockTestCount,
+                               int subclassTestValue)
         {
-            super(doorData);
-        }
-
-        public TestDoorSubType(final @NonNull DoorData doorData, final @NonNull String testName,
-                               final boolean isCoolType, final int blockTestCount, final int subclassTestValue)
-        {
-            super(doorData, testName, isCoolType, blockTestCount);
+            super(doorBase, testName, isCoolType, blockTestCount);
 
             this.testName = testName;
             this.isCoolType = isCoolType;

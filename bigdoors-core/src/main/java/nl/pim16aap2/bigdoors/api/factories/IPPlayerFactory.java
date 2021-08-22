@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 
@@ -18,16 +17,18 @@ public interface IPPlayerFactory
     /**
      * Creates a new {@link IPPlayer}.
      *
-     * @param playerData The {@link PPlayerData} of the player.
+     * @param playerData
+     *     The {@link PPlayerData} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NonNull IPPlayer create(final @NonNull PPlayerData playerData);
+    IPPlayer create(PPlayerData playerData);
 
     /**
      * Creates a new {@link IPPlayer}.
      *
-     * @param uuid The {@link UUID} of the player.
+     * @param uuid
+     *     The {@link UUID} of the player.
      * @return A new {@link IPPlayer} object.
      */
-    @NonNull CompletableFuture<Optional<IPPlayer>> create(final @NonNull UUID uuid);
+    CompletableFuture<Optional<IPPlayer>> create(UUID uuid);
 }

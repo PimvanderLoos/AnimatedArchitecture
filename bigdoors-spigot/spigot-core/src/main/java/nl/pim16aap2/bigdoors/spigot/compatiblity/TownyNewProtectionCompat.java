@@ -2,10 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
@@ -15,30 +13,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public class TownyNewProtectionCompat implements IProtectionCompat
 {
-    @SuppressWarnings("unused")
-    @NotNull
-    private final BigDoorsSpigot plugin;
-    private boolean success = false;
-    @NotNull
     private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private final boolean success;
 
-    public TownyNewProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public TownyNewProtectionCompat()
     {
-        this.plugin = plugin;
         success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
-        return PlayerCacheUtil.getCachePermission(player, loc,
-                                                  loc.getBlock().getType(),
-                                                  ActionType.DESTROY);
+        return PlayerCacheUtil.getCachePermission(player, loc, loc.getBlock().getType(), ActionType.DESTROY);
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -65,7 +56,7 @@ public class TownyNewProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return ProtectionCompat.getName(compat);
     }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 
@@ -15,23 +14,26 @@ public interface IProtectionCompatManager
     /**
      * Check if a player can break a block at a given location.
      *
-     * @param player The {@link IPPlayer}.
-     * @param loc    The {@link IPLocation} to check.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param loc
+     *     The {@link IPLocation} to check.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NotNull Optional<String> canBreakBlock(final @NotNull IPPlayer player, final @NotNull IPLocationConst loc);
+    Optional<String> canBreakBlock(IPPlayer player, IPLocation loc);
 
     /**
      * Check if a player can break all blocks between two locations.
      *
-     * @param player The {@link IPPlayer}.
-     * @param pos1   The start position to check.
-     * @param pos2   The end position to check.
-     * @param world  The world.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param pos1
+     *     The start position to check.
+     * @param pos2
+     *     The end position to check.
+     * @param world
+     *     The world.
      * @return The name of the IProtectionCompat that objects, if any, or an empty Optional if allowed by all compats.
      */
-    @NotNull Optional<String> canBreakBlocksBetweenLocs(final @NotNull IPPlayer player,
-                                                        final @NotNull Vector3DiConst pos1,
-                                                        final @NotNull Vector3DiConst pos2,
-                                                        final @NotNull IPWorld world);
+    Optional<String> canBreakBlocksBetweenLocs(IPPlayer player, Vector3Di pos1, Vector3Di pos2, IPWorld world);
 }

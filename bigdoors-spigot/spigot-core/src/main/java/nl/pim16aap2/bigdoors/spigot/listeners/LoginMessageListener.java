@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them any messages if needed.
@@ -17,10 +16,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LoginMessageListener implements Listener
 {
-    @NotNull
     private final BigDoorsSpigot plugin;
 
-    public LoginMessageListener(final @NotNull BigDoorsSpigot plugin)
+    public LoginMessageListener(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -28,10 +26,11 @@ public final class LoginMessageListener implements Listener
     /**
      * Listens to {@link Player}s logging in and sends them the login message.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final PlayerJoinEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {
@@ -39,7 +38,7 @@ public final class LoginMessageListener implements Listener
             // Normally, only send to those with permission, so they can disable it.
             // But when it's a devbuild, also send it to everyone who's OP, to make it
             // a bit harder to get around the message.
-            if (player.hasPermission("bigdoors.admin") || (player.isOp() && Constants.DEVBUILD))
+            if (player.hasPermission("bigdoors.admin") || (player.isOp() && Constants.DEV_BUILD))
                 // Slight delay so the player actually receives the message;
                 new BukkitRunnable()
                 {

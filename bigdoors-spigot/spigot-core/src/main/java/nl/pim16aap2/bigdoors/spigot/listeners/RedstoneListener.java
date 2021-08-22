@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -11,15 +10,16 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,15 +30,12 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedstoneListener extends Restartable implements Listener
 {
-    @Nullable
-    private static RedstoneListener INSTANCE;
-    @NotNull
+    private static @Nullable RedstoneListener INSTANCE;
     private final BigDoorsSpigot plugin;
-    @NotNull
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
-    private RedstoneListener(final @NotNull BigDoorsSpigot plugin)
+    private RedstoneListener(BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
@@ -49,10 +46,11 @@ public class RedstoneListener extends Restartable implements Listener
      * Initializes the {@link RedstoneListener}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param plugin The {@link BigDoorsSpigot} plugin.
+     * @param plugin
+     *     The {@link BigDoorsSpigot} plugin.
      * @return The instance of this {@link RedstoneListener}.
      */
-    public static @NotNull RedstoneListener init(final @NotNull BigDoorsSpigot plugin)
+    public static RedstoneListener init(BigDoorsSpigot plugin)
     {
         return (INSTANCE == null) ? INSTANCE = new RedstoneListener(plugin) : INSTANCE;
     }
@@ -100,45 +98,50 @@ public class RedstoneListener extends Restartable implements Listener
         unregister();
     }
 
-    private void checkDoors(final @NotNull Location loc)
+    private void checkDoors(Location loc)
     {
+        final String worldName = Objects.requireNonNull(loc.getWorld(), "World cannot be null!").getName();
         BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
-            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), loc.getWorld().getName()).whenComplete(
+            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> DoorOpener.get().animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
-                                                          DoorActionType.TOGGLE)));
+                door -> BigDoors.get().getDoorOpener()
+                                .animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
+                                                  DoorActionType.TOGGLE)));
     }
 
     /**
      * Processes a redstone event. This means that it looks for any power blocks around the block that was changed.
      *
-     * @param event The event.
+     * @param event
+     *     The event.
      */
-    private void processRedstoneEvent(final @NotNull BlockRedstoneEvent event)
+    private void processRedstoneEvent(BlockRedstoneEvent event)
     {
         try
         {
-            Block block = event.getBlock();
-            Location location = block.getLocation();
+            final Block block = event.getBlock();
+            final Location location = block.getLocation();
+            final World world = Objects.requireNonNull(location.getWorld(), "World cannot be null!");
+
             int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 
-            if (powerBlockTypes.contains(location.getWorld().getBlockAt(x, y, z - 1).getType())) // North
-                checkDoors(new Location(location.getWorld(), x, y, z - 1));
+            if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
+                checkDoors(new Location(world, x, y, z - 1.0));
 
-            if (powerBlockTypes.contains(location.getWorld().getBlockAt(x + 1, y, z).getType())) // East
-                checkDoors(new Location(location.getWorld(), x + 1, y, z));
+            if (powerBlockTypes.contains(world.getBlockAt(x + 1, y, z).getType())) // East
+                checkDoors(new Location(world, x + 1.0, y, z));
 
-            if (powerBlockTypes.contains(location.getWorld().getBlockAt(x, y, z + 1).getType())) // South
-                checkDoors(new Location(location.getWorld(), x, y, z + 1));
+            if (powerBlockTypes.contains(world.getBlockAt(x, y, z + 1).getType())) // South
+                checkDoors(new Location(world, x, y, z + 1.0));
 
-            if (powerBlockTypes.contains(location.getWorld().getBlockAt(x - 1, y, z).getType())) // West
-                checkDoors(new Location(location.getWorld(), x - 1, y, z));
+            if (powerBlockTypes.contains(world.getBlockAt(x - 1, y, z).getType())) // West
+                checkDoors(new Location(world, x - 1.0, y, z));
 
-            if (y < 254 && powerBlockTypes.contains(location.getWorld().getBlockAt(x, y + 1, z).getType())) // Above
-                checkDoors(new Location(location.getWorld(), x, y + 1, z));
+            if (y < 254 && powerBlockTypes.contains(world.getBlockAt(x, y + 1, z).getType())) // Above
+                checkDoors(new Location(world, x, y + 1.0, z));
 
-            if (y > 0 && powerBlockTypes.contains(location.getWorld().getBlockAt(x, y - 1, z).getType())) // Under
-                checkDoors(new Location(location.getWorld(), x, y - 1, z));
+            if (y > 0 && powerBlockTypes.contains(world.getBlockAt(x, y - 1, z).getType())) // Under
+                checkDoors(new Location(world, x, y - 1.0, z));
         }
         catch (Exception e)
         {
@@ -150,10 +153,11 @@ public class RedstoneListener extends Restartable implements Listener
      * Listens to redstone changes and checks if there are any doors attached to it. Any doors that are found are then
      * toggled, if possible.
      *
-     * @param event The {@link BlockRedstoneEvent}.
+     * @param event
+     *     The {@link BlockRedstoneEvent}.
      */
     @EventHandler
-    public void onBlockRedstoneChange(final @NotNull BlockRedstoneEvent event)
+    public void onBlockRedstoneChange(BlockRedstoneEvent event)
     {
         // Only boolean status is allowed, so a varying degree of "on" has no effect.
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)

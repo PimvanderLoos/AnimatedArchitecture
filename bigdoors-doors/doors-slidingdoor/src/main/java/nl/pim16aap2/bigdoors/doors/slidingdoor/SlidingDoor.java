@@ -1,28 +1,25 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IBlocksToMoveArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
 
@@ -31,76 +28,61 @@ import java.util.Optional;
  *
  * @author Pim
  */
-public class SlidingDoor extends AbstractDoorBase
-    implements IStationaryDoorArchetype, IBlocksToMoveArchetype, ITimerToggleableArchetype
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITimerToggleable
 {
-    @NotNull
+    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeSlidingDoor.get();
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    @Accessors(chain = true)
+    @Getter
+    @Setter
     @PersistentVariable
     protected int blocksToMove;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    @Accessors(chain = true)
+    @Getter
+    @Setter
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    @Accessors(chain = true)
+    @Getter
+    @Setter
     @PersistentVariable
     protected int autoOpenTime;
 
-    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove, final int autoCloseTime,
-                       final int autoOpenTime)
+    public SlidingDoor(DoorBase doorBase, int blocksToMove, int autoCloseTime, int autoOpenTime)
     {
-        super(doorData);
+        super(doorBase);
         this.blocksToMove = blocksToMove;
         this.autoCloseTime = autoCloseTime;
         this.autoOpenTime = autoOpenTime;
     }
 
-    public SlidingDoor(final @NotNull DoorData doorData, final int blocksToMove)
+    public SlidingDoor(DoorBase doorBase, int blocksToMove)
     {
-        this(doorData, blocksToMove, -1, -1);
+        this(doorBase, blocksToMove, -1, -1);
     }
 
-    private SlidingDoor(final @NotNull DoorData doorData)
+    @SuppressWarnings("unused")
+    private SlidingDoor(DoorBase doorBase)
     {
-        this(doorData, -1); // Add tmp/default values
+        this(doorBase, -1); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
+    public boolean canSkipAnimation()
     {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
-
-        int distanceX = 0;
-        int distanceZ = 0;
-        if (getOpenDir().equals(RotateDirection.NORTH) || getOpenDir().equals(RotateDirection.SOUTH))
-            distanceZ = (getBlocksToMove() > 0 ? Math.max(dimensions.getZ(), getBlocksToMove()) :
-                         Math.min(-dimensions.getZ(), getBlocksToMove())) / 16 + 1;
-        else
-            distanceX = (getBlocksToMove() > 0 ? Math.max(dimensions.getX(), getBlocksToMove()) :
-                         Math.min(-dimensions.getX(), getBlocksToMove())) / 16 + 1;
-
-        return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().getX() - distanceX, getEngineChunk().getY() - distanceZ),
-            new Vector2Di(getEngineChunk().getX() + distanceX, getEngineChunk().getY() + distanceZ)};
+        return true;
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir().equals(RotateDirection.NORTH) ? RotateDirection.EAST :
                getOpenDir().equals(RotateDirection.EAST) ? RotateDirection.SOUTH :
@@ -108,38 +90,25 @@ public class SlidingDoor extends AbstractDoorBase
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull Vector3DiConst vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
-        return Optional.of(getCuboid().clone().move(0, getBlocksToMove() * vec.getY(), 0));
+        final Vector3Di vec = PBlockFace.getDirection(Util.getPBlockFace(getCurrentToggleDir()));
+        return Optional.of(getCuboid().move(0, getBlocksToMove() * vec.y(), 0));
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+        throws Exception
     {
-        final @NotNull RotateDirection currentToggleDir = getCurrentToggleDir();
+        final RotateDirection currentToggleDir = getCurrentToggleDir();
         return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
-    }
-
-    @Override
-    public boolean equals(final @Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull SlidingDoor other = (SlidingDoor) o;
-        return blocksToMove == other.blocksToMove;
     }
 }

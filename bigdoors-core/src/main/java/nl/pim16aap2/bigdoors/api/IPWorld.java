@@ -1,21 +1,20 @@
 package nl.pim16aap2.bigdoors.api;
 
 import nl.pim16aap2.bigdoors.util.WorldTime;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a BigDoors world.
  *
  * @author Pim
  */
-public interface IPWorld extends Cloneable
+public interface IPWorld
 {
     /**
      * Gets the name of this world.
      *
      * @return The name of this world.
      */
-    @NotNull String getWorldName();
+    String worldName();
 
     /**
      * Checks if this is a valid world in the current {@link IBigDoorsPlatform}.
@@ -29,7 +28,5 @@ public interface IPWorld extends Cloneable
      *
      * @return Gets the time in this world.
      */
-    @NotNull WorldTime getTime();
-
-    @NotNull IPWorld clone();
+    WorldTime getTime();
 }

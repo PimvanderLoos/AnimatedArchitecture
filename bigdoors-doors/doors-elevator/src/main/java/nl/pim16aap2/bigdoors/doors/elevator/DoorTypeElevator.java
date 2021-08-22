@@ -1,13 +1,11 @@
 package nl.pim16aap2.bigdoors.doors.elevator;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -16,13 +14,12 @@ public final class DoorTypeElevator extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NotNull
     private static final DoorTypeElevator INSTANCE = new DoorTypeElevator();
 
     private DoorTypeElevator()
     {
-        super(Constants.PLUGINNAME, "Elevator", TYPE_VERSION,
-              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN));
+        super(Constants.PLUGIN_NAME, "Elevator", TYPE_VERSION,
+              Arrays.asList(RotateDirection.UP, RotateDirection.DOWN), "door.type.elevator");
     }
 
     /**
@@ -30,25 +27,25 @@ public final class DoorTypeElevator extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeElevator get()
+    public static DoorTypeElevator get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return Elevator.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorElevator(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorElevator(player, name);
     }

@@ -1,20 +1,17 @@
 package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -26,22 +23,20 @@ public class VerticalMover extends BlockMover
 {
     private double step;
 
-    @Nullable
-    private PBlockData firstBlockData = null;
+    private @Nullable PBlockData firstBlockData = null;
 
     protected final int blocksToMove;
 
-    public VerticalMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
-                         final int blocksToMove, final double multiplier, final @NotNull IPPlayer player,
-                         final @NotNull CuboidConst newCuboid, final @NotNull DoorActionCause cause,
-                         final @NotNull DoorActionType actionType)
+    public VerticalMover(AbstractDoor door, double time, boolean skipAnimation, int blocksToMove, double multiplier,
+                         IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
         double speed = 1;
-        double pcMult = multiplier;
-        pcMult = pcMult == 0.0 ? 1.0 : pcMult;
+        double pcMultiplier = multiplier;
+        pcMultiplier = pcMultiplier == 0.0 ? 1.0 : pcMultiplier;
         final int maxSpeed = 6;
 
         // If the time isn't default, calculate speed.
@@ -55,7 +50,7 @@ public class VerticalMover extends BlockMover
         // speed.
         if (time == 0.0 || speed > maxSpeed)
         {
-            speed = blocksToMove < 0 ? 1.7 : 0.8 * pcMult;
+            speed = blocksToMove < 0 ? 1.7 : 0.8 * pcMultiplier;
             speed = speed > maxSpeed ? maxSpeed : speed;
             super.time = Math.abs(blocksToMove) / speed;
         }
@@ -76,11 +71,11 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
-        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final Vector3Dd startLocation = block.getStartPosition();
+        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                   startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
@@ -91,14 +86,18 @@ public class VerticalMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    protected @NotNull Vector3Dd getGoalPos(final @NotNull PBlockData pBlockData, final double stepSum)
+    protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
     {
         return pBlockData.getStartPosition().add(0, stepSum, 0);
     }
 
+    // Yes, it's bad practice to keep commented-out code around.
+    // However, I do intend to use it again in the future, and it's easier to leave it here than hide it somewhere.
+    @SuppressWarnings("CommentedOutCode")
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
+        // TODO: Check if this is worth pursuing with the new movement system.
 //        // This isn't used currently, but the idea is to spawn solid blocks where this door is / is going to be.
 //        // A cheap way to create fake solid blocks. Should really be part of the blocks themselves, but
 //        // this was just to see how viable it is. Leaving it here for future reference.
@@ -119,13 +118,12 @@ public class VerticalMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (final PBlockData pBlockData : savedBlocks)
+        for (PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                                 final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis, yAxis + blocksToMove, zAxis);
     }

@@ -2,26 +2,27 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 
 import nl.pim16aap2.bigdoors.tooluser.creator.CreatorTestsUtil;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CreatorBigDoorTest extends CreatorTestsUtil
 {
     @BeforeEach
-    public void setup()
+    void setup()
     {
         super.beforeEach();
     }
 
     @Test
-    public void createBigDoor()
+    void createBigDoor()
     {
         openDirection = RotateDirection.CLOCKWISE;
         String openDirectionName = "0";
 
-        final @NotNull BigDoor actualDoor = new BigDoor(constructDoorData());
-        final @NotNull CreatorBigDoor creator = new CreatorBigDoor(PLAYER);
+        final BigDoor actualDoor = new BigDoor(constructDoorBase());
+        Assertions.assertNotNull(DoorTypeBigDoor.get());
+        final CreatorBigDoor creator = new CreatorBigDoor(player);
         testCreation(creator, actualDoor,
                      doorName,
                      min.toLocation(world),

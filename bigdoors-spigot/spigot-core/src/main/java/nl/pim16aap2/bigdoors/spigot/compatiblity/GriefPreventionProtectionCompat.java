@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Compatibility hook for GriefPrevention.
@@ -19,38 +18,34 @@ import org.jetbrains.annotations.NotNull;
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
-    private final BigDoorsSpigot plugin;
     private final GriefPrevention griefPrevention;
-    private boolean success = false;
+    private final boolean success;
 
-    public GriefPreventionProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public GriefPreventionProtectionCompat()
     {
-        this.plugin = plugin;
-
-        Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
-                                             .getPlugin(ProtectionCompat.getName(compat));
+        final @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
+                                                             .getPlugin(ProtectionCompat.getName(compat));
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))
-        {
-            griefPrevention = null;
-            return;
-        }
+            throw new IllegalStateException(
+                "Plugin " + griefPreventionPlugin + " is not the expected GriefPrevention!");
+
         griefPrevention = (GriefPrevention) griefPreventionPlugin;
         success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         Block block = loc.getBlock();
         BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, player);
         return griefPrevention.allowBreak(player, block, loc, blockBreakEvent) == null;
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
@@ -77,7 +72,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return griefPrevention.getName();
     }

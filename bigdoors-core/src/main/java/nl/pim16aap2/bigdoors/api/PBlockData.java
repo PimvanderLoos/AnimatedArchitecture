@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.api;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the data of an animated block.
@@ -18,7 +17,6 @@ public final class PBlockData
      * @return The rotated {@link INMSBlock} if it exists.
      */
     @Getter
-    @NotNull
     private final INMSBlock block;
 
     /**
@@ -43,7 +41,6 @@ public final class PBlockData
      */
     @Getter
     @Setter
-    @NotNull
     private ICustomCraftFallingBlock fBlock;
 
     /**
@@ -52,8 +49,7 @@ public final class PBlockData
      * @return The location the block was first spawned at.
      */
     @Getter
-    @NotNull
-    private final IPLocationConst startLocation;
+    private final IPLocation startLocation;
 
     /**
      * The angle the block had in regards to the rotation point when it was first spawned.
@@ -77,17 +73,22 @@ public final class PBlockData
     /**
      * Constructs of {@link PBlockData}.
      *
-     * @param newFBlock         The {@link ICustomCraftFallingBlock} that will be animated.
-     * @param radius            The number of blocks between this block and the rotation point.
-     * @param newBlock          If this block can be rotated, this contains the rotated {@link INMSBlock}.
-     * @param startLocation     The location the block was spawned at initially.
-     * @param startAngle        The angle the block had in regards to the rotation point when it was first spawned.
-     * @param placementDeferred Whether or not placement should be deferred until all standalone blocks are placed.
-     *                          Useful for torches, for example (so they don't fall off immediately).
+     * @param newFBlock
+     *     The {@link ICustomCraftFallingBlock} that will be animated.
+     * @param radius
+     *     The number of blocks between this block and the rotation point.
+     * @param newBlock
+     *     If this block can be rotated, this contains the rotated {@link INMSBlock}.
+     * @param startLocation
+     *     The location the block was spawned at initially.
+     * @param startAngle
+     *     The angle the block had in regards to the rotation point when it was first spawned.
+     * @param placementDeferred
+     *     Whether or not placement should be deferred until all standalone blocks are placed. Useful for torches, for
+     *     example (so they don't fall off immediately).
      */
-    public PBlockData(final @NotNull ICustomCraftFallingBlock newFBlock, final float radius,
-                      final @NotNull INMSBlock newBlock, final @NotNull IPLocationConst startLocation,
-                      final float startAngle, final boolean placementDeferred)
+    public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
+                      float startAngle, boolean placementDeferred)
     {
         block = newBlock;
         fBlock = newFBlock;
@@ -103,8 +104,7 @@ public final class PBlockData
      */
     public void killFBlock()
     {
-        if (fBlock != null)
-            fBlock.remove();
+        fBlock.remove();
     }
 
     /**
@@ -112,7 +112,7 @@ public final class PBlockData
      *
      * @return The starting position of this {@link PBlockData}.
      */
-    public @NotNull Vector3Dd getStartPosition()
+    public Vector3Dd getStartPosition()
     {
         return new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
     }

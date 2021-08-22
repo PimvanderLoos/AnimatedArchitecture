@@ -1,12 +1,10 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
@@ -15,12 +13,11 @@ public final class DoorTypeFlag extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NotNull
     private static final DoorTypeFlag INSTANCE = new DoorTypeFlag();
 
     private DoorTypeFlag()
     {
-        super(Constants.PLUGINNAME, "Flag", TYPE_VERSION, Collections.emptyList());
+        super(Constants.PLUGIN_NAME, "Flag", TYPE_VERSION, Collections.emptyList(), "door.type.flag");
     }
 
     /**
@@ -28,25 +25,25 @@ public final class DoorTypeFlag extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeFlag get()
+    public static DoorTypeFlag get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return Flag.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorFlag(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorFlag(player, name);
     }

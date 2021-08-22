@@ -1,33 +1,34 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Clock doorType.
  *
  * @author Pim
  */
-public class Clock extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class Clock extends AbstractDoor implements IHorizontalAxisAligned
 {
-    @NotNull
+    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
 
     /**
@@ -41,7 +42,7 @@ public class Clock extends AbstractDoorBase
      *
      * @return True if this clock is situated along the north/south axis.
      */
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @PersistentVariable
     protected final boolean northSouthAligned;
 
@@ -58,51 +59,67 @@ public class Clock extends AbstractDoorBase
     @Getter
     @Setter
     @PersistentVariable
-    protected @NotNull PBlockFace hourArmSide;
+    protected PBlockFace hourArmSide;
 
-    public Clock(final @NotNull DoorData doorData, final boolean northSouthAligned,
-                 final @NotNull PBlockFace hourArmSide)
+    public Clock(DoorBase doorData, boolean northSouthAligned, PBlockFace hourArmSide)
     {
         super(doorData);
         this.northSouthAligned = northSouthAligned;
         this.hourArmSide = hourArmSide;
     }
 
-    private Clock(final @NonNull DoorData doorData)
-    {
-        this(doorData, false, PBlockFace.NONE); // Add tmp/default values
-    }
-
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+        throws Exception
     {
         return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
     }
 
     @Override
-    public boolean equals(@Nullable Object o)
+    public Optional<Cuboid> getPotentialNewCoordinates()
     {
-        if (!super.equals(o))
-            return false;
-        if (getClass() != o.getClass())
-            return false;
+        return Optional.of(getCuboid());
+    }
 
-        final @NotNull Clock other = (Clock) o;
-        return hourArmSide.equals(other.hourArmSide) && northSouthAligned == other.northSouthAligned;
+    @Override
+    public boolean canSkipAnimation()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Always the same as {@link #getOpenDir()}, as this archetype makes no distinction between opening and closing.
+     */
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        return getOpenDir();
     }
 }

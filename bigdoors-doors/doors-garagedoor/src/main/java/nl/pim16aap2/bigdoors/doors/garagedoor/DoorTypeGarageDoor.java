@@ -1,13 +1,11 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -16,14 +14,13 @@ public final class DoorTypeGarageDoor extends DoorType
 {
     private static final int TYPE_VERSION = 1;
 
-    @NotNull
     private static final DoorTypeGarageDoor INSTANCE = new DoorTypeGarageDoor();
 
     private DoorTypeGarageDoor()
     {
-        super(Constants.PLUGINNAME, "GarageDoor", TYPE_VERSION,
+        super(Constants.PLUGIN_NAME, "GarageDoor", TYPE_VERSION,
               Arrays.asList(RotateDirection.NORTH, RotateDirection.EAST,
-                            RotateDirection.SOUTH, RotateDirection.WEST));
+                            RotateDirection.SOUTH, RotateDirection.WEST), "door.type.garage_door");
     }
 
     /**
@@ -31,25 +28,25 @@ public final class DoorTypeGarageDoor extends DoorType
      *
      * @return The instance of this type.
      */
-    public static @NotNull DoorTypeGarageDoor get()
+    public static DoorTypeGarageDoor get()
     {
         return INSTANCE;
     }
 
     @Override
-    public @NonNull Class<? extends AbstractDoorBase> getDoorClass()
+    public Class<? extends AbstractDoor> getDoorClass()
     {
         return GarageDoor.class;
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player)
+    public Creator getCreator(IPPlayer player)
     {
         return new CreatorGarageDoor(player);
     }
 
     @Override
-    public @NotNull Creator getCreator(final @NotNull IPPlayer player, final @Nullable String name)
+    public Creator getCreator(IPPlayer player, @Nullable String name)
     {
         return new CreatorGarageDoor(player, name);
     }

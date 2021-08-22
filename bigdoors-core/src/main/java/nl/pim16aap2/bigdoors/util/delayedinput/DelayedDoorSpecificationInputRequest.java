@@ -1,16 +1,16 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a {@link DelayedInputRequest} to specify which door was meant out of a list of multiple.
@@ -19,52 +19,18 @@ import java.util.OptionalLong;
  */
 public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<String>
 {
-    private final @NonNull List<AbstractDoorBase> options;
-    private final @NonNull IPPlayer player;
+    private final List<AbstractDoor> options;
+    private final IPPlayer player;
 
-    private DelayedDoorSpecificationInputRequest(final @NonNull Duration timeout,
-                                                 final @NonNull List<AbstractDoorBase> options,
-                                                 final @NonNull IPPlayer player)
+    private DelayedDoorSpecificationInputRequest(Duration timeout, List<AbstractDoor> options, IPPlayer player)
     {
         super(timeout.toMillis());
         this.options = options;
         this.player = player;
+        init();
     }
 
-    /**
-     * Asks the user to specify which one of multiple doors they want to select.
-     * <p>
-     * Note that this will block the current thread until either one of the exit conditions is met.
-     *
-     * @param timeout The amount of time to give the user to provide the required input.
-     *                <p>
-     *                If the user fails to provide input within this timeout window, an empty result will be returned.
-     * @param options The list of options they can choose from.
-     * @param player  The player that is asked to make a choice.
-     * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
-     */
-    public static @NonNull Optional<AbstractDoorBase> get(final @NonNull Duration timeout,
-                                                          final @NonNull List<AbstractDoorBase> options,
-                                                          final @NonNull IPPlayer player)
-    {
-        if (options.size() == 1)
-            return Optional.of(options.get(0));
-        if (options.isEmpty())
-            return Optional.empty();
-
-        final @NonNull Optional<String> specification =
-            new DelayedDoorSpecificationInputRequest(timeout, options, player).waitForInput();
-
-        final @NonNull OptionalLong uidOpt = Util.parseLong(specification);
-        if (uidOpt.isEmpty())
-            return Optional.empty();
-
-        final long uid = uidOpt.getAsLong();
-        return Util.searchIterable(options, (door) -> door.getDoorUID() == uid);
-    }
-
-    @Override
-    protected void init()
+    private void init()
     {
         BigDoors.get().getDoorSpecificationManager().placeRequest(player, this);
         // TODO: Localization
@@ -75,15 +41,50 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         player.sendMessage(sb.toString());
     }
 
+    /**
+     * Asks the user to specify which one of multiple doors they want to select.
+     * <p>
+     * Note that this will block the current thread until either one of the exit conditions is met.
+     *
+     * @param timeout
+     *     The amount of time to give the user to provide the input.
+     *     <p>
+     *     If the user fails to provide input within this timeout window, an empty result will be returned.
+     * @param options
+     *     The list of options they can choose from.
+     * @param player
+     *     The player that is asked to make a choice.
+     * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
+     */
+    public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,
+                                                                IPPlayer player)
+    {
+        if (options.size() == 1)
+            return CompletableFuture.completedFuture(Optional.of(options.get(0)));
+        if (options.isEmpty())
+            return CompletableFuture.completedFuture(Optional.empty());
+
+        return new DelayedDoorSpecificationInputRequest(timeout, options, player).getInputResult().thenApply(
+            input ->
+            {
+                final OptionalLong uidOpt = Util.parseLong(input);
+                if (uidOpt.isEmpty())
+                    return Optional.empty();
+
+                final long uid = uidOpt.getAsLong();
+                return Util.searchIterable(options, (door) -> door.getDoorUID() == uid);
+            });
+    }
+
     @Override
     protected void cleanup()
     {
-        BigDoors.get().getDoorSpecificationManager().removeRequest(player);
+        BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
     }
 
-    private void getDoorInfoList(final @NonNull StringBuilder sb)
+    private void getDoorInfoList(StringBuilder sb)
     {
-        final @NonNull Optional<IPLocation> location = player.getLocation();
+        final Optional<IPLocation> location = player.getLocation();
 
         options.forEach(
             door ->
@@ -91,8 +92,8 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
                 sb.append("\n")
                   .append(String.format("%d: %s, Creator: %s, World: %s",
                                         door.getDoorUID(), door.getDoorType().getSimpleName(),
-                                        door.getPrimeOwner().getPPlayerData().getName(),
-                                        door.getWorld().getWorldName()));
+                                        door.getPrimeOwner().pPlayerData().getName(),
+                                        door.getWorld().worldName()));
 
                 if (location.isEmpty())
                     return;

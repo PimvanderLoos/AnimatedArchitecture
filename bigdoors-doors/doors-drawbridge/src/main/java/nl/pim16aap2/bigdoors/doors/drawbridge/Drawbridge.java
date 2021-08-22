@@ -1,28 +1,22 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IMovingDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleableArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -31,22 +25,19 @@ import java.util.Optional;
  *
  * @author Pim
  */
-public class Drawbridge extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IMovingDoorArchetype, ITimerToggleableArchetype
+@EqualsAndHashCode(callSuper = true)
+public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
-    @NotNull
+    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeDrawbridge.get();
 
-    @Getter(onMethod = @__({@Override}))
-//    @Setter(onMethod = @__({@Override, @Synchronized("readLock")}))
-    @Setter(onMethod = @__({@Override}))
-    @Accessors(chain = true)
+    @Getter
+    @Setter
     @PersistentVariable
     protected int autoCloseTime;
 
-    @Getter(onMethod = @__({@Override}))
-    @Setter(onMethod = @__({@Override}))
-    @Accessors(chain = true)
+    @Getter
+    @Setter
     @PersistentVariable
     protected int autoOpenTime;
 
@@ -60,61 +51,41 @@ public class Drawbridge extends AbstractDoorBase
     @PersistentVariable
     protected boolean modeUp;
 
-    public Drawbridge(final @NotNull DoorData doorData, final int autoCloseTime, final int autoOpenTime,
-                      final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, int autoCloseTime, int autoOpenTime, boolean modeUp)
     {
-        super(doorData);
+        super(doorBase);
         this.autoOpenTime = autoOpenTime;
         this.autoCloseTime = autoCloseTime;
         this.modeUp = modeUp;
     }
 
-    public Drawbridge(final @NotNull DoorData doorData, final boolean modeUp)
+    public Drawbridge(DoorBase doorBase, boolean modeUp)
     {
-        this(doorData, -1, -1, modeUp);
+        this(doorBase, -1, -1, modeUp);
     }
 
-    private Drawbridge(final @NonNull DoorData doorData)
+    @SuppressWarnings("unused")
+    private Drawbridge(DoorBase doorBase)
     {
-        this(doorData, false); // Add tmp/default values
+        this(doorBase, false); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public @NotNull Vector2Di[] calculateChunkRange()
-    {
-        final @NotNull Vector3DiConst dimensions = getDimensions();
-
-        final int xLen = dimensions.getX();
-        final int yLen = dimensions.getY();
-        final int zLen = dimensions.getZ();
-
-        final int radius;
-        if (dimensions.getY() != 1)
-            radius = yLen / 16 + 1;
-        else
-            radius = Math.max(xLen, zLen) / 16 + 1;
-
-        return new Vector2Di[]{
-            new Vector2Di(getEngineChunk().getX() - radius, getEngineChunk().getY() - radius),
-            new Vector2Di(getEngineChunk().getX() + radius, getEngineChunk().getY() + radius)};
-    }
-
-    @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return isOpen() ? RotateDirection.getOpposite(getOpenDir()) : getOpenDir();
     }
 
     @Override
-    public synchronized @NotNull Optional<Cuboid> getPotentialNewCoordinates()
+    public synchronized Optional<Cuboid> getPotentialNewCoordinates()
     {
-        final @NotNull RotateDirection rotateDirection = getCurrentToggleDir();
+        final RotateDirection rotateDirection = getCurrentToggleDir();
         final double angle;
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.WEST)
             angle = -Math.PI / 2;
@@ -127,7 +98,7 @@ public class Drawbridge extends AbstractDoorBase
             return Optional.empty();
         }
 
-        final @NotNull Cuboid cuboid = getCuboid().clone();
+        final Cuboid cuboid = getCuboid();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
             return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
         else
@@ -135,34 +106,18 @@ public class Drawbridge extends AbstractDoorBase
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+        throws Exception
     {
         return new BridgeMover<>(time, this, getCurrentToggleDir(), skipAnimation,
                                  DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override
-    public boolean equals(@Nullable Object o)
-    {
-        if (!super.equals(o))
-            return false;
-
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull Drawbridge other = (Drawbridge) o;
-        return autoCloseTime == other.autoCloseTime &&
-            autoOpenTime == other.autoOpenTime &&
-            modeUp == other.modeUp;
-    }
-
-    @Override
     public boolean isNorthSouthAligned()
     {
-        final @NotNull RotateDirection openDir = getOpenDir();
+        final RotateDirection openDir = getOpenDir();
         return openDir == RotateDirection.NORTH || openDir == RotateDirection.SOUTH;
     }
 }

@@ -18,8 +18,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -30,7 +31,7 @@ public class EventListeners implements Listener
 {
     private final BigDoorsSpigot plugin;
 
-    public EventListeners(final BigDoorsSpigot plugin)
+    public EventListeners(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
     }
@@ -38,10 +39,11 @@ public class EventListeners implements Listener
     /**
      * Listens to players interacting with the world to check if they are using a BigDoors tool.
      *
-     * @param event The {@link PlayerInteractEvent}.
+     * @param event
+     *     The {@link PlayerInteractEvent}.
      */
     @EventHandler
-    public void onLeftClick(final PlayerInteractEvent event)
+    public void onLeftClick(PlayerInteractEvent event)
     {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK)
             return;
@@ -64,10 +66,11 @@ public class EventListeners implements Listener
     /**
      * Listens for the {@link PlayerJoinEvent} to make sure their latest name is updated in the database.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onLogin(final PlayerJoinEvent event)
+    public void onLogin(PlayerJoinEvent event)
     {
         try
         {
@@ -82,10 +85,11 @@ public class EventListeners implements Listener
     /**
      * Listens for the {@link PlayerQuitEvent} to make sure all processes they are active in are cancelled properly.
      *
-     * @param event The {@link PlayerQuitEvent}.
+     * @param event
+     *     The {@link PlayerQuitEvent}.
      */
     @EventHandler
-    public void onLogout(final PlayerQuitEvent event)
+    public void onLogout(PlayerQuitEvent event)
     {
         try
         {
@@ -101,12 +105,13 @@ public class EventListeners implements Listener
     /**
      * Checks if a player is a {@link ToolUser} or not.
      *
-     * @param player The {@link Player}.
+     * @param player
+     *     The {@link Player}.
      * @return True if a player is a {@link ToolUser}.
      */
-    private boolean isToolUser(final @NotNull Player player)
+    private boolean isToolUser(@Nullable Player player)
     {
-        return BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
+        return player != null && BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
     }
 
     /**
@@ -115,7 +120,8 @@ public class EventListeners implements Listener
      * If they aren't a {@link ToolUser}, the stick is deleted, as they shouldn't have had it in the first place.
      * Otherwise, it's just cancelled.
      *
-     * @param event The {@link PlayerDropItemEvent}.
+     * @param event
+     *     The {@link PlayerDropItemEvent}.
      */
     @EventHandler
     public void onItemDropEvent(PlayerDropItemEvent event)
@@ -140,17 +146,24 @@ public class EventListeners implements Listener
      * Listens to players interacting with an inventory, to make sure they cannot move the BigDoors stick to another
      * inventory.
      *
-     * @param event The {@link InventoryClickEvent}.
+     * @param event
+     *     The {@link InventoryClickEvent}.
      */
     @EventHandler
     public void inventoryClickEvent(InventoryClickEvent event)
     {
         try
         {
-            if (!plugin.getBigDoorsToolUtil().isTool(event.getCurrentItem()))
+            final @Nullable ItemStack currentItem = event.getCurrentItem();
+            if (currentItem != null && !plugin.getBigDoorsToolUtil().isTool(currentItem))
                 return;
+
+            final @Nullable Inventory clickedInventory = event.getClickedInventory();
+            if (clickedInventory == null)
+                return;
+
             if (event.getAction().equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) ||
-                !event.getClickedInventory().getType().equals(InventoryType.PLAYER))
+                !clickedInventory.getType().equals(InventoryType.PLAYER))
             {
                 if (event.getWhoClicked() instanceof Player)
                 {
@@ -172,7 +185,8 @@ public class EventListeners implements Listener
      * Listens to players interacting with an inventory, to make sure they cannot move the BigDoors stick to another
      * inventory.
      *
-     * @param event The {@link InventoryDragEvent}.
+     * @param event
+     *     The {@link InventoryDragEvent}.
      */
     @EventHandler
     public void inventoryDragEvent(InventoryDragEvent event)
@@ -180,9 +194,9 @@ public class EventListeners implements Listener
         try
         {
             event.getNewItems().forEach(
-                (K, V) ->
+                (key, value) ->
                 {
-                    if (plugin.getBigDoorsToolUtil().isTool(V))
+                    if (plugin.getBigDoorsToolUtil().isTool(value))
                         event.setCancelled(true);
                 });
         }
@@ -195,7 +209,8 @@ public class EventListeners implements Listener
     /**
      * Listens to players attempting to move the BigDoors stick to another inventory.
      *
-     * @param event The {@link InventoryMoveItemEvent}.
+     * @param event
+     *     The {@link InventoryMoveItemEvent}.
      */
     @EventHandler
     public void onItemMoved(InventoryMoveItemEvent event)

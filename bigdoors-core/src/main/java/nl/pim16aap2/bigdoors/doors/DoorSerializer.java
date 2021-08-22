@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.util.FastFieldSetter;
+import org.jetbrains.annotations.Nullable;
+import sun.misc.Unsafe;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,61 +13,111 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Manages the serialization aspects of the doors.
  *
- * @param <T> The type of door.
+ * @param <T>
+ *     The type of door.
  * @author Pim
  */
-public class DoorSerializer<T extends AbstractDoorBase>
+public class DoorSerializer<T extends AbstractDoor>
 {
-    private final @NonNull List<Field> fields = new ArrayList<>();
-    private final @NonNull Class<T> doorClass;
-    private final @NonNull Constructor<T> ctor;
+    /**
+     * The list of serializable fields in the target class {@link #doorClass}.
+     */
+    private final List<Field> fields = new ArrayList<>();
 
-    public DoorSerializer(final @NonNull Class<T> doorClass)
+    /**
+     * The target class.
+     */
+    private final Class<T> doorClass;
+
+    /**
+     * The constructor in the {@link #doorClass} that takes exactly 1 argument of the type {@link DoorBase} if such a
+     * constructor exists.
+     */
+    private final @Nullable Constructor<T> ctor;
+
+    private static final FastFieldSetter<AbstractDoor, DoorBase> FIELD_COPIER_DOOR_BASE =
+        FastFieldSetter.of(DoorBase.class, AbstractDoor.class, "doorBase");
+
+    /**
+     * The {@link Unsafe} instance.
+     */
+    private static final @Nullable Unsafe UNSAFE;
+
+    static
     {
-        this.doorClass = doorClass;
+        // Get the Unsafe instance.
+        @Nullable Unsafe unsafe = null;
         try
         {
-            ctor = doorClass.getDeclaredConstructor(AbstractDoorBase.DoorData.class);
-            ctor.setAccessible(true);
-            findAnnotatedFields();
+            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            unsafeField.setAccessible(true);
+            unsafe = (Unsafe) unsafeField.get(null);
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            final RuntimeException e = new RuntimeException("Failed to analyze door type: " + getDoorTypeName(), t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
+            BigDoors.get().getPLogger().logThrowable(e);
         }
+        UNSAFE = unsafe;
+    }
+
+    public DoorSerializer(Class<T> doorClass)
+        throws Exception
+    {
+        this.doorClass = doorClass;
+        if (Modifier.isAbstract(doorClass.getModifiers()))
+            throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
+
+        @Nullable Constructor<T> ctorTmp = null;
+        try
+        {
+            ctorTmp = doorClass.getDeclaredConstructor(DoorBase.class);
+            ctorTmp.setAccessible(true);
+        }
+        catch (Exception e)
+        {
+            BigDoors.get().getPLogger().logThrowable(Level.FINER, e, "Class " + getDoorTypeName() +
+                " does not have DoorData ctor! Using Unsafe instead!");
+        }
+        ctor = ctorTmp;
+        if (ctor == null && UNSAFE == null)
+            throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
+                                    " and Unsafe is unavailable! This type cannot be enabled!");
+
+        BigDoors.get().getPLogger().logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
+            " construction method for class " + getDoorTypeName());
+
+        findAnnotatedFields();
     }
 
     private void findAnnotatedFields()
+        throws UnsupportedOperationException
     {
         List<Field> fieldList = new ArrayList<>();
         Class<?> clazz = doorClass;
-        while (!clazz.equals(AbstractDoorBase.class))
+        while (!clazz.equals(AbstractDoor.class))
         {
-            fieldList.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            fieldList.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
             clazz = clazz.getSuperclass();
         }
 
-        for (final Field field : fieldList)
+        for (Field field : fieldList)
             if (field.isAnnotationPresent(PersistentVariable.class))
             {
                 field.setAccessible(true);
                 if (!field.getType().isPrimitive() && !Serializable.class.isAssignableFrom(field.getType()))
-                {
-                    UnsupportedOperationException e = new UnsupportedOperationException(
+                    throw new UnsupportedOperationException(
                         String.format("Type %s of field %s for door type %s is not serializable!",
                                       field.getType().getName(), field.getName(), getDoorTypeName()));
-                    BigDoors.get().getPLogger().logThrowableSilently(e);
-                    throw e;
-                }
                 fields.add(field);
             }
     }
@@ -73,24 +125,23 @@ public class DoorSerializer<T extends AbstractDoorBase>
     /**
      * Serializes the type-specific data of a door.
      *
-     * @param door The door.
+     * @param door
+     *     The door.
      * @return The serialized type-specific data.
      */
-    public byte[] serialize(final AbstractDoorBase door)
+    public byte[] serialize(AbstractDoor door)
+        throws Exception
     {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
-        for (final Field field : fields)
+        for (Field field : fields)
             try
             {
                 values.add(field.get(door));
             }
             catch (IllegalAccessException e)
             {
-                RuntimeException ex = new RuntimeException(
-                    String.format("Failed to get value of field %s (type %s) for door type %s!",
-                                  field.getName(), field.getType().getName(), getDoorTypeName()), e);
-                BigDoors.get().getPLogger().logThrowableSilently(ex);
-                throw ex;
+                throw new Exception(String.format("Failed to get value of field %s (type %s) for door type %s!",
+                                                  field.getName(), field.getType().getName(), getDoorTypeName()), e);
             }
         return toByteArray(values);
     }
@@ -98,87 +149,142 @@ public class DoorSerializer<T extends AbstractDoorBase>
     /**
      * Deserializes the serialized type-specific data of a door.
      * <p>
-     * The base doorData and the deserialized data is then used to create a instance of the door type.
+     * The doorBase and the deserialized data are then used to create an instance of the door type.
      *
-     * @param doorData The base door data.
-     * @param data     The serialized type-specific data.
+     * @param doorBase
+     *     The base door data.
+     * @param data
+     *     The serialized type-specific data.
      * @return The newly created instance.
      */
-    public T deserialize(final @NonNull AbstractDoorBase.DoorData doorData, final byte[] data)
+    public T deserialize(DoorBase doorBase, byte[] data)
+        throws Exception
     {
-        return instantiate(doorData, fromByteArray(data));
+        return instantiate(doorBase, fromByteArray(data));
     }
 
-    private static byte[] toByteArray(final @NonNull Serializable serializable)
+    private static byte[] toByteArray(Serializable serializable)
+        throws Exception
     {
-        try (final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
         {
             objectOutputStream.writeObject(serializable);
             return byteArrayOutputStream.toByteArray();
         }
-        catch (Throwable t)
-        {
-            RuntimeException e = new RuntimeException("Failed to serialize object: " + serializable.toString(), t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
     }
 
-    private static @NonNull ArrayList<Object> fromByteArray(final byte[] arr)
+    @SuppressWarnings("unchecked")
+    private static ArrayList<Object> fromByteArray(byte[] arr)
+        throws Exception
     {
-        try (final ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(arr)))
         {
             final Object obj = objectInputStream.readObject();
             if (!(obj instanceof ArrayList))
-            {
-                IllegalStateException e = new IllegalStateException(
+                throw new IllegalStateException(
                     "Unexpected deserialization type! Expected ArrayList, but got " + obj.getClass().getName());
-                BigDoors.get().getPLogger().logThrowableSilently(e);
-                throw e;
-            }
+
+            //noinspection unchecked
             return (ArrayList<Object>) obj;
         }
-        catch (Throwable t)
-        {
-            RuntimeException e = new RuntimeException("Failed to deserialize object!", t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
-
     }
 
-    @NonNull T instantiate(final @NonNull AbstractDoorBase.DoorData doorData,
-                           final @NonNull ArrayList<Object> values)
+    T instantiate(DoorBase doorBase, ArrayList<Object> values)
+        throws Exception
     {
         if (values.size() != fields.size())
-        {
-            IllegalStateException e =
-                new IllegalStateException(String.format("Expected %d arguments but received %d for type %s",
-                                                        fields.size(), values.size(), getDoorTypeName()));
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
-        }
-
+            throw new IllegalStateException(String.format("Expected %d arguments but received %d for type %s",
+                                                          fields.size(), values.size(), getDoorTypeName()));
 
         try
         {
-            T door = ctor.newInstance(doorData);
+            @Nullable T door = instantiate(doorBase);
+            if (door == null)
+                throw new IllegalStateException("Failed to initialize door!");
             for (int idx = 0; idx < fields.size(); ++idx)
                 fields.get(idx).set(door, values.get(idx));
             return door;
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
-            RuntimeException e = new RuntimeException("Failed to create new instance of type: " + getDoorTypeName(), t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
-            throw e;
+            throw new Exception("Failed to create new instance of type: " + getDoorTypeName(), t);
         }
     }
 
-    public @NonNull String getDoorTypeName()
+    /**
+     * Attempts to create a new instance of {@link #doorClass} using the provided base data.
+     * <p>
+     * When {@link #ctor} is available, {@link #instantiateReflection(DoorBase, Constructor)} is used. If that is not
+     * the case, {@link #instantiateUnsafe(DoorBase)} is used instead.
+     *
+     * @param doorBase
+     *     The {@link DoorBase} to use for basic {@link AbstractDoor} initialization.
+     * @return A new instance of {@link #doorClass} if one could be constructed.
+     */
+    private @Nullable T instantiate(DoorBase doorBase)
+        throws IllegalAccessException, InstantiationException, InvocationTargetException
+    {
+        return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
+    }
+
+    private T instantiateReflection(DoorBase doorBase, Constructor<T> ctor)
+        throws IllegalAccessException, InvocationTargetException, InstantiationException
+    {
+        return ctor.newInstance(doorBase);
+    }
+
+    private @Nullable T instantiateUnsafe(DoorBase doorBase)
+        throws InstantiationException
+    {
+        if (UNSAFE == null)
+            return null;
+
+        @SuppressWarnings("unchecked") //
+        final T door = (T) UNSAFE.allocateInstance(doorClass);
+        FIELD_COPIER_DOOR_BASE.copy(door, doorBase);
+        return door;
+    }
+
+    public String getDoorTypeName()
     {
         return doorClass.getName();
+    }
+
+    /**
+     * Prints the persistent field names and values of a door.
+     * <p>
+     * 1 field per line.
+     *
+     * @param door
+     *     The {@link AbstractDoor} whose {@link PersistentVariable}s to print.
+     * @return A String containing the names and values of the persistent parameters of the provided door.
+     */
+    public String toString(AbstractDoor door)
+    {
+        if (!doorClass.isAssignableFrom(door.getClass()))
+        {
+            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+                "Expected type " + getDoorTypeName() + " but received type " + door.getClass().getName()));
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (Field field : fields)
+        {
+            String value;
+            try
+            {
+                value = field.get(door).toString();
+            }
+            catch (IllegalAccessException e)
+            {
+                BigDoors.get().getPLogger().logThrowable(e);
+                value = "ERROR";
+            }
+            sb.append(field.getName()).append(": ").append(value).append("\n");
+        }
+        return sb.toString();
     }
 
     @Override

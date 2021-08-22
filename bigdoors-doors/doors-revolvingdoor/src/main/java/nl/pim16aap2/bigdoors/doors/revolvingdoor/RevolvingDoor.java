@@ -1,30 +1,35 @@
 package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Revolving Door doorType.
  *
  * @author Pim
- * @see AbstractDoorBase
+ * @see DoorBase
  */
-public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorArchetype
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class RevolvingDoor extends AbstractDoor
 {
-    @NotNull
+    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
     /**
@@ -37,41 +42,50 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     @PersistentVariable
     private int quarterCircles;
 
-    public RevolvingDoor(final @NotNull DoorData doorData, final int quarterCircles)
+    public RevolvingDoor(DoorBase doorBase, int quarterCircles)
     {
-        super(doorData);
+        super(doorBase);
         this.quarterCircles = quarterCircles;
     }
 
-    public RevolvingDoor(final @NotNull DoorData doorData)
+    public RevolvingDoor(DoorBase doorBase)
     {
-        this(doorData, 1);
+        this(doorBase, 1);
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
 
     @Override
-    public synchronized @NotNull RotateDirection getCurrentToggleDir()
+    public Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        final RotateDirection rotateDirection = getCurrentToggleDir();
+        final double angle = rotateDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
+                             rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
+        if (angle == 0.0D)
+        {
+            BigDoors.get().getPLogger()
+                    .severe("Invalid open direction \"" + rotateDirection.name() +
+                                "\" for revolving door: " + getDoorUID());
+            return Optional.empty();
+        }
+
+        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
+    }
+
+    @Override
+    public synchronized RotateDirection getCurrentToggleDir()
     {
         return getOpenDir();
     }
 
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
-    {
-        return getOpenDir().equals(RotateDirection.CLOCKWISE) ?
-               RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
-    }
-
-    @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+        throws Exception
     {
         // TODO: Get rid of this.
         double fixedTime = time < 0.5 ? 5 : time;
@@ -81,15 +95,14 @@ public class RevolvingDoor extends AbstractDoorBase implements IStationaryDoorAr
     }
 
     @Override
-    public boolean equals(@Nullable Object o)
+    public boolean isOpenable()
     {
-        if (!super.equals(o))
-            return false;
+        return true;
+    }
 
-        if (getClass() != o.getClass())
-            return false;
-
-        final @NotNull RevolvingDoor other = (RevolvingDoor) o;
-        return quarterCircles == other.quarterCircles;
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
     }
 }

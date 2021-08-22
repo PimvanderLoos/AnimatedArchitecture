@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.extensions;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -27,8 +27,8 @@ import java.util.stream.Stream;
 
 public final class DoorTypeLoader extends Restartable
 {
-    private static final @NotNull DoorTypeLoader INSTANCE = new DoorTypeLoader();
-    private @NotNull DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
+    private static final DoorTypeLoader INSTANCE = new DoorTypeLoader();
+    private DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
 
     private DoorTypeLoader()
     {
@@ -54,35 +54,34 @@ public final class DoorTypeLoader extends Restartable
         }
     }
 
-    @NotNull
     public static DoorTypeLoader get()
     {
         return INSTANCE;
     }
 
-    private @NotNull Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(final @NotNull File file)
+    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(File file)
     {
-        BigDoors.get().getPLogger().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file.toString());
+        BigDoors.get().getPLogger().logMessage(Level.FINE, "Attempting to load DoorType from jar: " + file);
         if (!file.toString().endsWith(".jar"))
         {
             BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalArgumentException("\"" + file.toString() + "\" is not a valid jar file!"));
+                    .logThrowable(new IllegalArgumentException("\"" + file + "\" is not a valid jar file!"));
             return Optional.empty();
         }
 
-        final String typeName;
-        final @NotNull String className;
+        final @Nullable String typeName;
+        final String className;
         @Nullable String dependencies;
         final int version;
-        try (final @NotNull FileInputStream fileInputStream = new FileInputStream(file);
-             final @NotNull JarInputStream jarStream = new JarInputStream(fileInputStream))
+        try (FileInputStream fileInputStream = new FileInputStream(file);
+             final JarInputStream jarStream = new JarInputStream(fileInputStream))
         {
-            final @NotNull Manifest manifest = jarStream.getManifest();
+            final Manifest manifest = jarStream.getManifest();
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
             if (className == null)
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its main class!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its main class!"));
                 return Optional.empty();
             }
 
@@ -90,18 +89,18 @@ public final class DoorTypeLoader extends Restartable
             typeName = typeNameSection != null ? typeNameSection.getValue("TypeName") : null;
             if (typeName == null)
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its type name!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its type name!"));
                 return Optional.empty();
             }
 
             final @Nullable Attributes versionSection = manifest.getEntries().get("Version");
-            final @NotNull OptionalInt versionOpt = Util.parseInt(versionSection == null ?
-                                                                  null : versionSection.getValue("Version"));
+            final OptionalInt versionOpt = Util.parseInt(versionSection == null ?
+                                                         null : versionSection.getValue("Version"));
             if (versionOpt.isEmpty())
             {
-                BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException("File: \"" + file.toString() +
-                                                                                          "\" does not specify its version!"));
+                BigDoors.get().getPLogger().logThrowable(
+                    new IllegalArgumentException("File: \"" + file + "\" does not specify its version!"));
                 return Optional.empty();
             }
             version = versionOpt.getAsInt();
@@ -120,26 +119,34 @@ public final class DoorTypeLoader extends Restartable
         return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies));
     }
 
-    public void loadDoorTypesFromDirectory()
+    /**
+     * Attempts to load and register all jars in the default directory:
+     * <p>
+     * {@link IBigDoorsPlatform#getDataDirectory()} + {@link Constants#BIGDOORS_EXTENSIONS_FOLDER}.
+     * <p>
+     * See also {@link #loadDoorTypesFromDirectory(String)}.
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public List<DoorType> loadDoorTypesFromDirectory()
     {
-        final @NotNull List<DoorType> doorTypes =
-            loadDoorTypesFromDirectory(BigDoors.get().getPlatform().getDataDirectory() +
-                                           Constants.BIGDOORS_EXTENSIONS_FOLDER);
-        BigDoors.get().getDoorTypeManager().registerDoorTypes(doorTypes);
+        return loadDoorTypesFromDirectory(
+            BigDoors.get().getPlatform().getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
     }
 
     /**
-     * Attempts to load all jars in a given directory.
+     * Attempts to load and register all jars in a given directory.
      *
-     * @param directory The directory.
+     * @param directory
+     *     The directory.
+     * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    private @NotNull List<DoorType> loadDoorTypesFromDirectory(final @NotNull String directory)
+    public List<DoorType> loadDoorTypesFromDirectory(String directory)
     {
-        final @NotNull List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
+        final List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
 
-        try (final @NotNull Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
+        try (Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
         {
-            final @NotNull Stream<Path> result = walk.filter(Files::isRegularFile);
+            final Stream<Path> result = walk.filter(Files::isRegularFile);
             result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfos::add));
         }
         catch (IOException e)
@@ -147,7 +154,9 @@ public final class DoorTypeLoader extends Restartable
             BigDoors.get().getPLogger().logThrowable(e);
         }
 
-        return new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        List<DoorType> types = new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        BigDoors.get().getDoorTypeManager().registerDoorTypes(types);
+        return types;
     }
 
     @Override

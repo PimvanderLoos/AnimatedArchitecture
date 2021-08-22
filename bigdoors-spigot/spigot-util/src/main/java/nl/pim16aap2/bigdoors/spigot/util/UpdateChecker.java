@@ -5,14 +5,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.logging.PLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedInputStream;
@@ -23,7 +21,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Instant;
+import java.util.Objects;
+import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,10 +44,10 @@ import java.util.regex.Pattern;
  */
 public final class UpdateChecker
 {
-    @NotNull
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
-        String[] firstSplit = splitVersionInfo(first), secondSplit = splitVersionInfo(second);
+        String @Nullable [] firstSplit = splitVersionInfo(first);
+        String @Nullable [] secondSplit = splitVersionInfo(second);
         if (firstSplit == null || secondSplit == null)
             return null;
 
@@ -65,31 +64,21 @@ public final class UpdateChecker
         return (secondSplit.length > firstSplit.length) ? second : first;
     };
 
-    @NotNull
     private static final String USER_AGENT = "BigDoors-update-checker";
-    @NotNull
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
-    @NotNull
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
-    @NotNull
     private final String downloadURL;
 
-    @Nullable
-    private static UpdateChecker INSTANCE;
+    private static @Nullable UpdateChecker INSTANCE;
 
-    @Nullable
-    private UpdateResult lastResult = null;
+    private @Nullable UpdateResult lastResult = null;
 
-    @NotNull
     private final JavaPlugin plugin;
     private final int pluginID;
-    @NotNull
     private final VersionScheme versionScheme;
-    @NotNull
     private final IPLogger logger;
 
-    private UpdateChecker(final @NotNull JavaPlugin plugin, final int pluginID,
-                          final @NotNull VersionScheme versionScheme, final @NotNull IPLogger logger)
+    private UpdateChecker(JavaPlugin plugin, int pluginID, VersionScheme versionScheme, IPLogger logger)
     {
         this.plugin = plugin;
         this.pluginID = pluginID;
@@ -104,46 +93,38 @@ public final class UpdateChecker
      *
      * @return a future update result
      */
-    public @NotNull CompletableFuture<UpdateResult> requestUpdateCheck()
+    public CompletableFuture<UpdateResult> requestUpdateCheck()
     {
         return CompletableFuture.supplyAsync(
             () ->
             {
-                int responseCode = -1;
+                int responseCode;
                 try
                 {
-                    URL url = new URL(String.format(UPDATE_URL, pluginID));
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    final URL url = new URL(String.format(UPDATE_URL, pluginID));
+                    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     connection.addRequestProperty("User-Agent", USER_AGENT);
 
-                    InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+                    final InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                     responseCode = connection.getResponseCode();
 
-                    JsonElement element = new JsonParser().parse(reader);
+                    final JsonElement element = new JsonParser().parse(reader);
                     if (!element.isJsonArray())
                         return new UpdateResult(UpdateReason.INVALID_JSON);
 
                     reader.close();
 
-                    JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
+                    final JsonObject versionObject = element.getAsJsonArray().get(0).getAsJsonObject();
 
-                    long age = -1;
-                    String ageString = versionObject.get("releaseDate").getAsString();
-                    try
-                    {
-                        age = getAge(Long.parseLong(ageString));
-                    }
-                    catch (NumberFormatException e)
-                    {
-                        BigDoors.get().getPLogger()
-                                .logThrowable(e,
-                                              "Failed to obtain age of update from ageString: \"" + ageString + "\"");
-                    }
+                    final String ageString = versionObject.get("releaseDate").getAsString();
+                    final OptionalLong ageOpt = Util.parseLong(ageString);
+                    if (ageOpt.isEmpty())
+                        throw new IllegalArgumentException("Invalid age string: \"" + ageString + "\"");
+                    final long age = ageOpt.getAsLong();
 
-
-                    String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
-                                                                                                 .getAsString();
-                    String latest = versionScheme.compareVersions(current, newest);
+                    final String current = plugin.getDescription().getVersion(), newest = versionObject.get("name")
+                                                                                                       .getAsString();
+                    final @Nullable String latest = versionScheme.compareVersions(current, newest);
 
                     if (latest == null)
                         return new UpdateResult(UpdateReason.UNSUPPORTED_VERSION_SCHEME);
@@ -168,29 +149,17 @@ public final class UpdateChecker
     }
 
     /**
-     * Gets the difference in seconds between a given time and the current time.
-     *
-     * @param updateTime A moment in time to compare the current time to.
-     * @return The difference in seconds between a given time and the current time.
-     */
-    private long getAge(final long updateTime)
-    {
-        long currentTime = Instant.now().getEpochSecond();
-        return currentTime - updateTime;
-    }
-
-    /**
      * Gets the last update result that was queried by {@link #requestUpdateCheck()}. If no update check was performed
      * since this class' initialization, this method will return null.
      *
      * @return the last update check result. null if none.
      */
-    public @NotNull UpdateResult getLastResult()
+    public @Nullable UpdateResult getLastResult()
     {
         return lastResult;
     }
 
-    private static String[] splitVersionInfo(String version)
+    private static String @Nullable [] splitVersionInfo(String version)
     {
         Matcher matcher = DECIMAL_SCHEME_PATTERN.matcher(version);
         if (!matcher.find())
@@ -204,7 +173,7 @@ public final class UpdateChecker
      *
      * @return The url to download the latest version from.
      */
-    public @NotNull String getDownloadUrl()
+    public String getDownloadUrl()
     {
         return downloadURL;
     }
@@ -220,16 +189,15 @@ public final class UpdateChecker
         try
         {
             File updateFolder = Bukkit.getUpdateFolderFile();
-            if (!updateFolder.exists())
-                if (!updateFolder.mkdirs())
-                    throw new RuntimeException("Failed to create update folder!");
+            if (!updateFolder.exists() && !updateFolder.mkdirs())
+                throw new RuntimeException("Failed to create update folder!");
 
             String fileName = plugin.getName() + ".jar";
             File updateFile = new File(updateFolder + "/" + fileName);
 
             // Follow any and all redirects until we've finally found the actual file.
             String location = downloadURL;
-            HttpURLConnection httpConnection = null;
+            HttpURLConnection httpConnection;
             for (; ; )
             {
                 URL url = new URL(location);
@@ -252,21 +220,20 @@ public final class UpdateChecker
             }
 
             int grabSize = 4096;
-            BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-            FileOutputStream fos = new FileOutputStream(updateFile);
-            BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize);
 
-            byte[] data = new byte[grabSize];
-            int grab;
-            while ((grab = in.read(data, 0, grabSize)) >= 0)
-                bout.write(data, 0, grab);
+            try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
+                 FileOutputStream fos = new FileOutputStream(updateFile);
+                 BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize))
+            {
+                byte[] data = new byte[grabSize];
+                int grab;
+                while ((grab = in.read(data, 0, grabSize)) >= 0)
+                    bout.write(data, 0, grab);
 
-            bout.flush();
-            bout.close();
-            in.close();
-            fos.flush();
-            fos.close();
-            downloadSuccessfull = true;
+                bout.flush();
+                fos.flush();
+                downloadSuccessfull = true;
+            }
         }
         catch (Exception e)
         {
@@ -280,17 +247,19 @@ public final class UpdateChecker
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
      *
-     * @param plugin        the plugin for which to check updates. Cannot be null.
-     * @param pluginID      the ID of the plugin as identified in the SpigotMC resource link. For example,
-     *                      "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a
-     *                      value. The value must be greater than 0
-     * @param versionScheme a custom version scheme parser. Cannot be null
-     * @param logger        The {@link PLogger} to use for logging.
+     * @param plugin
+     *     the plugin for which to check updates. Cannot be null.
+     * @param pluginID
+     *     the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *     "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The value must
+     *     be greater than 0
+     * @param versionScheme
+     *     a custom version scheme parser. Cannot be null
+     * @param logger
+     *     The {@link PLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
-    public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                              final @NotNull VersionScheme versionScheme,
-                                              final @NotNull IPLogger logger)
+    public static UpdateChecker init(JavaPlugin plugin, int pluginID, VersionScheme versionScheme, IPLogger logger)
     {
         Preconditions.checkArgument(pluginID > 0, "Plugin ID must be greater than 0");
 
@@ -302,17 +271,19 @@ public final class UpdateChecker
      * UpdateChecker has already been initialized, this method will act similarly to {@link #get()} (which is
      * recommended after initialization).
      *
-     * @param plugin   the plugin for which to check updates. Cannot be null
-     * @param pluginID the ID of the plugin as identified in the SpigotMC resource link. For example,
-     *                 "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The
-     *                 value must be greater than 0
-     * @param logger   The {@link IPLogger} to use for logging.
+     * @param plugin
+     *     the plugin for which to check updates. Cannot be null
+     * @param pluginID
+     *     the ID of the plugin as identified in the SpigotMC resource link. For example,
+     *     "https://www.spigotmc.org/resources/veinminer.<b>12038</b>/" would expect "12038" as a value. The value must
+     *     be greater than 0
+     * @param logger
+     *     The {@link IPLogger} to use for logging.
      * @return The {@link UpdateChecker} instance.
      */
-    public static @NotNull UpdateChecker init(final @NotNull JavaPlugin plugin, final int pluginID,
-                                              final @NotNull IPLogger logger)
+    public static UpdateChecker init(JavaPlugin plugin, int pluginID, IPLogger logger)
     {
-        return init(plugin, pluginID, VERSION_SCHEME_DECIMAL, logger);
+        return init(plugin, pluginID, Objects.requireNonNull(VERSION_SCHEME_DECIMAL, "Scheme cannot be null!"), logger);
     }
 
     /**
@@ -321,11 +292,9 @@ public final class UpdateChecker
      *
      * @return The {@link UpdateChecker} instance.
      */
-    public static @NotNull UpdateChecker get()
+    public static UpdateChecker get()
     {
-        Preconditions.checkState(INSTANCE != null,
-                                 "Instance has not yet been initialized. Be sure #init() has been invoked");
-        return INSTANCE;
+        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     /**
@@ -343,19 +312,19 @@ public final class UpdateChecker
      * A functional interface to compare two version Strings with similar version schemes.
      */
     @FunctionalInterface
-    public static interface VersionScheme
+    public interface VersionScheme
     {
-
         /**
          * Compare two versions and return the higher of the two. If null is returned, it is assumed that at least one
          * of the two versions are unsupported by this version scheme parser.
          *
-         * @param first  the first version to check
-         * @param second the second version to check
+         * @param first
+         *     the first version to check
+         * @param second
+         *     the second version to check
          * @return the greater of the two versions. null if unsupported version schemes
          */
-        @NotNull String compareVersions(String first, String second);
-
+        @Nullable String compareVersions(String first, String second);
     }
 
     /**
@@ -413,9 +382,7 @@ public final class UpdateChecker
      */
     public final class UpdateResult
     {
-        @NotNull
         private final UpdateReason reason;
-        @NotNull
         private final String newestVersion;
         private final long age;
 
@@ -423,14 +390,14 @@ public final class UpdateChecker
             lastResult = this;
         }
 
-        private UpdateResult(final @NotNull UpdateReason reason, final @NotNull String newestVersion, final long age)
+        private UpdateResult(UpdateReason reason, String newestVersion, long age)
         {
             this.reason = reason;
             this.newestVersion = newestVersion;
             this.age = age;
         }
 
-        private UpdateResult(final @NotNull UpdateReason reason)
+        private UpdateResult(UpdateReason reason)
         {
             Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE && reason != UpdateReason.UP_TO_DATE,
                                         "Reasons that might require updates must also provide the latest version String");
@@ -444,7 +411,7 @@ public final class UpdateChecker
          *
          * @return the reason
          */
-        public @NotNull UpdateReason getReason()
+        public UpdateReason getReason()
         {
             return reason;
         }
@@ -465,7 +432,7 @@ public final class UpdateChecker
          *
          * @return the newest version of the plugin
          */
-        public @NotNull String getNewestVersion()
+        public String getNewestVersion()
         {
             return newestVersion;
         }

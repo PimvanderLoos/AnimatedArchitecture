@@ -2,9 +2,8 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.jetbrains.annotations.NotNull;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 /**
  * Represents a factory for {@link IPLocation} objects.
@@ -16,58 +15,74 @@ public interface IPLocationFactory
     /**
      * Creates a new IPLocation.
      *
-     * @param world The world.
-     * @param x     The x coordinate.
-     * @param y     The y coordinate.
-     * @param z     The z coordinate.
+     * @param world
+     *     The world.
+     * @param x
+     *     The x coordinate.
+     * @param y
+     *     The y coordinate.
+     * @param z
+     *     The z coordinate.
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull IPWorld world, final double x, final double y, final double z);
+    IPLocation create(IPWorld world, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param world    The world.
-     * @param position The position in the world
+     * @param world
+     *     The world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DiConst position);
+    IPLocation create(IPWorld world, Vector3Di position);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param world    The world.
-     * @param position The position in the world
+     * @param world
+     *     The world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull IPWorld world, final @NotNull Vector3DdConst position);
+    IPLocation create(IPWorld world, Vector3Dd position);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param x         The x coordinate.
-     * @param y         The y coordinate.
-     * @param z         The z coordinate.
+     * @param worldName
+     *     The name of the world.
+     * @param x
+     *     The x coordinate.
+     * @param y
+     *     The y coordinate.
+     * @param z
+     *     The z coordinate.
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull String worldName, final double x, final double y, final double z);
+    IPLocation create(String worldName, double x, double y, double z);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param position  The position in the world
+     * @param worldName
+     *     The name of the world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DiConst position);
+    IPLocation create(String worldName, Vector3Di position);
 
     /**
      * Creates a new IPLocation.
      *
-     * @param worldName The name of the world.
-     * @param position  The position in the world
+     * @param worldName
+     *     The name of the world.
+     * @param position
+     *     The position in the world
      * @return A new IPLocation object.
      */
-    @NotNull IPLocation create(final @NotNull String worldName, final @NotNull Vector3DdConst position);
+    IPLocation create(String worldName, Vector3Dd position);
 }

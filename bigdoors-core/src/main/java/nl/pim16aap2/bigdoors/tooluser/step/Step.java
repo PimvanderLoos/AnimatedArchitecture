@@ -3,11 +3,9 @@ package nl.pim16aap2.bigdoors.tooluser.step;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,27 +16,28 @@ import java.util.function.Supplier;
 
 // TODO: Consider adding another method for PrepareStep or something. For example, the setFirstPos would prepare by
 //       giving the player the creator stick, and CONFIRM_PRICE would prepare by skipping itself if the door is free.
-// TODO: Look into https://projectlombok.org/features/Builder
+@ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class Step<T extends ToolUser> implements IStep
+public class Step implements IStep
 {
-    @Getter(onMethod = @__({@Override}))
-    @NotNull
+    @Getter
     private final String name;
-    @NotNull
+
     private final StepExecutor stepExecutor;
 
-    //    @Getter(onMethod = @__({@Override}))
-    @NotNull
-    private final Message message;
-    @NotNull
+    @ToString.Exclude
+    private final String messageKey;
+
+    @ToString.Exclude
     private final List<Supplier<String>> messageVariablesRetrievers;
 
     private final boolean waitForUserInput;
 
-    @Nullable
-    private final Supplier<Boolean> skipCondition;
+    @ToString.Exclude
+    private final @Nullable Supplier<Boolean> skipCondition;
 
+    @Getter
+    private final boolean implicitNextStep;
 
     @Override
     public boolean waitForUserInput()
@@ -47,7 +46,7 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    public @NotNull Optional<StepExecutor> getStepExecutor()
+    public Optional<StepExecutor> getStepExecutor()
     {
         return Optional.of(stepExecutor);
     }
@@ -59,80 +58,87 @@ public class Step<T extends ToolUser> implements IStep
     }
 
     @Override
-    public @NotNull String getLocalizedMessage()
+    public String getLocalizedMessage()
     {
-        final @NotNull List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
+        final List<String> variables = new ArrayList<>(messageVariablesRetrievers.size());
         messageVariablesRetrievers.forEach(fun -> variables.add(fun.get()));
 
-        String[] variablesArr = new String[variables.size()];
+        Object[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
 
-        return BigDoors.get().getPlatform().getMessages().getString(message, variablesArr);
+        return BigDoors.get().getLocalizer().getMessage(messageKey, variablesArr);
     }
 
-    public static class Factory<T extends ToolUser>
+    public static class Factory
     {
-        @NotNull
         private final String name;
-        private StepExecutor stepExecutor = null;
-        private List<Supplier<String>> messageVariablesRetrievers = null;
+        private @Nullable StepExecutor stepExecutor = null;
+        private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
         private boolean waitForUserInput = true;
-        private Message message = null;
-        private Supplier<Boolean> skipCondition = null;
+        private @Nullable String messageKey = null;
+        private @Nullable Supplier<Boolean> skipCondition = null;
+        private boolean implicitNextStep = true;
 
-        public Factory(final @NotNull String name)
+        public Factory(String name)
         {
             this.name = name;
         }
 
-        public @NotNull Factory<T> stepExecutor(final @NotNull StepExecutor stepExecutor)
+        public Factory implicitNextStep(boolean implicitNextStep)
+        {
+            this.implicitNextStep = implicitNextStep;
+            return this;
+        }
+
+        public Factory stepExecutor(StepExecutor stepExecutor)
         {
             this.stepExecutor = stepExecutor;
             return this;
         }
 
-        public @NotNull Factory<T> messageVariableRetrievers(
-            final @NotNull List<Supplier<String>> messageVariablesRetrievers)
+        public Factory messageVariableRetriever(Supplier<String> messageVariablesRetriever)
+        {
+            messageVariablesRetrievers = List.of(messageVariablesRetriever);
+            return this;
+        }
+
+        public Factory messageVariableRetrievers(List<Supplier<String>> messageVariablesRetrievers)
         {
             this.messageVariablesRetrievers = Collections.unmodifiableList(messageVariablesRetrievers);
             return this;
         }
 
-        public @NotNull Factory<T> skipCondition(final @NotNull Supplier<Boolean> skipCondition)
+        public Factory skipCondition(Supplier<Boolean> skipCondition)
         {
             this.skipCondition = skipCondition;
             return this;
         }
 
-        public @NotNull Factory<T> waitForUserInput(final boolean waitForUserInput)
+        public Factory waitForUserInput(boolean waitForUserInput)
         {
             this.waitForUserInput = waitForUserInput;
             return this;
         }
 
-        public @NotNull Factory<T> message(final @NotNull Message message)
+        public Factory messageKey(String messageKey)
         {
-            this.message = message;
+            this.messageKey = messageKey;
             return this;
         }
 
-        public @NotNull Step<T> construct()
+        public Step construct()
             throws InstantiationException
         {
             if (stepExecutor == null)
                 throw new InstantiationException("Trying to instantiate a Step without stepExecutor");
-            if (message == null)
+            if (messageKey == null)
                 throw new InstantiationException("Trying to instantiate a Step without message");
 
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
 
-            if (messageVariablesRetrievers.size() != Message.getVariableCount(message))
-                throw new InstantiationException("Parameter mismatch for " + name + ". Expected: " +
-                                                     Message.getVariableCount(message) + " but received: " +
-                                                     messageVariablesRetrievers.size());
-
-            return new Step<>(name, stepExecutor, message, messageVariablesRetrievers, waitForUserInput, skipCondition);
+            return new Step(name, stepExecutor, messageKey, messageVariablesRetrievers,
+                            waitForUserInput, skipCondition, implicitNextStep);
         }
     }
 }

@@ -1,12 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -14,26 +12,25 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
-public final class PWorldSpigot implements IPWorld
+public record PWorldSpigot(String worldName, @Nullable World world) implements IPWorld
 {
-    @Getter(onMethod = @__({@Override}))
-    private final @NotNull String worldName;
-    private final @Nullable World world;
-
-    public PWorldSpigot(final @NotNull String worldName)
+    public PWorldSpigot(String worldName)
     {
-        this.worldName = worldName;
+        this(worldName, getNamedWorld(worldName));
+    }
+
+    public PWorldSpigot(World world)
+    {
+        this(world.getName(), world);
+    }
+
+    private static @Nullable World getNamedWorld(String worldName)
+    {
         final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
         if (bukkitWorld == null)
             BigDoors.get().getPLogger().logThrowable(
                 new NullPointerException("World \"" + worldName + "\" could not be found!"));
-        world = bukkitWorld;
-    }
-
-    public PWorldSpigot(final @NotNull World world)
-    {
-        worldName = world.getName();
-        this.world = world;
+        return bukkitWorld;
     }
 
     @Override
@@ -53,47 +50,8 @@ public final class PWorldSpigot implements IPWorld
     }
 
     @Override
-    public @NotNull WorldTime getTime()
+    public WorldTime getTime()
     {
         return new WorldTime(world == null ? 0 : world.getTime());
-    }
-
-    @Override
-    public @NotNull String toString()
-    {
-        return worldName;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-            return true;
-        if (o == null)
-            return false;
-        if (getClass() != o.getClass())
-            return false;
-        return worldName.equals(((IPWorld) o).getWorldName());
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return worldName.hashCode();
-    }
-
-    @Override
-    public @NotNull PWorldSpigot clone()
-    {
-        try
-        {
-            return (PWorldSpigot) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            Error er = new Error(e);
-            BigDoors.get().getPLogger().logThrowableSilently(er);
-            throw er;
-        }
     }
 }

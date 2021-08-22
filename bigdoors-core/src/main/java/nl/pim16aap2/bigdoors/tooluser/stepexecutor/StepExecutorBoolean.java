@@ -1,25 +1,28 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import lombok.ToString;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+@ToString
 @AllArgsConstructor
 public class StepExecutorBoolean extends StepExecutor
 {
-    @NotNull
+    @ToString.Exclude
     private final Function<Boolean, Boolean> fun;
 
     @Override
-    protected boolean protectedAccept(final @Nullable Object input)
+    protected boolean protectedAccept(@Nullable Object input)
     {
+        Util.requireNonNull(input, "Boolean input");
         return fun.apply((Boolean) input);
     }
 
     @Override
-    public @NotNull Class<?> getInputClass()
+    public Class<?> getInputClass()
     {
         return Boolean.class;
     }

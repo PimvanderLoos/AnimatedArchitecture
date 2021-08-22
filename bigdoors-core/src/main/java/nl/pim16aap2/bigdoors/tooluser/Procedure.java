@@ -1,30 +1,46 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
 
-public final class Procedure<T extends ToolUser>
+/**
+ * Represents a procedure as defined by a series of {@link IStep}s.
+ *
+ * @author Pim
+ */
+@ToString
+public final class Procedure
 {
-    @NotNull
-    protected IStep currentStep;
+    @Getter
+    private @Nullable IStep currentStep;
 
-    @NotNull
-    protected final T toolUser;
+    @ToString.Exclude //
+    final ToolUser toolUser;
 
-    @NotNull
-    Iterator<IStep> steps;
+    final Iterator<IStep> steps;
 
-    public Procedure(final @NotNull T toolUser, final @NotNull List<IStep> steps)
+    public Procedure(ToolUser toolUser, List<IStep> steps)
     {
         this.toolUser = toolUser;
         this.steps = steps.iterator();
         goToNextStep();
+    }
+
+    /**
+     * Checks if another step exists after the current one.
+     *
+     * @return True if the current step is followed by another one. When false, the current step is the final step.
+     */
+    public boolean hasNextStep()
+    {
+        return steps.hasNext();
     }
 
     /**
@@ -35,7 +51,8 @@ public final class Procedure<T extends ToolUser>
         if (!steps.hasNext())
         {
             BigDoors.get().getPLogger().logThrowable(new IndexOutOfBoundsException(
-                "Trying to advance to the next step while there is none! Step: " + getCurrentStepName()));
+                "Trying to advance to the next step while there is none! Step: " +
+                    (currentStep == null ? "NULL" : getCurrentStepName())));
             return;
         }
         currentStep = steps.next();
@@ -49,10 +66,11 @@ public final class Procedure<T extends ToolUser>
      * <p>
      * If the step could not be found, the procedure will skip to the last step.
      *
-     * @param goalStep The {@link IStep} to jump to.
+     * @param goalStep
+     *     The {@link IStep} to jump to.
      * @return True if the jump was successful, otherwise false.
      */
-    public boolean skipToStep(final @NotNull IStep goalStep)
+    public boolean skipToStep(IStep goalStep)
     {
         while (steps.hasNext())
         {
@@ -69,11 +87,18 @@ public final class Procedure<T extends ToolUser>
     /**
      * Applies some kind of input to the {@link StepExecutor} for the current step.
      *
-     * @param obj The input to apply.
+     * @param obj
+     *     The input to apply.
      * @return True if the application was successful.
      */
-    public boolean applyStepExecutor(final @Nullable Object obj)
+    public boolean applyStepExecutor(@Nullable Object obj)
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot apply step executor because there is no active step!"));
+            return false;
+        }
         return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
     }
 
@@ -82,8 +107,14 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The message for the current step.
      */
-    public @NotNull String getMessage()
+    public String getMessage()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot get the current step message because there is no active step!"));
+            return BigDoors.get().getLocalizer().getMessage("constants.error.generic");
+        }
         return currentStep.getLocalizedMessage();
     }
 
@@ -92,8 +123,14 @@ public final class Procedure<T extends ToolUser>
      *
      * @return The name of the current step.
      */
-    public @NotNull String getCurrentStepName()
+    public String getCurrentStepName()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot get the name of the current because there is no active step!"));
+            return "NULL";
+        }
         return currentStep.getName();
     }
 
@@ -104,6 +141,36 @@ public final class Procedure<T extends ToolUser>
      */
     public boolean waitForUserInput()
     {
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot wait for user input because there is no active step!"));
+            return false;
+        }
         return currentStep.waitForUserInput();
+    }
+
+    /**
+     * Whether the current step should continue to the next step if execution was successful.
+     * <p>
+     * If no next step (see {@link #hasNextStep()}) is available, this will always return false.
+     * <p>
+     * If this is false, the procedure should not be moved to the next step automatically, as this is supposed to be
+     * handled explicitly by the step executor itself.
+     *
+     * @return True if the current step should continue to the next step if execution was successful.
+     */
+    public boolean implicitNextStep()
+    {
+        if (!hasNextStep())
+            return false;
+
+        if (currentStep == null)
+        {
+            BigDoors.get().getPLogger().logThrowable(
+                new IllegalStateException("Cannot check for implicit next step as there is no current step!"));
+            return false;
+        }
+        return currentStep.isImplicitNextStep();
     }
 }

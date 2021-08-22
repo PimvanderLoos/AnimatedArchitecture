@@ -24,7 +24,6 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
-import lombok.NonNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.SoftReference;
@@ -33,47 +32,105 @@ import java.time.Clock;
 /**
  * Represents an {@link AbstractTimedValue} wrapped in a {@link SoftReference}.
  *
- * @param <T> The type of the value to store.
+ * @param <T>
+ *     The type of the value to store.
  * @author Pim
  */
 class TimedSoftValue<T> extends AbstractTimedValue<T>
 {
-    private final @NonNull SoftReference<T> value;
+    private final boolean keepAfterTimeOut;
+    private final SoftReference<T> value;
+
+    // The hard reference looks unused because it is never accessed.
+    // However, its sole purpose is to keep a reference to the value
+    // to avoid garbage collection reclaiming it before it has timed out.
+    @SuppressWarnings("unused")
+    private @Nullable T hardReference;
 
     /**
      * Constructor of {@link TimedSoftValue}.
      *
-     * @param clock   The {@link Clock} to use to determine anything related to time (insertion, age).
-     * @param val     The value of this {@link TimedSoftValue}.
-     * @param timeOut The amount of time (in milliseconds) before this entry expires.
+     * @param clock
+     *     The {@link Clock} to use to determine anything related to time (insertion, age).
+     * @param val
+     *     The value of this {@link TimedSoftValue}.
+     * @param timeOut
+     *     The amount of time (in milliseconds) before this entry expires.
+     * @param keepAfterTimeOut
+     *     Whether to wait until the garbage collector has reclaimed the item. When this is true, {@link
+     *     #canBeEvicted()} won't return true until the value has both timed out and been reclaimed and {@link
+     *     #getValue(boolean)} will return the value for the same duration.
+     *     <p>
+     *     When this is false, {@link #canBeEvicted()} will return true as soon as the value has timed out, regardless
+     *     of whether it may still be available. Similarly, {@link #getValue(boolean)} will return null after the value
+     *     has timed out.
      */
-    public TimedSoftValue(final @NonNull Clock clock, final @NonNull T val, final long timeOut)
+    public TimedSoftValue(Clock clock, T val, long timeOut, boolean keepAfterTimeOut)
     {
         super(clock, timeOut);
+        this.keepAfterTimeOut = keepAfterTimeOut;
         value = new SoftReference<>(val);
+        if (keepAfterTimeOut)
+            hardReference = val;
     }
 
     @Override
-    public @Nullable T getValue()
+    public @Nullable T getValue(boolean refresh)
     {
-        if (timedOut())
+        if (!keepAfterTimeOut && timedOut())
             return null;
-        return value.get();
+        final @Nullable T val = value.get();
+        if (val == null)
+            return null;
+        if (refresh)
+            refresh(val);
+        return val;
+    }
+
+    private void refresh(T val)
+    {
+        super.refresh();
+        if (keepAfterTimeOut)
+            hardReference = val;
     }
 
     @Override
     public boolean timedOut()
     {
-        return super.timedOut() || value.get() == null;
+        final boolean timedOut = super.timedOut();
+        if (timedOut)
+            hardReference = null;
+        return timedOut;
+    }
+
+    @Override
+    public boolean canBeEvicted()
+    {
+        if (keepAfterTimeOut)
+            return timedOut() && value.get() == null;
+        return timedOut();
     }
 
     /**
      * Gets the raw {@link SoftReference}-wrapped value.
      *
-     * @return The raw value, warpped in a {@link SoftReference}.
+     * @return The raw value, wrapped in a {@link SoftReference}.
      */
-    public @NonNull SoftReference<T> getRawValue()
+    public SoftReference<T> getRawValue()
     {
         return value;
+    }
+
+    /**
+     * Gets the raw hard reference to the value.
+     * <p>
+     * This value may not exist.
+     *
+     * @return The raw hard reference to the value.
+     */
+    // Useful for testing.
+    @Nullable T getRawHardReference()
+    {
+        return hardReference;
     }
 }

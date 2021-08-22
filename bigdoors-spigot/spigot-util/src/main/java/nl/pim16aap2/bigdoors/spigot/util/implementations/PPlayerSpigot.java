@@ -1,15 +1,17 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.commands.CommandDefinition;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -19,15 +21,15 @@ import java.util.logging.Level;
  */
 public final class PPlayerSpigot implements IPPlayer
 {
-    final @NonNull Player spigotPlayer;
+    final Player spigotPlayer;
 
-    public PPlayerSpigot(final @NonNull Player spigotPlayer)
+    public PPlayerSpigot(Player spigotPlayer)
     {
         this.spigotPlayer = spigotPlayer;
     }
 
     @Override
-    public @NonNull UUID getUUID()
+    public UUID getUUID()
     {
         return spigotPlayer.getUniqueId();
     }
@@ -39,9 +41,23 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull Optional<IPLocation> getLocation()
+    public Optional<IPLocation> getLocation()
     {
         return Optional.of(SpigotAdapter.wrapLocation(spigotPlayer.getLocation()));
+    }
+
+    @Override
+    public CompletableFuture<Boolean> hasPermission(String permission)
+    {
+        return CompletableFuture.completedFuture(spigotPlayer.hasPermission(permission));
+    }
+
+    @Override
+    public CompletableFuture<BooleanPair> hasPermission(CommandDefinition command)
+    {
+        return CompletableFuture.completedFuture(new BooleanPair(
+            command.getUserPermission().map(spigotPlayer::hasPermission).orElse(false),
+            command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false)));
     }
 
     @Override
@@ -65,13 +81,13 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return spigotPlayer.getName();
     }
 
     @Override
-    public void sendMessage(final @NotNull Level level, final @NotNull String message)
+    public void sendMessage(Level level, String message)
     {
         spigotPlayer.sendMessage(message);
     }
@@ -81,19 +97,19 @@ public final class PPlayerSpigot implements IPPlayer
      *
      * @return The Bukkit player.
      */
-    public @NonNull Player getBukkitPlayer()
+    public Player getBukkitPlayer()
     {
         return spigotPlayer;
     }
 
     @Override
-    public @NotNull String toString()
+    public String toString()
     {
         return asString();
     }
 
     @Override
-    public boolean equals(Object o)
+    public boolean equals(@Nullable Object o)
     {
         if (this == o)
             return true;
@@ -111,7 +127,7 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public @NotNull PPlayerSpigot clone()
+    public PPlayerSpigot clone()
     {
         try
         {

@@ -1,113 +1,286 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.errorprone.annotations.CheckReturnValue;
+import org.jetbrains.annotations.Contract;
 
 /**
- * Represents a double vector or vertex in 2D space.
+ * Represents a double x/y pair.
+ * <p>
+ * This class is thread-safe, as all modifications return a new instance.
  *
  * @author Pim
  */
-public class Vector2Dd extends Vector2DdConst
+@SuppressWarnings("unused")
+public record Vector2Dd(double x, double y)
 {
-    public Vector2Dd(final double x, final double y)
+    /**
+     * Creates a new integer-based 2d vector from this double-based 2d vector.
+     * <p>
+     * The values of the double-based vector will be rounded to obtain the integer values.
+     *
+     * @return A new integer-based vector.
+     */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    public Vector2Di toInteger()
     {
-        super(x, y);
+        return Vector2Di.fromDouble(this);
     }
 
-    public Vector2Dd(final @NotNull Vector2DdConst other)
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    static Vector2Dd fromInteger(Vector2Di intVec)
     {
-        super(other);
+        return new Vector2Dd(intVec.x(), intVec.y());
     }
 
-    public Vector2Dd(final @NotNull Vector2DiConst other)
+    /**
+     * Adds values to the current values.
+     *
+     * @param x
+     *     The x value to add to the current x value.
+     * @param y
+     *     The y value to add to the current y value.
+     * @return A new {@link Vector2Dd} with the added values.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector2Dd add(double x, double y)
     {
-        super(other);
+        return new Vector2Dd(this.x + x, this.y + y);
     }
 
-    public @NotNull Vector2Dd add(final @NotNull Vector2Dd other)
+    /**
+     * Adds another {@link Vector2Dd} to the current values.
+     *
+     * @param other
+     *     The other {@link Vector2Dd} to add to the current one.
+     * @return A new {@link Vector2Dd} with the added values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd add(Vector2Dd other)
     {
-        add(other.getX(), other.getY());
-        return this;
+        return new Vector2Dd(other.x, other.y);
     }
 
-    public @NotNull Vector2Dd subtract(final @NotNull Vector2Dd other)
+    /**
+     * Adds another {@link Vector2Di} to the current values.
+     *
+     * @param other
+     *     The other {@link Vector2Di} to add to the current one.
+     * @return A new {@link Vector2Dd} with the added values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd add(Vector2Di other)
     {
-        add(-other.getX(), -other.getY());
-        return this;
+        return new Vector2Dd(other.x(), other.y());
     }
 
-    public @NotNull Vector2Dd multiply(final @NotNull Vector2Dd other)
+    /**
+     * Adds a value to both the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param val
+     *     The value to add to both the x and the y values.
+     * @return A new {@link Vector2Dd} with the value added to the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd add(double val)
     {
-        x *= other.getX();
-        y *= other.getY();
-        return this;
+        return add(val, val);
     }
 
-    public @NotNull Vector2Dd divide(final @NotNull Vector2Dd other)
+
+    /**
+     * Subtracts values from the current values.
+     *
+     * @param x
+     *     The x value to subtract from the current x value.
+     * @param y
+     *     The y value to subtract from the current y value.
+     * @return A new {@link Vector2Dd} with the subtracted values.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector2Dd subtract(double x, double y)
     {
-        x /= other.getX();
-        y /= other.getY();
-        return this;
+        return add(-x, -y);
     }
 
-    public @NotNull Vector2Dd multiply(final double val)
+    /**
+     * Subtracts another {@link Vector2Dd} from both the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param other
+     *     The other {@link Vector2Dd} to subtract from the x and the y values.
+     * @return The new {@link Vector2Dd} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd subtract(Vector2Dd other)
     {
-        x *= val;
-        y *= val;
-        return this;
+        return new Vector2Dd(other.x, other.y);
     }
 
-    public @NotNull Vector2Dd divide(final double val)
+    /**
+     * Subtracts another {@link Vector2Di} from both the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param other
+     *     The other {@link Vector2Di} to subtract from the x and the y values.
+     * @return The new {@link Vector2Dd} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd subtract(Vector2Di other)
     {
-        x /= val;
-        y /= val;
-        return this;
+        return new Vector2Dd(other.x(), other.y());
     }
 
-    public @NotNull Vector2Dd addX(double val)
+    /**
+     * Subtracts a value from both the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param val
+     *     The value to subtract from both the x and the y values.
+     * @return A new {@link Vector2Dd} with the value subtracted from the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd subtract(double val)
     {
-        x += val;
-        return this;
+        return add(val, val);
     }
 
-    public @NotNull Vector2Dd addY(double val)
+
+    /**
+     * Multiplies values with the current values.
+     *
+     * @param x
+     *     The x value to multiply with the current x value.
+     * @param y
+     *     The y value to multiply with the current y value.
+     * @return A new {@link Vector2Dd} with the multiplied values.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector2Dd multiply(double x, double y)
     {
-        y += val;
-        return this;
+        return new Vector2Dd(this.x * x, this.y * y);
     }
 
-    public @NotNull Vector2Dd setX(double newVal)
+    /**
+     * Multiplies another {@link Vector2Dd} from with the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param other
+     *     The other {@link Vector2Dd} to multiply with the x and the y values.
+     * @return The new {@link Vector2Dd} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd multiply(Vector2Dd other)
     {
-        x = newVal;
-        return this;
+        return multiply(other.x, other.y);
     }
 
-    public @NotNull Vector2Dd setY(double newVal)
+    /**
+     * Multiplies another {@link Vector2Di} from with the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param other
+     *     The other {@link Vector2Di} to multiply with the x and the y values.
+     * @return The new {@link Vector2Dd} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd multiply(Vector2Di other)
     {
-        y = newVal;
-        return this;
+        return multiply(other.x(), other.y());
     }
 
-    public @NotNull Vector2Dd add(double x, double y)
+    /**
+     * Multiplies a value with both the x and the y values of the current {@link Vector2Dd}.
+     *
+     * @param val
+     *     The value to multiply from both the x and the y values.
+     * @return A new {@link Vector2Dd} with the value multiplied with the values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd multiply(double val)
     {
-        this.x += x;
-        this.y += y;
-        return this;
+        return multiply(val, val);
     }
 
-    @Override
-    public @NotNull Vector2Dd clone()
+    /**
+     * Divides the current values with values.
+     *
+     * @param x
+     *     The x value to use as divisor for the current x value.
+     * @param y
+     *     The y value to use as divisor for the current y value.
+     * @return A new {@link Vector2Dd} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_, _ -> new", pure = true)
+    public Vector2Dd divide(double x, double y)
     {
-        return new Vector2Dd(this);
+        return new Vector2Dd(this.x / x, this.y / y);
     }
 
-    public @NotNull Vector2Dd normalize()
+    /**
+     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
+     * Vector2Dd}.
+     *
+     * @param other
+     *     The other {@link Vector2Dd} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector2Dd} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd divide(Vector2Dd other)
     {
-        double length = Math.sqrt(x * x + y * y);
+        return divide(other.x, other.y);
+    }
 
-        x /= length;
-        y /= length;
+    /**
+     * Divides the x and y values of the current {@link Vector2Dd} with the x and the y values of the provided {@link
+     * Vector2Di}.
+     *
+     * @param other
+     *     The other {@link Vector2Di} to use as divisor for the current x and the y values.
+     * @return A new {@link Vector2Dd} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd divide(Vector2Di other)
+    {
+        return divide(other.x(), other.y());
+    }
 
-        return this;
+    /**
+     * Divides both the x and the y values of the current {@link Vector2Dd} with a provided value.
+     *
+     * @param val
+     *     The value to use as divisor for both the x and the y values.
+     * @return A new {@link Vector2Dd} with the divided values.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public Vector2Dd divide(double val)
+    {
+        return divide(val, val);
+    }
+
+
+    /**
+     * Normalizes this {@link Vector2Dd}.
+     *
+     * @return A new {@link Vector2Dd} with normalized
+     */
+    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    public Vector2Dd normalized()
+    {
+        final double length = Math.sqrt(x * x + y * y);
+
+        final double newX = x / length;
+        final double newY = y / length;
+
+        return new Vector2Dd(newX, newY);
+    }
+
+    /**
+     * Returns a String representation of this 2d vector. The output will be the same as {@link #toString()} with the
+     * only difference being that the x/y coordinate values will be formatted to a specific number of decimal places.
+     *
+     * @param decimals
+     *     The number of decimals to print for each value.
+     * @return A String representation of this vector.
+     */
+    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    public String toString(int decimals)
+    {
+        final String placeholder = "%." + decimals + "f";
+        return String.format("Vector2Dd[x=" + placeholder + ", y=" + placeholder + "]", x, y);
     }
 }

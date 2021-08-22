@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigdoors.api;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Represents a list of sounds.
  */
@@ -13,7 +11,6 @@ public enum PSound
     DRAWBRIDGE_RATTLING("bd.drawbridge-rattling", 15),
     ;
 
-    @NotNull
     private final String name;
 
     /**
@@ -21,7 +18,7 @@ public enum PSound
      */
     private final int duration;
 
-    PSound(final @NotNull String name, final int duration)
+    PSound(String name, int duration)
     {
         this.name = name;
         this.duration = duration;
@@ -30,10 +27,11 @@ public enum PSound
     /**
      * Gets the name of a {@link PSound}.
      *
-     * @param sound The {@link PSound}.
+     * @param sound
+     *     The {@link PSound}.
      * @return The name of the {@link PSound}.
      */
-    public static @NotNull String getSoundName(final @NotNull PSound sound)
+    public static String getSoundName(PSound sound)
     {
         return sound.name;
     }
@@ -41,10 +39,11 @@ public enum PSound
     /**
      * Gets the duration of the {@link PSound}, measured in ticks.
      *
-     * @param sound The {@link PSound}.
+     * @param sound
+     *     The {@link PSound}.
      * @return The duration of the {@link PSound}.
      */
-    public static int getDuration(final @NotNull PSound sound)
+    public static int getDuration(PSound sound)
     {
         return sound.duration;
     }

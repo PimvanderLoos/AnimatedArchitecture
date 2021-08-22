@@ -41,3 +41,8 @@ random
 tests
 dependency-reduced-pom.xml
 ignoredFiles
+*.args
+*.txt
+*.png
+*.db
+

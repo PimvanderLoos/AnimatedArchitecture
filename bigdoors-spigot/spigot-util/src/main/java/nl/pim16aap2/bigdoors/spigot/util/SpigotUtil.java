@@ -2,29 +2,18 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
-import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DiConst;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents various small and Spigot-specific utility functions.
@@ -33,9 +22,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class SpigotUtil
 {
-    @NotNull
     private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
-    @NotNull
     private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
     @Getter
     @Setter
@@ -43,9 +30,9 @@ public final class SpigotUtil
 
     static
     {
-        for (final @NotNull PBlockFace pbf : PBlockFace.values())
+        for (PBlockFace pbf : PBlockFace.values())
         {
-            final @NotNull BlockFace mappedBlockFace;
+            final BlockFace mappedBlockFace;
             if (pbf.equals(PBlockFace.NONE))
                 mappedBlockFace = BlockFace.SELF;
             else
@@ -55,7 +42,6 @@ public final class SpigotUtil
         }
     }
 
-    @NotNull
     private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
 
     static
@@ -67,347 +53,113 @@ public final class SpigotUtil
     /**
      * Gets the bukkit version of a {@link PColor}.
      *
-     * @param pColor The {@link PColor}.
+     * @param pColor
+     *     The {@link PColor}.
      * @return The bukkit version of the {@link PColor}.
      */
-    public static @NotNull ChatColor toBukkitColor(final @NotNull PColor pColor)
+    public static ChatColor toBukkitColor(PColor pColor)
     {
-        return toBukkitColor.get(pColor);
-    }
-
-    /**
-     * Gets an offline player from a playerUUID.
-     *
-     * @param playerUUID The UUID of the player.
-     */
-    public static @NotNull OfflinePlayer getOfflinePlayer(final @NotNull UUID playerUUID)
-    {
-        @Nullable final Player onlinePlayer = Bukkit.getPlayer(playerUUID);
-        return onlinePlayer != null ? onlinePlayer : Bukkit.getOfflinePlayer(playerUUID);
-    }
-
-    /**
-     * Gets the number are available (i.e. either air or liquid blocks) in a given direction for a certain area. Note
-     * that the result may be negative depending on the direction.
-     * <p>
-     * For example, when checking how many blocks are available in downwards direction, it will return -5 if 5 blocks
-     * under the area are available.
-     *
-     * @param min       The minimum coordinates of the area.
-     * @param max       The maximum coordinates of the area.
-     * @param maxDist   The maximum number of blocks to check.
-     * @param direction The direction to check.
-     * @param world     The world in which to check.
-     * @return The number are available in a given direction. Can be negative depending on the direction.
-     */
-    public static int getBlocksInDir(final @NotNull Location min, final @NotNull Location max, int maxDist,
-                                     final @NotNull PBlockFace direction, final @NotNull World world)
-    {
-        int startX, startY, startZ, endX, endY, endZ, countX = 0, countY = 0, countZ = 0;
-        Vector3DiConst vec = PBlockFace.getDirection(direction);
-        maxDist = Math.abs(maxDist);
-
-        startX = vec.getX() == 0 ? min.getBlockX() : vec.getX() == 1 ? max.getBlockX() + 1 : min.getBlockX() - 1;
-        startY = vec.getY() == 0 ? min.getBlockY() : vec.getY() == 1 ? max.getBlockY() + 1 : min.getBlockY() - 1;
-        startZ = vec.getZ() == 0 ? min.getBlockZ() : vec.getZ() == 1 ? max.getBlockZ() + 1 : min.getBlockZ() - 1;
-
-        endX = vec.getX() == 0 ? max.getBlockX() : startX + vec.getX() * maxDist;
-        endY = vec.getY() == 0 ? max.getBlockY() : startY + vec.getY() * maxDist;
-        endZ = vec.getZ() == 0 ? max.getBlockZ() : startZ + vec.getZ() * maxDist;
-
-        int stepX = vec.getX() == 0 ? 1 : vec.getX();
-        int stepY = vec.getY() == 0 ? 1 : vec.getY();
-        int stepZ = vec.getZ() == 0 ? 1 : vec.getZ();
-
-        int ret = 0;
-        if (vec.getX() != 0)
-            for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
-            {
-                for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
-                    for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                            return ret;
-                ret += stepX;
-            }
-        else if (vec.getY() != 0)
-            for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
-            {
-                for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
-                    for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
-                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                            return ret;
-                ret += stepY;
-            }
-        else if (vec.getZ() != 0)
-        {
-            for (int zAxis = startZ; zAxis != endZ; zAxis += stepZ)
-            {
-                for (int xAxis = startX; xAxis != endX + 1; ++xAxis)
-                    for (int yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!SpigotUtil.isAirOrLiquid(world.getBlockAt(xAxis, yAxis, zAxis)))
-                            return ret;
-                ret += stepZ;
-            }
-        }
-        else
-            ret = 0;
-        return ret;
+        return toBukkitColor.getOrDefault(pColor, ChatColor.WHITE);
     }
 
     /**
      * Send a colored message to a specific player.
      *
-     * @param player The player that will receive the message.
-     * @param color  Color of the message
-     * @param msg    The message to be sent.
+     * @param player
+     *     The player that will receive the message.
+     * @param color
+     *     Color of the message
+     * @param msg
+     *     The message to be sent.
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
-                                     final @NotNull String msg)
+    public static void messagePlayer(Player player, ChatColor color, String msg)
     {
         player.sendMessage(color + msg);
     }
 
     /**
-     * Convert a command and its explanation to the help format.
-     *
-     * @param command     Name of the command.
-     * @param explanation Explanation of how to use the command.
-     * @return String in the helperformat.
-     */
-    public static @NotNull String helpFormat(final @NotNull String command, final @NotNull String explanation)
-    {
-        return String.format(ChatColor.GREEN + "/%s: " + ChatColor.BLUE + "%s\n", command, explanation);
-    }
-
-    /**
      * Get the {@link PBlockFace} parallel to the given {@link org.bukkit.block.BlockFace}.
      *
-     * @param mbf {@link PBlockFace} that will be converted.
+     * @param mbf
+     *     {@link PBlockFace} that will be converted.
      * @return The parallel {@link org.bukkit.block.BlockFace}.
      */
-    public static @NotNull BlockFace getBukkitFace(final @NotNull PBlockFace mbf)
+    public static BlockFace getBukkitFace(PBlockFace mbf)
     {
-        return toBlockFace.get(mbf);
+        BlockFace ret = toBlockFace.get(mbf);
+        if (ret != null)
+            return ret;
+
+        IllegalStateException e =
+            new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
+        BigDoors.get().getPLogger().logThrowable(e);
+        return BlockFace.DOWN;
     }
 
     /**
      * Get the {@link org.bukkit.block.BlockFace} parallel to the given {@link PBlockFace}.
      *
-     * @param bf {@link org.bukkit.block.BlockFace} that will be converted.
+     * @param bf
+     *     {@link org.bukkit.block.BlockFace} that will be converted.
      * @return The parallel {@link PBlockFace}.
      */
-    public static @NotNull PBlockFace getPBlockFace(final @NotNull BlockFace bf)
+    public static PBlockFace getPBlockFace(BlockFace bf)
     {
-        return toPBlockFace.get(bf);
-    }
+        PBlockFace ret = toPBlockFace.get(bf);
+        if (ret != null)
+            return ret;
 
-    /**
-     * Convert a location to a nicely formatted string of x:y:z using integers.
-     *
-     * @param loc The location to convert to a string.
-     * @return A string of the coordinates of the location.
-     */
-    public static @NotNull String locIntToString(final @NotNull Location loc)
-    {
-        return String.format("(%d;%d;%d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-    }
-
-    /**
-     * Convert a location to a nicely formatted string of x:y:z using doubles rounded to 2 decimals.
-     *
-     * @param loc The location to convert to a string.
-     * @return A string of the coordinates of the location.
-     */
-    public static @NotNull String locDoubleToString(final @NotNull Location loc)
-    {
-        return String.format("(%.2f;%.2f;%.2f)", loc.getX(), loc.getY(), loc.getZ());
-    }
-
-    public static @NotNull Optional<String> nameFromUUID(final @NotNull UUID playerUUID)
-    {
-        Player player = Bukkit.getPlayer(playerUUID);
-        return Optional
-            .ofNullable(player != null ? player.getName() : Bukkit.getOfflinePlayer(playerUUID).getName());
-    }
-
-    /**
-     * Try to get a player's UUID from a given name.
-     *
-     * @param playerName Name of the player.
-     * @return UUID of the player if one was found, otherwise null.
-     */
-    /*
-     * First try to get the UUID from an online player, then try an offline player;
-     * the first option is faster.
-     */
-    public static @NotNull Optional<UUID> playerUUIDFromString(final @NotNull String playerName)
-    {
-        Player player = Bukkit.getPlayer(playerName);
-        if (player == null)
-            try
-            {
-                player = Bukkit.getPlayer(UUID.fromString(playerName));
-            }
-            catch (Exception dontcare)
-            {
-                // Ignored, because it doesn't matter.
-            }
-        if (player != null)
-            /*
-             * Check if the resulting player's name is a match to the provided playerName,
-             * because player retrieval from a name is not exact. "pim" would match
-             * "pim16aap2", for example.
-             */
-            return Optional.ofNullable(playerName.equals(player.getName()) ? player.getUniqueId() : null);
-
-        OfflinePlayer offPlayer = null;
-        try
-        {
-            offPlayer = Bukkit.getOfflinePlayer(UUID.fromString(playerName));
-        }
-        catch (Exception dontcare)
-        {
-            // Ignored, because it doesn't matter.
-        }
-        return Optional.ofNullable(
-            offPlayer == null ? null : playerName.equals(offPlayer.getName()) ? offPlayer.getUniqueId() : null);
+        IllegalStateException e =
+            new IllegalStateException("Failing to find mapping for lockFace: " + bf);
+        BigDoors.get().getPLogger().logThrowable(e);
+        return PBlockFace.NONE;
     }
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
      *
-     * @param loc    The location of the sound.
-     * @param sound  The name of the sound.
-     * @param volume The volume
-     * @param pitch  The pitch
+     * @param loc
+     *     The location of the sound.
+     * @param sound
+     *     The name of the sound.
+     * @param volume
+     *     The volume
+     * @param pitch
+     *     The pitch
      */
-    public static void playSound(final @NotNull Location loc, final @NotNull String sound, final float volume,
-                                 final float pitch)
+    public static void playSound(Location loc, String sound, float volume, float pitch)
     {
         if (loc.getWorld() == null)
             return;
-//        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
-//            if (ent instanceof Player)
-//                ((Player) ent).playSound(loc, sound, volume, pitch);
+        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+            if (ent instanceof Player player)
+                player.playSound(loc, sound, volume, pitch);
     }
-
-    /**
-     * Retrieve the number of doors a given player is allowed to won.
-     *
-     * @param player The player for whom to retrieve the limit.
-     * @return The limit if one was found, or -1 if unlimited.
-     */
-    public static @NotNull CompletableFuture<Integer> getMaxDoorsForPlayer(final @NotNull Player player)
-    {
-        if (player.isOp())
-            return CompletableFuture.completedFuture(-1);
-
-        return getHighestPermissionSuffix(player.getEffectivePermissions(), "bigdoors.own.");
-    }
-
-    /**
-     * Retrieve the limit of the door size (measured in blocks) a given player can own.
-     *
-     * @param player The player for whom to retrieve the limit.
-     * @return The limit if one was found, or -1 if unlimited.
-     */
-    public static @NotNull CompletableFuture<Integer> getMaxDoorSizeForPlayer(final @NotNull Player player)
-    {
-        if (player.isOp())
-            return CompletableFuture.completedFuture(-1);
-        return getHighestPermissionSuffix(player.getEffectivePermissions(), "bigdoors.maxsize.");
-    }
-
-    /**
-     * Get the highest value of a variable in a permission node of a player.
-     * <p>
-     * For example, retrieve '8' from 'permission.node.8'.
-     *
-     * @param permissions    The list of permissions of this player to check as obtained from {@link
-     *                       Player#getEffectivePermissions()}.
-     * @param permissionNode The base permission node.
-     * @return The highest value of the variable suffix of the permission node or -1 if none was found.
-     */
-    private static @NotNull CompletableFuture<Integer> getHighestPermissionSuffix(
-        final @NotNull Set<PermissionAttachmentInfo> permissions,
-        final @NotNull String permissionNode)
-    {
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                int ret = -1;
-                for (PermissionAttachmentInfo perms : permissions)
-                    if (perms.getPermission().startsWith(permissionNode))
-                        try
-                        {
-                            ret = Math.max(ret, Integer.parseInt(perms.getPermission().split(permissionNode)[1]));
-                        }
-                        catch (Exception unimportant)
-                        {
-                            // Ignore
-                        }
-                return ret;
-            }).exceptionally(ex -> Util.exceptionally(ex, 0)); // 0 to indicate a limit of 0, to err on the safe side.
-    }
-
 
     /**
      * Send a white message to a player.
      *
-     * @param player Player to receive the message.
-     * @param msg    The message.
+     * @param player
+     *     Player to receive the message.
+     * @param msg
+     *     The message.
      */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull String msg)
+    public static void messagePlayer(Player player, String msg)
     {
         messagePlayer(player, ChatColor.WHITE, msg);
     }
 
     /**
-     * Send a number message to a player.
-     *
-     * @param player The player that will receive the message
-     * @param msg    The messages
-     */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull String[] msg)
-    {
-        messagePlayer(player, Util.stringFromArray(msg));
-    }
-
-    /**
-     * Send a number of messages to a player.
-     *
-     * @param player The player that will receive the message
-     * @param color  The color of the message
-     * @param msg    The messages
-     */
-    public static void messagePlayer(final @NotNull Player player, final @NotNull ChatColor color,
-                                     final @NotNull String[] msg)
-    {
-        messagePlayer(player, color, Util.stringFromArray(msg));
-    }
-
-    /**
-     * Check if a block if air or liquid (water, lava).
-     *
-     * @param block The block to be checked.
-     * @return True if it is air or liquid.
-     */
-    public static boolean isAirOrLiquid(final @NotNull Block block)
-    {
-        // Empty means it's air.
-        return block.isLiquid() || block.isEmpty();
-    }
-
-    /**
      * Certain material types need to be refreshed when being placed down.
      *
-     * @param mat Material to be checked.
+     * @param mat
+     *     Material to be checked.
      * @return True if it needs to be refreshed.
      *
      * @deprecated I'm pretty sure this is no longer needed.
      */
     @Deprecated
-    public static boolean needsRefresh(final @NotNull Material mat)
+    public static boolean needsRefresh(Material mat)
     {
         switch (mat)
         {

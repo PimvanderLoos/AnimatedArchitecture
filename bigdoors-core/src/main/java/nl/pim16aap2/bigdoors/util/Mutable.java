@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 public class Mutable<T>
 {
     /**
@@ -17,7 +18,8 @@ public class Mutable<T>
     /**
      * Constructs a new {@link Mutable} with a given value.
      *
-     * @param val The value to store.
+     * @param val
+     *     The value to store.
      */
     public Mutable(@Nullable T val)
     {
@@ -47,7 +49,8 @@ public class Mutable<T>
     /**
      * Sets the value stored in this {@link Mutable}
      *
-     * @param val The value that will be stored in this {@link Mutable}.
+     * @param val
+     *     The value that will be stored in this {@link Mutable}.
      */
     public void setVal(@Nullable T val)
     {

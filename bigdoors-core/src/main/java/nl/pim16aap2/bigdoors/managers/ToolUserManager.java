@@ -5,9 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.Pair;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
+import nl.pim16aap2.bigdoors.util.pair.PairNullable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
@@ -19,18 +17,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ToolUserManager extends Restartable
 {
-    @NotNull
-    private static final Map<UUID, Pair<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private static final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
-    public ToolUserManager(final @NotNull IRestartableHolder holder)
+    public ToolUserManager(IRestartableHolder holder)
     {
         super(holder);
     }
 
-    public void registerToolUser(final @NotNull ToolUser toolUser)
+    public void registerToolUser(ToolUser toolUser)
     {
-        final @Nullable Pair<ToolUser, TimerTask> result =
-            toolUsers.putIfAbsent(toolUser.getPlayer().getUUID(), new Pair<>(toolUser, null));
+        final @Nullable PairNullable<ToolUser, TimerTask> result =
+            toolUsers.put(toolUser.getPlayer().getUUID(), new PairNullable<>(toolUser, null));
 
         if (result != null)
         {
@@ -42,22 +39,24 @@ public final class ToolUserManager extends Restartable
         }
     }
 
-    public boolean isToolUser(final @NotNull IPPlayer player)
+    @SuppressWarnings("unused")
+    public boolean isToolUser(IPPlayer player)
     {
         return isToolUser(player.getUUID());
     }
 
-    public boolean isToolUser(final @NotNull UUID uuid)
+    public boolean isToolUser(UUID uuid)
     {
         return toolUsers.containsKey(uuid);
     }
 
-    public @NotNull Optional<ToolUser> getToolUser(final @NotNull IPPlayer player)
+    @SuppressWarnings("unused")
+    public Optional<ToolUser> getToolUser(IPPlayer player)
     {
         return getToolUser(player.getUUID());
     }
 
-    public @NotNull Optional<ToolUser> getToolUser(final @NotNull UUID uuid)
+    public Optional<ToolUser> getToolUser(UUID uuid)
     {
         return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.first);
     }
@@ -65,10 +64,11 @@ public final class ToolUserManager extends Restartable
     @Override
     public void restart()
     {
-        final @NotNull Iterator<Map.Entry<UUID, Pair<ToolUser, TimerTask>>> it = toolUsers.entrySet().iterator();
+        final Iterator<Map.Entry<UUID, PairNullable<ToolUser, TimerTask>>> it = toolUsers.entrySet().iterator();
+        //noinspection WhileLoopReplaceableByForEach
         while (it.hasNext())
         {
-            final @NotNull Map.Entry<UUID, Pair<ToolUser, TimerTask>> entry = it.next();
+            final Map.Entry<UUID, PairNullable<ToolUser, TimerTask>> entry = it.next();
             abortPair(entry.getKey(), entry.getValue());
         }
 
@@ -90,9 +90,10 @@ public final class ToolUserManager extends Restartable
      * Stops and removes a {@link ToolUser}. "Stop" here means that it will make sure to properly clean up the {@link
      * ToolUser}.
      *
-     * @param toolUser The {@link ToolUser} to stop and remove.
+     * @param toolUser
+     *     The {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull ToolUser toolUser)
+    public void abortToolUser(ToolUser toolUser)
     {
         abortToolUser(toolUser.getPlayer().getUUID());
     }
@@ -101,12 +102,14 @@ public final class ToolUserManager extends Restartable
      * Starts a timer for a {@link ToolUser}. After the provided number of seconds have passed, the {@link ToolUser}
      * will be aborted if this h
      *
-     * @param toolUser The {@link ToolUser} for which to start the timer.
-     * @param time     The amount of time (in seconds).
+     * @param toolUser
+     *     The {@link ToolUser} for which to start the timer.
+     * @param time
+     *     The amount of time (in seconds).
      */
-    public void startToolUser(final @NotNull ToolUser toolUser, final int time)
+    public void startToolUser(ToolUser toolUser, int time)
     {
-        final @Nullable Pair<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
+        final @Nullable PairNullable<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
             BigDoors.get().getPLogger().logThrowable(
@@ -118,34 +121,36 @@ public final class ToolUserManager extends Restartable
         {
             BigDoors.get().getPLogger().logThrowable(
                 new IllegalStateException(
-                    "Trying to create a timer for a tooluser even though it already has one! Aborting..."));
+                    "Trying to create a timer for a tool user even though it already has one! Aborting..."));
             abortToolUser(toolUser.getPlayer().getUUID());
             return;
         }
 
-        final @NotNull TimerTask timerTask = new TimerTask()
+        final TimerTask timerTask = new TimerTask()
         {
             @Override
             public void run()
             {
                 if (toolUser.isActive())
-                    toolUser.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                             .getString(Message.CREATOR_GENERAL_TIMEOUT));
+                    toolUser.getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                             .getMessage("creator.base.error.timed_out"));
                 toolUser.shutdown();
             }
         };
 
         pair.second = timerTask;
-        BigDoors.get().getPlatform().newPExecutor().runSyncLater(timerTask, time);
+        BigDoors.get().getPlatform().getPExecutor().runSyncLater(timerTask, time);
     }
 
     /**
      * Stops and removes an {@link IPPlayer} if it is currently active. "Stop" here means that it will make sure to
      * properly clean up the {@link ToolUser}.
      *
-     * @param player The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
+     * @param player
+     *     The {@link IPPlayer} whose {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull IPPlayer player)
+    @SuppressWarnings("unused")
+    public void abortToolUser(IPPlayer player)
     {
         abortToolUser(player.getUUID());
     }
@@ -156,14 +161,15 @@ public final class ToolUserManager extends Restartable
      * <p>
      * If no {@link ToolUser} is active for the given player, nothing happens.
      *
-     * @param playerUUID The {@link UUID} of the player whose {@link ToolUser} to stop and remove.
+     * @param playerUUID
+     *     The {@link UUID} of the player whose {@link ToolUser} to stop and remove.
      */
-    public void abortToolUser(final @NotNull UUID playerUUID)
+    public void abortToolUser(UUID playerUUID)
     {
         abortPair(playerUUID, toolUsers.get(playerUUID));
     }
 
-    private void abortPair(final @NotNull UUID uuid, final @Nullable Pair<ToolUser, TimerTask> pair)
+    private void abortPair(UUID uuid, @Nullable PairNullable<ToolUser, TimerTask> pair)
     {
         toolUsers.remove(uuid);
 
@@ -173,8 +179,8 @@ public final class ToolUserManager extends Restartable
         if (pair.first != null)
         {
             if (pair.first.isActive())
-                pair.first.getPlayer().sendMessage(BigDoors.get().getPlatform().getMessages()
-                                                           .getString(Message.CREATOR_GENERAL_CANCELLED));
+                pair.first.getPlayer().sendMessage(BigDoors.get().getLocalizer()
+                                                           .getMessage("creator.base.error.creation_cancelled"));
             pair.first.shutdown();
         }
 

@@ -1,50 +1,108 @@
 package nl.pim16aap2.bigdoors.util;
 
+import nl.pim16aap2.bigdoors.util.functional.TriIntConsumer;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
  * Iterator that iterates over all values between 2 {@link Vector3Di}s.
  *
  * @author Pim
+ * @deprecated This class does not have any tests and is likely to be removed in the future!
  */
+@Deprecated
 public class PositionIterator implements Iterable<Vector3Di>
 {
-    @NotNull
     private final Vector3Di posA;
-    @NotNull
     private final Vector3Di posB;
-    @NotNull
     private final IterationMode iterationMode;
     private final int dx, dy, dz;
+    private final int volume;
 
     /**
      * Construct a new PositionIterator. When iterating between two values, the starting values are the first result and
      * the ending values are the last result. If the starting and ending values are the same, there will be a single
      * result.
      *
-     * @param posA          The starting values.
-     * @param posB          The ending values.
-     * @param iterationMode The mode of iteration.
+     * @param posA
+     *     The starting values.
+     * @param posB
+     *     The ending values.
+     * @param iterationMode
+     *     The mode of iteration.
+     * @param volume
+     *     The total number of blocks between posA and posB (inclusive). Do not use this if you do not know this.
      */
-    public PositionIterator(final @NotNull Vector3Di posA, final @NotNull Vector3Di posB,
-                            final @NotNull IterationMode iterationMode)
+    public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode, int volume)
     {
+        if (volume < 1)
+            throw new IllegalArgumentException("Volume " + volume + " cannot be smaller than 1 block!");
         this.posA = posA;
         this.posB = posB;
         this.iterationMode = iterationMode;
-        dx = posA.getX() > posB.getX() ? -1 : 1;
-        dy = posA.getY() > posB.getY() ? -1 : 1;
-        dz = posA.getZ() > posB.getZ() ? -1 : 1;
+        this.volume = volume;
+        dx = posA.x() > posB.x() ? -1 : 1;
+        dy = posA.y() > posB.y() ? -1 : 1;
+        dz = posA.z() > posB.z() ? -1 : 1;
+    }
+
+    /**
+     * Construct a new PositionIterator. When iterating between two values, the starting values are the first result and
+     * the ending values are the last result. If the starting and ending values are the same, there will be a single
+     * result.
+     *
+     * @param posA
+     *     The starting values.
+     * @param posB
+     *     The ending values.
+     * @param iterationMode
+     *     The mode of iteration.
+     */
+    public PositionIterator(Vector3Di posA, Vector3Di posB, IterationMode iterationMode)
+    {
+        this(posA, posB, iterationMode, getVolume(posA, posB));
+    }
+
+    /**
+     * Construct a new PositionIterator. When iterating between two values, the starting values are the first result and
+     * the ending values are the last result. If the starting and ending values are the same, there will be a single
+     * result.
+     *
+     * @param cuboid
+     *     The {@link Cuboid} to iterate over, from {@link Cuboid#getMin()} to {@link Cuboid#getMax()}.
+     * @param iterationMode
+     *     The mode of iteration.
+     */
+    public PositionIterator(Cuboid cuboid, IterationMode iterationMode)
+    {
+        this(cuboid.getMin(), cuboid.getMax(), iterationMode, cuboid.getVolume());
+    }
+
+    private static int getVolume(Vector3Di posA, Vector3Di posB)
+    {
+        return new Cuboid(posA, posB).getVolume();
     }
 
     @Override
-    public @NotNull Iterator<Vector3Di> iterator()
+    public CustomIterator iterator()
     {
         return new CustomIterator(this);
+    }
+
+    /**
+     * Works similar to {@link #forEach(Consumer)}, but with the exception that each step will be applied without
+     * constructing a new {@link Vector3Di}.
+     *
+     * @param action
+     *     The method to apply for each step.
+     */
+    public void forEach(TriIntConsumer action)
+    {
+        iterator().forEach(action);
     }
 
     /**
@@ -54,87 +112,137 @@ public class PositionIterator implements Iterable<Vector3Di>
     {
         private int x, y, z;
         private final Supplier<Boolean> outerLoop, middleLoop, innerLoop;
-        private boolean firstValue = true;
+        private final Runnable resetMiddleLoop, resetInnerLoop;
+        private int currentIndex = 0;
 
-        private CustomIterator(final @NotNull PositionIterator locationIterator)
+        private CustomIterator(PositionIterator locationIterator)
         {
-            x = posA.getX();
-            y = posA.getY();
-            z = posA.getZ();
+            x = posA.x();
+            y = posA.y();
+            z = posA.z();
             outerLoop = getIncrementor(locationIterator.iterationMode.getIndex(0));
             middleLoop = getIncrementor(locationIterator.iterationMode.getIndex(1));
             innerLoop = getIncrementor(locationIterator.iterationMode.getIndex(2));
+
+            resetMiddleLoop = getResetMethod(locationIterator.iterationMode.getIndex(1));
+            resetInnerLoop = getResetMethod(locationIterator.iterationMode.getIndex(2));
+        }
+
+        private void forEach(TriIntConsumer action)
+        {
+            do action.accept(x, y, z);
+            while (step());
         }
 
         /**
          * Gets the increment supplier for a specified {@link #PositionIterator ::Axis}.
          *
-         * @param axis The {@link #PositionIterator ::Axis}.
+         * @param axis
+         *     The {@link #PositionIterator ::Axis}.
          * @return The supplier that increments an {@link #PositionIterator ::Axis}.
          */
-        private Supplier<Boolean> getIncrementor(final Axis axis)
+        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
+        private Supplier<Boolean> getIncrementor(Axis axis)
         {
-            switch (axis)
-            {
-                case X:
-                    return this::incrementX;
-                case Y:
-                    return this::incrementY;
-                case Z:
-                    return this::incrementZ;
-            }
-            return null;
+            return switch (axis)
+                {
+                    case X -> this::incrementX;
+                    case Y -> this::incrementY;
+                    case Z -> this::incrementZ;
+                };
         }
 
         /**
-         * Increments {@link #x} by a step of {@link #dx}. If the value of X matches {@link #posB}.x, then it's reset to
-         * {@link #posA}.x.
+         * Increments {@link #x} by a step of {@link #dx} if possible.
+         * <p>
+         * If no new values are available, i.e. {@link #x} == {@link Vector3Di#x()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
-         * @return True if the value of X was reset to {@link #posA}.x.
+         * @return True if the x axis could be updated, otherwise false.
          */
         private boolean incrementX()
         {
-            if (x == posB.getX())
-            {
-                x = posA.getX();
-                return true;
-            }
+            if (x == posB.x())
+                return false;
+
             x += dx;
-            return false;
+            return true;
         }
 
         /**
-         * Increments {@link #y} by a step of {@link #dy}. If the value of Y matches {@link #posB}.y, then it's reset to
-         * {@link #posA}.y.
+         * Increments {@link #y} by a step of {@link #dy} if possible.
+         * <p>
+         * If no new values are available, i.e. {@link #y} == {@link Vector3Di#y()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
-         * @return True if the value of Y was reset to {@link #posA}.y.
+         * @return True if the y axis could be updated, otherwise false.
          */
         private boolean incrementY()
         {
-            if (y == posB.getY())
-            {
-                y = posA.getY();
-                return true;
-            }
+            if (y == posB.y())
+                return false;
+
             y += dy;
-            return false;
+            return true;
         }
 
         /**
-         * Increments {@link #z} by a step of {@link #dz}. If the value of Z matches {@link #posB}.z, then it's reset to
-         * {@link #posA}.z.
+         * Increments {@link #z} by a step of {@link #dz} if possible.
+         * <p>
+         * If no new values are available, i.e. {@link #z} == {@link Vector3Di#z()} for {@link #posB}, this method does
+         * nothing other than returning false.
          *
-         * @return True if the value of Z was reset to {@link #posA}.z.
+         * @return True if the z axis could be updated, otherwise false.
          */
         private boolean incrementZ()
         {
-            if (z == posB.getZ())
-            {
-                z = posA.getZ();
-                return true;
-            }
+            if (z == posB.z())
+                return false;
+
             z += dz;
-            return false;
+            return true;
+        }
+
+        /**
+         * Gets the reset runnable for a specified {@link #PositionIterator ::Axis}.
+         *
+         * @param axis
+         *     The {@link #PositionIterator ::Axis}.
+         * @return The runnable that increments an {@link #PositionIterator ::Axis}.
+         */
+        @SuppressWarnings("NullAway") // Workaround for https://github.com/uber/NullAway/issues/289
+        private Runnable getResetMethod(Axis axis)
+        {
+            return switch (axis)
+                {
+                    case X -> this::resetX;
+                    case Y -> this::resetY;
+                    case Z -> this::resetZ;
+                };
+        }
+
+        /**
+         * Resets the X axis to the starting value.
+         */
+        private void resetX()
+        {
+            x = posA.x();
+        }
+
+        /**
+         * Resets the Y axis to the starting value.
+         */
+        private void resetY()
+        {
+            y = posA.y();
+        }
+
+        /**
+         * Resets the Z axis to the starting value.
+         */
+        private void resetZ()
+        {
+            z = posA.z();
         }
 
         /**
@@ -143,7 +251,7 @@ public class PositionIterator implements Iterable<Vector3Di>
         @Override
         public boolean hasNext()
         {
-            return firstValue || !(x == posB.getX() && y == posB.getY() && z == posB.getZ());
+            return currentIndex < volume;
         }
 
         /**
@@ -152,16 +260,24 @@ public class PositionIterator implements Iterable<Vector3Di>
         @Override
         public Vector3Di next()
         {
-            if (firstValue)
-            {
-                firstValue = false;
-                return new Vector3Di(posA.getX(), posA.getY(), posA.getZ());
-            }
-
-            if (innerLoop.get())
-                if (middleLoop.get())
-                    outerLoop.get();
+            if (!step())
+                throw new NoSuchElementException();
             return new Vector3Di(x, y, z);
+        }
+
+        private boolean step()
+        {
+            ++currentIndex;
+            if (!innerLoop.get())
+            {
+                resetInnerLoop.run();
+                if (!middleLoop.get())
+                {
+                    resetMiddleLoop.run();
+                    return outerLoop.get();
+                }
+            }
+            return true;
         }
     }
 
@@ -181,12 +297,12 @@ public class PositionIterator implements Iterable<Vector3Di>
 
         private final Axis[] order;
 
-        IterationMode(final Axis[] order)
+        IterationMode(Axis[] order)
         {
             this.order = order;
         }
 
-        private Axis getIndex(final int idx)
+        private Axis getIndex(int idx)
         {
             return order[idx];
         }

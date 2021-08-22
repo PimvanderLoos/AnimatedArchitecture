@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 
 /**
  * Represents an executor for a single step in a larger procedure.
@@ -17,17 +16,19 @@ public abstract class StepExecutor
     /**
      * Applies an object to the {@link BiFunction} of this step.
      *
-     * @param input The object to give to the {@link BiFunction}.
+     * @param input
+     *     The object to give to the {@link BiFunction}.
      */
-    public final boolean apply(final @Nullable Object input)
+    public final boolean apply(@Nullable Object input)
     {
         if (validInput(input))
             return protectedAccept(input);
         else
         {
             BigDoors.get().getPLogger()
-                    .debug("Trying to pass a " + (input == null ? "null" : input.getClass().getSimpleName()) +
-                               " into " + getInputClass().getSimpleName());
+                    .logMessage(Level.FINE,
+                                "Trying to pass a(n) " + (input == null ? "null" : input.getClass().getSimpleName()) +
+                                    " into " + getInputClass().getSimpleName());
             return false;
         }
     }
@@ -35,19 +36,20 @@ public abstract class StepExecutor
     /**
      * Protected version of {@link #apply(Object)}. That method takes care of input type verification.
      *
-     * @param obj The object to give to the {@link BiFunction}.
+     * @param obj
+     *     The object to give to the {@link BiFunction}.
      */
-    protected abstract boolean protectedAccept(final @NonNull Object obj);
+    protected abstract boolean protectedAccept(@Nullable Object obj);
 
     /**
      * Checks if an object is a valid input type.
      *
-     * @param obj The object to check.
+     * @param obj
+     *     The object to check.
      * @return True if this object is valid for the current type.
      */
-    public boolean validInput(final @Nullable Object obj)
+    public boolean validInput(@Nullable Object obj)
     {
-//        return obj != null && getInputClass().isAssignableFrom(obj.getClass());
         return getInputClass().isInstance(obj);
     }
 
@@ -56,5 +58,5 @@ public abstract class StepExecutor
      *
      * @return The {@link Class} of the input object.
      */
-    protected abstract @NotNull Class<?> getInputClass();
+    protected abstract Class<?> getInputClass();
 }

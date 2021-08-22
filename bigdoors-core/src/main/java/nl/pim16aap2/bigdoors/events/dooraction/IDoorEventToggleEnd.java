@@ -5,6 +5,6 @@ package nl.pim16aap2.bigdoors.events.dooraction;
  *
  * @author Pim
  */
-public interface IDoorEventToggleEnd extends IDoorEvent
+public interface IDoorEventToggleEnd extends IDoorToggleEvent
 {
 }

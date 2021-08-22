@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,15 +17,12 @@ import org.jetbrains.annotations.Nullable;
  */
 public class LoginResourcePackListener extends Restartable implements Listener
 {
-    @Nullable
-    private static LoginResourcePackListener INSTANCE;
-    @NotNull
+    private static @Nullable LoginResourcePackListener INSTANCE;
     private final BigDoorsSpigot plugin;
-    @NotNull
     private final String url;
     private boolean isRegistered = false;
 
-    private LoginResourcePackListener(final @NotNull BigDoorsSpigot plugin, final @NotNull String url)
+    private LoginResourcePackListener(BigDoorsSpigot plugin, String url)
     {
         super(plugin);
         this.plugin = plugin;
@@ -37,12 +33,13 @@ public class LoginResourcePackListener extends Restartable implements Listener
      * Initializes the {@link LoginResourcePackListener}. If it has already been initialized, it'll return that instance
      * instead.
      *
-     * @param plugin The {@link BigDoorsSpigot} plugin.
-     * @param url    The URL of the resource pack.
+     * @param plugin
+     *     The {@link BigDoorsSpigot} plugin.
+     * @param url
+     *     The URL of the resource pack.
      * @return The instance of this {@link LoginResourcePackListener}.
      */
-    public static @NotNull LoginResourcePackListener init(final @NotNull BigDoorsSpigot plugin,
-                                                          final @NotNull String url)
+    public static LoginResourcePackListener init(BigDoorsSpigot plugin, String url)
     {
         return (INSTANCE == null) ? INSTANCE = new LoginResourcePackListener(plugin, url) : INSTANCE;
     }
@@ -87,10 +84,11 @@ public class LoginResourcePackListener extends Restartable implements Listener
     /**
      * Listens to {@link Player}s logging in and sends them the resource pack.
      *
-     * @param event The {@link PlayerJoinEvent}.
+     * @param event
+     *     The {@link PlayerJoinEvent}.
      */
     @EventHandler
-    public void onPlayerJoin(final @NotNull PlayerJoinEvent event)
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
         try
         {

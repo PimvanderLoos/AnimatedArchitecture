@@ -12,7 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -25,23 +25,19 @@ import java.util.Optional;
  */
 public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 {
-    @NotNull
-    private static final ProtectionCompat compat = ProtectionCompat.PLOTSQUARED;
-    @NotNull
     private final BigDoorsSpigot plugin;
-    @NotNull
     private final JavaPlugin plotSquaredPlugin;
-    private boolean success = false;
+    private final boolean success;
 
-    public PlotSquaredNewProtectionCompat(final @NotNull BigDoorsSpigot plugin)
+    public PlotSquaredNewProtectionCompat()
     {
-        this.plugin = plugin;
+        plugin = BigDoorsSpigot.get();
         plotSquaredPlugin = JavaPlugin.getPlugin(com.github.intellectualsites.plotsquared.bukkit.BukkitMain.class);
-        success = plotSquaredPlugin != null;
+        success = true;
     }
 
     @Override
-    public boolean canBreakBlock(final @NotNull Player player, final @NotNull Location loc)
+    public boolean canBreakBlock(Player player, Location loc)
     {
         com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc);
         com.github.intellectualsites.plotsquared.plot.object.PlotArea area = psLocation.getPlotArea();
@@ -52,7 +48,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return canBreakBlock(player, area, area.getPlot(psLocation), loc);
     }
 
-    private boolean isHeightAllowed(final @NotNull Player player, final @NotNull PlotArea area, final int height)
+    private boolean isHeightAllowed(Player player, PlotArea area, int height)
     {
         if (height == 0)
             return plugin.getVaultManager()
@@ -66,8 +62,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     // Check if a given player is allowed to build in a given plot.
     // Adapted from:
     // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
-    private boolean canBreakBlock(final @NotNull Player player, final @NotNull PlotArea area, Plot plot,
-                                  final @NotNull Location loc)
+    private boolean canBreakBlock(Player player, PlotArea area, @Nullable Plot plot, Location loc)
     {
         if (plot != null)
         {
@@ -97,14 +92,14 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         return plugin.getVaultManager().hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
     }
 
+    @SuppressWarnings("DuplicatedCode") // This class will need to be rewritten anyway.
     @Override
-    public boolean canBreakBlocksBetweenLocs(final @NotNull Player player, final @NotNull Location loc1,
-                                             final @NotNull Location loc2)
+    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
     {
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
-        com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc1);
+        com.github.intellectualsites.plotsquared.plot.object.Location psLocation;
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
         int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
@@ -112,7 +107,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
         int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
         int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
-        Plot checkPlot = null;
+        @Nullable Plot checkPlot = null;
 
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)
@@ -126,9 +121,9 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 if (!isHeightAllowed(player, area, y1) || !isHeightAllowed(player, area, y2))
                     return false;
 
-                loc.setY(area.MAX_BUILD_HEIGHT - 1);
+                loc.setY(area.MAX_BUILD_HEIGHT - 1.0);
 
-                Plot newPlot = area.getPlot(psLocation);
+                @Nullable Plot newPlot = area.getPlot(psLocation);
                 if (checkPlot == null || !checkPlot.equals(newPlot))
                 {
                     checkPlot = newPlot;
@@ -146,7 +141,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public @NotNull String getName()
+    public String getName()
     {
         return plotSquaredPlugin.getName();
     }

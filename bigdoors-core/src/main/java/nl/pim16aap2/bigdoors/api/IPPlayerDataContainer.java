@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.Getter;
-import lombok.NonNull;
 import nl.pim16aap2.bigdoors.util.IBitFlag;
 
 import java.util.List;
@@ -20,23 +19,23 @@ interface IPPlayerDataContainer
      *
      * @return The name of this player.
      */
-    @NonNull String getName();
+    String getName();
 
     /**
      * Gets the UUID of this player.
      *
      * @return The UUID of this player.
      */
-    @NonNull UUID getUUID();
+    UUID getUUID();
 
     /**
      * Gets the player as a String in the format '"playerName" (playerUUID)'.
      *
      * @return The player as a String.
      */
-    default @NonNull String asString()
+    default String asString()
     {
-        return String.format("\"%s\" (%s)", getName(), getUUID().toString());
+        return String.format("\"%s\" (%s)", getName(), getUUID());
     }
 
     /**
@@ -51,7 +50,7 @@ interface IPPlayerDataContainer
      * <p>
      * Note that this does not take the global limit into account.
      *
-     * @return The maximum doorsize this player can make/operate measured in number of blocks.
+     * @return The maximum door size this player can make/operate measured in number of blocks.
      */
     int getDoorSizeLimit();
 
@@ -76,7 +75,7 @@ interface IPPlayerDataContainer
      *
      * @return The {@link PPlayerData} that represents this player.
      */
-    default @NonNull PPlayerData getPPlayerData()
+    default PPlayerData getPPlayerData()
     {
         return new PPlayerData(getUUID(), getName(), getDoorSizeLimit(), getDoorCountLimit(),
                                isOp(), hasProtectionBypassPermission());
@@ -103,22 +102,21 @@ interface IPPlayerDataContainer
         private static final List<PermissionFlag> values = List.of(PermissionFlag.values());
 
         private final int val;
-        private final @NonNull Function<IPPlayerDataContainer, Boolean> fun;
+        private final Function<IPPlayerDataContainer, Boolean> fun;
 
-        PermissionFlag(final int val, final @NonNull Function<IPPlayerDataContainer, Boolean> fun)
+        PermissionFlag(int val, Function<IPPlayerDataContainer, Boolean> fun)
         {
             this.val = val;
             this.fun = fun;
         }
 
-        public static long setFlag(final @NonNull IPPlayerDataContainer playerDataContainer, final long currentValue,
-                                   final @NonNull PermissionFlag flag)
+        public static long setFlag(IPPlayerDataContainer playerDataContainer, long currentValue, PermissionFlag flag)
         {
-            final boolean result = flag.fun.apply(playerDataContainer);
+            boolean result = flag.fun.apply(playerDataContainer);
             return result ? IBitFlag.setFlag(flag.val, currentValue) : IBitFlag.unsetFlag(flag.val, currentValue);
         }
 
-        public static boolean hasFlag(final @NonNull PermissionFlag flag, final long currentValue)
+        public static boolean hasFlag(PermissionFlag flag, long currentValue)
         {
             return IBitFlag.hasFlag(flag.val, currentValue);
         }

@@ -1,20 +1,17 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
-import nl.pim16aap2.bigdoors.util.vector.Vector3DdConst;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,15 +27,14 @@ public class SlidingMover extends BlockMover
 
     private double step;
 
-    @Nullable
-    private PBlockData firstBlockData = null;
+    private @Nullable PBlockData firstBlockData = null;
 
     protected final int blocksToMove;
 
-    public SlidingMover(final @NotNull AbstractDoorBase door, final double time, final boolean skipAnimation,
-                        final int blocksToMove, final @NotNull RotateDirection openDirection, final double multiplier,
-                        final @NotNull IPPlayer player, final @NotNull CuboidConst newCuboid,
-                        final @NotNull DoorActionCause cause, final @NotNull DoorActionType actionType)
+    public SlidingMover(AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
+                        RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid,
+                        DoorActionCause cause, DoorActionType actionType)
+        throws Exception
     {
         super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
@@ -84,18 +80,17 @@ public class SlidingMover extends BlockMover
     }
 
     @Override
-    protected @NotNull IPLocation getNewLocation(final double radius, final double xAxis, final double yAxis,
-                                                 final double zAxis)
+    protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
         return locationFactory.create(world, xAxis + moveX, yAxis, zAxis + moveZ);
     }
 
     @Override
-    protected @NotNull Vector3Dd getFinalPosition(final @NotNull PBlockData block)
+    protected Vector3Dd getFinalPosition(PBlockData block)
     {
-        final @NotNull Vector3DdConst startLocation = block.getStartPosition();
-        final @NotNull IPLocationConst finalLoc = getNewLocation(block.getRadius(), startLocation.getX(),
-                                                                 startLocation.getY(), startLocation.getZ());
+        final Vector3Dd startLocation = block.getStartPosition();
+        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+                                                   startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
 
@@ -106,19 +101,19 @@ public class SlidingMover extends BlockMover
         firstBlockData = savedBlocks.get(0);
     }
 
-    protected @NotNull Vector3Dd getGoalPos(final @NotNull PBlockData pBlockData, final double stepSum)
+    protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
     {
         return pBlockData.getStartPosition().add(NS ? 0 : stepSum, 0, NS ? stepSum : 0);
     }
 
     @Override
-    protected void executeAnimationStep(final int ticks)
+    protected void executeAnimationStep(int ticks)
     {
         if (firstBlockData == null)
             return;
 
         final double stepSum = step * ticks;
-        for (final PBlockData pBlockData : savedBlocks)
+        for (PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 }

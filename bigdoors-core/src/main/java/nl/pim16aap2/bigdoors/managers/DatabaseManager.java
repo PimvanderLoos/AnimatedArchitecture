@@ -1,18 +1,25 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.NonNull;
+import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
+import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
+import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.Collections;
@@ -24,6 +31,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 /**
@@ -36,23 +44,25 @@ public final class DatabaseManager extends Restartable
     /**
      * The thread pool to use for storage access.
      */
-    private final @NonNull ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
     /**
      * The number of threads to use for storage access if the storage allows multithreaded access as determined by
      * {@link IStorage#isSingleThreaded()}.
      */
-    private static final int THREADCOUNT = 10;
+    private static final int THREAD_COUNT = 10;
 
-    private final @NonNull IStorage db;
+    private final IStorage db;
 
     /**
      * Constructs a new {@link DatabaseManager}.
      *
-     * @param restartableHolder The object managing restarts for this object.
-     * @param dbFile            The name of the database file.
+     * @param restartableHolder
+     *     The object managing restarts for this object.
+     * @param dbFile
+     *     The name of the database file.
      */
-    public DatabaseManager(final @NotNull IRestartableHolder restartableHolder, final @NotNull File dbFile)
+    public DatabaseManager(IRestartableHolder restartableHolder, File dbFile)
     {
         this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
     }
@@ -60,17 +70,19 @@ public final class DatabaseManager extends Restartable
     /**
      * Constructs a new {@link DatabaseManager}.
      *
-     * @param restartableHolder The object managing restarts for this object.
-     * @param storage           The {@link IStorage} to use for all database calls.
+     * @param restartableHolder
+     *     The object managing restarts for this object.
+     * @param storage
+     *     The {@link IStorage} to use for all database calls.
      */
-    public DatabaseManager(final @NonNull IRestartableHolder restartableHolder, final @NotNull IStorage storage)
+    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage)
     {
         super(restartableHolder);
         db = storage;
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
-            threadPool = Executors.newFixedThreadPool(THREADCOUNT);
+            threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
     /**
@@ -78,7 +90,7 @@ public final class DatabaseManager extends Restartable
      *
      * @return The {@link IStorage.DatabaseState} the database is in.
      */
-    public @NotNull IStorage.DatabaseState getDatabaseState()
+    public IStorage.DatabaseState getDatabaseState()
     {
         return db.getDatabaseState();
     }
@@ -86,110 +98,190 @@ public final class DatabaseManager extends Restartable
     @Override
     public void restart()
     {
+        // TODO: Implement this
+        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
     }
 
     @Override
     public void shutdown()
     {
+        // TODO: Implement this
+        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
     }
 
     /**
-     * Inserts a {@link AbstractDoorBase} into the database.
+     * Inserts a {@link AbstractDoor} into the database and assumes that the door was NOT created by an {@link
+     * IPPlayer}. See {@link #addDoor(AbstractDoor, IPPlayer)}.
      *
-     * @param newDoor The new {@link AbstractDoorBase}.
+     * @param newDoor
+     *     The new {@link AbstractDoor}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> addDoorBase(final @NotNull AbstractDoorBase newDoor)
+    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor)
     {
-        return CompletableFuture.supplyAsync(
-            () ->
+        return addDoor(newDoor, null);
+    }
+
+    /**
+     * Inserts a {@link AbstractDoor} into the database.
+     *
+     * @param newDoor
+     *     The new {@link AbstractDoor}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareCreateEvent}
+     *     and the {@link IDoorCreatedEvent}. This may be null.
+     * @return The future result of the operation. The result contains a pair of a boolean and an optional door. The
+     * boolean flag indicates if the addition was cancelled by {@link IDoorPrepareCreateEvent} (true) or not (false).
+     * The optional {@link AbstractDoor} contains the door that was added to the database if the addition was
+     * successful.
+     */
+    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor,
+                                                                            @Nullable IPPlayer responsible)
+    {
+        val ret = callCancellableEvent(fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
+            cancelled ->
             {
-                final @NotNull Optional<AbstractDoorBase> result = db.insert(newDoor);
+                if (cancelled)
+                    return new Pair<>(true, Optional.<AbstractDoor>empty());
+
+                final Optional<AbstractDoor> result = db.insert(newDoor);
                 result.ifPresent(
                     (door) -> BigDoors.get().getPlatform().getPowerBlockManager()
-                                      .onDoorAddOrRemove(door.getWorld().getWorldName(), new Vector3Di(
-                                          door.getPowerBlock().getX(),
-                                          door.getPowerBlock().getY(),
-                                          door.getPowerBlock().getZ())));
-                return result;
-            }, threadPool).exceptionally(Util::exceptionallyOptional);
+                                      .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(
+                                          door.getPowerBlock().x(),
+                                          door.getPowerBlock().y(),
+                                          door.getPowerBlock().z())));
+                return new Pair<>(false, result);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
+
+        ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
+
+        return ret;
     }
 
     /**
-     * Removes a {@link AbstractDoorBase} from the database.
+     * Calls the {@link IDoorCreatedEvent}.
      *
-     * @param door The door.
-     * @return The future result of the operation. If the operation was successful this will be true.
+     * @param result
+     *     The result of trying to add a door to the database.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
+     *     is null.
      */
-    public @NotNull CompletableFuture<Boolean> deleteDoor(final @NotNull AbstractDoorBase door)
+    private void callDoorCreatedEvent(Pair<Boolean, Optional<AbstractDoor>> result, @Nullable IPPlayer responsible)
     {
-        BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
-        return CompletableFuture.supplyAsync(
+        CompletableFuture.runAsync(
             () ->
             {
-                boolean result = db.removeDoor(door.getDoorUID());
-                if (result)
-                    BigDoors.get().getPlatform().getPowerBlockManager()
-                            .onDoorAddOrRemove(door.getWorld().getWorldName(),
-                                               new Vector3Di(door.getPowerBlock().getX(),
-                                                             door.getPowerBlock().getY(),
-                                                             door.getPowerBlock().getZ()));
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                if (result.first || result.second.isEmpty())
+                    return;
+
+                final IDoorCreatedEvent doorCreatedEvent =
+                    BigDoors.get().getPlatform().getBigDoorsEventFactory()
+                            .createDoorCreatedEvent(result.second.get(), responsible);
+                BigDoors.get().getPlatform().callDoorEvent(doorCreatedEvent);
+            });
+    }
+
+    /**
+     * Removes a {@link AbstractDoor} from the database and assumes that the door was NOT deleted by an {@link
+     * IPPlayer}. See {@link #deleteDoor(AbstractDoor, IPPlayer)}.
+     *
+     * @param door
+     *     The door.
+     * @return The future result of the operation.
+     */
+    @SuppressWarnings("unused")
+    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door)
+    {
+        return deleteDoor(door, null);
+    }
+
+    /**
+     * Removes a {@link AbstractDoor} from the database.
+     *
+     * @param door
+     *     The door that will be deleted.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> deleteDoor(AbstractDoor door, @Nullable IPPlayer responsible)
+    {
+        return callCancellableEvent(fact -> fact.createPrepareDeleteDoorEvent(door, responsible)).thenApplyAsync(
+            cancelled ->
+            {
+                if (cancelled)
+                    return ActionResult.CANCELLED;
+
+                BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
+                final boolean result = db.removeDoor(door.getDoorUID());
+                if (!result)
+                    return ActionResult.FAIL;
+
+                BigDoors.get().getPlatform().getPowerBlockManager()
+                        .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(door.getPowerBlock().x(),
+                                                                                      door.getPowerBlock().y(),
+                                                                                      door.getPowerBlock().z()));
+                return ActionResult.SUCCESS;
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
      * Gets a list of door UIDs that have their engine in a given chunk.
      *
-     * @param chunkHash The hash of the chunk the doors are in.
+     * @param chunkHash
+     *     The hash of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
-    public @NotNull CompletableFuture<List<Long>> getDoorsInChunk(final long chunkHash)
+    public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractDoorBase} owned by a player. Only searches for {@link AbstractDoorBase} with a given name
-     * if one was provided.
+     * Gets all {@link AbstractDoor} owned by a player. Only searches for {@link AbstractDoor} with a given name if one
+     * was provided.
      *
-     * @param playerUUID The {@link UUID} of the payer.
-     * @param name       The name or the UID of the {@link AbstractDoorBase} to search for. Can be null.
-     * @return All {@link AbstractDoorBase} owned by a player with a specific name.
+     * @param playerUUID
+     *     The {@link UUID} of the payer.
+     * @param doorID
+     *     The name or the UID of the {@link AbstractDoor} to search for. Can be null.
+     * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID,
-                                                                       final @NotNull String name)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String doorID)
     {
         // Check if the name is actually the UID of the door.
-        final @NotNull OptionalLong doorID = Util.parseLong(name);
-        if (doorID.isPresent())
+        final OptionalLong doorUID = Util.parseLong(doorID);
+        if (doorUID.isPresent())
             return CompletableFuture
-                .supplyAsync(() -> db.getDoor(playerUUID, doorID.getAsLong())
+                .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
-        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
      * See {@link #getDoors(UUID, String)}.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull IPPlayer player,
-                                                                       final @NotNull String name)
+    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player, String name)
     {
         return getDoors(player.getUUID(), name);
     }
 
     /**
-     * Gets all {@link AbstractDoorBase} owned by a player.
+     * Gets all {@link AbstractDoor} owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
-     * @return All {@link AbstractDoorBase} owned by a player.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
+     * @return All {@link AbstractDoor} owned by a player.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull UUID playerUUID)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -198,35 +290,36 @@ public final class DatabaseManager extends Restartable
     /**
      * See {@link #getDoors(UUID)}.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull IPPlayer player)
+    public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
     {
         return getDoors(player.getUUID());
     }
 
     /**
-     * Gets all {@link AbstractDoorBase} owned by a player with a specific name.
+     * Gets all {@link AbstractDoor} owned by a player with a specific name.
      *
-     * @param playerUUID    The {@link UUID} of the payer.
-     * @param name          The name of the {@link AbstractDoorBase} to search for.
-     * @param maxPermission The maximum level of ownership (inclusive) this player has over the {@link
-     *                      AbstractDoorBase}s.
-     * @return All {@link AbstractDoorBase} owned by a player with a specific name.
+     * @param playerUUID
+     *     The {@link UUID} of the payer.
+     * @param name
+     *     The name of the {@link AbstractDoor} to search for.
+     * @param maxPermission
+     *     The maximum level of ownership (inclusive) this player has over the {@link AbstractDoor}s.
+     * @return All {@link AbstractDoor} owned by a player with a specific name.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull String playerUUID,
-                                                                       final @NotNull String name,
-                                                                       final int maxPermission)
+    public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets all {@link AbstractDoorBase}s with a specific name, regardless over ownership.
+     * Gets all {@link AbstractDoor}s with a specific name, regardless over ownership.
      *
-     * @param name The name of the {@link AbstractDoorBase}s.
-     * @return All {@link AbstractDoorBase}s with a specific name.
+     * @param name
+     *     The name of the {@link AbstractDoor}s.
+     * @return All {@link AbstractDoor}s with a specific name.
      */
-    public @NotNull CompletableFuture<List<AbstractDoorBase>> getDoors(final @NotNull String name)
+    public CompletableFuture<List<AbstractDoor>> getDoors(String name)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
@@ -235,10 +328,12 @@ public final class DatabaseManager extends Restartable
     /**
      * Updates the name of a player in the database, to make sure the player's name and UUID don't go out of sync.
      *
-     * @param player The Player.
+     * @param player
+     *     The Player.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> updatePlayer(final @NotNull IPPlayer player)
+    @SuppressWarnings({"unused", "UnusedReturnValue"})
+    public CompletableFuture<Boolean> updatePlayer(IPPlayer player)
     {
         return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
@@ -247,10 +342,11 @@ public final class DatabaseManager extends Restartable
     /**
      * Tries to find the {@link PPlayerData} for a player with the given {@link UUID}.
      *
-     * @param uuid The {@link UUID} of a player.
+     * @param uuid
+     *     The {@link UUID} of a player.
      * @return The {@link PPlayerData} that represents the player.
      */
-    public @NonNull CompletableFuture<Optional<PPlayerData>> getPlayerData(final @NonNull UUID uuid)
+    public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
@@ -262,183 +358,299 @@ public final class DatabaseManager extends Restartable
      * <p>
      * If you know the player's UUID, it is recommended to use {@link #getPlayerData(UUID)} instead.
      *
-     * @param playerName The name of the player(s).
+     * @param playerName
+     *     The name of the player(s).
      * @return All the players with the given name.
      */
-    public @NonNull CompletableFuture<List<PPlayerData>> getPlayerData(final @NonNull String playerName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<List<PPlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} with a specific UID.
+     * Gets the {@link AbstractDoor} with a specific UID.
      *
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link AbstractDoorBase} if it exists.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
+     * @return The {@link AbstractDoor} if it exists.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} with the given UID owned by the player. If the given player does not own the
+     * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the
      * provided door, no door will be returned.
      *
-     * @param player  The {@link IPPlayer}.
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link AbstractDoorBase} with the given UID if it exists and the provided player owns it.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
+     * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull IPPlayer player,
-                                                                          final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player, long doorUID)
     {
         return getDoor(player.getUUID(), doorUID);
     }
 
     /**
-     * Gets the {@link AbstractDoorBase} with the given UID owned by the player. If the given player does not own the *
+     * Gets the {@link AbstractDoor} with the given UID owned by the player. If the given player does not own the *
      * provided door, no door will be returned.
      *
-     * @param uuid    The {@link UUID} of the player.
-     * @param doorUID The UID of the {@link AbstractDoorBase}.
-     * @return The {@link AbstractDoorBase} with the given UID if it exists and the provided player owns it.
+     * @param uuid
+     *     The {@link UUID} of the player.
+     * @param doorUID
+     *     The UID of the {@link AbstractDoor}.
+     * @return The {@link AbstractDoor} with the given UID if it exists and the provided player owns it.
      */
-    public @NotNull CompletableFuture<Optional<AbstractDoorBase>> getDoor(final @NotNull UUID uuid,
-                                                                          final long doorUID)
+    public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
                                 .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
-     * Gets the number of {@link AbstractDoorBase}s owned by a player.
+     * Gets the number of {@link AbstractDoor}s owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
-     * @return The number of {@link AbstractDoorBase}s this player owns.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
+     * @return The number of {@link AbstractDoor}s this player owns.
      */
-    public @NotNull CompletableFuture<Integer> countDoorsOwnedByPlayer(final @NotNull UUID playerUUID)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Counts the number of {@link AbstractDoorBase}s with a specific name owned by a player.
+     * Counts the number of {@link AbstractDoor}s with a specific name owned by a player.
      *
-     * @param playerUUID The {@link UUID} of the player.
-     * @param doorName   The name of the door.
-     * @return The number of {@link AbstractDoorBase}s with a specific name owned by a player.
+     * @param playerUUID
+     *     The {@link UUID} of the player.
+     * @param doorName
+     *     The name of the door.
+     * @return The number of {@link AbstractDoor}s with a specific name owned by a player.
      */
-    public @NotNull CompletableFuture<Integer> countDoorsOwnedByPlayer(final @NotNull UUID playerUUID,
-                                                                       final @NotNull String doorName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID, String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * The number of {@link AbstractDoorBase}s in the database with a specific name.
+     * The number of {@link AbstractDoor}s in the database with a specific name.
      *
-     * @param doorName The name of the {@link AbstractDoorBase}.
-     * @return The number of {@link AbstractDoorBase}s with a specific name.
+     * @param doorName
+     *     The name of the {@link AbstractDoor}.
+     * @return The number of {@link AbstractDoor}s with a specific name.
      */
-    public @NotNull CompletableFuture<Integer> countDoorsByName(final @NotNull String doorName)
+    @SuppressWarnings("unused")
+    public CompletableFuture<Integer> countDoorsByName(String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
-     * Adds a player as owner to a {@link AbstractDoorBase} at a given level of ownership.
+     * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership and assumes that the door was NOT
+     * deleted by an {@link * IPPlayer}. See {@link #addOwner(AbstractDoor, IPPlayer, int, IPPlayer)}.
      *
-     * @param door       The {@link AbstractDoorBase}.
-     * @param player     The {@link IPPlayer}.
-     * @param permission The level of ownership.
-     * @return True if owner addition was successful.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param permission
+     *     The level of ownership.
+     * @return The future result of the operation.
      */
-    public @NotNull CompletableFuture<Boolean> addOwner(final @NotNull AbstractDoorBase door,
-                                                        final @NotNull IPPlayer player,
-                                                        final int permission)
+    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission)
     {
-        if (permission < 1 || permission > 2)
-            return CompletableFuture.completedFuture(false);
-
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                final @NonNull PPlayerData playerData = player.getPPlayerData();
-
-                final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
-                if (result)
-                    ((FriendDoorAccessor) door).addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(),
-                                                                                         permission,
-                                                                                         playerData));
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+        return addOwner(door, player, permission, null);
     }
 
     /**
-     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoorBase}.
+     * Adds a player as owner to a {@link AbstractDoor} at a given level of ownership.
      *
-     * @param door       The {@link AbstractDoorBase}.
-     * @param playerUUID The {@link UUID} of the {@link IPPlayer}.
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param permission
+     *     The level of ownership.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> addOwner(AbstractDoor door, IPPlayer player, int permission,
+                                                    @Nullable IPPlayer responsible)
+    {
+        if (permission < 1 || permission > 2)
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
+
+        val newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
+
+        return callCancellableEvent(fact -> fact.createDoorPrepareAddOwnerEvent(door, newOwner, responsible))
+            .thenApplyAsync(
+                cancelled ->
+                {
+                    if (cancelled)
+                        return ActionResult.CANCELLED;
+
+                    final PPlayerData playerData = player.getPPlayerData();
+
+                    final boolean result = db.addOwner(door.getDoorUID(), playerData, permission);
+                    if (!result)
+                        return ActionResult.FAIL;
+
+                    ((FriendDoorAccessor) door.getDoorBase())
+                        .addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(), permission, playerData));
+
+                    return ActionResult.SUCCESS;
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+    }
+
+    /**
+     * Calls an {@link ICancellableBigDoorsEvent} and checks if it was cancelled or not.
+     *
+     * @param factoryMethod
+     *     The method to use to construct the event.
+     * @return True if the create event was cancelled, otherwise false.
+     */
+    private CompletableFuture<Boolean> callCancellableEvent(
+        Function<IBigDoorsEventFactory, ICancellableBigDoorsEvent> factoryMethod)
+    {
+        return CompletableFuture.supplyAsync(
+            () ->
+            {
+                val event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
+                BigDoors.get().getPlatform().callDoorEvent(event);
+                return event.isCancelled();
+            });
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     *
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
      * @return True if owner removal was successful.
      */
-    public @NotNull CompletableFuture<Boolean> removeOwner(final @NotNull AbstractDoorBase door,
-                                                           final @NotNull UUID playerUUID)
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player)
     {
-        final @NotNull Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
+        return removeOwner(door, player, null);
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     *
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param player
+     *     The {@link IPPlayer}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, IPPlayer player,
+                                                       @Nullable IPPlayer responsible)
+    {
+        return removeOwner(door, player.getUUID(), responsible);
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor} and assumes that the door was NOT deleted by an
+     * {@link IPPlayer}. See {@link #removeOwner(AbstractDoor, UUID, IPPlayer)}.
+     *
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param playerUUID
+     *     The {@link UUID} of the {@link IPPlayer}.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID)
+    {
+        return removeOwner(door, playerUUID, null);
+    }
+
+    /**
+     * Remove a {@link IPPlayer} as owner of a {@link AbstractDoor}.
+     *
+     * @param door
+     *     The {@link AbstractDoor}.
+     * @param playerUUID
+     *     The {@link UUID} of the {@link IPPlayer}.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareDeleteEvent}.
+     *     This may be null.
+     * @return The future result of the operation.
+     */
+    public CompletableFuture<ActionResult> removeOwner(AbstractDoor door, UUID playerUUID,
+                                                       @Nullable IPPlayer responsible)
+    {
+        final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                    "Trying to remove player: " + playerUUID + " from door: " +
                                                        door.getDoorUID() +
                                                        ", but the player is not an owner!");
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
-        if (doorOwner.get().getPermission() == 0)
+        if (doorOwner.get().permission() == 0)
         {
             BigDoors.get().getPLogger().logMessage(Level.FINE,
                                                    "Trying to remove player: " + playerUUID + " from door: " +
                                                        door.getDoorUID() +
                                                        ", but the player is the prime owner! This is not allowed!");
-            return CompletableFuture.completedFuture(false);
+            return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
-        return CompletableFuture.supplyAsync(
-            () ->
-            {
-                final boolean result = db.removeOwner(door.getDoorUID(), playerUUID.toString());
-                if (result)
-                    ((FriendDoorAccessor) door).removeOwner(playerUUID);
-                return result;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+        return callCancellableEvent(fact -> fact.createDoorPrepareRemoveOwnerEvent(door, doorOwner.get(), responsible))
+            .thenApplyAsync(
+                cancelled ->
+                {
+                    if (cancelled)
+                        return ActionResult.CANCELLED;
+
+                    final boolean result = db.removeOwner(door.getDoorUID(), playerUUID);
+                    if (!result)
+                        return ActionResult.FAIL;
+
+                    ((FriendDoorAccessor) door.getDoorBase()).removeOwner(playerUUID);
+                    return ActionResult.SUCCESS;
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
-     * Updates the all data of an {@link AbstractDoorBase}. This includes both the base data and the type-specific
-     * data.
+     * Updates the all data of an {@link AbstractDoor}. This includes both the base data and the type-specific data.
      *
-     * @param simpleDoorData The {@link AbstractDoorBase.SimpleDoorData} that describes the base data of door.
-     * @param typeData       The type-specific data of this door.
+     * @param doorBase
+     *     The {@link DoorBase} that describes the base data of door.
+     * @param typeData
+     *     The type-specific data of this door.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public @NotNull CompletableFuture<Boolean> syncDoorData(
-        final @NotNull AbstractDoorBase.SimpleDoorData simpleDoorData, final byte[] typeData)
+    public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
     {
-        return CompletableFuture.supplyAsync(() -> db.syncDoorData(simpleDoorData, typeData), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
      * Checks if a world contains any big doors.
      *
-     * @param worldName The name of the world.
+     * @param worldName
+     *     The name of the world.
      * @return True if at least 1 door exists in the world.
      */
-    @NotNull CompletableFuture<Boolean> isBigDoorsWorld(final @NotNull String worldName)
+    CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
         return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
@@ -450,43 +662,68 @@ public final class DatabaseManager extends Restartable
      * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
      * occupies that location.
      *
-     * @param chunkHash The hash of the chunk the doors are in.
+     * @param chunkHash
+     *     The hash of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    @NotNull CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(final long chunkHash)
+    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
     }
 
     /**
-     * Provides private access to certain aspects of the {@link AbstractDoorBase} class. Kind of like an (inverted, more
+     * Represents the result of an action requested from the database. E.g. deleting a door.
+     */
+    public enum ActionResult
+    {
+        /**
+         * The request was cancelled. E.g. by an {@link ICancellableBigDoorsEvent} event.
+         */
+        CANCELLED,
+
+        /**
+         * Success! Everything went as expected.
+         */
+        SUCCESS,
+
+        /**
+         * Something went wrong. Check the logs?
+         */
+        FAIL
+    }
+
+    /**
+     * Provides private access to certain aspects of the {@link AbstractDoor} class. Kind of like an (inverted, more
      * cumbersome, and less useful) friend in C++ terms.
      */
     // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
     //       of this class? This has several advantages:
     //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these methods)
-    //       - All the commands that modify a door can be pooled in the AbstractDoorBase class, instead of being split
+    //       - All the commands that modify a door can be pooled in the AbstractDoor class, instead of being split
     //         over several classes.
     //       Alternatively, consider creating a separate class with package-private access to either this class or
     //       the door one. Might be a bit cleaner.
-    public static abstract class FriendDoorAccessor
+    public abstract static class FriendDoorAccessor
     {
         /**
          * Adds an owner to the map of Owners.
          *
-         * @param uuid      The {@link UUID} of the owner.
-         * @param doorOwner The {@link DoorOwner} to add.
+         * @param uuid
+         *     The {@link UUID} of the owner.
+         * @param doorOwner
+         *     The {@link DoorOwner} to add.
          */
-        protected abstract void addOwner(final @NotNull UUID uuid, final @NotNull DoorOwner doorOwner);
+        protected abstract void addOwner(UUID uuid, DoorOwner doorOwner);
 
         /**
          * Removes a {@link DoorOwner} from the list of {@link DoorOwner}s, if possible.
          *
-         * @param uuid The {@link UUID} of the {@link DoorOwner} that is to be removed.
+         * @param uuid
+         *     The {@link UUID} of the {@link DoorOwner} that is to be removed.
          * @return True if removal was successful or false if there was no previous {@link DoorOwner} with the provided
          * {@link UUID}.
          */
-        protected abstract boolean removeOwner(final @NotNull UUID uuid);
+        protected abstract boolean removeOwner(UUID uuid);
     }
 }

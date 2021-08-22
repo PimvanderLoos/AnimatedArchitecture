@@ -1,32 +1,35 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.doors.AbstractDoorBase;
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAlignedDoorArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMoverArchetype;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IStationaryDoorArchetype;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.util.CuboidConst;
+import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Represents a Flag doorType.
  *
  * @author Pim
- * @see AbstractDoorBase
+ * @see DoorBase
  */
-public class Flag extends AbstractDoorBase
-    implements IHorizontalAxisAlignedDoorArchetype, IStationaryDoorArchetype, IPerpetualMoverArchetype
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpetualMover
 {
-    @NotNull
+    @EqualsAndHashCode.Exclude
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
 
     /**
@@ -38,23 +41,23 @@ public class Flag extends AbstractDoorBase
      *
      * @return True if this door is animated along the North/South axis.
      */
-    @Getter(onMethod = @__({@Override}))
+    @Getter
     @PersistentVariable
     protected final boolean northSouthAligned;
 
-    public Flag(final @NotNull DoorData doorData, final boolean northSouthAligned)
+    public Flag(DoorBase doorBase, boolean northSouthAligned)
     {
-        super(doorData);
+        super(doorBase);
         this.northSouthAligned = northSouthAligned;
     }
 
-    private Flag(final @NotNull DoorData doorData)
+    private Flag(DoorBase doorBase)
     {
-        this(doorData, false); // Add tmp/default values
+        this(doorBase, false); // Add tmp/default values
     }
 
     @Override
-    public @NotNull DoorType getDoorType()
+    public DoorType getDoorType()
     {
         return DOOR_TYPE;
     }
@@ -67,30 +70,46 @@ public class Flag extends AbstractDoorBase
      * @return The current open direction.
      */
     @Override
-    public @NotNull RotateDirection cycleOpenDirection()
+    public RotateDirection cycleOpenDirection()
     {
         return getOpenDir();
     }
 
     @Override
-    protected @NotNull BlockMover constructBlockMover(final @NotNull DoorActionCause cause, final double time,
-                                                      final boolean skipAnimation, final @NotNull CuboidConst newCuboid,
-                                                      final @NotNull IPPlayer responsible,
-                                                      final @NotNull DoorActionType actionType)
+    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
+                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+        throws Exception
     {
         return new FlagMover(60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
     }
 
     @Override
-    public boolean equals(final @Nullable Object o)
+    public boolean canSkipAnimation()
     {
-        if (!super.equals(o))
-            return false;
+        return false;
+    }
 
-        if (getClass() != o.getClass())
-            return false;
+    @Override
+    public Optional<Cuboid> getPotentialNewCoordinates()
+    {
+        return Optional.of(getCuboid());
+    }
 
-        final @NotNull Flag other = (Flag) o;
-        return northSouthAligned == other.northSouthAligned;
+    @Override
+    public RotateDirection getCurrentToggleDir()
+    {
+        return getOpenDir();
+    }
+
+    @Override
+    public boolean isOpenable()
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isCloseable()
+    {
+        return true;
     }
 }

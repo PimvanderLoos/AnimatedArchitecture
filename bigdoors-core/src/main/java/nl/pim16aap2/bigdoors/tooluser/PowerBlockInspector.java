@@ -1,43 +1,60 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
-import nl.pim16aap2.bigdoors.api.IPLocationConst;
+import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
-import nl.pim16aap2.bigdoors.util.messages.Message;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents a type of {@link ToolUser} that tries to find powerblocks based on the locations provided by the user.
+ *
+ * @author Pim
+ */
+@ToString
 public class PowerBlockInspector extends ToolUser
 {
-    protected PowerBlockInspector(final @NotNull IPPlayer player)
+    /**
+     * Whether this user has the bypass permission.
+     * <p>
+     * When this is true, the user does not have to be an owner of the door to retrieve its location.
+     */
+    private final boolean bypassPermission;
+
+    public PowerBlockInspector(IPPlayer player, boolean bypassPermission)
     {
         super(player);
+        this.bypassPermission = bypassPermission;
+    }
+
+    @SuppressWarnings("unused")
+    public PowerBlockInspector(IPPlayer player)
+    {
+        this(player, false);
     }
 
     @Override
     protected void init()
     {
-        giveTool(Message.CREATOR_GENERAL_STICKNAME, Message.CREATOR_PBINSPECTOR_STICKLORE,
-                 Message.CREATOR_PBINSPECTOR_INIT);
+        giveTool("tool_user.base.stick_name", "tool_user.powerblock_inspector.stick_lore",
+                 "tool_user.powerblock_inspector.init");
     }
 
-    protected boolean inspectLoc(final @NotNull IPLocationConst loc)
+    protected boolean inspectLoc(IPLocation loc)
     {
-        // TODO: Implement this.
-        // Just return true, otherwise it gets very spammy.
-        return true;
+        throw new UnsupportedOperationException("This action has not been implemented yet!");
     }
 
     @Override
-    protected @NotNull List<IStep> generateSteps()
+    protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step<ToolUser> stepBlocksToMove = new Step.Factory<>("INSPECT_POWER_BLOCK")
-            .message(Message.CREATOR_PBINSPECTOR_INIT)
+        Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
+            .messageKey("tool_user.powerblock_inspector.init")
             .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
