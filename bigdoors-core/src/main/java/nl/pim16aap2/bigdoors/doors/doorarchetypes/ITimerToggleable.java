@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.doors.doorArchetypes;
+package nl.pim16aap2.bigdoors.doors.doorarchetypes;
 
 /**
  * Represents a type of door that can be toggled via a timer. E.g. autoCloseTimer.

@@ -18,7 +18,7 @@ public final class ConfigEntry<V>
     private final String optionName;
     private final V defaultValue;
     private final String @Nullable [] comment;
-    private final @Nullable ConfigEntry.TestValue<V> verifyValue;
+    private final @Nullable ConfigEntry.ITestValue<V> verifyValue;
     private V value;
 
     /**
@@ -38,7 +38,7 @@ public final class ConfigEntry<V>
      *     Function to use to verify the validity of a value and change it if necessary.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable [] comment, @Nullable ConfigEntry.TestValue<V> verifyValue)
+                       String @Nullable [] comment, @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
         this.logger = logger;
         this.config = config;
@@ -150,7 +150,7 @@ public final class ConfigEntry<V>
      *     The type of the value.
      * @author Pim
      */
-    public interface TestValue<T>
+    public interface ITestValue<T>
     {
         /**
          * Checks if a given value is valid. If it is, it returns that value. If it isn't, it is changed so that it is

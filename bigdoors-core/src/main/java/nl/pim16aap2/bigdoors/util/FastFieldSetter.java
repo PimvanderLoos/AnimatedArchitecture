@@ -39,11 +39,8 @@ public abstract class FastFieldSetter<T, U>
         UNSAFE = unsafe;
     }
 
-    final long offsetTarget;
-
-    private FastFieldSetter(long offsetTarget)
+    private FastFieldSetter()
     {
-        this.offsetTarget = offsetTarget;
     }
 
     private static Field getField(Class<?> clz, String name)
@@ -104,7 +101,7 @@ public abstract class FastFieldSetter<T, U>
         // All these methods suppress NullAway, because it complains about UNSAFE, but it should
         // never even get to this point if UNSAFE is null.
         if (targetType.equals(int.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -114,7 +111,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(long.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -124,7 +121,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(boolean.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -134,7 +131,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(short.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -144,7 +141,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(char.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -154,7 +151,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(float.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -164,7 +161,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(double.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -174,7 +171,7 @@ public abstract class FastFieldSetter<T, U>
             };
 
         if (targetType.equals(byte.class))
-            return new FastFieldSetter<>(offsetTarget)
+            return new FastFieldSetter<>()
             {
                 @Override
                 public void copy(Object target, Object obj)
@@ -183,7 +180,7 @@ public abstract class FastFieldSetter<T, U>
                 }
             };
 
-        return new FastFieldSetter<>(offsetTarget)
+        return new FastFieldSetter<>()
         {
             @Override
             public void copy(Object target, Object obj)

@@ -270,7 +270,7 @@ final class DoorTypeInitializer
             {
                 final LoadResult dependencyLoadResult = processDependencies(queuedDoorType);
                 if (dependencyLoadResult.loadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
-                    // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency.
+                    // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency
                     dependencyWeight = registrationQueue.get(dependencyName).weight;
                 else
                 {

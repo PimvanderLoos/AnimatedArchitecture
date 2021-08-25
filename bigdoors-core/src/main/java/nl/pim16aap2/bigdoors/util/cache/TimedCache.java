@@ -109,8 +109,8 @@ public class TimedCache<K, V>
         final long cleanupMillis = cleanup == null ? 0 : cleanup.toMillis();
 
         if (timeOut == 0 && (!softReference || cleanupMillis == 0))
-            throw new IllegalArgumentException(
-                "A duration of zero is only allowed in combination with soft reference and a non-zero cleanup duration!");
+            throw new IllegalArgumentException("A duration of zero is only allowed in combination with soft " +
+                                                   "reference and a non-zero cleanup duration!");
 
         timedValueCreator = softReference ? this::createTimedSoftValue : this::createTimedValue;
         setupCleanupTask(cleanupMillis);

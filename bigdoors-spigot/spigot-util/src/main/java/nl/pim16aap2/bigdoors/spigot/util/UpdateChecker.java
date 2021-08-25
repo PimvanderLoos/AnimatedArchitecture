@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
  * <a href="https://spigotmc.org/resources/">SpigotMC</a>. Before any members of
- * this class are accessed, {@link #init(JavaPlugin, int, IPLogger)} must be invoked by the plugin, preferrably in its
+ * this class are accessed, {@link #init(JavaPlugin, int, IPLogger)} must be invoked by the plugin, preferably in its
  * {@link JavaPlugin#onEnable()} method, though that is not a requirement.
  * <p>
  * This class performs asynchronous queries to
@@ -400,7 +400,8 @@ public final class UpdateChecker
         private UpdateResult(UpdateReason reason)
         {
             Preconditions.checkArgument(reason != UpdateReason.NEW_UPDATE && reason != UpdateReason.UP_TO_DATE,
-                                        "Reasons that might require updates must also provide the latest version String");
+                                        "Reasons that might require updates must also " +
+                                            "provide the latest version String");
             this.reason = reason;
             newestVersion = plugin.getDescription().getVersion();
             age = -1;
