@@ -699,7 +699,8 @@ public final class DatabaseManager extends Restartable
      */
     // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
     //       of this class? This has several advantages:
-    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these methods)
+    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these
+    //         methods)
     //       - All the commands that modify a door can be pooled in the AbstractDoor class, instead of being split
     //         over several classes.
     //       Alternatively, consider creating a separate class with package-private access to either this class or

@@ -1307,6 +1307,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         ROLLBACK,
     }
 
+    /**
+     * Represents a reading mode for the database file.
+     * <p>
+     * Restricting the read mode to read only may result in better performance at the cost of the ability to write to
+     * the database.
+     */
     private enum ReadMode
     {
         /**
@@ -1316,8 +1322,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         /**
          * Does not allow writing to the database (surprise!), but may result in better performance.
-         *
-         * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/Connection.html#setReadOnly(boolean)">javadoc</a>
          */
         READ_ONLY,
     }

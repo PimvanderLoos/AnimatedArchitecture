@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 
 /**
  * Uses {@link Unsafe} to quickly copy primitives and objects from one object to another.
+ * <p>
+ * Note that objects aren't cloned or copied, only the reference is copied!
  *
  * @param <S>
  *     The type of the source object.
@@ -40,13 +42,8 @@ public abstract class FastFieldCopier<S, T>
         UNSAFE = unsafe;
     }
 
-    final long offsetSource;
-    final long offsetTarget;
-
-    private FastFieldCopier(long offsetSource, long offsetTarget)
+    private FastFieldCopier()
     {
-        this.offsetSource = offsetSource;
-        this.offsetTarget = offsetTarget;
     }
 
     private static Field getField(Class<?> clz, String name)
@@ -115,7 +112,7 @@ public abstract class FastFieldCopier<S, T>
         // All these methods suppress NullAway, because it complains about UNSAFE, but it should
         // never even get to this point if UNSAFE is null.
         if (targetType.equals(int.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -125,7 +122,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(long.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -135,7 +132,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(boolean.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -145,7 +142,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(short.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -155,7 +152,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(char.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -165,7 +162,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(float.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -175,7 +172,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(double.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -185,7 +182,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(byte.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -194,7 +191,7 @@ public abstract class FastFieldCopier<S, T>
                 }
             };
 
-        return new FastFieldCopier<>(offsetSource, offsetTarget)
+        return new FastFieldCopier<>()
         {
             @Override
             public void copy(Object source, Object target)

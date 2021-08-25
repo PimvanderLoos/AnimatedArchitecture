@@ -117,7 +117,8 @@ public class ChunkListener implements Listener
                 return;
             }
 
-            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need to interfere.
+            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need
+            // to interfere.
             if (isChunkUnloadCancelled(event))
                 return;
 

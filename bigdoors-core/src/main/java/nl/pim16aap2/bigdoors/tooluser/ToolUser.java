@@ -53,7 +53,7 @@ public abstract class ToolUser implements IRestartable
 
         try
         {
-            procedure = new Procedure(this, generateSteps());
+            procedure = new Procedure(generateSteps());
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {

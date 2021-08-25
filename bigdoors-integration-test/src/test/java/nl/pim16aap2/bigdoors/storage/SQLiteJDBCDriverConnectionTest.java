@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.ITimerToggleable;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;

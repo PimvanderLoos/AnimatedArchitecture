@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.doors.doorArchetypes;
+package nl.pim16aap2.bigdoors.doors.doorarchetypes;
 
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 

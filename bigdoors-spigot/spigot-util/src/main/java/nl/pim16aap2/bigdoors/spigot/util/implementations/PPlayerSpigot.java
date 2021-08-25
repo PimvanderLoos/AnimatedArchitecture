@@ -21,7 +21,7 @@ import java.util.logging.Level;
  */
 public final class PPlayerSpigot implements IPPlayer
 {
-    final Player spigotPlayer;
+    private final Player spigotPlayer;
 
     public PPlayerSpigot(Player spigotPlayer)
     {

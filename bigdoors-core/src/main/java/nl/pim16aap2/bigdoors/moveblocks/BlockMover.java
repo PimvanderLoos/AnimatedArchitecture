@@ -44,8 +44,10 @@ public abstract class BlockMover implements IRestartable
     protected final AbstractDoor door;
     @Getter
     protected final IPPlayer player;
-    @Getter final DoorActionCause cause;
-    @Getter final DoorActionType actionType;
+    @Getter
+    private final DoorActionCause cause;
+    @Getter
+    private final DoorActionType actionType;
     @ToString.Exclude
     protected final IFallingBlockFactory fallingBlockFactory;
     @Getter
@@ -187,7 +189,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
      * PBlockData}. Note that this is executed on the thread it was called from, which MUST BE the main thread!
      */
     private void applyRotationOnCurrentThread()
@@ -204,7 +206,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
      * PBlockData}. This is executed on the main thread.
      */
     protected void applyRotation()
@@ -321,10 +323,9 @@ public abstract class BlockMover implements IRestartable
 
         moverTask = new TimerTask()
         {
-            int counter = 0;
-            @Nullable Long startTime = null; // Initialize on the first run.
-            long lastTime;
-            long currentTime = System.nanoTime();
+            private int counter = 0;
+            private @Nullable Long startTime = null; // Initialize on the first run.
+            private long currentTime = System.nanoTime();
 
             @Override
             public void run()
@@ -336,7 +337,7 @@ public abstract class BlockMover implements IRestartable
                 if (soundActive != null && counter % PSound.getDuration(soundActive.sound()) == 0)
                     playSound(soundActive);
 
-                lastTime = currentTime;
+                final long lastTime = currentTime;
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
@@ -393,7 +394,7 @@ public abstract class BlockMover implements IRestartable
      * @param pBlockData
      *     The {@link PBlockData}.
      * @param firstPass
-     *     Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
+     *     Whether this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
     private void putSavedBlock(PBlockData pBlockData, boolean firstPass)
     {
@@ -411,7 +412,7 @@ public abstract class BlockMover implements IRestartable
      * When the plugin is currently not in the process of disabling, it also schedules the auto close.
      *
      * @param onDisable
-     *     Whether or not the plugin is currently being disabled.
+     *     Whether the plugin is currently being disabled.
      */
     public final synchronized void putBlocks(boolean onDisable)
     {

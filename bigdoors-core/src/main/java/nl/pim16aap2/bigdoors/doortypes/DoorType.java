@@ -75,7 +75,8 @@ public abstract class DoorType
     private final @Nullable DoorSerializer<?> doorSerializer;
 
     /**
-     * Constructs a new {@link DoorType}. Don't forget to register it using {@link DoorTypeManager#registerDoorType(DoorType)}.
+     * Constructs a new {@link DoorType}. Don't forget to also register it using {@link
+     * DoorTypeManager#registerDoorType(DoorType)}.
      *
      * @param pluginName
      *     The name of the plugin that owns this {@link DoorType}.

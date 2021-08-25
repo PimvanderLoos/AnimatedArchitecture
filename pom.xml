@@ -24,6 +24,7 @@
         <dependency.version.errorprone>2.8.1</dependency.version.errorprone>
         <dependency.version.nullaway>1e615ffd45</dependency.version.nullaway>
         <dependency.version.checker-framework>3.17.0</dependency.version.checker-framework>
+        <dependency.version.checkstyle>8.45.1</dependency.version.checkstyle>
         <dependency.version.mockito>3.11.2</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -34,6 +35,7 @@
         <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
         <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
         <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
+        <dependency.version.maven-checkstyle>3.1.2</dependency.version.maven-checkstyle>
         <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
         <dependency.version.jimfs>1.2</dependency.version.jimfs>
     </properties>
@@ -122,6 +124,13 @@
             <version>${dependency.version.checker-framework}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${dependency.version.checkstyle}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -166,16 +175,20 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${dependency.version.maven-checkstyle}</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.41</version>
+                            <version>${dependency.version.checkstyle}</version>
                         </dependency>
                     </dependencies>
                     <configuration>
-                        <configLocation>checkstyle/checkstyle.xml</configLocation>
+                        <configLocation>${user.dir}/checkstyle/checkstyle.xml</configLocation>
+                        <encoding>UTF-8</encoding>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <linkXRef>false</linkXRef>
                     </configuration>
                 </plugin>
 

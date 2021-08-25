@@ -47,8 +47,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @ToString.Exclude
     private final IPLogger logger;
 
-    private static final List<String> DEFAULTPOWERBLOCK = List.of("GOLD_BLOCK");
-    private static final List<String> DEFAULTBLACKLIST = Collections.emptyList();
+    private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
+    private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
 
     private final Set<Material> powerBlockTypes = EnumSet.noneOf(Material.class);
     private final Set<Material> materialBlacklist = EnumSet.noneOf(Material.class);
@@ -167,67 +167,81 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         String[] maxDoorCountComment = {
             "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.DOOR_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] maxBlocksToMoveComment = {
             "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] checkForUpdatesComment = {
             "Allow this plugin to check for updates on startup. It will not download new versions!"};
         String[] downloadDelayComment = {
             "Time (in minutes) to delay auto downloading updates after their release.",
             "Setting it to 1440 means that updates will be downloaded 24h after their release.",
-            "This is useful, as it will mean that the update won't get downloaded if I decide to pull it for some reason",
-            "(within the specified timeframe, of course). Note that updates cannot be deferred for more than 1 week (10080 minutes)."};
+            "This is useful, as it will mean that the update won't get downloaded " +
+                "if I decide to pull it for some reason",
+            "(within the specified timeframe, of course). Note that updates cannot be " +
+                "deferred for more than 1 week (10080 minutes)."};
         String[] autoDLUpdateComment = {
             "Allow this plugin to automatically download new updates. They will be applied on restart."};
         String[] allowStatsComment = {
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
-            "It has a negligible impact on performance and more users on stats keeps me more motivated to support this plugin!"};
+            "It has a negligible impact on performance and more users on " +
+                "stats keeps me more motivated to support this plugin!"};
         String[] maxDoorSizeComment = {
             "Global maximum number of blocks allowed in a door. You can set it to -1 to disable it this limit.",
             "If this number is exceeded, doors will open instantly and skip the animation.",
             "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "Note that you can also use permissions for this, " +
+                "if you need more finely grained control using this node: ",
             "'" + Limit.DOOR_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] maxPowerBlockDistanceComment = {
             "Global maximum distance between a door and its powerblock. You can set it to -1 to disable it this limit.",
             "The distance is measured from the center of the door.",
             "Not even admins and OPs can bypass this limit!",
-            "Note that you can also use permissions for this, if you need more finely grained control using this node: ",
+            "Note that you can also use permissions for this, " +
+                "if you need more finely grained control using this node: ",
             "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
         String[] localeComment = {
             "Determines which locale to use. Defaults to root."
         };
         String[] resourcePackComment = {
-            "This plugin uses a support resource pack for things suchs as sound.",
-            "You can let this plugin load the resource pack for you or load it using your server.properties if you prefer that.",
-            "Of course, you can also disable the resource pack altogether as well. Just put \"NONE\" (without quotation marks) as url.",
+            "This plugin uses a support resource pack for things such as sound.",
+            "Note that this may cause issues if you server or another plugin also uses a resource pack!",
+            "When this is the case, it's recommended to disable this option and merge the pack with the other one.",
             "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
             "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
         String[] multiplierComment = {
             "These multipliers affect the opening/closing speed of their respective doorBase types.",
-            "Note that the maximum speed is limited, so beyond a certain point raising these values won't have any effect.",
+            "Note that the maximum speed is limited, so beyond a certain point " +
+                "raising these values won't have any effect.",
             "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
         String[] compatibilityHooksComment = {
-            "Enable or disable compatibility hooks for certain plugins. If the plugins aren't installed, these options do nothing.",
+            "Enable or disable compatibility hooks for certain plugins. " +
+                "If the plugins aren't installed, these options do nothing.",
             "When enabled, doors cannot be opened or created in areas not owned by the door's owner."};
         String[] coolDownComment = {
             "Cooldown on using doors. Time is measured in seconds."};
         String[] cacheTimeoutComment = {
-            "Amount of time (in minutes) to cache power block positions in a chunk. -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
-            "It doesn't take up too much RAM, so it's recommended to leave this value high. It'll get updated automatically when needed anyway."};
+            "Amount of time (in minutes) to cache power block positions in a chunk. " +
+                "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
+            "It doesn't take up too much RAM, so it's recommended to leave this value high. " +
+                "It'll get updated automatically when needed anyway."};
         String[] pricesComment = {
             "When Vault is present, you can set the price of doorBase creation here for every type of door.",
-            "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a variable that will be replaced by the actual blockCount.",
-            "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, min(a,b), max(a,b), abs(), and parentheses.",
-            "For example: \"price='max(10, sqrt(16)^4/100*blockCount)'\" would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
-            "You must always put the formula or simple value or whatever in quotation marks! Also, these settings do nothing if Vault isn't installed!"};
+            "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a " +
+                "variable that will be replaced by the actual blockCount.",
+            "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, " +
+                "min(a,b), max(a,b), abs(), and parentheses.",
+            "For example: \"price='max(10, sqrt(16)^4/100*blockCount)'\" " +
+                "would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
+            "You must always put the formula or simple value or whatever in quotation marks! " +
+                "Also, these settings do nothing if Vault isn't installed!"};
         String[] headCacheTimeoutComment = {
-            "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
+            "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), " +
+                "0 = infinite cache (not recommended either!).",
             "Takes up a bit more space than the powerblock caching, but makes GUI much faster."};
         String[] debugComment = {
             "Don't use this. Just leave it on false."};
@@ -244,9 +258,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // No need to store the result here. It would be a list of Strings anyway, while we want blocks.
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
-        addNewConfigEntry(config, "powerBlockTypes", DEFAULTPOWERBLOCK, powerBlockTypeComment,
+        addNewConfigEntry(config, "powerBlockTypes", DEFAULT_POWERBLOCK_TYPE, powerBlockTypeComment,
                           new MaterialVerifier(powerBlockTypes));
-        addNewConfigEntry(config, "materialBlacklist", DEFAULTBLACKLIST, blacklistComment,
+        addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
         int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
@@ -376,7 +390,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
-                                    ConfigEntry.TestValue<T> verifyValue)
+                                    ConfigEntry.ITestValue<T> verifyValue)
     {
         ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
                                                   verifyValue);
@@ -597,7 +611,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      *
      * @author Pim
      */
-    private static class MaterialVerifier implements ConfigEntry.TestValue<List<String>>
+    private static class MaterialVerifier implements ConfigEntry.ITestValue<List<String>>
     {
         private final Set<Material> output;
 

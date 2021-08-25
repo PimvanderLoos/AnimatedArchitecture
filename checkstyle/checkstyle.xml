@@ -1,25 +1,31 @@
-<?xml version="1.0" ?><!DOCTYPE module PUBLIC
-        "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-        "https://checkstyle.org/dtds/configuration_1_2.dtd">
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
     <module name="LineLength">
         <property name="max" value="120"/>
+        <!-- Ignored the following lines if they are too long: -->
+        <!-- 1) Lines in JavaDocs that contain an @link -->
+        <!-- 2) Lines in JavaDocs or comments that contain a URL (http:// or https://) -->
+        <property name="ignorePattern" value="(^[ ]*\* .*\{@link .*$)|(^[ ]*(\*|\/\/) .*http(s)?:\/\/.*$)"/>
     </module>
 
     <module name="FileTabCharacter"/>
 
-    <module name="SuppressionFilter">
-        <property name="file" value="checkstyle/checkstyle-suppressions.xml"/>
-        <property name="optional" value="false"/>
+    <module name="SuppressionSingleFilter">
+        <property name="files"
+                  value=".+\.(?:txt|properties|xml)$"/>
+        <property name="checks" value=".*"/>
     </module>
 
     <module name="TreeWalker">
-        <!-- FunctionalInterfaces are excluded from the requirement that interfaces must start with "I" -->
-        <module name="SuppressionXpathSingleFilter">
-            <property name="files" value=".*\/functional\/.*\.java$"/>
-            <property name="checks" value="TypeName"/>
+        <module name="SuppressionXpathFilter">
+            <property name="file" value="checkstyle/checkstyle-suppressions.xml"/>
+            <property name="optional" value="false"/>
         </module>
+
+        <module name="SuppressionCommentFilter"/>
 
         <module name="SingleSpaceSeparator"/>
 
@@ -29,19 +35,20 @@
 
         <module name="GenericWhitespace"/>
 
-        <module name="AvoidStarImport"/>
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
 
         <module name="OneStatementPerLine"/>
 
         <module name="UnusedImports"/>
 
-        <!-- Disabled because it complains about Lombok's @Value -->
-        <!--        <module name="VisibilityModifier">-->
-        <!--            <property name="protectedAllowed" value="true"/>-->
-        <!--        </module>-->
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="true"/>
+        </module>
 
         <module name="PackageName">
-            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*([vR0-9_]*)$"/>
         </module>
 
         <module name="EmptyLineSeparator">
@@ -88,7 +95,7 @@
         </module>
 
         <module name="TypeName">
-            <property name="format" value="^[A-Z]([a-zA-Z0-9]+)*$"/>
+            <property name="format" value="^[A-Z]([a-zA-Z0-9]+)*([VR0-9_]*)$"/>
         </module>
 
         <module name="TypeName">
