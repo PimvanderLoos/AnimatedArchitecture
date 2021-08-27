@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -58,13 +57,13 @@ public final class DoorOpeningUtility
 
         if (!result.equals(DoorToggleResult.NO_PERMISSION))
         {
-            if (!cause.equals(DoorActionCause.PLAYER))
-                BigDoors.get().getPLogger()
-                        .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
-            else
+            if (cause.equals(DoorActionCause.PLAYER))
                 BigDoors.get().getMessagingInterface()
                         .messagePlayer(responsible, BigDoors.get().getLocalizer().getMessage(
                             result.getLocalizationKey(), door.getName()));
+            else
+                BigDoors.get().getPLogger()
+                        .warn("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
         }
         return result;
     }
@@ -153,7 +152,7 @@ public final class DoorOpeningUtility
 
     /**
      * Gets the number of blocks this door can move in the given direction. If set, it won't go further than {@link
-     * IDiscreteMovement#getBlocksToMove()}.
+     * nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement#getBlocksToMove()}.
      * <p>
      * TODO: This isn't used anywhere? Perhaps either centralize its usage or remove it.
      *
@@ -180,7 +179,11 @@ public final class DoorOpeningUtility
         if (startY < 0 || startY > 255)
             return 0;
 
-        int startX, startZ, endX, endY, endZ;
+        int startX;
+        int startZ;
+        int endX;
+        int endY;
+        int endZ;
         startX = vec.x() == 0 ? curMin.x() : vec.x() == 1 ? curMax.x() + 1 : curMin.x() - 1;
         startZ = vec.z() == 0 ? curMin.z() : vec.z() == 1 ? curMax.z() + 1 : curMin.z() - 1;
 

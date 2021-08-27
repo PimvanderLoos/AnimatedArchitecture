@@ -84,7 +84,7 @@ interface IPPlayerDataContainer
     default long getPermissionsFlag()
     {
         long ret = 0;
-        for (final PermissionFlag flag : PermissionFlag.getValues())
+        for (final PermissionFlag flag : PermissionFlag.getVALUES())
             ret = PermissionFlag.setFlag(this, ret, flag);
         return ret;
     }
@@ -99,7 +99,7 @@ interface IPPlayerDataContainer
         ;
 
         @Getter
-        private static final List<PermissionFlag> values = List.of(PermissionFlag.values());
+        private static final List<PermissionFlag> VALUES = List.of(PermissionFlag.values());
 
         private final int val;
         private final Function<IPPlayerDataContainer, Boolean> fun;

@@ -327,12 +327,12 @@ public enum PBlockFace
         if (pbf.equals(PBlockFace.NONE))
             return pbf;
         // Every 4 steps results in the same outcome.
-        steps = steps % 4;
-        if (steps == 0)
+        int realSteps = steps % 4;
+        if (realSteps == 0)
             return pbf;
 
         PBlockFace newFace = pbf;
-        while (steps-- > 0)
+        while (realSteps-- > 0)
             newFace = dir.apply(pbf);
         return newFace;
     }

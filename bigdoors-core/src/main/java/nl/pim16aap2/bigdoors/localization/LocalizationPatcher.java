@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
 
 /**
  * Represents a class that can be used to apply user-defined localization patches.
@@ -31,8 +30,8 @@ final class LocalizationPatcher
         throws IOException
     {
         // Ensure the base patch file exists.
-        ensureFileExists(directory.resolve(baseName + ".properties"));
-        patchFiles = getLocaleFilesInDirectory(directory, baseName);
+        LocalizationUtil.ensureFileExists(directory.resolve(baseName + ".properties"));
+        patchFiles = LocalizationUtil.getLocaleFilesInDirectory(directory, baseName);
     }
 
     /**
@@ -60,7 +59,7 @@ final class LocalizationPatcher
      */
     void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
-        final Set<String> patchKeys = getKeySet(localeFile.path());
+        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path());
         final Set<String> appendableKeys = new LinkedHashSet<>(rootKeys);
         appendableKeys.removeAll(patchKeys);
         appendKeys(localeFile, appendableKeys);
@@ -83,7 +82,7 @@ final class LocalizationPatcher
         appendableKeys.forEach(key -> sb.append(key).append("=\n"));
         try
         {
-            Files.write(localeFile.path(), sb.toString().getBytes(), StandardOpenOption.APPEND);
+            Files.writeString(localeFile.path(), sb.toString(), StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {
@@ -103,9 +102,9 @@ final class LocalizationPatcher
     Map<String, String> getPatches(LocaleFile localeFile)
     {
         final Map<String, String> ret = new LinkedHashMap<>();
-        readFile(localeFile.path(), line ->
+        LocalizationUtil.readFile(localeFile.path(), line ->
         {
-            final @Nullable String key = getKeyFromLine(line);
+            final @Nullable String key = LocalizationUtil.getKeyFromLine(line);
             if (isValidPatch(key, line))
                 ret.put(key, line);
         });

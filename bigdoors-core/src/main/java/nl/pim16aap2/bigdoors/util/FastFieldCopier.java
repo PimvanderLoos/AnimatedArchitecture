@@ -42,7 +42,7 @@ public abstract class FastFieldCopier<S, T>
         UNSAFE = unsafe;
     }
 
-    private FastFieldCopier()
+    protected FastFieldCopier()
     {
     }
 

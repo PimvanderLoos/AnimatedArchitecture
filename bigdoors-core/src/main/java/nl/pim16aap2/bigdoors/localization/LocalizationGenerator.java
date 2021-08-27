@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
-
 /**
  * Represents a class that can generate a localization file from multiple sources.
  * <p>
@@ -30,8 +28,6 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.*;
  */
 final class LocalizationGenerator implements ILocalizationGenerator
 {
-    private final Path outputDirectory;
-
     /**
      * The output .bundle (zip) that holds all the localization files.
      */
@@ -47,10 +43,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
      */
     LocalizationGenerator(Path outputDirectory, String outputBaseName)
     {
-        this.outputDirectory = outputDirectory;
         this.outputBaseName = outputBaseName;
-        outputFile = this.outputDirectory.resolve(this.outputBaseName + ".bundle");
-        ensureZipFileExists(outputFile);
+        outputFile = outputDirectory.resolve(this.outputBaseName + ".bundle");
+        LocalizationUtil.ensureZipFileExists(outputFile);
     }
 
     @Override
@@ -72,7 +67,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            final List<LocaleFile> localeFiles = getLocaleFilesInDirectory(directory, baseName);
+            final List<LocaleFile> localeFiles = LocalizationUtil.getLocaleFilesInDirectory(directory, baseName);
             for (final LocaleFile localeFile : localeFiles)
                 mergeWithExistingLocaleFile(outputFileSystem, localeFile);
         }
@@ -85,14 +80,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
 
     void addResourcesFromZip(Path jarFile, @Nullable String baseName)
     {
-        try (FileSystem zipFileSystem = createNewFileSystem(jarFile);
-             final FileSystem outputFileSystem = getOutputFileFileSystem())
+        try (FileSystem zipFileSystem = LocalizationUtil.createNewFileSystem(jarFile);
+             FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             List<String> fileNames = Util.getLocaleFilesInJar(jarFile);
             if (baseName != null)
                 fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
-            final List<LocaleFile> localeFiles = getLocaleFiles(zipFileSystem, fileNames);
+            final List<LocaleFile> localeFiles = LocalizationUtil.getLocaleFiles(zipFileSystem, fileNames);
             for (final LocaleFile localeFile : localeFiles)
                 try (InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
                 {
@@ -114,8 +109,9 @@ final class LocalizationGenerator implements ILocalizationGenerator
     {
         try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
-            final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, ""));
-            ensureFileExists(existingLocaleFile);
+            final Path existingLocaleFile =
+                outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, ""));
+            LocalizationUtil.ensureFileExists(existingLocaleFile);
             return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
@@ -163,14 +159,15 @@ final class LocalizationGenerator implements ILocalizationGenerator
         try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             final Path existingLocaleFile =
-                ensureFileExists(outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, localeSuffix)));
+                outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, localeSuffix));
+            LocalizationUtil.ensureFileExists(existingLocaleFile);
 
-            final List<String> lines = readFile(Files.newInputStream(existingLocaleFile));
+            final List<String> lines = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
             mergeWithPatches(lines, patches);
 
             final StringBuilder sb = new StringBuilder();
-            lines.forEach(line -> sb.append(line).append("\n"));
-            Files.write(existingLocaleFile, sb.toString().getBytes());
+            lines.forEach(line -> sb.append(line).append('\n'));
+            Files.writeString(existingLocaleFile, sb.toString());
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
@@ -195,7 +192,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         final Set<String> usedPatches = new HashSet<>(patches.size());
         for (int idx = 0; idx < lines.size(); ++idx)
         {
-            final @Nullable String key = getKeyFromLine(lines.get(idx));
+            final @Nullable String key = LocalizationUtil.getKeyFromLine(lines.get(idx));
             if (key == null)
                 continue;
             final @Nullable String newLine = patches.get(key);
@@ -224,15 +221,15 @@ final class LocalizationGenerator implements ILocalizationGenerator
     private FileSystem getOutputFileFileSystem()
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
-        ensureZipFileExists(outputFile);
-        return createNewFileSystem(outputFile);
+        LocalizationUtil.ensureZipFileExists(outputFile);
+        return LocalizationUtil.createNewFileSystem(outputFile);
     }
 
     /**
      * Appends new keys from a locale file into the existing locale file.
      * <p>
-     * The existing locale file is derived from {@link LocaleFile#path()} of the input locale file, {@link
-     * #outputDirectory}, and {@link #outputBaseName}.
+     * The existing locale file is derived from {@link LocaleFile#path()} of the input locale file, the provided output
+     * directory, and {@link #outputBaseName}.
      * <p>
      * If the output file does not exist yet, a new file will be created.
      *
@@ -248,13 +245,14 @@ final class LocalizationGenerator implements ILocalizationGenerator
     void mergeWithExistingLocaleFile(FileSystem outputFileSystem, InputStream inputStream, String locale)
         throws IOException
     {
-        final Path existingLocaleFile = outputFileSystem.getPath(getOutputLocaleFileName(outputBaseName, locale));
-        ensureFileExists(existingLocaleFile);
-        ensureFileExists(outputFile);
-        final List<String> existing = readFile(Files.newInputStream(existingLocaleFile));
-        final List<String> newlines = readFile(inputStream);
-        final List<String> appendable = getAppendable(existing, newlines);
-        appendToFile(existingLocaleFile, appendable);
+        final Path existingLocaleFile =
+            outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, locale));
+        LocalizationUtil.ensureFileExists(existingLocaleFile);
+        LocalizationUtil.ensureFileExists(outputFile);
+        final List<String> existing = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
+        final List<String> newlines = LocalizationUtil.readFile(inputStream);
+        final List<String> appendable = LocalizationUtil.getAppendable(existing, newlines);
+        LocalizationUtil.appendToFile(existingLocaleFile, appendable);
     }
 
     /**

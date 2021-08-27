@@ -29,19 +29,19 @@ public class DebugReporterSpigot extends DebugReporter
     public String getDump()
     {
         final StringBuilder sb = new StringBuilder(super.getDump());
-        sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append("\n");
-        sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append("\n");
+        sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append('\n');
+        sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n');
 
         sb.append("Registered door types: ")
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
-          .append("\n");
+          .append('\n');
 
         sb.append("Enabled door types:    ")
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
-          .append("\n");
+          .append('\n');
 
         final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-        sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append("\n");
+        sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append('\n');
 
         // TODO: Implement this:
 //        sb.append("Enabled protection hooks: ")
@@ -52,7 +52,7 @@ public class DebugReporterSpigot extends DebugReporter
                          DoorPrepareLockChangeEvent.class, DoorPrepareRemoveOwnerEvent.class, DoorCreatedEvent.class,
                          DoorEventToggleEnd.class, DoorEventTogglePrepare.class, DoorEventToggleStart.class));
 
-        sb.append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append("\n");
+        sb.append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n');
 
         return sb.toString();
     }
@@ -64,7 +64,7 @@ public class DebugReporterSpigot extends DebugReporter
         {
             if (!(BigDoorsSpigotEvent.class.isAssignableFrom(clz)))
             {
-                sb.append("ERROR: ").append(clz.getName()).append("\n");
+                sb.append("ERROR: ").append(clz.getName()).append('\n');
                 continue;
             }
             try
@@ -75,13 +75,13 @@ public class DebugReporterSpigot extends DebugReporter
                 sb.append("    ").append(clz.getSimpleName()).append(": ")
                   .append(Util.toString(handlers.getRegisteredListeners(),
                                         DebugReporterSpigot::formatRegisteredListener))
-                  .append("\n");
+                  .append('\n');
             }
             catch (Exception e)
             {
                 BigDoors.get().getPLogger()
                         .logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
-                sb.append("ERROR: ").append(clz.getName()).append("\n");
+                sb.append("ERROR: ").append(clz.getName()).append('\n');
             }
         }
 

@@ -56,8 +56,12 @@ public abstract class BlockMover implements IRestartable
     protected RotateDirection openDirection;
     @ToString.Exclude
     protected List<PBlockData> savedBlocks;
-    protected int xMin, xMax, yMin;
-    protected int yMax, zMin, zMax;
+    protected int xMin;
+    protected int yMin;
+    protected int zMin;
+    protected int xMax;
+    protected int yMax;
+    protected int zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
@@ -343,7 +347,7 @@ public abstract class BlockMover implements IRestartable
                 // After about 12620 ticks, the blocks will disappear.
                 // Respawning them before this happens, fixes the issue.
                 // TODO: Check if just resetting the tick value of the blocks works as well.
-                if (counter % 12500 == 0)
+                if (counter % 12_500 == 0)
                     respawnBlocks();
 
                 if (counter > endCount)

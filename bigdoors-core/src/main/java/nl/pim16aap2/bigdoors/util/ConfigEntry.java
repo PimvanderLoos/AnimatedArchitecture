@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +65,7 @@ public final class ConfigEntry<V>
      *     The comment that will precede this option.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable [] comment)
+                       String @Nullable ... comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
     }
@@ -107,7 +108,7 @@ public final class ConfigEntry<V>
      */
     public String @Nullable [] getComment()
     {
-        return comment;
+        return comment == null ? null : Arrays.copyOf(comment, comment.length);
     }
 
     /**
@@ -125,18 +126,18 @@ public final class ConfigEntry<V>
         if (comment != null)
             for (final String comLine : comment)
                 // Prefix every line by a comment-sign (#).
-                sb.append("# ").append(comLine).append("\n");
+                sb.append("# ").append(comLine).append('\n');
 
         sb.append(optionName).append(": ");
         if (value.getClass().isAssignableFrom(String.class))
-            sb.append("'").append(value).append("'");
+            sb.append('\'').append(value).append('\'');
         else if (value instanceof List<?>)
         {
-            sb.append("\n");
+            sb.append('\n');
             final int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
                 // Don't print newline at the end
-                sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");
+                sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : '\n');
         }
         else
             sb.append(value);

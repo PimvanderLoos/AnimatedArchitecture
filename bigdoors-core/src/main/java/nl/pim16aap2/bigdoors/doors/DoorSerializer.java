@@ -167,7 +167,7 @@ public class DoorSerializer<T extends AbstractDoor>
         throws Exception
     {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
         {
             objectOutputStream.writeObject(serializable);
             return byteArrayOutputStream.toByteArray();
@@ -225,7 +225,7 @@ public class DoorSerializer<T extends AbstractDoor>
     private @Nullable T instantiate(DoorBase doorBase)
         throws IllegalAccessException, InstantiationException, InvocationTargetException
     {
-        return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
+        return ctor == null ? instantiateUnsafe(doorBase) : instantiateReflection(doorBase, ctor);
     }
 
     private T instantiateReflection(DoorBase doorBase, Constructor<T> ctor)
@@ -282,7 +282,7 @@ public class DoorSerializer<T extends AbstractDoor>
                 BigDoors.get().getPLogger().logThrowable(e);
                 value = "ERROR";
             }
-            sb.append(field.getName()).append(": ").append(value).append("\n");
+            sb.append(field.getName()).append(": ").append(value).append('\n');
         }
         return sb.toString();
     }
@@ -290,11 +290,11 @@ public class DoorSerializer<T extends AbstractDoor>
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append("\n");
+        final StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append('\n');
         for (final Field field : fields)
             sb.append("Type: ").append(field.getType().getName())
               .append(", name: ").append(field.getName())
-              .append("\n");
+              .append('\n');
         return sb.toString();
     }
 }

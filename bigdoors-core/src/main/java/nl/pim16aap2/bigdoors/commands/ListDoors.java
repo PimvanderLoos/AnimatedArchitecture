@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -73,9 +72,9 @@ public class ListDoors extends BaseCommand
         }
 
         final StringBuilder sb = new StringBuilder(
-            BigDoors.get().getLocalizer().getMessage("commands.list_doors.door_list_header")).append("\n");
+            BigDoors.get().getLocalizer().getMessage("commands.list_doors.door_list_header")).append('\n');
         for (final var door : doors)
-            sb.append("  ").append(door.getBasicInfo()).append("\n");
+            sb.append("  ").append(door.getBasicInfo()).append('\n');
         getCommandSender().sendMessage(sb.toString());
     }
 }

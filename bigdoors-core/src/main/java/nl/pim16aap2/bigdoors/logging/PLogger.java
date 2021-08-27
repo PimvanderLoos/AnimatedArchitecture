@@ -4,11 +4,11 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -230,10 +230,11 @@ public final class PLogger implements IPLogger
      */
     private void writeToLog(String msg)
     {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true)))
+        try
         {
-            bw.write("[" + IPLogger.dateFormat.format(new Date()) + "] " + msg);
-            bw.flush();
+            Files.writeString(logFile.toPath(),
+                              "[" + IPLogger.DATE_TIME_FORMATTER.format(LocalDate.now()) + "] " + msg,
+                              StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {

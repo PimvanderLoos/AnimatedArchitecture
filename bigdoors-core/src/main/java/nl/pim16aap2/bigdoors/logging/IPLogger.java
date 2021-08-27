@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.logging;
 
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
@@ -11,7 +11,7 @@ public interface IPLogger
     /**
      * The format of the date to be used when writing to the log file.
      */
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+    DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     /**
      * Formats the name properly for logging purposes. For example: '[BigDoors]'

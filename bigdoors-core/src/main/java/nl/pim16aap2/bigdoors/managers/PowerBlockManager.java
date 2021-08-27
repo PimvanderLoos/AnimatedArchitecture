@@ -359,7 +359,7 @@ public final class PowerBlockManager extends Restartable
          */
         private boolean isPowerBlockChunk()
         {
-            return powerBlocks.size() > 0;
+            return !powerBlocks.isEmpty();
         }
     }
 }

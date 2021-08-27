@@ -193,9 +193,9 @@ public abstract class BaseCommand
         {
             return executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            throw new RuntimeException("Encountered issue running command: " + this, t);
+            throw new RuntimeException("Encountered issue running command: " + this, e);
         }
     }
 

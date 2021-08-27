@@ -79,10 +79,10 @@ public final class LocalizationUtil
             return;
 
         final StringBuilder sb = new StringBuilder();
-        append.forEach(line -> sb.append(line).append("\n"));
+        append.forEach(line -> sb.append(line).append('\n'));
         try
         {
-            Files.write(path, sb.toString().getBytes(), StandardOpenOption.APPEND);
+            Files.writeString(path, sb.toString(), StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {

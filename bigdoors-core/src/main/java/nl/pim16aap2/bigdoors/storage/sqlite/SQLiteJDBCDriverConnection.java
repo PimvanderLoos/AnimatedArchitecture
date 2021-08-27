@@ -214,6 +214,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Initializes the database. I.e. create all the required files/tables.
      */
+//    @SuppressWarnings("PMD.ConfusingTernary")
     private void init()
     {
         if (!dbFile.exists())
@@ -255,7 +256,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
             // Check if the doors table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (!conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
+                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
+            else
             {
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructPPreparedStatement());
@@ -269,8 +272,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
             }
-            else
-                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
+
         }
         catch (SQLException | NullPointerException e)
         {
@@ -960,7 +962,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private void upgradeToV11(Connection conn)
     {
         try (PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-             final ResultSet rs1 = ps1.executeQuery())
+             ResultSet rs1 = ps1.executeQuery())
         {
             BigDoors.get().getPLogger().warn("Upgrading database to V11!");
 
@@ -1183,7 +1185,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         logStatement(pPreparedStatement);
         try (PreparedStatement ps = pPreparedStatement.construct(conn);
-             final ResultSet rs = ps.executeQuery())
+             ResultSet rs = ps.executeQuery())
         {
             return fun.apply(rs);
         }

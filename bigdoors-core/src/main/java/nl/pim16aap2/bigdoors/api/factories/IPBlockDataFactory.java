@@ -41,7 +41,7 @@ public interface IPBlockDataFactory
     {
         // Move the lowest blocks up a little, so the client won't predict they're
         // touching through the ground, which would make them slower than the rest.
-        final double offset = bottom ? .010001 : 0;
+        final double offset = bottom ? 0.010_001 : 0;
         return BigDoors.get().getPlatform().getPLocationFactory()
                        .create(loc.getWorld(),
                                loc.getBlockX() + 0.5,

@@ -77,9 +77,9 @@ public abstract class DoorTargetCommand extends BaseCommand
         {
             return performAction(door.get()).get(30, TimeUnit.MINUTES);
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            throw new RuntimeException(t);
+            throw new RuntimeException(e);
         }
     }
 

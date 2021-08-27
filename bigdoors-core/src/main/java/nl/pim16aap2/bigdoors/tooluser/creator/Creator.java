@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -28,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -381,7 +381,7 @@ public abstract class Creator extends ToolUser
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
     protected Optional<RotateDirection> parseOpenDirection(String str)
     {
-        final String openDirName = str.toUpperCase();
+        final String openDirName = str.toUpperCase(Locale.ENGLISH);
         final OptionalInt idOpt = Util.parseInt(str);
 
         final List<RotateDirection> validOpenDirs = getValidOpenDirections();
@@ -503,7 +503,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the price of the door based on its volume. If the door is free because the price is <= 0 or the {@link
-     * IEconomyManager} is disabled, the price will be empty.
+     * nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
      *
      * @return The price of the door if a positive price could be found.
      */
@@ -542,7 +542,7 @@ public abstract class Creator extends ToolUser
         int idx = 0;
         for (final RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")
-              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append("\n");
+              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append('\n');
         return sb.toString();
     }
 

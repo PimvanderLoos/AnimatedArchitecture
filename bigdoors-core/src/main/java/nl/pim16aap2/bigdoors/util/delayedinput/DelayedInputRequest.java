@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T>
  *     The type of data to request.
  */
-public abstract class DelayedInputRequest<T>
+public class DelayedInputRequest<T>
 {
     private final AtomicBoolean timedOut = new AtomicBoolean(false);
     private final AtomicBoolean exceptionally = new AtomicBoolean(false);
@@ -101,10 +101,10 @@ public abstract class DelayedInputRequest<T>
                     {
                         return Optional.<T>empty();
                     }
-                    catch (Exception t)
+                    catch (Exception e)
                     {
                         exceptionally.set(true);
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(e);
                     }
                 })
             .thenApply(

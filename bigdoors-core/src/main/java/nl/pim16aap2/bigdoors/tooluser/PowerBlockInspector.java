@@ -23,6 +23,7 @@ public class PowerBlockInspector extends ToolUser
      * <p>
      * When this is true, the user does not have to be an owner of the door to retrieve its location.
      */
+    @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
     private final boolean bypassPermission;
 
     public PowerBlockInspector(IPPlayer player, boolean bypassPermission)

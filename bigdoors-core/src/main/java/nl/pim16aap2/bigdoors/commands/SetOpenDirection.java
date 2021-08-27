@@ -149,7 +149,7 @@ public class SetOpenDirection extends DoorTargetCommand
             return localizer.getMessage("commands.set_open_direction.init");
 
         final var sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed_init_header"))
-            .append("\n");
+            .append('\n');
 
         final var futureDoor = doorRetriever.getDoor();
         if (!futureDoor.isDone())

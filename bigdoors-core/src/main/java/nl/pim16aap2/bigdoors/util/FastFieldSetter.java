@@ -39,7 +39,7 @@ public abstract class FastFieldSetter<T, U>
         UNSAFE = unsafe;
     }
 
-    private FastFieldSetter()
+    protected FastFieldSetter()
     {
     }
 

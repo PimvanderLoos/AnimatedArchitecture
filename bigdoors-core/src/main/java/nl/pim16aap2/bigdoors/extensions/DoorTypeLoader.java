@@ -9,8 +9,8 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,8 +73,9 @@ public final class DoorTypeLoader extends Restartable
         final String className;
         @Nullable String dependencies;
         final int version;
-        try (FileInputStream fileInputStream = new FileInputStream(file);
-             final JarInputStream jarStream = new JarInputStream(fileInputStream))
+
+        try (InputStream fileInputStream = Files.newInputStream(file.toPath());
+             JarInputStream jarStream = new JarInputStream(fileInputStream))
         {
             final Manifest manifest = jarStream.getManifest();
             className = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
@@ -86,7 +87,7 @@ public final class DoorTypeLoader extends Restartable
             }
 
             final @Nullable Attributes typeNameSection = manifest.getEntries().get("TypeName");
-            typeName = typeNameSection != null ? typeNameSection.getValue("TypeName") : null;
+            typeName = typeNameSection == null ? null : typeNameSection.getValue("TypeName");
             if (typeName == null)
             {
                 BigDoors.get().getPLogger().logThrowable(
@@ -106,7 +107,7 @@ public final class DoorTypeLoader extends Restartable
             version = versionOpt.getAsInt();
 
             final @Nullable Attributes dependencySection = manifest.getEntries().get("TypeDependencies");
-            dependencies = dependencySection != null ? dependencySection.getValue("TypeDependencies") : null;
+            dependencies = dependencySection == null ? null : dependencySection.getValue("TypeDependencies");
             // When no dependencies are provided, we don't get a null reference, but a "null" string instead.
             dependencies = "null".equals(dependencies) ? null : dependencies;
         }

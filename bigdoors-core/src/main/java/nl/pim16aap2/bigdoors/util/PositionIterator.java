@@ -20,7 +20,9 @@ public class PositionIterator implements Iterable<Vector3Di>
     private final Vector3Di posA;
     private final Vector3Di posB;
     private final IterationMode iterationMode;
-    private final int dx, dy, dz;
+    private final int dx;
+    private final int dy;
+    private final int dz;
     private final int volume;
 
     /**
@@ -110,9 +112,14 @@ public class PositionIterator implements Iterable<Vector3Di>
      */
     private class CustomIterator implements Iterator<Vector3Di>
     {
-        private int x, y, z;
-        private final Supplier<Boolean> outerLoop, middleLoop, innerLoop;
-        private final Runnable resetMiddleLoop, resetInnerLoop;
+        private int x;
+        private int y;
+        private int z;
+        private final Supplier<Boolean> outerLoop;
+        private final Supplier<Boolean> middleLoop;
+        private final Supplier<Boolean> innerLoop;
+        private final Runnable resetInnerLoop;
+        private final Runnable resetMiddleLoop;
         private int currentIndex = 0;
 
         private CustomIterator(PositionIterator locationIterator)
@@ -287,17 +294,17 @@ public class PositionIterator implements Iterable<Vector3Di>
      */
     public enum IterationMode
     {
-        XYZ(new Axis[]{Axis.X, Axis.Y, Axis.Z}),
-        XZY(new Axis[]{Axis.X, Axis.Z, Axis.Y}),
-        YXZ(new Axis[]{Axis.Y, Axis.X, Axis.Z}),
-        YZX(new Axis[]{Axis.Y, Axis.Z, Axis.X}),
-        ZXY(new Axis[]{Axis.Z, Axis.X, Axis.Y}),
-        ZYX(new Axis[]{Axis.Z, Axis.Y, Axis.X}),
+        XYZ(Axis.X, Axis.Y, Axis.Z),
+        XZY(Axis.X, Axis.Z, Axis.Y),
+        YXZ(Axis.Y, Axis.X, Axis.Z),
+        YZX(Axis.Y, Axis.Z, Axis.X),
+        ZXY(Axis.Z, Axis.X, Axis.Y),
+        ZYX(Axis.Z, Axis.Y, Axis.X),
         ;
 
         private final Axis[] order;
 
-        IterationMode(Axis[] order)
+        IterationMode(Axis... order)
         {
             this.order = order;
         }

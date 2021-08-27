@@ -49,8 +49,6 @@
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedprivatefield -->
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedprivatemethod -->
-    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usecollectionisempty -->
     <rule ref="category/java/bestpractices.xml/UseCollectionIsEmpty"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usestandardcharsets -->
@@ -89,8 +87,6 @@
     <rule ref="category/java/codestyle.xml/LocalVariableCouldBeFinal"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#nopackage -->
     <rule ref="category/java/codestyle.xml/NoPackage"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#prematuredeclaration -->
-    <rule ref="category/java/codestyle.xml/PrematureDeclaration"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessarycast -->
     <rule ref="category/java/codestyle.xml/UnnecessaryCast"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#unnecessaryconstructor -->
@@ -129,8 +125,6 @@
     <rule ref="category/java/design.xml/LogicInversion"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#mutablestaticstate -->
     <rule ref="category/java/design.xml/MutableStaticState"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#npathcomplexity -->
-    <rule ref="category/java/design.xml/NPathComplexity"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanexpressions -->
     <rule ref="category/java/design.xml/SimplifyBooleanExpressions"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#simplifybooleanreturns -->
