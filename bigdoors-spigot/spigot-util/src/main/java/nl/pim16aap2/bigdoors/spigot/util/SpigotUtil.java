@@ -22,8 +22,8 @@ import java.util.Map;
  */
 public final class SpigotUtil
 {
-    private static final Map<PBlockFace, BlockFace> toBlockFace = new EnumMap<>(PBlockFace.class);
-    private static final Map<BlockFace, PBlockFace> toPBlockFace = new EnumMap<>(BlockFace.class);
+    private static final Map<PBlockFace, BlockFace> TO_BLOCK_FACE = new EnumMap<>(PBlockFace.class);
+    private static final Map<BlockFace, PBlockFace> TO_PBLOCK_FACE = new EnumMap<>(BlockFace.class);
     @Getter
     @Setter
     private static boolean printDebugMessages = false;
@@ -37,17 +37,22 @@ public final class SpigotUtil
                 mappedBlockFace = BlockFace.SELF;
             else
                 mappedBlockFace = BlockFace.valueOf(pbf.toString());
-            toBlockFace.put(pbf, mappedBlockFace);
-            toPBlockFace.put(mappedBlockFace, pbf);
+            TO_BLOCK_FACE.put(pbf, mappedBlockFace);
+            TO_PBLOCK_FACE.put(mappedBlockFace, pbf);
         }
     }
 
-    private static final Map<PColor, ChatColor> toBukkitColor = new EnumMap<>(PColor.class);
+    private static final Map<PColor, ChatColor> TO_BUKKIT_COLOR = new EnumMap<>(PColor.class);
 
     static
     {
         for (final PColor pColor : PColor.values())
-            toBukkitColor.put(pColor, ChatColor.valueOf(pColor.name()));
+            TO_BUKKIT_COLOR.put(pColor, ChatColor.valueOf(pColor.name()));
+    }
+
+    private SpigotUtil()
+    {
+        // Utility class
     }
 
     /**
@@ -59,7 +64,7 @@ public final class SpigotUtil
      */
     public static ChatColor toBukkitColor(PColor pColor)
     {
-        return toBukkitColor.getOrDefault(pColor, ChatColor.WHITE);
+        return TO_BUKKIT_COLOR.getOrDefault(pColor, ChatColor.WHITE);
     }
 
     /**
@@ -86,7 +91,7 @@ public final class SpigotUtil
      */
     public static BlockFace getBukkitFace(PBlockFace mbf)
     {
-        final BlockFace ret = toBlockFace.get(mbf);
+        final BlockFace ret = TO_BLOCK_FACE.get(mbf);
         if (ret != null)
             return ret;
 
@@ -105,7 +110,7 @@ public final class SpigotUtil
      */
     public static PBlockFace getPBlockFace(BlockFace bf)
     {
-        final PBlockFace ret = toPBlockFace.get(bf);
+        final PBlockFace ret = TO_PBLOCK_FACE.get(bf);
         if (ret != null)
             return ret;
 

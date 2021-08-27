@@ -39,8 +39,6 @@
     <rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#replacehashtablewithmap -->
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#replacevectorwithlist -->
-    <rule ref="category/java/bestpractices.xml/ReplaceVectorWithList"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedformalparameter -->
     <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#simplifiabletestassertion -->

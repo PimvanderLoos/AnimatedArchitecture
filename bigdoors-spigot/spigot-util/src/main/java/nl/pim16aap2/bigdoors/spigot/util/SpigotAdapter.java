@@ -22,6 +22,11 @@ import java.util.concurrent.CompletableFuture;
 
 public final class SpigotAdapter
 {
+    private SpigotAdapter()
+    {
+        // Utility class
+    }
+
     /**
      * Converts an {@link IPWorld} object to a {@link World} object.
      * <p>

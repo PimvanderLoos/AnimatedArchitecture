@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
 import lombok.experimental.Delegate;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -90,21 +89,6 @@ public final class OfflinePPlayerSpigot implements IPPlayer
     public int hashCode()
     {
         return getUUID().hashCode();
-    }
-
-    @Override
-    public OfflinePPlayerSpigot clone()
-    {
-        try
-        {
-            return (OfflinePPlayerSpigot) super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            final Error er = new Error(e);
-            BigDoors.get().getPLogger().logThrowableSilently(er);
-            throw er;
-        }
     }
 
     @Override
