@@ -208,6 +208,7 @@ public abstract class ToolUser implements IRestartable
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
+    @SuppressWarnings("PMD.PrematureDeclaration")
     public boolean handleInput(@Nullable Object obj)
     {
         BigDoors.get().getPLogger().debug(

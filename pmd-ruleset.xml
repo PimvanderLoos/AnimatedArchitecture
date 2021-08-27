@@ -159,8 +159,6 @@
     <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingTypeName"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidinstanceofchecksincatchclause -->
     <rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidliteralsinifcondition -->
-    <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidlosingexceptioninformation -->
     <rule ref="category/java/errorprone.xml/AvoidLosingExceptionInformation"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidmultipleunaryoperators -->
