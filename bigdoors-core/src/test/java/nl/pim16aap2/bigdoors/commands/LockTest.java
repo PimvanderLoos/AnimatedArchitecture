@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -48,7 +47,7 @@ class LockTest
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
-        val factory = Mockito.mock(IBigDoorsEventFactory.class);
+        final var factory = Mockito.mock(IBigDoorsEventFactory.class);
         Mockito.when(factory.createDoorPrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                .thenReturn(event);
         Mockito.when(platform.getBigDoorsEventFactory()).thenReturn(factory);

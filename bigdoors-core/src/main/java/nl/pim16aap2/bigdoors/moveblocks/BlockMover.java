@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -174,7 +173,7 @@ public abstract class BlockMover implements IRestartable
 
         try
         {
-            val fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
+            final var fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
             blockData.getFBlock().remove();
             blockData.setFBlock(fBlock);
 
@@ -197,7 +196,7 @@ public abstract class BlockMover implements IRestartable
         ListIterator<PBlockData> iter = savedBlocks.listIterator();
         while (iter.hasNext())
         {
-            val blockData = iter.next();
+            final var blockData = iter.next();
             final INMSBlock newBlock = blockData.getBlock();
             newBlock.rotateBlock(openDirection);
             if (!respawnBlock(blockData, newBlock))

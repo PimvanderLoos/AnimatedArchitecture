@@ -76,7 +76,7 @@ public final class Util
 
     static
     {
-        for (val pbf : PBlockFace.values())
+        for (final var pbf : PBlockFace.values())
         {
             RotateDirection mappedRotDir;
             try
@@ -121,7 +121,7 @@ public final class Util
             @Nullable ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null)
             {
-                val name = entry.getName();
+                final var name = entry.getName();
                 if (LOCALE_FILE_PATTERN.matcher(name).matches())
                     ret.add(name);
             }
@@ -723,11 +723,11 @@ public final class Util
     @SuppressWarnings("NullAway")
     public static <T> String toString(Collection<@Nullable T> entries, Function<T, String> mapper)
     {
-        StringBuilder builder = new StringBuilder("[");
+        final StringBuilder builder = new StringBuilder("[");
         for (@Nullable final T obj : entries)
             builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
 
-        String result = builder.toString();
+        final String result = builder.toString();
         final int len = result.length();
 
         // If 1 or more entries exist, the output will end with ', ', so remove the last 2 characters in that case.

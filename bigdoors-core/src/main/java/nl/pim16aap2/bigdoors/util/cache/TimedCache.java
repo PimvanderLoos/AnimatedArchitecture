@@ -25,7 +25,6 @@
 package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Builder;
-import lombok.val;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -241,7 +240,7 @@ public class TimedCache<K, V>
         {
             if (timedValue == null || timedValue.timedOut())
                 return null;
-            @Nullable val value = timedValue.getValue(refresh);
+            final @Nullable var value = timedValue.getValue(refresh);
             return createTimedValue(remappingFunction, k, value);
         })).map(entry -> entry.getValue(refresh));
     }
@@ -293,7 +292,7 @@ public class TimedCache<K, V>
         if (entry == null)
             return Optional.empty();
 
-        @Nullable val value = entry.getValue(refresh);
+        final @Nullable var value = entry.getValue(refresh);
         if (value == null)
         {
             cache.remove(key);
@@ -398,7 +397,7 @@ public class TimedCache<K, V>
      */
     protected void cleanupCache()
     {
-        for (Map.Entry<K, AbstractTimedValue<V>> entry : cache.entrySet())
+        for (final Map.Entry<K, AbstractTimedValue<V>> entry : cache.entrySet())
             if (entry.getValue().canBeEvicted())
                 cache.remove(entry.getKey());
     }
@@ -417,8 +416,8 @@ public class TimedCache<K, V>
         if (period < 1)
             return;
 
-        val taskTimer = new Timer(true);
-        val verifyTask = new TimerTask()
+        final var taskTimer = new Timer(true);
+        final var verifyTask = new TimerTask()
         {
             @Override
             public void run()

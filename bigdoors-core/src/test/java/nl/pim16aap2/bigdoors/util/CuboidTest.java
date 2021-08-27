@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
@@ -146,9 +145,9 @@ class CuboidTest
     @Test
     void testIsInRange()
     {
-        val val1 = new Vector3Di(-10, 0, 10);
-        val val2 = new Vector3Di(20, 30, 40);
-        val cuboid = new Cuboid(val1, val2);
+        final var val1 = new Vector3Di(-10, 0, 10);
+        final var val2 = new Vector3Di(20, 30, 40);
+        final var cuboid = new Cuboid(val1, val2);
 
         //noinspection ResultOfMethodCallIgnored
         Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));

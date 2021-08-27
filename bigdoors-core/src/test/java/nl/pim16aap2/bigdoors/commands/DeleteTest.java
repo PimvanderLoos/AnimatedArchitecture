@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -38,7 +37,7 @@ class DeleteTest
     @BeforeEach
     void init()
     {
-        val platform = UnitTestUtil.initPlatform();
+        final var platform = UnitTestUtil.initPlatform();
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
@@ -55,7 +54,7 @@ class DeleteTest
     @SneakyThrows
     void testServer()
     {
-        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(Delete.run(server, doorRetriever).get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager).deleteDoor(door, null);
     }

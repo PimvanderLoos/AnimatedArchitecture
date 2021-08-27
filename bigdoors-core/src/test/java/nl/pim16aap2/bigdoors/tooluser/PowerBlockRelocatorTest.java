@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -42,7 +41,7 @@ class PowerBlockRelocatorTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(door.getWorld()).thenReturn(world);
@@ -62,7 +61,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocWorld()
     {
-        val relocator = new PowerBlockRelocator(player, door);
+        final var relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
@@ -75,7 +74,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocDuplicated()
     {
-        val relocator = new PowerBlockRelocator(player, door);
+        final var relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
 
@@ -89,9 +88,9 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocNoAccess()
     {
-        val relocator = new PowerBlockRelocator(player, door);
+        final var relocator = new PowerBlockRelocator(player, door);
 
-        val compat = "TestCompat";
+        final var compat = "TestCompat";
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
 
         Mockito.when(location.getWorld()).thenReturn(world);
@@ -103,7 +102,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecution()
     {
-        val relocator = new PowerBlockRelocator(player, door);
+        final var relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
@@ -116,7 +115,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecutionUnchanged()
     {
-        val relocator = new PowerBlockRelocator(player, door);
+        final var relocator = new PowerBlockRelocator(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);

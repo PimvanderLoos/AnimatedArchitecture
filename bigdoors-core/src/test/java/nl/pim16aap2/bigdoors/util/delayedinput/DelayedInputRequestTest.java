@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,9 +20,9 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testTimeout()
     {
-        val request = new DelayedInputRequestImpl(100);
-        val output = request.getInputResult();
-        val result = output.get(1000, TimeUnit.MILLISECONDS);
+        final var request = new DelayedInputRequestImpl(100);
+        final var output = request.getInputResult();
+        final var result = output.get(1000, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.timedOut());
         Assertions.assertTrue(result.isEmpty());
@@ -36,13 +35,13 @@ class DelayedInputRequestTest
         final String firstInput = Util.randomInsecureString(10);
         final String secondInput = Util.randomInsecureString(10);
 
-        val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
-        val output = request.getInputResult();
+        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final var output = request.getInputResult();
 
         request.set(firstInput);
         request.set(secondInput);
 
-        val result = output.get(100, TimeUnit.MILLISECONDS);
+        final var result = output.get(100, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.success());
         Assertions.assertTrue(result.isPresent());
@@ -59,12 +58,12 @@ class DelayedInputRequestTest
     {
         final String inputString = Util.randomInsecureString(10);
 
-        val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
-        val output = request.getInputResult();
+        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final var output = request.getInputResult();
 
         request.set(inputString);
 
-        val result = output.get(100, TimeUnit.MILLISECONDS);
+        final var result = output.get(100, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.success());
         Assertions.assertTrue(result.isPresent());
@@ -75,7 +74,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusCancelled()
     {
-        val request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.WAITING, request.getStatus());
         Assertions.assertFalse(request.success());
         Assertions.assertFalse(request.cancelled());
@@ -96,7 +95,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusTimedOut()
     {
-        val request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
+        final var request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
         request.getInputResult().get(1, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.TIMED_OUT, request.getStatus());
         Assertions.assertFalse(request.success());
@@ -110,7 +109,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusSuccess()
     {
-        val request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
+        final var request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
         request.set("VALUE");
         request.getInputResult().get(1, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.COMPLETED, request.getStatus());
@@ -125,12 +124,11 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusException()
     {
-        val f = DelayedInputRequest.class.getDeclaredField("input");
+        final var f = DelayedInputRequest.class.getDeclaredField("input");
         f.setAccessible(true);
-        val request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
+        final var request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
 
-        @SuppressWarnings("unchecked")
-        val input = (CompletableFuture<String>) f.get(request);
+        @SuppressWarnings("unchecked") final var input = (CompletableFuture<String>) f.get(request);
 
         input.completeExceptionally(new RuntimeException("ExceptionTest!"));
 

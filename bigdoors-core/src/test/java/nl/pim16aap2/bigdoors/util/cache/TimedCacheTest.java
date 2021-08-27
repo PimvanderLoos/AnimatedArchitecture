@@ -25,7 +25,6 @@
 package nl.pim16aap2.bigdoors.util.cache;
 
 import lombok.Setter;
-import lombok.val;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -134,7 +133,7 @@ class TimedCacheTest
     @Test
     void testSoftReference()
     {
-        val longDuration = Duration.ofHours(100);
+        final var longDuration = Duration.ofHours(100);
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new TimedCache<>(clock, Duration.ZERO, longDuration, false, false, false));
         Assertions.assertThrows(IllegalArgumentException.class,

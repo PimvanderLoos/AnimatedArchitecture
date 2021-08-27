@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -172,8 +171,8 @@ public class Toggle extends BaseCommand
     @Override
     protected final CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        val actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
-        val actions = new CompletableFuture[doorRetrievers.length];
+        final var actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
+        final var actions = new CompletableFuture[doorRetrievers.length];
         for (int idx = 0; idx < actions.length; ++idx)
             actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.second);
         return CompletableFuture.allOf(actions).thenApply(ignored -> true);

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -28,12 +27,12 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
         if (bukkitWorld == null)
             throw new NullPointerException("Could not find bukkit world " + loc.getWorld().worldName());
 
-        val fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
+        final var fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
                                                ((NMSBlock_V1_15_R1) block).getMyBlockData());
 
-        val ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
-                                                                                             fBlockNMS);
+        final var ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
+                                                                                                   fBlockNMS);
         ret.setCustomName(Constants.BIGDOORS_ENTITY_NAME);
         ret.setCustomNameVisible(false);
         return ret;

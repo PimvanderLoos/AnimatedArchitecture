@@ -74,7 +74,7 @@ public class ListDoors extends BaseCommand
 
         final StringBuilder sb = new StringBuilder(
             BigDoors.get().getLocalizer().getMessage("commands.list_doors.door_list_header")).append("\n");
-        for (val door : doors)
+        for (final var door : doors)
             sb.append("  ").append(door.getBasicInfo()).append("\n");
         getCommandSender().sendMessage(sb.toString());
     }

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -340,7 +339,7 @@ public abstract class AbstractDoor implements IDoor
             + "Type-specific data:\n"
             + "type: " + getDoorType() + "\n";
 
-        val serializerOpt = getDoorType().getDoorSerializer();
+        final var serializerOpt = getDoorType().getDoorSerializer();
         if (serializerOpt.isEmpty())
             ret += "Invalid serializer!\n";
         else

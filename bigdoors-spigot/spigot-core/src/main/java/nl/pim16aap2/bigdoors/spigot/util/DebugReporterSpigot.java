@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.AllArgsConstructor;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -41,7 +40,7 @@ public class DebugReporterSpigot extends DebugReporter
           .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
           .append("\n");
 
-        @Nullable val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
+        final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
         sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append("\n");
 
         // TODO: Implement this:
@@ -70,9 +69,9 @@ public class DebugReporterSpigot extends DebugReporter
             }
             try
             {
-                val handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
+                final var handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
                 handlerListMethod.setAccessible(true);
-                val handlers = (HandlerList) handlerListMethod.get(null);
+                final var handlers = (HandlerList) handlerListMethod.get(null);
                 sb.append("    ").append(clz.getSimpleName()).append(": ")
                   .append(Util.toString(handlers.getRegisteredListeners(),
                                         DebugReporterSpigot::formatRegisteredListener))

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
-import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +13,8 @@ class FastFieldCopierTest
 
         final String a = "a-a-a-a-a";
         final String b = "b-b-b-b-b";
-        val foo = new Foo(a);
-        val bar = new Bar(b, -1);
+        final var foo = new Foo(a);
+        final var bar = new Bar(b, -1);
 
         Assertions.assertEquals(b, bar.str);
         copier.copy(foo, bar);
@@ -25,8 +24,8 @@ class FastFieldCopierTest
     @Test
     void testInvalidTypes()
     {
-        val ex = Assertions.assertThrows(RuntimeException.class,
-                                         () -> FastFieldCopier.of(Foo.class, "str", Bar.class, "intVal"));
+        final var ex = Assertions.assertThrows(RuntimeException.class,
+                                               () -> FastFieldCopier.of(Foo.class, "str", Bar.class, "intVal"));
         Assertions.assertEquals(IllegalArgumentException.class, ex.getCause().getClass());
     }
 

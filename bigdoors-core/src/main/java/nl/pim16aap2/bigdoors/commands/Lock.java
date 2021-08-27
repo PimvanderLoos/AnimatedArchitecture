@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -12,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
- * Represents the command that is used to change whether or not a door is locked.
+ * Represents the command that is used to change whether a door is locked.
  *
  * @author Pim
  */
@@ -53,9 +52,9 @@ public class Lock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        val event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                            .createDoorPrepareLockChangeEvent(door, lockedStatus,
-                                                              getCommandSender().getPlayer().orElse(null));
+        final var event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
+                                  .createDoorPrepareLockChangeEvent(door, lockedStatus,
+                                                                    getCommandSender().getPlayer().orElse(null));
         BigDoors.get().getPlatform().callDoorEvent(event);
 
         if (event.isCancelled())

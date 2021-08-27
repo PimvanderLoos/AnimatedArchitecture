@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -35,15 +34,15 @@ class CancelTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
-        val uuid = UUID.randomUUID();
+        final var platform = initPlatform();
+        final var uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
 
-        val toolUserManager = Mockito.mock(ToolUserManager.class);
+        final var toolUserManager = Mockito.mock(ToolUserManager.class);
         Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
         Mockito.when(platform.getDoorSpecificationManager()).thenReturn(doorSpecificationManager);
 

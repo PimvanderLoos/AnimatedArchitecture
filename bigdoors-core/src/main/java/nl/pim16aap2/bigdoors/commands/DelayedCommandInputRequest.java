@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -98,7 +97,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void init()
     {
         BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
-        val initMessage = initMessageSupplier.get();
+        final var initMessage = initMessageSupplier.get();
         //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
             commandSender.sendMessage(initMessage);

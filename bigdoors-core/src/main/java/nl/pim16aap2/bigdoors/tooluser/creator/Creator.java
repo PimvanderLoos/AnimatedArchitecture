@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -231,7 +230,7 @@ public abstract class Creator extends ToolUser
     protected final DoorBase constructDoorData()
     {
         final long doorUID = -1;
-        val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
+        final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
         return new DoorBase(doorUID,
                             Util.requireNonNull(name, "Name"),
                             Util.requireNonNull(cuboid, "cuboid"),
@@ -550,7 +549,7 @@ public abstract class Creator extends ToolUser
      */
     protected String getOpenDirections()
     {
-        val sb = new StringBuilder();
+        final var sb = new StringBuilder();
         int idx = 0;
         for (RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")

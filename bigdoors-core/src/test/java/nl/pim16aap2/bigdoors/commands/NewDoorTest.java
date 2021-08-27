@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -34,7 +33,7 @@ class NewDoorTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
@@ -46,7 +45,7 @@ class NewDoorTest
     @SneakyThrows
     void testServer()
     {
-        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(NewDoor.run(server, doorType, null).get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
@@ -55,10 +54,10 @@ class NewDoorTest
     @SneakyThrows
     void testExecution()
     {
-        val name = "newDoor";
+        final var name = "newDoor";
 
-        val unnamedCreator = Mockito.mock(Creator.class);
-        val namedCreator = Mockito.mock(Creator.class);
+        final var unnamedCreator = Mockito.mock(Creator.class);
+        final var namedCreator = Mockito.mock(Creator.class);
 
         Mockito.when(doorType.getCreator(Mockito.any(), Mockito.any()))
                .thenAnswer(inv -> name.equals(inv.getArgument(1, String.class)) ? namedCreator : unnamedCreator);

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Synchronized;
-import lombok.val;
 import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
@@ -254,7 +253,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     @GuardedBy("blockDataLock")
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
-        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             BigDoors.get().getPLogger().logThrowable(
@@ -297,7 +296,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir,
                                       @SuppressWarnings("SameParameterValue") int steps)
     {
-        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             BigDoors.get().getPLogger().logThrowable(

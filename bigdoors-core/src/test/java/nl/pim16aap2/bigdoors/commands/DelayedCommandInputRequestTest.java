@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import org.junit.jupiter.api.Assertions;
@@ -39,13 +38,13 @@ class DelayedCommandInputRequestTest
     @SneakyThrows
     void test()
     {
-        val delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        val inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                            input -> verifyInput(delayedInput, input),
-                                                            () -> "", DelayedInput.class);
+        final var delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
+        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                                                  input -> verifyInput(delayedInput, input),
+                                                                  () -> "", DelayedInput.class);
 
-        val first = inputRequest.getCommandOutput();
-        val second = inputRequest.provide(delayedInput);
+        final var first = inputRequest.getCommandOutput();
+        final var second = inputRequest.provide(delayedInput);
 
         Assertions.assertTrue(second.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
@@ -55,13 +54,13 @@ class DelayedCommandInputRequestTest
     @SneakyThrows
     void testInvalidInput()
     {
-        val delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        val inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                            input -> verifyInput(delayedInput, input),
-                                                            () -> "", DelayedInput.class);
+        final var delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
+        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                                                  input -> verifyInput(delayedInput, input),
+                                                                  () -> "", DelayedInput.class);
 
-        val first = inputRequest.getCommandOutput();
-        val second = inputRequest.provide("Invalid!");
+        final var first = inputRequest.getCommandOutput();
+        final var second = inputRequest.provide("Invalid!");
 
         Assertions.assertFalse(second.get(1, TimeUnit.SECONDS));
         Assertions.assertNotEquals(first, second);
@@ -72,12 +71,12 @@ class DelayedCommandInputRequestTest
     void testException()
     {
         // Ensure that exceptions are properly propagated.
-        val inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                            input ->
-                                                            {
-                                                                throw new RuntimeException(input.toString());
-                                                            },
-                                                            () -> "", DelayedInput.class);
+        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                                                  input ->
+                                                                  {
+                                                                      throw new RuntimeException(input.toString());
+                                                                  },
+                                                                  () -> "", DelayedInput.class);
         Assertions.assertThrows(ExecutionException.class,
                                 () -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
                                                   .get(1, TimeUnit.SECONDS));
