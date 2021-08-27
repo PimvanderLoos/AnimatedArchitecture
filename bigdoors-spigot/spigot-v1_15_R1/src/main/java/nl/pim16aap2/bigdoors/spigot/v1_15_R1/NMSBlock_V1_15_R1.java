@@ -73,9 +73,8 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     {
         super(newBlockInfo(pWorld, new BlockPosition(x, y, z)));
 
-        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
-        if (bukkitWorld == null)
-            throw new NullPointerException("Failed to map world to bukkit world: " + pWorld);
+        final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(pWorld),
+                                                      "Spigot world of world: " + pWorld);
 
         craftWorld = (CraftWorld) bukkitWorld;
         loc = new Location(bukkitWorld, x, y, z);
@@ -147,13 +146,6 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     @Synchronized("blockDataLock")
     public void putBlock(IPLocation loc)
     {
-        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
-        if (bukkitWorld == null)
-        {
-            BigDoors.get().getPLogger().logThrowable(new NullPointerException());
-            return;
-        }
-
         final BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
         final WorldServer worldNMS = craftWorld.getHandle();
@@ -194,11 +186,11 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
         final Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
         // Every 2 steps results in the same outcome.
-        steps = steps % 2;
-        if (steps == 0)
+        int realSteps = steps % 2;
+        if (realSteps == 0)
             return;
 
-        while (steps-- > 0)
+        while (realSteps-- > 0)
         {
             if (dir.equals(RotateDirection.NORTH) || dir.equals(RotateDirection.SOUTH))
             {

@@ -274,8 +274,6 @@
     <rule ref="category/java/multithreading.xml/NonThreadSafeSingleton"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#unsynchronizedstaticformatter -->
     <rule ref="category/java/multithreading.xml/UnsynchronizedStaticFormatter"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#usenotifyallinsteadofnotify -->
-    <rule ref="category/java/multithreading.xml/UseNotifyAllInsteadOfNotify"/>
 
 
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#addemptystring -->

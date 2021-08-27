@@ -7,9 +7,9 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * V1_15_R1 implementation of {@link IFallingBlockFactory}.
@@ -23,9 +23,8 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     public ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception
     {
-        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
-        if (bukkitWorld == null)
-            throw new NullPointerException("Could not find bukkit world " + loc.getWorld().worldName());
+        final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(loc.getWorld()),
+                                                      "Spigot world from location: " + loc);
 
         final var fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),

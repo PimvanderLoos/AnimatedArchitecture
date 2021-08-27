@@ -150,12 +150,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         {
             move(EnumMoveType.SELF, getMot());
             final double locY = locY();
-            if (++ticksLived > 100 && (locY < 1 || locY > 256) || ticksLived > 12000)
+            if (++ticksLived > 100 && (locY < 1 || locY > 256) || ticksLived > 12_000)
                 die();
 
-            final double motX = getMot().x * 0.9800000190734863D;
+            final double motX = getMot().x * 0.980_000_019_073_486_3D;
             final double motY = getMot().y;
-            final double motZ = getMot().z * 0.9800000190734863D;
+            final double motZ = getMot().z * 0.980_000_019_073_486_3D;
             setMot(motX, motY, motZ);
         }
     }
