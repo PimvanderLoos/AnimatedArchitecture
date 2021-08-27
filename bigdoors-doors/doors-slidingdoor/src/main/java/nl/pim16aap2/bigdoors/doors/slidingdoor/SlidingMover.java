@@ -113,7 +113,7 @@ public class SlidingMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (PBlockData pBlockData : savedBlocks)
+        for (final PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 }

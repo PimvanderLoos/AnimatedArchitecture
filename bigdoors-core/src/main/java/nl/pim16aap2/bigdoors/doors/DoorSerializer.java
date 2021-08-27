@@ -59,7 +59,7 @@ public class DoorSerializer<T extends AbstractDoor>
         @Nullable Unsafe unsafe = null;
         try
         {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
         }
@@ -102,7 +102,7 @@ public class DoorSerializer<T extends AbstractDoor>
     private void findAnnotatedFields()
         throws UnsupportedOperationException
     {
-        List<Field> fieldList = new ArrayList<>();
+        final List<Field> fieldList = new ArrayList<>();
         Class<?> clazz = doorClass;
         while (!clazz.equals(AbstractDoor.class))
         {
@@ -110,7 +110,7 @@ public class DoorSerializer<T extends AbstractDoor>
             clazz = clazz.getSuperclass();
         }
 
-        for (Field field : fieldList)
+        for (final Field field : fieldList)
             if (field.isAnnotationPresent(PersistentVariable.class))
             {
                 field.setAccessible(true);
@@ -133,7 +133,7 @@ public class DoorSerializer<T extends AbstractDoor>
         throws Exception
     {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
-        for (Field field : fields)
+        for (final Field field : fields)
             try
             {
                 values.add(field.get(door));
@@ -199,7 +199,7 @@ public class DoorSerializer<T extends AbstractDoor>
 
         try
         {
-            @Nullable T door = instantiate(doorBase);
+            final @Nullable T door = instantiate(doorBase);
             if (door == null)
                 throw new IllegalStateException("Failed to initialize door!");
             for (int idx = 0; idx < fields.size(); ++idx)
@@ -269,8 +269,8 @@ public class DoorSerializer<T extends AbstractDoor>
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (Field field : fields)
+        final StringBuilder sb = new StringBuilder();
+        for (final Field field : fields)
         {
             String value;
             try
@@ -290,8 +290,8 @@ public class DoorSerializer<T extends AbstractDoor>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append("\n");
-        for (Field field : fields)
+        final StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append("\n");
+        for (final Field field : fields)
             sb.append("Type: ").append(field.getType().getName())
               .append(", name: ").append(field.getName())
               .append("\n");

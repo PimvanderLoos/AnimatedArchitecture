@@ -123,7 +123,7 @@ public class RedstoneListener extends Restartable implements Listener
             final Location location = block.getLocation();
             final World world = Objects.requireNonNull(location.getWorld(), "World cannot be null!");
 
-            int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
+            final int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
                 checkDoors(new Location(world, x, y, z - 1.0));

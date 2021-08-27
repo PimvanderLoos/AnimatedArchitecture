@@ -28,7 +28,7 @@ public enum PBlockFace
 
     static
     {
-        for (PBlockFace face : PBlockFace.values())
+        for (final PBlockFace face : PBlockFace.values())
         {
             DIRS.put(face.directionVector, face);
             VALS.put(face.val, face);

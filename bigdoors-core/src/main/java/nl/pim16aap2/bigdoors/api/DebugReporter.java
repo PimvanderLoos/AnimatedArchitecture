@@ -9,7 +9,7 @@ public abstract class DebugReporter
      */
     public String getDump()
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("Java version: ").append(System.getProperty("java.version")).append("\n");
         sb.append("Registered Platform: ").append(BigDoors.get().getPlatform().getClass().getName()).append("\n");
         return sb.toString();

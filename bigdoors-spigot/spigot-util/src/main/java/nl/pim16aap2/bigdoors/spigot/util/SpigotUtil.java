@@ -30,7 +30,7 @@ public final class SpigotUtil
 
     static
     {
-        for (PBlockFace pbf : PBlockFace.values())
+        for (final PBlockFace pbf : PBlockFace.values())
         {
             final BlockFace mappedBlockFace;
             if (pbf.equals(PBlockFace.NONE))
@@ -46,7 +46,7 @@ public final class SpigotUtil
 
     static
     {
-        for (PColor pColor : PColor.values())
+        for (final PColor pColor : PColor.values())
             toBukkitColor.put(pColor, ChatColor.valueOf(pColor.name()));
     }
 
@@ -86,11 +86,11 @@ public final class SpigotUtil
      */
     public static BlockFace getBukkitFace(PBlockFace mbf)
     {
-        BlockFace ret = toBlockFace.get(mbf);
+        final BlockFace ret = toBlockFace.get(mbf);
         if (ret != null)
             return ret;
 
-        IllegalStateException e =
+        final IllegalStateException e =
             new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
         BigDoors.get().getPLogger().logThrowable(e);
         return BlockFace.DOWN;
@@ -105,11 +105,11 @@ public final class SpigotUtil
      */
     public static PBlockFace getPBlockFace(BlockFace bf)
     {
-        PBlockFace ret = toPBlockFace.get(bf);
+        final PBlockFace ret = toPBlockFace.get(bf);
         if (ret != null)
             return ret;
 
-        IllegalStateException e =
+        final IllegalStateException e =
             new IllegalStateException("Failing to find mapping for lockFace: " + bf);
         BigDoors.get().getPLogger().logThrowable(e);
         return PBlockFace.NONE;
@@ -131,7 +131,7 @@ public final class SpigotUtil
     {
         if (loc.getWorld() == null)
             return;
-        for (Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
+        for (final Entity ent : loc.getWorld().getNearbyEntities(loc, 15, 15, 15))
             if (ent instanceof Player player)
                 player.playSound(loc, sound, volume, pitch);
     }

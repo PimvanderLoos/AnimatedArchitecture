@@ -41,13 +41,13 @@ public class LandsProtectionCompat implements IProtectionCompat
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
-        UUID playerUUID = player.getUniqueId();
-        @Nullable World world = loc1.getWorld();
+        final UUID playerUUID = player.getUniqueId();
+        final @Nullable World world = loc1.getWorld();
 
-        int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX()) >> 4;
-        int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
-        int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX()) >> 4;
-        int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
+        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX()) >> 4;
+        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
+        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX()) >> 4;
+        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
 
         for (int chunkX = x1; chunkX <= x2; ++chunkX)
             for (int chunkZ = z1; chunkZ <= z2; ++chunkZ)

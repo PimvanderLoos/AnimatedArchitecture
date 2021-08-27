@@ -43,16 +43,16 @@ class FakePlayerCreator
     {
         this.plugin = plugin;
 
-        nmsBase = "net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        craftBase = "org.bukkit.craftbukkit." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]
-            + ".";
+        final String packageName = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
+        nmsBase = "net.minecraft.server." + packageName;
+        craftBase = "org.bukkit.craftbukkit." + packageName;
 
         craftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
         craftWorld = getCraftClass("CraftWorld");
-        Class<?> worldServer = getNMSClass("WorldServer");
-        Class<?> entityPlayer = getNMSClass("EntityPlayer");
-        Class<?> minecraftServer = getNMSClass("MinecraftServer");
-        Class<?> playerInteractManager = getNMSClass("PlayerInteractManager");
+        final Class<?> worldServer = getNMSClass("WorldServer");
+        final Class<?> entityPlayer = getNMSClass("EntityPlayer");
+        final Class<?> minecraftServer = getNMSClass("MinecraftServer");
+        final Class<?> playerInteractManager = getNMSClass("PlayerInteractManager");
         entityPlayerConstructor = entityPlayer.getConstructor(minecraftServer, worldServer, GameProfile.class,
                                                               playerInteractManager);
         getBukkitEntity = entityPlayer.getMethod("getBukkitEntity");
@@ -62,7 +62,7 @@ class FakePlayerCreator
         uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
         uuid.setAccessible(true);
 
-        Class<?> world = getNMSClass("World");
+        final Class<?> world = getNMSClass("World");
         // TODO: wtf is this???
 //        PlayerInteractManagerConstructor = playerInteractManager.getConstructor(worldServer);
         playerInteractManagerConstructor = playerInteractManager.getConstructor(world);
@@ -99,16 +99,16 @@ class FakePlayerCreator
 
         try
         {
-            Object coPlayer = craftOfflinePlayer.cast(oPlayer);
-            GameProfile gProfile = (GameProfile) getProfile.invoke(coPlayer);
+            final Object coPlayer = craftOfflinePlayer.cast(oPlayer);
+            final GameProfile gProfile = (GameProfile) getProfile.invoke(coPlayer);
 
-            Object craftServer = craftWorld.cast(world);
-            Object worldServer = getHandle.invoke(craftServer);
-            Object minecraftServer = getServer.invoke(worldServer);
-            Object playerInteractManager = playerInteractManagerConstructor.newInstance(worldServer);
+            final Object craftServer = craftWorld.cast(world);
+            final Object worldServer = getHandle.invoke(craftServer);
+            final Object minecraftServer = getServer.invoke(worldServer);
+            final Object playerInteractManager = playerInteractManagerConstructor.newInstance(worldServer);
 
-            Object ePlayer = entityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
-                                                                 playerInteractManager);
+            final Object ePlayer = entityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
+                                                                       playerInteractManager);
             uuid.set(ePlayer, oPlayer.getUniqueId());
             player = (Player) getBukkitEntity.invoke(ePlayer);
         }

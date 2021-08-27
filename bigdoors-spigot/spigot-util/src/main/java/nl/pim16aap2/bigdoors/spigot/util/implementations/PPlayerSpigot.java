@@ -135,7 +135,7 @@ public final class PPlayerSpigot implements IPPlayer
         }
         catch (CloneNotSupportedException e)
         {
-            Error er = new Error(e);
+            final Error er = new Error(e);
             BigDoors.get().getPLogger().logThrowableSilently(er);
             throw er;
         }

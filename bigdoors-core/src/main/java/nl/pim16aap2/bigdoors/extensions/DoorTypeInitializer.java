@@ -231,7 +231,7 @@ final class DoorTypeInitializer
                    new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE, "");
         int newWeight = 0;
 
-        for (Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
+        for (final Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
         {
             if (dependencyOpt.isEmpty())
             {

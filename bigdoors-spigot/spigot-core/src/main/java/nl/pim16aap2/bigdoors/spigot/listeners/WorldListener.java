@@ -23,7 +23,7 @@ public class WorldListener implements Listener
     private WorldListener(PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;
-        for (World world : Bukkit.getWorlds())
+        for (final World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());
     }
 

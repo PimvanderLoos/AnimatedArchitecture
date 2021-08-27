@@ -102,7 +102,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             if (Math.abs(block.getRadius()) > EPS)
             {
                 // Move the little hand at a lower interval than the big hand.

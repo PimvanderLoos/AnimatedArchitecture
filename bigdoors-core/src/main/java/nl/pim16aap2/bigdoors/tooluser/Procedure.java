@@ -70,7 +70,7 @@ public final class Procedure
     {
         while (steps.hasNext())
         {
-            IStep step = steps.next();
+            final IStep step = steps.next();
             if (step.equals(goalStep))
             {
                 currentStep = step;

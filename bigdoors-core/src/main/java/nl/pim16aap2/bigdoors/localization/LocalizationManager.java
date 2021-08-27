@@ -96,7 +96,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
             }
 
             // Satisfy NullAway, as it doesn't realize that targetGenerator cannot be null here.
-            LocalizationGenerator targetGenerator = patchGenerator;
+            final LocalizationGenerator targetGenerator = patchGenerator;
             patchGenerator.addResourcesFromZip(baseGenerator.getOutputFile(), baseName);
             patches.forEach((locale, patchMap) -> targetGenerator.applyPatches(locale.locale(), patchMap));
         }

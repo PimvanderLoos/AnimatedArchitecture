@@ -31,7 +31,7 @@ public abstract class FastFieldCopier<S, T>
         @Nullable Unsafe unsafe = null;
         try
         {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
         }
@@ -49,7 +49,7 @@ public abstract class FastFieldCopier<S, T>
     private static Field getField(Class<?> clz, String name)
         throws NoSuchFieldException
     {
-        Field f = clz.getDeclaredField(name);
+        final Field f = clz.getDeclaredField(name);
         f.setAccessible(true);
         return f;
     }
@@ -90,8 +90,8 @@ public abstract class FastFieldCopier<S, T>
         final Class<?> targetType;
         try
         {
-            Field fieldSource = getField(sourceClass, nameSource);
-            Field fieldTarget = getField(targetClass, nameTarget);
+            final Field fieldSource = getField(sourceClass, nameSource);
+            final Field fieldTarget = getField(targetClass, nameTarget);
             if (fieldTarget.getType() != fieldSource.getType())
                 throw new IllegalArgumentException(
                     String.format("Target type %s does not match source type %s for target class %s",
@@ -104,7 +104,7 @@ public abstract class FastFieldCopier<S, T>
         }
         catch (Exception t)
         {
-            RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
+            final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
             BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }

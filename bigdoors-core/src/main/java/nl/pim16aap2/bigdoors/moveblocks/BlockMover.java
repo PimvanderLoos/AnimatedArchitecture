@@ -193,7 +193,7 @@ public abstract class BlockMover implements IRestartable
      */
     private void applyRotationOnCurrentThread()
     {
-        ListIterator<PBlockData> iter = savedBlocks.listIterator();
+        final ListIterator<PBlockData> iter = savedBlocks.listIterator();
         while (iter.hasNext())
         {
             final var blockData = iter.next();
@@ -254,7 +254,7 @@ public abstract class BlockMover implements IRestartable
             return;
         }
 
-        for (PBlockData mbd : savedBlocks)
+        for (final PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
 
         if (skipAnimation || savedBlocks.isEmpty())
@@ -290,7 +290,7 @@ public abstract class BlockMover implements IRestartable
         if (soundFinish != null)
             playSound(soundFinish);
 
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         final IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
@@ -421,11 +421,11 @@ public abstract class BlockMover implements IRestartable
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.

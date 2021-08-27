@@ -119,11 +119,11 @@ public final class ConfigEntry<V>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         // Print the comments, if there are any.
         if (comment != null)
-            for (String comLine : comment)
+            for (final String comLine : comment)
                 // Prefix every line by a comment-sign (#).
                 sb.append("# ").append(comLine).append("\n");
 
@@ -133,7 +133,7 @@ public final class ConfigEntry<V>
         else if (value instanceof List<?>)
         {
             sb.append("\n");
-            int listSize = ((List<?>) value).size();
+            final int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
                 // Don't print newline at the end
                 sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");

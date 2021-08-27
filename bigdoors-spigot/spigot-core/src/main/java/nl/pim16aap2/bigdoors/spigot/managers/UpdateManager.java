@@ -97,7 +97,7 @@ public final class UpdateManager
         updater.requestUpdateCheck().whenComplete(
             (result, throwable) ->
             {
-                boolean updateAvailable = updateAvailable();
+                final boolean updateAvailable = updateAvailable();
                 if (updateAvailable)
                     logger.info("A new update is available: " + getNewestVersion());
 

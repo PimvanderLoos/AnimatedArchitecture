@@ -73,7 +73,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         try (FileSystem outputFileSystem = getOutputFileFileSystem())
         {
             final List<LocaleFile> localeFiles = getLocaleFilesInDirectory(directory, baseName);
-            for (LocaleFile localeFile : localeFiles)
+            for (final LocaleFile localeFile : localeFiles)
                 mergeWithExistingLocaleFile(outputFileSystem, localeFile);
         }
         catch (Exception e)
@@ -93,7 +93,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
                 fileNames = fileNames.stream().filter(file -> file.startsWith(baseName)).toList();
 
             final List<LocaleFile> localeFiles = getLocaleFiles(zipFileSystem, fileNames);
-            for (LocaleFile localeFile : localeFiles)
+            for (final LocaleFile localeFile : localeFiles)
                 try (InputStream localeFileInputStream = Files.newInputStream(localeFile.path()))
                 {
                     mergeWithExistingLocaleFile(outputFileSystem, localeFileInputStream, localeFile.locale());
@@ -146,7 +146,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     @Override
     public void addResourcesFromClass(List<Class<?>> classes)
     {
-        for (Class<?> clz : classes)
+        for (final Class<?> clz : classes)
             addResourcesFromClass(clz, null);
     }
 
@@ -208,7 +208,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         if (usedPatches.size() == patches.size())
             return;
 
-        for (Map.Entry<String, String> patch : patches.entrySet())
+        for (final Map.Entry<String, String> patch : patches.entrySet())
         {
             if (usedPatches.contains(patch.getKey()))
                 continue;

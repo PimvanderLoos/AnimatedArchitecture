@@ -89,7 +89,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     @Override
     public synchronized RotateDirection getCurrentToggleDir()
     {
-        RotateDirection rotDir = getOpenDir();
+        final RotateDirection rotDir = getOpenDir();
         if (isOpen())
             return RotateDirection.getOpposite(getOpenDir());
         return rotDir;
@@ -119,9 +119,9 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         int maxX = maximum.x();
         int maxY = maximum.y();
         int maxZ = maximum.z();
-        int xLen = dimensions.x();
-        int yLen = dimensions.y();
-        int zLen = dimensions.z();
+        final int xLen = dimensions.x();
+        final int yLen = dimensions.y();
+        final int zLen = dimensions.z();
 
         final Vector3Di rotateVec;
         try
@@ -175,13 +175,13 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
 
         if (minX > maxX)
         {
-            int tmp = minX;
+            final int tmp = minX;
             minX = maxX;
             maxX = tmp;
         }
         if (minZ > maxZ)
         {
-            int tmp = minZ;
+            final int tmp = minZ;
             minZ = maxZ;
             maxZ = tmp;
         }
@@ -196,7 +196,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         throws Exception
     {
         // TODO: Get rid of this.
-        double fixedTime = time < 0.5 ? 5 : time;
+        final double fixedTime = time < 0.5 ? 5 : time;
 
         return new GarageDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);

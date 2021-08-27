@@ -72,7 +72,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public Vector3Dd getPVelocity()
     {
-        Vector bukkitVelocity = super.getVelocity();
+        final Vector bukkitVelocity = super.getVelocity();
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 

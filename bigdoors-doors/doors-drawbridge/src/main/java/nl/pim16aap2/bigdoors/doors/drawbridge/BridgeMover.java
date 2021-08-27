@@ -132,7 +132,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         if (replace)
             BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocks);
 
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 

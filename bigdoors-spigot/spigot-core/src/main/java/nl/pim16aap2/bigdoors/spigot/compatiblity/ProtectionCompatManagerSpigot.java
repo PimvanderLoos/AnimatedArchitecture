@@ -103,7 +103,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         shutdown();
 
-        for (Plugin p : plugin.getServer().getPluginManager().getPlugins())
+        for (final Plugin p : plugin.getServer().getPluginManager().getPlugins())
             loadFromPluginName(p.getName());
     }
 
@@ -159,18 +159,18 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (protectionCompats.isEmpty())
             return Optional.empty();
 
-        Location loc = SpigotAdapter.getBukkitLocation(pLoc);
+        final Location loc = SpigotAdapter.getBukkitLocation(pLoc);
         if (loc.getWorld() == null)
             return Optional.of("InvalidWorld");
 
-        Optional<Player> fakePlayer = getPlayer(player, loc.getWorld());
+        final Optional<Player> fakePlayer = getPlayer(player, loc.getWorld());
         if (fakePlayer.isEmpty())
             return Optional.empty();
 
         if (canByPass(fakePlayer.get()))
             return Optional.empty();
 
-        for (IProtectionCompat compat : protectionCompats)
+        for (final IProtectionCompat compat : protectionCompats)
             try
             {
                 if (!compat.canBreakBlock(fakePlayer.get(), loc))
@@ -190,25 +190,25 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (protectionCompats.isEmpty())
             return Optional.empty();
 
-        IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
+        final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
 
-        Location loc1 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos1));
+        final Location loc1 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos1));
         if (loc1.getWorld() == null)
             return Optional.of("InvalidWorld");
 
-        Location loc2 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos2));
+        final Location loc2 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos2));
         if (loc2.getWorld() == null)
             return Optional.of("InvalidWorld");
 
 
-        Optional<Player> fakePlayer = getPlayer(player, loc1.getWorld());
+        final Optional<Player> fakePlayer = getPlayer(player, loc1.getWorld());
         if (fakePlayer.isEmpty())
             return Optional.empty();
 
         if (canByPass(fakePlayer.get()))
             return Optional.empty();
 
-        for (IProtectionCompat compat : protectionCompats)
+        for (final IProtectionCompat compat : protectionCompats)
             try
             {
                 if (!compat.canBreakBlocksBetweenLocs(fakePlayer.get(), loc1, loc2))
@@ -231,7 +231,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     private boolean protectionAlreadyLoaded(Class<? extends IProtectionCompat> compatClass)
     {
-        for (IProtectionCompat compat : protectionCompats)
+        for (final IProtectionCompat compat : protectionCompats)
             if (compat.getClass().equals(compatClass))
                 return true;
         return false;
@@ -275,7 +275,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     private void loadFromPluginName(String compatName)
     {
-        @Nullable ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
+        final @Nullable ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
         if (compat == null)
             return;
 

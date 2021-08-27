@@ -68,7 +68,7 @@ public final class DoorTypeManager extends Restartable
     public List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
+        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;

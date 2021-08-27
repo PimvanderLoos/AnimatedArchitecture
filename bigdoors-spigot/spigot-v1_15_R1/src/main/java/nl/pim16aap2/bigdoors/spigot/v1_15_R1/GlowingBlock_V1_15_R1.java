@@ -187,7 +187,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
                                                           IRestartableHolder restartableHolder)
         {
-            Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
+            final Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
             if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
                 return Optional.empty();
 

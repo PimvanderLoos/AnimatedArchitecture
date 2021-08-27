@@ -20,8 +20,8 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         @Nullable ISpigotPlatform spigotPlatformTmp = null;
         try
         {
-            String versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
-                                      .split(",")[3];
+            final String versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
+                                            .split(",")[3];
             version = Version.valueOf(versionStr);
             if (version != Version.ERROR)
                 spigotPlatformTmp = version.getPlatform();
@@ -50,7 +50,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     {
         if (spigotPlatform == null)
         {
-            IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
+            final IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
             BigDoors.get().getPLogger().logThrowable(e);
             throw e;
         }

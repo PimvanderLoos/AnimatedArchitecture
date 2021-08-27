@@ -203,8 +203,8 @@ public final class DoorOpeningUtility
 
         // The maxDist is the number of blocks to check in a direction. This is either getBlocksToMove if it that has
         // been specified. If it hasn't, it's the length of the door in the provided direction.
-        int maxDist = blocksToMove > 0 ? blocksToMove :
-                      Math.abs(vec.x() * xLen + vec.y() * yLen + vec.z() * zLen);
+        final int maxDist = blocksToMove > 0 ? blocksToMove :
+                            Math.abs(vec.x() * xLen + vec.y() * yLen + vec.z() * zLen);
 
         int ret = 0;
         int steps = 0;

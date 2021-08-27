@@ -150,86 +150,86 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     private void makeConfig()
     {
-        String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
-        String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
+        final String defResPackUrl = "https://www.dropbox.com/s/0q6h8jkfjqrn1tp/BigDoorsResourcePack.zip?dl=1";
+        final String defResPackUrl1_13 = "https://www.dropbox.com/s/al4idl017ggpnuq/BigDoorsResourcePack-1_13.zip?dl=1";
 
-        String[] enableRedstoneComment = {
+        final String[] enableRedstoneComment = {
             "Allow doors to be opened using redstone signals."};
-        String[] powerBlockTypeComment = {
+        final String[] powerBlockTypeComment = {
             "Choose the type of the power block that is used to open doors using redstone.",
             "A list can be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html",
             "This is the block that will open the DoorBase attached to it when it receives a redstone signal.",
             "Multiple types are allowed."};
-        String[] blacklistComment = {
+        final String[] blacklistComment = {
             "List of blacklisted materials. Materials on this list can not be animated.",
             "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
             "  - BEDROCK"};
-        String[] maxDoorCountComment = {
+        final String[] maxDoorCountComment = {
             "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.DOOR_COUNT.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] maxBlocksToMoveComment = {
+        final String[] maxBlocksToMoveComment = {
             "Global maximum number of doors a player can own. You can set it to -1 to disable it this limit.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, if you need more finely grained control using this node:",
             "'" + Limit.BLOCKS_TO_MOVE.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] checkForUpdatesComment = {
+        final String[] checkForUpdatesComment = {
             "Allow this plugin to check for updates on startup. It will not download new versions!"};
-        String[] downloadDelayComment = {
+        final String[] downloadDelayComment = {
             "Time (in minutes) to delay auto downloading updates after their release.",
             "Setting it to 1440 means that updates will be downloaded 24h after their release.",
             "This is useful, as it will mean that the update won't get downloaded " +
                 "if I decide to pull it for some reason",
             "(within the specified timeframe, of course). Note that updates cannot be " +
                 "deferred for more than 1 week (10080 minutes)."};
-        String[] autoDLUpdateComment = {
+        final String[] autoDLUpdateComment = {
             "Allow this plugin to automatically download new updates. They will be applied on restart."};
-        String[] allowStatsComment = {
+        final String[] allowStatsComment = {
             "Allow this plugin to send (anonymized) stats using bStats. Please consider keeping it enabled.",
             "It has a negligible impact on performance and more users on " +
                 "stats keeps me more motivated to support this plugin!"};
-        String[] maxDoorSizeComment = {
+        final String[] maxDoorSizeComment = {
             "Global maximum number of blocks allowed in a door. You can set it to -1 to disable it this limit.",
             "If this number is exceeded, doors will open instantly and skip the animation.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
             "'" + Limit.DOOR_SIZE.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] maxPowerBlockDistanceComment = {
+        final String[] maxPowerBlockDistanceComment = {
             "Global maximum distance between a door and its powerblock. You can set it to -1 to disable it this limit.",
             "The distance is measured from the center of the door.",
             "Not even admins and OPs can bypass this limit!",
             "Note that you can also use permissions for this, " +
                 "if you need more finely grained control using this node: ",
             "'" + Limit.POWERBLOCK_DISTANCE.getUserPermission() + "x', where 'x' can be any positive value."};
-        String[] localeComment = {
+        final String[] localeComment = {
             "Determines which locale to use. Defaults to root."
         };
-        String[] resourcePackComment = {
+        final String[] resourcePackComment = {
             "This plugin uses a support resource pack for things such as sound.",
             "Note that this may cause issues if you server or another plugin also uses a resource pack!",
             "When this is the case, it's recommended to disable this option and merge the pack with the other one.",
             "The default resource pack for 1.11.x/1.12.x is: '" + defResPackUrl + "'",
             "The default resource pack for 1.13.x is: '" + defResPackUrl1_13 + "'"};
-        String[] multiplierComment = {
+        final String[] multiplierComment = {
             "These multipliers affect the opening/closing speed of their respective doorBase types.",
             "Note that the maximum speed is limited, so beyond a certain point " +
                 "raising these values won't have any effect.",
             "To use the default values, set them to \"0.0\" or \"1.0\" (without quotation marks).",
             "Note that everything is optimized for default values, so it's recommended to leave this setting as-is."};
-        String[] compatibilityHooksComment = {
+        final String[] compatibilityHooksComment = {
             "Enable or disable compatibility hooks for certain plugins. " +
                 "If the plugins aren't installed, these options do nothing.",
             "When enabled, doors cannot be opened or created in areas not owned by the door's owner."};
-        String[] coolDownComment = {
+        final String[] coolDownComment = {
             "Cooldown on using doors. Time is measured in seconds."};
-        String[] cacheTimeoutComment = {
+        final String[] cacheTimeoutComment = {
             "Amount of time (in minutes) to cache power block positions in a chunk. " +
                 "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
             "It doesn't take up too much RAM, so it's recommended to leave this value high. " +
                 "It'll get updated automatically when needed anyway."};
-        String[] pricesComment = {
+        final String[] pricesComment = {
             "When Vault is present, you can set the price of doorBase creation here for every type of door.",
             "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a " +
                 "variable that will be replaced by the actual blockCount.",
@@ -239,18 +239,18 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 "would return 10 for a blockCount of 0 to 3 and 10.24 for a blockCount of 4.",
             "You must always put the formula or simple value or whatever in quotation marks! " +
                 "Also, these settings do nothing if Vault isn't installed!"};
-        String[] headCacheTimeoutComment = {
+        final String[] headCacheTimeoutComment = {
             "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), " +
                 "0 = infinite cache (not recommended either!).",
             "Takes up a bit more space than the powerblock caching, but makes GUI much faster."};
-        String[] debugComment = {
+        final String[] debugComment = {
             "Don't use this. Just leave it on false."};
-        String[] consoleLoggingComment = {
+        final String[] consoleLoggingComment = {
             "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
             "If enabled, they will be written to both the console and the bigdoors log."};
 
 
-        IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
+        final IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
 
 
         enableRedstone = addNewConfigEntry(config, "allowRedstone", true, enableRedstoneComment);
@@ -263,17 +263,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
                           new MaterialVerifier(materialBlacklist));
 
-        int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
+        final int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
 
-        int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
+        final int maxBlocksToMove = addNewConfigEntry(config, "maxBlocksToMove", 100, maxBlocksToMoveComment);
         this.maxBlocksToMove = maxBlocksToMove > 0 ? OptionalInt.of(maxBlocksToMove) : OptionalInt.empty();
 
-        int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
+        final int maxDoorSize = addNewConfigEntry(config, "maxDoorSize", 500, maxDoorSizeComment);
         this.maxDoorSize = maxDoorSize > 0 ? OptionalInt.of(maxDoorSize) : OptionalInt.empty();
 
-        int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
-                                                      maxPowerBlockDistanceComment);
+        final int maxPowerBlockDistance = addNewConfigEntry(config, "maxPowerBlockDistance", -1,
+                                                            maxPowerBlockDistanceComment);
         this.maxPowerBlockDistance = maxPowerBlockDistance > 0 ?
                                      OptionalInt.of(maxPowerBlockDistance) : OptionalInt.empty();
 
@@ -285,7 +285,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
 
         int idx = 0;
-        for (ProtectionCompat compat : ProtectionCompat.values())
+        for (final ProtectionCompat compat : ProtectionCompat.values())
         {
             final String name = ProtectionCompat.getName(compat).toLowerCase();
             final boolean isEnabled = (boolean) config.get(name, false);
@@ -313,7 +313,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
         String @Nullable [] usedMulitplierComment = multiplierComment;
         String @Nullable [] usedPricesComment = pricesComment;
-        for (DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        for (final DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
         {
             doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMulitplierComment));
             doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));
@@ -367,7 +367,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
                                     String @Nullable [] comment)
     {
-        ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
+        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
         configEntries.add(option);
         return option.getValue();
     }
@@ -392,8 +392,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
                                     ConfigEntry.ITestValue<T> verifyValue)
     {
-        ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
-                                                  verifyValue);
+        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
+                                                        verifyValue);
         configEntries.add(option);
         return option.getValue();
     }
@@ -406,14 +406,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Write all the config options to the config.yml.
         try
         {
-            File dataFolder = plugin.getDataFolder();
+            final File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists() && !dataFolder.mkdirs())
             {
                 logger.logThrowable(new IOException("Failed to create folder: \"" + dataFolder + "\""));
                 return;
             }
 
-            File saveTo = new File(plugin.getDataFolder(), "config.yml");
+            final File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists() && !saveTo.createNewFile())
             {
                 logger.logThrowable(new IOException("Failed to create file: \"" + saveTo + "\""));
@@ -585,7 +585,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public String getPrice(DoorType type)
     {
-        String ret = doorPrices.get(type);
+        final String ret = doorPrices.get(type);
         if (ret != null)
             return ret;
         BigDoors.get().getPLogger().logThrowable(new IllegalStateException("No price found for type: " + type));
@@ -650,13 +650,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         private static List<String> verifyMaterials(List<String> input, Set<Material> output)
         {
             output.clear();
-            Iterator<String> it = input.iterator();
+            final Iterator<String> it = input.iterator();
             while (it.hasNext())
             {
-                String str = it.next();
+                final String str = it.next();
                 try
                 {
-                    Material mat = Material.valueOf(str);
+                    final Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
                         BigDoors.get().getPLogger()

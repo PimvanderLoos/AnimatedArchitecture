@@ -154,7 +154,7 @@ public final class DoorTypeLoader extends Restartable
             BigDoors.get().getPLogger().logThrowable(e);
         }
 
-        List<DoorType> types = new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        final List<DoorType> types = new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
         BigDoors.get().getDoorTypeManager().registerDoorTypes(types);
         return types;
     }

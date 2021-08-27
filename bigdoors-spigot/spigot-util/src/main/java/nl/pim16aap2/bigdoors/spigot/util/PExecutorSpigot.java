@@ -25,7 +25,7 @@ public final class PExecutorSpigot implements IPExecutor
     @Override
     public <T> CompletableFuture<T> supplyOnMainThread(Supplier<T> supplier)
     {
-        CompletableFuture<T> result = new CompletableFuture<>();
+        final CompletableFuture<T> result = new CompletableFuture<>();
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> result.complete(supplier.get()));
         return result;
     }
@@ -39,7 +39,7 @@ public final class PExecutorSpigot implements IPExecutor
     @Override
     public <T> CompletableFuture<T> supplyAsync(Supplier<T> supplier)
     {
-        CompletableFuture<T> result = new CompletableFuture<>();
+        final CompletableFuture<T> result = new CompletableFuture<>();
         //noinspection deprecation
         Bukkit.getScheduler().scheduleAsyncDelayedTask(plugin, () -> result.complete(supplier.get()));
         return result;

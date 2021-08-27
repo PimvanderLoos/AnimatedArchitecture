@@ -84,7 +84,7 @@ interface IPPlayerDataContainer
     default long getPermissionsFlag()
     {
         long ret = 0;
-        for (PermissionFlag flag : PermissionFlag.getValues())
+        for (final PermissionFlag flag : PermissionFlag.getValues())
             ret = PermissionFlag.setFlag(this, ret, flag);
         return ret;
     }
@@ -112,7 +112,7 @@ interface IPPlayerDataContainer
 
         public static long setFlag(IPPlayerDataContainer playerDataContainer, long currentValue, PermissionFlag flag)
         {
-            boolean result = flag.fun.apply(playerDataContainer);
+            final boolean result = flag.fun.apply(playerDataContainer);
             return result ? IBitFlag.setFlag(flag.val, currentValue) : IBitFlag.unsetFlag(flag.val, currentValue);
         }
 

@@ -54,7 +54,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 

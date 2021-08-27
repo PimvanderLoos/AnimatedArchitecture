@@ -60,7 +60,7 @@ public class DebugReporterSpigot extends DebugReporter
     private String getListeners(Class<?>... classes)
     {
         final StringBuilder sb = new StringBuilder();
-        for (Class<?> clz : classes)
+        for (final Class<?> clz : classes)
         {
             if (!(BigDoorsSpigotEvent.class.isAssignableFrom(clz)))
             {

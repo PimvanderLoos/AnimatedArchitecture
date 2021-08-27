@@ -2,10 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
@@ -77,7 +75,8 @@ public class ChunkListener implements Listener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
     {
-        long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
+        final long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(),
+                                                                        event.getChunk().getZ());
         BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
             (doors, throwable) ->
                 doors.forEach(doorUID -> BigDoors.get().getDatabaseManager().getDoor(doorUID).whenComplete(
@@ -108,32 +107,32 @@ public class ChunkListener implements Listener
         BigDoors.get().getPlatform().getPowerBlockManager()
                 .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
                                                                            event.getChunk().getZ()));
-        try
-        {
-            // If this class couldn't figure out reflection properly, give up.
-            if (!success)
-            {
-                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
-                return;
-            }
-
-            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need
-            // to interfere.
-            if (isChunkUnloadCancelled(event))
-                return;
-
-            IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
-            Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
-
+//        try
+//        {
+//            // If this class couldn't figure out reflection properly, give up.
+//            if (!success)
+//            {
+//                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
+//                return;
+//            }
+//
+//            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need
+//            // to interfere.
+//            if (isChunkUnloadCancelled(event))
+//                return;
+//
+//            final IPWorld world = SpigotAdapter.wrapWorld(event.getWorld());
+//            final Vector2Di chunkCoords = new Vector2Di(event.getChunk().getX(), event.getChunk().getZ());
+//
 //            // Abort all currently active BlockMovers that (might) interact with the chunk that is being unloaded.
 //            BigDoors.get().getDoorActivityManager().getBlockMovers()
 //                    .filter(BM -> BM.getDoor().chunkInRange(world, chunkCoords))
 //                    .forEach(BlockMover::abort);
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().logThrowable(e);
-        }
+//        }
+//        catch (Exception e)
+//        {
+//            plugin.getPLogger().logThrowable(e);
+//        }
     }
 
     /**

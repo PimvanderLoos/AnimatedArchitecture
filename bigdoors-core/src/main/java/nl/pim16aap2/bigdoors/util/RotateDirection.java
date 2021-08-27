@@ -36,7 +36,7 @@ public enum RotateDirection
         final RotateDirection[] values = RotateDirection.values();
         final Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
         final Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
-        for (RotateDirection dir : RotateDirection.values())
+        for (final RotateDirection dir : RotateDirection.values())
         {
             idMapTmp.put(dir.val, dir);
             nameMapTmp.put(dir.name(), dir);

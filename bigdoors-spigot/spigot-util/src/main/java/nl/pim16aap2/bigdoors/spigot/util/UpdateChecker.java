@@ -46,14 +46,14 @@ public final class UpdateChecker
 {
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->
     {
-        String @Nullable [] firstSplit = splitVersionInfo(first);
-        String @Nullable [] secondSplit = splitVersionInfo(second);
+        final String @Nullable [] firstSplit = splitVersionInfo(first);
+        final String @Nullable [] secondSplit = splitVersionInfo(second);
         if (firstSplit == null || secondSplit == null)
             return null;
 
         for (int i = 0; i < Math.min(firstSplit.length, secondSplit.length); i++)
         {
-            int currentValue = NumberUtils.toInt(firstSplit[i]), newestValue = NumberUtils.toInt(secondSplit[i]);
+            final int currentValue = NumberUtils.toInt(firstSplit[i]), newestValue = NumberUtils.toInt(secondSplit[i]);
 
             if (newestValue > currentValue)
                 return second;
@@ -161,7 +161,7 @@ public final class UpdateChecker
 
     private static String @Nullable [] splitVersionInfo(String version)
     {
-        Matcher matcher = DECIMAL_SCHEME_PATTERN.matcher(version);
+        final Matcher matcher = DECIMAL_SCHEME_PATTERN.matcher(version);
         if (!matcher.find())
             return null;
 
@@ -188,23 +188,23 @@ public final class UpdateChecker
         boolean downloadSuccessfull = false;
         try
         {
-            File updateFolder = Bukkit.getUpdateFolderFile();
+            final File updateFolder = Bukkit.getUpdateFolderFile();
             if (!updateFolder.exists() && !updateFolder.mkdirs())
                 throw new RuntimeException("Failed to create update folder!");
 
-            String fileName = plugin.getName() + ".jar";
-            File updateFile = new File(updateFolder + "/" + fileName);
+            final String fileName = plugin.getName() + ".jar";
+            final File updateFile = new File(updateFolder + "/" + fileName);
 
             // Follow any and all redirects until we've finally found the actual file.
             String location = downloadURL;
             HttpURLConnection httpConnection;
             for (; ; )
             {
-                URL url = new URL(location);
+                final URL url = new URL(location);
                 httpConnection = (HttpURLConnection) url.openConnection();
                 httpConnection.setInstanceFollowRedirects(false);
                 httpConnection.setRequestProperty("User-Agent", "BigDoorsUpdater");
-                String redirectLocation = httpConnection.getHeaderField("Location");
+                final String redirectLocation = httpConnection.getHeaderField("Location");
                 if (redirectLocation == null)
                     break;
                 location = redirectLocation;
@@ -219,13 +219,13 @@ public final class UpdateChecker
                 return false;
             }
 
-            int grabSize = 4096;
+            final int grabSize = 4096;
 
             try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
                  FileOutputStream fos = new FileOutputStream(updateFile);
                  BufferedOutputStream bout = new BufferedOutputStream(fos, grabSize))
             {
-                byte[] data = new byte[grabSize];
+                final byte[] data = new byte[grabSize];
                 int grab;
                 while ((grab = in.read(data, 0, grabSize)) >= 0)
                     bout.write(data, 0, grab);

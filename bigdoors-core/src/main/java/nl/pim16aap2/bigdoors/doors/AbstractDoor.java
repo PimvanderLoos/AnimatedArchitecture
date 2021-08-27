@@ -261,7 +261,7 @@ public abstract class AbstractDoor implements IDoor
         if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return DoorOpeningUtility.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible);
 
-        CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
+        final CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
 
         if (!scheduled.join())

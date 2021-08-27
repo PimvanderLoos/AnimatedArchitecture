@@ -347,7 +347,7 @@ public final class Util
      */
     public <T> Optional<T> searchIterable(Iterable<T> iterable, Predicate<T> searchPred)
     {
-        for (T val : iterable)
+        for (final T val : iterable)
             if (searchPred.test(val))
                 return Optional.of(val);
         return Optional.empty();
@@ -443,7 +443,7 @@ public final class Util
      */
     public static <T> T[] concatArrays(T[] first, T[] second)
     {
-        T[] result = Arrays.copyOf(first, first.length + second.length);
+        final T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
         return result;
     }
@@ -506,7 +506,7 @@ public final class Util
      */
     public static String randomInsecureString(int length)
     {
-        StringBuilder sb = new StringBuilder(length);
+        final StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
             sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         return sb.toString();
@@ -521,7 +521,7 @@ public final class Util
      */
     public static String secureRandomString(int length)
     {
-        StringBuilder sb = new StringBuilder(length);
+        final StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
             sb.append(CHARS.charAt(SECURE_RANDOM.nextInt(CHARS.length())));
         return sb.toString();
@@ -667,8 +667,8 @@ public final class Util
      */
     public static int simpleChunkSpaceLocationhash(int x, int y, int z)
     {
-        int chunkSpaceX = x % 16;
-        int chunkSpaceZ = z % 16;
+        final int chunkSpaceX = x % 16;
+        final int chunkSpaceZ = z % 16;
         return (y << 8) + (chunkSpaceX << 4) + chunkSpaceZ;
     }
 

@@ -321,8 +321,8 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
-                                      new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
+                                            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
         final OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
@@ -551,7 +551,7 @@ public abstract class Creator extends ToolUser
     {
         final var sb = new StringBuilder();
         int idx = 0;
-        for (RotateDirection rotateDirection : getValidOpenDirections())
+        for (final RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")
               .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append("\n");
         return sb.toString();

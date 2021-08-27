@@ -364,7 +364,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean deleteDoorType(DoorType doorType)
     {
-        boolean removed = executeTransaction(
+        final boolean removed = executeTransaction(
             conn -> executeUpdate(SQLStatement.DELETE_DOOR_TYPE
                                       .constructPPreparedStatement()
                                       .setNextString(doorType.getFullName())) > 0, false);
@@ -407,8 +407,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         // TODO: Just use the fact that the last-inserted door has the current UID (that fact is already used by
         //       getTypeSpecificDataInsertStatement(DoorType)), so it can be done in a single statement.
-        long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
-                                    rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
+        final long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
+                                          rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
         executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement()
                                                            .setString(1, playerData.getUUID().toString()));
@@ -725,7 +725,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                 final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
                                 while (resultSet.next())
                                 {
-                                    int locationHash =
+                                    final int locationHash =
                                         Util.simpleChunkSpaceLocationhash(resultSet.getInt("powerBlockX"),
                                                                           resultSet.getInt("powerBlockY"),
                                                                           resultSet.getInt("powerBlockZ"));
@@ -807,9 +807,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                             .setLong(2, doorUID),
                     rs ->
                     {
-                        SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
-                                                 SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
-                                                 SQLStatement.INSERT_DOOR_OWNER;
+                        final SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
+                                                       SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
+                                                       SQLStatement.INSERT_DOOR_OWNER;
 
                         return
                             executeUpdate(conn, statement
@@ -833,8 +833,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int verifyDatabaseVersion(Connection conn)
     {
-        int dbVersion = executeQuery(conn, new PPreparedStatement("PRAGMA user_version;"),
-                                     rs -> rs.getInt(1), -1);
+        final int dbVersion = executeQuery(conn, new PPreparedStatement("PRAGMA user_version;"),
+                                           rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
             BigDoors.get().getPLogger().logMessage(Level.SEVERE, "Failed to obtain database version!");
@@ -1274,7 +1274,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             conn ->
             {
                 conn.setAutoCommit(false);
-                T result = fun.apply(conn);
+                final T result = fun.apply(conn);
                 conn.commit();
                 return result;
             }, fallback, FailureAction.ROLLBACK, ReadMode.READ_WRITE);

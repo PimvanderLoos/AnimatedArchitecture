@@ -86,7 +86,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     public void die()
     {
-        for (Entity ent : passengers)
+        for (final Entity ent : passengers)
             ent.dead = true;
         dead = true;
     }
@@ -113,15 +113,15 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         final double distance = futurePosition.getDistance(newPosition);
         cyclePositions(newPosition);
 
-        double deltaX = currentPosition.x() - previousPosition.x();
-        double deltaY = currentPosition.y() - previousPosition.y();
-        double deltaZ = currentPosition.z() - previousPosition.z();
+        final double deltaX = currentPosition.x() - previousPosition.x();
+        final double deltaY = currentPosition.y() - previousPosition.y();
+        final double deltaZ = currentPosition.z() - previousPosition.z();
 
-        short relX = (short) (deltaX * 4096);
-        short relY = (short) (deltaY * 4096);
-        short relZ = (short) (deltaZ * 4096);
+        final short relX = (short) (deltaX * 4096);
+        final short relY = (short) (deltaY * 4096);
+        final short relZ = (short) (deltaZ * 4096);
 
-        PacketPlayOutEntity.PacketPlayOutRelEntityMove tpPacket =
+        final PacketPlayOutEntity.PacketPlayOutRelEntityMove tpPacket =
             new PacketPlayOutEntity.PacketPlayOutRelEntityMove(getId(), relX, relY, relZ, true);
 
         if (tracker != null)
@@ -149,13 +149,13 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         else
         {
             move(EnumMoveType.SELF, getMot());
-            double locY = locY();
+            final double locY = locY();
             if (++ticksLived > 100 && (locY < 1 || locY > 256) || ticksLived > 12000)
                 die();
 
-            double motX = getMot().x * 0.9800000190734863D;
-            double motY = getMot().y;
-            double motZ = getMot().z * 0.9800000190734863D;
+            final double motX = getMot().x * 0.9800000190734863D;
+            final double motY = getMot().y;
+            final double motZ = getMot().z * 0.9800000190734863D;
             setMot(motX, motY, motZ);
         }
     }

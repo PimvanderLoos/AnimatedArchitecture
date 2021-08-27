@@ -25,7 +25,7 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
     @Override
     public IPPlayer create(PPlayerData playerData)
     {
-        @Nullable Player player = Bukkit.getPlayer(playerData.getUUID());
+        final @Nullable Player player = Bukkit.getPlayer(playerData.getUUID());
         if (player != null)
             return new PPlayerSpigot(player);
         return new OfflinePPlayerSpigot(playerData);
@@ -34,7 +34,7 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
     @Override
     public CompletableFuture<Optional<IPPlayer>> create(UUID uuid)
     {
-        @Nullable Player player = Bukkit.getPlayer(uuid);
+        final @Nullable Player player = Bukkit.getPlayer(uuid);
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PPlayerSpigot(player)));
 

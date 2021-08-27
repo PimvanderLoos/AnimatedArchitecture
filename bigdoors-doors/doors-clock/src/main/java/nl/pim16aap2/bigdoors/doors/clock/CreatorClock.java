@@ -54,7 +54,7 @@ public class CreatorClock extends Creator
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
+        final Step stepSelectHourArm = new Step.Factory("SELECT_HOUR_ARM")
             .messageKey("creator.clock.step_3")
             .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();

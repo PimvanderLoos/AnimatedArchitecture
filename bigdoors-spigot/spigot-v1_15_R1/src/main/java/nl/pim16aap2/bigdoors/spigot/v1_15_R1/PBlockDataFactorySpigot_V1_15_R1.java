@@ -37,7 +37,7 @@ public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
         final ICustomCraftFallingBlock fBlock = BigDoors.get().getPlatform().getFallingBlockFactory()
                                                         .fallingBlockFactory(newFBlockLocation, nmsBlock);
 
-        boolean deferPlacement = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(vBlock.getType());
+        final boolean deferPlacement = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(vBlock.getType());
         return Optional.of(new PBlockData(fBlock, radius, nmsBlock, startLocation, startAngle, deferPlacement));
     }
 }
