@@ -312,8 +312,6 @@
     <rule ref="category/java/performance.xml/InefficientStringBuffering"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#optimizabletoarraycall -->
     <rule ref="category/java/performance.xml/OptimizableToArrayCall"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#redundantfieldinitializer -->
-    <rule ref="category/java/performance.xml/RedundantFieldInitializer"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#stringinstantiation -->
     <rule ref="category/java/performance.xml/StringInstantiation"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#stringtostring -->
