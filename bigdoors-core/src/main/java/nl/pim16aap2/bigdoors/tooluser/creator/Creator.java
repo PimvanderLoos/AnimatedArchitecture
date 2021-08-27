@@ -26,11 +26,8 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -157,14 +154,6 @@ public abstract class Creator extends ToolUser
      */
     @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
-
-    private static final DecimalFormat DECIMAL_FORMAT =
-        new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-
-    static
-    {
-        DECIMAL_FORMAT.setMaximumFractionDigits(2);
-    }
 
     protected Creator(IPPlayer player, @Nullable String name)
     {
@@ -367,7 +356,7 @@ public abstract class Creator extends ToolUser
 
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
                                             .getMessage("creator.base.error.insufficient_funds",
-                                                        DECIMAL_FORMAT.format(getPrice().orElse(0))));
+                                                        String.format("%.2f", getPrice().orElse(0))));
             shutdown();
             return true;
         }
@@ -599,7 +588,7 @@ public abstract class Creator extends ToolUser
         {
             getPlayer().sendMessage(BigDoors.get().getLocalizer()
                                             .getMessage("creator.base.error.powerblock_too_far",
-                                                        DECIMAL_FORMAT.format(distance),
+                                                        String.format("%.2f", distance),
                                                         Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
