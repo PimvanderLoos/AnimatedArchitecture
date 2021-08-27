@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="Custom Rules"
-         xmlns="https://pmd.sourceforge.io/ruleset/2.0.0">
+<ruleset name="Custom Rules" xmlns="https://pmd.sourceforge.io/ruleset/2.0.0">
 
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#abstractclasswithoutabstractmethod -->
     <rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
