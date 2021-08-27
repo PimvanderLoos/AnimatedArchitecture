@@ -274,8 +274,6 @@
     <rule ref="category/java/errorprone.xml/UseLocaleWithCaseConversions"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#avoidsynchronizedatmethodlevel -->
-    <rule ref="category/java/multithreading.xml/AvoidSynchronizedAtMethodLevel"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#avoidthreadgroup -->
     <rule ref="category/java/multithreading.xml/AvoidThreadGroup"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_multithreading.html#dontcallthreadrun -->
