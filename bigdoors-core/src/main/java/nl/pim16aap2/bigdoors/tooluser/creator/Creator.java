@@ -157,13 +157,7 @@ public abstract class Creator extends ToolUser
     @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
 
-    private static final DecimalFormat DECIMAL_FORMAT =
-        new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-
-    static
-    {
-        DECIMAL_FORMAT.setMaximumFractionDigits(2);
-    }
+    private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
     protected Creator(IPPlayer player, @Nullable String name)
     {
@@ -634,5 +628,36 @@ public abstract class Creator extends ToolUser
 
         engine = loc.getPosition();
         return true;
+    }
+
+    /**
+     * Represents a synchronized wrapper for {@link DecimalFormat}.
+     *
+     * @author Pim
+     */
+    private static final class MyDecimalFormat
+    {
+        private final DecimalFormat decimalFormat;
+
+        MyDecimalFormat()
+        {
+            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+            decimalFormat.setMaximumFractionDigits(2);
+        }
+
+        /**
+         * Formats a double number as a String.
+         *
+         * @param number
+         *     The double number to format
+         * @return The String representation of the provided double value.
+         *
+         * @throws ArithmeticException
+         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSAR
+         */
+        public synchronized String format(double number)
+        {
+            return decimalFormat.format(number);
+        }
     }
 }
