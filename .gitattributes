@@ -1,0 +1,10 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# File types to convert to proper line endings:
+*.java text
+*.properties text
+*.txt text
+*.yml text
+*.config text
+*.xml text
