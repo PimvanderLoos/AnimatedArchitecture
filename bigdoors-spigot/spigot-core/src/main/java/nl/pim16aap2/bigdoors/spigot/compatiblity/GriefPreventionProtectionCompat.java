@@ -17,14 +17,14 @@ import org.jetbrains.annotations.Nullable;
  */
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.GRIEFPREVENTION;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.GRIEFPREVENTION;
     private final GriefPrevention griefPrevention;
     private final boolean success;
 
     public GriefPreventionProtectionCompat()
     {
         final @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
-                                                             .getPlugin(ProtectionCompat.getName(compat));
+                                                             .getPlugin(ProtectionCompat.getName(COMPAT));
 
         // WorldGuard may not be loaded
         if (!(griefPreventionPlugin instanceof GriefPrevention))

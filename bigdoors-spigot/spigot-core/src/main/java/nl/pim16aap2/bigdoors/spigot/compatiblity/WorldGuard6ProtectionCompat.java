@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.WORLDGUARD;
     private final BigDoorsSpigot plugin;
     private final WorldGuardPlugin worldGuard;
     private final boolean success;
@@ -30,7 +30,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         plugin = BigDoorsSpigot.get();
 
         final @Nullable Plugin wgPlugin =
-            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(COMPAT));
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))

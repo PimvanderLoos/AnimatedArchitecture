@@ -19,9 +19,8 @@ import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -42,6 +41,7 @@ import java.util.Set;
 @ToString
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
+    @SuppressWarnings({"PMD.FieldNamingConventions", "squid:S3008"}) // TODO: Get rid of this.
     private static @Nullable ConfigLoaderSpigot INSTANCE;
     private final BigDoorsSpigot plugin;
     @ToString.Exclude
@@ -280,14 +280,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         checkForUpdates = addNewConfigEntry(config, "checkForUpdates", true, checkForUpdatesComment);
         autoDLUpdate = addNewConfigEntry(config, "auto-update", true, autoDLUpdateComment);
         // Multiply by 60 to get the time in seconds. Also, it's capped to 10080 minutes, better known as 1 week.
-        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1440, downloadDelayComment,
-                                          (Integer x) -> Math.min(10080, x)) * 60L;
+        downloadDelay = addNewConfigEntry(config, "downloadDelay", 1_440, downloadDelayComment,
+                                          (Integer x) -> Math.min(10_080, x)) * 60L;
         allowStats = addNewConfigEntry(config, "allowStats", true, allowStatsComment);
 
         int idx = 0;
         for (final ProtectionCompat compat : ProtectionCompat.values())
         {
-            final String name = ProtectionCompat.getName(compat).toLowerCase();
+            final String name = ProtectionCompat.getName(compat).toLowerCase(Locale.ENGLISH);
             final boolean isEnabled = (boolean) config.get(name, false);
             addNewConfigEntry(config, ProtectionCompat.getName(compat), false,
                               ((idx++ == 0) ? compatibilityHooksComment : null));
@@ -365,7 +365,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @return The value as read from the config file if it exists or the default value.
      */
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
-                                    String @Nullable [] comment)
+                                    String @Nullable ... comment)
     {
         final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
         configEntries.add(option);
@@ -433,22 +433,16 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 logger.warn("=======================================");
             }
 
-            try (FileWriter fw = new FileWriter(saveTo, false);
-                 PrintWriter pw = new PrintWriter(fw))
-            {
-                pw.println("# " + header + "\n");
+            final StringBuilder sb = new StringBuilder()
+                .append("# ").append(header).append('\n');
 
-                for (int idx = 0; idx < configEntries.size(); ++idx)
-                    pw.println(configEntries.get(idx).toString() +
-                                   // Only print an additional newLine if the next config option has a comment.
-                                   (idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
-                                    "" : "\n"));
-            }
-            catch (IOException e)
-            {
-                logger.logThrowable(e, "Could not write to config.yml! "
-                    + "Please contact pim16aap2 and show him the following stacktrace:");
-            }
+            for (int idx = 0; idx < configEntries.size(); ++idx)
+                sb.append(configEntries.get(idx).toString()).append('\n')
+                  // Only print an additional newLine if the next config option has a comment.
+                  .append((idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
+                           "" : '\n'));
+
+            Files.writeString(saveTo.toPath(), sb.toString());
         }
         catch (IOException e)
         {

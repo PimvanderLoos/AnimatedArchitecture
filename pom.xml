@@ -345,7 +345,6 @@
                                 <linkXRef>true</linkXRef>
                                 <failOnViolation>true</failOnViolation>
                                 <showPmdLog>true</showPmdLog>
-                                <verbose>true</verbose>
                                 <detail>true</detail>
                                 <printFailingErrors>true</printFailingErrors>
                             </configuration>

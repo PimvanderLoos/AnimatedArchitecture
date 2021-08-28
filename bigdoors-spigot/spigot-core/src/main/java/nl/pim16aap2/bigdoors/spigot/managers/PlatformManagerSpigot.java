@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
     private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();
-    private static final @Nullable ISpigotPlatform spigotPlatform;
-    private static final Version spigotVersion;
+    private static final @Nullable ISpigotPlatform SPIGOT_PLATFORM;
+    private static final Version SPIGOT_VERSION;
 
     static
     {
@@ -31,8 +31,8 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
             BigDoors.get().getPLogger().logThrowable(e);
             version = Version.ERROR;
         }
-        spigotVersion = version;
-        spigotPlatform = spigotPlatformTmp;
+        SPIGOT_VERSION = version;
+        SPIGOT_PLATFORM = spigotPlatformTmp;
     }
 
     /**
@@ -48,13 +48,13 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
     @Override
     public ISpigotPlatform getSpigotPlatform()
     {
-        if (spigotPlatform == null)
+        if (SPIGOT_PLATFORM == null)
         {
             final IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
             BigDoors.get().getPLogger().logThrowable(e);
             throw e;
         }
-        return spigotPlatform;
+        return SPIGOT_PLATFORM;
     }
 
     /**
@@ -66,13 +66,13 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      */
     public boolean initPlatform(BigDoorsSpigot bigDoorsSpigot)
     {
-        if (spigotPlatform == null)
+        if (SPIGOT_PLATFORM == null)
         {
             BigDoors.get().getPLogger().logThrowable(new NullPointerException("Could not load Spigot platform for " +
-                                                                                  "version " + spigotVersion.name()));
+                                                                                  "version " + SPIGOT_VERSION.name()));
             return false;
         }
-        spigotPlatform.init(bigDoorsSpigot);
+        SPIGOT_PLATFORM.init(bigDoorsSpigot);
         return true;
     }
 
@@ -86,7 +86,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
                     return null;
                 }
             },
-        v1_15_R1
+        V1_15_R1
             {
                 @Override
                 public ISpigotPlatform getPlatform()

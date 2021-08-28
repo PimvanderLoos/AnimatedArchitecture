@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.WORLDGUARD;
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     private final boolean success;
@@ -32,7 +32,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
         worldGuard = WorldGuard.getInstance();
 
         final @Nullable Plugin wgPlugin =
-            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(COMPAT));
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))

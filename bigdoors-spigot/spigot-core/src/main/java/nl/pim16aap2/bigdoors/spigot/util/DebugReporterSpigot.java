@@ -28,33 +28,40 @@ public class DebugReporterSpigot extends DebugReporter
     @Override
     public String getDump()
     {
-        final StringBuilder sb = new StringBuilder(super.getDump());
-        sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append('\n');
-        sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n');
-
-        sb.append("Registered door types: ")
-          .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
-          .append('\n');
-
-        sb.append("Enabled door types:    ")
-          .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
-          .append('\n');
-
         final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-        sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append('\n');
 
-        // TODO: Implement this:
-//        sb.append("Enabled protection hooks: ")
-//          .append(getAllProtectionHooksOrSomething())
+        return new StringBuilder(super.getDump())
+            .append("BigDoors version: ")
+            .append(plugin.getDescription().getVersion()).append('\n')
+            .append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n')
 
-        sb.append("EventListeners:\n").append(
-            getListeners(DoorPrepareAddOwnerEvent.class, DoorPrepareCreateEvent.class, DoorPrepareDeleteEvent.class,
-                         DoorPrepareLockChangeEvent.class, DoorPrepareRemoveOwnerEvent.class, DoorCreatedEvent.class,
-                         DoorEventToggleEnd.class, DoorEventTogglePrepare.class, DoorEventToggleStart.class));
+            .append("Registered door types: ")
+            .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
+            .append('\n')
 
-        sb.append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n');
+            .append("Enabled door types:    ")
+            .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
+            .append('\n')
 
-        return sb.toString();
+            .append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName())
+            .append('\n')
+
+//            // TODO: Implement this:
+//            .append("Enabled protection hooks: ")
+//            .append(getAllProtectionHooksOrSomething())
+
+            .append("EventListeners:\n").append(getListeners(DoorPrepareAddOwnerEvent.class,
+                                                             DoorPrepareCreateEvent.class,
+                                                             DoorPrepareDeleteEvent.class,
+                                                             DoorPrepareLockChangeEvent.class,
+                                                             DoorPrepareRemoveOwnerEvent.class,
+                                                             DoorCreatedEvent.class,
+                                                             DoorEventToggleEnd.class,
+                                                             DoorEventTogglePrepare.class,
+                                                             DoorEventToggleStart.class))
+
+            .append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n')
+            .toString();
     }
 
     private String getListeners(Class<?>... classes)

@@ -7,36 +7,21 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Process world (un)load events.
  *
  * @author Pim
  */
-public class WorldListener implements Listener
+public final class WorldListener implements Listener
 {
-    private static @Nullable WorldListener INSTANCE;
-
     private final PowerBlockManager powerBlockManager;
 
-    private WorldListener(PowerBlockManager powerBlockManager)
+    public WorldListener(PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;
         for (final World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());
-    }
-
-    /**
-     * Initializes the {@link WorldListener}. If it has already been initialized, it'll return that instance instead.
-     *
-     * @param powerBlockManager
-     *     The {@link PowerBlockManager}.
-     * @return The instance of this {@link WorldListener}.
-     */
-    public static WorldListener init(PowerBlockManager powerBlockManager)
-    {
-        return INSTANCE == null ? INSTANCE = new WorldListener(powerBlockManager) : INSTANCE;
     }
 
     @EventHandler(ignoreCancelled = true)

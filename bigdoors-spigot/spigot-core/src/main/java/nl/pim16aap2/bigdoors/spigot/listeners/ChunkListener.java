@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -29,7 +28,6 @@ public class ChunkListener implements Listener
      * the case.
      */
     private final boolean isCancellable;
-    private boolean success = false;
     // <1.14 method.
     private @Nullable Method isCancelled;
     // 1.14 => method.
@@ -55,11 +53,9 @@ public class ChunkListener implements Listener
                 isCancelled = org.bukkit.event.world.ChunkUnloadEvent.class.getMethod("isCancelled");
             else
                 isForceLoaded = org.bukkit.Chunk.class.getMethod("isForceLoaded");
-            success = true;
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            success = false;
             plugin.getPLogger()
                   .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
@@ -95,7 +91,7 @@ public class ChunkListener implements Listener
 
     /**
      * Listens to chunks being unloaded and checks if it intersects with the region of any of the active {@link
-     * DoorBase}s.
+     * nl.pim16aap2.bigdoors.doors.DoorBase}s.
      *
      * @param event
      *     The {@link ChunkUnloadEvent}.
@@ -142,6 +138,7 @@ public class ChunkListener implements Listener
      *     The {@link ChunkUnloadEvent}.
      * @return The if the {@link ChunkUnloadEvent} is cancelled.
      */
+    @SuppressWarnings("PMD.ConfusingTernary") // It's definitely not confusing.
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
     {
         try

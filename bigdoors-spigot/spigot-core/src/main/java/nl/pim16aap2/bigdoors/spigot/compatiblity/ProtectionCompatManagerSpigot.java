@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -39,16 +38,13 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private final BigDoorsSpigot plugin;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
 
-    @SuppressWarnings({"NullAway.Init"})
-    private static ProtectionCompatManagerSpigot INSTANCE;
-
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
      *
      * @param plugin
      *     The instance of {@link BigDoorsSpigot}.
      */
-    private ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
+    public ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
@@ -65,32 +61,6 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         fakePlayerCreator = fakePlayerCreatorTmp;
         protectionCompats = new ArrayList<>();
         restart();
-    }
-
-    /**
-     * Initializes the {@link ProtectionCompatManagerSpigot}. If it has already been initialized, it'll return that
-     * instance instead.
-     *
-     * @param plugin
-     *     The Spigot plugin.
-     * @return The instance of this {@link ProtectionCompatManagerSpigot}.
-     */
-    public static ProtectionCompatManagerSpigot init(BigDoorsSpigot plugin)
-    {
-        //noinspection ConstantConditions
-        return (INSTANCE == null) ?
-               INSTANCE = new ProtectionCompatManagerSpigot(plugin) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link ProtectionCompatManagerSpigot} if it exists.
-     *
-     * @return The instance of the {@link ProtectionCompatManagerSpigot}.
-     */
-    public static ProtectionCompatManagerSpigot get()
-    {
-        return Objects.requireNonNull(INSTANCE,
-                                      "Instance has not yet been initialized. Be sure #init() has been invoked");
     }
 
     /**

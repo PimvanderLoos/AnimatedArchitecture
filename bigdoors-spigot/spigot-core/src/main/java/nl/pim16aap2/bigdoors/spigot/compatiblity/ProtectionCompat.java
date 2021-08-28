@@ -76,12 +76,12 @@ public enum ProtectionCompat
         },
     ;
 
-    private static final Map<String, ProtectionCompat> nameMap = new HashMap<>();
+    private static final Map<String, ProtectionCompat> NAME_MAP = new HashMap<>();
 
     static
     {
         for (final ProtectionCompat compat : ProtectionCompat.values())
-            nameMap.put(ProtectionCompat.getName(compat), compat);
+            NAME_MAP.put(ProtectionCompat.getName(compat), compat);
     }
 
     private final String name;
@@ -112,7 +112,7 @@ public enum ProtectionCompat
      */
     public static @Nullable ProtectionCompat getFromName(String name)
     {
-        return nameMap.get(name);
+        return NAME_MAP.get(name);
     }
 
     /**

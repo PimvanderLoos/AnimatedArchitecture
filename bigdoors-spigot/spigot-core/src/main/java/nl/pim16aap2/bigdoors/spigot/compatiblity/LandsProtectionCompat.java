@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 public class LandsProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.LANDS;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.LANDS;
     private final boolean success;
     private final LandsIntegration landsAddon;
 
@@ -71,6 +71,6 @@ public class LandsProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return ProtectionCompat.getName(compat);
+        return ProtectionCompat.getName(COMPAT);
     }
 }

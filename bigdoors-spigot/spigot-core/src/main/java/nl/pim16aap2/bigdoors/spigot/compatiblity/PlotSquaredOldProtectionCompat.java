@@ -66,10 +66,10 @@ public class PlotSquaredOldProtectionCompat implements IProtectionCompat
             if (!plot.hasOwner())
                 return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_UNOWNED.s());
 
-            if (!plot.isAdded(player.getUniqueId()))
-                return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s());
-            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
+            if (plot.isAdded(player.getUniqueId()))
                 return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_BUILD_OTHER.s());
+            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
+                return plugin.getVaultManager().hasPermission(player, C.PERMISSION_ADMIN_DESTROY_OTHER.s());
 
             return true;
         }

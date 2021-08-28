@@ -8,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
@@ -17,31 +16,15 @@ import org.jetbrains.annotations.Nullable;
  */
 public class LoginResourcePackListener extends Restartable implements Listener
 {
-    private static @Nullable LoginResourcePackListener INSTANCE;
     private final BigDoorsSpigot plugin;
     private final String url;
     private boolean isRegistered = false;
 
-    private LoginResourcePackListener(BigDoorsSpigot plugin, String url)
+    public LoginResourcePackListener(BigDoorsSpigot plugin, String url)
     {
         super(plugin);
         this.plugin = plugin;
         this.url = url;
-    }
-
-    /**
-     * Initializes the {@link LoginResourcePackListener}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param plugin
-     *     The {@link BigDoorsSpigot} plugin.
-     * @param url
-     *     The URL of the resource pack.
-     * @return The instance of this {@link LoginResourcePackListener}.
-     */
-    public static LoginResourcePackListener init(BigDoorsSpigot plugin, String url)
-    {
-        return (INSTANCE == null) ? INSTANCE = new LoginResourcePackListener(plugin, url) : INSTANCE;
     }
 
     @Override

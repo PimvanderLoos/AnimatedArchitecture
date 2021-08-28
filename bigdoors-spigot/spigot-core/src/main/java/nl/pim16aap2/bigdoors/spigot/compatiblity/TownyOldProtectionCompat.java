@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
  */
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.TOWNY;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.TOWNY;
     private final boolean success;
 
     public TownyOldProtectionCompat()
@@ -58,7 +58,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return ProtectionCompat.getName(compat);
+        return ProtectionCompat.getName(COMPAT);
     }
 }
 

@@ -26,8 +26,6 @@ import java.util.function.Function;
  */
 public final class HeadManager extends Restartable
 {
-    private static @Nullable HeadManager INSTANCE;
-
     /**
      * Timed cache of player heads.
      * <p>
@@ -46,7 +44,7 @@ public final class HeadManager extends Restartable
      * @param config
      *     The BigDoors configuration.
      */
-    private HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
+    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
     {
         super(holder);
         this.config = config;
@@ -58,30 +56,6 @@ public final class HeadManager extends Restartable
     {
         headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
                             .duration(Duration.ofMinutes(config.headCacheTimeout())).build();
-    }
-
-    /**
-     * Initializes the {@link HeadManager}. If it has already been initialized, it'll return that instance instead.
-     *
-     * @param holder
-     *     The {@link IRestartableHolder} that manages this object.
-     * @param config
-     *     The BigDoors configuration.
-     * @return The instance of this {@link HeadManager}.
-     */
-    public static HeadManager init(IRestartableHolder holder, ConfigLoaderSpigot config)
-    {
-        return (INSTANCE == null) ? INSTANCE = new HeadManager(holder, config) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link HeadManager} if it exists.
-     *
-     * @return The instance of the {@link HeadManager}.
-     */
-    public static HeadManager get()
-    {
-        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     /**

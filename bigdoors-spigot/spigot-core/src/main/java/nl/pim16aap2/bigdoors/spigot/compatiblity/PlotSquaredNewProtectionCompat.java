@@ -72,7 +72,10 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 return plugin.getVaultManager()
                              .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_UNOWNED.getTranslated());
 
-            if (!plot.isAdded(player.getUniqueId()))
+            if (plot.isAdded(player.getUniqueId()))
+                return plugin.getVaultManager()
+                             .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.getTranslated());
+            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
             {
                 final Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
                 final Block block = loc.getBlock();
@@ -82,9 +85,6 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 return plugin.getVaultManager()
                              .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER.getTranslated());
             }
-            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
-                return plugin.getVaultManager()
-                             .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.getTranslated());
 
             return true;
         }

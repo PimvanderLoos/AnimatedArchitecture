@@ -139,8 +139,6 @@
     <rule ref="category/java/design.xml/UseUtilityClass"/>
 
 
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidbranchingstatementaslastinloop -->
-    <rule ref="category/java/errorprone.xml/AvoidBranchingStatementAsLastInLoop"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcallingfinalize -->
     <rule ref="category/java/errorprone.xml/AvoidCallingFinalize"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcatchingthrowable -->
