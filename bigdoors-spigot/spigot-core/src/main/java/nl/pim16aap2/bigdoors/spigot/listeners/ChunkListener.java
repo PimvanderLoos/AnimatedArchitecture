@@ -108,12 +108,13 @@ public class ChunkListener implements Listener
 //            // If this class couldn't figure out reflection properly, give up.
 //            if (!success)
 //            {
-//                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! Please contact pim16aap2.");
+//                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! " +
+//                                             "Please contact pim16aap2.");
 //                return;
 //            }
 //
-//            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14), there's no need
-//            // to interfere.
+//            // If another plugin has already cancelled this event (or, forceLoaded this chunk in 1.14),
+//            // there's no need to interfere.
 //            if (isChunkUnloadCancelled(event))
 //                return;
 //
