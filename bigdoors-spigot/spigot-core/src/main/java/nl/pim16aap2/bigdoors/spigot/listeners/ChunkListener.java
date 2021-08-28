@@ -138,7 +138,6 @@ public class ChunkListener implements Listener
      *     The {@link ChunkUnloadEvent}.
      * @return The if the {@link ChunkUnloadEvent} is cancelled.
      */
-    @SuppressWarnings("PMD.ConfusingTernary") // It's definitely not confusing.
     private boolean isChunkUnloadCancelled(ChunkUnloadEvent event)
     {
         try

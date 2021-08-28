@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode"})
+@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode", "PMD"})
 public class FlagMover extends BlockMover
 {
     private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;

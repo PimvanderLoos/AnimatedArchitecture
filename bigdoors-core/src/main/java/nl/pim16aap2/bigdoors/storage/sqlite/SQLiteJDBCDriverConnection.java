@@ -214,7 +214,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * Initializes the database. I.e. create all the required files/tables.
      */
-//    @SuppressWarnings("PMD.ConfusingTernary")
     private void init()
     {
         if (!dbFile.exists())

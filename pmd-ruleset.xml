@@ -39,8 +39,6 @@
     <rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#replacehashtablewithmap -->
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedformalparameter -->
-    <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#simplifiabletestassertion -->
     <rule ref="category/java/bestpractices.xml/SimplifiableTestAssertion"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#unusedlocalvariable -->
@@ -67,8 +65,6 @@
     <rule ref="category/java/codestyle.xml/AvoidProtectedMethodInFinalClassNotExtending"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#avoidusingnativecode -->
     <rule ref="category/java/codestyle.xml/AvoidUsingNativeCode"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#confusingternary -->
-    <rule ref="category/java/codestyle.xml/ConfusingTernary"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#extendsobject -->
     <rule ref="category/java/codestyle.xml/ExtendsObject"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_codestyle.html#fielddeclarationsshouldbeatstartofclass -->

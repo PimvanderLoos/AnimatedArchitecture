@@ -29,7 +29,7 @@ public class GarageDoorMover extends BlockMover
     private final int xLen;
     private final int yLen;
     private final int zLen;
-    private boolean NS = false;
+    private final boolean northSouth;
     protected int blocksToMove;
 
     private double step;
@@ -49,20 +49,22 @@ public class GarageDoorMover extends BlockMover
             case NORTH:
                 directionVec = PBlockFace.getDirection(PBlockFace.NORTH);
                 getVectorTmp = this::getVectorDownNorth;
-                NS = true;
+                northSouth = true;
                 break;
             case EAST:
                 directionVec = PBlockFace.getDirection(PBlockFace.EAST);
                 getVectorTmp = this::getVectorDownEast;
+                northSouth = false;
                 break;
             case SOUTH:
                 directionVec = PBlockFace.getDirection(PBlockFace.SOUTH);
                 getVectorTmp = this::getVectorDownSouth;
-                NS = true;
+                northSouth = true;
                 break;
             case WEST:
                 directionVec = PBlockFace.getDirection(PBlockFace.WEST);
                 getVectorTmp = this::getVectorDownWest;
+                northSouth = false;
                 break;
             default:
                 throw new IllegalStateException("Failed to open garage door \"" + getDoorUID()
@@ -196,7 +198,9 @@ public class GarageDoorMover extends BlockMover
     @Override
     protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
-        double newX, newY, newZ;
+        double newX;
+        double newY;
+        double newZ;
 
         if (!door.isOpen())
         {
@@ -233,8 +237,8 @@ public class GarageDoorMover extends BlockMover
         double addZ = 0;
         if (door.isOpen()) // The offset isn't needed when going up.
         {
-            addX = NS ? 0 : 0.5f;
-            addZ = NS ? 0.5f : 0;
+            addX = northSouth ? 0 : 0.5f;
+            addZ = northSouth ? 0.5f : 0;
         }
         return new Vector3Dd(finalLoc.getX() + addX, finalLoc.getY(), finalLoc.getZ() + addZ);
     }
