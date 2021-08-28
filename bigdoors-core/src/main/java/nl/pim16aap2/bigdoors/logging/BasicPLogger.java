@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.logging;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.time.LocalDate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -41,7 +40,7 @@ public class BasicPLogger implements IPLogger
     private void writeMessage(Level level, LogMessage logMessage)
     {
         if (loggable(level))
-            stringConsumer.accept("[" + IPLogger.DATE_TIME_FORMATTER.format(LocalDate.now()) + "] " + logMessage);
+            stringConsumer.accept("[" + getCurrentTime() + "] " + logMessage);
     }
 
     private void writeMessage(Level level, @Nullable String msg)

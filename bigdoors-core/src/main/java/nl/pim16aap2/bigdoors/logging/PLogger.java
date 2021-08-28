@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.time.LocalDate;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Supplier;
@@ -232,9 +231,7 @@ public final class PLogger implements IPLogger
     {
         try
         {
-            Files.writeString(logFile.toPath(),
-                              "[" + IPLogger.DATE_TIME_FORMATTER.format(LocalDate.now()) + "] " + msg,
-                              StandardOpenOption.APPEND);
+            Files.writeString(logFile.toPath(), "[" + getCurrentTime() + "] " + msg, StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {
