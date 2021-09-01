@@ -148,7 +148,8 @@ public class CylindricalMover implements BlockMover
                             materialData.setData(matByte);
 
                             if (plugin.is1_13())
-                                if (canRotate == 6)
+                            {
+                                if (canRotate == 6 || canRotate == 8)
                                 {
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                     block2.rotateCylindrical(this.rotDirection);
@@ -161,6 +162,7 @@ public class CylindricalMover implements BlockMover
                                     bs2.update();
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                 }
+                            }
                         }
                         if (!plugin.is1_13())
                             vBlock.setType(Material.AIR);

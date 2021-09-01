@@ -8,25 +8,29 @@ import net.minecraft.world.level.block.BlockRotatable;
 import net.minecraft.world.level.block.EnumBlockRotation;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 
+import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Set;
 
 public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
 {
     private IBlockData blockData;
-    private CraftBlockData craftBlockData;
-    private XMaterial xmat;
+    private final CraftBlockData craftBlockData;
+    private final XMaterial xmat;
     private Location loc;
 
     public NMSBlock_V1_17_R1(World world, int x, int y, int z, Info blockInfo)
@@ -36,7 +40,7 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
         loc = new Location(world, x, y, z);
 
         // If the block is waterlogged (i.e. it has water inside), unwaterlog it.
-        craftBlockData = (CraftBlockData) ((CraftBlock) world.getBlockAt(x, y, z)).getBlockData();
+        craftBlockData = (CraftBlockData) world.getBlockAt(x, y, z).getBlockData();
         if (craftBlockData instanceof Waterlogged)
             ((Waterlogged) craftBlockData).setWaterlogged(false);
 
@@ -116,20 +120,50 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
     }
 
     @Override
-    public void rotateBlockUpDown(boolean NS)
+    public void rotateBlockUpDown(RotateDirection upDown, DoorDirection openDirection)
+    {
+        if (!(craftBlockData instanceof Directional))
+            return; // Nothing we can do
+
+        final Directional directional = (Directional) craftBlockData;
+        final BlockFace currentBlockFace = directional.getFacing();
+        final @Nullable BlockFace newBlockFace;
+
+        final BlockFace openingDirFace = openDirection.getBlockFace();
+        final BlockFace oppositeDirFace =
+            Objects.requireNonNull(DoorDirection.getOpposite(openDirection)).getBlockFace();
+
+        if (currentBlockFace == openingDirFace)
+            newBlockFace = BlockFace.DOWN;
+        else if (currentBlockFace == oppositeDirFace)
+            newBlockFace = BlockFace.UP;
+        else if (currentBlockFace == BlockFace.UP)
+            newBlockFace = openingDirFace;
+        else if (currentBlockFace == BlockFace.DOWN)
+            newBlockFace = oppositeDirFace;
+        else
+            return; // Nothing to do
+
+        if (directional.getFaces().contains(newBlockFace))
+            directional.setFacing(newBlockFace);
+        this.constructBlockDataFromBukkit();
+    }
+
+    @Override
+    public void rotateBlockUpDown(boolean ns)
     {
         EnumDirection.EnumAxis axis = blockData.get(BlockRotatable.g);
         EnumDirection.EnumAxis newAxis = axis;
         switch (axis)
         {
         case a:
-            newAxis = NS ? EnumDirection.EnumAxis.a : EnumDirection.EnumAxis.b;
+            newAxis = ns ? EnumDirection.EnumAxis.a : EnumDirection.EnumAxis.b;
             break;
         case b:
-            newAxis = NS ? EnumDirection.EnumAxis.c : EnumDirection.EnumAxis.a;
+            newAxis = ns ? EnumDirection.EnumAxis.c : EnumDirection.EnumAxis.a;
             break;
         case c:
-            newAxis = NS ? EnumDirection.EnumAxis.b : EnumDirection.EnumAxis.c;
+            newAxis = ns ? EnumDirection.EnumAxis.b : EnumDirection.EnumAxis.c;
             break;
         }
         blockData = blockData.set(BlockRotatable.g, newAxis);

@@ -520,6 +520,8 @@ public final class Util
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
+        if (xmat.equals(XMaterial.LIGHTNING_ROD))
+            return 8;
         return 0;
     }
 
