@@ -560,8 +560,12 @@ public class BridgeMover implements BlockMover
     private byte rotateEndRotBlockData(Byte matData)
     {
         /*
-         * 0: Pointing Down (upside down (purple on top)) 1: Pointing Up (normal) 2:
-         * Pointing North 3: Pointing South 4: Pointing West 5: Pointing East
+         * 0: Pointing Down (upside down (purple on top))
+         * 1: Pointing Up (normal)
+         * 2: Pointing North
+         * 3: Pointing South
+         * 4: Pointing West
+         * 5: Pointing East
          */
         if (!NS)
         {

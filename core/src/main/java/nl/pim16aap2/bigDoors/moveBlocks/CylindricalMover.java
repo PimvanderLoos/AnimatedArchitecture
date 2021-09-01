@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -142,6 +141,8 @@ public class CylindricalMover implements BlockMover
                                 matByte = rotateBlockDataStairs(matData);
                             else if (canRotate == 4)
                                 matByte = rotateBlockDataAnvil(matData);
+                            else if (canRotate == 7)
+                                matByte = rotateBlockDataEndRod(matData);
 
                             Block b = world.getBlockAt(pos);
                             materialData.setData(matByte);
@@ -425,6 +426,41 @@ public class CylindricalMover implements BlockMover
         else if (matData >= 7 && matData <= 11)
             matData = (byte) (matData - 4);
         return matData;
+    }
+
+    private byte rotateBlockDataEndRod(byte matData)
+    {
+        /*
+         * 0: Pointing Down (upside down (purple on top))
+         * 1: Pointing Up (normal)
+         * 2: Pointing North
+         * 3: Pointing South
+         * 4: Pointing West
+         * 5: Pointing East
+         */
+        if (matData == 0 || matData == 1)
+            return matData;
+
+        if (rotDirection == RotateDirection.CLOCKWISE)
+        {
+            switch (matData)
+            {
+                case 2: return 5; // North -> East
+                case 3: return 4; // South -> West
+                case 4: return 2; // West  -> North
+                case 5: return 3; // East  -> South
+                default: return matData;
+            }
+        }
+
+        switch (matData)
+        {
+            case 2: return 5; // North -> West
+            case 3: return 4; // South -> East
+            case 4: return 3; // West  -> South
+            case 5: return 2; // East  -> North
+            default: return matData;
+        }
     }
 
     private byte rotateBlockDataAnvil(Byte matData)
