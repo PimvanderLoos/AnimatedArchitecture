@@ -5,7 +5,7 @@
     <groupId>nl.pim16aap2.BigDoors</groupId>
     <artifactId>BigDoors-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.1.8.30-ALPHA</version>
+    <version>0.1.8.32-ALPHA</version>
 
     <modules>
         <module>core</module>
