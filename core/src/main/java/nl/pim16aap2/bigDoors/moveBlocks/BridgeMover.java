@@ -230,7 +230,7 @@ public class BridgeMover implements BlockMover
                     Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData = vBlock.getData();
+                        byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
@@ -238,7 +238,7 @@ public class BridgeMover implements BlockMover
                         NMSBlock block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte = matData;
+                        byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
                         // Rotate blocks here so they don't interrupt the rotation animation.
@@ -363,8 +363,7 @@ public class BridgeMover implements BlockMover
 
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte;
-                        matByte = savedBlocks.get(index).getBlockByte();
+                        byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis,
                                                              index);
 
@@ -497,7 +496,7 @@ public class BridgeMover implements BlockMover
                                 {
                                     Material mat = block.getMat();
                                     Location loc = block.getFBlock().getLocation();
-                                    Byte matData = block.getBlockByte();
+                                    byte matData = block.getBlockByte();
                                     Vector veloc = block.getFBlock().getVelocity();
 
                                     CustomCraftFallingBlock fBlock;

@@ -119,7 +119,7 @@ public class CylindricalMover implements BlockMover
 
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData = vBlock.getData();
+                        byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
@@ -127,7 +127,7 @@ public class CylindricalMover implements BlockMover
                         NMSBlock block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte = matData;
+                        byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
 
@@ -252,7 +252,7 @@ public class CylindricalMover implements BlockMover
 
             if (!mat.equals(Material.AIR))
             {
-                Byte matByte = savedBlock.getBlockByte();
+                byte matByte = savedBlock.getBlockByte();
 
                 Location newPos = gnl.getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(),
                                                      savedBlock.getStartY(), savedBlock.getStartZ());
@@ -375,7 +375,7 @@ public class CylindricalMover implements BlockMover
                                 {
                                     Material mat = block.getMat();
                                     Location loc = block.getFBlock().getLocation();
-                                    Byte matData = block.getBlockByte();
+                                    byte matData = block.getBlockByte();
                                     Vector veloc = block.getFBlock().getVelocity();
                                     // For some reason respawning fblocks puts them higher than they were, which has
                                     // to be counteracted.
