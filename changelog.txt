@@ -1,6 +1,7 @@
 Alpha 0.1.8.32
 - Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!
 - Fixed lightning rods not being rotated in drawbridges and big doors.
+- Fixed only being able to set invalid open directions for portcullises in the GUI. Thanks themarwik and Pumamori, for the bug reports!
 
 Alpha 0.1.8.31
 - The auto-updater is now initialized before checking if the current server version is valid. Thanks, Eldoria, for the bug report!

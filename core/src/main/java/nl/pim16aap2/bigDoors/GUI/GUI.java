@@ -707,6 +707,9 @@ public class GUI
                 curOpenDir == RotateDirection.NORTH ? RotateDirection.SOUTH :
                 curOpenDir == RotateDirection.SOUTH ? RotateDirection.NORTH :
                 curOpenDir == RotateDirection.EAST ? RotateDirection.WEST : RotateDirection.EAST;
+        else if (door.getType() == DoorType.PORTCULLIS)
+            // Switch between UP and DOWN. When invalid, default to DOWN.
+            newOpenDir = curOpenDir == RotateDirection.DOWN ? RotateDirection.UP : RotateDirection.DOWN;
         else
             newOpenDir = curOpenDir == RotateDirection.NONE ? RotateDirection.CLOCKWISE :
                 curOpenDir == RotateDirection.CLOCKWISE ? RotateDirection.COUNTERCLOCKWISE : RotateDirection.CLOCKWISE;
