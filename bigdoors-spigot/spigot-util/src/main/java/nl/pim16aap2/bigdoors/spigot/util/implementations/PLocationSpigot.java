@@ -181,7 +181,7 @@ public final class PLocationSpigot implements IPLocation
             return false;
         if (getClass() != o.getClass())
             return false;
-        PLocationSpigot other = (PLocationSpigot) o;
+        final PLocationSpigot other = (PLocationSpigot) o;
         return location.equals(other.getBukkitLocation());
     }
 

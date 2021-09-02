@@ -163,9 +163,10 @@ public final class DoorOpener
                                                                 @Nullable IPPlayer responsible, double time,
                                                                 boolean skipAnimation, DoorActionType doorActionType)
     {
-        final IPPlayer finalResponsible = responsible != null ? responsible :
+        final IPPlayer finalResponsible = responsible == null ?
                                           BigDoors.get().getPlatform().getPPlayerFactory()
-                                                  .create(door.getPrimeOwner().pPlayerData());
+                                                  .create(door.getPrimeOwner().pPlayerData()) :
+                                          responsible;
         return animateDoor(door, cause, messageReceiver, finalResponsible, time, skipAnimation, doorActionType);
     }
 

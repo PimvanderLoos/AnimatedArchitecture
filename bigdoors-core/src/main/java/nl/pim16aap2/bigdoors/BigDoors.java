@@ -33,16 +33,6 @@ public final class BigDoors extends RestartableHolder
     private static final BigDoors INSTANCE = new BigDoors();
 
     /**
-     * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
-     *
-     * @return The {@link DelayedCommandInputManager} registered by the platform.
-     */
-    public DelayedCommandInputManager getDelayedCommandInputManager()
-    {
-        return getPlatform().getDelayedCommandInputManager();
-    }
-
-    /**
      * The platform to use. e.g. "Spigot".
      */
     private @Nullable IBigDoorsPlatform platform;
@@ -82,6 +72,16 @@ public final class BigDoors extends RestartableHolder
         if (platform == null)
             throw new IllegalStateException("No platform currently registered!");
         return platform;
+    }
+
+    /**
+     * Gets the {@link DelayedCommandInputManager} to manage {@link DelayedCommandInputRequest}s.
+     *
+     * @return The {@link DelayedCommandInputManager} registered by the platform.
+     */
+    public DelayedCommandInputManager getDelayedCommandInputManager()
+    {
+        return getPlatform().getDelayedCommandInputManager();
     }
 
     /**

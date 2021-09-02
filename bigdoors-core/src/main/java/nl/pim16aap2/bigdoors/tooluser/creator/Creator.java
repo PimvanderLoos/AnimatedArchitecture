@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -159,13 +157,7 @@ public abstract class Creator extends ToolUser
     @ToString.Exclude
     protected Step.Factory factoryCompleteProcess;
 
-    private static final DecimalFormat DECIMAL_FORMAT =
-        new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-
-    static
-    {
-        DECIMAL_FORMAT.setMaximumFractionDigits(2);
-    }
+    private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
     protected Creator(IPPlayer player, @Nullable String name)
     {
@@ -231,7 +223,7 @@ public abstract class Creator extends ToolUser
     protected final DoorBase constructDoorData()
     {
         final long doorUID = -1;
-        val owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
+        final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
         return new DoorBase(doorUID,
                             Util.requireNonNull(name, "Name"),
                             Util.requireNonNull(cuboid, "cuboid"),
@@ -322,8 +314,8 @@ public abstract class Creator extends ToolUser
         if (!playerHasAccessToLocation(loc))
             return false;
 
-        Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
-                                      new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
+                                            new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
         final OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
@@ -393,7 +385,7 @@ public abstract class Creator extends ToolUser
     // TODO: Do not match against the enum names of RotateDirection, but against localized RotateDirection names.
     protected Optional<RotateDirection> parseOpenDirection(String str)
     {
-        final String openDirName = str.toUpperCase();
+        final String openDirName = str.toUpperCase(Locale.ENGLISH);
         final OptionalInt idOpt = Util.parseInt(str);
 
         final List<RotateDirection> validOpenDirs = getValidOpenDirections();
@@ -515,7 +507,7 @@ public abstract class Creator extends ToolUser
 
     /**
      * Gets the price of the door based on its volume. If the door is free because the price is <= 0 or the {@link
-     * IEconomyManager} is disabled, the price will be empty.
+     * nl.pim16aap2.bigdoors.api.IEconomyManager} is disabled, the price will be empty.
      *
      * @return The price of the door if a positive price could be found.
      */
@@ -550,11 +542,11 @@ public abstract class Creator extends ToolUser
      */
     protected String getOpenDirections()
     {
-        val sb = new StringBuilder();
+        final var sb = new StringBuilder();
         int idx = 0;
-        for (RotateDirection rotateDirection : getValidOpenDirections())
+        for (final RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")
-              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append("\n");
+              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append('\n');
         return sb.toString();
     }
 
@@ -636,5 +628,36 @@ public abstract class Creator extends ToolUser
 
         engine = loc.getPosition();
         return true;
+    }
+
+    /**
+     * Represents a synchronized wrapper for {@link DecimalFormat}.
+     *
+     * @author Pim
+     */
+    private static final class MyDecimalFormat
+    {
+        private final DecimalFormat decimalFormat;
+
+        MyDecimalFormat()
+        {
+            decimalFormat = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+            decimalFormat.setMaximumFractionDigits(2);
+        }
+
+        /**
+         * Formats a double number as a String.
+         *
+         * @param number
+         *     The double number to format
+         * @return The String representation of the provided double value.
+         *
+         * @throws ArithmeticException
+         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSAR
+         */
+        public synchronized String format(double number)
+        {
+            return decimalFormat.format(number);
+        }
     }
 }

@@ -68,7 +68,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private void registerTeams()
     {
-        for (PColor col : PColor.values())
+        for (final PColor col : PColor.values())
             registerTeam(col, scoreboard);
     }
 

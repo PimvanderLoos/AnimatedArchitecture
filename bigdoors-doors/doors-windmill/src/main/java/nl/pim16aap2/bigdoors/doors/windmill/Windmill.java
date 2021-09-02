@@ -95,7 +95,7 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
         throws Exception
     {
         // TODO: Get rid of this.
-        double fixedTime = time < 0.5 ? 5 : time;
+        final double fixedTime = time < 0.5 ? 5 : time;
 
         return new WindmillMover<>(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                    responsible, cause, actionType);

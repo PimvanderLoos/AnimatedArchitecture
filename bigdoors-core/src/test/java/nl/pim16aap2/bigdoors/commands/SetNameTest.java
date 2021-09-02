@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -32,7 +31,7 @@ class SetNameTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
         initCommandSenderPermissions(commandSender, true, true);
 
@@ -43,10 +42,10 @@ class SetNameTest
     @SneakyThrows
     void testExecution()
     {
-        val uuid = UUID.randomUUID();
-        val name = "newDoor";
+        final var uuid = UUID.randomUUID();
+        final var name = "newDoor";
 
-        val toolUser = Mockito.mock(Creator.class);
+        final var toolUser = Mockito.mock(Creator.class);
         Mockito.when(toolUser.handleInput(name)).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
@@ -60,10 +59,10 @@ class SetNameTest
     @SneakyThrows
     void testIncorrectToolUser()
     {
-        val uuid = UUID.randomUUID();
-        val name = "newDoor";
+        final var uuid = UUID.randomUUID();
+        final var name = "newDoor";
 
-        val toolUser = Mockito.mock(ToolUser.class);
+        final var toolUser = Mockito.mock(ToolUser.class);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 

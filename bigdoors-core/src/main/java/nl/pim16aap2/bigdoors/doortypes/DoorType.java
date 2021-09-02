@@ -6,12 +6,12 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -76,7 +76,7 @@ public abstract class DoorType
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to also register it using {@link
-     * DoorTypeManager#registerDoorType(DoorType)}.
+     * nl.pim16aap2.bigdoors.managers.DoorTypeManager#registerDoorType(DoorType)}.
      *
      * @param pluginName
      *     The name of the plugin that owns this {@link DoorType}.
@@ -91,11 +91,12 @@ public abstract class DoorType
                        String localizationKey)
     {
         this.pluginName = pluginName;
-        this.simpleName = simpleName.toLowerCase();
+        this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
         this.typeVersion = typeVersion;
         this.validOpenDirections = validOpenDirections;
         this.localizationKey = localizationKey;
-        fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion()).toLowerCase();
+        fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion())
+                         .toLowerCase(Locale.ENGLISH);
 
         @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         @Nullable DoorSerializer<?> serializer;
@@ -106,7 +107,7 @@ public abstract class DoorType
         catch (Exception t)
         {
             serializer = null;
-            BigDoors.get().getPLogger().logThrowable(t, "Failed to intialize serializer for type: " + getFullName());
+            BigDoors.get().getPLogger().logThrowable(t, "Failed to initialize serializer for type: " + getFullName());
         }
         doorSerializer = serializer;
     }

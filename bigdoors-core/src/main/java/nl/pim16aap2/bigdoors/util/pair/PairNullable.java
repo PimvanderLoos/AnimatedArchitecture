@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 // However, that's the point of this class and there's no reason to do it in another way.
 @SuppressWarnings("squid:S1104")
 // CHECKSTYLE:OFF
-public final class PairNullable<T1, T2>
+public final class PairNullable<T, U>
 {
-    public @Nullable T1 first;
-    public @Nullable T2 second;
+    public @Nullable T first;
+    public @Nullable U second;
 }

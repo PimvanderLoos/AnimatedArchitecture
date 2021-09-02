@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import org.junit.jupiter.api.Assertions;
@@ -27,7 +26,7 @@ class SpecifyTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
@@ -39,7 +38,7 @@ class SpecifyTest
     @SneakyThrows
     void testServer()
     {
-        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(Specify.run(server, "newDoor").get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }
@@ -49,7 +48,7 @@ class SpecifyTest
     void testExecution()
     {
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
-        val input = "newDoor";
+        final var input = "newDoor";
         Assertions.assertTrue(Specify.run(commandSender, input).get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());

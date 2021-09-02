@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -8,9 +7,9 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * V1_15_R1 implementation of {@link IFallingBlockFactory}.
@@ -24,16 +23,15 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     public ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception
     {
-        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
-        if (bukkitWorld == null)
-            throw new NullPointerException("Could not find bukkit world " + loc.getWorld().worldName());
+        final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(loc.getWorld()),
+                                                      "Spigot world from location: " + loc);
 
-        val fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
+        final var fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
                                                ((NMSBlock_V1_15_R1) block).getMyBlockData());
 
-        val ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
-                                                                                             fBlockNMS);
+        final var ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
+                                                                                                   fBlockNMS);
         ret.setCustomName(Constants.BIGDOORS_ENTITY_NAME);
         ret.setCustomNameVisible(false);
         return ret;

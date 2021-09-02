@@ -54,7 +54,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         throws Exception
     {
         super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
-        isHourArm = NS ? this::isHourArmNS : this::isHourArmEW;
+        isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;
     }
@@ -62,7 +62,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     @Override
     protected void init()
     {
-        super.endCount = 40000;
+        super.endCount = 40_000;
     }
 
     /**
@@ -102,7 +102,7 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             if (Math.abs(block.getRadius()) > EPS)
             {
                 // Move the little hand at a lower interval than the big hand.

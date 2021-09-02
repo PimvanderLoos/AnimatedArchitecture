@@ -16,7 +16,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -30,29 +29,15 @@ import java.util.concurrent.CompletableFuture;
  */
 public class RedstoneListener extends Restartable implements Listener
 {
-    private static @Nullable RedstoneListener INSTANCE;
     private final BigDoorsSpigot plugin;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
-    private RedstoneListener(BigDoorsSpigot plugin)
+    public RedstoneListener(BigDoorsSpigot plugin)
     {
         super(plugin);
         this.plugin = plugin;
         restart();
-    }
-
-    /**
-     * Initializes the {@link RedstoneListener}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param plugin
-     *     The {@link BigDoorsSpigot} plugin.
-     * @return The instance of this {@link RedstoneListener}.
-     */
-    public static RedstoneListener init(BigDoorsSpigot plugin)
-    {
-        return (INSTANCE == null) ? INSTANCE = new RedstoneListener(plugin) : INSTANCE;
     }
 
     @Override
@@ -123,7 +108,9 @@ public class RedstoneListener extends Restartable implements Listener
             final Location location = block.getLocation();
             final World world = Objects.requireNonNull(location.getWorld(), "World cannot be null!");
 
-            int x = location.getBlockX(), y = location.getBlockY(), z = location.getBlockZ();
+            final int x = location.getBlockX();
+            final int y = location.getBlockY();
+            final int z = location.getBlockZ();
 
             if (powerBlockTypes.contains(world.getBlockAt(x, y, z - 1).getType())) // North
                 checkDoors(new Location(world, x, y, z - 1.0));

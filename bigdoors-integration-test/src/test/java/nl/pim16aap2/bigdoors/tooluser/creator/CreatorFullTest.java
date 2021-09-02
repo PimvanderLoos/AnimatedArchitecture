@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -36,10 +35,10 @@ class CreatorFullTest extends CreatorTestsUtil
         Mockito.when(doorType.getValidOpenDirections())
                .thenReturn(Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
-        val door = Mockito.mock(AbstractDoor.class);
+        final var door = Mockito.mock(AbstractDoor.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
-        val creator = new CreatorTestImpl(player, door);
+        final var creator = new CreatorTestImpl(player, door);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);

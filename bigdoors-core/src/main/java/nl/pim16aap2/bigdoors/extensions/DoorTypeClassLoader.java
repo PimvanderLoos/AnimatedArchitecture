@@ -16,6 +16,8 @@ class DoorTypeClassLoader extends URLClassLoader
         super(new URL[]{}, parent);
     }
 
+    // The override isn't actually useless, as it allows us to access it.
+    @SuppressWarnings("PMD.UselessOverridingMethod")
     @Override
     protected void addURL(URL url)
     {

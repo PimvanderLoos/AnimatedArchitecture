@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -45,7 +44,7 @@ class InfoTest
     @SneakyThrows
     void testServer()
     {
-        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(Info.run(server, doorRetriever).get(1, TimeUnit.SECONDS));
         Mockito.verify(platform, Mockito.never()).getGlowingBlockSpawner();
         Mockito.verify(server).sendMessage(door.toString());
@@ -57,8 +56,8 @@ class InfoTest
     {
         Mockito.when(door.getDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
 
-        val player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
-        val doorString = door.toString();
+        final var player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final var doorString = door.toString();
 
         initCommandSenderPermissions(player, true, false);
         Assertions.assertTrue(Info.run(player, doorRetriever).get(1, TimeUnit.SECONDS));

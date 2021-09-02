@@ -12,7 +12,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-public abstract class LogMessage
+public class LogMessage
 {
     protected final String message;
 
@@ -116,7 +116,7 @@ public abstract class LogMessage
         {
             final StringBuilder sb = new StringBuilder();
             for (int idx = skip; idx < stackTrace.length; ++idx)
-                sb.append("\tat ").append(stackTrace[idx]).append("\n");
+                sb.append("\tat ").append(stackTrace[idx]).append('\n');
             return sb.toString();
         }
     }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -62,7 +61,7 @@ class SetOpenDirectionTest
         final RotateDirection rotateDirection = RotateDirection.CLOCKWISE;
 
         Mockito.when(doorType.isValidOpenDirection(Mockito.any())).thenReturn(false);
-        val command = new SetOpenDirection(commandSender, doorRetriever, rotateDirection);
+        final var command = new SetOpenDirection(commandSender, doorRetriever, rotateDirection);
 
         Assertions.assertTrue(command.performAction(door).get(1, TimeUnit.SECONDS));
         Mockito.verify(door, Mockito.never()).syncData();
@@ -97,8 +96,8 @@ class SetOpenDirectionTest
         Mockito.when(doorType.isValidOpenDirection(rotateDirection)).thenReturn(true);
         Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
 
-        val first = SetOpenDirection.runDelayed(commandSender, doorRetriever);
-        val second = SetOpenDirection.provideDelayedInput(commandSender, rotateDirection);
+        final var first = SetOpenDirection.runDelayed(commandSender, doorRetriever);
+        final var second = SetOpenDirection.provideDelayedInput(commandSender, rotateDirection);
 
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);

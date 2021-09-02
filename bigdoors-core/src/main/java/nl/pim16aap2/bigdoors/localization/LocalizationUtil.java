@@ -79,10 +79,10 @@ public final class LocalizationUtil
             return;
 
         final StringBuilder sb = new StringBuilder();
-        append.forEach(line -> sb.append(line).append("\n"));
+        append.forEach(line -> sb.append(line).append('\n'));
         try
         {
-            Files.write(path, sb.toString().getBytes(), StandardOpenOption.APPEND);
+            Files.writeString(path, sb.toString(), StandardOpenOption.APPEND);
         }
         catch (IOException e)
         {
@@ -110,7 +110,7 @@ public final class LocalizationUtil
         final Set<@Nullable String> keys = getKeySet(existing);
         final ArrayList<String> merged = new ArrayList<>(newLines.size());
 
-        for (String line : newLines)
+        for (final String line : newLines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key == null || keys.contains(key))
@@ -173,7 +173,7 @@ public final class LocalizationUtil
     static Set<String> getKeySet(List<String> lines)
     {
         final Set<String> ret = new LinkedHashSet<>(lines.size());
-        for (String line : lines)
+        for (final String line : lines)
         {
             final @Nullable String key = getKeyFromLine(line);
             if (key != null)
@@ -299,7 +299,7 @@ public final class LocalizationUtil
     static List<LocaleFile> getLocaleFiles(@Nullable String baseName, List<Path> files)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(files.size());
-        for (Path file : files)
+        for (final Path file : files)
         {
             final @Nullable String locale = parseLocaleFile(baseName, file.getFileName().toString());
             if (locale != null)
@@ -334,7 +334,7 @@ public final class LocalizationUtil
     static List<LocaleFile> getLocaleFiles(FileSystem fileSystem, List<String> resources)
     {
         final ArrayList<LocaleFile> ret = new ArrayList<>(resources.size());
-        for (String resource : resources)
+        for (final String resource : resources)
         {
             final @Nullable String locale = parseLocaleFile(resource);
             if (locale != null)

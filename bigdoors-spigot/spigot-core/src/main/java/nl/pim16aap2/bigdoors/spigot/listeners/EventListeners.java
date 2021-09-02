@@ -220,7 +220,7 @@ public class EventListeners implements Listener
             if (!plugin.getBigDoorsToolUtil().isTool(event.getItem()))
                 return;
 
-            Inventory src = event.getSource();
+            final Inventory src = event.getSource();
             if (src instanceof PlayerInventory && ((PlayerInventory) src).getHolder() instanceof Player)
             {
                 if (isToolUser((Player) ((PlayerInventory) src).getHolder()))

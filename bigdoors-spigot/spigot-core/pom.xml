@@ -141,7 +141,7 @@
             <groupId>com.plotsquared</groupId>
             <artifactId>PlotSquared-Legacy</artifactId>
             <scope>system</scope>
-            <version>latest</version>
+            <version>19.09.07</version>
             <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
         </dependency>
 

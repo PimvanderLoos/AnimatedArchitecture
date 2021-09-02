@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import lombok.Synchronized;
-import lombok.val;
 import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
@@ -74,9 +73,8 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     {
         super(newBlockInfo(pWorld, new BlockPosition(x, y, z)));
 
-        final @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(pWorld);
-        if (bukkitWorld == null)
-            throw new NullPointerException("Failed to map world to bukkit world: " + pWorld);
+        final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(pWorld),
+                                                      "Spigot world of world: " + pWorld);
 
         craftWorld = (CraftWorld) bukkitWorld;
         loc = new Location(bukkitWorld, x, y, z);
@@ -121,7 +119,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
 //    @SuppressWarnings("squid:S2602") //
     public void rotateBlock(RotateDirection rotDir)
     {
-        BlockData bd = bukkitBlockData;
+        final BlockData bd = bukkitBlockData;
         // When rotating stairs vertically, they need to be rotated twice, as they cannot point up/down.
         if (bd instanceof Stairs &&
             (rotDir.equals(RotateDirection.NORTH) || rotDir.equals(RotateDirection.EAST) ||
@@ -148,17 +146,10 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     @Synchronized("blockDataLock")
     public void putBlock(IPLocation loc)
     {
-        @Nullable World bukkitWorld = SpigotAdapter.getBukkitWorld(loc.getWorld());
-        if (bukkitWorld == null)
-        {
-            BigDoors.get().getPLogger().logThrowable(new NullPointerException());
-            return;
-        }
+        final BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
-        BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-
-        WorldServer worldNMS = craftWorld.getHandle();
-        IBlockData old = worldNMS.getType(blockPosition);
+        final WorldServer worldNMS = craftWorld.getHandle();
+        final IBlockData old = worldNMS.getType(blockPosition);
 
         // Place the block, and don't apply physics.
         if (worldNMS.setTypeAndData(blockPosition, blockData, 1042))
@@ -192,14 +183,14 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     @GuardedBy("blockDataLock")
     private void rotateOrientable(Orientable bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
-        Axis currentAxis = bd.getAxis();
+        final Axis currentAxis = bd.getAxis();
         Axis newAxis = currentAxis;
         // Every 2 steps results in the same outcome.
-        steps = steps % 2;
-        if (steps == 0)
+        int realSteps = steps % 2;
+        if (realSteps == 0)
             return;
 
-        while (steps-- > 0)
+        while (realSteps-- > 0)
         {
             if (dir.equals(RotateDirection.NORTH) || dir.equals(RotateDirection.SOUTH))
             {
@@ -254,7 +245,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     @GuardedBy("blockDataLock")
     private void rotateDirectional(Directional bd, RotateDirection dir, int steps)
     {
-        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             BigDoors.get().getPLogger().logThrowable(
@@ -263,7 +254,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
             return;
         }
 
-        BlockFace newFace = SpigotUtil.getBukkitFace(
+        final BlockFace newFace = SpigotUtil.getBukkitFace(
             PBlockFace.rotate(SpigotUtil.getPBlockFace(bd.getFacing()), steps, mappedDir));
         if (bd.getFaces().contains(newFace))
             bd.setFacing(newFace);
@@ -297,7 +288,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir,
                                       @SuppressWarnings("SameParameterValue") int steps)
     {
-        @Nullable val mappedDir = PBlockFace.getDirFun(dir);
+        final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
             BigDoors.get().getPLogger().logThrowable(
@@ -306,13 +297,13 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
             return;
         }
 
-        Set<BlockFace> currentFaces = bd.getFaces();
-        Set<BlockFace> allowedFaces = bd.getAllowedFaces();
+        final Set<BlockFace> currentFaces = bd.getFaces();
+        final Set<BlockFace> allowedFaces = bd.getAllowedFaces();
         currentFaces.forEach((blockFace) -> bd.setFace(blockFace, false));
         currentFaces.forEach(
             (blockFace) ->
             {
-                BlockFace newFace = SpigotUtil.getBukkitFace(
+                final BlockFace newFace = SpigotUtil.getBukkitFace(
                     PBlockFace.rotate(SpigotUtil.getPBlockFace(blockFace), steps, mappedDir));
                 if (allowedFaces.contains(newFace))
                     bd.setFace(newFace, true);

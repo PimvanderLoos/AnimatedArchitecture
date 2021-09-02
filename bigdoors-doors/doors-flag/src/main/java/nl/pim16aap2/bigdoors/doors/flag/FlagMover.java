@@ -16,7 +16,7 @@ import java.util.function.BiFunction;
  *
  * @author Pim
  */
-@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode"})
+@SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode", "PMD"})
 public class FlagMover extends BlockMover
 {
     private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
@@ -123,7 +123,7 @@ public class FlagMover extends BlockMover
     @Override
     protected void executeAnimationStep(int ticks)
     {
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos.apply(block, ticks));
     }
 

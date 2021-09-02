@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.AllArgsConstructor;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -29,60 +28,67 @@ public class DebugReporterSpigot extends DebugReporter
     @Override
     public String getDump()
     {
-        final StringBuilder sb = new StringBuilder(super.getDump());
-        sb.append("BigDoors version: ").append(plugin.getDescription().getVersion()).append("\n");
-        sb.append("Server version: ").append(Bukkit.getServer().getVersion()).append("\n");
+        final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
 
-        sb.append("Registered door types: ")
-          .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
-          .append("\n");
+        return new StringBuilder(super.getDump())
+            .append("BigDoors version: ")
+            .append(plugin.getDescription().getVersion()).append('\n')
+            .append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n')
 
-        sb.append("Enabled door types:    ")
-          .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
-          .append("\n");
+            .append("Registered door types: ")
+            .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
+            .append('\n')
 
-        @Nullable val platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-        sb.append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName()).append("\n");
+            .append("Enabled door types:    ")
+            .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
+            .append('\n')
 
-        // TODO: Implement this:
-//        sb.append("Enabled protection hooks: ")
-//          .append(getAllProtectionHooksOrSomething())
+            .append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName())
+            .append('\n')
 
-        sb.append("EventListeners:\n").append(
-            getListeners(DoorPrepareAddOwnerEvent.class, DoorPrepareCreateEvent.class, DoorPrepareDeleteEvent.class,
-                         DoorPrepareLockChangeEvent.class, DoorPrepareRemoveOwnerEvent.class, DoorCreatedEvent.class,
-                         DoorEventToggleEnd.class, DoorEventTogglePrepare.class, DoorEventToggleStart.class));
+//            // TODO: Implement this:
+//            .append("Enabled protection hooks: ")
+//            .append(getAllProtectionHooksOrSomething())
 
-        sb.append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append("\n");
+            .append("EventListeners:\n").append(getListeners(DoorPrepareAddOwnerEvent.class,
+                                                             DoorPrepareCreateEvent.class,
+                                                             DoorPrepareDeleteEvent.class,
+                                                             DoorPrepareLockChangeEvent.class,
+                                                             DoorPrepareRemoveOwnerEvent.class,
+                                                             DoorCreatedEvent.class,
+                                                             DoorEventToggleEnd.class,
+                                                             DoorEventTogglePrepare.class,
+                                                             DoorEventToggleStart.class))
 
-        return sb.toString();
+            .append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n')
+            .toString();
     }
 
     private String getListeners(Class<?>... classes)
     {
         final StringBuilder sb = new StringBuilder();
-        for (Class<?> clz : classes)
+        for (final Class<?> clz : classes)
         {
             if (!(BigDoorsSpigotEvent.class.isAssignableFrom(clz)))
             {
-                sb.append("ERROR: ").append(clz.getName()).append("\n");
+                sb.append("ERROR: ").append(clz.getName()).append('\n');
                 continue;
             }
             try
             {
-                val handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
+                final var handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
                 handlerListMethod.setAccessible(true);
-                val handlers = (HandlerList) handlerListMethod.get(null);
+                final var handlers = (HandlerList) handlerListMethod.get(null);
                 sb.append("    ").append(clz.getSimpleName()).append(": ")
                   .append(Util.toString(handlers.getRegisteredListeners(),
                                         DebugReporterSpigot::formatRegisteredListener))
-                  .append("\n");
+                  .append('\n');
             }
             catch (Exception e)
             {
                 BigDoors.get().getPLogger()
                         .logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
-                sb.append("ERROR: ").append(clz.getName()).append("\n");
+                sb.append("ERROR: ").append(clz.getName()).append('\n');
             }
         }
 

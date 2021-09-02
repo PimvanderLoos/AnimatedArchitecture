@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -88,7 +87,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         // Set up a temporary platform and logger for the base setup.
         // This will be overwritten by the foreach method.
-        val tmpPlatform = Mockito.mock(IBigDoorsPlatform.class);
+        final var tmpPlatform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(tmpPlatform);
         Mockito.when(tmpPlatform.getPLogger()).thenReturn(new BasicPLogger());
         Mockito.when(tmpPlatform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());

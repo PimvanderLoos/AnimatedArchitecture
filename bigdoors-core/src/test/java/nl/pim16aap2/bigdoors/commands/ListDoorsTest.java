@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -36,7 +35,7 @@ class ListDoorsTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         final int size = 3;
@@ -51,7 +50,7 @@ class ListDoorsTest
     @SneakyThrows
     void testBypass()
     {
-        val retriever = Mockito.mock(DoorRetriever.class);
+        final var retriever = Mockito.mock(DoorRetriever.class);
         Mockito.when(retriever.getDoors()).thenReturn(CompletableFuture.completedFuture(doors));
         Mockito.when(retriever.getDoors(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(Collections.emptyList()));

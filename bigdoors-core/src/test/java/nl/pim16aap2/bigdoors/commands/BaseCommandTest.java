@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -61,7 +60,7 @@ class BaseCommandTest
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
 
-        val player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final var player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
         Mockito.when(baseCommand.getCommandSender()).thenReturn(player);
 
         Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner3));
@@ -80,7 +79,7 @@ class BaseCommandTest
     void testBasic()
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
-        val result = baseCommand.run();
+        final var result = baseCommand.run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -89,7 +88,7 @@ class BaseCommandTest
     void testNegativeExecution()
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(false));
-        val result = baseCommand.run();
+        final var result = baseCommand.run();
         Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -98,7 +97,7 @@ class BaseCommandTest
     void invalidInput()
     {
         Mockito.when(baseCommand.validInput()).thenReturn(false);
-        val result = baseCommand.run();
+        final var result = baseCommand.run();
         Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -110,7 +109,7 @@ class BaseCommandTest
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
                .thenReturn(CompletableFuture.completedFuture(new BooleanPair(false, false)));
 
-        val result = baseCommand.run();
+        final var result = baseCommand.run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
     }
 

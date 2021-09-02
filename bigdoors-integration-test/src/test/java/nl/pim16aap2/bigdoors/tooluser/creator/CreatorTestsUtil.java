@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
@@ -82,8 +81,8 @@ public class CreatorTestsUtil
 
     private void initPlayer()
     {
-        val uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
-        val name = "user";
+        final var uuid = UUID.fromString("f373bb8d-dd2d-496e-a9c5-f9a0c45b2db5");
+        final var name = "user";
         var doorSizeLimit = 8;
         var doorCountLimit = 9;
 
@@ -114,7 +113,7 @@ public class CreatorTestsUtil
 
         initPlayer();
 
-        val playerFactory = Mockito.mock(IPPlayerFactory.class);
+        final var playerFactory = Mockito.mock(IPPlayerFactory.class);
         Mockito.when(playerFactory.create(playerData.getUUID()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
 
@@ -177,8 +176,8 @@ public class CreatorTestsUtil
     {
         for (int idx = 0; idx < input.length; ++idx)
         {
-            val obj = input[idx];
-            @Nullable val stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            final var obj = input[idx];
+            final @Nullable var stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),

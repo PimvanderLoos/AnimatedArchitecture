@@ -24,13 +24,13 @@ public class CreatorGarageDoor extends Creator
     /**
      * The valid open directions when the door is positioned along the north/south axis.
      */
-    private static final List<RotateDirection> northSouthAxisOpenDirs = new ArrayList<>(
+    private static final List<RotateDirection> NORTH_SOUTH_AXIS_OPEN_DIRS = new ArrayList<>(
         Arrays.asList(RotateDirection.EAST, RotateDirection.WEST));
 
     /**
      * The valid open directions when the door is positioned along the east/west axis.
      */
-    private static final List<RotateDirection> eastWestAxisOpenDirs = new ArrayList<>(
+    private static final List<RotateDirection> EAST_WEST_AXIS_OPEN_DIRS = new ArrayList<>(
         Arrays.asList(RotateDirection.NORTH, RotateDirection.SOUTH));
 
     private boolean northSouthAligned;
@@ -86,7 +86,7 @@ public class CreatorGarageDoor extends Creator
         if (isOpen)
             return getDoorType().getValidOpenDirections();
         // When the garage door is not open (i.e. vertical), it can only be opened along one axis.
-        return northSouthAligned ? northSouthAxisOpenDirs : eastWestAxisOpenDirs;
+        return northSouthAligned ? NORTH_SOUTH_AXIS_OPEN_DIRS : EAST_WEST_AXIS_OPEN_DIRS;
     }
 
     @Override

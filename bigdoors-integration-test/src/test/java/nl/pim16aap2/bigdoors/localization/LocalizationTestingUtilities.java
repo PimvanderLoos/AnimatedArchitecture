@@ -89,7 +89,7 @@ class LocalizationTestingUtilities
     {
         final StringBuilder sb = new StringBuilder();
         for (String line : lines)
-            sb.append(line).append("\n");
+            sb.append(line).append('\n');
         writeEntry(outputStream, fileName, sb.toString().getBytes());
     }
 
@@ -118,7 +118,7 @@ class LocalizationTestingUtilities
         throws URISyntaxException, IOException
     {
         final FileSystem bundleFileSystem = FileSystems.newFileSystem(new URI("jar:" + zipFile.toUri()), Map.of());
-        Files.write(bundleFileSystem.getPath(file), toAppend.getBytes(), StandardOpenOption.APPEND);
+        Files.writeString(bundleFileSystem.getPath(file), toAppend, StandardOpenOption.APPEND);
         bundleFileSystem.close();
     }
 }

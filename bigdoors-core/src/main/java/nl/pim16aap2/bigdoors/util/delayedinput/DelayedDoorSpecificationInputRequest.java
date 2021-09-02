@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
-public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<String>
+public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<String>
 {
     private final List<AbstractDoor> options;
     private final IPPlayer player;
@@ -89,7 +89,7 @@ public class DelayedDoorSpecificationInputRequest extends DelayedInputRequest<St
         options.forEach(
             door ->
             {
-                sb.append("\n")
+                sb.append('\n')
                   .append(String.format("%d: %s, Creator: %s, World: %s",
                                         door.getDoorUID(), door.getDoorType().getSimpleName(),
                                         door.getPrimeOwner().pPlayerData().getName(),

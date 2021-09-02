@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -78,8 +77,8 @@ class ToggleTest
     {
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
         final int count = 10;
-        val retrievers = new DoorRetriever[count];
-        val doors = new AbstractDoor[count];
+        final var retrievers = new DoorRetriever[count];
+        final var doors = new AbstractDoor[count];
         for (int idx = 0; idx < count; ++idx)
         {
             doors[idx] = Mockito.mock(AbstractDoor.class);
@@ -87,13 +86,13 @@ class ToggleTest
             initDoorRetriever(retrievers[idx], doors[idx]);
         }
 
-        val toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
+        final var toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                      Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
 
-        val toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
-                                  .<AbstractDoor>map(invocation -> invocation.getArgument(0))
-                                  .collect(Collectors.toSet());
+        final var toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
+                                        .<AbstractDoor>map(invocation -> invocation.getArgument(0))
+                                        .collect(Collectors.toSet());
 
         Assertions.assertEquals(count, toggledDoors.size());
         for (int idx = 0; idx < count; ++idx)
@@ -131,7 +130,7 @@ class ToggleTest
     @SneakyThrows
     void testServerCommandSender()
     {
-        val serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(Toggle.run(serverCommandSender, DoorActionType.TOGGLE, doorRetriever)
                                     .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.SERVER, null,

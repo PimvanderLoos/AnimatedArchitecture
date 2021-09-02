@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -57,8 +56,12 @@ public abstract class BlockMover implements IRestartable
     protected RotateDirection openDirection;
     @ToString.Exclude
     protected List<PBlockData> savedBlocks;
-    protected int xMin, xMax, yMin;
-    protected int yMax, zMin, zMax;
+    protected int xMin;
+    protected int yMin;
+    protected int zMin;
+    protected int xMax;
+    protected int yMax;
+    protected int zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
@@ -174,7 +177,7 @@ public abstract class BlockMover implements IRestartable
 
         try
         {
-            val fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
+            final var fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
             blockData.getFBlock().remove();
             blockData.setFBlock(fBlock);
 
@@ -194,10 +197,10 @@ public abstract class BlockMover implements IRestartable
      */
     private void applyRotationOnCurrentThread()
     {
-        ListIterator<PBlockData> iter = savedBlocks.listIterator();
+        final ListIterator<PBlockData> iter = savedBlocks.listIterator();
         while (iter.hasNext())
         {
-            val blockData = iter.next();
+            final var blockData = iter.next();
             final INMSBlock newBlock = blockData.getBlock();
             newBlock.rotateBlock(openDirection);
             if (!respawnBlock(blockData, newBlock))
@@ -255,7 +258,7 @@ public abstract class BlockMover implements IRestartable
             return;
         }
 
-        for (PBlockData mbd : savedBlocks)
+        for (final PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
 
         if (skipAnimation || savedBlocks.isEmpty())
@@ -291,7 +294,7 @@ public abstract class BlockMover implements IRestartable
         if (soundFinish != null)
             playSound(soundFinish);
 
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         final IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
@@ -344,7 +347,7 @@ public abstract class BlockMover implements IRestartable
                 // After about 12620 ticks, the blocks will disappear.
                 // Respawning them before this happens, fixes the issue.
                 // TODO: Check if just resetting the tick value of the blocks works as well.
-                if (counter % 12500 == 0)
+                if (counter % 12_500 == 0)
                     respawnBlocks();
 
                 if (counter > endCount)
@@ -422,11 +425,11 @@ public abstract class BlockMover implements IRestartable
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.

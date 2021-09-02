@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
@@ -29,7 +28,7 @@ public class DelayedCommandInputManager
      */
     public void register(ICommandSender commandSender, DelayedCommandInputRequest<?> inputRequest)
     {
-        @Nullable val existing = requests.put(commandSender, inputRequest);
+        final @Nullable var existing = requests.put(commandSender, inputRequest);
         if (existing != null)
             existing.cancel();
     }

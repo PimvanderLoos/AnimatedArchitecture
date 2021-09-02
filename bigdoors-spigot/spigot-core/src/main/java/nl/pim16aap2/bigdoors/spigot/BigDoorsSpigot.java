@@ -96,17 +96,23 @@ import java.util.stream.Collectors;
  *
  * @author Pim
  */
-@SuppressWarnings("NullAway.Init") // Almost everything is initializer later, because that's how Spigot works.
+// Almost everything is initializer later, because that's how Spigot works.
+// This class is just a mess in general and needs a full rewrite.
+@SuppressWarnings({"NullAway.Init", "PMD", "ConstantConditions"})
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
+    @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.
     private static BigDoorsSpigot INSTANCE;
-    private static long MAINTHREADID = -1;
+    @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.
+    private static long MAIN_THREAD_ID = -1;
 
     private final PLogger pLogger = new PLogger(new File(getDataFolder(), "log.txt"));
 
     @Getter
     private ConfigLoaderSpigot configLoader;
     private Metrics metrics;
+    private RedstoneListener redstoneListener;
+    private LoginResourcePackListener loginResourcePackListener;
 
     private boolean validVersion = false;
     private final IPExecutor pExecutor;
@@ -118,6 +124,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     @Getter
     private PowerBlockManager powerBlockManager;
+    private WorldListener worldListener;
 
     @Getter
     private VaultManager vaultManager;
@@ -201,7 +208,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         BigDoors.get().setBigDoorsPlatform(this);
         BigDoors.get().registerRestartable(this);
 
-        MAINTHREADID = Thread.currentThread().getId();
+        MAIN_THREAD_ID = Thread.currentThread().getId();
         pExecutor = new PExecutorSpigot(this);
         bigDoorsToolUtil = new BigDoorsToolUtilSpigot();
 
@@ -227,7 +234,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         try
         {
             // Register this here so it can check for updates even when loaded on an incorrect version.
-            updateManager = new UpdateManager(this, 58669);
+            updateManager = new UpdateManager(this, 58_669);
 
             databaseManager = new DatabaseManager(this, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
@@ -249,8 +256,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             configLoader = ConfigLoaderSpigot.init(this, getPLogger());
             init();
 
-            RedstoneListener.init(this);
-            LoginResourcePackListener.init(this, configLoader.resourcePack());
+            redstoneListener = redstoneListener == null ? new RedstoneListener(this) : redstoneListener;
+            loginResourcePackListener = loginResourcePackListener == null ?
+                                        new LoginResourcePackListener(this, configLoader.resourcePack()) :
+                                        loginResourcePackListener;
 
             final IStorage.DatabaseState databaseState = databaseManager.getDatabaseState();
             if (databaseState != IStorage.DatabaseState.OK)
@@ -264,16 +273,22 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
             vaultManager = VaultManager.init(this);
 
-            headManager = HeadManager.init(this, getConfigLoader());
+            headManager = headManager == null ? new HeadManager(this, getConfigLoader()) : headManager;
 
             Bukkit.getPluginManager().registerEvents(new EventListeners(this), this);
             Bukkit.getPluginManager().registerEvents(new ChunkListener(this), this);
 
-            protectionCompatManager = ProtectionCompatManagerSpigot.init(this);
+            protectionCompatManager = protectionCompatManager == null ?
+                                      new ProtectionCompatManagerSpigot(this) : protectionCompatManager;
             Bukkit.getPluginManager().registerEvents(protectionCompatManager, this);
 
             powerBlockManager = new PowerBlockManager(this, configLoader, databaseManager, getPLogger());
-            Bukkit.getPluginManager().registerEvents(WorldListener.init(powerBlockManager), this);
+
+            //noinspection ConstantConditions
+            if (worldListener == null)
+                worldListener = new WorldListener(powerBlockManager);
+
+            Bukkit.getPluginManager().registerEvents(worldListener, this);
 
             pLogger.info("Successfully enabled BigDoors " + getDescription().getVersion());
         }
@@ -382,7 +397,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public boolean isMainThread(long compareThread)
     {
-        return compareThread == MAINTHREADID;
+        return compareThread == MAIN_THREAD_ID;
     }
 
     @Override

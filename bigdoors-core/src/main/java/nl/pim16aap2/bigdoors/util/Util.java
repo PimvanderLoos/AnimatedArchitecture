@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public final class Util
 
     static
     {
-        for (val pbf : PBlockFace.values())
+        for (final var pbf : PBlockFace.values())
         {
             RotateDirection mappedRotDir;
             try
@@ -121,7 +122,7 @@ public final class Util
             @Nullable ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null)
             {
-                val name = entry.getName();
+                final var name = entry.getName();
                 if (LOCALE_FILE_PATTERN.matcher(name).matches())
                     ret.add(name);
             }
@@ -347,7 +348,7 @@ public final class Util
      */
     public <T> Optional<T> searchIterable(Iterable<T> iterable, Predicate<T> searchPred)
     {
-        for (T val : iterable)
+        for (final T val : iterable)
             if (searchPred.test(val))
                 return Optional.of(val);
         return Optional.empty();
@@ -404,7 +405,7 @@ public final class Util
      */
     public static String capitalizeFirstLetter(String string)
     {
-        return string.substring(0, 1).toUpperCase() + string.substring(1);
+        return string.substring(0, 1).toUpperCase(Locale.ENGLISH) + string.substring(1);
     }
 
     /**
@@ -441,9 +442,10 @@ public final class Util
      *     Second array.
      * @return A single concatenated array.
      */
+    @SuppressWarnings("PMD.UseVarargs")
     public static <T> T[] concatArrays(T[] first, T[] second)
     {
-        T[] result = Arrays.copyOf(first, first.length + second.length);
+        final T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
         return result;
     }
@@ -456,6 +458,7 @@ public final class Util
      *     Array to be doubled in size
      * @return A copy of the array but with doubled size.
      */
+    @SuppressWarnings("PMD.UseVarargs")
     public static <T> T[] doubleArraySize(T[] arr)
     {
         return Arrays.copyOf(arr, arr.length * 2);
@@ -506,7 +509,7 @@ public final class Util
      */
     public static String randomInsecureString(int length)
     {
-        StringBuilder sb = new StringBuilder(length);
+        final StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
             sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
         return sb.toString();
@@ -521,7 +524,7 @@ public final class Util
      */
     public static String secureRandomString(int length)
     {
-        StringBuilder sb = new StringBuilder(length);
+        final StringBuilder sb = new StringBuilder(length);
         for (int idx = 0; idx != length; ++idx)
             sb.append(CHARS.charAt(SECURE_RANDOM.nextInt(CHARS.length())));
         return sb.toString();
@@ -667,8 +670,8 @@ public final class Util
      */
     public static int simpleChunkSpaceLocationhash(int x, int y, int z)
     {
-        int chunkSpaceX = x % 16;
-        int chunkSpaceZ = z % 16;
+        final int chunkSpaceX = x % 16;
+        final int chunkSpaceZ = z % 16;
         return (y << 8) + (chunkSpaceX << 4) + chunkSpaceZ;
     }
 
@@ -693,7 +696,7 @@ public final class Util
      *     Input collection of objects.
      * @return Resulting concatenated string.
      */
-    public static String toString(Object[] entries)
+    public static String toString(Object... entries)
     {
         return toString(Arrays.asList(entries));
     }
@@ -723,11 +726,11 @@ public final class Util
     @SuppressWarnings("NullAway")
     public static <T> String toString(Collection<@Nullable T> entries, Function<T, String> mapper)
     {
-        StringBuilder builder = new StringBuilder("[");
+        final StringBuilder builder = new StringBuilder("[");
         for (@Nullable final T obj : entries)
             builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
 
-        String result = builder.toString();
+        final String result = builder.toString();
         final int len = result.length();
 
         // If 1 or more entries exist, the output will end with ', ', so remove the last 2 characters in that case.
@@ -753,50 +756,13 @@ public final class Util
     @Deprecated
     public static int tickRateFromSpeed(double speed)
     {
-        int tickRate;
-        if (speed > 9)
-            tickRate = 1;
-        else if (speed > 7)
-            tickRate = 2;
-        else if (speed > 6)
-            tickRate = 3;
-        else
-            tickRate = 4;
-        return tickRate;
+        return 1;
     }
 
     // Return {time, tickRate, distanceMultiplier} for a given door size.
     @Deprecated
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
-        final double[] ret = new double[3];
-        final double distance = Math.PI * doorSize / 2;
-        if (time == 0.0)
-            time = baseSpeed + doorSize / 3.5;
-        double speed = distance / time;
-        if (speedMultiplier != 1.0 && speedMultiplier != 0.0)
-        {
-            speed *= speedMultiplier;
-            time = distance / speed;
-        }
-
-        // Too fast or too slow!
-        final double maxSpeed = 11;
-        if (speed > maxSpeed || speed <= 0)
-            time = distance / maxSpeed;
-
-        final double distanceMultiplier = speed > 4 ? 1.01 : speed > 3.918 ? 1.08 : speed > 3.916 ? 1.10 :
-                                                                                    speed > 2.812 ? 1.12 :
-                                                                                    speed > 2.537 ? 1.19 :
-                                                                                    speed > 2.2 ? 1.22 :
-                                                                                    speed > 2.0 ? 1.23 :
-                                                                                    speed > 1.770 ?
-                                                                                    1.25 :
-                                                                                    speed > 1.570 ?
-                                                                                    1.28 : 1.30;
-        ret[0] = time;
-        ret[1] = tickRateFromSpeed(speed);
-        ret[2] = distanceMultiplier;
-        return ret;
+        return new double[0];
     }
 }
