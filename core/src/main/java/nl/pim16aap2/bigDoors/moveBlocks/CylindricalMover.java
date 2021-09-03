@@ -71,22 +71,17 @@ public class CylindricalMover implements BlockMover
         this.instantOpen = instantOpen;
         stepMultiplier = rotDirection == RotateDirection.CLOCKWISE ? -1 : 1;
 
-        xMin = turningPoint.getBlockX() < pointOpposite.getBlockX() ? turningPoint.getBlockX() :
-            pointOpposite.getBlockX();
-        yMin = turningPoint.getBlockY() < pointOpposite.getBlockY() ? turningPoint.getBlockY() :
-            pointOpposite.getBlockY();
-        zMin = turningPoint.getBlockZ() < pointOpposite.getBlockZ() ? turningPoint.getBlockZ() :
-            pointOpposite.getBlockZ();
-        xMax = turningPoint.getBlockX() > pointOpposite.getBlockX() ? turningPoint.getBlockX() :
-            pointOpposite.getBlockX();
-        yMax = turningPoint.getBlockY() > pointOpposite.getBlockY() ? turningPoint.getBlockY() :
-            pointOpposite.getBlockY();
-        zMax = turningPoint.getBlockZ() > pointOpposite.getBlockZ() ? turningPoint.getBlockZ() :
-            pointOpposite.getBlockZ();
+        xMin = Math.min(turningPoint.getBlockX(), pointOpposite.getBlockX());
+        yMin = Math.min(turningPoint.getBlockY(), pointOpposite.getBlockY());
+        zMin = Math.min(turningPoint.getBlockZ(), pointOpposite.getBlockZ());
+        xMax = Math.max(turningPoint.getBlockX(), pointOpposite.getBlockX());
+        yMax = Math.max(turningPoint.getBlockY(), pointOpposite.getBlockY());
+        zMax = Math.max(turningPoint.getBlockZ(), pointOpposite.getBlockZ());
+
         int xLen = Math.abs(door.getMaximum().getBlockX() - door.getMinimum().getBlockX());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, zLen) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 3.7);
+        double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 3.7);
         this.time = vars[0];
         tickRate = (int) vars[1];
         this.multiplier = vars[2];
@@ -100,10 +95,11 @@ public class CylindricalMover implements BlockMover
             double zAxis = turningPoint.getZ();
             do
             {
+                final double xRadius = Math.abs(xAxis - turningPoint.getBlockX());
+                final double zRadius = Math.abs(zAxis - turningPoint.getBlockZ());
+
                 // Get the radius of this pillar.
-                double radius = Math.abs(xAxis - turningPoint.getBlockX()) > Math
-                    .abs(zAxis - turningPoint.getBlockZ()) ? Math.abs(xAxis - turningPoint.getBlockX()) :
-                        Math.abs(zAxis - turningPoint.getBlockZ());
+                final double radius = Math.max(xRadius, zRadius);
 
                 for (double yAxis = yMin; yAxis <= yMax; yAxis++)
                 {
@@ -114,22 +110,20 @@ public class CylindricalMover implements BlockMover
                     if (yAxis == yMin)
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
 
-                    Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
-                    Material mat = vBlock.getType();
+                    final Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                    final Material mat = vBlock.getType();
 
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        byte matData = vBlock.getData();
-                        BlockState bs = vBlock.getState();
-                        MaterialData materialData = bs.getData();
+                        final byte matData = vBlock.getData();
+                        final BlockState bs = vBlock.getState();
+                        final MaterialData materialData = bs.getData();
 
-                        NMSBlock block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        final NMSBlock block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                         NMSBlock block2 = null;
 
-                        int canRotate = 0;
                         byte matByte = matData;
-
-                        canRotate = Util.canRotate(mat);
+                        final int canRotate = Util.canRotate(mat);
 
                         // Rotate blocks here so they don't interrupt the rotation animation.
                         if (canRotate != 0)
@@ -147,7 +141,7 @@ public class CylindricalMover implements BlockMover
                             Block b = world.getBlockAt(pos);
                             materialData.setData(matByte);
 
-                            if (plugin.isOnFlattenedVersion())
+                            if (BigDoors.isOnFlattenedVersion())
                             {
                                 if (canRotate == 6 || canRotate == 8)
                                 {
@@ -164,7 +158,7 @@ public class CylindricalMover implements BlockMover
                                 }
                             }
                         }
-                        if (!plugin.isOnFlattenedVersion())
+                        if (!BigDoors.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -209,7 +203,7 @@ public class CylindricalMover implements BlockMover
         }
 
         // This is only supported on 1.13
-        if (plugin.isOnFlattenedVersion())
+        if (BigDoors.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
@@ -261,7 +255,8 @@ public class CylindricalMover implements BlockMover
                     savedBlock.getFBlock().remove();
 
                 if (!savedBlock.getMat().equals(Material.AIR))
-                    if (plugin.isOnFlattenedVersion())
+                {
+                    if (BigDoors.isOnFlattenedVersion())
                     {
                         savedBlock.getBlock().putBlock(newPos);
                         Block b = world.getBlockAt(newPos);
@@ -279,6 +274,7 @@ public class CylindricalMover implements BlockMover
                         bs.setData(matData);
                         bs.update();
                     }
+                }
             }
         }
 
@@ -314,13 +310,13 @@ public class CylindricalMover implements BlockMover
         
         animationRunnable = new BukkitRunnable()
         {
-            Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+            final Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
             double counter = 0;
-            double step = (Math.PI / 2) / endCount * stepMultiplier;
+            final double step = (Math.PI / 2) / endCount * stepMultiplier;
             double stepSum = startStepSum;
-            int totalTicks = (int) (endCount * multiplier);
-            int replaceCount = endCount / 2;
+            final int totalTicks = (int) (endCount * multiplier);
+            final int replaceCount = endCount / 2;
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
@@ -344,9 +340,7 @@ public class CylindricalMover implements BlockMover
                 else
                     stepSum = endStepSum;
 
-                replace = false;
-                if (counter == replaceCount)
-                    replace = true;
+                replace = counter == replaceCount;
 
                 if (!plugin.getCommander().canGo() || counter > totalTicks)
                 {
