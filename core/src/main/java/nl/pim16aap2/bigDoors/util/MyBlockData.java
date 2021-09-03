@@ -15,10 +15,10 @@ public class MyBlockData
     private double                       radius;
     private CustomCraftFallingBlock fBlock;
     private MaterialData                matData;
-    private Byte                      blockByte;
+    private byte                      blockByte;
     private Location              startLocation;
 
-    public MyBlockData(Material mat, Byte blockByte, CustomCraftFallingBlock fBlock, double radius,
+    public MyBlockData(Material mat, byte blockByte, CustomCraftFallingBlock fBlock, double radius,
                        MaterialData matData, NMSBlock block, int canRot, Location startLocation)
     {
         this.mat       = mat;
@@ -42,7 +42,7 @@ public class MyBlockData
     public Material getMat()                                   {  return mat;                  }
     public MaterialData getMatData()                           {  return matData;              }
     public double getRadius()                                  {  return radius;               }
-    public Byte getBlockByte()                                 {  return blockByte;            }
+    public byte getBlockByte()                                 {  return blockByte;            }
     public void setBlockByte(Byte blockByte)                   {  this.blockByte = blockByte;  }
     public NMSBlock getBlock()                            {  return block;                }
     public int canRot()                                        {  return canRot;               }

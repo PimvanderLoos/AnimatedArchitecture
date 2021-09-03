@@ -229,7 +229,7 @@ public class BridgeMover implements BlockMover
                     Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData = vBlock.getData();
+                        byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
@@ -237,13 +237,17 @@ public class BridgeMover implements BlockMover
                         NMSBlock block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte = matData;
+                        byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
                         // Rotate blocks here so they don't interrupt the rotation animation.
-                        if (canRotate == 1 || canRotate == 2 || canRotate == 3 || canRotate == 6 || canRotate == 7)
+                        if (canRotate == 1 || canRotate == 2 || canRotate == 3 ||
+                            canRotate == 6 || canRotate == 7 || canRotate == 8)
                         {
-                            matByte = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
+                            if (canRotate == 7)
+                                rotateEndRotBlockData(matData);
+                            if (canRotate != 6 && canRotate != 8)
+                                matByte = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
                             Block b = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                             materialData.setData(matByte);
 
@@ -253,6 +257,11 @@ public class BridgeMover implements BlockMover
                                 {
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                     block2.rotateBlockUpDown(NS);
+                                }
+                                else if (canRotate == 8)
+                                {
+                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2.rotateBlockUpDown(upDown, openDirection);
                                 }
                                 else
                                 {
@@ -353,8 +362,7 @@ public class BridgeMover implements BlockMover
 
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte;
-                        matByte = savedBlocks.get(index).getBlockByte();
+                        byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis,
                                                              index);
 
@@ -487,7 +495,7 @@ public class BridgeMover implements BlockMover
                                 {
                                     Material mat = block.getMat();
                                     Location loc = block.getFBlock().getLocation();
-                                    Byte matData = block.getBlockByte();
+                                    byte matData = block.getBlockByte();
                                     Vector veloc = block.getFBlock().getVelocity();
 
                                     CustomCraftFallingBlock fBlock;
@@ -559,8 +567,12 @@ public class BridgeMover implements BlockMover
     private byte rotateEndRotBlockData(Byte matData)
     {
         /*
-         * 0: Pointing Down (upside down (purple on top)) 1: Pointing Up (normal) 2:
-         * Pointing North 3: Pointing South 4: Pointing West 5: Pointing East
+         * 0: Pointing Down (upside down (purple on top))
+         * 1: Pointing Up (normal)
+         * 2: Pointing North
+         * 3: Pointing South
+         * 4: Pointing West
+         * 5: Pointing East
          */
         if (!NS)
         {

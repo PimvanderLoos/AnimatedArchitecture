@@ -119,7 +119,7 @@ public class CylindricalMover implements BlockMover
 
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData = vBlock.getData();
+                        byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
@@ -127,7 +127,7 @@ public class CylindricalMover implements BlockMover
                         NMSBlock block2 = null;
 
                         int canRotate = 0;
-                        Byte matByte = matData;
+                        byte matByte = matData;
 
                         canRotate = Util.canRotate(mat);
 
@@ -141,12 +141,15 @@ public class CylindricalMover implements BlockMover
                                 matByte = rotateBlockDataStairs(matData);
                             else if (canRotate == 4)
                                 matByte = rotateBlockDataAnvil(matData);
+                            else if (canRotate == 7)
+                                matByte = rotateBlockDataEndRod(matData);
 
                             Block b = world.getBlockAt(pos);
                             materialData.setData(matByte);
 
                             if (plugin.isOnFlattenedVersion())
-                                if (canRotate == 6)
+                            {
+                                if (canRotate == 6 || canRotate == 8)
                                 {
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                     block2.rotateCylindrical(this.rotDirection);
@@ -159,6 +162,7 @@ public class CylindricalMover implements BlockMover
                                     bs2.update();
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
                                 }
+                            }
                         }
                         if (!plugin.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
@@ -248,7 +252,7 @@ public class CylindricalMover implements BlockMover
 
             if (!mat.equals(Material.AIR))
             {
-                Byte matByte = savedBlock.getBlockByte();
+                byte matByte = savedBlock.getBlockByte();
 
                 Location newPos = gnl.getNewLocation(savedBlock.getRadius(), savedBlock.getStartX(),
                                                      savedBlock.getStartY(), savedBlock.getStartZ());
@@ -371,7 +375,7 @@ public class CylindricalMover implements BlockMover
                                 {
                                     Material mat = block.getMat();
                                     Location loc = block.getFBlock().getLocation();
-                                    Byte matData = block.getBlockByte();
+                                    byte matData = block.getBlockByte();
                                     Vector veloc = block.getFBlock().getVelocity();
                                     // For some reason respawning fblocks puts them higher than they were, which has
                                     // to be counteracted.
@@ -417,7 +421,7 @@ public class CylindricalMover implements BlockMover
     }
 
     // Rotate logs by modifying its material data.
-    private byte rotateBlockDataLog(Byte matData)
+    private byte rotateBlockDataLog(byte matData)
     {
         if (matData >= 4 && matData <= 7)
             matData = (byte) (matData + 4);
@@ -426,7 +430,42 @@ public class CylindricalMover implements BlockMover
         return matData;
     }
 
-    private byte rotateBlockDataAnvil(Byte matData)
+    private byte rotateBlockDataEndRod(byte matData)
+    {
+        /*
+         * 0: Pointing Down (upside down (purple on top))
+         * 1: Pointing Up (normal)
+         * 2: Pointing North
+         * 3: Pointing South
+         * 4: Pointing West
+         * 5: Pointing East
+         */
+        if (matData == 0 || matData == 1)
+            return matData;
+
+        if (rotDirection == RotateDirection.CLOCKWISE)
+        {
+            switch (matData)
+            {
+                case 2: return 5; // North -> East
+                case 3: return 4; // South -> West
+                case 4: return 2; // West  -> North
+                case 5: return 3; // East  -> South
+                default: return matData;
+            }
+        }
+
+        switch (matData)
+        {
+            case 2: return 5; // North -> West
+            case 3: return 4; // South -> East
+            case 4: return 3; // West  -> South
+            case 5: return 2; // East  -> North
+            default: return matData;
+        }
+    }
+
+    private byte rotateBlockDataAnvil(byte matData)
     {
         if (rotDirection == RotateDirection.CLOCKWISE)
         {
@@ -451,7 +490,7 @@ public class CylindricalMover implements BlockMover
     }
 
     // Rotate stairs by modifying its material data.
-    private byte rotateBlockDataStairs(Byte matData)
+    private byte rotateBlockDataStairs(byte matData)
     {
         if (rotDirection == RotateDirection.CLOCKWISE)
         {

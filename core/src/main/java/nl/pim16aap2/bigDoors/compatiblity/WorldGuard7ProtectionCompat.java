@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,16 +23,21 @@ import nl.pim16aap2.bigDoors.BigDoors;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
-    @SuppressWarnings("unused")
-    private final BigDoors plugin;
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     private boolean success = false;
     private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private static final StateFlag BUILD_FLAG = getBuildFlag();
 
     public WorldGuard7ProtectionCompat(BigDoors plugin)
     {
-        this.plugin = plugin;
+        if (BUILD_FLAG == null)
+        {
+            worldGuard = null;
+            worldGuardPlugin = null;
+            return;
+        }
+
         worldGuard = WorldGuard.getInstance();
 
         Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
@@ -52,7 +58,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
                 .getPlatform()
                 .getRegionContainer()
                 .createQuery()
-                .testState(BukkitAdapter.adapt(loc), player, com.sk89q.worldguard.protection.flags.Flags.BUILD);
+                .testState(BukkitAdapter.adapt(loc), player, BUILD_FLAG);
     }
 
     private LocalPlayer getLocalPlayer(Player player)
@@ -91,7 +97,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
                 for (int zPos = z1; zPos <= z2; ++zPos)
                 {
                     com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
-                    if (!query.testState(wgLoc, lPlayer, Flags.BUILD))
+                    if (!query.testState(wgLoc, lPlayer, BUILD_FLAG))
                         return false;
                 }
         return true;
@@ -113,5 +119,21 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     public String getName()
     {
         return worldGuardPlugin.getName();
+    }
+
+
+    private static StateFlag getBuildFlag()
+    {
+        try
+        {
+            // The Flags class exists in both
+            //noinspection JavaReflectionMemberAccess
+            return (StateFlag) com.sk89q.worldguard.protection.flags.Flags.class.getField("BUILD").get(null);
+        }
+        catch (NoSuchFieldException | IllegalAccessException | ClassCastException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

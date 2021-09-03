@@ -1,6 +1,11 @@
-Alpha 0.1.9.0
+Alpha 0.1.8.33
 - Added code generation to generate the required code for unsupported versions. This is disabled by default, but can be enabled in the config via the "allowCodeGeneration" and the "forceCodeGeneration" options.
 - Removed a bunch of unused code to make updates a bit easier going forward.
+
+Alpha 0.1.8.32
+- Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!
+- Fixed lightning rods not being rotated in drawbridges and big doors.
+- Fixed only being able to set invalid open directions for portcullises in the GUI. Thanks, themarwik and Pumamori, for the bug reports!
 
 Alpha 0.1.8.31
 - The auto-updater is now initialized before checking if the current server version is valid. Thanks, Eldoria, for the bug report!

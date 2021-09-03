@@ -1,25 +1,30 @@
 package nl.pim16aap2.bigDoors.util;
 
+import org.bukkit.block.BlockFace;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public enum DoorDirection
 {
     // Direction // Offset angle // Val
-    NORTH(1.0 * Math.PI, 0),
-    EAST(0.5 * Math.PI, 1),
-    SOUTH(0.0 * Math.PI, 2),
-    WEST(1.5 * Math.PI, 3);
+    NORTH(1.0 * Math.PI, 0, BlockFace.NORTH),
+    EAST(0.5 * Math.PI, 1, BlockFace.EAST),
+    SOUTH(0.0 * Math.PI, 2, BlockFace.SOUTH),
+    WEST(1.5 * Math.PI, 3, BlockFace.WEST);
 
-    private double extraAngle;
-    private int val;
     private static Map<Integer, DoorDirection> map = new HashMap<>();
     private static final DoorDirection[] DOOR_DIRECTIONS = DoorDirection.values();
 
-    private DoorDirection(double extraAngle, int val)
+    private double extraAngle;
+    private int val;
+    private final BlockFace blockFace;
+
+    private DoorDirection(double extraAngle, int val, BlockFace blockFace)
     {
         this.extraAngle = extraAngle;
         this.val = val;
+        this.blockFace = blockFace;
     }
 
     public static DoorDirection getOpposite(DoorDirection dir)
@@ -73,5 +78,10 @@ public enum DoorDirection
     public static DoorDirection cycleCardinalDirectionReverse(DoorDirection dir)
     {
         return cycleCardinalDirection(-1, dir);
+    }
+
+    public BlockFace getBlockFace()
+    {
+        return blockFace;
     }
 }

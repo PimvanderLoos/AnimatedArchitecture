@@ -114,7 +114,7 @@ public class SlidingMover implements BlockMover
                     Material mat = vBlock.getType();
                     if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
                     {
-                        Byte matData = vBlock.getData();
+                        byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
                         NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
@@ -184,7 +184,7 @@ public class SlidingMover implements BlockMover
                     Material mat = savedBlocks.get(index).getMat();
                     if (!mat.equals(Material.AIR))
                     {
-                        Byte matByte = savedBlocks.get(index).getBlockByte();
+                        byte matByte = savedBlocks.get(index).getBlockByte();
                         Location newPos = getNewLocation(xAxis, yAxis, zAxis);
 
                         if (!instantOpen)

@@ -2,14 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>BigDoors</artifactId>
-        <groupId>nl.pim16aap2</groupId>
-        <version>0.1.9.0-ALPHA</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
+    <artifactId>core</artifactId>
+    <packaging>jar</packaging>
 
-    <artifactId>BigDoors-core</artifactId>
+    <parent>
+        <groupId>nl.pim16aap2.BigDoors</groupId>
+        <artifactId>BigDoors-parent</artifactId>
+        <version>0.1.8.33-ALPHA</version>
+    </parent>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -25,12 +26,6 @@
     </properties>
 
     <repositories>
-        <!-- bStats -->
-        <repository>
-            <id>bstats-repo</id>
-            <url>http://repo.bstats.org/content/repositories/releases/</url>
-        </repository>
-
         <!-- RedProtect -->
         <repository>
             <id>redprotect-repo</id>
@@ -39,7 +34,7 @@
 
         <repository>
             <id>sk89q-repo</id>
-            <url>http://maven.sk89q.com/repo/</url>
+            <url>https://maven.enginehub.org/repo/</url>
         </repository>
 
         <repository>
@@ -50,12 +45,6 @@
         <repository>
             <id>Massive</id>
             <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>
-        </repository>
-
-        <!-- Vault -->
-        <repository>
-            <id>vault-repo</id>
-            <url>http://nexus.hc.to/content/repositories/pub_releases</url>
         </repository>
 
         <!-- Towny -->
@@ -76,86 +65,86 @@
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>nms-api</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_11_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_12_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_13_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_13_R1_5</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_13_R2</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_14_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_15_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_16_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_16_R2</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_16_R3</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>v1_17_R1</artifactId>
-            <version>0.1.9.0-ALPHA</version>
+            <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
 
@@ -163,7 +152,7 @@
         <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
-            <version>8.2.0</version>
+            <version>8.4.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -210,7 +199,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- WorldGuard (OLD) -->
+        <!-- WorldGuard 6 -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-legacy</artifactId>
@@ -218,11 +207,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- WorldGuard (NEW) -->
+        <!-- WorldGuard 7 -->
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>LATEST</version>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.5</version>
             <scope>provided</scope>
         </dependency>
 
@@ -230,21 +219,19 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>LATEST</version>
+            <version>7.3.0-SNAPSHOT</version>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldEdit -->
-        <dependency>
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
-            <artifactId>RedProtect-Spigot-1.13</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Vault -->
         <dependency>
-            <groupId>net.milkbowl.vault</groupId>
+            <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
@@ -256,6 +243,12 @@
             <artifactId>GriefPrevention</artifactId>
             <version>16.7.1</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- JCalculator -->
@@ -277,9 +270,63 @@
         <!-- RedProtect -->
         <dependency>
             <groupId>br.net.fabiozumbi12.RedProtect</groupId>
-            <artifactId>RedProtect-Core</artifactId>
+            <artifactId>RedProtect-Spigot-1.13</artifactId>
             <version>LATEST</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>ActionBarAPI-1.5.4.jar</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>BossBarAPI_v2.4.1</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>dynmap-2.5</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>Factions</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>GriefPrevention</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>InfernalMobs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>MassiveCore</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>mcMMO</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>MyChunk</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>mypet</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>PvPManager</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>SimpleClans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>SkillAPI</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- PlotSquared 3 -->
@@ -320,14 +367,16 @@
         <dependency>
             <groupId>com.griefdefender</groupId>
             <artifactId>griefdefender</artifactId>
-            <version>1.5.10</version>
-            <scope>provided</scope>
+            <version>1.5.9</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/griefdefender-bukkit-1.5.9.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.griefdefender</groupId>
             <artifactId>griefdefenderapi</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
+            <version>2.0.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/griefdefenderapi-2.0.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>

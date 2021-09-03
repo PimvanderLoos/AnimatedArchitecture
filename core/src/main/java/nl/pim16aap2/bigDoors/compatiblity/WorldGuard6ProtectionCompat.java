@@ -20,7 +20,6 @@ import nl.pim16aap2.bigDoors.BigDoors;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    private final BigDoors plugin;
     private final WorldGuardPlugin worldGuard;
     private boolean success = false;
     private Method m;
@@ -28,7 +27,6 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
 
     public WorldGuard6ProtectionCompat(BigDoors plugin)
     {
-        this.plugin = plugin;
 
         Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
 
