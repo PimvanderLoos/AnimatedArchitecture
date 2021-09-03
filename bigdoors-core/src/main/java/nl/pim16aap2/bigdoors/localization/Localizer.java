@@ -17,8 +17,6 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import static nl.pim16aap2.bigdoors.localization.LocalizationUtil.ensureZipFileExists;
-
 /**
  * Represents a class that can be used to localize Strings.
  *
@@ -136,7 +134,7 @@ final class Localizer implements ILocalizer
             throw new IllegalStateException("ClassLoader is already initialized!");
 
         final Path bundlePath = directory.resolve(bundleName);
-        ensureZipFileExists(bundlePath);
+        LocalizationUtil.ensureZipFileExists(bundlePath);
         try
         {
             classLoader = getNewURLClassLoader(bundlePath, baseName);

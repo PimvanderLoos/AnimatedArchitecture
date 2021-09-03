@@ -17,13 +17,15 @@
         <lombok.outputDir>${project.build.directory}/generated-sources/delombok</lombok.outputDir>
         <src.dir>${basedir}/src/main/java</src.dir>
 
-        <dependency.version.jcalculator>1.7</dependency.version.jcalculator>
+        <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.annotations>22.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
         <dependency.version.errorprone>2.8.1</dependency.version.errorprone>
         <dependency.version.nullaway>1e615ffd45</dependency.version.nullaway>
         <dependency.version.checker-framework>3.17.0</dependency.version.checker-framework>
+        <dependency.version.checkstyle>8.45.1</dependency.version.checkstyle>
+        <dependency.version.pmd>3.15.0-SNAPSHOT</dependency.version.pmd>
         <dependency.version.dagger>2.38.1</dependency.version.dagger>
         <dependency.version.mockito>3.11.2</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
@@ -33,8 +35,13 @@
         <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.0</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
+        <dependency.version.maven-dependency>3.2.0</dependency.version.maven-dependency>
         <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
         <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
+        <dependency.version.maven-site>3.9.1</dependency.version.maven-site>
+        <dependency.version.maven-jxr>3.1.1</dependency.version.maven-jxr>
+        <dependency.version.maven-project-reports>3.1.2</dependency.version.maven-project-reports>
+        <dependency.version.maven-checkstyle>3.1.2</dependency.version.maven-checkstyle>
         <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
         <dependency.version.jimfs>1.2</dependency.version.jimfs>
     </properties>
@@ -50,9 +57,26 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>apache.snapshots</id>
+            <url>https://repository.apache.org/content/repositories/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
             <url>https://repository.apache.org/snapshots/</url>
         </repository>
         <repository>
@@ -129,6 +153,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>${dependency.version.checkstyle}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.dagger</groupId>
             <artifactId>dagger</artifactId>
             <version>${dependency.version.dagger}</version>
@@ -140,6 +171,18 @@
         <sourceDirectory>${src.dir}</sourceDirectory>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${dependency.version.maven-site}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>${dependency.version.maven-project-reports}</version>
+                </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
@@ -160,6 +203,12 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>${dependency.version.maven-dependency}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${dependency.version.maven-resources}</version>
                 </plugin>
@@ -172,6 +221,26 @@
                         <argLine>--enable-preview</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${dependency.version.maven-checkstyle}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${dependency.version.checkstyle}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <configLocation>${user.dir}/checkstyle/checkstyle.xml</configLocation>
+                        <encoding>UTF-8</encoding>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <linkXRef>true</linkXRef>
                     </configuration>
                 </plugin>
 
@@ -246,6 +315,30 @@
                         </formatPreferences>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${dependency.version.pmd}</version>
+                    <configuration>
+                        <rulesets>
+                            <ruleset>${user.dir}/pmd-ruleset.xml</ruleset>
+                        </rulesets>
+                        <linkXRef>true</linkXRef>
+                        <failOnViolation>true</failOnViolation>
+                        <showPmdLog>true</showPmdLog>
+                        <detail>true</detail>
+                        <printFailingErrors>true</printFailingErrors>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -304,10 +397,7 @@
                                     <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
-                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode
-                                        -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR
-                                        -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2 -XepExcludedPaths:.*/test/.*
-                                    </arg>
+                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2 -XepExcludedPaths:.*/test/.*</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -330,11 +420,6 @@
                                         <artifactId>error_prone_core</artifactId>
                                         <version>${dependency.version.errorprone}</version>
                                     </path>
-                                    <!--                                    <path>-->
-                                    <!--                                        <groupId>com.uber.nullaway</groupId>-->
-                                    <!--                                        <artifactId>nullaway</artifactId>-->
-                                    <!--                                        <version>${dependency.version.nullaway}</version>-->
-                                    <!--                                    </path>-->
                                     <path>
                                         <groupId>com.github.PimvanderLoos</groupId>
                                         <artifactId>NullAway</artifactId>
@@ -353,4 +438,14 @@
             </build>
         </profile>
     </profiles>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${dependency.version.maven-jxr}</version>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

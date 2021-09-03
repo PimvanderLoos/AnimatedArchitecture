@@ -25,7 +25,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 
     static
     {
-        for (Material mat : Material.values())
+        for (final Material mat : Material.values())
         {
             final MaterialStatus result = getMaterialStatus(mat);
             if (result == MaterialStatus.WHITELISTED)
@@ -799,7 +799,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
      */
     public static boolean isAirOrLiquidStatic(IPLocation location)
     {
-        Block block = SpigotAdapter.getBukkitLocation(location).getBlock();
+        final Block block = SpigotAdapter.getBukkitLocation(location).getBlock();
         // Empty means it's air.
         return isAirOrLiquidStatic(block);
     }

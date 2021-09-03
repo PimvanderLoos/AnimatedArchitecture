@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public final class ConfigEntry<V>
     private final String optionName;
     private final V defaultValue;
     private final String @Nullable [] comment;
-    private final @Nullable ConfigEntry.TestValue<V> verifyValue;
+    private final @Nullable ConfigEntry.ITestValue<V> verifyValue;
     private V value;
 
     /**
@@ -38,7 +39,7 @@ public final class ConfigEntry<V>
      *     Function to use to verify the validity of a value and change it if necessary.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable [] comment, @Nullable ConfigEntry.TestValue<V> verifyValue)
+                       String @Nullable [] comment, @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
         this.logger = logger;
         this.config = config;
@@ -64,7 +65,7 @@ public final class ConfigEntry<V>
      *     The comment that will precede this option.
      */
     public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable [] comment)
+                       String @Nullable ... comment)
     {
         this(logger, config, optionName, defaultValue, comment, null);
     }
@@ -107,7 +108,7 @@ public final class ConfigEntry<V>
      */
     public String @Nullable [] getComment()
     {
-        return comment;
+        return comment == null ? null : Arrays.copyOf(comment, comment.length);
     }
 
     /**
@@ -119,24 +120,24 @@ public final class ConfigEntry<V>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         // Print the comments, if there are any.
         if (comment != null)
-            for (String comLine : comment)
+            for (final String comLine : comment)
                 // Prefix every line by a comment-sign (#).
-                sb.append("# ").append(comLine).append("\n");
+                sb.append("# ").append(comLine).append('\n');
 
         sb.append(optionName).append(": ");
         if (value.getClass().isAssignableFrom(String.class))
-            sb.append("'").append(value).append("'");
+            sb.append('\'').append(value).append('\'');
         else if (value instanceof List<?>)
         {
-            sb.append("\n");
-            int listSize = ((List<?>) value).size();
+            sb.append('\n');
+            final int listSize = ((List<?>) value).size();
             for (int index = 0; index < listSize; ++index)
                 // Don't print newline at the end
-                sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : "\n");
+                sb.append("  - ").append(((List<?>) value).get(index)).append(index == listSize - 1 ? "" : '\n');
         }
         else
             sb.append(value);
@@ -150,7 +151,7 @@ public final class ConfigEntry<V>
      *     The type of the value.
      * @author Pim
      */
-    public interface TestValue<T>
+    public interface ITestValue<T>
     {
         /**
          * Checks if a given value is valid. If it is, it returns that value. If it isn't, it is changed so that it is

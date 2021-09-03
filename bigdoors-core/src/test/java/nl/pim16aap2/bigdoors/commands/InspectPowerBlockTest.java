@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -35,8 +34,8 @@ class InspectPowerBlockTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
-        val uuid = UUID.randomUUID();
+        final var platform = initPlatform();
+        final var uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
@@ -51,7 +50,7 @@ class InspectPowerBlockTest
     @SneakyThrows
     void testServer()
     {
-        val server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(InspectPowerBlock.run(server).get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }

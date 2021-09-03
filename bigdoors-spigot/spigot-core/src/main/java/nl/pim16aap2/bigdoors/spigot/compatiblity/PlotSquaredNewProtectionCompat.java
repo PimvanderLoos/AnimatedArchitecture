@@ -39,8 +39,8 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc);
-        com.github.intellectualsites.plotsquared.plot.object.PlotArea area = psLocation.getPlotArea();
+        final com.github.intellectualsites.plotsquared.plot.object.Location psLocation = BukkitUtil.getLocation(loc);
+        final com.github.intellectualsites.plotsquared.plot.object.PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
             return true;
@@ -60,8 +60,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
     }
 
     // Check if a given player is allowed to build in a given plot.
-    // Adapted from:
-    // https://github.com/IntellectualSites/PlotSquared/blob/breaking/Bukkit/src/main/java/com/github/intellectualsites/plotsquared/bukkit/listeners/PlayerEvents.java#L981
+    // Adapted from PlotSquared code.
     private boolean canBreakBlock(Player player, PlotArea area, @Nullable Plot plot, Location loc)
     {
         if (plot != null)
@@ -73,19 +72,19 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
                 return plugin.getVaultManager()
                              .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_UNOWNED.getTranslated());
 
-            if (!plot.isAdded(player.getUniqueId()))
+            if (plot.isAdded(player.getUniqueId()))
+                return plugin.getVaultManager()
+                             .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.getTranslated());
+            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
             {
-                Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
-                Block block = loc.getBlock();
+                final Optional<HashSet<PlotBlock>> destroy = plot.getFlag(Flags.BREAK);
+                final Block block = loc.getBlock();
                 if (destroy.isPresent() && destroy.get().contains(PlotBlock.get(block.getType().name())))
                     return true;
 
                 return plugin.getVaultManager()
                              .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER.getTranslated());
             }
-            else if (Settings.Done.RESTRICT_BUILDING && plot.getFlags().containsKey(Flags.DONE))
-                return plugin.getVaultManager()
-                             .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER.getTranslated());
 
             return true;
         }
@@ -100,21 +99,21 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
             return false;
 
         com.github.intellectualsites.plotsquared.plot.object.Location psLocation;
-        int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-        int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
-        int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
+        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        final int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
+        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
+        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
+        final int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
+        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         @Nullable Plot checkPlot = null;
 
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int zPos = z1; zPos <= z2; ++zPos)
             {
-                Location loc = new Location(loc1.getWorld(), xPos, y1, zPos);
+                final Location loc = new Location(loc1.getWorld(), xPos, y1, zPos);
                 psLocation = BukkitUtil.getLocation(loc);
-                PlotArea area = psLocation.getPlotArea();
+                final PlotArea area = psLocation.getPlotArea();
                 if (area == null)
                     continue;
 
@@ -123,7 +122,7 @@ public class PlotSquaredNewProtectionCompat implements IProtectionCompat
 
                 loc.setY(area.MAX_BUILD_HEIGHT - 1.0);
 
-                @Nullable Plot newPlot = area.getPlot(psLocation);
+                final @Nullable Plot newPlot = area.getPlot(psLocation);
                 if (checkPlot == null || !checkPlot.equals(newPlot))
                 {
                     checkPlot = newPlot;

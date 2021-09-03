@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -44,8 +43,10 @@ public abstract class BlockMover implements IRestartable
     protected final AbstractDoor door;
     @Getter
     protected final IPPlayer player;
-    @Getter final DoorActionCause cause;
-    @Getter final DoorActionType actionType;
+    @Getter
+    private final DoorActionCause cause;
+    @Getter
+    private final DoorActionType actionType;
     @ToString.Exclude
     protected final IFallingBlockFactory fallingBlockFactory;
     @Getter
@@ -55,8 +56,12 @@ public abstract class BlockMover implements IRestartable
     protected RotateDirection openDirection;
     @ToString.Exclude
     protected List<PBlockData> savedBlocks;
-    protected int xMin, xMax, yMin;
-    protected int yMax, zMin, zMax;
+    protected int xMin;
+    protected int yMin;
+    protected int zMin;
+    protected int xMax;
+    protected int yMax;
+    protected int zMax;
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
     protected final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
     protected final IPBlockDataFactory blockDataFactory = BigDoors.get().getPlatform().getPBlockDataFactory();
@@ -172,7 +177,7 @@ public abstract class BlockMover implements IRestartable
 
         try
         {
-            val fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
+            final var fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
             blockData.getFBlock().remove();
             blockData.setFBlock(fBlock);
 
@@ -187,15 +192,15 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
      * PBlockData}. Note that this is executed on the thread it was called from, which MUST BE the main thread!
      */
     private void applyRotationOnCurrentThread()
     {
-        ListIterator<PBlockData> iter = savedBlocks.listIterator();
+        final ListIterator<PBlockData> iter = savedBlocks.listIterator();
         while (iter.hasNext())
         {
-            val blockData = iter.next();
+            final var blockData = iter.next();
             final INMSBlock newBlock = blockData.getBlock();
             newBlock.rotateBlock(openDirection);
             if (!respawnBlock(blockData, newBlock))
@@ -204,7 +209,7 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Rotates (in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
+     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
      * PBlockData}. This is executed on the main thread.
      */
     protected void applyRotation()
@@ -253,7 +258,7 @@ public abstract class BlockMover implements IRestartable
             return;
         }
 
-        for (PBlockData mbd : savedBlocks)
+        for (final PBlockData mbd : savedBlocks)
             mbd.getBlock().deleteOriginalBlock();
 
         if (skipAnimation || savedBlocks.isEmpty())
@@ -289,7 +294,7 @@ public abstract class BlockMover implements IRestartable
         if (soundFinish != null)
             playSound(soundFinish);
 
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         final IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
@@ -321,10 +326,9 @@ public abstract class BlockMover implements IRestartable
 
         moverTask = new TimerTask()
         {
-            int counter = 0;
-            @Nullable Long startTime = null; // Initialize on the first run.
-            long lastTime;
-            long currentTime = System.nanoTime();
+            private int counter = 0;
+            private @Nullable Long startTime = null; // Initialize on the first run.
+            private long currentTime = System.nanoTime();
 
             @Override
             public void run()
@@ -336,14 +340,14 @@ public abstract class BlockMover implements IRestartable
                 if (soundActive != null && counter % PSound.getDuration(soundActive.sound()) == 0)
                     playSound(soundActive);
 
-                lastTime = currentTime;
+                final long lastTime = currentTime;
                 currentTime = System.nanoTime();
                 startTime += currentTime - lastTime;
 
                 // After about 12620 ticks, the blocks will disappear.
                 // Respawning them before this happens, fixes the issue.
                 // TODO: Check if just resetting the tick value of the blocks works as well.
-                if (counter % 12500 == 0)
+                if (counter % 12_500 == 0)
                     respawnBlocks();
 
                 if (counter > endCount)
@@ -393,7 +397,7 @@ public abstract class BlockMover implements IRestartable
      * @param pBlockData
      *     The {@link PBlockData}.
      * @param firstPass
-     *     Whether or not this is the first pass. See {@link PBlockData#isPlacementDeferred()};
+     *     Whether this is the first pass. See {@link PBlockData#isPlacementDeferred()};
      */
     private void putSavedBlock(PBlockData pBlockData, boolean firstPass)
     {
@@ -411,7 +415,7 @@ public abstract class BlockMover implements IRestartable
      * When the plugin is currently not in the process of disabling, it also schedules the auto close.
      *
      * @param onDisable
-     *     Whether or not the plugin is currently being disabled.
+     *     Whether the plugin is currently being disabled.
      */
     public final synchronized void putBlocks(boolean onDisable)
     {
@@ -421,11 +425,11 @@ public abstract class BlockMover implements IRestartable
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (PBlockData savedBlock : savedBlocks)
+        for (final PBlockData savedBlock : savedBlocks)
             putSavedBlock(savedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.

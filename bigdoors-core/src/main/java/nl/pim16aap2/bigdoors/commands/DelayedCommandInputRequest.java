@@ -4,12 +4,12 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -98,7 +98,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void init()
     {
         BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
-        val initMessage = initMessageSupplier.get();
+        final var initMessage = initMessageSupplier.get();
         //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
             commandSender.sendMessage(initMessage);
@@ -141,12 +141,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         BigDoors.get().getDelayedCommandInputManager().deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("commands.base.error.timed_out",
-                                                                               commandDefinition.name().toLowerCase()));
+            commandSender.sendMessage(BigDoors.get().getLocalizer()
+                                              .getMessage("commands.base.error.timed_out",
+                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("commands.base.error.cancelled",
-                                                                               commandDefinition.name().toLowerCase()));
+            commandSender.sendMessage(BigDoors.get().getLocalizer()
+                                              .getMessage("commands.base.error.cancelled",
+                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
     }
 
     /**

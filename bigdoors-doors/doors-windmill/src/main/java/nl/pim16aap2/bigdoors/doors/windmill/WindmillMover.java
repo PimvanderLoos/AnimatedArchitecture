@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.drawbridge.BridgeMover;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -54,7 +54,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
@@ -64,7 +64,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
         final double deltaA = (double) door.getEngine().y() - yAxis;
-        final double deltaB = !NS ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
+        final double deltaB = northSouth ? (door.getEngine().z() - zAxis) : (door.getEngine().x() - xAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -73,7 +73,7 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = !NS ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
+        final double deltaA = northSouth ? door.getEngine().z() - zAxis : door.getEngine().x() - xAxis;
         final double deltaB = (double) door.getEngine().y() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));

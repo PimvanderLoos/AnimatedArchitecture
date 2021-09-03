@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -113,7 +112,7 @@ public abstract class BaseCommand
             return CompletableFuture.completedFuture(false);
         }
 
-        val localizer = BigDoors.get().getLocalizer();
+        final var localizer = BigDoors.get().getLocalizer();
         final boolean isPlayer = getCommandSender() instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
@@ -194,9 +193,9 @@ public abstract class BaseCommand
         {
             return executeCommand(permissionResult).get(30, TimeUnit.MINUTES);
         }
-        catch (Throwable t)
+        catch (Exception e)
         {
-            throw new RuntimeException("Encountered issue running command: " + this, t);
+            throw new RuntimeException("Encountered issue running command: " + this, e);
         }
     }
 

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -45,8 +44,8 @@ class DoorSerializerTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
-        val doorRegistry = Mockito.mock(DoorRegistry.class);
+        final var platform = initPlatform();
+        final var doorRegistry = Mockito.mock(DoorRegistry.class);
         Mockito.when(platform.getDoorRegistry()).thenReturn(doorRegistry);
         Mockito.when(doorRegistry.registerDoor(Mockito.any())).thenReturn(true);
     }
@@ -54,7 +53,7 @@ class DoorSerializerTest
     @Test
     void instantiate()
     {
-        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
+        final var instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType base = new TestDoorType(doorData, "test", true, 42);
 
         TestDoorType test = Assertions.assertDoesNotThrow(
@@ -69,7 +68,7 @@ class DoorSerializerTest
     @Test
     void instantiateUnsafe()
     {
-        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
+        final var instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType base = new TestDoorSubType(doorData, "test", true, 42, 1);
 
         TestDoorType test = Assertions.assertDoesNotThrow(
@@ -96,11 +95,12 @@ class DoorSerializerTest
     @Test
     void subclass()
     {
-        val instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
+        final var instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType testDoorSubType1 = new TestDoorSubType(doorData, "test", true, 42, 6);
 
         final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorSubType1));
-        val testDoorSubType2 = Assertions.assertDoesNotThrow(() -> instantiator.deserialize(doorData, serialized));
+        final var testDoorSubType2 = Assertions.assertDoesNotThrow(
+            () -> instantiator.deserialize(doorData, serialized));
 
         Assertions.assertEquals(testDoorSubType1, testDoorSubType2);
     }

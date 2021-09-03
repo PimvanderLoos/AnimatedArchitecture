@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -36,7 +35,7 @@ class ConfirmTest
     @BeforeEach
     void init()
     {
-        val platform = initPlatform();
+        final var platform = initPlatform();
         uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);

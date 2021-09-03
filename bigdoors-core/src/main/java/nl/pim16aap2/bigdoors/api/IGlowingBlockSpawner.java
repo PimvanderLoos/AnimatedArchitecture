@@ -161,8 +161,8 @@ public interface IGlowingBlockSpawner
      */
     default List<IGlowingBlock> spawnGlowingBlocks(AbstractDoor doorBase, IPPlayer player)
     {
-        List<IGlowingBlock> ret = new ArrayList<>(4);
-        IPWorld world = doorBase.getWorld();
+        final List<IGlowingBlock> ret = new ArrayList<>(4);
+        final IPWorld world = doorBase.getWorld();
 
         spawnGlowingBlock(player, world, 15, doorBase.getPowerBlock().x(), doorBase.getPowerBlock().y(),
                           doorBase.getPowerBlock().z(), PColor.GOLD);

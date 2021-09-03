@@ -160,7 +160,7 @@ public class PPreparedStatement
             return this;
         }
 
-        String tmp = statement;
+        final String tmp = statement;
         int questionMarkPos = tmp.indexOf('?');
         if (questionMarkPos == -1)
         {

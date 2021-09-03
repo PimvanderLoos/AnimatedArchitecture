@@ -40,8 +40,8 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
         entity.noclip = true;
     }
 
-    // TODO: It should apply velocity if possible, but the issue is that the last position isn't the actual last position,
-    //       because the velocity moved it. or does the tp offset it?
+    // TODO: It should apply velocity if possible, but the issue is that the last position isn't the actual last
+    //       position, because the velocity moved it. or does the tp offset it?
     // TODO: The blocks should lag behind 1 tick, so they have 3 variables: LastPos, CurrentPos, FuturePos.
     //       This can be used to set proper velocity as well.
     @Override
@@ -72,7 +72,7 @@ public class CustomCraftFallingBlock_V1_15_R1 extends CraftEntity implements Fal
     @Override
     public Vector3Dd getPVelocity()
     {
-        Vector bukkitVelocity = super.getVelocity();
+        final Vector bukkitVelocity = super.getVelocity();
         return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
     }
 

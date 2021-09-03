@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.Value;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -81,7 +79,7 @@ public class AddOwner extends DoorTargetCommand
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);
 
-        val localizer = BigDoors.get().getLocalizer();
+        final var localizer = BigDoors.get().getLocalizer();
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
             if (existingPermission == 0)
@@ -92,7 +90,7 @@ public class AddOwner extends DoorTargetCommand
             return true;
         }
 
-        val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
+        final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty())
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.add_owner.error.not_an_owner"));
@@ -237,8 +235,8 @@ public class AddOwner extends DoorTargetCommand
                                                                    DoorRetriever doorRetriever,
                                                                    DelayedInput delayedInput)
     {
-        return new AddOwner(commandSender, doorRetriever, delayedInput.getTargetPlayer(),
-                            delayedInput.getPermission()).run();
+        return new AddOwner(commandSender, doorRetriever, delayedInput.targetPlayer(),
+                            delayedInput.permission()).run();
     }
 
     /**
@@ -256,10 +254,7 @@ public class AddOwner extends DoorTargetCommand
      * #runDelayed(ICommandSender, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender, DoorRetriever,
      * DelayedInput)}.
      */
-    @Value
-    private static class DelayedInput
+    private record DelayedInput(IPPlayer targetPlayer, int permission)
     {
-        IPPlayer targetPlayer;
-        int permission;
     }
 }

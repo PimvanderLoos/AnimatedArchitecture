@@ -88,7 +88,7 @@ public class RevolvingDoor extends AbstractDoor
         throws Exception
     {
         // TODO: Get rid of this.
-        double fixedTime = time < 0.5 ? 5 : time;
+        final double fixedTime = time < 0.5 ? 5 : time;
 
         return new RevolvingDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                       responsible, quarterCircles, cause, newCuboid, actionType);

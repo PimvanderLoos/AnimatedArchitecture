@@ -255,7 +255,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
             // Check if the doors table already exists. If it does, assume the rest exists
             // as well and don't set it up.
-            if (!conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
+            if (conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
+                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
+            else
             {
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
                 executeUpdate(conn, SQLStatement.RESERVE_IDS_PLAYER.constructPPreparedStatement());
@@ -269,8 +271,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
             }
-            else
-                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
+
         }
         catch (SQLException | NullPointerException e)
         {
@@ -364,7 +365,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public boolean deleteDoorType(DoorType doorType)
     {
-        boolean removed = executeTransaction(
+        final boolean removed = executeTransaction(
             conn -> executeUpdate(SQLStatement.DELETE_DOOR_TYPE
                                       .constructPPreparedStatement()
                                       .setNextString(doorType.getFullName())) > 0, false);
@@ -407,8 +408,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         // TODO: Just use the fact that the last-inserted door has the current UID (that fact is already used by
         //       getTypeSpecificDataInsertStatement(DoorType)), so it can be done in a single statement.
-        long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
-                                    rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
+        final long doorUID = executeQuery(conn, SQLStatement.SELECT_MOST_RECENT_DOOR.constructPPreparedStatement(),
+                                          rs -> rs.next() ? rs.getLong("seq") : -1, -1L);
 
         executeUpdate(conn, SQLStatement.INSERT_PRIME_OWNER.constructPPreparedStatement()
                                                            .setString(1, playerData.getUUID().toString()));
@@ -725,7 +726,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                 final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
                                 while (resultSet.next())
                                 {
-                                    int locationHash =
+                                    final int locationHash =
                                         Util.simpleChunkSpaceLocationhash(resultSet.getInt("powerBlockX"),
                                                                           resultSet.getInt("powerBlockY"),
                                                                           resultSet.getInt("powerBlockZ"));
@@ -807,9 +808,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                             .setLong(2, doorUID),
                     rs ->
                     {
-                        SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
-                                                 SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
-                                                 SQLStatement.INSERT_DOOR_OWNER;
+                        final SQLStatement statement = (rs.next() && (rs.getInt("permission") != permission)) ?
+                                                       SQLStatement.UPDATE_DOOR_OWNER_PERMISSION :
+                                                       SQLStatement.INSERT_DOOR_OWNER;
 
                         return
                             executeUpdate(conn, statement
@@ -833,8 +834,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int verifyDatabaseVersion(Connection conn)
     {
-        int dbVersion = executeQuery(conn, new PPreparedStatement("PRAGMA user_version;"),
-                                     rs -> rs.getInt(1), -1);
+        final int dbVersion = executeQuery(conn, new PPreparedStatement("PRAGMA user_version;"),
+                                           rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
             BigDoors.get().getPLogger().logMessage(Level.SEVERE, "Failed to obtain database version!");
@@ -960,7 +961,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private void upgradeToV11(Connection conn)
     {
         try (PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-             final ResultSet rs1 = ps1.executeQuery())
+             ResultSet rs1 = ps1.executeQuery())
         {
             BigDoors.get().getPLogger().warn("Upgrading database to V11!");
 
@@ -1183,7 +1184,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         logStatement(pPreparedStatement);
         try (PreparedStatement ps = pPreparedStatement.construct(conn);
-             final ResultSet rs = ps.executeQuery())
+             ResultSet rs = ps.executeQuery())
         {
             return fun.apply(rs);
         }
@@ -1274,7 +1275,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             conn ->
             {
                 conn.setAutoCommit(false);
-                T result = fun.apply(conn);
+                final T result = fun.apply(conn);
                 conn.commit();
                 return result;
             }, fallback, FailureAction.ROLLBACK, ReadMode.READ_WRITE);
@@ -1307,6 +1308,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         ROLLBACK,
     }
 
+    /**
+     * Represents a reading mode for the database file.
+     * <p>
+     * Restricting the read mode to read only may result in better performance at the cost of the ability to write to
+     * the database.
+     */
     private enum ReadMode
     {
         /**
@@ -1316,8 +1323,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         /**
          * Does not allow writing to the database (surprise!), but may result in better performance.
-         *
-         * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/Connection.html#setReadOnly(boolean)">javadoc</a>
          */
         READ_ONLY,
     }

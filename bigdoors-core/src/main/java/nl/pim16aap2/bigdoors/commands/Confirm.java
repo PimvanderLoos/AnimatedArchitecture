@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -51,7 +50,7 @@ public class Confirm extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        val toolUser = BigDoors.get().getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
+        final var toolUser = BigDoors.get().getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else

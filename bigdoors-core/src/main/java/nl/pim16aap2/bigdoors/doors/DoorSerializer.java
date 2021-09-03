@@ -59,7 +59,7 @@ public class DoorSerializer<T extends AbstractDoor>
         @Nullable Unsafe unsafe = null;
         try
         {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
         }
@@ -102,7 +102,7 @@ public class DoorSerializer<T extends AbstractDoor>
     private void findAnnotatedFields()
         throws UnsupportedOperationException
     {
-        List<Field> fieldList = new ArrayList<>();
+        final List<Field> fieldList = new ArrayList<>();
         Class<?> clazz = doorClass;
         while (!clazz.equals(AbstractDoor.class))
         {
@@ -110,7 +110,7 @@ public class DoorSerializer<T extends AbstractDoor>
             clazz = clazz.getSuperclass();
         }
 
-        for (Field field : fieldList)
+        for (final Field field : fieldList)
             if (field.isAnnotationPresent(PersistentVariable.class))
             {
                 field.setAccessible(true);
@@ -133,7 +133,7 @@ public class DoorSerializer<T extends AbstractDoor>
         throws Exception
     {
         final ArrayList<Object> values = new ArrayList<>(fields.size());
-        for (Field field : fields)
+        for (final Field field : fields)
             try
             {
                 values.add(field.get(door));
@@ -167,7 +167,7 @@ public class DoorSerializer<T extends AbstractDoor>
         throws Exception
     {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             final ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream))
         {
             objectOutputStream.writeObject(serializable);
             return byteArrayOutputStream.toByteArray();
@@ -199,7 +199,7 @@ public class DoorSerializer<T extends AbstractDoor>
 
         try
         {
-            @Nullable T door = instantiate(doorBase);
+            final @Nullable T door = instantiate(doorBase);
             if (door == null)
                 throw new IllegalStateException("Failed to initialize door!");
             for (int idx = 0; idx < fields.size(); ++idx)
@@ -225,7 +225,7 @@ public class DoorSerializer<T extends AbstractDoor>
     private @Nullable T instantiate(DoorBase doorBase)
         throws IllegalAccessException, InstantiationException, InvocationTargetException
     {
-        return ctor != null ? instantiateReflection(doorBase, ctor) : instantiateUnsafe(doorBase);
+        return ctor == null ? instantiateUnsafe(doorBase) : instantiateReflection(doorBase, ctor);
     }
 
     private T instantiateReflection(DoorBase doorBase, Constructor<T> ctor)
@@ -269,8 +269,8 @@ public class DoorSerializer<T extends AbstractDoor>
             return "";
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (Field field : fields)
+        final StringBuilder sb = new StringBuilder();
+        for (final Field field : fields)
         {
             String value;
             try
@@ -282,7 +282,7 @@ public class DoorSerializer<T extends AbstractDoor>
                 BigDoors.get().getPLogger().logThrowable(e);
                 value = "ERROR";
             }
-            sb.append(field.getName()).append(": ").append(value).append("\n");
+            sb.append(field.getName()).append(": ").append(value).append('\n');
         }
         return sb.toString();
     }
@@ -290,11 +290,11 @@ public class DoorSerializer<T extends AbstractDoor>
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append("\n");
-        for (Field field : fields)
+        final StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append('\n');
+        for (final Field field : fields)
             sb.append("Type: ").append(field.getType().getName())
               .append(", name: ").append(field.getName())
-              .append("\n");
+              .append('\n');
         return sb.toString();
     }
 }

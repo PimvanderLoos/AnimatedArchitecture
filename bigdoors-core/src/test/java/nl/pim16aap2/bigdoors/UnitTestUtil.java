@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -33,14 +32,14 @@ public class UnitTestUtil
         IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
         BigDoors.get().setBigDoorsPlatform(platform);
         Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-        val localizer = initLocalizer();
+        final var localizer = initLocalizer();
         Mockito.when(platform.getLocalizer()).thenReturn(localizer);
         return platform;
     }
 
     public static ILocalizer initLocalizer()
     {
-        val localizer = Mockito.mock(ILocalizer.class);
+        final var localizer = Mockito.mock(ILocalizer.class);
         Mockito.when(localizer.getMessage(Mockito.anyString()))
                .thenAnswer(invocation -> invocation.getArgument(0, String.class));
         Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))
@@ -60,7 +59,7 @@ public class UnitTestUtil
 
     public static IPWorld getWorld()
     {
-        val world = Mockito.mock(IPWorld.class);
+        final var world = Mockito.mock(IPWorld.class);
         Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
@@ -95,7 +94,7 @@ public class UnitTestUtil
 
     public static IPLocation getLocation(double x, double y, double z, IPWorld world)
     {
-        val loc = Mockito.mock(IPLocation.class);
+        final var loc = Mockito.mock(IPLocation.class);
 
         Mockito.when(loc.getWorld()).thenReturn(world);
 

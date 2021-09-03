@@ -15,8 +15,9 @@ import lombok.ToString;
 // SonarLint doesn't like non-final public member variables (S1104).
 // However, that's the point of this class and there's no reason to do it in another way.
 @SuppressWarnings("squid:S1104")
-public final class Pair<T1, T2>
+// CHECKSTYLE:OFF
+public final class Pair<T, U>
 {
-    public T1 first;
-    public T2 second;
+    public T first;
+    public U second;
 }

@@ -1,11 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -57,8 +56,8 @@ class SetBlocksToMoveTest
     {
         final int blocksToMove = 42;
 
-        val command = new SetBlocksToMove(commandSender, doorRetriever, blocksToMove);
-        val altDoor = Mockito.mock(AbstractDoor.class);
+        final var command = new SetBlocksToMove(commandSender, doorRetriever, blocksToMove);
+        final var altDoor = Mockito.mock(AbstractDoor.class);
 
         Assertions.assertTrue(command.performAction(altDoor).get(1, TimeUnit.SECONDS));
         Mockito.verify(altDoor, Mockito.never()).syncData();
@@ -87,8 +86,8 @@ class SetBlocksToMoveTest
         final int blocksToMove = 42;
         Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
 
-        val first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
-        val second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);
+        final var first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
+        final var second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);
 
         Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);

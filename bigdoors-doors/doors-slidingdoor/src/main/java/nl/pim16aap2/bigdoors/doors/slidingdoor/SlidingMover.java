@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public class SlidingMover extends BlockMover
 {
-    private final boolean NS;
+    private final boolean northSouth;
     private final int moveX;
     private final int moveZ;
 
@@ -39,10 +39,10 @@ public class SlidingMover extends BlockMover
         super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
-        NS = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
+        northSouth = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);
 
-        moveX = NS ? 0 : blocksToMove;
-        moveZ = NS ? blocksToMove : 0;
+        moveX = northSouth ? 0 : blocksToMove;
+        moveZ = northSouth ? blocksToMove : 0;
 
         double speed = 1;
         double pcMult = multiplier;
@@ -103,7 +103,7 @@ public class SlidingMover extends BlockMover
 
     protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
     {
-        return pBlockData.getStartPosition().add(NS ? 0 : stepSum, 0, NS ? stepSum : 0);
+        return pBlockData.getStartPosition().add(northSouth ? 0 : stepSum, 0, northSouth ? stepSum : 0);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class SlidingMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (PBlockData pBlockData : savedBlocks)
+        for (final PBlockData pBlockData : savedBlocks)
             pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 }

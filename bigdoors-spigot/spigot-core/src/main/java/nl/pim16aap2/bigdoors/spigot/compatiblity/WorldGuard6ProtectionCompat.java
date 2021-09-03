@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
  */
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat compat = ProtectionCompat.WORLDGUARD;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.WORLDGUARD;
     private final BigDoorsSpigot plugin;
     private final WorldGuardPlugin worldGuard;
     private final boolean success;
@@ -30,7 +30,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         plugin = BigDoorsSpigot.get();
 
         final @Nullable Plugin wgPlugin =
-            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(compat));
+            Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(COMPAT));
 
         // WorldGuard may not be loaded
         if (!(wgPlugin instanceof WorldGuardPlugin))
@@ -70,12 +70,12 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         if (loc1.getWorld() != loc2.getWorld())
             return false;
 
-        int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
-        int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-        int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
-        int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
+        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
+        final int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
+        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
+        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX());
+        final int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
+        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
 
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int yPos = y1; yPos <= y2; ++yPos)

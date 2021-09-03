@@ -62,7 +62,7 @@ public interface IBigDoorsEventFactory
     /**
      * Constructs a new {@link IDoorPrepareCreateEvent} and assumes it was not created by an {@link IPPlayer}.
      * <p>
-     * When the door is created by an {@link IPPlayer}, consider using {@link #createPrepareDoorCreateEvent(AbstractDoor,
+     * When the door is created by a player, consider using {@link #createPrepareDoorCreateEvent(AbstractDoor,
      * IPPlayer)} instead.
      *
      * @param door
@@ -86,7 +86,7 @@ public interface IBigDoorsEventFactory
     /**
      * Constructs a new {@link IDoorPrepareDeleteEvent} and assumes it was not deleted by an {@link IPPlayer}.
      * <p>
-     * When the door is deleted by an {@link IPPlayer}, consider using {@link #createPrepareDeleteDoorEvent(AbstractDoor,
+     * When the door is deleted by a player, consider using {@link #createPrepareDeleteDoorEvent(AbstractDoor,
      * IPPlayer)} instead.
      *
      * @param door
@@ -143,7 +143,7 @@ public interface IBigDoorsEventFactory
      * Constructs a new {@link IDoorPrepareRemoveOwnerEvent} and assumes the owner was not removed by an {@link
      * IPPlayer}.
      * <p>
-     * If the owner is removed by an {@link IPPlayer}, consider using {@link #createDoorPrepareRemoveOwnerEvent(AbstractDoor,
+     * If the owner is removed by a player, consider using {@link #createDoorPrepareRemoveOwnerEvent(AbstractDoor,
      * DoorOwner, IPPlayer)} instead.
      *
      * @param door
@@ -173,8 +173,8 @@ public interface IBigDoorsEventFactory
     /**
      * Constructs a new {@link IDoorPrepareLockChangeEvent} and assumes it was not added by an {@link IPPlayer}.
      * <p>
-     * If the owner is added by an {@link IPPlayer}, consider using {@link #createDoorPrepareLockChangeEvent(AbstractDoor,
-     * boolean, IPPlayer)} instead.
+     * If the owner is added by a player, consider using {@link #createDoorPrepareLockChangeEvent(AbstractDoor, boolean,
+     * IPPlayer)} instead.
      *
      * @param door
      *     The door to which the lock status is to be changed

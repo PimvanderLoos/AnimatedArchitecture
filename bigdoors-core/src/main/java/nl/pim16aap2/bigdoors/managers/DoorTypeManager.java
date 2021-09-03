@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -68,7 +69,7 @@ public final class DoorTypeManager extends Restartable
     public List<DoorType> getEnabledDoorTypes()
     {
         final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
+        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
             if (doorType.getValue().status)
                 enabledDoorTypes.add(doorType.getKey());
         return enabledDoorTypes;
@@ -96,7 +97,7 @@ public final class DoorTypeManager extends Restartable
      */
     public Optional<DoorType> getDoorType(String typeName)
     {
-        return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase()));
+        return Optional.ofNullable(doorTypeFromName.get(typeName.toLowerCase(Locale.ENGLISH)));
     }
 
     /**

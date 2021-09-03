@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -47,7 +48,7 @@ final class DoorTypeInitializer
         @Override
         public @Nullable TypeInfoAndWeight put(String key, TypeInfoAndWeight value)
         {
-            return super.put(key.toLowerCase(), value);
+            return super.put(key.toLowerCase(Locale.ENGLISH), value);
         }
     };
 
@@ -125,10 +126,10 @@ final class DoorTypeInitializer
             final TypeInfo info = sorted.get(idx);
             final StringBuilder depSB = new StringBuilder();
             info.getDependencies().forEach(dependencyOpt -> dependencyOpt
-                .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(" ")));
+                .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(' ')));
 
             sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
-                                    idx, info.weight, info.getTypeName(), depSB)).append("\n");
+                                    idx, info.weight, info.getTypeName(), depSB)).append('\n');
         }
         return sb.toString();
     }
@@ -231,7 +232,7 @@ final class DoorTypeInitializer
                    new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE, "");
         int newWeight = 0;
 
-        for (Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
+        for (final Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
         {
             if (dependencyOpt.isEmpty())
             {
@@ -270,7 +271,7 @@ final class DoorTypeInitializer
             {
                 final LoadResult dependencyLoadResult = processDependencies(queuedDoorType);
                 if (dependencyLoadResult.loadResultType() == LoadResultType.DEPENDENCIES_AVAILABLE)
-                    // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency.
+                    // Increment the weight by 1, to make sure that the current DoorType is loaded after this dependency
                     dependencyWeight = registrationQueue.get(dependencyName).weight;
                 else
                 {
@@ -321,7 +322,7 @@ final class DoorTypeInitializer
 
         public TypeInfo(String typeName, int version, String mainClass, File jarFile, @Nullable String dependencies)
         {
-            this.typeName = typeName.toLowerCase();
+            this.typeName = typeName.toLowerCase(Locale.ENGLISH);
             this.version = version;
             this.mainClass = mainClass;
             this.jarFile = jarFile;

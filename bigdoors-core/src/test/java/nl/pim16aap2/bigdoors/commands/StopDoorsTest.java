@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,9 @@ class StopDoorsTest
     @SneakyThrows
     void test()
     {
-        val platform = initPlatform();
-        val activityManager = Mockito.mock(DoorActivityManager.class);
-        val commandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final var platform = initPlatform();
+        final var activityManager = Mockito.mock(DoorActivityManager.class);
+        final var commandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
 
         Mockito.when(platform.getDoorActivityManager()).thenReturn(activityManager);
 

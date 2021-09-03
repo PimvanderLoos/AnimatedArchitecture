@@ -29,7 +29,7 @@ public final class UpdateManager
     {
         this.plugin = plugin;
         logger = plugin.getPLogger();
-        updater = UpdateChecker.init(plugin, pluginID, plugin.getPLogger());
+        updater = new UpdateChecker(plugin, pluginID, plugin.getPLogger());
     }
 
     /**
@@ -97,7 +97,7 @@ public final class UpdateManager
         updater.requestUpdateCheck().whenComplete(
             (result, throwable) ->
             {
-                boolean updateAvailable = updateAvailable();
+                final boolean updateAvailable = updateAvailable();
                 if (updateAvailable)
                     logger.info("A new update is available: " + getNewestVersion());
 
@@ -133,7 +133,7 @@ public final class UpdateManager
                     {
                         checkForUpdates();
                     }
-                }.runTaskTimer(plugin, 0L, 288000L); // Run immediately, then every 4 hours.
+                }.runTaskTimer(plugin, 0L, 288_000L); // Run immediately, then every 4 hours.
             }
         }
         else

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -138,7 +137,8 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor,
                                                                             @Nullable IPPlayer responsible)
     {
-        val ret = callCancellableEvent(fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
+        final var ret = callCancellableEvent(
+            fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
@@ -491,7 +491,7 @@ public final class DatabaseManager extends Restartable
         if (permission < 1 || permission > 2)
             return CompletableFuture.completedFuture(ActionResult.FAIL);
 
-        val newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
+        final var newOwner = new DoorOwner(door.getDoorUID(), permission, player.getPPlayerData());
 
         return callCancellableEvent(fact -> fact.createDoorPrepareAddOwnerEvent(door, newOwner, responsible))
             .thenApplyAsync(
@@ -526,7 +526,7 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                val event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
+                final var event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
                 BigDoors.get().getPlatform().callDoorEvent(event);
                 return event.isCancelled();
             });
@@ -699,7 +699,8 @@ public final class DatabaseManager extends Restartable
      */
     // TODO: Consider if this should make work the other way around? That the Door can access the 'private' methods
     //       of this class? This has several advantages:
-    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these methods)
+    //       - The child classes of the door class don't have access to stuff they shouldn't have access to (these
+    //         methods)
     //       - All the commands that modify a door can be pooled in the AbstractDoor class, instead of being split
     //         over several classes.
     //       Alternatively, consider creating a separate class with package-private access to either this class or

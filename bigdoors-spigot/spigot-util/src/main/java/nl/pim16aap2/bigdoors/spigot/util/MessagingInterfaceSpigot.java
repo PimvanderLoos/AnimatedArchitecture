@@ -35,7 +35,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
     @Override
     public void messagePlayer(IPPlayer player, String message)
     {
-        @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
+        final @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null)
             return;
         SpigotUtil.messagePlayer(bukkitPlayer, message);

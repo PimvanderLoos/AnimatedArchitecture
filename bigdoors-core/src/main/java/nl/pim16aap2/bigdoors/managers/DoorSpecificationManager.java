@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class DoorSpecificationManager extends Restartable
 {
-    private static final Map<IPPlayer, DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
+    private final Map<IPPlayer, DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
 
     public DoorSpecificationManager()
     {

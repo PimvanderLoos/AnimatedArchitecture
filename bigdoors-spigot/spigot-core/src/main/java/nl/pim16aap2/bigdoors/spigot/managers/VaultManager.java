@@ -123,7 +123,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void init()
     {
-        for (DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        for (final DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
             getFlatPrice(type);
     }
 
@@ -355,7 +355,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final int permissionBaseLength = permissionBase.length();
         final Set<PermissionAttachmentInfo> playerPermissions = bukkitPlayer.getEffectivePermissions();
         int ret = -1;
-        for (PermissionAttachmentInfo permission : playerPermissions)
+        for (final PermissionAttachmentInfo permission : playerPermissions)
             if (permission.getPermission().startsWith(permissionBase))
             {
                 final OptionalInt suffix = Util.parseInt(permission.getPermission().substring(permissionBaseLength));

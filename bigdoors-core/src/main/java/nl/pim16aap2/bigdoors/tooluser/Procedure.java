@@ -21,14 +21,10 @@ public final class Procedure
     @Getter
     private @Nullable IStep currentStep;
 
-    @ToString.Exclude //
-    final ToolUser toolUser;
+    private final Iterator<IStep> steps;
 
-    final Iterator<IStep> steps;
-
-    public Procedure(ToolUser toolUser, List<IStep> steps)
+    public Procedure(List<IStep> steps)
     {
-        this.toolUser = toolUser;
         this.steps = steps.iterator();
         goToNextStep();
     }
@@ -74,7 +70,7 @@ public final class Procedure
     {
         while (steps.hasNext())
         {
-            IStep step = steps.next();
+            final IStep step = steps.next();
             if (step.equals(goalStep))
             {
                 currentStep = step;

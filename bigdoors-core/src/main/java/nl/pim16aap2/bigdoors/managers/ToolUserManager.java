@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class ToolUserManager extends Restartable
 {
-    private static final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
     public ToolUserManager(IRestartableHolder holder)
     {
@@ -72,7 +72,7 @@ public final class ToolUserManager extends Restartable
             abortPair(entry.getKey(), entry.getValue());
         }
 
-        if (toolUsers.size() != 0)
+        if (!toolUsers.isEmpty())
         {
             BigDoors.get().getPLogger().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
             toolUsers.forEach((uuid, pair) -> BigDoors.get().getPLogger().severe(uuid.toString()));

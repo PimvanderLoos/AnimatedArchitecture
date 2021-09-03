@@ -31,7 +31,7 @@ public class CreatorElevator extends CreatorPortcullis
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
+        final Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
             .messageKey("creator.elevator.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();

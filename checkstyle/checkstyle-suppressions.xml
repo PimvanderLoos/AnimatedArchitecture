@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionXpathFilter Experimental Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2_xpath_experimental.dtd">
+
+<suppressions>
+    <!-- Disable checks for classes with Lombok annotations -->
+    <suppress-xpath checks="HideUtilityClassConstructor"
+                    query="//*[MODIFIERS/ANNOTATION[*[@text = 'UtilityClass']]]/descendant-or-self::node()"/>
+    <suppress-xpath checks="VisibilityModifier"
+                    query="//*[MODIFIERS/ANNOTATION[*[@text = 'Value']]]/descendant-or-self::node()"/>
+
+    <!-- Allow functional interfaces to exist with "I" prefix -->
+    <suppress-xpath checks="TypeName"
+                    query="//*[MODIFIERS/ANNOTATION[*[@text = 'FunctionalInterface']]]/descendant-or-self::node()"/>
+</suppressions>

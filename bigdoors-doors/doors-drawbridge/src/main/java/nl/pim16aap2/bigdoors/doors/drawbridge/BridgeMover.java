@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -26,7 +26,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extends BlockMover
 {
     private final Vector3Dd rotationCenter;
-    protected final boolean NS;
+    protected final boolean northSouth;
     protected final TriFunction<Vector3Dd, Vector3Dd, Double, Vector3Dd> rotator;
 
     private int halfEndCount;
@@ -55,7 +55,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     {
         super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
-        NS = door.isNorthSouthAligned();
+        northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getEngine().toDouble().add(0.5, 0, 0.5);
 
         final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
@@ -132,7 +132,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         if (replace)
             BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocks);
 
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
     }
 
@@ -142,7 +142,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         // Get the current radius of a block between used axis (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
         final double deltaA = (double) door.getEngine().y() - yAxis;
-        final double deltaB = NS ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
+        final double deltaB = northSouth ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -157,7 +157,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     {
         // Get the angle between the used axes (either x and y, or z and y).
         // When the engine is positioned along the NS axis, the Z values does not change.
-        final double deltaA = NS ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
+        final double deltaA = northSouth ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
         final double deltaB = (double) door.getEngine().y() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

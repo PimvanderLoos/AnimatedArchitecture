@@ -45,7 +45,7 @@ public final class WorldTime
      */
     private static int calculateHours(long worldTime)
     {
-        int hours = (int) (worldTime % 24000) / 1000;
+        final int hours = (int) (worldTime % 24_000) / 1_000;
         // Minecraft time starts at 6 hours.
         return (hours + 6) % 24;
     }
@@ -59,7 +59,7 @@ public final class WorldTime
      */
     private static int calculateMinutes(long worldTime)
     {
-        int minutes = (int) worldTime % 1000;
+        final int minutes = (int) worldTime % 1000;
         return (int) (60 * (minutes / 1000F));
     }
 

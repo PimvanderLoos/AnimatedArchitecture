@@ -40,7 +40,7 @@ public class BasicPLogger implements IPLogger
     private void writeMessage(Level level, LogMessage logMessage)
     {
         if (loggable(level))
-            stringConsumer.accept(logMessage.toString());
+            stringConsumer.accept("[" + getCurrentTime() + "] " + logMessage);
     }
 
     private void writeMessage(Level level, @Nullable String msg)

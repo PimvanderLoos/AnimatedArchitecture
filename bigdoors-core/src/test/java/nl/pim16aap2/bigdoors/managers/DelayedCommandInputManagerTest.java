@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import lombok.val;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import org.junit.jupiter.api.Assertions;
@@ -24,12 +23,12 @@ class DelayedCommandInputManagerTest
     @Test
     void testRegistration()
     {
-        val manager = new DelayedCommandInputManager();
-        val request = Mockito.mock(DelayedCommandInputRequest.class);
+        final var manager = new DelayedCommandInputManager();
+        final var request = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, request);
 
-        val returned = manager.getInputRequest(commandSender);
+        final var returned = manager.getInputRequest(commandSender);
         Assertions.assertTrue(returned.isPresent());
         Assertions.assertEquals(request, returned.get());
         Mockito.verify(request, Mockito.never()).cancel();
@@ -38,9 +37,9 @@ class DelayedCommandInputManagerTest
     @Test
     void testCommandSenders()
     {
-        val manager = new DelayedCommandInputManager();
-        val request = Mockito.mock(DelayedCommandInputRequest.class);
-        val altSender = Mockito.mock(ICommandSender.class);
+        final var manager = new DelayedCommandInputManager();
+        final var request = Mockito.mock(DelayedCommandInputRequest.class);
+        final var altSender = Mockito.mock(ICommandSender.class);
 
         manager.register(commandSender, request);
         Assertions.assertTrue(manager.getInputRequest(altSender).isEmpty());
@@ -51,10 +50,10 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregistration()
     {
-        val manager = new DelayedCommandInputManager();
-        val first = Mockito.mock(DelayedCommandInputRequest.class);
-        val second = Mockito.mock(DelayedCommandInputRequest.class);
-        val altSender = Mockito.mock(ICommandSender.class);
+        final var manager = new DelayedCommandInputManager();
+        final var first = Mockito.mock(DelayedCommandInputRequest.class);
+        final var second = Mockito.mock(DelayedCommandInputRequest.class);
+        final var altSender = Mockito.mock(ICommandSender.class);
 
         manager.register(commandSender, first);
 
@@ -74,8 +73,8 @@ class DelayedCommandInputManagerTest
     @Test
     void testCancelAll()
     {
-        val manager = new DelayedCommandInputManager();
-        val first = Mockito.mock(DelayedCommandInputRequest.class);
+        final var manager = new DelayedCommandInputManager();
+        final var first = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.cancelAll(commandSender);
@@ -86,9 +85,9 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregisterAll()
     {
-        val manager = new DelayedCommandInputManager();
+        final var manager = new DelayedCommandInputManager();
 
-        val first = Mockito.mock(DelayedCommandInputRequest.class);
+        final var first = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.deregisterAll(commandSender);
@@ -99,16 +98,16 @@ class DelayedCommandInputManagerTest
     @Test
     void testOverride()
     {
-        val manager = new DelayedCommandInputManager();
-        val first = Mockito.mock(DelayedCommandInputRequest.class);
-        val second = Mockito.mock(DelayedCommandInputRequest.class);
+        final var manager = new DelayedCommandInputManager();
+        final var first = Mockito.mock(DelayedCommandInputRequest.class);
+        final var second = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.register(commandSender, second);
 
         Mockito.verify(first).cancel();
 
-        val returned = manager.getInputRequest(commandSender);
+        final var returned = manager.getInputRequest(commandSender);
         Assertions.assertTrue(returned.isPresent());
         Assertions.assertNotEquals(first, returned.get());
         Assertions.assertEquals(second, returned.get());

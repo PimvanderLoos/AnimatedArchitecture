@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -144,8 +143,8 @@ public class RemoveOwner extends DoorTargetCommand
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 
-        val localizer = BigDoors.get().getLocalizer();
-        val doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
+        final var localizer = BigDoors.get().getLocalizer();
+        final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty() && !bypassOwnership)
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.remove_owner.error.not_an_owner"));
@@ -160,7 +159,7 @@ public class RemoveOwner extends DoorTargetCommand
             return false;
         }
 
-        val targetDoorOwner = door.getDoorOwner(targetPlayer);
+        final var targetDoorOwner = door.getDoorOwner(targetPlayer);
         if (targetDoorOwner.isEmpty())
         {
             getCommandSender()

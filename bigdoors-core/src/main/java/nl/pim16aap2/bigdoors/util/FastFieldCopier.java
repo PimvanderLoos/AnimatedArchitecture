@@ -8,6 +8,8 @@ import java.lang.reflect.Field;
 
 /**
  * Uses {@link Unsafe} to quickly copy primitives and objects from one object to another.
+ * <p>
+ * Note that objects aren't cloned or copied, only the reference is copied!
  *
  * @param <S>
  *     The type of the source object.
@@ -29,7 +31,7 @@ public abstract class FastFieldCopier<S, T>
         @Nullable Unsafe unsafe = null;
         try
         {
-            Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
             unsafeField.setAccessible(true);
             unsafe = (Unsafe) unsafeField.get(null);
         }
@@ -40,19 +42,14 @@ public abstract class FastFieldCopier<S, T>
         UNSAFE = unsafe;
     }
 
-    final long offsetSource;
-    final long offsetTarget;
-
-    private FastFieldCopier(long offsetSource, long offsetTarget)
+    protected FastFieldCopier()
     {
-        this.offsetSource = offsetSource;
-        this.offsetTarget = offsetTarget;
     }
 
     private static Field getField(Class<?> clz, String name)
         throws NoSuchFieldException
     {
-        Field f = clz.getDeclaredField(name);
+        final Field f = clz.getDeclaredField(name);
         f.setAccessible(true);
         return f;
     }
@@ -93,8 +90,8 @@ public abstract class FastFieldCopier<S, T>
         final Class<?> targetType;
         try
         {
-            Field fieldSource = getField(sourceClass, nameSource);
-            Field fieldTarget = getField(targetClass, nameTarget);
+            final Field fieldSource = getField(sourceClass, nameSource);
+            final Field fieldTarget = getField(targetClass, nameTarget);
             if (fieldTarget.getType() != fieldSource.getType())
                 throw new IllegalArgumentException(
                     String.format("Target type %s does not match source type %s for target class %s",
@@ -107,7 +104,7 @@ public abstract class FastFieldCopier<S, T>
         }
         catch (Exception t)
         {
-            RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
+            final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
             BigDoors.get().getPLogger().logThrowableSilently(e);
             throw e;
         }
@@ -115,7 +112,7 @@ public abstract class FastFieldCopier<S, T>
         // All these methods suppress NullAway, because it complains about UNSAFE, but it should
         // never even get to this point if UNSAFE is null.
         if (targetType.equals(int.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -125,7 +122,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(long.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -135,7 +132,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(boolean.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -145,7 +142,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(short.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -155,7 +152,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(char.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -165,7 +162,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(float.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -175,7 +172,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(double.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -185,7 +182,7 @@ public abstract class FastFieldCopier<S, T>
             };
 
         if (targetType.equals(byte.class))
-            return new FastFieldCopier<>(offsetSource, offsetTarget)
+            return new FastFieldCopier<>()
             {
                 @Override
                 public void copy(Object source, Object target)
@@ -194,7 +191,7 @@ public abstract class FastFieldCopier<S, T>
                 }
             };
 
-        return new FastFieldCopier<>(offsetSource, offsetTarget)
+        return new FastFieldCopier<>()
         {
             @Override
             public void copy(Object source, Object target)

@@ -28,21 +28,21 @@ public enum RotateDirection
     /**
      * Map of all indices with their respective {@link RotateDirection} constants as values.
      */
-    private static final Map<Integer, RotateDirection> idMap;
-    private static final Map<String, RotateDirection> nameMap;
+    private static final Map<Integer, RotateDirection> ID_MAP;
+    private static final Map<String, RotateDirection> NAME_MAP;
 
     static
     {
         final RotateDirection[] values = RotateDirection.values();
         final Map<Integer, RotateDirection> idMapTmp = new HashMap<>(values.length);
         final Map<String, RotateDirection> nameMapTmp = new HashMap<>(values.length);
-        for (RotateDirection dir : RotateDirection.values())
+        for (final RotateDirection dir : RotateDirection.values())
         {
             idMapTmp.put(dir.val, dir);
             nameMapTmp.put(dir.name(), dir);
         }
-        idMap = Collections.unmodifiableMap(idMapTmp);
-        nameMap = Collections.unmodifiableMap(nameMapTmp);
+        ID_MAP = Collections.unmodifiableMap(idMapTmp);
+        NAME_MAP = Collections.unmodifiableMap(nameMapTmp);
     }
 
     private final int val;
@@ -79,7 +79,7 @@ public enum RotateDirection
     {
         try
         {
-            return idMap.get(dir);
+            return ID_MAP.get(dir);
         }
         catch (Exception e)
         {
@@ -89,7 +89,7 @@ public enum RotateDirection
 
     public static Optional<RotateDirection> getRotateDirection(String name)
     {
-        return Optional.ofNullable(nameMap.get(name));
+        return Optional.ofNullable(NAME_MAP.get(name));
     }
 
     /**

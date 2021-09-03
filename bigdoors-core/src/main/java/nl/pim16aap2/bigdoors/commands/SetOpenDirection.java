@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -145,21 +144,21 @@ public class SetOpenDirection extends DoorTargetCommand
      */
     private static String inputRequestMessage(DoorRetriever doorRetriever)
     {
-        val localizer = BigDoors.get().getLocalizer();
+        final var localizer = BigDoors.get().getLocalizer();
         if (!doorRetriever.isAvailable())
             return localizer.getMessage("commands.set_open_direction.init");
 
-        val sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed_init_header"))
-            .append("\n");
+        final var sb = new StringBuilder(localizer.getMessage("commands.set_open_direction.delayed_init_header"))
+            .append('\n');
 
-        val futureDoor = doorRetriever.getDoor();
+        final var futureDoor = doorRetriever.getDoor();
         if (!futureDoor.isDone())
             throw new IllegalStateException("Door that should be available is not done!");
-        val optionalDoor = futureDoor.join();
+        final var optionalDoor = futureDoor.join();
         if (optionalDoor.isEmpty())
             throw new IllegalStateException("Door that should be available is not present!");
 
-        val directions = optionalDoor.get().getDoorType().getValidOpenDirections();
+        final var directions = optionalDoor.get().getDoorType().getValidOpenDirections();
         for (int idx = 0; idx < directions.size(); ++idx)
         {
             sb.append(localizer.getMessage(directions.get(idx).getLocalizationKey()));

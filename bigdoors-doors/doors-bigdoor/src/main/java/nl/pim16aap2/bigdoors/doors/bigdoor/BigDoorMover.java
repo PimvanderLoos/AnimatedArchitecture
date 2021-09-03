@@ -79,7 +79,7 @@ public class BigDoorMover extends BlockMover
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 
-        for (PBlockData block : savedBlocks)
+        for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ()));
     }
 
@@ -92,11 +92,11 @@ public class BigDoorMover extends BlockMover
 
     private Vector3Dd getGoalPos(double cos, double sin, double startX, double startY, double startZ)
     {
-        double translatedX = startX - rotationCenter.x();
-        double translatedZ = startZ - rotationCenter.z();
+        final double translatedX = startX - rotationCenter.x();
+        final double translatedZ = startZ - rotationCenter.z();
 
-        double changeX = translatedX * cos - translatedZ * sin;
-        double changeZ = translatedX * sin + translatedZ * cos;
+        final double changeX = translatedX * cos - translatedZ * sin;
+        final double changeZ = translatedX * sin + translatedZ * cos;
 
         return new Vector3Dd(rotationCenter.x() + changeX, startY, rotationCenter.z() + changeZ);
     }

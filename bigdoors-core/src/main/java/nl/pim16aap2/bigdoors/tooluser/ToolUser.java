@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -53,12 +52,12 @@ public abstract class ToolUser implements IRestartable
 
         try
         {
-            procedure = new Procedure(this, generateSteps());
+            procedure = new Procedure(generateSteps());
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
-            val ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
-                                              getPlayer().asString(), e);
+            final var ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
+                                                    getPlayer().asString(), e);
             BigDoors.get().getPLogger().logThrowableSilently(ex);
             throw ex;
         }
@@ -209,6 +208,7 @@ public abstract class ToolUser implements IRestartable
      *     The input to handle. What actual type is expected depends on the step.
      * @return True if the input was processed successfully.
      */
+    @SuppressWarnings("PMD.PrematureDeclaration")
     public boolean handleInput(@Nullable Object obj)
     {
         BigDoors.get().getPLogger().debug(
@@ -241,7 +241,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected void sendMessage()
     {
-        val message = getProcedure().getMessage();
+        final var message = getProcedure().getMessage();
         if (message.isEmpty())
             BigDoors.get().getPLogger().warn("Missing translation for step: " + getProcedure().getCurrentStepName());
         else

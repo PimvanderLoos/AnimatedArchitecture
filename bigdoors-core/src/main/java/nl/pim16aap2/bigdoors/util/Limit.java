@@ -14,9 +14,11 @@ public enum Limit
     BLOCKS_TO_MOVE("blocks_to_move", IConfigLoader::maxBlocksToMove),
     ;
 
-    @Getter final String userPermission;
-    @Getter final String adminPermission;
-    final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
+    @Getter
+    private final String userPermission;
+    @Getter
+    private final String adminPermission;
+    private final Function<IConfigLoader, OptionalInt> globalLimitSupplier;
 
     Limit(String permissionName, Function<IConfigLoader, OptionalInt> globalLimitSupplier)
     {

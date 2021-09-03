@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -262,7 +261,7 @@ public abstract class AbstractDoor implements IDoor
         if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return DoorOpeningUtility.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible);
 
-        CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
+        final CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
 
         if (!scheduled.join())
@@ -340,7 +339,7 @@ public abstract class AbstractDoor implements IDoor
             + "Type-specific data:\n"
             + "type: " + getDoorType() + "\n";
 
-        val serializerOpt = getDoorType().getDoorSerializer();
+        final var serializerOpt = getDoorType().getDoorSerializer();
         if (serializerOpt.isEmpty())
             ret += "Invalid serializer!\n";
         else

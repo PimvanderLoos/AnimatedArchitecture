@@ -8,6 +8,8 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
+import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 @AllArgsConstructor
 abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorToggleEvent
@@ -29,4 +31,7 @@ abstract class DoorToggleEvent extends BigDoorsSpigotEvent implements IDoorToggl
 
     @Getter
     protected final boolean animationSkipped;
+
+    @Override
+    public abstract @NotNull HandlerList getHandlers();
 }

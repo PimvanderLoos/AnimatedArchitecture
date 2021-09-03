@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IHorizontalAxisAligned;
-import nl.pim16aap2.bigdoors.doors.doorArchetypes.IPerpetualMover;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
+import nl.pim16aap2.bigdoors.doors.doorarchetypes.IPerpetualMover;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -95,7 +95,7 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
         throws Exception
     {
         // TODO: Get rid of this.
-        double fixedTime = time < 0.5 ? 5 : time;
+        final double fixedTime = time < 0.5 ? 5 : time;
 
         return new WindmillMover<>(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
                                    responsible, cause, actionType);
