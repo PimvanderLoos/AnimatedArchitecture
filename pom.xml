@@ -302,6 +302,30 @@
                         </formatPreferences>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${dependency.version.pmd}</version>
+                    <configuration>
+                        <rulesets>
+                            <ruleset>${user.dir}/pmd-ruleset.xml</ruleset>
+                        </rulesets>
+                        <linkXRef>true</linkXRef>
+                        <failOnViolation>true</failOnViolation>
+                        <showPmdLog>true</showPmdLog>
+                        <detail>true</detail>
+                        <printFailingErrors>true</printFailingErrors>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -331,31 +355,6 @@
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>
-                        </plugin>
-
-
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-pmd-plugin</artifactId>
-                            <version>${dependency.version.pmd}</version>
-                            <configuration>
-                                <rulesets>
-                                    <ruleset>${user.dir}/pmd-ruleset.xml</ruleset>
-                                </rulesets>
-                                <linkXRef>true</linkXRef>
-                                <failOnViolation>true</failOnViolation>
-                                <showPmdLog>true</showPmdLog>
-                                <detail>true</detail>
-                                <printFailingErrors>true</printFailingErrors>
-                            </configuration>
-                            <executions>
-                                <execution>
-                                    <phase>verify</phase>
-                                    <goals>
-                                        <goal>check</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
                         </plugin>
                     </plugins>
                 </pluginManagement>
