@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1794,10 +1795,12 @@ public class SQLiteJDBCDriverConnection
 
             if (playerID == -1)
             {
-                Statement stmt2 = conn.createStatement();
-                String sql2 = "INSERT INTO players (playerUUID, playerName) " + "VALUES ('"
-                    + door.getPlayerUUID().toString() + "', '" + Util.nameFromUUID(door.getPlayerUUID()) + "');";
-                stmt2.executeUpdate(sql2);
+                PreparedStatement stmt2 =
+                    conn.prepareStatement("INSERT INTO players (playerUUID, playerName) VALUES (?,?);");
+                stmt2.setString(1, door.getPlayerUUID().toString());
+                stmt2.setString(2, Objects.requireNonNull(Util.nameFromUUID(door.getPlayerUUID()),
+                                                          "player name cannot be null!"));
+                stmt2.executeUpdate();
                 stmt2.close();
 
                 String query = "SELECT last_insert_rowid() AS lastId";
@@ -1845,7 +1848,7 @@ public class SQLiteJDBCDriverConnection
             String query = "SELECT last_insert_rowid() AS lastId";
             PreparedStatement ps2 = conn.prepareStatement(query);
             ResultSet rs2 = ps2.executeQuery();
-            Long doorUID = rs2.getLong("lastId");
+            long doorUID = rs2.getLong("lastId");
             ps2.close();
             rs2.close();
 
