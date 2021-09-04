@@ -1,5 +1,5 @@
 Alpha 0.1.8.33
-- Fix the /namedoor command giving you more sticks when running the command multiple times.
+- Fix the /namedoor command giving you more sticks when running the command multiple times. Thanks, MiniMoro, for the bug report!
 
 Alpha 0.1.8.32
 - Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!
