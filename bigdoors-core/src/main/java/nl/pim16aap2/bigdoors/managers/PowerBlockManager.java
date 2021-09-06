@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class PowerBlockManager extends Restartable
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();

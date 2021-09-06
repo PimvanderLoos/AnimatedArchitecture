@@ -12,6 +12,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -20,6 +21,7 @@ import java.lang.reflect.Method;
  *
  * @author Pim
  */
+@Singleton
 public class ChunkListener implements Listener
 {
     private final BigDoorsSpigot plugin;

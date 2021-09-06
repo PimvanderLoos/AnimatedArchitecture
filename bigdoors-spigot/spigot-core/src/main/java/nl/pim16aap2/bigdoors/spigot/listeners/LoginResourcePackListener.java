@@ -9,11 +9,14 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import javax.inject.Singleton;
+
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
  *
  * @author Pim
  */
+@Singleton
 public class LoginResourcePackListener extends Restartable implements Listener
 {
     private final BigDoorsSpigot plugin;

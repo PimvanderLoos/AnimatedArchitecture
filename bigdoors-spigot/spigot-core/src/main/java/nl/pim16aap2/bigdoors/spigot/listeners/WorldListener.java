@@ -8,11 +8,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
+import javax.inject.Singleton;
+
 /**
  * Process world (un)load events.
  *
  * @author Pim
  */
+@Singleton
 public final class WorldListener implements Listener
 {
     private final PowerBlockManager powerBlockManager;

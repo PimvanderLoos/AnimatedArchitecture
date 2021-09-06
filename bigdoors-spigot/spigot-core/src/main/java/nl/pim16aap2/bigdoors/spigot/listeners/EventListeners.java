@@ -22,11 +22,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
 /**
  * Represents a listener that keeps track of various events.
  *
  * @author Pim
  */
+@Singleton
 public class EventListeners implements Listener
 {
     private final BigDoorsSpigot plugin;

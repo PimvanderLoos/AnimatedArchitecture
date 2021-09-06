@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +19,7 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
+@Singleton
 public final class DoorActivityManager extends Restartable
 {
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();

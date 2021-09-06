@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
@@ -19,6 +20,7 @@ import java.util.TimerTask;
  *
  * @author Pim
  */
+@Singleton
 public final class AutoCloseScheduler extends Restartable
 {
     /**

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.logging.Level;
 
 /**
@@ -17,6 +18,7 @@ import java.util.logging.Level;
  * @author Pim
  * @see IMessagingInterface
  */
+@Singleton
 public class MessagingInterfaceSpigot implements IMessagingInterface
 {
     private final String formattedName;

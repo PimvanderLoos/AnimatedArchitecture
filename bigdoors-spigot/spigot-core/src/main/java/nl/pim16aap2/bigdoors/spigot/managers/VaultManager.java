@@ -21,6 +21,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
@@ -32,6 +33,7 @@ import java.util.Set;
  *
  * @author Pim
  */
+@Singleton
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
     private static final VaultManager INSTANCE = new VaultManager();

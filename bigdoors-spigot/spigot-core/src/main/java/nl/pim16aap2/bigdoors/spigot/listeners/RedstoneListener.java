@@ -17,6 +17,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
+@Singleton
 public class RedstoneListener extends Restartable implements Listener
 {
     private final BigDoorsSpigot plugin;

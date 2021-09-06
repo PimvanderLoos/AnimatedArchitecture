@@ -5,8 +5,10 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.Limit;
 
+import javax.inject.Singleton;
 import java.util.OptionalInt;
 
+@Singleton
 public class LimitsManager
 {
     /**

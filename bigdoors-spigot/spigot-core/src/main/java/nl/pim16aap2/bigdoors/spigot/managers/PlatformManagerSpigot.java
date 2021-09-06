@@ -8,6 +8,9 @@ import nl.pim16aap2.bigdoors.spigot.v1_15_R1.SpigotPlatform_V1_15_R1;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
+@Singleton
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
     private static final PlatformManagerSpigot INSTANCE = new PlatformManagerSpigot();

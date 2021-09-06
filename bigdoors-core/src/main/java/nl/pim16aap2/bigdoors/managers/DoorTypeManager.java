@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * @author Pim
  */
+@Singleton
 public final class DoorTypeManager extends Restartable
 {
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();

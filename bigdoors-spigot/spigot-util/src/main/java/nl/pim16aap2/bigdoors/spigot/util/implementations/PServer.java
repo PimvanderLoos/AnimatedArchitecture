@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Singleton;
 import java.util.logging.Level;
 
 /**
@@ -12,6 +13,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public class PServer implements IPServer
 {
     private final String pluginName;

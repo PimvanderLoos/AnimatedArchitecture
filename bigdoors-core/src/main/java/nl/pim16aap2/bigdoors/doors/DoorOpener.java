@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import dagger.Reusable;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -19,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
+@Reusable
 public final class DoorOpener
 {
     /**

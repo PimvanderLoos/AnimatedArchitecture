@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
+import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);

@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.stream.Stream;
 
+@Singleton
 public final class DoorTypeLoader extends Restartable
 {
     private static final DoorTypeLoader INSTANCE = new DoorTypeLoader();

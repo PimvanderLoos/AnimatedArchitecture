@@ -11,8 +11,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.Optional;
 
+@Singleton
 public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 {
     @Override

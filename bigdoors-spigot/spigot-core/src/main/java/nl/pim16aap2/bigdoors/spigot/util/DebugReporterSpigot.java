@@ -20,7 +20,10 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
 @AllArgsConstructor
+@Singleton
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsSpigot plugin;

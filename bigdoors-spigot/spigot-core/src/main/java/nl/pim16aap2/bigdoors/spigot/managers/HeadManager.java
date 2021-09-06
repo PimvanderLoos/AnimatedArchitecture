@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +25,7 @@ import java.util.function.Function;
  *
  * @author Pim
  */
+@Singleton
 public final class HeadManager extends Restartable
 {
     /**

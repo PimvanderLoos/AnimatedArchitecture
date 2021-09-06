@@ -16,8 +16,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.Arrays;
 
+@Singleton
 public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
 {
     private static final Material TOOL_MATERIAL = Material.STICK;

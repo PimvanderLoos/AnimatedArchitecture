@@ -22,12 +22,15 @@ import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
 /**
  * Represents the core class of BigDoors.
  *
  * @author Pim
  */
 @SuppressWarnings("unused")
+@Singleton
 public final class BigDoors extends RestartableHolder
 {
     private static final BigDoors INSTANCE = new BigDoors();

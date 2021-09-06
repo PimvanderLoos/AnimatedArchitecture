@@ -8,11 +8,14 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.inject.Singleton;
+
 /**
  * Represents an implementation of {@link IPLocationFactory} for the Spigot platform.
  *
  * @author Pim
  */
+@Singleton
 public class PLocationFactorySpigot implements IPLocationFactory
 {
     @Override

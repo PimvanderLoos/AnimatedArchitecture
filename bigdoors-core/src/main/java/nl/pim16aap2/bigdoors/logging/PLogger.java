@@ -4,6 +4,7 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class PLogger implements IPLogger
 {
     /**

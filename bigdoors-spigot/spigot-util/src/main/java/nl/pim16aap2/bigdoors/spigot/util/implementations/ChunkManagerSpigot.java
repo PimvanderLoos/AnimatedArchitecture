@@ -4,11 +4,14 @@ import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 
+import javax.inject.Singleton;
+
 /**
  * Represents an implementation of {@link IChunkManager} for the Spigot platform.
  *
  * @author Pim
  */
+@Singleton
 public final class ChunkManagerSpigot implements IChunkManager
 {
     private static final ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();

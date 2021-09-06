@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -39,6 +40,7 @@ import java.util.regex.Pattern;
  *
  * @author Parker Hawke - 2008Choco
  */
+@Singleton
 public final class UpdateChecker
 {
     public static final VersionScheme VERSION_SCHEME_DECIMAL = (first, second) ->

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +21,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@Singleton
 class FakePlayerCreator
 {
     static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";

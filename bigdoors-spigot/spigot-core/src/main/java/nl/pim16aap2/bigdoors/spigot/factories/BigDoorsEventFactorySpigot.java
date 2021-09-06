@@ -27,6 +27,9 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
+@Singleton
 public class BigDoorsEventFactorySpigot implements IBigDoorsEventFactory
 {
     @Override

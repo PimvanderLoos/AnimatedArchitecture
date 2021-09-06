@@ -82,6 +82,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -99,6 +100,7 @@ import java.util.stream.Collectors;
 // Almost everything is initializer later, because that's how Spigot works.
 // This class is just a mess in general and needs a full rewrite.
 @SuppressWarnings({"NullAway.Init", "PMD", "ConstantConditions"})
+@Singleton
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.

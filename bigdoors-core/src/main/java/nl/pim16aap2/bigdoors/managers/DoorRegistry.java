@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoor;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ import java.util.Optional;
  * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
+@Singleton
 public final class DoorRegistry extends Restartable
 {
     public static final int CONCURRENCY_LEVEL = 4;

@@ -11,12 +11,15 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
+import javax.inject.Singleton;
+
 /**
  * V1_15_R1 implementation of {@link IFallingBlockFactory}.
  *
  * @author Pim
  * @see IFallingBlockFactory
  */
+@Singleton
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
     @Override

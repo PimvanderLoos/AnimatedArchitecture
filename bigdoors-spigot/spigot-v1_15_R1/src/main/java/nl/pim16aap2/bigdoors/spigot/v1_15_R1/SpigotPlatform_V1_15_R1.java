@@ -9,6 +9,9 @@ import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 
+import javax.inject.Singleton;
+
+@Singleton
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 {
     private static final String VERSION = "v1_15_R1";

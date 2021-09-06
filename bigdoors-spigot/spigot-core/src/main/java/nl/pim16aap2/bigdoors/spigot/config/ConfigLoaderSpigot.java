@@ -18,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ import java.util.Set;
  * @author Pim
  */
 @ToString
+@Singleton
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
     @SuppressWarnings({"PMD.FieldNamingConventions", "squid:S3008"}) // TODO: Get rid of this.

@@ -23,6 +23,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+@Singleton
 public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
 {
     private final Set<IRestartable> restartables = new ConcurrentHashMap<IRestartable, Boolean>().keySet();

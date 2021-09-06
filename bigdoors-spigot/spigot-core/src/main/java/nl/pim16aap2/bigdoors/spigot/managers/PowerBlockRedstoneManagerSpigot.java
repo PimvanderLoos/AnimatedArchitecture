@@ -6,11 +6,14 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 
+import javax.inject.Singleton;
+
 /**
  * Represents an implementation of {@link IPowerBlockRedstoneManager} for the Spigot platform.
  *
  * @author Pim
  */
+@Singleton
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
     private static final PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();

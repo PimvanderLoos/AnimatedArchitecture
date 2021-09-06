@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import org.bukkit.ChatColor;
 
+import javax.inject.Singleton;
 import java.util.logging.Level;
 
 /**
@@ -11,6 +12,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class MessageableServerSpigot implements IMessageable
 {
     private static final MessageableServerSpigot INSTANCE = new MessageableServerSpigot();

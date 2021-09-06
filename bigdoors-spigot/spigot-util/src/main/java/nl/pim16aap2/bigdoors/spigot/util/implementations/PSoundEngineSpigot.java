@@ -12,11 +12,14 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import javax.inject.Singleton;
+
 /**
  * Represents an implementation of {@link ISoundEngine} for the Spigot platform.
  *
  * @author Pim
  */
+@Singleton
 public class PSoundEngineSpigot implements ISoundEngine
 {
     @Override

@@ -9,11 +9,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
+
 /**
  * Class that manages all update-related stuff.
  *
  * @author Pim
  */
+@Singleton
 public final class UpdateManager
 {
     private final BigDoorsSpigot plugin;

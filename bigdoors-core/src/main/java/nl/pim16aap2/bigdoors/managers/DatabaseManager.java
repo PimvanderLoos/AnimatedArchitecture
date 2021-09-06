@@ -20,6 +20,7 @@ import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class DatabaseManager extends Restartable
 {
     /**

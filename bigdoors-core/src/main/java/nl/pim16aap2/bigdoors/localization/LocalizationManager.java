@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import java.util.function.Consumer;
  *
  * @author Pim
  */
+@Singleton
 public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
     private final Path baseDir;
