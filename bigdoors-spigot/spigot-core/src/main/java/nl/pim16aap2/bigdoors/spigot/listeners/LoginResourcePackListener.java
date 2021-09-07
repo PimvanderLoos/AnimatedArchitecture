@@ -1,14 +1,19 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 /**
@@ -19,13 +24,19 @@ import javax.inject.Singleton;
 @Singleton
 public class LoginResourcePackListener extends Restartable implements Listener
 {
-    private final BigDoorsSpigot plugin;
     private final String url;
+    private final IPLogger logger;
+    private final IConfigLoader config;
+    private final JavaPlugin plugin;
     private boolean isRegistered = false;
 
-    public LoginResourcePackListener(BigDoorsSpigot plugin, String url)
+    @Inject
+    public LoginResourcePackListener(IRestartableHolder holder, IPLogger logger, IConfigLoader config,
+                                     JavaPlugin plugin, @Named("resourcePackURL") String url)
     {
-        super(plugin);
+        super(holder);
+        this.logger = logger;
+        this.config = config;
         this.plugin = plugin;
         this.url = url;
     }
@@ -33,7 +44,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
     @Override
     public void restart()
     {
-        if (plugin.getConfigLoader().enableRedstone())
+        if (config.enableRedstone())
             register();
         else
             unregister();
@@ -82,7 +93,7 @@ public class LoginResourcePackListener extends Restartable implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 }

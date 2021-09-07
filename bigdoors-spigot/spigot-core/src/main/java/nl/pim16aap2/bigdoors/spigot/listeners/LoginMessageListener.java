@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -21,6 +22,7 @@ public final class LoginMessageListener implements Listener
 {
     private final BigDoorsSpigot plugin;
 
+    @Inject
     public LoginMessageListener(BigDoorsSpigot plugin)
     {
         this.plugin = plugin;
@@ -32,6 +34,7 @@ public final class LoginMessageListener implements Listener
      * @param event
      *     The {@link PlayerJoinEvent}.
      */
+    // TODO: Write a nicer system for login messages that doesn't require code in the BigDoorsSpigot class.
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {

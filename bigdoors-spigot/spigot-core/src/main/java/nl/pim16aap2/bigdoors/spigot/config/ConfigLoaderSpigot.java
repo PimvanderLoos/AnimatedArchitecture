@@ -7,17 +7,17 @@ import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -43,9 +43,7 @@ import java.util.Set;
 @Singleton
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
-    @SuppressWarnings({"PMD.FieldNamingConventions", "squid:S3008"}) // TODO: Get rid of this.
-    private static @Nullable ConfigLoaderSpigot INSTANCE;
-    private final BigDoorsSpigot plugin;
+    private final JavaPlugin plugin;
     @ToString.Exclude
     private final IPLogger logger;
 
@@ -87,7 +85,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param logger
      *     The logger used for error logging.
      */
-    private ConfigLoaderSpigot(BigDoorsSpigot plugin, IPLogger logger)
+    @Inject
+    public ConfigLoaderSpigot(JavaPlugin plugin, IPLogger logger)
     {
         this.plugin = plugin;
         this.logger = logger;
@@ -95,31 +94,6 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         doorMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
-    }
-
-    /**
-     * Initializes the {@link ConfigLoaderSpigot}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param plugin
-     *     The spigot core.
-     * @param logger
-     *     The logger used for error logging.
-     * @return The instance of this {@link ConfigLoaderSpigot}.
-     */
-    public static ConfigLoaderSpigot init(BigDoorsSpigot plugin, IPLogger logger)
-    {
-        return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link ConfigLoaderSpigot} if it exists.
-     *
-     * @return The instance of the {@link ConfigLoaderSpigot}.
-     */
-    public static ConfigLoaderSpigot get()
-    {
-        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     @Override
@@ -310,7 +284,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
 
         flagFormula = addNewConfigEntry(config, "flagFormula",
-                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
+                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
 
         String @Nullable [] usedMulitplierComment = multiplierComment;
@@ -369,7 +343,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
                                     String @Nullable ... comment)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
+        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment);
         configEntries.add(option);
         return option.getValue();
     }
@@ -394,7 +368,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
                                     ConfigEntry.ITestValue<T> verifyValue)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
+        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment,
                                                         verifyValue);
         configEntries.add(option);
         return option.getValue();

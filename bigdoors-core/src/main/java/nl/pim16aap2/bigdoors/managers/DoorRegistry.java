@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoor;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public final class DoorRegistry extends Restartable
      * <p>
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
+    @Inject
     public DoorRegistry()
     {
         this(CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);

@@ -191,7 +191,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final DoorSpecificationManager doorSpecificationManager = new DoorSpecificationManager();
 
     @Getter
-    private final DoorTypeManager doorTypeManager = new DoorTypeManager();
+    private final DoorTypeManager doorTypeManager = new DoorTypeManager(getPLogger());
 
     @Getter
     private final ToolUserManager toolUserManager = new ToolUserManager(this);
@@ -236,7 +236,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         try
         {
             // Register this here so it can check for updates even when loaded on an incorrect version.
-            updateManager = new UpdateManager(this, 58_669);
+            updateManager = new UpdateManager(this, 58_669, getPLogger());
 
             databaseManager = new DatabaseManager(this, new File(super.getDataFolder(), "doorDB.db"));
             registerDoorTypes();
@@ -273,7 +273,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 return;
             }
 
-            vaultManager = VaultManager.init(this);
+            vaultManager = new VaultManager(localizer, pLogger, configLoader);
 
             headManager = headManager == null ? new HeadManager(this, getConfigLoader()) : headManager;
 

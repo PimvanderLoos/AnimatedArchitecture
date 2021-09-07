@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import lombok.AllArgsConstructor;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -20,13 +19,20 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
-@AllArgsConstructor
 @Singleton
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsSpigot plugin;
+
+    @Inject
+    public DebugReporterSpigot(BigDoorsSpigot plugin)
+    {
+        super(plugin);
+        this.plugin = plugin;
+    }
 
     @Override
     public String getDump()

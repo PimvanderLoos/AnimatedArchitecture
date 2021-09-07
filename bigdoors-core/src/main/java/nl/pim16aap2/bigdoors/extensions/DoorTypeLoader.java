@@ -2,12 +2,14 @@ package nl.pim16aap2.bigdoors.extensions;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -29,12 +31,12 @@ import java.util.stream.Stream;
 @Singleton
 public final class DoorTypeLoader extends Restartable
 {
-    private static final DoorTypeLoader INSTANCE = new DoorTypeLoader();
     private DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
 
-    private DoorTypeLoader()
+    @Inject
+    public DoorTypeLoader(IRestartableHolder holder)
     {
-        super(BigDoors.get());
+        super(holder);
         init();
     }
 
@@ -54,11 +56,6 @@ public final class DoorTypeLoader extends Restartable
             BigDoors.get().getPLogger()
                     .logThrowable(e, "Failed to close door type classloader! Extensions will NOT be reloaded!");
         }
-    }
-
-    public static DoorTypeLoader get()
-    {
-        return INSTANCE;
     }
 
     private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(File file)

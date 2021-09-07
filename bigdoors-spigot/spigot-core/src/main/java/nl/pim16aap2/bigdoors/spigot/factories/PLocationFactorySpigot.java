@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -18,6 +19,11 @@ import javax.inject.Singleton;
 @Singleton
 public class PLocationFactorySpigot implements IPLocationFactory
 {
+    @Inject
+    public PLocationFactorySpigot()
+    {
+    }
+
     @Override
     public IPLocation create(IPWorld world, double x, double y, double z)
     {

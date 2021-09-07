@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -20,6 +21,7 @@ public final class WorldListener implements Listener
 {
     private final PowerBlockManager powerBlockManager;
 
+    @Inject
     public WorldListener(PowerBlockManager powerBlockManager)
     {
         this.powerBlockManager = powerBlockManager;

@@ -6,6 +6,8 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,8 +32,9 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final LocalizationGenerator baseGenerator;
     private @Nullable LocalizationGenerator patchGenerator;
 
-    public LocalizationManager(IRestartableHolder restartableHolder, Path baseDir,
-                               String baseName, IConfigLoader configLoader)
+    @Inject
+    public LocalizationManager(IRestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
+                               @Named("localizationBaseName") String baseName, IConfigLoader configLoader)
     {
         super(restartableHolder);
         this.baseDir = baseDir;

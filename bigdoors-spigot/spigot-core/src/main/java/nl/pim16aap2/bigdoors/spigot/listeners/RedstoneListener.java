@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
@@ -16,7 +18,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Objects;
@@ -31,14 +35,19 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class RedstoneListener extends Restartable implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final JavaPlugin plugin;
+    private final ConfigLoaderSpigot config;
+    private final IPLogger logger;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private boolean isRegistered = false;
 
-    public RedstoneListener(BigDoorsSpigot plugin)
+    @Inject
+    public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger)
     {
-        super(plugin);
+        super(holder);
         this.plugin = plugin;
+        this.config = config;
+        this.logger = logger;
         restart();
     }
 
@@ -47,10 +56,10 @@ public class RedstoneListener extends Restartable implements Listener
     {
         powerBlockTypes.clear();
 
-        if (plugin.getConfigLoader().enableRedstone())
+        if (config.enableRedstone())
         {
             register();
-            powerBlockTypes.addAll(plugin.getConfigLoader().powerBlockTypes());
+            powerBlockTypes.addAll(config.powerBlockTypes());
             return;
         }
         unregister();
@@ -134,7 +143,7 @@ public class RedstoneListener extends Restartable implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e, "Exception thrown while handling redstone event!");
+            logger.logThrowable(e, "Exception thrown while handling redstone event!");
         }
     }
 

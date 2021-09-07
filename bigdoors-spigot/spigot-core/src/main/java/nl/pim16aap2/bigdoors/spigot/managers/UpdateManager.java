@@ -1,15 +1,19 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
 
 /**
  * Class that manages all update-related stuff.
@@ -19,8 +23,9 @@ import javax.inject.Singleton;
 @Singleton
 public final class UpdateManager
 {
-    private final BigDoorsSpigot plugin;
+    private final JavaPlugin plugin;
     private final IPLogger logger;
+    private final IConfigLoader config;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
@@ -28,11 +33,13 @@ public final class UpdateManager
     private final UpdateChecker updater;
     private @Nullable BukkitTask updateRunner = null;
 
-    public UpdateManager(BigDoorsSpigot plugin, int pluginID)
+    @Inject
+    public UpdateManager(BigDoorsSpigot plugin, int pluginID, IPLogger logger, IConfigLoader config)
     {
         this.plugin = plugin;
-        logger = plugin.getPLogger();
-        updater = new UpdateChecker(plugin, pluginID, plugin.getPLogger());
+        this.logger = logger;
+        this.config = config;
+        updater = new UpdateChecker(plugin, pluginID, logger);
     }
 
     /**
@@ -104,7 +111,7 @@ public final class UpdateManager
                 if (updateAvailable)
                     logger.info("A new update is available: " + getNewestVersion());
 
-                if (downloadUpdates && updateAvailable && result.getAge() >= plugin.getConfigLoader().downloadDelay())
+                if (downloadUpdates && updateAvailable && result.getAge() >= config.downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
                     if (updateDownloaded && updater.getLastResult() != null)

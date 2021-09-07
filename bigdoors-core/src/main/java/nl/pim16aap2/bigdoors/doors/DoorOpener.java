@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -23,6 +24,11 @@ import java.util.concurrent.CompletableFuture;
 @Reusable
 public final class DoorOpener
 {
+    @Inject
+    public DoorOpener()
+    {
+    }
+
     /**
      * Toggles, opens, or closes a door. Can be called (a)synchronously.
      *

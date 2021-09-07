@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
@@ -12,6 +12,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +25,8 @@ import java.lang.reflect.Method;
 @Singleton
 public class ChunkListener implements Listener
 {
-    private final BigDoorsSpigot plugin;
+    private final IPLogger logger;
+
     /**
      * Checks if the ChunkUnloadEvent can be cancelled or not. In version 1.14 of Minecraft and later, that's no longer
      * the case.
@@ -35,9 +37,10 @@ public class ChunkListener implements Listener
     // 1.14 => method.
     private @Nullable Method isForceLoaded;
 
-    public ChunkListener(BigDoorsSpigot plugin)
+    @Inject
+    public ChunkListener(IPLogger logger)
     {
-        this.plugin = plugin;
+        this.logger = logger;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
     }
@@ -58,8 +61,7 @@ public class ChunkListener implements Listener
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            plugin.getPLogger()
-                  .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+            logger.logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
     }
 
@@ -110,7 +112,7 @@ public class ChunkListener implements Listener
 //            // If this class couldn't figure out reflection properly, give up.
 //            if (!success)
 //            {
-//                plugin.getPLogger().warn("ChunkUnloadHandler was not initialized properly! " +
+//                logger.warn("ChunkUnloadHandler was not initialized properly! " +
 //                                             "Please contact pim16aap2.");
 //                return;
 //            }
@@ -130,7 +132,7 @@ public class ChunkListener implements Listener
 //        }
 //        catch (Exception e)
 //        {
-//            plugin.getPLogger().logThrowable(e);
+//            logger.logThrowable(e);
 //        }
     }
 
@@ -155,8 +157,7 @@ public class ChunkListener implements Listener
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            plugin.getPLogger()
-                  .logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+            logger.logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
             return false;
         }
         return false;

@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.pair.PairNullable;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Iterator;
 import java.util.Map;
@@ -21,6 +22,7 @@ public final class ToolUserManager extends Restartable
 {
     private final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
 
+    @Inject
     public ToolUserManager(IRestartableHolder holder)
     {
         super(holder);

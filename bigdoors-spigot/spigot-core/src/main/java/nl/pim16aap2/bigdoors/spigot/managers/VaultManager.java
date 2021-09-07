@@ -4,13 +4,15 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
 import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -21,6 +23,7 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,39 +39,28 @@ import java.util.Set;
 @Singleton
 public final class VaultManager implements IRestartable, IEconomyManager, IPermissionsManager
 {
-    private static final VaultManager INSTANCE = new VaultManager();
     private final Map<DoorType, Double> flatPrices;
     private boolean economyEnabled = false;
     private boolean permissionsEnabled = false;
     private @Nullable Economy economy = null;
     private @Nullable Permission perms = null;
-    @SuppressWarnings("NullAway.Init") // This class needs to be rewritten to avoid this.
-    private BigDoorsSpigot plugin;
+    private final ILocalizer localizer;
+    private final IPLogger logger;
+    private final IConfigLoader configLoader;
 
-    private VaultManager()
+    @Inject
+    public VaultManager(ILocalizer localizer, IPLogger logger, IConfigLoader configLoader)
     {
+        this.localizer = localizer;
+        this.logger = logger;
+        this.configLoader = configLoader;
+
         flatPrices = new HashMap<>();
         if (isVaultInstalled())
         {
             economyEnabled = setupEconomy();
             permissionsEnabled = setupPermissions();
         }
-    }
-
-    /**
-     * Initializes this object.
-     *
-     * @param plugin
-     *     The {@link BigDoorsSpigot} instance.
-     * @return The {@link VaultManager} instance.
-     */
-    public static VaultManager init(BigDoorsSpigot plugin)
-    {
-        if (!plugin.isRestartableRegistered(INSTANCE))
-            plugin.registerRestartable(INSTANCE);
-        INSTANCE.plugin = plugin;
-        INSTANCE.init();
-        return INSTANCE;
     }
 
     @Override
@@ -92,13 +84,11 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final double price = priceOpt.getAsDouble();
         if (withdrawPlayer(spigotPlayer, world.worldName(), price))
         {
-            player.sendMessage(plugin.getLocalizer().getMessage("creator.base.money_withdrawn",
-                                                                Double.toString(price)));
+            player.sendMessage(localizer.getMessage("creator.base.money_withdrawn", Double.toString(price)));
             return true;
         }
 
-        player.sendMessage(plugin.getLocalizer().getMessage("creator.base.error.insufficient_funds",
-                                                            Double.toString(price)));
+        player.sendMessage(localizer.getMessage("creator.base.error.insufficient_funds", Double.toString(price)));
         return false;
     }
 
@@ -117,7 +107,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void getFlatPrice(DoorType type)
     {
-        Util.parseDouble(plugin.getConfigLoader().getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
+        Util.parseDouble(configLoader.getPrice(type)).ifPresent(price -> flatPrices.put(type, price));
     }
 
     /**
@@ -150,7 +140,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      *     The formula of the price.
      * @param blockCount
      *     The number of blocks in the door.
-     * @return The price of the door given the formula and the blockCount variabel.
+     * @return The price of the door given the formula and the blockCount variable.
      */
     private double evaluateFormula(String formula, int blockCount)
     {
@@ -160,7 +150,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e, "Failed to determine door creation price! Please contact pim16aap2! "
+            logger.logThrowable(e, "Failed to determine door creation price! Please contact pim16aap2! "
                 + "Include this: \"" + formula + "\" and stacktrace:");
             return 0.0d;
         }
@@ -174,7 +164,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
 
         // TODO: Store flat prices as OptionalDoubles.
         final double price = flatPrices
-            .getOrDefault(type, evaluateFormula(plugin.getConfigLoader().getPrice(type), blockCount));
+            .getOrDefault(type, evaluateFormula(configLoader.getPrice(type), blockCount));
 
         return price <= 0 ? OptionalDouble.empty() : OptionalDouble.of(price);
     }
@@ -193,8 +183,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            BigDoors.get().getPLogger().warn(
-                "Economy not enabled! Could not subtract " + amount + " from the balance of player: " + player);
+            BigDoors.get().getPLogger().warn("Economy not enabled! Could not subtract " + amount +
+                                                 " from the balance of player: " + player);
             return defaultValue;
         }
 
@@ -204,7 +194,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e, "Failed to check balance of player \"" + player.getName() +
+            logger.logThrowable(e, "Failed to check balance of player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return defaultValue;
@@ -240,7 +230,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e, "Failed to subtract money from player \"" + player.getName() +
+            logger.logThrowable(e, "Failed to subtract money from player \"" + player.getName() +
                 "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
         }
         return defaultValue;
@@ -271,7 +261,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     {
         try
         {
-            return plugin.getServer().getPluginManager().getPlugin("Vault") != null;
+            return Bukkit.getServer().getPluginManager().getPlugin("Vault") != null;
         }
         catch (NullPointerException e)
         {
@@ -289,7 +279,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         try
         {
             final @Nullable RegisteredServiceProvider<Economy> economyProvider =
-                plugin.getServer().getServicesManager().getRegistration(Economy.class);
+                Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
 
             if (economyProvider == null)
                 return false;
@@ -305,7 +295,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Initialize the permissions dependency. Assumes Vault is installed on this server. See {@link
+     * Initialize the "permissions" dependency. Assumes Vault is installed on this server. See {@link
      * #isVaultInstalled()}.
      *
      * @return True if the initialization process was successful.
@@ -315,7 +305,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         try
         {
             final @Nullable RegisteredServiceProvider<Permission> permissionProvider =
-                plugin.getServer().getServicesManager().getRegistration(Permission.class);
+                Bukkit.getServer().getServicesManager().getRegistration(Permission.class);
 
             if (permissionProvider == null)
                 return false;

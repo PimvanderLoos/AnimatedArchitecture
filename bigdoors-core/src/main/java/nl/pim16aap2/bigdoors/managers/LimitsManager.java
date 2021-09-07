@@ -5,12 +5,18 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.Limit;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.OptionalInt;
 
 @Singleton
 public class LimitsManager
 {
+    @Inject
+    public LimitsManager()
+    {
+    }
+
     /**
      * Gets the value of the {@link Limit} for the given player. It checks the global limit, any admin bypass
      * permission, and the player's personal limit.

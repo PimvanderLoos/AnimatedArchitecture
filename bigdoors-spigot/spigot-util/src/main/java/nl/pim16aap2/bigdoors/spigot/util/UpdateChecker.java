@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -77,6 +78,7 @@ public final class UpdateChecker
     private final VersionScheme versionScheme = Util.requireNonNull(VERSION_SCHEME_DECIMAL, "Scheme");
     private final IPLogger logger;
 
+    @Inject
     public UpdateChecker(JavaPlugin plugin, int pluginID, IPLogger logger)
     {
         this.plugin = plugin;

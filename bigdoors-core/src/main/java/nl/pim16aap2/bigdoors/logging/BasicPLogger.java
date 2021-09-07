@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.logging;
 
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -28,6 +29,7 @@ public class BasicPLogger implements IPLogger
         this.stringConsumer = stringConsumer;
     }
 
+    @Inject
     public BasicPLogger()
     {
         this(System.out::println);

@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
@@ -46,6 +47,7 @@ public final class HeadManager extends Restartable
      * @param config
      *     The BigDoors configuration.
      */
+    @Inject
     public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
     {
         super(holder);

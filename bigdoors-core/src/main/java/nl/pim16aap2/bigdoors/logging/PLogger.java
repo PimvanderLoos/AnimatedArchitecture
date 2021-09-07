@@ -4,6 +4,8 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +52,8 @@ public final class PLogger implements IPLogger
     @Getter
     private Level lowestLevel = Level.CONFIG;
 
-    public PLogger(File logFile)
+    @Inject
+    public PLogger(@Named("logFile") File logFile)
     {
         updateLowestLevel();
         this.logFile = logFile;

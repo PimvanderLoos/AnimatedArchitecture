@@ -3,12 +3,14 @@ package nl.pim16aap2.bigdoors.managers;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,15 @@ public final class DoorTypeManager extends Restartable
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
+    private final IPLogger logger;
+
+    @Inject
+    public DoorTypeManager(IRestartableHolder holder, IPLogger logger)
+    {
+        super(holder);
+        this.logger = logger;
+    }
+
     /**
      * Gets all registered AND enabled {@link DoorType}s.
      */
@@ -47,11 +58,6 @@ public final class DoorTypeManager extends Restartable
             return true;
         }
     };
-
-    public DoorTypeManager()
-    {
-        super(BigDoors.get());
-    }
 
     /**
      * Gets all {@link DoorType}s that are currently registered.
@@ -152,7 +158,7 @@ public final class DoorTypeManager extends Restartable
      */
     public void registerDoorType(DoorType doorType, boolean isEnabled)
     {
-        BigDoors.get().getPLogger().info("Registering door type: " + doorType + "...");
+        logger.info("Registering door type: " + doorType + "...");
 
         doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
@@ -175,9 +181,8 @@ public final class DoorTypeManager extends Restartable
     {
         if (doorTypeStatus.remove(doorType) == null)
         {
-            BigDoors.get().getPLogger()
-                    .warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
-                              "registered already!");
+            logger.warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
+                            "registered already!");
             return;
         }
         doorTypeFromName.remove(doorType.getSimpleName());

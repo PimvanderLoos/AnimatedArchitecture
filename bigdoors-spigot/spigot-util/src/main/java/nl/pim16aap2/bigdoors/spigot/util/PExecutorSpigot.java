@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +20,7 @@ public final class PExecutorSpigot implements IPExecutor
 {
     private final JavaPlugin plugin;
 
+    @Inject
     public PExecutorSpigot(JavaPlugin plugin)
     {
         this.plugin = plugin;

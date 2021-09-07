@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
@@ -30,6 +31,7 @@ public final class DoorActivityManager extends Restartable
      * @param holder
      *     The {@link IRestartableHolder} that manages this object.
      */
+    @Inject
     public DoorActivityManager(IRestartableHolder holder)
     {
         super(holder);

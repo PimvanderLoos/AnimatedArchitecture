@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -50,6 +50,7 @@ public final class PowerBlockManager extends Restartable
      * @param pLogger
      *     The logger used for error logging.
      */
+    @Inject
     public PowerBlockManager(IRestartableHolder restartableHolder, IConfigLoader config,
                              DatabaseManager databaseManager, IPLogger pLogger)
     {
@@ -265,7 +266,7 @@ public final class PowerBlockManager extends Restartable
                 final PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
-                return BigDoors.get().getDatabaseManager().getPowerBlockData(chunkHash).handle(
+                return databaseManager.getPowerBlockData(chunkHash).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);

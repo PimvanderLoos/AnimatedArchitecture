@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +25,11 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
+    @Inject
+    public PPlayerFactorySpigot()
+    {
+    }
+
     @Override
     public IPPlayer create(PPlayerData playerData)
     {

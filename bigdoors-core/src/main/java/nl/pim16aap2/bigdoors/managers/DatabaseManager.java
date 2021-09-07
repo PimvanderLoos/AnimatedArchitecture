@@ -20,6 +20,8 @@ import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.util.Collections;
@@ -63,7 +65,8 @@ public final class DatabaseManager extends Restartable
      * @param dbFile
      *     The name of the database file.
      */
-    public DatabaseManager(IRestartableHolder restartableHolder, File dbFile)
+    @Inject
+    public DatabaseManager(IRestartableHolder restartableHolder, @Named("databaseFile") File dbFile)
     {
         this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
     }

@@ -22,6 +22,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.sqlite.SQLiteConfig;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -91,7 +93,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * @param dbFile
      *     The file to store the database in.
      */
-    public SQLiteJDBCDriverConnection(File dbFile)
+    @Inject
+    public SQLiteJDBCDriverConnection(@Named("databaseFile") File dbFile)
     {
         this.dbFile = dbFile;
         configRW = new SQLiteConfig();

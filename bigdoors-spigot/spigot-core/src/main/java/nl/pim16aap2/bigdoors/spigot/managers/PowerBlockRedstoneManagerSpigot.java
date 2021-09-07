@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -16,20 +17,9 @@ import javax.inject.Singleton;
 @Singleton
 public final class PowerBlockRedstoneManagerSpigot implements IPowerBlockRedstoneManager
 {
-    private static final PowerBlockRedstoneManagerSpigot INSTANCE = new PowerBlockRedstoneManagerSpigot();
-
-    private PowerBlockRedstoneManagerSpigot()
+    @Inject
+    public PowerBlockRedstoneManagerSpigot()
     {
-    }
-
-    /**
-     * Gets the instance of this {@link PowerBlockRedstoneManagerSpigot}.
-     *
-     * @return The instance of this {@link PowerBlockRedstoneManagerSpigot}.
-     */
-    public static PowerBlockRedstoneManagerSpigot get()
-    {
-        return INSTANCE;
     }
 
     @SuppressWarnings("unused")
