@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -35,7 +35,7 @@ import javax.inject.Singleton;
  */
 // TODO: Split this class up. It's got too much stuff.
 @Singleton
-public class EventListeners implements Listener
+public class EventListeners extends AbstractListener
 {
     private final BigDoorsSpigot base;
     private final IPLogger logger;
@@ -44,14 +44,17 @@ public class EventListeners implements Listener
     private final ToolUserManager toolUserManager;
 
     @Inject
-    public EventListeners(BigDoorsSpigot base, IPLogger logger, BigDoorsToolUtilSpigot bigDoorsToolUtil,
-                          DatabaseManager databaseManager, ToolUserManager toolUserManager)
+    public EventListeners(JavaPlugin javaPlugin, BigDoorsSpigot base, IPLogger logger,
+                          BigDoorsToolUtilSpigot bigDoorsToolUtil, DatabaseManager databaseManager,
+                          ToolUserManager toolUserManager)
     {
+        super(javaPlugin);
         this.base = base;
         this.logger = logger;
         this.bigDoorsToolUtil = bigDoorsToolUtil;
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
+        register();
     }
 
     /**

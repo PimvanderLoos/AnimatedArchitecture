@@ -7,9 +7,9 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import java.lang.reflect.Method;
  * @author Pim
  */
 @Singleton
-public class ChunkListener implements Listener
+public class ChunkListener extends AbstractListener
 {
     private final IPLogger logger;
 
@@ -38,11 +38,13 @@ public class ChunkListener implements Listener
     private @Nullable Method isForceLoaded;
 
     @Inject
-    public ChunkListener(IPLogger logger)
+    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger)
     {
+        super(javaPlugin);
         this.logger = logger;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
+        register();
     }
 
     /**

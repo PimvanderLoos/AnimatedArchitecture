@@ -2,21 +2,17 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,65 +29,45 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @Singleton
-public class RedstoneListener extends Restartable implements Listener
+public class RedstoneListener extends AbstractListener
 {
-    private final JavaPlugin plugin;
     private final ConfigLoaderSpigot config;
     private final IPLogger logger;
     private final Set<Material> powerBlockTypes = new HashSet<>();
-    private boolean isRegistered = false;
 
     @Inject
     public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger)
     {
-        super(holder);
-        this.plugin = plugin;
+        super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
         this.logger = logger;
-        restart();
+    }
+
+    /**
+     * Checks if this listener should be enabled as based on the config settings.
+     *
+     * @param config
+     *     The config to use to determine the status of this listener.
+     * @return True if this listener should be enabled.
+     */
+    private static boolean shouldBeEnabled(ConfigLoaderSpigot config)
+    {
+        return config.enableRedstone();
     }
 
     @Override
     public void restart()
     {
-        powerBlockTypes.clear();
-
-        if (config.enableRedstone())
-        {
-            register();
+        super.restart();
+        if (super.isRegistered)
             powerBlockTypes.addAll(config.powerBlockTypes());
-            return;
-        }
-        unregister();
-    }
-
-    /**
-     * Registers this listener if it isn't already registered.
-     */
-    private void register()
-    {
-        if (isRegistered)
-            return;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        isRegistered = true;
-    }
-
-    /**
-     * Unregisters this listener if it isn't already unregistered.
-     */
-    private void unregister()
-    {
-        if (!isRegistered)
-            return;
-        HandlerList.unregisterAll(this);
-        isRegistered = false;
     }
 
     @Override
     public void shutdown()
     {
+        super.shutdown();
         powerBlockTypes.clear();
-        unregister();
     }
 
     private void checkDoors(Location loc)

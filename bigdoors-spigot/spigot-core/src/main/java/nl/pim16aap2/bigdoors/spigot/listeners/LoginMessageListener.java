@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.inject.Inject;
@@ -18,14 +18,16 @@ import javax.inject.Singleton;
  * @author Pim
  */
 @Singleton
-public final class LoginMessageListener implements Listener
+public final class LoginMessageListener extends AbstractListener
 {
     private final BigDoorsSpigot plugin;
 
     @Inject
-    public LoginMessageListener(BigDoorsSpigot plugin)
+    public LoginMessageListener(JavaPlugin javaPlugin, BigDoorsSpigot plugin)
     {
+        super(javaPlugin);
         this.plugin = plugin;
+        register();
     }
 
     /**
