@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -46,6 +47,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private final IPLogger logger;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
     private final VaultManager vaultManager;
+    private final ConfigLoaderSpigot config;
 
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
@@ -55,12 +57,13 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      */
     @Inject
     public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, IRestartableHolder holder,
-                                         VaultManager vaultManager)
+                                         VaultManager vaultManager, ConfigLoaderSpigot config)
     {
         super(holder);
         this.plugin = plugin;
         this.logger = logger;
         this.vaultManager = vaultManager;
+        this.config = config;
 
         @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
@@ -263,7 +266,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (compat == null)
             return;
 
-        if (!BigDoorsSpigot.get().getConfigLoader().isHookEnabled(compat))
+        if (!config.isHookEnabled(compat))
             return;
 
         try

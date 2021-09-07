@@ -1,10 +1,11 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.pserver;
 
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.logging.Level;
 
@@ -18,6 +19,7 @@ public class PServer implements IPServer
 {
     private final String pluginName;
 
+    @Inject
     public PServer(JavaPlugin plugin)
     {
         pluginName = IPLogger.formatName(plugin.getName());

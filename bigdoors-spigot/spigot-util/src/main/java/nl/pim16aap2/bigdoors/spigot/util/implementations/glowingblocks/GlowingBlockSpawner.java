@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -9,6 +9,8 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.Util;

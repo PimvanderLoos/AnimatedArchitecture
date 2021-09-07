@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -20,8 +21,13 @@ import javax.inject.Singleton;
  * @author Pim
  */
 @Singleton
-public class PSoundEngineSpigot implements ISoundEngine
+public class SoundEngineSpigot implements ISoundEngine
 {
+    @Inject
+    public SoundEngineSpigot()
+    {
+    }
+
     @Override
     public void playSound(IPLocation loc, PSound sound, float volume, float pitch)
     {

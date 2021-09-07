@@ -140,8 +140,8 @@ public final class DoorOpeningUtility
                         final int posX = xAxis;
                         final int posY = yAxis;
                         final int posZ = zAxis;
-                        BigDoors.get().getPlatform().getGlowingBlockSpawner().ifPresent(
-                            spawner -> spawner.spawnGlowingBlock(player, world, 10, posX, posY, posZ, PColor.RED));
+                        BigDoors.get().getPlatform().getGlowingBlockSpawner()
+                                .spawnGlowingBlock(player, world, 10, posX, posY, posZ, PColor.RED);
                         isEmpty = false;
                     }
                 }

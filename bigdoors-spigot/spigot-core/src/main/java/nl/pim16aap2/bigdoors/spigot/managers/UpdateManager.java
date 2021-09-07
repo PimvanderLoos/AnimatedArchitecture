@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 
@@ -34,7 +35,8 @@ public final class UpdateManager
     private @Nullable BukkitTask updateRunner = null;
 
     @Inject
-    public UpdateManager(BigDoorsSpigot plugin, int pluginID, IPLogger logger, IConfigLoader config)
+    public UpdateManager(BigDoorsSpigot plugin, @Named("pluginSpigotID") int pluginID, IPLogger logger,
+                         IConfigLoader config)
     {
         this.plugin = plugin;
         this.logger = logger;

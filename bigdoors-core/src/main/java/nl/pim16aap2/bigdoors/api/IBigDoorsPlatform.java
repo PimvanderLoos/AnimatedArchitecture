@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
@@ -26,9 +25,8 @@ import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 
 import java.io.File;
-import java.util.Optional;
 
-public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
+public interface IBigDoorsPlatform extends IRestartable
 {
     /**
      * Gets the directory where all data will stored.
@@ -185,7 +183,7 @@ public interface IBigDoorsPlatform extends IRestartableHolder, IRestartable
      *
      * @return The {@link IGlowingBlockSpawner} for the current platform.
      */
-    Optional<IGlowingBlockSpawner> getGlowingBlockSpawner();
+    IGlowingBlockSpawner getGlowingBlockSpawner();
 
     /**
      * Gets the {@link PowerBlockManager} instance.

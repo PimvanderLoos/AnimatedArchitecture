@@ -1,9 +1,10 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager;
 
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
@@ -14,31 +15,22 @@ import javax.inject.Singleton;
 @Singleton
 public final class ChunkManagerSpigot implements IChunkManager
 {
-    private static final ChunkManagerSpigot INSTANCE = new ChunkManagerSpigot();
-
-    private ChunkManagerSpigot()
+    @Inject
+    public ChunkManagerSpigot()
     {
-    }
-
-    /**
-     * Gets the instance of the {@link ChunkManagerSpigot} if it exists.
-     *
-     * @return The instance of the {@link ChunkManagerSpigot}.
-     */
-    public static ChunkManagerSpigot get()
-    {
-        return INSTANCE;
     }
 
     @Override
     public boolean isLoaded(IPWorld world, Vector2Di chunk)
     {
+        // TODO: Implement this.
         return true;
     }
 
     @Override
     public ChunkLoadResult load(IPWorld world, Vector2Di chunk)
     {
+        // TODO: Implement this.
         return ChunkLoadResult.SUCCESS;
     }
 }

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.factories;
+package nl.pim16aap2.bigdoors.spigot.factories.pworldfactory;
 
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;

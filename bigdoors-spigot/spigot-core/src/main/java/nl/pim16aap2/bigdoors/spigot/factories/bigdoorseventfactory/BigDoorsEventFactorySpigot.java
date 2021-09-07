@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.factories;
+package nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;

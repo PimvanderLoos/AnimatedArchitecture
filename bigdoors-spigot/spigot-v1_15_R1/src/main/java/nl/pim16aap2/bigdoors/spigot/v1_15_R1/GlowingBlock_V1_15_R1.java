@@ -14,8 +14,8 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.World;
@@ -189,12 +189,12 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
                                                           IRestartableHolder restartableHolder)
         {
-            final Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
-            if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
+            final IGlowingBlockSpawner spawner = BigDoors.get().getPlatform().getGlowingBlockSpawner();
+            if (!(spawner instanceof GlowingBlockSpawner))
                 return Optional.empty();
 
             return Optional.of(new GlowingBlock_V1_15_R1(player, world,
-                                                         ((GlowingBlockSpawner) spawnerOpt.get()).getTeams(),
+                                                         ((GlowingBlockSpawner) spawner).getTeams(),
                                                          restartableHolder));
         }
     }

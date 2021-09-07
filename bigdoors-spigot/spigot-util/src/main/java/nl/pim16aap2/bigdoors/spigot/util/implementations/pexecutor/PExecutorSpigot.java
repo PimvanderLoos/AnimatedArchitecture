@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.spigot.util;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor;
 
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import org.bukkit.Bukkit;
