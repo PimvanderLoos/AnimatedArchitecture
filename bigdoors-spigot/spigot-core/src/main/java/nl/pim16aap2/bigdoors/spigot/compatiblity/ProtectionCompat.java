@@ -13,16 +13,6 @@ import java.util.Map;
  */
 public enum ProtectionCompat
 {
-    PLOTSQUARED("PlotSquared")
-        {
-            @Override
-            public Class<? extends IProtectionCompat> getClass(String version)
-            {
-                return version.startsWith("4.") ? PlotSquaredNewProtectionCompat.class :
-                       PlotSquaredOldProtectionCompat.class;
-            }
-        },
-
     TOWNY("Towny")
         {
             @Override
