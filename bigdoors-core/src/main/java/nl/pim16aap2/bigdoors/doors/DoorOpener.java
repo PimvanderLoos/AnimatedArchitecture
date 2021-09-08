@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -24,9 +25,12 @@ import java.util.concurrent.CompletableFuture;
 @Reusable
 public final class DoorOpener
 {
+    private final IPLogger logger;
+
     @Inject
-    public DoorOpener()
+    public DoorOpener(IPLogger logger)
     {
+        this.logger = logger;
     }
 
     /**
@@ -60,8 +64,7 @@ public final class DoorOpener
             {
                 if (doorOpt.isEmpty())
                 {
-                    BigDoors.get().getPLogger()
-                            .logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
+                    logger.logThrowable(new NullPointerException("Received empty Optional in toggle request!"));
                     return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
                 }
 

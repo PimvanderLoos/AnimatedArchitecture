@@ -11,6 +11,11 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -43,19 +48,44 @@ public abstract class AbstractDoor implements IDoor
     @Getter
     protected final DoorBase doorBase;
 
-    protected AbstractDoor(DoorBase doorBase)
+    protected final IPLogger logger;
+    protected final ILocalizer localizer;
+
+    private final DatabaseManager databaseManager;
+    private final DoorOpener doorOpener;
+    private final DoorRegistry doorRegistry;
+    private final DoorActivityManager doorActivityManager;
+    private final LimitsManager limitsManager;
+
+    protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer, DatabaseManager databaseManager,
+                           DoorOpener doorOpener, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
+                           LimitsManager limitsManager)
     {
         this.doorBase = doorBase;
+        this.logger = logger;
+        this.localizer = localizer;
+        this.databaseManager = databaseManager;
+        this.doorOpener = doorOpener;
+        this.doorRegistry = doorRegistry;
+        this.doorActivityManager = doorActivityManager;
+        this.limitsManager = limitsManager;
 
-        BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
+        logger.logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
         if (doorBase.getDoorUID() > 0 &&
-            !BigDoors.get().getDoorRegistry().registerDoor(new Registrable()))
+            !doorRegistry.registerDoor(new Registrable()))
         {
             final IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorBase.getDoorUID() + "\" while it is already registered!");
-            BigDoors.get().getPLogger().logThrowableSilently(exception);
+            logger.logThrowableSilently(exception);
             throw exception;
         }
+    }
+
+    protected AbstractDoor(DoorBase doorBase)
+    {
+        this(doorBase, doorBase.getLogger(), doorBase.getLocalizer(), doorBase.getDatabaseManager(),
+             doorBase.getDoorOpener(), doorBase.getDoorRegistry(), doorBase.getDoorActivityManager(),
+             doorBase.getLimitsManager());
     }
 
     /**
@@ -167,8 +197,8 @@ public abstract class AbstractDoor implements IDoor
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
-            BigDoors.get().getDoorActivityManager().setDoorAvailable(getDoorUID());
-            BigDoors.get().getPLogger().logThrowable(
+            doorActivityManager.setDoorAvailable(getDoorUID());
+            logger.logThrowable(
                 new IllegalThreadStateException("BlockMovers must be instantiated on the main thread!"));
             return true;
         }
@@ -180,7 +210,7 @@ public abstract class AbstractDoor implements IDoor
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e);
+            logger.logThrowable(e);
             return false;
         }
         return true;
@@ -216,18 +246,18 @@ public abstract class AbstractDoor implements IDoor
     {
         if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException("Doors must be toggled on the main thread!"));
             return DoorToggleResult.ERROR;
         }
 
         if (getOpenDir() == RotateDirection.NONE)
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
+            logger.logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
             return DoorToggleResult.ERROR;
         }
 
-        if (!BigDoors.get().getDoorRegistry().isRegistered(this))
+        if (!doorRegistry.isRegistered(this))
             return DoorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
 
         if (skipAnimation && !canSkipAnimation())
@@ -237,7 +267,7 @@ public abstract class AbstractDoor implements IDoor
         if (isOpenable != DoorToggleResult.SUCCESS)
             return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
 
-        if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
+        if (limitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
             return DoorOpeningUtility.abort(this, DoorToggleResult.TOO_BIG, cause, responsible);
 
         final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
@@ -295,10 +325,9 @@ public abstract class AbstractDoor implements IDoor
         else
             doorActionType = null;
         if (doorActionType != null)
-            BigDoors.get().getDoorOpener()
-                    .animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                      BigDoors.get().getPlatform().getMessageableServer(),
-                                      player, 0.0D, false, DoorActionType.CLOSE);
+            doorOpener.animateDoorAsync(this, DoorActionCause.REDSTONE,
+                                        BigDoors.get().getPlatform().getMessageableServer(),
+                                        player, 0.0D, false, DoorActionType.CLOSE);
     }
 
     /**
@@ -310,19 +339,18 @@ public abstract class AbstractDoor implements IDoor
     {
         if (serializer == null)
         {
-            BigDoors.get().getPLogger()
-                    .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
+            logger
+                .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
             return CompletableFuture.completedFuture(false);
         }
 
         try
         {
-            return BigDoors.get().getDatabaseManager()
-                           .syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
+            return databaseManager.syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
+            logger.logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
         }
         return CompletableFuture.completedFuture(false);
     }

@@ -1,12 +1,17 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -70,9 +75,39 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter
     private final DoorOwner primeOwner;
 
-    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
-                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner,
-                    @Nullable Map<UUID, DoorOwner> doorOwners)
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final IPLogger logger;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final ILocalizer localizer;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final DatabaseManager databaseManager;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final DoorOpener doorOpener;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final DoorRegistry doorRegistry;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final DoorActivityManager doorActivityManager;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final LimitsManager limitsManager;
+
+    DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
+             boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner,
+             @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
+             DatabaseManager databaseManager, DoorOpener doorOpener, DoorRegistry doorRegistry,
+             DoorActivityManager doorActivityManager, LimitsManager limitsManager)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -92,12 +127,14 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         else
             doorOwnersTmp.putAll(doorOwners);
         this.doorOwners = doorOwnersTmp;
-    }
 
-    public DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
-                    boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner)
-    {
-        this(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir, primeOwner, null);
+        this.logger = logger;
+        this.localizer = localizer;
+        this.databaseManager = databaseManager;
+        this.doorOpener = doorOpener;
+        this.doorRegistry = doorRegistry;
+        this.doorActivityManager = doorActivityManager;
+        this.limitsManager = limitsManager;
     }
 
     // Copy constructor
@@ -114,6 +151,14 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         openDir = other.openDir;
         primeOwner = other.primeOwner;
         this.doorOwners = doorOwners == null ? new ConcurrentHashMap<>(0) : doorOwners;
+
+        logger = other.logger;
+        localizer = other.localizer;
+        databaseManager = other.databaseManager;
+        doorOpener = other.doorOpener;
+        doorRegistry = other.doorRegistry;
+        doorActivityManager = other.doorActivityManager;
+        limitsManager = other.limitsManager;
     }
 
     /**
@@ -147,7 +192,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     {
         if (doorOwner.permission() == 0)
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+            logger.logThrowable(new IllegalArgumentException(
                 "Failed to add owner: " + doorOwner.pPlayerData() + " as owner to door: " +
                     getDoorUID() +
                     " because a permission level of 0 is not allowed!"));
@@ -161,7 +206,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     {
         if (primeOwner.pPlayerData().getUUID().equals(uuid))
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+            logger.logThrowable(new IllegalArgumentException(
                 "Failed to remove owner: " + primeOwner.pPlayerData() + " as owner from door: " +
                     getDoorUID() + " because removing an owner with a permission level of 0 is not allowed!"));
             return false;

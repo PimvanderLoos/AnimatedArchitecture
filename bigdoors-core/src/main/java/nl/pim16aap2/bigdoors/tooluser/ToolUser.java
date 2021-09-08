@@ -8,6 +8,9 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
@@ -22,6 +25,12 @@ public abstract class ToolUser implements IRestartable
 {
     @Getter
     private final IPPlayer player;
+
+    protected final IPLogger logger;
+
+    protected final ILocalizer localizer;
+
+    protected final ToolUserManager toolUserManager;
 
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
@@ -45,9 +54,13 @@ public abstract class ToolUser implements IRestartable
      */
     protected boolean playerHasStick = false;
 
-    protected ToolUser(IPPlayer player)
+    protected ToolUser(IPPlayer player, IPLogger logger, ILocalizer localizer, ToolUserManager toolUserManager)
     {
         this.player = player;
+        this.logger = logger;
+        this.localizer = localizer;
+        this.toolUserManager = toolUserManager;
+
         init();
 
         try
@@ -58,14 +71,14 @@ public abstract class ToolUser implements IRestartable
         {
             final var ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
                                                     getPlayer().asString(), e);
-            BigDoors.get().getPLogger().logThrowableSilently(ex);
+            logger.logThrowableSilently(ex);
             throw ex;
         }
 
         if (!active)
             return;
 
-        BigDoors.get().getToolUserManager().registerToolUser(this);
+        toolUserManager.registerToolUser(this);
     }
 
     /**
@@ -95,7 +108,7 @@ public abstract class ToolUser implements IRestartable
             return;
         removeTool();
         active = false;
-        BigDoors.get().getToolUserManager().abortToolUser(this);
+        toolUserManager.abortToolUser(this);
     }
 
     @Override
@@ -123,13 +136,11 @@ public abstract class ToolUser implements IRestartable
     protected final void giveTool(String nameKey, String loreKey, @Nullable String messageKey)
     {
         BigDoors.get().getPlatform().getBigDoorsToolUtil()
-                .giveToPlayer(getPlayer(),
-                              BigDoors.get().getLocalizer().getMessage(nameKey),
-                              BigDoors.get().getLocalizer().getMessage(loreKey));
+                .giveToPlayer(getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
         playerHasStick = true;
 
         if (messageKey != null)
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage(messageKey));
+            getPlayer().sendMessage(localizer.getMessage(messageKey));
     }
 
     /**
@@ -194,8 +205,8 @@ public abstract class ToolUser implements IRestartable
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, toString());
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+            logger.logThrowable(e, toString());
+            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
             shutdown();
             return false;
         }
@@ -211,7 +222,7 @@ public abstract class ToolUser implements IRestartable
     @SuppressWarnings("PMD.PrematureDeclaration")
     public boolean handleInput(@Nullable Object obj)
     {
-        BigDoors.get().getPLogger().debug(
+        logger.debug(
             "Handling input: " + obj + " (" + (obj == null ? "null" : obj.getClass().getSimpleName()) + ") for step: " +
                 getProcedure().getCurrentStepName() + " in ToolUser: " + this);
 
@@ -243,7 +254,7 @@ public abstract class ToolUser implements IRestartable
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
-            BigDoors.get().getPLogger().warn("Missing translation for step: " + getProcedure().getCurrentStepName());
+            logger.warn("Missing translation for step: " + getProcedure().getCurrentStepName());
         else
             getPlayer().sendMessage(message);
     }
@@ -275,11 +286,9 @@ public abstract class ToolUser implements IRestartable
         result.ifPresent(
             compat ->
             {
-                BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                       "Blocked access to cuboid " + loc + " for player " +
-                                                           getPlayer() + ". Reason: " + compat);
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.base.error.no_permission_for_location"));
+                logger.logMessage(Level.FINE, "Blocked access to cuboid " + loc + " for player " +
+                    getPlayer() + ". Reason: " + compat);
+                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -304,12 +313,9 @@ public abstract class ToolUser implements IRestartable
         result.ifPresent(
             compat ->
             {
-                BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                       "Blocked access to cuboid " + cuboid + " for player " +
-                                                           getPlayer() + " in world " + world + ". Reason: " +
-                                                           compat);
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.base.error.no_permission_for_location"));
+                logger.logMessage(Level.FINE, "Blocked access to cuboid " + cuboid + " for player " +
+                    getPlayer() + " in world " + world + ". Reason: " + compat);
+                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }

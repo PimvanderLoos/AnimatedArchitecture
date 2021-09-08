@@ -7,8 +7,13 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -43,6 +48,15 @@ import java.util.logging.Level;
 @ToString(callSuper = true)
 public abstract class Creator extends ToolUser
 {
+    /**
+     * The factory to use for creating the {@link DoorBase}.
+     */
+    private final DoorBaseFactory doorBaseFactory;
+
+    private final DatabaseManager databaseManager;
+
+    private final LimitsManager limitsManager;
+
     /**
      * The name of the door that is to be created.
      */
@@ -159,11 +173,16 @@ public abstract class Creator extends ToolUser
 
     private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
-    protected Creator(IPPlayer player, @Nullable String name)
+    protected Creator(DoorBaseFactory doorBaseFactory, IPPlayer player, @Nullable String name, IPLogger logger,
+                      ILocalizer localizer, ToolUserManager toolUserManager, DatabaseManager databaseManager,
+                      LimitsManager limitsManager)
     {
-        super(player);
+        super(player, logger, localizer, toolUserManager);
+        this.doorBaseFactory = doorBaseFactory;
+        this.databaseManager = databaseManager;
+        this.limitsManager = limitsManager;
 
-        player.sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.init"));
+        player.sendMessage(localizer.getMessage("creator.base.init"));
 
         if (name != null)
             handleInput(name);
@@ -224,15 +243,19 @@ public abstract class Creator extends ToolUser
     {
         final long doorUID = -1;
         final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
-        return new DoorBase(doorUID,
-                            Util.requireNonNull(name, "Name"),
-                            Util.requireNonNull(cuboid, "cuboid"),
-                            Util.requireNonNull(engine, "engine"),
-                            Util.requireNonNull(powerblock, "powerblock"),
-                            Util.requireNonNull(world, "world"),
-                            isOpen, isLocked,
-                            Util.requireNonNull(openDir, "openDir"),
-                            owner);
+
+        return doorBaseFactory.builder().
+                              uid(doorUID)
+                              .name(Util.requireNonNull(name, "Name"))
+                              .cuboid(Util.requireNonNull(cuboid, "cuboid"))
+                              .engine(Util.requireNonNull(engine, "engine"))
+                              .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
+                              .world(Util.requireNonNull(world, "world"))
+                              .isOpen(isOpen)
+                              .isLocked(isLocked)
+                              .openDir(Util.requireNonNull(openDir, "openDir"))
+                              .primeOwner(owner)
+                              .build();
     }
 
     /**
@@ -271,9 +294,8 @@ public abstract class Creator extends ToolUser
     {
         if (!Util.isValidDoorName(str))
         {
-            BigDoors.get().getPLogger()
-                    .logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.error.invalid_name", str));
+            logger.logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_name", str));
             return false;
         }
 
@@ -317,13 +339,13 @@ public abstract class Creator extends ToolUser
         final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
+        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
-                BigDoors.get().getLocalizer()
-                        .getMessage("creator.base.error.area_too_big", Integer.toString(newCuboid.getVolume()),
-                                    Integer.toString(sizeLimit.getAsInt())));
+                localizer
+                    .getMessage("creator.base.error.area_too_big", Integer.toString(newCuboid.getVolume()),
+                                Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -350,17 +372,17 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.creation_cancelled"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.creation_cancelled"));
             shutdown();
             return true;
         }
         if (!buyDoor())
         {
 
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.insufficient_funds",
-                                                        DECIMAL_FORMAT.format(getPrice().orElse(0))));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.insufficient_funds",
+                                                    DECIMAL_FORMAT.format(getPrice().orElse(0))));
             shutdown();
             return true;
         }
@@ -395,9 +417,8 @@ public abstract class Creator extends ToolUser
             final int id = idOpt.getAsInt();
             if (id < 0 || id >= validOpenDirs.size())
             {
-                BigDoors.get().getPLogger().debug(
-                    getClass().getSimpleName() + ": Player " + getPlayer().getUUID() + " selected ID: " + id +
-                        " out of " + validOpenDirs.size() + " options.");
+                logger.debug(getClass().getSimpleName() + ": Player " + getPlayer().getUUID() + " selected ID: " + id +
+                                 " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
             }
 
@@ -429,8 +450,8 @@ public abstract class Creator extends ToolUser
             }).orElseGet(
             () ->
             {
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("creator.base.error.invalid_option", str));
+                getPlayer().sendMessage(localizer
+                                            .getMessage("creator.base.error.invalid_option", str));
                 return false;
             });
     }
@@ -453,7 +474,7 @@ public abstract class Creator extends ToolUser
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
-        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
+        logger.debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
         return false;
     }
 
@@ -465,20 +486,20 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(AbstractDoor door)
     {
-        BigDoors.get().getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
+        databaseManager.addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
                 {
-                    getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                    .getMessage("creator.base.error.creation_cancelled"));
+                    getPlayer().sendMessage(localizer
+                                                .getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
                 if (result.second.isEmpty())
                 {
-                    getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
-                    BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
+                    getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
+                    logger.severe("Failed to insert door after creation!");
                 }
             }).exceptionally(Util::exceptionally);
     }
@@ -546,7 +567,7 @@ public abstract class Creator extends ToolUser
         int idx = 0;
         for (final RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")
-              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append('\n');
+              .append(localizer.getMessage(rotateDirection.getLocalizationKey())).append('\n');
         return sb.toString();
     }
 
@@ -580,20 +601,19 @@ public abstract class Creator extends ToolUser
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.powerblock_inside_door"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.powerblock_inside_door"));
             return false;
         }
-        final OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
-                                                  .getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
+        final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.powerblock_too_far",
-                                                        DECIMAL_FORMAT.format(distance),
-                                                        Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.powerblock_too_far",
+                                                    DECIMAL_FORMAT.format(distance),
+                                                    Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -621,8 +641,8 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.invalid_rotation_point"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 
@@ -653,7 +673,7 @@ public abstract class Creator extends ToolUser
          * @return The String representation of the provided double value.
          *
          * @throws ArithmeticException
-         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSAR
+         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSARY.
          */
         public synchronized String format(double number)
         {
