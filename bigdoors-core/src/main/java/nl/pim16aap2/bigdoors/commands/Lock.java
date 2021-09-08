@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -20,9 +19,10 @@ public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
 
-    protected Lock(ICommandSender commandSender, DoorRetriever doorRetriever, boolean lockedStatus)
+    protected Lock(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
+                   boolean lockedStatus)
     {
-        super(commandSender, doorRetriever, DoorAttribute.LOCK);
+        super(commandSender, context, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
     }
 
@@ -37,10 +37,10 @@ public class Lock extends DoorTargetCommand
      *     The new lock status.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 boolean lock)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, boolean lock)
     {
-        return new Lock(commandSender, doorRetriever, lock).run();
+        return new Lock(commandSender, context, doorRetriever, lock).run();
     }
 
     @Override
@@ -52,14 +52,14 @@ public class Lock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        final var event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                                  .createDoorPrepareLockChangeEvent(door, lockedStatus,
-                                                                    getCommandSender().getPlayer().orElse(null));
-        BigDoors.get().getPlatform().callDoorEvent(event);
+        final var event = context.getPlatform().getBigDoorsEventFactory()
+                                 .createDoorPrepareLockChangeEvent(door, lockedStatus,
+                                                                   getCommandSender().getPlayer().orElse(null));
+        context.getPlatform().callDoorEvent(event);
 
         if (event.isCancelled())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINEST, "Event " + event + " was cancelled!");
+            logger.logMessage(Level.FINEST, "Event " + event + " was cancelled!");
             return CompletableFuture.completedFuture(true);
         }
 

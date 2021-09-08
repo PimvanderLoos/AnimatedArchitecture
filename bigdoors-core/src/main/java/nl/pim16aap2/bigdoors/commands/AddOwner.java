@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -39,10 +39,10 @@ public class AddOwner extends DoorTargetCommand
      */
     private final int targetPermissionLevel;
 
-    AddOwner(ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer,
-             int targetPermissionLevel)
+    AddOwner(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
+             IPPlayer targetPlayer, int targetPermissionLevel)
     {
-        super(commandSender, doorRetriever, DoorAttribute.ADD_OWNER);
+        super(commandSender, context, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
     }
@@ -59,18 +59,18 @@ public class AddOwner extends DoorTargetCommand
         if (targetPermissionLevel == 1 || targetPermissionLevel == 2)
             return true;
 
-        getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                               .getMessage("commands.add_owner.error.invalid_target_permission",
-                                                           targetPermissionLevel));
+        getCommandSender().sendMessage(localizer
+                                           .getMessage("commands.add_owner.error.invalid_target_permission",
+                                                       targetPermissionLevel));
         return false;
     }
 
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        return BigDoors.get().getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel,
-                                                            getCommandSender().getPlayer().orElse(null))
-                       .thenApply(this::handleDatabaseActionResult);
+        return context.getDatabaseManager().addOwner(door, targetPlayer, targetPermissionLevel,
+                                                     getCommandSender().getPlayer().orElse(null))
+                      .thenApply(this::handleDatabaseActionResult);
     }
 
     @Override
@@ -79,7 +79,6 @@ public class AddOwner extends DoorTargetCommand
         final int existingPermission = door.getDoorOwner(targetPlayer).map(DoorOwner::permission)
                                            .orElse(Integer.MAX_VALUE);
 
-        final var localizer = BigDoors.get().getLocalizer();
         if (!getCommandSender().isPlayer() || hasBypassPermission)
         {
             if (existingPermission == 0)
@@ -137,21 +136,22 @@ public class AddOwner extends DoorTargetCommand
      *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 IPPlayer targetPlayer, int targetPermissionLevel)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer,
+                                                 int targetPermissionLevel)
     {
-        return new AddOwner(commandSender, doorRetriever, targetPlayer, targetPermissionLevel).run();
+        return new AddOwner(commandSender, context, doorRetriever, targetPlayer, targetPermissionLevel).run();
     }
 
     /**
-     * See {@link #run(ICommandSender, DoorRetriever, IPPlayer, int)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorRetriever, IPPlayer, int)}.
      * <p>
      * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
-        return run(commandSender, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+        return run(commandSender, context, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
     }
 
     /**
@@ -160,7 +160,8 @@ public class AddOwner extends DoorTargetCommand
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
      * use the {@link AddOwner} command (again, if needed) to supply the missing data.
      * <p>
-     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer, int)}.
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, CommandContext, IPPlayer,
+     * int)}.
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -169,14 +170,16 @@ public class AddOwner extends DoorTargetCommand
      *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
+                                                        DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                delayedInput -> delayedInputExecutor(commandSender,
-                                                                                     doorRetriever,
-                                                                                     delayedInput),
-                                                AddOwner::inputRequestMessage, DelayedInput.class).getCommandOutput();
+        final ILocalizer localizer = context.getLocalizer();
+        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, context,
+                                                delayedInput -> delayedInputExecutor(commandSender, context,
+                                                                                     doorRetriever, delayedInput),
+                                                () -> AddOwner.inputRequestMessage(localizer), DelayedInput.class)
+            .getCommandOutput();
     }
 
     /**
@@ -198,29 +201,31 @@ public class AddOwner extends DoorTargetCommand
      *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer,
-                                                                 int targetPermissionLevel)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, CommandContext context,
+                                                                 IPPlayer targetPlayer, int targetPermissionLevel)
     {
-        return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
-                       .map(request -> request.provide(new DelayedInput(targetPlayer, targetPermissionLevel)))
-                       .orElse(CompletableFuture.completedFuture(false));
+        return context.getDelayedCommandInputManager().getInputRequest(commandSender)
+                      .map(request -> request.provide(
+                          new DelayedInput(targetPlayer, targetPermissionLevel)))
+                      .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
-     * See {@link #provideDelayedInput(ICommandSender, IPPlayer, int)}.
+     * See {@link #provideDelayedInput(ICommandSender, CommandContext, IPPlayer, int)}.
      * <p>
      * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
      */
-    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, CommandContext context,
+                                                                 IPPlayer targetPlayer)
     {
-        return provideDelayedInput(commandSender, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+        return provideDelayedInput(commandSender, context, targetPlayer, DEFAULT_PERMISSION_LEVEL);
     }
 
     /**
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -231,11 +236,11 @@ public class AddOwner extends DoorTargetCommand
      *     The delayed input that was retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
                                                                    DoorRetriever doorRetriever,
                                                                    DelayedInput delayedInput)
     {
-        return new AddOwner(commandSender, doorRetriever, delayedInput.targetPlayer(),
+        return new AddOwner(commandSender, context, doorRetriever, delayedInput.targetPlayer(),
                             delayedInput.permission()).run();
     }
 
@@ -244,15 +249,15 @@ public class AddOwner extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static String inputRequestMessage()
+    private static String inputRequestMessage(ILocalizer localizer)
     {
-        return BigDoors.get().getLocalizer().getMessage("commands.add_owner.init");
+        return localizer.getMessage("commands.add_owner.init");
     }
 
     /**
      * Represents the data that can be provided as delayed input for this command. See {@link
-     * #runDelayed(ICommandSender, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender, DoorRetriever,
-     * DelayedInput)}.
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender,
+     * CommandContext, DoorRetriever, DelayedInput)}.
      */
     private record DelayedInput(IPPlayer targetPlayer, int permission)
     {

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -9,16 +9,16 @@ import java.util.logging.Level;
 
 /**
  * Represents the debug command. This command is used to retrieve debug information, the specifics of which are left to
- * the currently registered platform. See {@link BigDoors#getDebugReporter()}.
+ * the currently registered platform. See {@link DebugReporter}.
  *
  * @author Pim
  */
 @ToString
 public class Debug extends BaseCommand
 {
-    protected Debug(ICommandSender commandSender)
+    protected Debug(ICommandSender commandSender, CommandContext context)
     {
-        super(commandSender);
+        super(commandSender, context);
     }
 
     /**
@@ -28,9 +28,9 @@ public class Debug extends BaseCommand
      *     The {@link ICommandSender} responsible for the execution of this command.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return new Debug(commandSender).run();
+        return new Debug(commandSender, context).run();
     }
 
     @Override
@@ -47,6 +47,6 @@ public class Debug extends BaseCommand
 
     private void postDebugMessage()
     {
-        BigDoors.get().getMessagingInterface().writeToConsole(Level.INFO, BigDoors.get().getDebugReporter().getDump());
+        context.getMessagingInterface().writeToConsole(Level.INFO, context.getDebugReporter().getDump());
     }
 }

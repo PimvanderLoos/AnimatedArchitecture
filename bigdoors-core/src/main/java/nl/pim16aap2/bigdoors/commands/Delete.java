@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -17,9 +16,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    protected Delete(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected Delete(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever, DoorAttribute.DELETE);
+        super(commandSender, context, doorRetriever, DoorAttribute.DELETE);
     }
 
     /**
@@ -31,9 +30,10 @@ public class Delete extends DoorTargetCommand
      *     A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for deletion.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever)
     {
-        return new Delete(commandSender, doorRetriever).run();
+        return new Delete(commandSender, context, doorRetriever).run();
     }
 
     @Override
@@ -51,8 +51,8 @@ public class Delete extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        return BigDoors.get().getDatabaseManager()
-                       .deleteDoor(door, getCommandSender().getPlayer().orElse(null))
-                       .thenApply(this::handleDatabaseActionResult);
+        return context.getDatabaseManager()
+                      .deleteDoor(door, getCommandSender().getPlayer().orElse(null))
+                      .thenApply(this::handleDatabaseActionResult);
     }
 }

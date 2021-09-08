@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
@@ -21,7 +20,7 @@ public class Specify extends BaseCommand
 
     protected Specify(ICommandSender commandSender, String input)
     {
-        super(commandSender);
+        super(commandSender, context);
         this.input = input;
     }
 
@@ -56,9 +55,9 @@ public class Specify extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        if (!BigDoors.get().getDoorSpecificationManager().handleInput((IPPlayer) getCommandSender(), input))
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.base.error.no_pending_process"));
+        if (!context.getDoorSpecificationManager().handleInput((IPPlayer) getCommandSender(), input))
+            getCommandSender().sendMessage(localizer
+                                               .getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 }

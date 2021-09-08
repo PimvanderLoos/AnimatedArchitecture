@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class StopDoors extends BaseCommand
 {
-    protected StopDoors(ICommandSender commandSender)
+    protected StopDoors(ICommandSender commandSender, CommandContext context)
     {
-        super(commandSender);
+        super(commandSender, context);
     }
 
     /**
@@ -26,9 +25,9 @@ public class StopDoors extends BaseCommand
      *     The {@link ICommandSender} responsible for stopping all active doors.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return new StopDoors(commandSender).run();
+        return new StopDoors(commandSender, context).run();
     }
 
     @Override
@@ -40,7 +39,7 @@ public class StopDoors extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        BigDoors.get().getDoorActivityManager().stopDoors();
+        context.getDoorActivityManager().stopDoors();
         return CompletableFuture.completedFuture(true);
     }
 }

@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -24,9 +24,10 @@ public class RemoveOwner extends DoorTargetCommand
 
     private final IPPlayer targetPlayer;
 
-    protected RemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
+    protected RemoveOwner(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
+                          IPPlayer targetPlayer)
     {
-        super(commandSender, doorRetriever, DoorAttribute.REMOVE_OWNER);
+        super(commandSender, context, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
     }
 
@@ -41,10 +42,10 @@ public class RemoveOwner extends DoorTargetCommand
      *     The co-owner that is requested to be removed.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
-        return new RemoveOwner(commandSender, doorRetriever, targetPlayer).run();
+        return new RemoveOwner(commandSender, context, doorRetriever, targetPlayer).run();
     }
 
     /**
@@ -53,7 +54,7 @@ public class RemoveOwner extends DoorTargetCommand
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
      * use the  {@link RemoveOwner} command (again, if needed) to supply the missing data.
      * <p>
-     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPPlayer)}.
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, CommandContext, IPPlayer)}.
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -62,14 +63,16 @@ public class RemoveOwner extends DoorTargetCommand
      *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
+                                                        DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                delayedInput -> delayedInputExecutor(commandSender,
-                                                                                     doorRetriever,
-                                                                                     delayedInput),
-                                                RemoveOwner::inputRequestMessage, IPPlayer.class).getCommandOutput();
+        final ILocalizer localizer = context.getLocalizer();
+        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, context,
+                                                delayedInput -> delayedInputExecutor(commandSender, context,
+                                                                                     doorRetriever, delayedInput),
+                                                () -> RemoveOwner.inputRequestMessage(localizer), IPPlayer.class)
+            .getCommandOutput();
     }
 
     /**
@@ -86,18 +89,19 @@ public class RemoveOwner extends DoorTargetCommand
      *     The target player to attempt to remove as co-owner of this door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, IPPlayer targetPlayer)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, CommandContext context,
+                                                                 IPPlayer targetPlayer)
     {
-        return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
-                       .map(request -> request.provide(targetPlayer))
-                       .orElse(CompletableFuture.completedFuture(false));
+        return context.getDelayedCommandInputManager().getInputRequest(commandSender)
+                      .map(request -> request.provide(targetPlayer))
+                      .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -108,10 +112,10 @@ public class RemoveOwner extends DoorTargetCommand
      *     The target player to attempt to remove as co-owner.
      * @return See {@link BaseCommand#run()}.
      */
-    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
                                                                    DoorRetriever doorRetriever, IPPlayer targetPlayer)
     {
-        return new RemoveOwner(commandSender, doorRetriever, targetPlayer).run();
+        return new RemoveOwner(commandSender, context, doorRetriever, targetPlayer).run();
     }
 
     /**
@@ -119,9 +123,9 @@ public class RemoveOwner extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static String inputRequestMessage()
+    private static String inputRequestMessage(ILocalizer localizer)
     {
-        return BigDoors.get().getLocalizer().getMessage("commands.remove_owner.init");
+        return localizer.getMessage("commands.remove_owner.init");
     }
 
     @Override
@@ -133,9 +137,9 @@ public class RemoveOwner extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        return BigDoors.get().getDatabaseManager()
-                       .removeOwner(door, targetPlayer, getCommandSender().getPlayer().orElse(null))
-                       .thenApply(this::handleDatabaseActionResult);
+        return context.getDatabaseManager()
+                      .removeOwner(door, targetPlayer, getCommandSender().getPlayer().orElse(null))
+                      .thenApply(this::handleDatabaseActionResult);
     }
 
     @Override
@@ -143,7 +147,6 @@ public class RemoveOwner extends DoorTargetCommand
     {
         final boolean bypassOwnership = !getCommandSender().isPlayer() || hasBypassPermission;
 
-        final var localizer = BigDoors.get().getLocalizer();
         final var doorOwner = getCommandSender().getPlayer().flatMap(door::getDoorOwner);
         if (doorOwner.isEmpty() && !bypassOwnership)
         {

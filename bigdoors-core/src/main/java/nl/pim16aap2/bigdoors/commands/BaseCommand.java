@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -25,7 +25,6 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
-@RequiredArgsConstructor
 public abstract class BaseCommand
 {
     /**
@@ -36,6 +35,18 @@ public abstract class BaseCommand
      */
     @Getter
     private final ICommandSender commandSender;
+
+    protected final CommandContext context;
+    protected final IPLogger logger;
+    protected final ILocalizer localizer;
+
+    public BaseCommand(ICommandSender commandSender, CommandContext context)
+    {
+        this.commandSender = commandSender;
+        this.context = context;
+        logger = context.getLogger();
+        localizer = context.getLocalizer();
+    }
 
     /**
      * Gets the {@link CommandDefinition} that contains the definition of this {@link BaseCommand}.
@@ -108,21 +119,20 @@ public abstract class BaseCommand
         log();
         if (!validInput())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Invalid input for command: " + this);
+            logger.logMessage(Level.FINE, () -> "Invalid input for command: " + this);
             return CompletableFuture.completedFuture(false);
         }
 
-        final var localizer = BigDoors.get().getLocalizer();
         final boolean isPlayer = getCommandSender() instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
+            logger.logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
             getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
+            logger.logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
             getCommandSender().sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
         }
@@ -132,7 +142,7 @@ public abstract class BaseCommand
         return startExecution().exceptionally(
             throwable ->
             {
-                BigDoors.get().getPLogger().logThrowable(throwable, "Failed to execute command: " + this);
+                logger.logThrowable(throwable, "Failed to execute command: " + this);
                 if (getCommandSender().isPlayer())
                     getCommandSender().sendMessage(localizer.getMessage("commands.base.error.generic"));
                 return true;
@@ -151,18 +161,17 @@ public abstract class BaseCommand
         switch (result)
         {
             case CANCELLED:
-                commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                                  .getMessage("commands.base.error.action_cancelled"));
+                commandSender.sendMessage(localizer.getMessage("commands.base.error.action_cancelled"));
                 break;
             case SUCCESS:
                 break;
             case FAIL:
-                commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+                commandSender.sendMessage(localizer.getMessage("constants.error.generic"));
                 break;
         }
-        BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                               () -> "Handling database action result: " + result.name() +
-                                                   " for command: " + this);
+        logger.logMessage(Level.FINE,
+                          () -> "Handling database action result: " + result.name() +
+                              " for command: " + this);
         return true;
     }
 
@@ -183,10 +192,10 @@ public abstract class BaseCommand
     {
         if (!permissionResult.first && !permissionResult.second)
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   () -> "Permission for command: " + this + ": " + permissionResult);
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.base.error.no_permission_for_command"));
+            logger.logMessage(Level.FINE,
+                              () -> "Permission for command: " + this + ": " + permissionResult);
+            getCommandSender().sendMessage(localizer
+                                               .getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
         try
@@ -215,8 +224,8 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        BigDoors.get().getPLogger()
-                .dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
+        logger
+            .dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
     }
 
     /**
@@ -235,12 +244,12 @@ public abstract class BaseCommand
                                  .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
-                    BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                           () -> "Retrieved door " + door + " for command: " + this);
+                    logger.logMessage(Level.FINE,
+                                      () -> "Retrieved door " + door + " for command: " + this);
                     if (door.isPresent())
                         return door;
                     getCommandSender().sendMessage(
-                        BigDoors.get().getLocalizer().getMessage("commands.base.error.cannot_find_target_door"));
+                        localizer.getMessage("commands.base.error.cannot_find_target_door"));
                     return Optional.empty();
                 });
     }

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -20,9 +19,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    protected MovePowerBlock(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected MovePowerBlock(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
+        super(commandSender, context, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
     }
 
     /**
@@ -34,9 +33,10 @@ public class MovePowerBlock extends DoorTargetCommand
      *     A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be moved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever)
     {
-        return new MovePowerBlock(commandSender, doorRetriever).run();
+        return new MovePowerBlock(commandSender, context, doorRetriever).run();
     }
 
     @Override
@@ -54,9 +54,9 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        BigDoors.get().getToolUserManager()
-                .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),
-                               Constants.DOOR_CREATOR_TIME_LIMIT);
+        context.getToolUserManager()
+               .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),
+                              Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
 
     }

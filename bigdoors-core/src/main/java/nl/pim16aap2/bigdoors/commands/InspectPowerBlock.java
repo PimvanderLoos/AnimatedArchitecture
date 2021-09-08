@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
@@ -18,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class InspectPowerBlock extends BaseCommand
 {
-    protected InspectPowerBlock(ICommandSender commandSender)
+    protected InspectPowerBlock(ICommandSender commandSender, CommandContext context)
     {
-        super(commandSender);
+        super(commandSender, context);
     }
 
     /**
@@ -33,9 +32,9 @@ public class InspectPowerBlock extends BaseCommand
      *     specific location and access to the specific door(s).
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return new InspectPowerBlock(commandSender).run();
+        return new InspectPowerBlock(commandSender, context).run();
     }
 
     @Override
@@ -53,9 +52,9 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        BigDoors.get().getToolUserManager()
-                .startToolUser(new PowerBlockInspector((IPPlayer) getCommandSender(), permissions.second),
-                               Constants.DOOR_CREATOR_TIME_LIMIT);
+        context.getToolUserManager()
+               .startToolUser(new PowerBlockInspector((IPPlayer) getCommandSender(), permissions.second),
+                              Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
     }
 

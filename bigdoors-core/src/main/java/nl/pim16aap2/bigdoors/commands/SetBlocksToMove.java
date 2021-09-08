@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -23,9 +23,10 @@ public class SetBlocksToMove extends DoorTargetCommand
 
     private final int blocksToMove;
 
-    protected SetBlocksToMove(ICommandSender commandSender, DoorRetriever doorRetriever, int blocksToMove)
+    protected SetBlocksToMove(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
+                              int blocksToMove)
     {
-        super(commandSender, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
+        super(commandSender, context, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 
@@ -41,10 +42,10 @@ public class SetBlocksToMove extends DoorTargetCommand
      *     The new blocks-to-move distance.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 int blocksToMove)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, int blocksToMove)
     {
-        return new SetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
+        return new SetBlocksToMove(commandSender, context, doorRetriever, blocksToMove).run();
     }
 
     @Override
@@ -58,9 +59,9 @@ public class SetBlocksToMove extends DoorTargetCommand
     {
         if (!(door instanceof IDiscreteMovement))
         {
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.set_blocks_to_move.error.invalid_door_type",
-                                                               door.getBasicInfo()));
+            getCommandSender().sendMessage(localizer
+                                               .getMessage("commands.set_blocks_to_move.error.invalid_door_type",
+                                                           door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 
@@ -74,7 +75,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
      * use the {@link SetBlocksToMove} command (again, if needed) to supply the missing data.
      * <p>
-     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, int)}.
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, CommandContext, int)}.
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -83,14 +84,15 @@ public class SetBlocksToMove extends DoorTargetCommand
      *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
+                                                        DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                delayedInput -> delayedInputExecutor(commandSender,
-                                                                                     doorRetriever,
-                                                                                     delayedInput),
-                                                SetBlocksToMove::inputRequestMessage, Integer.class)
+        final ILocalizer localizer = context.getLocalizer();
+        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, context,
+                                                delayedInput -> delayedInputExecutor(commandSender, context,
+                                                                                     doorRetriever, delayedInput),
+                                                () -> SetBlocksToMove.inputRequestMessage(localizer), Integer.class)
             .getCommandOutput();
     }
 
@@ -108,18 +110,19 @@ public class SetBlocksToMove extends DoorTargetCommand
      *     The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, int blocksToMove)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, CommandContext context,
+                                                                 int blocksToMove)
     {
-        return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
-                       .map(request -> request.provide(blocksToMove))
-                       .orElse(CompletableFuture.completedFuture(false));
+        return context.getDelayedCommandInputManager().getInputRequest(commandSender)
+                      .map(request -> request.provide(blocksToMove))
+                      .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -130,10 +133,10 @@ public class SetBlocksToMove extends DoorTargetCommand
      *     The distance the door should move measured in number of blocks.
      * @return See {@link BaseCommand#run()}.
      */
-    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
                                                                    DoorRetriever doorRetriever, int blocksToMove)
     {
-        return new SetBlocksToMove(commandSender, doorRetriever, blocksToMove).run();
+        return new SetBlocksToMove(commandSender, context, doorRetriever, blocksToMove).run();
     }
 
     /**
@@ -141,8 +144,8 @@ public class SetBlocksToMove extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static String inputRequestMessage()
+    private static String inputRequestMessage(ILocalizer localizer)
     {
-        return BigDoors.get().getLocalizer().getMessage("commands.set_blocks_to_move.init");
+        return localizer.getMessage("commands.set_blocks_to_move.init");
     }
 }

@@ -4,8 +4,9 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
@@ -40,6 +41,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The {@link CommandDefinition} for which the delayed input will be retrieved.
      */
     private final CommandDefinition commandDefinition;
+
+    private final IPLogger logger;
+
+    private final ILocalizer localizer;
+
+    private final CommandContext context;
 
     /**
      * The supplier used to retrieve the message that will be sent to the command sender when this request is
@@ -82,12 +89,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The class of the input object that is expected.
      */
     DelayedCommandInputRequest(long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-                               Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
-                               Class<T> inputClass)
+                               CommandContext context, Function<T, CompletableFuture<Boolean>> executor,
+                               Supplier<String> initMessageSupplier, Class<T> inputClass)
     {
         super(timeout);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
+        this.context = context;
+        logger = this.context.getLogger();
+        localizer = this.context.getLocalizer();
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
         log();
@@ -97,7 +107,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
     private void init()
     {
-        BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
+        context.getDelayedCommandInputManager().register(commandSender, this);
         final var initMessage = initMessageSupplier.get();
         //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
@@ -125,9 +135,9 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         if (!inputClass.isInstance(input))
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to supply object of type " + input.getClass().getName()
-                                                       + " for request: " + this);
+            logger.logMessage(Level.FINE,
+                              "Trying to supply object of type " + input.getClass().getName()
+                                  + " for request: " + this);
             return CompletableFuture.completedFuture(Boolean.FALSE);
         }
 
@@ -139,16 +149,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @Override
     protected void cleanup()
     {
-        BigDoors.get().getDelayedCommandInputManager().deregister(commandSender, this);
+        context.getDelayedCommandInputManager().deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                              .getMessage("commands.base.error.timed_out",
-                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.timed_out",
+                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                              .getMessage("commands.base.error.cancelled",
-                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.cancelled",
+                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
     }
 
     /**
@@ -156,7 +164,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        BigDoors.get().getPLogger()
-                .dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
+        logger.dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
     }
 }

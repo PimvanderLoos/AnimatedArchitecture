@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Version extends BaseCommand
 {
-    protected Version(ICommandSender commandSender)
+    protected Version(ICommandSender commandSender, CommandContext context)
     {
-        super(commandSender);
+        super(commandSender, context);
     }
 
     /**
@@ -27,9 +26,9 @@ public class Version extends BaseCommand
      *     containing the current version.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return new Version(commandSender).run();
+        return new Version(commandSender, context).run();
     }
 
     @Override
@@ -41,7 +40,7 @@ public class Version extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        getCommandSender().sendMessage(BigDoors.get().getVersion());
+        getCommandSender().sendMessage(context.getPlatform().getVersion());
         return CompletableFuture.completedFuture(true);
     }
 }

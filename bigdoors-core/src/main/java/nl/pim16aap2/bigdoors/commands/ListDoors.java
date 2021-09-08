@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -22,9 +21,9 @@ public class ListDoors extends BaseCommand
 {
     private final DoorRetriever doorRetriever;
 
-    protected ListDoors(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected ListDoors(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
     {
-        super(commandSender);
+        super(commandSender, context);
         this.doorRetriever = doorRetriever;
     }
 
@@ -39,9 +38,10 @@ public class ListDoors extends BaseCommand
      *     A {@link DoorRetriever} representing any number of {@link DoorBase}s.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever)
     {
-        return new ListDoors(commandSender, doorRetriever).run();
+        return new ListDoors(commandSender, context, doorRetriever).run();
     }
 
     @Override
@@ -66,13 +66,13 @@ public class ListDoors extends BaseCommand
     {
         if (doors.isEmpty())
         {
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.list_doors.error.no_doors_found"));
+            getCommandSender().sendMessage(localizer
+                                               .getMessage("commands.list_doors.error.no_doors_found"));
             return;
         }
 
         final StringBuilder sb = new StringBuilder(
-            BigDoors.get().getLocalizer().getMessage("commands.list_doors.door_list_header")).append('\n');
+            localizer.getMessage("commands.list_doors.door_list_header")).append('\n');
         for (final var door : doors)
             sb.append("  ").append(door.getBasicInfo()).append('\n');
         getCommandSender().sendMessage(sb.toString());

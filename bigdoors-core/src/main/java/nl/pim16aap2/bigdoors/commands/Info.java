@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -18,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    protected Info(ICommandSender commandSender, DoorRetriever doorRetriever)
+    protected Info(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
     {
-        super(commandSender, doorRetriever, DoorAttribute.INFO);
+        super(commandSender, context, doorRetriever, DoorAttribute.INFO);
     }
 
     /**
@@ -33,9 +32,10 @@ public class Info extends DoorTargetCommand
      *     A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be retrieved.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever)
     {
-        return new Info(commandSender, doorRetriever).run();
+        return new Info(commandSender, context, doorRetriever).run();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class Info extends DoorTargetCommand
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;
-        BigDoors.get().getPlatform().getGlowingBlockSpawner()
-                .spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender());
+        context.getPlatform().getGlowingBlockSpawner()
+               .spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender());
     }
 }

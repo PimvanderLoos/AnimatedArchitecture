@@ -17,9 +17,9 @@ public class Menu extends BaseCommand
 {
     private final @Nullable IPPlayer target;
 
-    protected Menu(ICommandSender commandSender, @Nullable IPPlayer target)
+    protected Menu(ICommandSender commandSender, CommandContext context, @Nullable IPPlayer target)
     {
-        super(commandSender);
+        super(commandSender, context);
         this.target = target;
     }
 
@@ -37,21 +37,22 @@ public class Menu extends BaseCommand
      *     When this is null (default), the command sender's own doors will be used.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, @Nullable IPPlayer target)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 @Nullable IPPlayer target)
     {
-        return new Menu(commandSender, target).run();
+        return new Menu(commandSender, context, target).run();
     }
 
     /**
      * Runs the {@link Menu} command.
      * <p>
-     * See {@link #run(ICommandSender, IPPlayer)}.
+     * See {@link #run(ICommandSender, CommandContext, IPPlayer)}.
      *
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return run(commandSender, null);
+        return run(commandSender, context, null);
     }
 
     @Override

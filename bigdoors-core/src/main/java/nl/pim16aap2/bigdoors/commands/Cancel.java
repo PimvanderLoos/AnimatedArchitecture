@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -16,9 +17,15 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Cancel extends BaseCommand
 {
-    protected Cancel(ICommandSender commandSender)
+    private final ToolUserManager toolUserManager;
+    private final DoorSpecificationManager doorSpecificationManager;
+
+    protected Cancel(ICommandSender commandSender, CommandContext context,
+                     ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
     {
-        super(commandSender);
+        super(commandSender, context);
+        this.toolUserManager = toolUserManager;
+        this.doorSpecificationManager = doorSpecificationManager;
     }
 
     /**
@@ -28,9 +35,11 @@ public class Cancel extends BaseCommand
      *     The {@link ICommandSender} for which to cancel any active processes.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 ToolUserManager toolUserManager,
+                                                 DoorSpecificationManager doorSpecificationManager)
     {
-        return new Cancel(commandSender).run();
+        return new Cancel(commandSender, context, toolUserManager, doorSpecificationManager).run();
     }
 
     @Override
@@ -48,7 +57,7 @@ public class Cancel extends BaseCommand
 
     private void cancelPlayer(IPPlayer player)
     {
-        BigDoors.get().getToolUserManager().getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
-        BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
+        toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
+        doorSpecificationManager.cancelRequest(player);
     }
 }

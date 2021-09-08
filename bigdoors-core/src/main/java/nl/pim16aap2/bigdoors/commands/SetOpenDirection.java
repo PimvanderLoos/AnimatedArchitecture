@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -23,10 +23,10 @@ public class SetOpenDirection extends DoorTargetCommand
 
     private final RotateDirection rotateDirection;
 
-    protected SetOpenDirection(ICommandSender commandSender, DoorRetriever doorRetriever,
+    protected SetOpenDirection(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
                                RotateDirection rotateDirection)
     {
-        super(commandSender, doorRetriever, DoorAttribute.OPEN_DIRECTION);
+        super(commandSender, context, doorRetriever, DoorAttribute.OPEN_DIRECTION);
         this.rotateDirection = rotateDirection;
     }
 
@@ -41,10 +41,10 @@ public class SetOpenDirection extends DoorTargetCommand
      *     The new open direction.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 RotateDirection rotateDirection)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever doorRetriever, RotateDirection rotateDirection)
     {
-        return new SetOpenDirection(commandSender, doorRetriever, rotateDirection).run();
+        return new SetOpenDirection(commandSender, context, doorRetriever, rotateDirection).run();
     }
 
     @Override
@@ -59,8 +59,8 @@ public class SetOpenDirection extends DoorTargetCommand
         if (!door.getDoorType().isValidOpenDirection(rotateDirection))
         {
             getCommandSender().sendMessage(
-                BigDoors.get().getLocalizer().getMessage("commands.set_open_direction.error.invalid_rotation",
-                                                         rotateDirection.name(), door.getBasicInfo()));
+                localizer.getMessage("commands.set_open_direction.error.invalid_rotation",
+                                     rotateDirection.name(), door.getBasicInfo()));
 
             return CompletableFuture.completedFuture(true);
         }
@@ -75,7 +75,8 @@ public class SetOpenDirection extends DoorTargetCommand
      * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
      * use the {@link SetOpenDirection} command (again, if needed) to supply the missing data.
      * <p>
-     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, RotateDirection)}.
+     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, CommandContext,
+     * RotateDirection)}.
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -84,14 +85,15 @@ public class SetOpenDirection extends DoorTargetCommand
      *     A {@link DoorRetriever} that references the target door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, DoorRetriever doorRetriever)
+    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
+                                                        DoorRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
-        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION,
-                                                delayedInput -> delayedInputExecutor(commandSender,
-                                                                                     doorRetriever,
-                                                                                     delayedInput),
-                                                () -> SetOpenDirection.inputRequestMessage(doorRetriever),
+        final ILocalizer localizer = context.getLocalizer();
+        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, context,
+                                                delayedInput -> delayedInputExecutor(commandSender, context,
+                                                                                     doorRetriever, delayedInput),
+                                                () -> SetOpenDirection.inputRequestMessage(doorRetriever, localizer),
                                                 RotateDirection.class).getCommandOutput();
     }
 
@@ -109,18 +111,19 @@ public class SetOpenDirection extends DoorTargetCommand
      *     The new open direction for the door.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, RotateDirection openDir)
+    public static CompletableFuture<Boolean> provideDelayedInput(ICommandSender commandSender, CommandContext context,
+                                                                 RotateDirection openDir)
     {
-        return BigDoors.get().getDelayedCommandInputManager().getInputRequest(commandSender)
-                       .map(request -> request.provide(openDir))
-                       .orElse(CompletableFuture.completedFuture(false));
+        return context.getDelayedCommandInputManager().getInputRequest(commandSender)
+                      .map(request -> request.provide(openDir))
+                      .orElse(CompletableFuture.completedFuture(false));
     }
 
     /**
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -131,10 +134,10 @@ public class SetOpenDirection extends DoorTargetCommand
      *     The new open direction for the door.
      * @return See {@link BaseCommand#run()}.
      */
-    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender,
+    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
                                                                    DoorRetriever doorRetriever, RotateDirection openDir)
     {
-        return new SetOpenDirection(commandSender, doorRetriever, openDir).run();
+        return new SetOpenDirection(commandSender, context, doorRetriever, openDir).run();
     }
 
     /**
@@ -142,9 +145,8 @@ public class SetOpenDirection extends DoorTargetCommand
      *
      * @return The init message for the delayed input request.
      */
-    private static String inputRequestMessage(DoorRetriever doorRetriever)
+    private static String inputRequestMessage(DoorRetriever doorRetriever, ILocalizer localizer)
     {
-        final var localizer = BigDoors.get().getLocalizer();
         if (!doorRetriever.isAvailable())
             return localizer.getMessage("commands.set_open_direction.init");
 

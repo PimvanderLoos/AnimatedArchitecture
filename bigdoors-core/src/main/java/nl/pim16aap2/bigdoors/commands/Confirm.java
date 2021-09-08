@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -18,9 +17,9 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Confirm extends BaseCommand
 {
-    protected Confirm(ICommandSender commandSender)
+    protected Confirm(ICommandSender commandSender, CommandContext context)
     {
-        super(commandSender);
+        super(commandSender, context);
     }
 
     /**
@@ -30,9 +29,9 @@ public class Confirm extends BaseCommand
      *     The {@link ICommandSender} for which to confirm any active processes.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
     {
-        return new Confirm(commandSender).run();
+        return new Confirm(commandSender, context).run();
     }
 
     @Override
@@ -50,12 +49,11 @@ public class Confirm extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        final var toolUser = BigDoors.get().getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
+        final var toolUser = context.getToolUserManager().getToolUser(((IPPlayer) getCommandSender()).getUUID());
         if (toolUser.isPresent())
             toolUser.get().handleInput(true);
         else
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.confirm.error.no_confirmation_request"));
+            getCommandSender().sendMessage(localizer.getMessage("commands.confirm.error.no_confirmation_request"));
 
         return CompletableFuture.completedFuture(true);
     }

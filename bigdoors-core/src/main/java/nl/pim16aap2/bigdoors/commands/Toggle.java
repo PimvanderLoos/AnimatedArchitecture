@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -27,10 +26,10 @@ public class Toggle extends BaseCommand
     private final DoorActionType doorActionType;
     private final double speedMultiplier;
 
-    protected Toggle(ICommandSender commandSender, DoorActionType doorActionType, double speedMultiplier,
-                     DoorRetriever... doorRetrievers)
+    protected Toggle(ICommandSender commandSender, CommandContext context, DoorActionType doorActionType,
+                     double speedMultiplier, DoorRetriever... doorRetrievers)
     {
-        super(commandSender);
+        super(commandSender, context);
         this.doorActionType = doorActionType;
         this.speedMultiplier = speedMultiplier;
         this.doorRetrievers = doorRetrievers;
@@ -54,43 +53,45 @@ public class Toggle extends BaseCommand
      *     The door(s) to toggle.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorActionType doorActionType,
-                                                 double speedMultiplier, DoorRetriever... doorRetrievers)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorActionType doorActionType, double speedMultiplier,
+                                                 DoorRetriever... doorRetrievers)
     {
-        return new Toggle(commandSender, doorActionType, speedMultiplier, doorRetrievers).run();
+        return new Toggle(commandSender, context, doorActionType, speedMultiplier, doorRetrievers).run();
     }
 
     /**
      * Runs the {@link Toggle} command with the {@link #DEFAULT_SPEED_MULTIPLIER}
      * <p>
-     * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorActionType doorActionType,
-                                                 DoorRetriever... doorRetrievers)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorActionType doorActionType, DoorRetriever... doorRetrievers)
     {
-        return run(commandSender, doorActionType, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
+        return run(commandSender, context, doorActionType, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
 
     /**
      * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE}.
      * <p>
-     * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, double speedMultiplier,
-                                                 DoorRetriever... doorRetrievers)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 double speedMultiplier, DoorRetriever... doorRetrievers)
     {
-        return run(commandSender, DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
+        return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
     }
 
     /**
      * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE} and the {@link
      * #DEFAULT_SPEED_MULTIPLIER}.
      * <p>
-     * See {@link #run(ICommandSender, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever... doorRetrievers)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
+                                                 DoorRetriever... doorRetrievers)
     {
-        return run(commandSender, DEFAULT_DOOR_ACTION_TYPE, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
+        return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
 
     @Override
@@ -99,8 +100,8 @@ public class Toggle extends BaseCommand
         if (doorRetrievers.length > 0)
             return true;
 
-        getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                               .getMessage("commands.toggle.error.not_enough_doors"));
+        getCommandSender().sendMessage(localizer
+                                           .getMessage("commands.toggle.error.not_enough_doors"));
         return false;
     }
 
@@ -131,8 +132,8 @@ public class Toggle extends BaseCommand
             case CLOSE:
                 return door.isOpenable();
             default:
-                BigDoors.get().getPLogger()
-                        .logThrowable(new IllegalStateException("Reached unregistered case: " + doorActionType.name()));
+                logger
+                    .logThrowable(new IllegalStateException("Reached unregistered case: " + doorActionType.name()));
                 return false;
         }
     }
@@ -141,24 +142,24 @@ public class Toggle extends BaseCommand
     {
         if (!hasAccessToAttribute(door, DoorAttribute.TOGGLE, hasBypassPermission))
         {
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer().getMessage("commands.toggle.error.no_access",
-                                                                                    door.getBasicInfo()));
-            BigDoors.get().getPLogger()
-                    .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
+            getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.no_access",
+                                                                door.getBasicInfo()));
+            logger
+                .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
             return;
         }
         if (!canToggle(door))
         {
             getCommandSender().sendMessage(
-                BigDoors.get().getLocalizer().getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
-            BigDoors.get().getPLogger()
-                    .logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
+                localizer.getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
+            logger
+                .logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
             return;
         }
 
-        BigDoors.get().getDoorOpener()
-                .animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
-                                  speedMultiplier, false, doorActionType);
+        context.getPlatform().getDoorOpener()
+               .animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
+                                 speedMultiplier, false, doorActionType);
     }
 
     private CompletableFuture<Void> handleDoorRequest(DoorRetriever doorRetriever, DoorActionCause doorActionCause,

@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
@@ -26,9 +25,10 @@ public abstract class DoorTargetCommand extends BaseCommand
 
     private final DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(ICommandSender commandSender, DoorRetriever doorRetriever, DoorAttribute doorAttribute)
+    protected DoorTargetCommand(ICommandSender commandSender, CommandContext context,
+                                DoorRetriever doorRetriever, DoorAttribute doorAttribute)
     {
-        super(commandSender);
+        super(commandSender, context);
         this.doorRetriever = doorRetriever;
         this.doorAttribute = doorAttribute;
     }
@@ -54,21 +54,21 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         if (door.isEmpty())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+            logger.logMessage(Level.FINE, () ->
                 "Failed to find door " + getDoorRetriever() + " for command: " + this);
 
             getCommandSender().sendMessage(
-                BigDoors.get().getLocalizer().getMessage("commands.door_target_command.base.error.door_not_found"));
+                localizer.getMessage("commands.door_target_command.base.error.door_not_found"));
             return false;
         }
 
         if (!isAllowed(door.get(), permissions.second))
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   () -> getCommandSender() + " does not have access to door " + door +
-                                                       " for command " + this);
+            logger.logMessage(Level.FINE,
+                              () -> getCommandSender() + " does not have access to door " + door +
+                                  " for command " + this);
 
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer().getMessage(
+            getCommandSender().sendMessage(localizer.getMessage(
                 "commands.door_target_command.base.error.no_permission_for_action"));
             return true;
         }
