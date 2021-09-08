@@ -18,7 +18,7 @@ public class Specify extends BaseCommand
 {
     private final String input;
 
-    protected Specify(ICommandSender commandSender, String input)
+    protected Specify(ICommandSender commandSender, CommandContext context, String input)
     {
         super(commandSender, context);
         this.input = input;
@@ -34,9 +34,9 @@ public class Specify extends BaseCommand
      *     registered by the {@link DoorSpecificationManager}.
      * @return See {@link BaseCommand#run()}.
      */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, String name)
+    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context, String name)
     {
-        return new Specify(commandSender, name).run();
+        return new Specify(commandSender, context, name).run();
     }
 
     @Override

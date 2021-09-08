@@ -59,8 +59,7 @@ public class SetName extends BaseCommand
         if (tu.isPresent() && tu.get() instanceof Creator)
             return CompletableFuture.completedFuture(tu.get().handleInput(name));
 
-        getCommandSender().sendMessage(localizer
-                                           .getMessage("commands.base.error.no_pending_process"));
+        getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_pending_process"));
         return CompletableFuture.completedFuture(true);
     }
 }

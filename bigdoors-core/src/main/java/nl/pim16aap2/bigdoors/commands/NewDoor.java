@@ -20,8 +20,8 @@ public class NewDoor extends BaseCommand
     private final DoorType doorType;
     private final @Nullable String doorName;
 
-    protected NewDoor(ICommandSender commandSender, CommandContext context, DoorType doorType,
-                      @Nullable String doorName)
+    protected NewDoor(ICommandSender commandSender, CommandContext context,
+                      DoorType doorType, @Nullable String doorName)
     {
         super(commandSender, context);
         this.doorType = doorType;

@@ -30,7 +30,7 @@ public abstract class BaseCommand
     /**
      * The entity (e.g. player, server, or command block) that initiated the command.
      * <p>
-     * This is the entity that is held responsible for the command (i.e. their permissions are checked and they will
+     * This is the entity that is held responsible for the command (i.e. their permissions are checked, and they will
      * receive error/success/information messages when applicable).
      */
     @Getter
@@ -100,7 +100,7 @@ public abstract class BaseCommand
     /**
      * Checks if this {@link BaseCommand} is available for non-{@link IPPlayer}s (e.g. the server).
      *
-     * @return True if an non-{@link IPPlayer} can execute this command.
+     * @return True if a non-{@link IPPlayer} can execute this command.
      */
     protected boolean availableForNonPlayers()
     {
@@ -238,7 +238,7 @@ public abstract class BaseCommand
      *     The {@link DoorRetriever} to use
      * @return The {@link DoorBase} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever.AbstractRetriever doorRetriever)
     {
         return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
                                  .orElseGet(doorRetriever::getDoor).thenApplyAsync(

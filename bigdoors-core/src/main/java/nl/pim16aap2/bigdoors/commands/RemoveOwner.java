@@ -24,8 +24,8 @@ public class RemoveOwner extends DoorTargetCommand
 
     private final IPPlayer targetPlayer;
 
-    protected RemoveOwner(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
-                          IPPlayer targetPlayer)
+    protected RemoveOwner(ICommandSender commandSender, CommandContext context,
+                          DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
@@ -43,7 +43,7 @@ public class RemoveOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer)
+                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer)
     {
         return new RemoveOwner(commandSender, context, doorRetriever, targetPlayer).run();
     }
@@ -64,7 +64,7 @@ public class RemoveOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
-                                                        DoorRetriever doorRetriever)
+                                                        DoorRetriever.AbstractRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         final ILocalizer localizer = context.getLocalizer();
@@ -101,7 +101,7 @@ public class RemoveOwner extends DoorTargetCommand
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -113,7 +113,8 @@ public class RemoveOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
-                                                                   DoorRetriever doorRetriever, IPPlayer targetPlayer)
+                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+                                                                   IPPlayer targetPlayer)
     {
         return new RemoveOwner(commandSender, context, doorRetriever, targetPlayer).run();
     }

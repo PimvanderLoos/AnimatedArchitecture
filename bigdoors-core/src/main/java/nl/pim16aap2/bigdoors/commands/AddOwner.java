@@ -39,7 +39,7 @@ public class AddOwner extends DoorTargetCommand
      */
     private final int targetPermissionLevel;
 
-    AddOwner(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
+    AddOwner(ICommandSender commandSender, CommandContext context, DoorRetriever.AbstractRetriever doorRetriever,
              IPPlayer targetPlayer, int targetPermissionLevel)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.ADD_OWNER);
@@ -137,19 +137,19 @@ public class AddOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer,
+                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer,
                                                  int targetPermissionLevel)
     {
         return new AddOwner(commandSender, context, doorRetriever, targetPlayer, targetPermissionLevel).run();
     }
 
     /**
-     * See {@link #run(ICommandSender, CommandContext, DoorRetriever, IPPlayer, int)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever, IPPlayer, int)}.
      * <p>
      * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer)
+                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer)
     {
         return run(commandSender, context, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
     }
@@ -171,7 +171,7 @@ public class AddOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
-                                                        DoorRetriever doorRetriever)
+                                                        DoorRetriever.AbstractRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         final ILocalizer localizer = context.getLocalizer();
@@ -225,7 +225,7 @@ public class AddOwner extends DoorTargetCommand
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -237,7 +237,7 @@ public class AddOwner extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
-                                                                   DoorRetriever doorRetriever,
+                                                                   DoorRetriever.AbstractRetriever doorRetriever,
                                                                    DelayedInput delayedInput)
     {
         return new AddOwner(commandSender, context, doorRetriever, delayedInput.targetPlayer(),
@@ -256,8 +256,8 @@ public class AddOwner extends DoorTargetCommand
 
     /**
      * Represents the data that can be provided as delayed input for this command. See {@link
-     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)} and {@link #delayedInputExecutor(ICommandSender,
-     * CommandContext, DoorRetriever, DelayedInput)}.
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever)} and {@link
+     * #delayedInputExecutor(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever, DelayedInput)}.
      */
     private record DelayedInput(IPPlayer targetPlayer, int permission)
     {

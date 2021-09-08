@@ -21,12 +21,12 @@ import java.util.logging.Level;
 public abstract class DoorTargetCommand extends BaseCommand
 {
     @Getter
-    protected final DoorRetriever doorRetriever;
+    protected final DoorRetriever.AbstractRetriever doorRetriever;
 
     private final DoorAttribute doorAttribute;
 
     protected DoorTargetCommand(ICommandSender commandSender, CommandContext context,
-                                DoorRetriever doorRetriever, DoorAttribute doorAttribute)
+                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute)
     {
         super(commandSender, context);
         this.doorRetriever = doorRetriever;
@@ -89,7 +89,7 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param door
      *     The {@link AbstractDoor} that is the target for this command.
      * @param bypassPermission
-     *     Whether or not the {@link ICommandSender} has bypass access.
+     *     Whether the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
     protected boolean isAllowed(AbstractDoor door, boolean bypassPermission)

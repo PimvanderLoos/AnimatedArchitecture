@@ -19,7 +19,8 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    protected MovePowerBlock(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
+    protected MovePowerBlock(ICommandSender commandSender, CommandContext context,
+                             DoorRetriever.AbstractRetriever doorRetriever)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
     }
@@ -34,7 +35,7 @@ public class MovePowerBlock extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever)
+                                                 DoorRetriever.AbstractRetriever doorRetriever)
     {
         return new MovePowerBlock(commandSender, context, doorRetriever).run();
     }

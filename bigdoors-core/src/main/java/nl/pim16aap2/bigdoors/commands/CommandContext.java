@@ -30,14 +30,11 @@ public class CommandContext
     private final IBigDoorsPlatform platform;
 
     @Inject
-    protected CommandContext(IPLogger logger, ILocalizer localizer,
-                             DatabaseManager databaseManager, ToolUserManager toolUserManager,
-                             DoorActivityManager doorActivityManager,
+    protected CommandContext(IPLogger logger, ILocalizer localizer, DatabaseManager databaseManager,
+                             ToolUserManager toolUserManager, DoorActivityManager doorActivityManager,
                              DelayedCommandInputManager delayedCommandInputManager,
-                             DoorSpecificationManager doorSpecificationManager,
-                             IMessagingInterface messagingInterface,
-                             DebugReporter debugReporter,
-                             IBigDoorsPlatform platform)
+                             DoorSpecificationManager doorSpecificationManager, IMessagingInterface messagingInterface,
+                             DebugReporter debugReporter, IBigDoorsPlatform platform)
     {
         this.logger = logger;
         this.localizer = localizer;

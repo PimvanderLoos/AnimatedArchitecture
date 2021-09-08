@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    protected Info(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
+    protected Info(ICommandSender commandSender, CommandContext context, DoorRetriever.AbstractRetriever doorRetriever)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.INFO);
     }
@@ -33,7 +33,7 @@ public class Info extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever)
+                                                 DoorRetriever.AbstractRetriever doorRetriever)
     {
         return new Info(commandSender, context, doorRetriever).run();
     }

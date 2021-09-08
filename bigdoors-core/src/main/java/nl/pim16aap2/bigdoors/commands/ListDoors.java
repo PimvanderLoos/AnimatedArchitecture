@@ -12,16 +12,17 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a command to list a number of doors matching a single {@link DoorRetriever}. This is basically only useful
- * for String-based lookups (as there aren't duplicate matches otherwise), but I don't judge.
+ * for String-based look-ups (as there aren't duplicate matches otherwise), but I don't judge.
  *
  * @author Pim
  */
 @ToString
 public class ListDoors extends BaseCommand
 {
-    private final DoorRetriever doorRetriever;
+    private final DoorRetriever.AbstractRetriever doorRetriever;
 
-    protected ListDoors(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
+    protected ListDoors(ICommandSender commandSender, CommandContext context,
+                        DoorRetriever.AbstractRetriever doorRetriever)
     {
         super(commandSender, context);
         this.doorRetriever = doorRetriever;
@@ -39,7 +40,7 @@ public class ListDoors extends BaseCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever)
+                                                 DoorRetriever.AbstractRetriever doorRetriever)
     {
         return new ListDoors(commandSender, context, doorRetriever).run();
     }
@@ -66,8 +67,7 @@ public class ListDoors extends BaseCommand
     {
         if (doors.isEmpty())
         {
-            getCommandSender().sendMessage(localizer
-                                               .getMessage("commands.list_doors.error.no_doors_found"));
+            getCommandSender().sendMessage(localizer.getMessage("commands.list_doors.error.no_doors_found"));
             return;
         }
 

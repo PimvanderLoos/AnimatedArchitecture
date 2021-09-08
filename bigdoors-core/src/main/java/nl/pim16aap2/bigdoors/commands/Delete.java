@@ -16,7 +16,8 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    protected Delete(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever)
+    protected Delete(ICommandSender commandSender, CommandContext context,
+                     DoorRetriever.AbstractRetriever doorRetriever)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.DELETE);
     }
@@ -31,7 +32,7 @@ public class Delete extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever)
+                                                 DoorRetriever.AbstractRetriever doorRetriever)
     {
         return new Delete(commandSender, context, doorRetriever).run();
     }

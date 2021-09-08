@@ -23,8 +23,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
 
     private final int autoCloseTime;
 
-    protected SetAutoCloseTime(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
-                               int autoCloseTime)
+    protected SetAutoCloseTime(ICommandSender commandSender, CommandContext context,
+                               DoorRetriever.AbstractRetriever doorRetriever, int autoCloseTime)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
@@ -42,7 +42,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, int autoCloseTime)
+                                                 DoorRetriever.AbstractRetriever doorRetriever, int autoCloseTime)
     {
         return new SetAutoCloseTime(commandSender, context, doorRetriever, autoCloseTime).run();
     }
@@ -84,7 +84,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
-                                                        DoorRetriever doorRetriever)
+                                                        DoorRetriever.AbstractRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         final ILocalizer localizer = context.getLocalizer();
@@ -122,7 +122,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -135,7 +135,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
-                                                                   DoorRetriever doorRetriever, int autoCloseTime)
+                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+                                                                   int autoCloseTime)
     {
         return new SetAutoCloseTime(commandSender, context, doorRetriever, autoCloseTime).run();
     }

@@ -22,12 +22,12 @@ public class Toggle extends BaseCommand
     protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
-    private final DoorRetriever[] doorRetrievers;
+    private final DoorRetriever.AbstractRetriever[] doorRetrievers;
     private final DoorActionType doorActionType;
     private final double speedMultiplier;
 
     protected Toggle(ICommandSender commandSender, CommandContext context, DoorActionType doorActionType,
-                     double speedMultiplier, DoorRetriever... doorRetrievers)
+                     double speedMultiplier, DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         super(commandSender, context);
         this.doorActionType = doorActionType;
@@ -55,7 +55,7 @@ public class Toggle extends BaseCommand
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
                                                  DoorActionType doorActionType, double speedMultiplier,
-                                                 DoorRetriever... doorRetrievers)
+                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         return new Toggle(commandSender, context, doorActionType, speedMultiplier, doorRetrievers).run();
     }
@@ -63,10 +63,11 @@ public class Toggle extends BaseCommand
     /**
      * Runs the {@link Toggle} command with the {@link #DEFAULT_SPEED_MULTIPLIER}
      * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorActionType doorActionType, DoorRetriever... doorRetrievers)
+                                                 DoorActionType doorActionType,
+                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         return run(commandSender, context, doorActionType, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
@@ -74,10 +75,11 @@ public class Toggle extends BaseCommand
     /**
      * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE}.
      * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 double speedMultiplier, DoorRetriever... doorRetrievers)
+                                                 double speedMultiplier,
+                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
     }
@@ -86,10 +88,10 @@ public class Toggle extends BaseCommand
      * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE} and the {@link
      * #DEFAULT_SPEED_MULTIPLIER}.
      * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever...)}.
+     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever... doorRetrievers)
+                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
     }
@@ -162,8 +164,8 @@ public class Toggle extends BaseCommand
                                  speedMultiplier, false, doorActionType);
     }
 
-    private CompletableFuture<Void> handleDoorRequest(DoorRetriever doorRetriever, DoorActionCause doorActionCause,
-                                                      boolean hasBypassPermission)
+    private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,
+                                                      DoorActionCause doorActionCause, boolean hasBypassPermission)
     {
         return getDoor(doorRetriever)
             .thenAccept(doorOpt -> doorOpt.ifPresent(door -> toggleDoor(door, doorActionCause, hasBypassPermission)));

@@ -23,8 +23,8 @@ public class SetBlocksToMove extends DoorTargetCommand
 
     private final int blocksToMove;
 
-    protected SetBlocksToMove(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
-                              int blocksToMove)
+    protected SetBlocksToMove(ICommandSender commandSender, CommandContext context,
+                              DoorRetriever.AbstractRetriever doorRetriever, int blocksToMove)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
@@ -43,7 +43,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, int blocksToMove)
+                                                 DoorRetriever.AbstractRetriever doorRetriever, int blocksToMove)
     {
         return new SetBlocksToMove(commandSender, context, doorRetriever, blocksToMove).run();
     }
@@ -85,7 +85,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, CommandContext context,
-                                                        DoorRetriever doorRetriever)
+                                                        DoorRetriever.AbstractRetriever doorRetriever)
     {
         final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
         final ILocalizer localizer = context.getLocalizer();
@@ -122,7 +122,7 @@ public class SetBlocksToMove extends DoorTargetCommand
      * The method that is run once delayed input is received.
      * <p>
      * It processes the new input and executes the command using the previously-provided data (see {@link
-     * #runDelayed(ICommandSender, CommandContext, DoorRetriever)}).
+     * #runDelayed(ICommandSender, CommandContext, DoorRetriever.AbstractRetriever)}).
      *
      * @param commandSender
      *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -134,7 +134,8 @@ public class SetBlocksToMove extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, CommandContext context,
-                                                                   DoorRetriever doorRetriever, int blocksToMove)
+                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+                                                                   int blocksToMove)
     {
         return new SetBlocksToMove(commandSender, context, doorRetriever, blocksToMove).run();
     }

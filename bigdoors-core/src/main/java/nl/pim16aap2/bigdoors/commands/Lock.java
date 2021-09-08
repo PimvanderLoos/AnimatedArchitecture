@@ -19,8 +19,8 @@ public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
 
-    protected Lock(ICommandSender commandSender, CommandContext context, DoorRetriever doorRetriever,
-                   boolean lockedStatus)
+    protected Lock(ICommandSender commandSender, CommandContext context,
+                   DoorRetriever.AbstractRetriever doorRetriever, boolean lockedStatus)
     {
         super(commandSender, context, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
@@ -38,7 +38,7 @@ public class Lock extends DoorTargetCommand
      * @return See {@link BaseCommand#run()}.
      */
     public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever doorRetriever, boolean lock)
+                                                 DoorRetriever.AbstractRetriever doorRetriever, boolean lock)
     {
         return new Lock(commandSender, context, doorRetriever, lock).run();
     }

@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
@@ -64,16 +64,20 @@ public class DoorSerializer<T extends AbstractDoor>
             unsafe = (Unsafe) unsafeField.get(null);
         }
         catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
+        {// TODO: Use logger.
+            e.printStackTrace();
         }
         UNSAFE = unsafe;
     }
 
-    public DoorSerializer(Class<T> doorClass)
+    private final IPLogger logger;
+
+    public DoorSerializer(Class<T> doorClass, IPLogger logger)
         throws Exception
     {
         this.doorClass = doorClass;
+        this.logger = logger;
+
         if (Modifier.isAbstract(doorClass.getModifiers()))
             throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
 
@@ -85,7 +89,7 @@ public class DoorSerializer<T extends AbstractDoor>
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(Level.FINER, e, "Class " + getDoorTypeName() +
+            logger.logThrowable(Level.FINER, e, "Class " + getDoorTypeName() +
                 " does not have DoorData ctor! Using Unsafe instead!");
         }
         ctor = ctorTmp;
@@ -93,7 +97,7 @@ public class DoorSerializer<T extends AbstractDoor>
             throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
                                     " and Unsafe is unavailable! This type cannot be enabled!");
 
-        BigDoors.get().getPLogger().logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
+        logger.logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
             " construction method for class " + getDoorTypeName());
 
         findAnnotatedFields();
@@ -264,7 +268,7 @@ public class DoorSerializer<T extends AbstractDoor>
     {
         if (!doorClass.isAssignableFrom(door.getClass()))
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+            logger.logThrowable(new IllegalArgumentException(
                 "Expected type " + getDoorTypeName() + " but received type " + door.getClass().getName()));
             return "";
         }
@@ -279,7 +283,7 @@ public class DoorSerializer<T extends AbstractDoor>
             }
             catch (IllegalAccessException e)
             {
-                BigDoors.get().getPLogger().logThrowable(e);
+                logger.logThrowable(e);
                 value = "ERROR";
             }
             sb.append(field.getName()).append(": ").append(value).append('\n');
