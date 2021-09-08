@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +20,8 @@ import java.util.function.Supplier;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Step implements IStep
 {
+    private final ILocalizer localizer;
+
     @Getter
     private final String name;
 
@@ -66,11 +68,12 @@ public class Step implements IStep
         Object[] variablesArr = new String[variables.size()];
         variablesArr = variables.toArray(variablesArr);
 
-        return BigDoors.get().getLocalizer().getMessage(messageKey, variablesArr);
+        return localizer.getMessage(messageKey, variablesArr);
     }
 
     public static class Factory
     {
+        private final ILocalizer localizer;
         private final String name;
         private @Nullable StepExecutor stepExecutor = null;
         private @Nullable List<Supplier<String>> messageVariablesRetrievers = null;
@@ -79,8 +82,9 @@ public class Step implements IStep
         private @Nullable Supplier<Boolean> skipCondition = null;
         private boolean implicitNextStep = true;
 
-        public Factory(String name)
+        public Factory(ILocalizer localizer, String name)
         {
+            this.localizer = localizer;
             this.name = name;
         }
 
@@ -137,7 +141,7 @@ public class Step implements IStep
             if (messageVariablesRetrievers == null)
                 messageVariablesRetrievers = Collections.emptyList();
 
-            return new Step(name, stepExecutor, messageKey, messageVariablesRetrievers,
+            return new Step(localizer, name, stepExecutor, messageKey, messageVariablesRetrievers,
                             waitForUserInput, skipCondition, implicitNextStep);
         }
     }

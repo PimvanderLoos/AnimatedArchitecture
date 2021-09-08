@@ -57,6 +57,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingIn
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine.SoundEngineSpigotModule;
+import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteStorageModule;
 
 import javax.inject.Singleton;
 
@@ -67,7 +68,7 @@ import javax.inject.Singleton;
     PServerModule.class, PWorldFactorySpigotModule.class, PLocationFactorySpigotModule.class,
     BigDoorsEventFactorySpigotModule.class, PPlayerFactorySpigotModule.class, ChunkManagerSpigotModule.class,
     MessageableServerSpigotModule.class, MessagingInterfaceSpigotModule.class, SoundEngineSpigotModule.class,
-    PowerBlockRedstoneManagerSpigotModule.class, BigDoorsSpigotPlatformModule.class
+    PowerBlockRedstoneManagerSpigotModule.class, BigDoorsSpigotPlatformModule.class, SQLiteStorageModule.class,
 })
 interface BigDoorsSpigotComponent
 {

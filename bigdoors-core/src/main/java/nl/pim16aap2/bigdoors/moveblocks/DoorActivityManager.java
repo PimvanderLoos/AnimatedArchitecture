@@ -25,16 +25,21 @@ public final class DoorActivityManager extends Restartable
 {
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
 
+    private final AutoCloseScheduler autoCloseScheduler;
+
     /**
      * Constructs a new {@link DoorActivityManager}.
      *
      * @param holder
      *     The {@link IRestartableHolder} that manages this object.
+     * @param autoCloseScheduler
+     *     The {@link AutoCloseScheduler} to use for scheduling auto close actions when required.
      */
     @Inject
-    public DoorActivityManager(IRestartableHolder holder)
+    public DoorActivityManager(IRestartableHolder holder, AutoCloseScheduler autoCloseScheduler)
     {
         super(holder);
+        this.autoCloseScheduler = autoCloseScheduler;
     }
 
     /**
@@ -86,7 +91,7 @@ public final class DoorActivityManager extends Restartable
      * scheduling that is required will be performed.
      *
      * @param blockMover
-     *     The {@link BlockMover} to postprocess.
+     *     The {@link BlockMover} to post-process.
      * @param allowReschedule
      *     Whether to allow rescheduling (e.g. autoClose).
      */
@@ -113,10 +118,9 @@ public final class DoorActivityManager extends Restartable
                                           blockMover.isSkipAnimation()));
 
         if (blockMover.getDoor() instanceof ITimerToggleable)
-            BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(blockMover.getPlayer(),
-                                       (AbstractDoor & ITimerToggleable) blockMover.getDoor(),
-                                       blockMover.getTime(), blockMover.isSkipAnimation());
+            autoCloseScheduler.scheduleAutoClose(blockMover.getPlayer(),
+                                                 (AbstractDoor & ITimerToggleable) blockMover.getDoor(),
+                                                 blockMover.getTime(), blockMover.isSkipAnimation());
     }
 
     /**

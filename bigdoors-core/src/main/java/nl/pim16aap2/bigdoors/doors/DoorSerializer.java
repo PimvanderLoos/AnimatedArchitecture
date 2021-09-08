@@ -73,7 +73,6 @@ public class DoorSerializer<T extends AbstractDoor>
     private final IPLogger logger;
 
     public DoorSerializer(Class<T> doorClass, IPLogger logger)
-        throws Exception
     {
         this.doorClass = doorClass;
         this.logger = logger;
@@ -94,8 +93,8 @@ public class DoorSerializer<T extends AbstractDoor>
         }
         ctor = ctorTmp;
         if (ctor == null && UNSAFE == null)
-            throw new Exception("Could not find CTOR for class " + getDoorTypeName() +
-                                    " and Unsafe is unavailable! This type cannot be enabled!");
+            throw new RuntimeException("Could not find CTOR for class " + getDoorTypeName() +
+                                           " and Unsafe is unavailable! This type cannot be enabled!");
 
         logger.logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
             " construction method for class " + getDoorTypeName());

@@ -12,8 +12,8 @@ import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.Pair;
@@ -21,9 +21,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,19 +55,9 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
 
-    /**
-     * Constructs a new {@link DatabaseManager}.
-     *
-     * @param restartableHolder
-     *     The object managing restarts for this object.
-     * @param dbFile
-     *     The name of the database file.
-     */
-    @Inject
-    public DatabaseManager(IRestartableHolder restartableHolder, @Named("databaseFile") File dbFile)
-    {
-        this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
-    }
+    private final IPLogger logger;
+
+    private final DoorRegistry doorRegistry;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -79,10 +67,15 @@ public final class DatabaseManager extends Restartable
      * @param storage
      *     The {@link IStorage} to use for all database calls.
      */
-    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage)
+    @Inject
+    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage, IPLogger logger,
+                           DoorRegistry doorRegistry)
     {
         super(restartableHolder);
         db = storage;
+        this.logger = logger;
+        this.doorRegistry = doorRegistry;
+
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
@@ -220,7 +213,7 @@ public final class DatabaseManager extends Restartable
                 if (cancelled)
                     return ActionResult.CANCELLED;
 
-                BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
+                doorRegistry.deregisterDoor(door.getDoorUID());
                 final boolean result = db.removeDoor(door.getDoorUID());
                 if (!result)
                     return ActionResult.FAIL;
@@ -602,18 +595,14 @@ public final class DatabaseManager extends Restartable
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to remove player: " + playerUUID + " from door: " +
-                                                       door.getDoorUID() +
-                                                       ", but the player is not an owner!");
+            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
+                door.getDoorUID() + ", but the player is not an owner!");
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (doorOwner.get().permission() == 0)
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to remove player: " + playerUUID + " from door: " +
-                                                       door.getDoorUID() +
-                                                       ", but the player is the prime owner! This is not allowed!");
+            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
+                door.getDoorUID() + ", but the player is the prime owner! This is not allowed!");
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 

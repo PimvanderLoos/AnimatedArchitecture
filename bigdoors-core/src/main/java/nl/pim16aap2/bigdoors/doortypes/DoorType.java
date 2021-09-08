@@ -1,18 +1,17 @@
 package nl.pim16aap2.bigdoors.doortypes;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 /**
  * This class represents a type of Door. "Door" in this case, refers to any kind of animated object, so not necessarily
@@ -72,7 +71,7 @@ public abstract class DoorType
     private final List<RotateDirection> validOpenDirections;
 
     @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-    private final @Nullable DoorSerializer<?> doorSerializer;
+    private volatile @Nullable DoorSerializer<?> doorSerializer;
 
     /**
      * Constructs a new {@link DoorType}. Don't forget to also register it using {@link
@@ -97,19 +96,6 @@ public abstract class DoorType
         this.localizationKey = localizationKey;
         fullName = String.format("%s_%s_%d", getPluginName(), getSimpleName(), getTypeVersion())
                          .toLowerCase(Locale.ENGLISH);
-
-        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-        @Nullable DoorSerializer<?> serializer;
-        try
-        {
-            serializer = new DoorSerializer<>(getDoorClass());
-        }
-        catch (Exception t)
-        {
-            serializer = null;
-            BigDoors.get().getPLogger().logThrowable(t, "Failed to initialize serializer for type: " + getFullName());
-        }
-        doorSerializer = serializer;
     }
 
     /**
@@ -117,10 +103,17 @@ public abstract class DoorType
      *
      * @return The {@link DoorSerializer}.
      */
-    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-    public Optional<DoorSerializer<?>> getDoorSerializer()
+    @SuppressWarnings({"NullableProblems", "ConstantConditions"}) // IntelliJ Struggles with <?> and nullability... :(
+    public DoorSerializer<?> getDoorSerializer(IPLogger logger)
     {
-        return Optional.ofNullable(doorSerializer);
+        if (doorSerializer != null)
+            return doorSerializer;
+        synchronized (this)
+        {
+            if (doorSerializer == null)
+                doorSerializer = new DoorSerializer<>(getDoorClass(), logger);
+            return doorSerializer;
+        }
     }
 
     /**
