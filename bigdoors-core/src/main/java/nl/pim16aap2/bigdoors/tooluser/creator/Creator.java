@@ -193,35 +193,35 @@ public abstract class Creator extends ToolUser
     protected void init()
     {
         factorySetName =
-            new Step.Factory("SET_NAME")
+            new Step.Factory(localizer, "SET_NAME")
                 .stepExecutor(new StepExecutorString(this::completeNamingStep)).messageKey("creator.base.give_name")
                 .messageVariableRetriever(getDoorType()::getLocalizationKey);
 
         factorySetFirstPos =
-            new Step.Factory("SET_FIRST_POST")
+            new Step.Factory(localizer, "SET_FIRST_POST")
                 .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
 
         factorySetSecondPos =
-            new Step.Factory("SET_SECOND_POS")
+            new Step.Factory(localizer, "SET_SECOND_POS")
                 .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
         factorySetEnginePos =
-            new Step.Factory("SET_ENGINE_POS")
+            new Step.Factory(localizer, "SET_ENGINE_POS")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
-            new Step.Factory("SET_POWER_BLOCK_POS")
+            new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
                 .messageKey("creator.base.set_power_block")
                 .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
-            new Step.Factory("SET_OPEN_DIRECTION")
+            new Step.Factory(localizer, "SET_OPEN_DIRECTION")
                 .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
                 .messageKey("creator.base.set_open_dir")
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
-            new Step.Factory("CONFIRM_DOOR_PRICE")
+            new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
                 .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageKey("creator.base.confirm_door_price")
@@ -229,7 +229,7 @@ public abstract class Creator extends ToolUser
                 .implicitNextStep(false);
 
         factoryCompleteProcess =
-            new Step.Factory("COMPLETE_CREATION_PROCESS")
+            new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
                 .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
                 .waitForUserInput(false);
     }

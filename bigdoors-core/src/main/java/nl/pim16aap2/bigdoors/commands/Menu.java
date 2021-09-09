@@ -1,7 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,42 +22,12 @@ public class Menu extends BaseCommand
 {
     private final @Nullable IPPlayer target;
 
-    protected Menu(ICommandSender commandSender, CommandContext context, @Nullable IPPlayer target)
+    @AssistedInject
+    public Menu(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                @Assisted @Nullable IPPlayer target)
     {
-        super(commandSender, context);
+        super(commandSender, logger, localizer);
         this.target = target;
-    }
-
-    /**
-     * Runs the {@link Menu} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for opening the menu.
-     *     <p>
-     *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
-     *     aren't supported for servers/command blocks).
-     * @param target
-     *     The {@link IPPlayer} whose doors will be used.
-     *     <p>
-     *     When this is null (default), the command sender's own doors will be used.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 @Nullable IPPlayer target)
-    {
-        return new Menu(commandSender, context, target).run();
-    }
-
-    /**
-     * Runs the {@link Menu} command.
-     * <p>
-     * See {@link #run(ICommandSender, CommandContext, IPPlayer)}.
-     *
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
-    {
-        return run(commandSender, context, null);
     }
 
     @Override
@@ -75,5 +50,33 @@ public class Menu extends BaseCommand
             return CompletableFuture.completedFuture(false);
 
         throw new UnsupportedOperationException("This command has not yet been implemented!");
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Menu} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for opening the menu.
+         *     <p>
+         *     This is the entity to which the menu will be shown, and as such this must be an {@link IPPlayer} (menus
+         *     aren't supported for servers/command blocks).
+         * @param target
+         *     The {@link IPPlayer} whose doors will be used.
+         *     <p>
+         *     When this is null (default), the command sender's own doors will be used.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Menu newMenu(ICommandSender commandSender, @Nullable IPPlayer target);
+
+        /**
+         * See {@link #newMenu(ICommandSender, IPPlayer)}.
+         */
+        default Menu newMenu(ICommandSender commandSender)
+        {
+            return newMenu(commandSender, null);
+        }
     }
 }

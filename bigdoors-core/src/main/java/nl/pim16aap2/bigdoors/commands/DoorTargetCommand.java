@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -25,10 +26,11 @@ public abstract class DoorTargetCommand extends BaseCommand
 
     private final DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(ICommandSender commandSender, CommandContext context,
+    protected DoorTargetCommand(ICommandSender commandSender, IPLogger logger,
+                                nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
                                 DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute)
     {
-        super(commandSender, context);
+        super(commandSender, logger, localizer);
         this.doorRetriever = doorRetriever;
         this.doorAttribute = doorAttribute;
     }

@@ -1,7 +1,11 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -20,26 +24,14 @@ public class Cancel extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final DoorSpecificationManager doorSpecificationManager;
 
-    protected Cancel(ICommandSender commandSender, CommandContext context,
-                     ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
+    @AssistedInject
+    public Cancel(@Assisted ICommandSender commandSender, IPLogger logger,
+                  nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
+                  ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
     {
-        super(commandSender, context);
+        super(commandSender, logger, localizer);
         this.toolUserManager = toolUserManager;
         this.doorSpecificationManager = doorSpecificationManager;
-    }
-
-    /**
-     * Runs the {@link Cancel} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} for which to cancel any active processes.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 ToolUserManager toolUserManager,
-                                                 DoorSpecificationManager doorSpecificationManager)
-    {
-        return new Cancel(commandSender, context, toolUserManager, doorSpecificationManager).run();
     }
 
     @Override
@@ -59,5 +51,18 @@ public class Cancel extends BaseCommand
     {
         toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
         doorSpecificationManager.cancelRequest(player);
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Cancel} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} for which to cancel any active processes.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Cancel newCancel(ICommandSender commandSender);
     }
 }

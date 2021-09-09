@@ -43,7 +43,7 @@ public abstract class AbstractDoor implements IDoor
 {
     @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     @EqualsAndHashCode.Exclude
-    private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
+    private final DoorSerializer<?> serializer;
 
     @Getter
     protected final DoorBase doorBase;
@@ -61,6 +61,7 @@ public abstract class AbstractDoor implements IDoor
                            DoorOpener doorOpener, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
                            LimitsManager limitsManager)
     {
+        serializer = getDoorType().getDoorSerializer(logger);
         this.doorBase = doorBase;
         this.logger = logger;
         this.localizer = localizer;
@@ -337,13 +338,6 @@ public abstract class AbstractDoor implements IDoor
      */
     public final synchronized CompletableFuture<Boolean> syncData()
     {
-        if (serializer == null)
-        {
-            logger
-                .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
-            return CompletableFuture.completedFuture(false);
-        }
-
         try
         {
             return databaseManager.syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
@@ -367,11 +361,7 @@ public abstract class AbstractDoor implements IDoor
             + "Type-specific data:\n"
             + "type: " + getDoorType() + "\n";
 
-        final var serializerOpt = getDoorType().getDoorSerializer();
-        if (serializerOpt.isEmpty())
-            ret += "Invalid serializer!\n";
-        else
-            ret += serializerOpt.get().toString(this);
+        ret += serializer.toString(this);
 
         return ret;
     }

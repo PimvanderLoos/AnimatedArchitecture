@@ -1,6 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -13,21 +19,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Restart extends BaseCommand
 {
-    protected Restart(ICommandSender commandSender, CommandContext context)
-    {
-        super(commandSender, context);
-    }
+    private final IBigDoorsPlatform bigDoorsPlatform;
 
-    /**
-     * Runs the {@link Restart} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for restarting BigDoors.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context)
+    @AssistedInject
+    public Restart(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                   IBigDoorsPlatform bigDoorsPlatform)
     {
-        return new Restart(commandSender, context).run();
+        super(commandSender, logger, localizer);
+        this.bigDoorsPlatform = bigDoorsPlatform;
     }
 
     @Override
@@ -39,7 +38,20 @@ public class Restart extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        context.getPlatform().restart();
+        bigDoorsPlatform.restart();
         return CompletableFuture.completedFuture(true);
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Restart} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for restarting BigDoors.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Restart newRestart(ICommandSender commandSender);
     }
 }

@@ -36,16 +36,14 @@ public abstract class BaseCommand
     @Getter
     private final ICommandSender commandSender;
 
-    protected final CommandContext context;
     protected final IPLogger logger;
     protected final ILocalizer localizer;
 
-    public BaseCommand(ICommandSender commandSender, CommandContext context)
+    public BaseCommand(ICommandSender commandSender, IPLogger logger, ILocalizer localizer)
     {
         this.commandSender = commandSender;
-        this.context = context;
-        logger = context.getLogger();
-        localizer = context.getLocalizer();
+        this.logger = logger;
+        this.localizer = localizer;
     }
 
     /**
@@ -108,8 +106,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Runs the command if certain criteria are met (i.e. the {@link ICommandSender} has access and {@link
-     * #validInput()} returns true).
+     * Creates (but does not execute!) a new command if certain criteria are met (i.e. the {@link ICommandSender} has
+     * access and {@link #validInput()} returns true).
      *
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.

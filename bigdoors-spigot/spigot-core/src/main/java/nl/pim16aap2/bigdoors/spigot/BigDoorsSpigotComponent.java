@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolderModule;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -149,4 +150,6 @@ interface BigDoorsSpigotComponent
     IBlockAnalyzer getBlockAnalyzer();
 
     DoorTypeLoader getDoorTypeLoader();
+
+    CommandFactory getCommandFactory();
 }

@@ -7,6 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
@@ -46,7 +47,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
     private final ILocalizer localizer;
 
-    private final CommandContext context;
+    private final DelayedCommandInputManager delayedCommandInputManager;
 
     /**
      * The supplier used to retrieve the message that will be sent to the command sender when this request is
@@ -89,15 +90,16 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      *     The class of the input object that is expected.
      */
     DelayedCommandInputRequest(long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-                               CommandContext context, Function<T, CompletableFuture<Boolean>> executor,
-                               Supplier<String> initMessageSupplier, Class<T> inputClass)
+                               IPLogger logger, ILocalizer localizer, Function<T, CompletableFuture<Boolean>> executor,
+                               Supplier<String> initMessageSupplier, Class<T> inputClass,
+                               DelayedCommandInputManager delayedCommandInputManager)
     {
         super(timeout);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
-        this.context = context;
-        logger = this.context.getLogger();
-        localizer = this.context.getLocalizer();
+        this.logger = logger;
+        this.localizer = localizer;
+        this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
         log();
@@ -107,7 +109,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
     private void init()
     {
-        context.getDelayedCommandInputManager().register(commandSender, this);
+        delayedCommandInputManager.register(commandSender, this);
         final var initMessage = initMessageSupplier.get();
         //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
@@ -149,7 +151,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @Override
     protected void cleanup()
     {
-        context.getDelayedCommandInputManager().deregister(commandSender, this);
+        delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
             commandSender.sendMessage(localizer.getMessage("commands.base.error.timed_out",
                                                            commandDefinition.name().toLowerCase(Locale.ENGLISH)));

@@ -1,9 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -21,28 +26,12 @@ public class ListDoors extends BaseCommand
 {
     private final DoorRetriever.AbstractRetriever doorRetriever;
 
-    protected ListDoors(ICommandSender commandSender, CommandContext context,
-                        DoorRetriever.AbstractRetriever doorRetriever)
+    @AssistedInject
+    public ListDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                     @Assisted DoorRetriever.AbstractRetriever doorRetriever)
     {
-        super(commandSender, context);
+        super(commandSender, logger, localizer);
         this.doorRetriever = doorRetriever;
-    }
-
-    /**
-     * Runs the {@link ListDoors} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for retrieving the information for the doors.
-     *     <p>
-     *     This is also the entity that will be informed about the doors that were found.
-     * @param doorRetriever
-     *     A {@link DoorRetriever} representing any number of {@link DoorBase}s.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever.AbstractRetriever doorRetriever)
-    {
-        return new ListDoors(commandSender, context, doorRetriever).run();
     }
 
     @Override
@@ -76,5 +65,22 @@ public class ListDoors extends BaseCommand
         for (final var door : doors)
             sb.append("  ").append(door.getBasicInfo()).append('\n');
         getCommandSender().sendMessage(sb.toString());
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link ListDoors} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for retrieving the information for the doors.
+         *     <p>
+         *     This is also the entity that will be informed about the doors that were found.
+         * @param doorRetriever
+         *     A {@link DoorRetriever} representing any number of {@link DoorBase}s.
+         * @return See {@link BaseCommand#run()}.
+         */
+        ListDoors newListDoors(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
     }
 }

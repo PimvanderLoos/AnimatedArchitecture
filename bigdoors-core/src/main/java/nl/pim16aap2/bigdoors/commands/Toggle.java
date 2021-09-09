@@ -1,9 +1,15 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -23,77 +29,20 @@ public class Toggle extends BaseCommand
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
     private final DoorRetriever.AbstractRetriever[] doorRetrievers;
+    private final DoorOpener doorOpener;
     private final DoorActionType doorActionType;
     private final double speedMultiplier;
 
-    protected Toggle(ICommandSender commandSender, CommandContext context, DoorActionType doorActionType,
-                     double speedMultiplier, DoorRetriever.AbstractRetriever... doorRetrievers)
+    @AssistedInject
+    public Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                  @Assisted DoorActionType doorActionType, @Assisted double speedMultiplier,
+                  DoorOpener doorOpener, @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
     {
-        super(commandSender, context);
+        super(commandSender, logger, localizer);
         this.doorActionType = doorActionType;
         this.speedMultiplier = speedMultiplier;
         this.doorRetrievers = doorRetrievers;
-    }
-
-    /**
-     * Runs the {@link Toggle} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} to hold responsible for the toggle action.
-     * @param doorActionType
-     *     The type of action to apply.
-     *     <p>
-     *     For example, when {@link DoorActionType#OPEN} is used, the door can only be toggled if it is possible to open
-     *     it (in most cases that would mean that it is currently closed).
-     *     <p>
-     *     {@link DoorActionType#TOGGLE}, however, is possible regardless of its current open/close status.
-     * @param speedMultiplier
-     *     The speed multiplier to apply to the animation.
-     * @param doorRetrievers
-     *     The door(s) to toggle.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorActionType doorActionType, double speedMultiplier,
-                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
-    {
-        return new Toggle(commandSender, context, doorActionType, speedMultiplier, doorRetrievers).run();
-    }
-
-    /**
-     * Runs the {@link Toggle} command with the {@link #DEFAULT_SPEED_MULTIPLIER}
-     * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorActionType doorActionType,
-                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
-    {
-        return run(commandSender, context, doorActionType, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
-    }
-
-    /**
-     * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE}.
-     * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 double speedMultiplier,
-                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
-    {
-        return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
-    }
-
-    /**
-     * Runs the {@link Toggle} command using the {@link #DEFAULT_DOOR_ACTION_TYPE} and the {@link
-     * #DEFAULT_SPEED_MULTIPLIER}.
-     * <p>
-     * See {@link #run(ICommandSender, CommandContext, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever.AbstractRetriever... doorRetrievers)
-    {
-        return run(commandSender, context, DEFAULT_DOOR_ACTION_TYPE, DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
+        this.doorOpener = doorOpener;
     }
 
     @Override
@@ -159,9 +108,8 @@ public class Toggle extends BaseCommand
             return;
         }
 
-        context.getPlatform().getDoorOpener()
-               .animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
-                                 speedMultiplier, false, doorActionType);
+        doorOpener.animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
+                                    speedMultiplier, false, doorActionType);
     }
 
     private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,
@@ -179,5 +127,64 @@ public class Toggle extends BaseCommand
         for (int idx = 0; idx < actions.length; ++idx)
             actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.second);
         return CompletableFuture.allOf(actions).thenApply(ignored -> true);
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Toggle} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} to hold responsible for the toggle action.
+         * @param doorActionType
+         *     The type of action to apply.
+         *     <p>
+         *     For example, when {@link DoorActionType#OPEN} is used, the door can only be toggled if it is possible to
+         *     open it (in most cases that would mean that it is currently closed).
+         *     <p>
+         *     {@link DoorActionType#TOGGLE}, however, is possible regardless of its current open/close status.
+         * @param speedMultiplier
+         *     The speed multiplier to apply to the animation.
+         * @param doorRetrievers
+         *     The door(s) to toggle.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Toggle newToggle(ICommandSender commandSender, DoorActionType doorActionType, double speedMultiplier,
+                         DoorRetriever.AbstractRetriever... doorRetrievers);
+
+        /**
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * <p>
+         * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier.
+         */
+        default Toggle newToggle(ICommandSender commandSender, DoorActionType doorActionType,
+                                 DoorRetriever.AbstractRetriever... doorRetrievers)
+        {
+            return newToggle(commandSender, doorActionType, Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
+        }
+
+        /**
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * <p>
+         * Defaults to {@link Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
+         */
+        default Toggle newToggle(ICommandSender commandSender, double speedMultiplier,
+                                 DoorRetriever.AbstractRetriever... doorRetrievers)
+        {
+            return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
+        }
+
+        /**
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * <p>
+         * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier and to {@link
+         * Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
+         */
+        default Toggle newToggle(ICommandSender commandSender, DoorRetriever.AbstractRetriever... doorRetrievers)
+        {
+            return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, Toggle.DEFAULT_SPEED_MULTIPLIER,
+                             doorRetrievers);
+        }
     }
 }

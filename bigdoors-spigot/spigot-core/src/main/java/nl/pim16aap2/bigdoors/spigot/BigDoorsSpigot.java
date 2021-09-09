@@ -21,6 +21,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolderModule;
+import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -125,6 +126,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final ILocalizer localizer;
     private final LocalizationManager localizationManager;
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
+    private final CommandFactory commandFactory;
 
     public BigDoorsSpigot()
     {
@@ -192,6 +194,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         fallingBlockFactory = bigDoorsSpigotComponent.getFallingBlockFactory();
         blockAnalyzer = bigDoorsSpigotComponent.getBlockAnalyzer();
         doorTypeLoader = bigDoorsSpigotComponent.getDoorTypeLoader();
+        commandFactory = bigDoorsSpigotComponent.getCommandFactory();
     }
 
     @Override

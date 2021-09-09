@@ -1,9 +1,15 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -17,25 +23,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Info extends DoorTargetCommand
 {
-    protected Info(ICommandSender commandSender, CommandContext context, DoorRetriever.AbstractRetriever doorRetriever)
-    {
-        super(commandSender, context, doorRetriever, DoorAttribute.INFO);
-    }
+    private final IGlowingBlockSpawner glowingBlockSpawner;
 
-    /**
-     * Runs the {@link Info} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for retrieving the door info and the receiver of the door's
-     *     information.
-     * @param doorRetriever
-     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be retrieved.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, CommandContext context,
-                                                 DoorRetriever.AbstractRetriever doorRetriever)
+    @AssistedInject
+    public Info(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
     {
-        return new Info(commandSender, context, doorRetriever).run();
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.INFO);
+        this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
     @Override
@@ -56,7 +51,22 @@ public class Info extends DoorTargetCommand
     {
         if (!(getCommandSender() instanceof IPPlayer))
             return;
-        context.getPlatform().getGlowingBlockSpawner()
-               .spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender());
+        glowingBlockSpawner.spawnGlowingBlocks(doorBase, (IPPlayer) getCommandSender());
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Info} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for retrieving the door info and the receiver of the door's
+         *     information.
+         * @param doorRetriever
+         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be retrieved.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Info newInfo(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
     }
 }
