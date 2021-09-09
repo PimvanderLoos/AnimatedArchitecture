@@ -36,6 +36,7 @@ public abstract class ToolUser extends Abortable
     protected Location one, two, engine;
     protected boolean aborting = false;
     protected RotateDirection openDir = null;
+    private boolean hasStick = false;
 
     public ToolUser(BigDoors plugin, Player player, String name, DoorType type)
     {
@@ -110,6 +111,9 @@ public abstract class ToolUser extends Abortable
 
     protected final void giveToolToPlayer(String[] lore, String[] message)
     {
+        if (hasStick)
+            return;
+        hasStick = true;
         ItemStack tool = new ItemStack(Material.STICK, 1);
         tool.addUnsafeEnchantment(Enchantment.LUCK, 1);
         tool.getItemMeta().addItemFlags(ItemFlag.HIDE_ENCHANTS);

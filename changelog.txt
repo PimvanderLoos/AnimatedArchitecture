@@ -1,6 +1,7 @@
 Alpha 0.1.8.33
 - Added code generation to generate the required code for unsupported versions. This is disabled by default, but can be enabled in the config via the "allowCodeGeneration" and the "forceCodeGeneration" options.
 - Removed a bunch of unused code to make updates a bit easier going forward.
+- Fix the /namedoor command giving you more sticks when running the command multiple times. Thanks, MiniMoro, for the bug report!
 
 Alpha 0.1.8.32
 - Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!
