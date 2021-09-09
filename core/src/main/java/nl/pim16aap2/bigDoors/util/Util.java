@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.google.common.hash.Hashing;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,6 +29,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,6 +73,17 @@ public final class Util
             if (!Util.isAllowedBlockBackDoor(mat))
                 BLACKLIST.add(mat);
         }
+    }
+
+    public static @Nullable <T> T firstNonNull(Supplier<T>... suppliers)
+    {
+        for (Supplier<T> supplier : suppliers)
+        {
+            T ret = supplier.get();
+            if (ret != null)
+                return ret;
+        }
+        return null;
     }
 
     public static Optional<DoorDirection> getDoorDirection(RotateDirection rot)
@@ -500,7 +514,7 @@ public final class Util
             return 2;
         // Panes only have to rotate on 1.13+.
         // On versions before, rotating it only changes its color...
-        if ((BigDoors.get().is1_13()) &&
+        if ((BigDoors.get().isOnFlattenedVersion()) &&
             (xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) ||
              xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) ||
              xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) ||
@@ -627,8 +641,6 @@ public final class Util
         case TALL_GRASS:
         case SEAGRASS:
         case TALL_SEAGRASS:
-
-        case SHULKER_BOX:
 
         case LADDER:
 

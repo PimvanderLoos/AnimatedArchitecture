@@ -10,7 +10,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -34,28 +33,28 @@ import nl.pim16aap2.bigDoors.util.Util;
 
 public class BridgeMover implements BlockMover
 {
-    private World world;
-    private BigDoors plugin;
-    private int tickRate;
-    private double multiplier;
+    private final World world;
+    private final BigDoors plugin;
+    private final int tickRate;
+    private final double multiplier;
     private int dx, dz;
-    private double time;
-    private FallingBlockFactory fabf;
-    private boolean NS;
+    private final double time;
+    private final FallingBlockFactory fabf;
+    private final boolean NS;
     private GetNewLocation gnl;
-    private Door door;
-    private RotateDirection upDown;
-    private DoorDirection engineSide;
-    private double endStepSum;
-    private boolean instantOpen;
+    private final Door door;
+    private final RotateDirection upDown;
+    private final DoorDirection engineSide;
+    private final double endStepSum;
+    private final boolean instantOpen;
     private Location turningPoint;
     private double startStepSum;
-    private DoorDirection openDirection;
+    private final DoorDirection openDirection;
     private Location pointOpposite;
     private int stepMultiplier;
-    private int xMin, yMin, zMin;
-    private int xMax, yMax, zMax;
-    private List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final int xMin, yMin, zMin;
+    private final int xMax, yMax, zMax;
+    private final List<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
     private BukkitRunnable animationRunnable;
@@ -85,7 +84,7 @@ public class BridgeMover implements BlockMover
         int yLen = Math.abs(door.getMaximum().getBlockY() - door.getMinimum().getBlockY());
         int zLen = Math.abs(door.getMaximum().getBlockZ() - door.getMinimum().getBlockZ());
         int doorSize = Math.max(xLen, Math.max(yLen, zLen)) + 1;
-        double vars[] = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
+        double[] vars = Util.calculateTimeAndTickRate(doorSize, time, multiplier, 5.2);
         this.time = vars[0];
         tickRate = (int) vars[1];
         this.multiplier = vars[2];
@@ -252,7 +251,7 @@ public class BridgeMover implements BlockMover
                             Block b = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                             materialData.setData(matByte);
 
-                            if (plugin.is1_13())
+                            if (BigDoors.isOnFlattenedVersion())
                             {
                                 if (canRotate == 6)
                                 {
@@ -274,7 +273,7 @@ public class BridgeMover implements BlockMover
                                 }
                             }
                         }
-                        if (!plugin.is1_13())
+                        if (!BigDoors.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -313,7 +312,7 @@ public class BridgeMover implements BlockMover
         }
 
         // This is only supported on 1.13
-        if (plugin.is1_13())
+        if (BigDoors.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
@@ -372,7 +371,7 @@ public class BridgeMover implements BlockMover
 
                         if (!savedBlocks.get(index).getMat().equals(Material.AIR))
                         {
-                            if (plugin.is1_13())
+                            if (BigDoors.isOnFlattenedVersion())
                             {
                                 savedBlocks.get(index).getBlock().putBlock(newPos);
                                 Block b = world.getBlockAt(newPos);
@@ -434,13 +433,13 @@ public class BridgeMover implements BlockMover
         
         animationRunnable = new BukkitRunnable()
         {
-            Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
+            final Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);
             boolean replace = false;
             double counter = 0;
-            double step = (Math.PI / 2) / endCount * stepMultiplier;
+            final double step = (Math.PI / 2) / endCount * stepMultiplier;
             double stepSum = startStepSum;
-            int totalTicks = (int) (endCount * multiplier);
-            int replaceCount = endCount / 2;
+            final int totalTicks = (int) (endCount * multiplier);
+            final int replaceCount = endCount / 2;
             long startTime = System.nanoTime();
             long lastTime;
             long currentTime = System.nanoTime();
@@ -463,17 +462,14 @@ public class BridgeMover implements BlockMover
                     stepSum = startStepSum + step * counter;
                 else
                     stepSum = endStepSum;
-
-                replace = false;
-                if (counter == replaceCount)
-                    replace = true;
+                replace = counter == replaceCount;
 
                 if (!plugin.getCommander().canGo() || counter > totalTicks)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
-                            savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData savedBlock : savedBlocks)
+                        if (!savedBlock.getMat().equals(Material.AIR))
+                            savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);
@@ -546,7 +542,7 @@ public class BridgeMover implements BlockMover
     }
 
     // Rotate blocks such a logs by modifying its material data.
-    private byte rotateBlockData(Byte matData)
+    private byte rotateBlockData(byte matData)
     {
         if (!NS)
         {
@@ -565,7 +561,7 @@ public class BridgeMover implements BlockMover
     }
 
     // Rotate blocks such a logs by modifying its material data.
-    private byte rotateEndRotBlockData(Byte matData)
+    private byte rotateEndRotBlockData(byte matData)
     {
         /*
          * 0: Pointing Down (upside down (purple on top))

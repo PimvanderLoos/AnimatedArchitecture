@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.griefdefender.GriefDefenderPlugin;
 import com.griefdefender.api.Tristate;
 import com.griefdefender.api.claim.TrustTypes;
@@ -9,7 +10,6 @@ import com.griefdefender.claim.GDClaim;
 import com.griefdefender.permission.GDPermissionManager;
 import com.griefdefender.permission.flag.GDFlags;
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

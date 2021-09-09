@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigDoors;
 
 import nl.pim16aap2.bigDoors.GUI.GUI;
-import nl.pim16aap2.bigDoors.NMS.FakePlayerCreator_V1_17_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_11_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_12_R1;
@@ -14,18 +13,7 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_11_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_12_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R1_5;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_13_R2;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_14_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_15_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R1;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R2;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_16_R3;
-import nl.pim16aap2.bigDoors.NMS.SkullCreator_V1_17_R1;
-import nl.pim16aap2.bigDoors.compatibility.IFakePlayerCreator;
+import nl.pim16aap2.bigDoors.codegeneration.FallbackGeneratorManager;
 import nl.pim16aap2.bigDoors.compatiblity.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatManager;
 import nl.pim16aap2.bigDoors.handlers.ChunkUnloadHandler;
@@ -36,16 +24,11 @@ import nl.pim16aap2.bigDoors.handlers.GUIHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginMessageHandler;
 import nl.pim16aap2.bigDoors.handlers.LoginResourcePackHandler;
 import nl.pim16aap2.bigDoors.handlers.RedstoneHandler;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
-import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationSouth;
 import nl.pim16aap2.bigDoors.moveBlocks.BridgeOpener;
-import nl.pim16aap2.bigDoors.moveBlocks.Cylindrical.getNewLocation.GetNewLocationWest;
 import nl.pim16aap2.bigDoors.moveBlocks.DoorOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.Opener;
 import nl.pim16aap2.bigDoors.moveBlocks.PortcullisOpener;
 import nl.pim16aap2.bigDoors.moveBlocks.SlidingDoorOpener;
-import nl.pim16aap2.bigDoors.skulls.HeadManager;
 import nl.pim16aap2.bigDoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigDoors.toolUsers.ToolUser;
 import nl.pim16aap2.bigDoors.toolUsers.ToolVerifier;
@@ -67,9 +50,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -88,6 +71,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // TODO: Drawbridges that were created when flat, should remember that direction for opening.
 
@@ -96,6 +81,8 @@ public class BigDoors extends JavaPlugin implements Listener
     private static BigDoors instance;
     public static final boolean DEVBUILD = true;
     private int buildNumber = -1;
+
+    private static final String PACKAGE_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 
     public static final int MINIMUMDOORDELAY = 15;
 
@@ -127,16 +114,15 @@ public class BigDoors extends JavaPlugin implements Listener
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
     private HashMap<UUID, WaitForCommand> cmdWaiters;
-    private boolean is1_13 = false;
-    private IFakePlayerCreator fakePlayerCreator;
+    private FakePlayerCreator fakePlayerCreator;
     private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
     private LoginResourcePackHandler rPackHandler;
     private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
-    private HeadManager headManager;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
-    private static final MCVersion MC_VERSION = BigDoors.calculateMCVersion();
+    private static final @NotNull MCVersion MC_VERSION = BigDoors.calculateMCVersion();
+    private static final boolean IS_ON_FLATTENED_VERSION = MC_VERSION.isAtLeast(MCVersion.v1_13);
     private boolean isEnabled = false;
     private final List<String> loginMessages = new ArrayList<>();
     private final WorldHeightManager worldHeightManager = new WorldHeightManager();
@@ -188,7 +174,7 @@ public class BigDoors extends JavaPlugin implements Listener
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
         if (DEVBUILD)
-            logger.logMessageToConsoleOnly("WARNING! You are running a devbuild (build: " + buildNumber + ")!");
+            logger.logMessageToConsoleOnly("WARNING! You are running a dev-build (build: " + buildNumber + ")!");
 
         try
         {
@@ -202,13 +188,18 @@ public class BigDoors extends JavaPlugin implements Listener
                                       + (Bukkit.getServer().getClass().getPackage().getName().replace(".", ",")
                                                .split(",")[3])
                                       + "\"). This plugin will NOT be enabled!", true, true);
-                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date?");
+                logger.logMessage("If no update is available for this version, you could try to enable " +
+                                      "code generation in the config.", true, true);
+                logger.logMessage("Code generation may add support for this version, but be sure to read the " +
+                                      "warning in the config before using it!", true, true);
+                setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? " +
+                                "Or enable code generation.");
                 return;
             }
+            fakePlayerCreator = new FakePlayerCreator(this);
 
             init();
 
-            headManager.init(config.headCacheTimeout());
             vaultManager = new VaultManager(this);
             autoCloseScheduler = new AutoCloseScheduler(this);
 
@@ -229,8 +220,6 @@ public class BigDoors extends JavaPlugin implements Listener
             slidingDoorOpener = new SlidingDoorOpener(this);
 
             registerCommands(commandHandler);
-
-            liveDevelopmentLoad();
         }
         catch (Exception exception)
         {
@@ -358,9 +347,14 @@ public class BigDoors extends JavaPlugin implements Listener
             commander.setCanGo(true);
     }
 
-    public static final BigDoors get()
+    public static BigDoors get()
     {
         return instance;
+    }
+
+    public @NotNull ClassLoader getBigDoorsClassLoader()
+    {
+        return super.getClassLoader();
     }
 
     /**
@@ -403,6 +397,11 @@ public class BigDoors extends JavaPlugin implements Listener
             tu.abortSilently();
     }
 
+    public String getPackageVersion()
+    {
+        return PACKAGE_VERSION;
+    }
+
     public String canBreakBlock(UUID playerUUID, String playerName, Location loc)
     {
         return protCompatMan.canBreakBlock(playerUUID, playerName, loc);
@@ -434,7 +433,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
         vaultManager.init();
         pbCache.reinit(config.cacheTimeout());
-        headManager.reload(config.headCacheTimeout());
     }
 
     @Override
@@ -492,11 +490,6 @@ public class BigDoors extends JavaPlugin implements Listener
         }));
     }
 
-    public String getUpdateURL()
-    {
-        return null;
-    }
-
     public String getLoginMessage()
     {
         StringBuilder sb = new StringBuilder();
@@ -544,7 +537,7 @@ public class BigDoors extends JavaPlugin implements Listener
         return autoCloseScheduler;
     }
 
-    public IFakePlayerCreator getFakePlayerCreator()
+    public FakePlayerCreator getFakePlayerCreator()
     {
         return fakePlayerCreator;
     }
@@ -598,9 +591,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public WaitForCommand getCommandWaiter(Player player)
     {
-//        if (cmdWaiters.containsKey(player.getUniqueId()))
-//            return cmdWaiters.get(player.getUniqueId());
-//        return null;
         return cmdWaiters.get(player.getUniqueId());
     }
 
@@ -683,66 +673,81 @@ public class BigDoors extends JavaPlugin implements Listener
             logger.warn("║   THIS IS NOT SUPPORTED! USE THIS AT YOUR OWN RISK!   ║");
             logger.warn("║                                                       ║");
             logger.warn("╚═══════════════════════════════════════════════════════╝");
-
-            loginMessages.add("You are running this plugin in unsafe mode! THIS IS NOT SUPPORTED!");
         }
     }
 
-    // This function simply loads these classes to make my life a bit less hell-ish
-    // with live development.
-    @SuppressWarnings("unused")
-    private void liveDevelopmentLoad()
+    public static boolean isOnFlattenedVersion()
     {
-        new GetNewLocationNorth();
-        new GetNewLocationEast();
-        new GetNewLocationSouth();
-        new GetNewLocationWest();
+        return IS_ON_FLATTENED_VERSION;
     }
 
-    public boolean is1_13()
+    private static @NotNull MCVersion calculateMCVersion()
     {
-        return is1_13;
-    }
+        final MCVersion[] values = MCVersion.values();
+        final MCVersion maxVersion = values[values.length - 1];
 
-    private static MCVersion calculateMCVersion()
-    {
         String version;
-
         try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
         }
-        catch (final ArrayIndexOutOfBoundsException useAVersionMentionedInTheDescriptionPleaseException)
+        catch (final ArrayIndexOutOfBoundsException e)
         {
-            useAVersionMentionedInTheDescriptionPleaseException.printStackTrace();
-            return null;
+            e.printStackTrace();
+            Bukkit.getLogger().severe("Failed to figure out the current version from input: \"" +
+                                          Bukkit.getServer().getClass().getPackage().getName() +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
         }
 
-        MCVersion mcVersion = null;
-        if (version.equals("v1_11_R1"))
-            mcVersion = MCVersion.v1_11;
-        else if (version.equals("v1_12_R1"))
-            mcVersion = MCVersion.v1_12;
-        else if (version.equals("v1_13_R1"))
-            mcVersion = MCVersion.v1_13;
-        else if (version.equals("v1_13_R2"))
-            mcVersion = MCVersion.v1_13;
-        else if (version.equals("v1_14_R1"))
-            mcVersion = MCVersion.v1_14;
-        else if (version.equals("v1_15_R1"))
-            mcVersion = MCVersion.v1_15;
-        else if (version.equals("v1_16_R1") || version.equals("v1_16_R2") || version.equals("v1_16_R3"))
-            mcVersion = MCVersion.v1_16;
-        else if (version.equals("v1_17_R1"))
-            mcVersion = MCVersion.v1_17;
-        return mcVersion;
+        final Matcher baseVersionMatcher = Pattern.compile("v[0-9_]*(?=_R)").matcher(version);
+        if (!baseVersionMatcher.find())
+        {
+            Bukkit.getLogger().severe("Failed to find base version from version String: \"" + version +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
+        }
+
+        final String baseVersion = baseVersionMatcher.group().toLowerCase();
+        try
+        {
+            return MCVersion.valueOf(baseVersion);
+        }
+        catch (IllegalArgumentException e)
+        {
+            Bukkit.getLogger().severe("Failed to find the version associated with the String: \"" + baseVersion +
+                                          "\"! We'll just assume you're using version " + maxVersion);
+            return maxVersion;
+        }
+    }
+
+    private FallingBlockFactory generateFallBackFallingBlockFactory()
+        throws Exception
+    {
+        logger.warn("╔═══════════════════════════════════════════════════════╗");
+        logger.warn("║                                                       ║");
+        logger.warn("║                    !!  WARNING  !!                    ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║           YOU HAVE ENABLED CODE GENERATION!           ║");
+        logger.warn("║                                                       ║");
+        logger.warn("║     THIS MAY CAUSE ISSUES! PLEASE TEST CAREFULLY!     ║");
+        logger.warn("║                                                       ║");
+        logger.warn("╚═══════════════════════════════════════════════════════╝");
+        return FallbackGeneratorManager.getInstance().getFallingBlockFactory();
     }
 
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
+        throws Exception
     {
-        String version;
+        if (config.forceCodeGeneration())
+        {
+            fabf = generateFallBackFallingBlockFactory();
+            return true;
+        }
 
+        String version;
         try
         {
             version = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
@@ -754,98 +759,64 @@ public class BigDoors extends JavaPlugin implements Listener
         }
 
         fabf = null;
-        if (version.equals("v1_11_R1"))
+        switch (version)
         {
-            fabf = new FallingBlockFactory_V1_11_R1();
-            headManager = new SkullCreator_V1_11_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_12_R1"))
-        {
-            fabf = new FallingBlockFactory_V1_12_R1();
-            headManager = new SkullCreator_V1_12_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_13_R1"))
-        {
-            is1_13 = true;
-            fabf = new FallingBlockFactory_V1_13_R1();
-            headManager = new SkullCreator_V1_13_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_13_R2"))
-        {
-            String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-            final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(-1);
-            if (minorVersion == -1)
-            {
-                logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
+            case "v1_8_R1":
+            case "v1_8_R2":
+            case "v1_8_R3":
+            case "v1_9_R1":
+            case "v1_9_R2":
+            case "v1_10_R1":
                 return false;
-            }
-            is1_13 = true;
-            fakePlayerCreator = new FakePlayerCreator(this);
-            // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
-            // That's why 1.13.1 is a kinda R1.5 package.
-            if (minorVersion == 1)
-            {
-                fabf = new FallingBlockFactory_V1_13_R1_5();
-                headManager = new SkullCreator_V1_13_R1_5(this);
-            }
-            else
-            {
-                fabf = new FallingBlockFactory_V1_13_R2();
-                headManager = new SkullCreator_V1_13_R2(this);
-            }
+            case "v1_11_R1":
+                fabf = new FallingBlockFactory_V1_11_R1();
+                break;
+            case "v1_12_R1":
+                fabf = new FallingBlockFactory_V1_12_R1();
+                break;
+            case "v1_13_R1":
+                fabf = new FallingBlockFactory_V1_13_R1();
+                break;
+            case "v1_13_R2":
+                String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+                final int minorVersion = Util.parseInt(split.length > 2 ? split[2] : null).orElse(-1);
+                if (minorVersion == -1)
+                {
+                    logger.severe("Failed to parse minor version from: \"" + Bukkit.getBukkitVersion() + "\"");
+                    return false;
+                }
+                // 1.13.1 has the same package version as 1.13.2, but there are actual NMS changes between them.
+                // That's why 1.13.1 is a kinda R1.5 package.
+                if (minorVersion == 1)
+                    fabf = new FallingBlockFactory_V1_13_R1_5();
+                else
+                    fabf = new FallingBlockFactory_V1_13_R2();
+                break;
+            case "v1_14_R1":
+                fabf = new FallingBlockFactory_V1_14_R1();
+                break;
+            case "v1_15_R1":
+                fabf = new FallingBlockFactory_V1_15_R1();
+                break;
+            case "v1_16_R1":
+                fabf = new FallingBlockFactory_V1_16_R1();
+                break;
+            case "v1_16_R2":
+                fabf = new FallingBlockFactory_V1_16_R2();
+                break;
+            case "v1_16_R3":
+                fabf = new FallingBlockFactory_V1_16_R3();
+                break;
+            case "v1_17_R1":
+                fabf = new FallingBlockFactory_V1_17_R1();
+                break;
+            default:
+                if (config.allowCodeGeneration())
+                    fabf = generateFallBackFallingBlockFactory();
         }
-        else if (version.equals("v1_14_R1"))
-        {
-            is1_13 = true; // Yeah, it's actually 1.14, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_14_R1();
-            headManager = new SkullCreator_V1_14_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_15_R1"))
-        {
-            is1_13 = true; // Yeah, it's actually 1.15, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_15_R1();
-            headManager = new SkullCreator_V1_15_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R1"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R1();
-            headManager = new SkullCreator_V1_16_R1(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R2"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R2();
-            headManager = new SkullCreator_V1_16_R2(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_16_R3"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_16_R3();
-            headManager = new SkullCreator_V1_16_R3(this);
-            fakePlayerCreator = new FakePlayerCreator(this);
-        }
-        else if (version.equals("v1_17_R1"))
-        {
-            is1_13 = true; // Yeah, it's not actually 1.13, but it still needs to use new stuff.
-            fabf = new FallingBlockFactory_V1_17_R1();
-            headManager = new SkullCreator_V1_17_R1(this);
-            fakePlayerCreator = new FakePlayerCreator_V1_17_R1(this);
-        }
+
         // Return true if compatible.
         return fabf != null;
-    }
-
-    public ItemStack getPlayerHead(UUID playerUUID, String playerName, int x, int y, int z, Player player)
-    {
-        return headManager.getPlayerHead(playerUUID, playerName, x, y, z, player);
     }
 
     private int readBuildNumber()
@@ -952,6 +923,13 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public enum MCVersion
     {
+        v1_4,
+        v1_5,
+        v1_6,
+        v1_7,
+        v1_8,
+        v1_9,
+        v1_10,
         v1_11,
         v1_12,
         v1_13,
@@ -965,8 +943,16 @@ public class BigDoors extends JavaPlugin implements Listener
         v1_21,
         v1_22,
         v1_23,
-    }
+        v1_24,
+        v1_25,
+        v1_26,
+        v1_27,
+        v1_28,
+        ;
 
-//    public long createNewDoor(Location min, Location max, Location engine,
-//                              Location powerBlock, DoorType type, )
+        public boolean isAtLeast(MCVersion test)
+        {
+            return ordinal() >= test.ordinal();
+        }
+    }
 }

@@ -43,7 +43,7 @@ public class MyBlockData
     public MaterialData getMatData()                           {  return matData;              }
     public double getRadius()                                  {  return radius;               }
     public byte getBlockByte()                                 {  return blockByte;            }
-    public void setBlockByte(Byte blockByte)                   {  this.blockByte = blockByte;  }
+    public void setBlockByte(byte blockByte)                   {  this.blockByte = blockByte;  }
     public NMSBlock getBlock()                            {  return block;                }
     public int canRot()                                        {  return canRot;               }
 

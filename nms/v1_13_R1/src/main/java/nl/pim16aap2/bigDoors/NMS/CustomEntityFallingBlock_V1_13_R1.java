@@ -324,7 +324,7 @@ public class CustomEntityFallingBlock_V1_13_R1 extends net.minecraft.server.v1_1
     public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
-        crashreportsystemdetails.a("Immitating BlockState", block.toString());
+        crashreportsystemdetails.a("Animated BigDoors block with state: ", block.toString());
     }
 
     @Override

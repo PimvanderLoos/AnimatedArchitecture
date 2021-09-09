@@ -13,7 +13,7 @@ import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.DoorAttribute;
 import nl.pim16aap2.bigDoors.util.DoorOwner;
-import nl.pim16aap2.bigDoors.util.XMaterial;
+import com.cryptomorin.xseries.XMaterial;
 
 public class GUIItem
 {
@@ -56,28 +56,6 @@ public class GUIItem
         this.count = count;
         this.is = is;
         is.setAmount(count);
-        construct();
-    }
-
-    public GUIItem(BigDoors plugin, DoorOwner doorOwner, Player guiOwner)
-    {
-        this.doorOwner = doorOwner;
-        count = doorOwner.getPermission() == 0 ? 1 : doorOwner.getPermission();
-        name = doorOwner.getPlayerName() == null ? doorOwner.getPlayerUUID().toString() : doorOwner.getPlayerName();
-
-        Location loc = guiOwner.getLocation();
-        is = plugin.getPlayerHead(doorOwner.getPlayerUUID(), doorOwner.getPlayerName(), loc.getBlockX(),
-                                            loc.getBlockY(), loc.getBlockZ(), guiOwner);
-        if (is == null)
-        {
-            is = new ItemStack(XMaterial.PLAYER_HEAD.parseMaterial(), 1, (short) 3);
-            missingHeadTexture = true;
-        }
-        else
-            missingHeadTexture = false;
-
-        name = doorOwner.getPlayerName();
-        lore = null;
         construct();
     }
 

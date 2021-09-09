@@ -1,5 +1,12 @@
 package nl.pim16aap2.bigDoors.util;
 
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,14 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
-import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
 
 public class ConfigLoader
 {
@@ -56,13 +55,14 @@ public class ConfigLoader
     private int maxAutoCloseTimer;
     private boolean skipUnloadedAutoCloseToggle;
     private boolean allowNotifications;
+    private boolean allowCodeGeneration;
+    private boolean forceCodeGeneration;
 
     private HashSet<Material> powerBlockTypesMap;
     private Map<ProtectionCompat, Boolean> hooksMap;
     private Set<Material> blacklist;
     private Set<Material> whitelist;
 
-    private int headCacheTimeout;
     private String doorPrice, drawbridgePrice, portcullisPrice, slidingDoorPrice;
 
     private final ArrayList<ConfigOption> configOptionsList;
@@ -179,18 +179,29 @@ public class ConfigLoader
                                       "The sound is only played at the engine of a door.",
                                       "Use a value of 0 or less to completely disable all sounds."};
 
-//        String[] headCacheTimeoutComment = { "Amount of time (in minutes) to cache player heads. -1 means no caching (not recommended!), 0 = infinite cache.",
-//                                             "Takes up a bit more space than the powerblock caching, but makes GUI much faster." };
-
         String[] unsafeModeComment = { "Only load this plugin in supported environments.",
                                        "Enabling this is NOT SUPPORTED and you WILL run into issues. ",
                                        "By enabling this option you agree that you will not complain if any issues arise and that it is completely",
                                        "your own responsibility.",
                                        "If you need to enable this option you are doing it wrong and you should rethink your life choices." };
-        
+
         String[] allowNotificationsComment = { "Whether or not to allow toggle notifications. ",
                                                "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
                                                "This is on a per-door basis."};
+
+        String[] allowCodeGenerationComment = { "On unsupported versions of Minecraft, BigDoors can try to generate the required code itself.",
+                                                "This means that the plugin may work even on unsupported versions, ",
+                                                "but also that unexpected issues might pop up! Be sure to test everything when using this!",
+                                                "Note that this is geared only towards NEWER version of Minecraft!",
+                                                "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work.",
+                                                "There are many other reasons than the code to be generated why it will not work.",
+                                                "The code being generated is the code used to create/move/etc animated blocks.",
+                                                "So when testing this on your TEST SERVER and AFTER MAKING A BACKUP, be sure to check that that still works."};
+
+        String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
+                                                "This may be useful in case the mappings change within a single version.",
+                                                "In general, however, you will not need this and you're better off not using it!",
+                                                "When this option is enabled, it overrides the \"" + allowCodeGeneration + "\" option."};
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
@@ -312,6 +323,12 @@ public class ConfigLoader
 
         allowNotifications = config.getBoolean("allowNotifications", true);
         configOptionsList.add(new ConfigOption("allowNotifications", allowNotifications, allowNotificationsComment));
+
+        allowCodeGeneration = config.getBoolean("allowCodeGeneration", false);
+        configOptionsList.add(new ConfigOption("allowCodeGeneration", allowCodeGeneration, allowCodeGenerationComment));
+
+        forceCodeGeneration = config.getBoolean("forceCodeGeneration", false);
+        configOptionsList.add(new ConfigOption("forceCodeGeneration", forceCodeGeneration, forceCodeGenerationComment));
 
         enableFileLogging = config.getBoolean("enableFileLogging", true);
         configOptionsList.add(new ConfigOption("enableFileLogging", enableFileLogging, enableFileLoggingComment));
@@ -617,11 +634,6 @@ public class ConfigLoader
         return maxBlocksToMove;
     }
 
-    public int headCacheTimeout()
-    {
-        return headCacheTimeout;
-    }
-
     public String doorPrice()
     {
         return doorPrice;
@@ -671,7 +683,17 @@ public class ConfigLoader
     {
         return allowNotifications;
     }
-    
+
+    public boolean allowCodeGeneration()
+    {
+        return allowNotifications;
+    }
+
+    public boolean forceCodeGeneration()
+    {
+        return forceCodeGeneration;
+    }
+
     /**
      * Gets a set of blacklisted materials as defined in the config.
      *

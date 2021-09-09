@@ -12,6 +12,10 @@
         <module>nms</module>
     </modules>
 
+    <properties>
+        <dependency.version.annotations>21.0.1</dependency.version.annotations>
+    </properties>
+
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -30,6 +34,13 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>3.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${dependency.version.annotations}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

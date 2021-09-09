@@ -19,6 +19,10 @@
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
+        <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
+        <dependency.version.bytebuddy>1.11.8</dependency.version.bytebuddy>
+        <dependency.version.mockito>3.10.0</dependency.version.mockito>
+        <dependency.version.junit>5.8.0-M1</dependency.version.junit>
     </properties>
 
     <repositories>
@@ -143,6 +147,41 @@
             <version>0.1.8.33-ALPHA</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.cryptomorin/XSeries -->
+        <dependency>
+            <groupId>com.github.cryptomorin</groupId>
+            <artifactId>XSeries</artifactId>
+            <version>8.4.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${dependency.version.bytebuddy}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>9.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>9.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
+            <version>9.2</version>
+            <scope>provided</scope>
+        </dependency>
+
 
         <!-- bStats -->
         <dependency>
@@ -339,6 +378,32 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/griefdefenderapi-2.0.0-SNAPSHOT.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${dependency.version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -387,7 +452,19 @@
                             <pattern>nl.pim16aap2.jcalculator</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>com.cryptomorin.xseries</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.xseries</shadedPattern>
+                        </relocation>
                     </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>com.github.cryptomorin:XSeries</artifact>
+                            <includes>
+                                <include>com/cryptomorin/xseries/XMaterial*</include>
+                            </includes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -397,6 +474,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${dependency.version.surefire}</version>
+                <configuration>
+                    <trimStackTrace>false</trimStackTrace>
+                    <useFile>false</useFile>
+                </configuration>
             </plugin>
         </plugins>
     </build>

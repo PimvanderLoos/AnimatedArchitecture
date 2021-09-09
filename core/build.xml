@@ -30,7 +30,7 @@
     </target>
 
     <target name="checksum" depends="CreateJar">
-        <checksum file="${jarDir}/BigDoors.jar" algorithm="SHA-256" forceOverwrite="yes"/>
+    	<checksum file="${jarDir}/BigDoors.jar" algorithm="SHA-256" forceOverwrite="yes"/>
     </target>
 
     <target name="all" depends="CreateJar, checksum"/>
