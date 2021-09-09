@@ -3,12 +3,6 @@ package nl.pim16aap2.bigdoors.doors;
 import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DoorRegistry;
-import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -26,25 +20,12 @@ import java.util.UUID;
  */
 public final class DoorBaseFactory
 {
-    private final IPLogger logger;
-    private final ILocalizer localizer;
-    private final DatabaseManager databaseManager;
-    private final DoorOpener doorOpener;
-    private final DoorRegistry doorRegistry;
-    private final DoorActivityManager doorActivityManager;
-    private final LimitsManager limitsManager;
+    private final DoorBase.Factory doorBaseFactory;
 
     @Inject //
-    DoorBaseFactory(IPLogger logger, ILocalizer localizer, DatabaseManager databaseManager, DoorOpener doorOpener,
-                    DoorRegistry doorRegistry, DoorActivityManager doorActivityManager, LimitsManager limitsManager)
+    DoorBaseFactory(DoorBase.Factory doorBaseFactory)
     {
-        this.logger = logger;
-        this.localizer = localizer;
-        this.databaseManager = databaseManager;
-        this.doorOpener = doorOpener;
-        this.doorRegistry = doorRegistry;
-        this.doorActivityManager = doorActivityManager;
-        this.limitsManager = limitsManager;
+        this.doorBaseFactory = doorBaseFactory;
     }
 
     /**
@@ -54,8 +35,7 @@ public final class DoorBaseFactory
      */
     public BuilderUID builder()
     {
-        return new DoorBaseBuilder(logger, localizer, databaseManager, doorOpener, doorRegistry, doorActivityManager,
-                                   limitsManager);
+        return new DoorBaseBuilder(doorBaseFactory);
     }
 
     @RequiredArgsConstructor
@@ -63,13 +43,7 @@ public final class DoorBaseFactory
         implements BuilderUID, BuilderName, BuilderCuboid, BuilderEngine, BuilderPowerBlock, BuilderWorld,
         BuilderIsOpen, BuilderIsLocked, BuilderOpenDir, BuilderPrimeOwner, BuilderDoorOwners, Builder
     {
-        private final IPLogger logger;
-        private final ILocalizer localizer;
-        private final DatabaseManager databaseManager;
-        private final DoorOpener doorOpener;
-        private final DoorRegistry doorRegistry;
-        private final DoorActivityManager doorActivityManager;
-        private final LimitsManager limitsManager;
+        private final DoorBase.Factory doorBaseFactory;
 
         private long doorUID;
         private String name;
@@ -173,9 +147,8 @@ public final class DoorBaseFactory
         @Override
         public DoorBase build()
         {
-            return new DoorBase(doorUID, name, cuboid, engine, powerBlock, world, isOpen, isLocked, openDir, primeOwner,
-                                doorOwners, logger, localizer, databaseManager, doorOpener, doorRegistry,
-                                doorActivityManager, limitsManager);
+            return doorBaseFactory.create(doorUID, name, cuboid, engine, powerBlock, world, isOpen,
+                                          isLocked, openDir, primeOwner, doorOwners);
         }
     }
 

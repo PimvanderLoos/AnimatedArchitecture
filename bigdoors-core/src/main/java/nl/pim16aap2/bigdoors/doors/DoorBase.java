@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -103,9 +106,12 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter(AccessLevel.PACKAGE)
     private final LimitsManager limitsManager;
 
-    DoorBase(long doorUID, String name, Cuboid cuboid, Vector3Di engine, Vector3Di powerBlock, IPWorld world,
-             boolean isOpen, boolean isLocked, RotateDirection openDir, DoorOwner primeOwner,
-             @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
+    @AssistedInject //
+    DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
+             @Assisted("engine") Vector3Di engine, @Assisted("powerBlock") Vector3Di powerBlock,
+             @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
+             @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
+             @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
              DatabaseManager databaseManager, DoorOpener doorOpener, DoorRegistry doorRegistry,
              DoorActivityManager doorActivityManager, LimitsManager limitsManager)
     {
@@ -327,5 +333,14 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     {
         final String objString = obj == null ? "NULL" : obj.toString();
         return name + ": " + objString + "\n";
+    }
+
+    @AssistedFactory
+    interface Factory
+    {
+        DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("engine") Vector3Di engine,
+                        @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
+                        @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
+                        RotateDirection openDir, DoorOwner primeOwner, @Nullable Map<UUID, DoorOwner> doorOwners);
     }
 }
