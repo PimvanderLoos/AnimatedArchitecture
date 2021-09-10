@@ -4,8 +4,10 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.IMessageable;
+import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -14,6 +16,8 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
+import javax.inject.Named;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
@@ -28,21 +32,25 @@ public class Toggle extends BaseCommand
     protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
+    private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final DoorRetriever.AbstractRetriever[] doorRetrievers;
-    private final DoorOpener doorOpener;
+    private final IMessageable messageableServer;
     private final DoorActionType doorActionType;
     private final double time;
 
     @AssistedInject //
     Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
            @Assisted DoorActionType doorActionType, @Assisted double time,
-           DoorOpener doorOpener, @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
+           DoorToggleRequestFactory doorToggleRequestFactory,
+           @Named("MessageableServer") IMessageable messageableServer,
+           @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         super(commandSender, logger, localizer);
         this.doorActionType = doorActionType;
         this.time = time;
+        this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.doorRetrievers = doorRetrievers;
-        this.doorOpener = doorOpener;
+        this.messageableServer = messageableServer;
     }
 
     @Override
@@ -108,8 +116,14 @@ public class Toggle extends BaseCommand
             return;
         }
 
-        doorOpener.animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
-                                    time, false, doorActionType);
+        final Optional<IPPlayer> playerOptional = getCommandSender().getPlayer();
+        doorToggleRequestFactory.builder()
+                                .door(door)
+                                .doorActionCause(doorActionCause)
+                                .doorActionType(doorActionType)
+                                .responsible(playerOptional.orElse(null))
+                                .messageReceiver(playerOptional.isPresent() ? playerOptional.get() : messageableServer)
+                                .build().execute();
     }
 
     private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,

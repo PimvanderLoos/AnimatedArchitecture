@@ -82,16 +82,32 @@ public class DoorToggleRequestFactory
         }
 
         @Override
-        public IBuilder responsible(IPPlayer responsible)
+        public IBuilder responsible(@Nullable IPPlayer responsible)
         {
             this.responsible = responsible;
             return this;
         }
 
         @Override
-        public IBuilder responsible(PPlayerData playerData)
+        public IBuilder responsible(@Nullable PPlayerData playerData)
         {
+            if (playerData == null)
+            {
+                responsible = null;
+                return this;
+            }
             return responsible(playerFactory.create(playerData));
+        }
+
+        @Override
+        public IBuilder responsible(@Nullable DoorOwner doorOwner)
+        {
+            if (doorOwner == null)
+            {
+                responsible = null;
+                return this;
+            }
+            return responsible(doorOwner.pPlayerData());
         }
 
         @Override
@@ -202,20 +218,17 @@ public class DoorToggleRequestFactory
          *     things like checking access to certain areas.
          * @return The next step of the guided builder process.
          */
-        IBuilder responsible(IPPlayer responsible);
+        IBuilder responsible(@Nullable IPPlayer responsible);
 
         /**
          * See {@link #responsible(IPPlayer)}.
          */
-        IBuilder responsible(PPlayerData playerData);
+        IBuilder responsible(@Nullable PPlayerData playerData);
 
         /**
          * See {@link #responsible(IPPlayer)}.
          */
-        default IBuilder responsible(DoorOwner doorOwner)
-        {
-            return responsible(doorOwner.pPlayerData());
-        }
+        IBuilder responsible(@Nullable DoorOwner doorOwner);
 
         /**
          * Optional: Sets the message receiver of the toggle request. The message receiver will receive all messages
