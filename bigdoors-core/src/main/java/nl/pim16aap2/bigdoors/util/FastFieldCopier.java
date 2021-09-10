@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.Nullable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -20,28 +19,6 @@ import java.lang.reflect.Field;
 @SuppressWarnings("unused")
 public abstract class FastFieldCopier<S, T>
 {
-    /**
-     * The {@link Unsafe} instance.
-     */
-    private static final @Nullable Unsafe UNSAFE;
-
-    static
-    {
-        // Get the Unsafe instance.
-        @Nullable Unsafe unsafe = null;
-        try
-        {
-            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            unsafe = (Unsafe) unsafeField.get(null);
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-        }
-        UNSAFE = unsafe;
-    }
-
     protected FastFieldCopier()
     {
     }
@@ -81,10 +58,11 @@ public abstract class FastFieldCopier<S, T>
      *     The type of the target class.
      * @return A new {@link FastFieldCopier} for the appropriate type.
      */
-    public static <S, T> FastFieldCopier<S, T> of(Class<S> sourceClass, String nameSource,
+    public static <S, T> FastFieldCopier<S, T> of(IPLogger logger, Unsafe unsafe,
+                                                  Class<S> sourceClass, String nameSource,
                                                   Class<T> targetClass, String nameTarget)
     {
-        final Unsafe unsafe = Util.requireNonNull(UNSAFE, "Unsafe");
+
         final long offsetSource;
         final long offsetTarget;
         final Class<?> targetType;
@@ -105,7 +83,7 @@ public abstract class FastFieldCopier<S, T>
         catch (Exception t)
         {
             final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
+            logger.logThrowableSilently(e);
             throw e;
         }
 
@@ -199,5 +177,15 @@ public abstract class FastFieldCopier<S, T>
                 unsafe.putObject(target, offsetTarget, unsafe.getObject(source, offsetSource));
             }
         };
+    }
+
+
+    public static <S, T> FastFieldCopier<S, T> of(IPLogger logger,
+                                                  Class<S> sourceClass, String nameSource,
+                                                  Class<T> targetClass, String nameTarget)
+        throws Exception
+    {
+        final Unsafe unsafe = UnsafeGetter.getUnsafe();
+        return of(logger, unsafe, sourceClass, nameSource, targetClass, nameTarget);
     }
 }

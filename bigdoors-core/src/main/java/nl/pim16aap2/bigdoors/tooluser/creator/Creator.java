@@ -198,35 +198,36 @@ public abstract class Creator extends ToolUser
     {
         factorySetName =
             new Step.Factory(localizer, "SET_NAME")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep)).messageKey("creator.base.give_name")
+                .stepExecutor(new StepExecutorString(logger, this::completeNamingStep))
+                .messageKey("creator.base.give_name")
                 .messageVariableRetriever(getDoorType()::getLocalizationKey);
 
         factorySetFirstPos =
             new Step.Factory(localizer, "SET_FIRST_POST")
-                .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
+                .stepExecutor(new StepExecutorPLocation(logger, this::setFirstPos));
 
         factorySetSecondPos =
             new Step.Factory(localizer, "SET_SECOND_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
+                .stepExecutor(new StepExecutorPLocation(logger, this::setSecondPos));
 
         factorySetEnginePos =
             new Step.Factory(localizer, "SET_ENGINE_POS")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
+                .stepExecutor(new StepExecutorPLocation(logger, this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
             new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
                 .messageKey("creator.base.set_power_block")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
+                .stepExecutor(new StepExecutorPLocation(logger, this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
             new Step.Factory(localizer, "SET_OPEN_DIRECTION")
-                .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
+                .stepExecutor(new StepExecutorString(logger, this::completeSetOpenDirStep))
                 .messageKey("creator.base.set_open_dir")
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
             new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
-                .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
+                .stepExecutor(new StepExecutorBoolean(logger, this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageKey("creator.base.confirm_door_price")
                 .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
@@ -234,7 +235,7 @@ public abstract class Creator extends ToolUser
 
         factoryCompleteProcess =
             new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
-                .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+                .stepExecutor(new StepExecutorVoid(logger, this::completeCreationProcess))
                 .waitForUserInput(false);
     }
 

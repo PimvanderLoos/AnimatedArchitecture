@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
+import nl.pim16aap2.bigdoors.util.UnsafeGetter;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
@@ -45,37 +46,22 @@ public class DoorSerializer<T extends AbstractDoor>
      */
     private final @Nullable Constructor<T> ctor;
 
-    private static final FastFieldSetter<AbstractDoor, DoorBase> FIELD_COPIER_DOOR_BASE =
-        FastFieldSetter.of(DoorBase.class, AbstractDoor.class, "doorBase");
-
-    /**
-     * The {@link Unsafe} instance.
-     */
-    private static final @Nullable Unsafe UNSAFE;
-
-    static
-    {
-        // Get the Unsafe instance.
-        @Nullable Unsafe unsafe = null;
-        try
-        {
-            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            unsafe = (Unsafe) unsafeField.get(null);
-        }
-        catch (Exception e)
-        {// TODO: Use logger.
-            e.printStackTrace();
-        }
-        UNSAFE = unsafe;
-    }
+    private final @Nullable FastFieldSetter<AbstractDoor, DoorBase> fieldCopierDoorBase;
 
     private final IPLogger logger;
+
+    private final @Nullable Unsafe unsafe;
 
     public DoorSerializer(Class<T> doorClass, IPLogger logger)
     {
         this.doorClass = doorClass;
         this.logger = logger;
+        unsafe = UnsafeGetter.getUnsafe(logger);
+
+        if (unsafe == null)
+            fieldCopierDoorBase = null;
+        else
+            fieldCopierDoorBase = FastFieldSetter.of(logger, unsafe, DoorBase.class, AbstractDoor.class, "doorBase");
 
         if (Modifier.isAbstract(doorClass.getModifiers()))
             throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
@@ -92,7 +78,7 @@ public class DoorSerializer<T extends AbstractDoor>
                 " does not have DoorData ctor! Using Unsafe instead!");
         }
         ctor = ctorTmp;
-        if (ctor == null && UNSAFE == null)
+        if (ctor == null && unsafe == null)
             throw new RuntimeException("Could not find CTOR for class " + getDoorTypeName() +
                                            " and Unsafe is unavailable! This type cannot be enabled!");
 
@@ -240,12 +226,12 @@ public class DoorSerializer<T extends AbstractDoor>
     private @Nullable T instantiateUnsafe(DoorBase doorBase)
         throws InstantiationException
     {
-        if (UNSAFE == null)
+        if (unsafe == null || fieldCopierDoorBase == null)
             return null;
 
         @SuppressWarnings("unchecked") //
-        final T door = (T) UNSAFE.allocateInstance(doorClass);
-        FIELD_COPIER_DOOR_BASE.copy(door, doorBase);
+        final T door = (T) unsafe.allocateInstance(doorClass);
+        fieldCopierDoorBase.copy(door, doorBase);
         return door;
     }
 

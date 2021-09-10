@@ -1,10 +1,12 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -25,9 +27,10 @@ public class PowerBlockRelocator extends ToolUser
     private final AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(IPPlayer player, AbstractDoor door)
+    public PowerBlockRelocator(IPPlayer player, AbstractDoor door, IPLogger logger, ILocalizer localizer,
+                               ToolUserManager toolUserManager)
     {
-        super(player);
+        super(player, logger, localizer, toolUserManager);
         this.door = door;
     }
 
@@ -42,8 +45,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
             return false;
         }
 
@@ -64,19 +66,17 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new NullPointerException("newLoc is null, which should not be possible at this point!"));
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition());
             door.syncData();
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.success"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
     }
@@ -85,14 +85,14 @@ public class PowerBlockRelocator extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")
+        final Step stepPowerblockRelocatorInit = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
-            .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
+            .stepExecutor(new StepExecutorPLocation(logger, this::moveToLoc))
             .waitForUserInput(true).construct();
 
-        final Step stepPowerblockRelocatorCompleted = new Step.Factory("RELOCATE_POWER_BLOCK_COMPLETED")
+        final Step stepPowerblockRelocatorCompleted = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_COMPLETED")
             .messageKey("tool_user.powerblock_relocator.success")
-            .stepExecutor(new StepExecutorVoid(this::completeProcess))
+            .stepExecutor(new StepExecutorVoid(logger, this::completeProcess))
             .waitForUserInput(false).construct();
 
         return Arrays.asList(stepPowerblockRelocatorInit, stepPowerblockRelocatorCompleted);

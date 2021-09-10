@@ -3,6 +3,9 @@ package nl.pim16aap2.bigdoors.tooluser;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -26,16 +29,17 @@ public class PowerBlockInspector extends ToolUser
     @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(IPPlayer player, boolean bypassPermission)
+    public PowerBlockInspector(IPPlayer player, boolean bypassPermission, IPLogger logger, ILocalizer localizer,
+                               ToolUserManager toolUserManager)
     {
-        super(player);
+        super(player, logger, localizer, toolUserManager);
         this.bypassPermission = bypassPermission;
     }
 
     @SuppressWarnings("unused")
-    public PowerBlockInspector(IPPlayer player)
+    public PowerBlockInspector(IPPlayer player, IPLogger logger, ILocalizer localizer, ToolUserManager toolUserManager)
     {
-        this(player, false);
+        this(player, false, logger, localizer, toolUserManager);
     }
 
     @Override
@@ -54,9 +58,9 @@ public class PowerBlockInspector extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
+        final Step stepBlocksToMove = new Step.Factory(localizer, "INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
-            .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
+            .stepExecutor(new StepExecutorPLocation(logger, this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
     }
