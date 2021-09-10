@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import org.bukkit.ChatColor;
@@ -95,10 +94,7 @@ public final class SpigotUtil
         if (ret != null)
             return ret;
 
-        final IllegalStateException e =
-            new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
-        BigDoors.get().getPLogger().logThrowable(e);
-        return BlockFace.DOWN;
+        throw new IllegalStateException("Failing to find spigot mapping for PBlockFace: " + mbf);
     }
 
     /**
@@ -114,10 +110,7 @@ public final class SpigotUtil
         if (ret != null)
             return ret;
 
-        final IllegalStateException e =
-            new IllegalStateException("Failing to find mapping for lockFace: " + bf);
-        BigDoors.get().getPLogger().logThrowable(e);
-        return PBlockFace.NONE;
+        throw new IllegalStateException("Failing to find mapping for lockFace: " + bf);
     }
 
     /**

@@ -100,7 +100,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this, logger);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }

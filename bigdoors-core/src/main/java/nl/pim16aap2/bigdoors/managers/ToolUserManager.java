@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -25,13 +25,15 @@ public final class ToolUserManager extends Restartable
     private final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
     private final IPLogger logger;
     private final ILocalizer localizer;
+    private final IPExecutor executor;
 
     @Inject
-    public ToolUserManager(IRestartableHolder holder, IPLogger logger, ILocalizer localizer)
+    public ToolUserManager(IRestartableHolder holder, IPLogger logger, ILocalizer localizer, IPExecutor executor)
     {
         super(holder);
         this.logger = logger;
         this.localizer = localizer;
+        this.executor = executor;
     }
 
     public void registerToolUser(ToolUser toolUser)
@@ -148,7 +150,7 @@ public final class ToolUserManager extends Restartable
         };
 
         pair.second = timerTask;
-        BigDoors.get().getPlatform().getPExecutor().runSyncLater(timerTask, time);
+        executor.runSyncLater(timerTask, time);
     }
 
     /**

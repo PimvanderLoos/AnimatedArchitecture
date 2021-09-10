@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import lombok.AllArgsConstructor;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -23,6 +22,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -31,6 +31,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -52,6 +53,8 @@ public abstract class Creator extends ToolUser
     private final Context context;
 
     protected final LimitsManager limitsManager;
+
+    protected final CompletableFutureHandler handler;
 
     /**
      * The name of the door that is to be created.
@@ -173,6 +176,7 @@ public abstract class Creator extends ToolUser
     {
         super(player, context.logger, context.localizer, context.toolUserManager);
         this.context = context;
+        handler = context.handler;
         limitsManager = context.limitsManager;
 
         player.sendMessage(localizer.getMessage("creator.base.init"));
@@ -182,7 +186,6 @@ public abstract class Creator extends ToolUser
         prepareCurrentStep();
     }
 
-    @AllArgsConstructor
     public static final class Context
     {
         private final DoorBaseFactory doorBaseFactory;
@@ -191,6 +194,21 @@ public abstract class Creator extends ToolUser
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
+        private final CompletableFutureHandler handler;
+
+        @Inject
+        public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
+                       ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
+                       CompletableFutureHandler handler)
+        {
+            this.doorBaseFactory = doorBaseFactory;
+            this.logger = logger;
+            this.localizer = localizer;
+            this.toolUserManager = toolUserManager;
+            this.databaseManager = databaseManager;
+            this.limitsManager = limitsManager;
+            this.handler = handler;
+        }
     }
 
     @Override
@@ -507,7 +525,7 @@ public abstract class Creator extends ToolUser
                     getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
                     logger.severe("Failed to insert door after creation!");
                 }
-            }).exceptionally(Util::exceptionally);
+            }).exceptionally(handler::exceptionally);
     }
 
     /**

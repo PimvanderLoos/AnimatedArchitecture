@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import dagger.Module;
 import dagger.Provides;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -15,13 +15,18 @@ public class BigDoorsSpigotModule
 {
     private final BigDoorsSpigot bigDoorsSpigot;
     private final JavaPlugin javaPlugin;
-    private final ISpigotPlatform spigotPlatform;
 
-    BigDoorsSpigotModule(BigDoorsSpigot bigDoorsSpigot, JavaPlugin javaPlugin, ISpigotPlatform spigotPlatform)
+    BigDoorsSpigotModule(BigDoorsSpigot bigDoorsSpigot, JavaPlugin javaPlugin)
     {
         this.bigDoorsSpigot = bigDoorsSpigot;
         this.javaPlugin = javaPlugin;
-        this.spigotPlatform = spigotPlatform;
+    }
+
+    @Provides
+    @Singleton
+    IBigDoorsPlatform bindBigDoorsPlatform()
+    {
+        return bigDoorsSpigot;
     }
 
     @Provides
@@ -36,13 +41,6 @@ public class BigDoorsSpigotModule
     JavaPlugin providePlugin()
     {
         return javaPlugin;
-    }
-
-    @Provides
-    @Singleton
-    ISpigotPlatform provideSpigotPlatform()
-    {
-        return spigotPlatform;
     }
 
     @Provides

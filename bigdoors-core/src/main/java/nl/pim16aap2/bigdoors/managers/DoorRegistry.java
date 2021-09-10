@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -49,9 +49,10 @@ public final class DoorRegistry extends Restartable
      *     How long to keep stuff in the cache.
      */
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
+    private DoorRegistry(IRestartableHolder restartableHolder, int concurrencyLevel,
+                         int initialCapacity, Duration cacheExpiry)
     {
-        super(BigDoors.get());
+        super(restartableHolder);
         init(concurrencyLevel, initialCapacity, cacheExpiry);
     }
 
@@ -61,9 +62,9 @@ public final class DoorRegistry extends Restartable
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
     @Inject
-    public DoorRegistry()
+    public DoorRegistry(IRestartableHolder restartableHolder)
     {
-        this(CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     /**
@@ -71,9 +72,9 @@ public final class DoorRegistry extends Restartable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static DoorRegistry uncached()
+    public static DoorRegistry uncached(IRestartableHolder restartableHolder)
     {
-        final DoorRegistry doorRegistry = new DoorRegistry(-1, -1, Duration.ofMillis(-1));
+        final DoorRegistry doorRegistry = new DoorRegistry(restartableHolder, -1, -1, Duration.ofMillis(-1));
         doorRegistry.acceptNewEntries = false;
         return doorRegistry;
     }

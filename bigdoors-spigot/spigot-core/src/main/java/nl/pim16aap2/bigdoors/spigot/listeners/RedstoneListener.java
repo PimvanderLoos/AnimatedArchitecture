@@ -2,11 +2,12 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,14 +34,19 @@ public class RedstoneListener extends AbstractListener
 {
     private final ConfigLoaderSpigot config;
     private final IPLogger logger;
+    private final CompletableFutureHandler handler;
+    private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final Set<Material> powerBlockTypes = new HashSet<>();
 
     @Inject
-    public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger)
+    public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
+                            CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
         this.logger = logger;
+        this.handler = handler;
+        this.doorToggleRequestFactory = doorToggleRequestFactory;
     }
 
     /**
@@ -76,9 +82,11 @@ public class RedstoneListener extends AbstractListener
         BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> BigDoors.get().getDoorOpener()
-                                .animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
-                                                  DoorActionType.TOGGLE)));
+                door -> doorToggleRequestFactory.builder()
+                                                .door(door)
+                                                .doorActionCause(DoorActionCause.REDSTONE)
+                                                .doorActionType(DoorActionType.TOGGLE)
+                                                .build().execute()));
     }
 
     /**
@@ -140,6 +148,6 @@ public class RedstoneListener extends AbstractListener
         if (!BigDoors.get().getPlatform().getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getName()))
             return;
 
-        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(Util::exceptionally);
+        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(handler::exceptionally);
     }
 }

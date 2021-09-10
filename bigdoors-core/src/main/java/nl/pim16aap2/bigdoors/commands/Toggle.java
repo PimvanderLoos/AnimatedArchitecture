@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -42,10 +43,10 @@ public class Toggle extends BaseCommand
     Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
            @Assisted DoorActionType doorActionType, @Assisted double time,
            DoorToggleRequestFactory doorToggleRequestFactory,
-           @Named("MessageableServer") IMessageable messageableServer,
+           @Named("MessageableServer") IMessageable messageableServer, CompletableFutureHandler handler,
            @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.doorActionType = doorActionType;
         this.time = time;
         this.doorToggleRequestFactory = doorToggleRequestFactory;

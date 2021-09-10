@@ -29,6 +29,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -123,6 +124,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @EqualsAndHashCode.Exclude
     private final IPPlayerFactory playerFactory;
 
+    @EqualsAndHashCode.Exclude
+    private final Provider<BlockMover.Context> blockMoverContextProvider;
+
     @AssistedInject //
     DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
              @Assisted("engine") Vector3Di engine, @Assisted("powerBlock") Vector3Di powerBlock,
@@ -132,7 +136,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
              DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
              LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
              DoorToggleRequestFactory doorToggleRequestFactory, IPPlayerFactory playerFactory,
-             IBigDoorsPlatform bigDoorsPlatform)
+             IBigDoorsPlatform bigDoorsPlatform, Provider<BlockMover.Context> blockMoverContextProvider)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -164,6 +168,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.playerFactory = playerFactory;
         this.bigDoorsPlatform = bigDoorsPlatform;
+        this.blockMoverContextProvider = blockMoverContextProvider;
     }
 
     // Copy constructor
@@ -192,6 +197,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         doorToggleRequestFactory = other.doorToggleRequestFactory;
         playerFactory = other.playerFactory;
         bigDoorsPlatform = other.bigDoorsPlatform;
+        blockMoverContextProvider = other.blockMoverContextProvider;
     }
 
     /**
@@ -424,7 +430,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
         try
         {
-            final BlockMover.Context context = new BlockMover.Context(doorActivityManager, autoCloseScheduler, logger);
+            final BlockMover.Context context = blockMoverContextProvider.get();
             doorOpeningHelper.registerBlockMover(abstractDoor.constructBlockMover(context, cause, time, skipAnimation,
                                                                                   newCuboid, responsible, actionType));
         }

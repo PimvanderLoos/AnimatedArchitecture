@@ -1,7 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
@@ -26,12 +27,16 @@ import javax.inject.Singleton;
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsSpigot plugin;
+    private final DoorTypeManager doorTypeManager;
+    private final IPLogger logger;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsSpigot plugin)
+    public DebugReporterSpigot(BigDoorsSpigot plugin, DoorTypeManager doorTypeManager, IPLogger logger)
     {
         super(plugin);
         this.plugin = plugin;
+        this.doorTypeManager = doorTypeManager;
+        this.logger = logger;
     }
 
     @Override
@@ -45,14 +50,14 @@ public class DebugReporterSpigot extends DebugReporter
             .append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n')
 
             .append("Registered door types: ")
-            .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
+            .append(Util.toString(doorTypeManager.getRegisteredDoorTypes()))
             .append('\n')
 
             .append("Enabled door types:    ")
-            .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
+            .append(Util.toString(doorTypeManager.getEnabledDoorTypes()))
             .append('\n')
 
-            .append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName())
+            .append("SpigotPlatform: ").append(platform.getClass().getName())
             .append('\n')
 
 //            // TODO: Implement this:
@@ -95,8 +100,7 @@ public class DebugReporterSpigot extends DebugReporter
             }
             catch (Exception e)
             {
-                BigDoors.get().getPLogger()
-                        .logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
+                logger.logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
                 sb.append("ERROR: ").append(clz.getName()).append('\n');
             }
         }

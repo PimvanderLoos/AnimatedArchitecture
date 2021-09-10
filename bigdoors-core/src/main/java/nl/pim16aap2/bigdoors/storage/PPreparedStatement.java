@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.functional.CheckedTriConsumer;
 
@@ -153,22 +152,12 @@ public class PPreparedStatement
     public PPreparedStatement setRawString(int idx, String obj)
     {
         if (!IStorage.isValidTableName(obj))
-        {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalArgumentException(
-                        "Trying to set table name using an invalid string: " + obj));
-            return this;
-        }
+            throw new IllegalArgumentException("Trying to set table name using an invalid string: " + obj);
 
         final String tmp = statement;
         int questionMarkPos = tmp.indexOf('?');
         if (questionMarkPos == -1)
-        {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalArgumentException(
-                        "Trying to set table name in a statement without any variables!"));
-            return this;
-        }
+            throw new IllegalArgumentException("Trying to set table name in a statement without any variables!");
 
         // TODO: Precompute the indices of the question marks.
         int questionMarkIDX = 1;

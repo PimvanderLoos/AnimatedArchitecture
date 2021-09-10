@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -27,9 +28,9 @@ public class Cancel extends BaseCommand
     @AssistedInject //
     Cancel(@Assisted ICommandSender commandSender, IPLogger logger,
            nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager,
-           DoorSpecificationManager doorSpecificationManager)
+           DoorSpecificationManager doorSpecificationManager, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.toolUserManager = toolUserManager;
         this.doorSpecificationManager = doorSpecificationManager;
     }

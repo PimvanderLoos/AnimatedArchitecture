@@ -7,6 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -25,9 +26,10 @@ public class Delete extends DoorTargetCommand
     @AssistedInject //
     Delete(@Assisted ICommandSender commandSender, IPLogger logger,
            nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager)
+           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager,
+           CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE, handler);
         this.databaseManager = databaseManager;
     }
 

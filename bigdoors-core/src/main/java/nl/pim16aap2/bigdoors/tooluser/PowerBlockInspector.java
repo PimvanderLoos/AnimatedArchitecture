@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -29,8 +32,9 @@ public class PowerBlockInspector extends ToolUser
     @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(IPPlayer player, boolean bypassPermission, IPLogger logger, ILocalizer localizer,
-                               ToolUserManager toolUserManager)
+    @AssistedInject
+    public PowerBlockInspector(@Assisted IPPlayer player, @Assisted boolean bypassPermission, IPLogger logger,
+                               ILocalizer localizer, ToolUserManager toolUserManager)
     {
         super(player, logger, localizer, toolUserManager);
         this.bypassPermission = bypassPermission;
@@ -63,5 +67,11 @@ public class PowerBlockInspector extends ToolUser
             .stepExecutor(new StepExecutorPLocation(logger, this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
+    }
+
+    @AssistedFactory
+    public interface Factory
+    {
+        PowerBlockInspector create(IPPlayer player, boolean bypassPermission);
     }
 }

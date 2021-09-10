@@ -2,11 +2,12 @@ package nl.pim16aap2.bigdoors.util;
 
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
 
 import javax.inject.Inject;
@@ -25,11 +26,21 @@ import java.util.concurrent.CompletableFuture;
 public final class DoorRetriever
 {
     private final DatabaseManager databaseManager;
+    private final IConfigLoader config;
+    private final IPLogger logger;
+    private final DoorSpecificationManager doorSpecificationManager;
+    private final CompletableFutureHandler handler;
 
     @Inject
-    public DoorRetriever(DatabaseManager databaseManager)
+    public DoorRetriever(DatabaseManager databaseManager, IConfigLoader config, IPLogger logger,
+                         DoorSpecificationManager doorSpecificationManager,
+                         CompletableFutureHandler completableFutureHandler)
     {
         this.databaseManager = databaseManager;
+        this.config = config;
+        this.logger = logger;
+        this.doorSpecificationManager = doorSpecificationManager;
+        handler = completableFutureHandler;
     }
 
     /**
@@ -43,8 +54,8 @@ public final class DoorRetriever
     {
         final OptionalLong doorUID = Util.parseLong(doorID);
         return doorUID.isPresent() ?
-               new DoorUIDRetriever(databaseManager, doorUID.getAsLong()) :
-               new DoorNameRetriever(databaseManager, doorID);
+               new DoorUIDRetriever(handler, databaseManager, doorUID.getAsLong()) :
+               new DoorNameRetriever(handler, databaseManager, config, logger, doorSpecificationManager, doorID);
     }
 
     /**
@@ -56,7 +67,7 @@ public final class DoorRetriever
      */
     public AbstractRetriever of(long doorUID)
     {
-        return new DoorUIDRetriever(databaseManager, doorUID);
+        return new DoorUIDRetriever(handler, databaseManager, doorUID);
     }
 
     /**
@@ -187,12 +198,11 @@ public final class DoorRetriever
          *     The (future) optional door.
          * @return Either an empty list (if the optional was empty) or a singleton list (if the optional was not empty).
          */
-        private static CompletableFuture<List<AbstractDoor>> optionalToList(
+        private CompletableFuture<List<AbstractDoor>> optionalToList(
             CompletableFuture<Optional<AbstractDoor>> optionalDoor)
         {
             return optionalDoor.thenApply(door -> door.map(Collections::singletonList)
-                                                      .orElseGet(Collections::emptyList))
-                               .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                                      .orElseGet(Collections::emptyList));
         }
     }
 
@@ -208,8 +218,22 @@ public final class DoorRetriever
     private static final class DoorNameRetriever extends AbstractRetriever
     {
         @ToString.Exclude
+        private final CompletableFutureHandler handler;
+
+        @ToString.Exclude
         private final DatabaseManager databaseManager;
+
+        @ToString.Exclude
+        private IConfigLoader config;
+
+        @ToString.Exclude
+        private IPLogger logger;
+
+        @ToString.Exclude
+        private DoorSpecificationManager doorSpecificationManager;
+
         private final String name;
+
 
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor()
@@ -226,14 +250,15 @@ public final class DoorRetriever
         @Override
         public CompletableFuture<List<AbstractDoor>> getDoors()
         {
-            return databaseManager.getDoors(name).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            return databaseManager.getDoors(name)
+                                  .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
         public CompletableFuture<List<AbstractDoor>> getDoors(IPPlayer player)
         {
             return databaseManager.getDoors(player, name)
-                                  .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                  .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
         }
 
         @Override
@@ -248,10 +273,11 @@ public final class DoorRetriever
                     if (doorList.isEmpty())
                         return CompletableFuture.completedFuture(Optional.empty());
 
-                    return DelayedDoorSpecificationInputRequest
-                        .get(Duration.ofSeconds(BigDoors.get().getPlatform().getConfigLoader().specificationTimeout()),
-                             doorList, player);
-                }).exceptionally(Util::exceptionallyOptional);
+                    final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
+                    return DelayedDoorSpecificationInputRequest.get(logger, timeOut, doorList, player,
+                                                                    doorSpecificationManager);
+
+                }).exceptionally(handler::exceptionallyOptional);
         }
 
         /**
@@ -262,8 +288,7 @@ public final class DoorRetriever
          * @return An optional (future) {@link AbstractDoor} if exactly 1 existed in the list, otherwise an empty
          * optional.
          */
-        private static CompletableFuture<Optional<AbstractDoor>> listToOptional(
-            CompletableFuture<List<AbstractDoor>> list)
+        private CompletableFuture<Optional<AbstractDoor>> listToOptional(CompletableFuture<List<AbstractDoor>> list)
         {
             return list.<Optional<AbstractDoor>>thenApply(
                 doorList ->
@@ -271,7 +296,7 @@ public final class DoorRetriever
                     if (doorList.size() == 1)
                         return Optional.of(doorList.get(0));
                     return Optional.empty();
-                }).exceptionally(Util::exceptionallyOptional);
+                }).exceptionally(handler::exceptionallyOptional);
         }
     }
 
@@ -287,19 +312,23 @@ public final class DoorRetriever
     private static final class DoorUIDRetriever extends AbstractRetriever
     {
         @ToString.Exclude
+        private final CompletableFutureHandler handler;
+
+        @ToString.Exclude
         private final DatabaseManager databaseManager;
+
         private final long uid;
 
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor()
         {
-            return databaseManager.getDoor(uid).exceptionally(Util::exceptionallyOptional);
+            return databaseManager.getDoor(uid).exceptionally(handler::exceptionallyOptional);
         }
 
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
         {
-            return databaseManager.getDoor(player, uid).exceptionally(Util::exceptionallyOptional);
+            return databaseManager.getDoor(player, uid).exceptionally(handler::exceptionallyOptional);
         }
     }
 
@@ -349,12 +378,12 @@ public final class DoorRetriever
         @Override
         public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
         {
-            return futureDoor.<Optional<AbstractDoor>>thenApply(
+            return futureDoor.thenApply(
                 doorOpt ->
                 {
                     final boolean playerIsPresent = doorOpt.flatMap(door -> door.getDoorOwner(player)).isPresent();
                     return playerIsPresent ? doorOpt : Optional.empty();
-                }).exceptionally(Util::exceptionallyOptional);
+                });
         }
     }
 }

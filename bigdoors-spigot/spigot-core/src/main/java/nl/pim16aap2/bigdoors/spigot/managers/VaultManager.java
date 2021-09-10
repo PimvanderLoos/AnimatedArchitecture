@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.permission.Permission;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -13,6 +12,7 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.jcalculator.JCalculator;
@@ -47,13 +47,16 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     private final ILocalizer localizer;
     private final IPLogger logger;
     private final IConfigLoader configLoader;
+    private final DoorTypeManager doorTypeManager;
 
     @Inject
-    public VaultManager(ILocalizer localizer, IPLogger logger, IConfigLoader configLoader)
+    public VaultManager(ILocalizer localizer, IPLogger logger, IConfigLoader configLoader,
+                        DoorTypeManager doorTypeManager)
     {
         this.localizer = localizer;
         this.logger = logger;
         this.configLoader = configLoader;
+        this.doorTypeManager = doorTypeManager;
 
         flatPrices = new HashMap<>();
         if (isVaultInstalled())
@@ -72,7 +75,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
             return false;
         }
@@ -115,7 +118,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
      */
     private void init()
     {
-        for (final DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
             getFlatPrice(type);
     }
 
@@ -183,8 +186,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            BigDoors.get().getPLogger().warn("Economy not enabled! Could not subtract " + amount +
-                                                 " from the balance of player: " + player);
+            logger.warn("Economy not enabled! Could not subtract " + amount +
+                            " from the balance of player: " + player);
             return defaultValue;
         }
 
@@ -216,8 +219,8 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            BigDoors.get().getPLogger().warn("Economy not enabled! Could not subtract " + amount +
-                                                 " from the balance of player: " + player + " in world: " + worldName);
+            logger.warn("Economy not enabled! Could not subtract " + amount +
+                            " from the balance of player: " + player + " in world: " + worldName);
             return defaultValue;
         }
 
@@ -289,7 +292,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e);
+            logger.logThrowable(e);
             return false;
         }
     }
@@ -315,7 +318,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e);
+            logger.logThrowable(e);
             return false;
         }
     }
@@ -339,7 +342,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return OptionalInt.empty();
         }
@@ -363,7 +366,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return false;
         }
@@ -377,7 +380,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final @Nullable Player bukkitPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (bukkitPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalArgumentException("Failed to obtain BukkitPlayer for player: " + player.asString()));
             return false;
         }

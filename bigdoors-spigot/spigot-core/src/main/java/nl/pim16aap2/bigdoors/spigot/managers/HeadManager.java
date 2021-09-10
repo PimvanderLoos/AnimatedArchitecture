@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -38,6 +38,7 @@ public final class HeadManager extends Restartable
      */
     private transient TimedCache<UUID, Optional<ItemStack>> headMap;
     private final ConfigLoaderSpigot config;
+    private final CompletableFutureHandler handler;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -48,10 +49,11 @@ public final class HeadManager extends Restartable
      *     The BigDoors configuration.
      */
     @Inject
-    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
+    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config, CompletableFutureHandler handler)
     {
         super(holder);
         this.config = config;
+        this.handler = handler;
         init();
     }
 
@@ -79,7 +81,7 @@ public final class HeadManager extends Restartable
                                     () -> headMap.computeIfAbsent(playerUUID,
                                                                   (p) -> createItemStack(playerUUID, displayName))
                                                  .flatMap(Function.identity()))
-                                .exceptionally(Util::exceptionallyOptional);
+                                .exceptionally(handler::exceptionallyOptional);
     }
 
     private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)

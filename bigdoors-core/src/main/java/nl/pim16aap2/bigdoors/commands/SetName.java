@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -28,9 +29,9 @@ public class SetName extends BaseCommand
 
     @AssistedInject //
     SetName(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer, @Assisted String name,
-            ToolUserManager toolUserManager)
+            ToolUserManager toolUserManager, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.name = name;
         this.toolUserManager = toolUserManager;
     }

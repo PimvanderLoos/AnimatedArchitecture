@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -29,9 +30,9 @@ public class Lock extends DoorTargetCommand
     @AssistedInject //
     Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
          @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
-         IBigDoorsPlatform bigDoorsPlatform)
+         IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK, handler);
         this.lockedStatus = lockedStatus;
         this.bigDoorsPlatform = bigDoorsPlatform;
     }

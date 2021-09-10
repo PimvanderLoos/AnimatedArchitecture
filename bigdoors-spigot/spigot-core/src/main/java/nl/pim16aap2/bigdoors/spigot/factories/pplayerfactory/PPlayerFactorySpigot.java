@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.OfflinePPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -25,9 +25,14 @@ import java.util.concurrent.CompletableFuture;
 @Singleton
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
+    private final DatabaseManager databaseManager;
+    private final CompletableFutureHandler handler;
+
     @Inject
-    public PPlayerFactorySpigot()
+    public PPlayerFactorySpigot(DatabaseManager databaseManager, CompletableFutureHandler handler)
     {
+        this.databaseManager = databaseManager;
+        this.handler = handler;
     }
 
     @Override
@@ -46,8 +51,8 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
         if (player != null)
             return CompletableFuture.completedFuture(Optional.of(new PPlayerSpigot(player)));
 
-        return BigDoors.get().getDatabaseManager().getPlayerData(uuid)
-                       .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
-                       .exceptionally(Util::exceptionallyOptional);
+        return databaseManager.getPlayerData(uuid)
+                              .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
+                              .exceptionally(handler::exceptionallyOptional);
     }
 }

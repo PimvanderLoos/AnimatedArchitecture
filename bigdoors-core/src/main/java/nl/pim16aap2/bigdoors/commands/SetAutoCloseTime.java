@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -28,9 +29,10 @@ public class SetAutoCloseTime extends DoorTargetCommand
 
     @AssistedInject //
     SetAutoCloseTime(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                     @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int autoCloseTime)
+                     @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int autoCloseTime,
+                     CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER, handler);
         this.autoCloseTime = autoCloseTime;
     }
 

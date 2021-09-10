@@ -4,8 +4,8 @@ import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -27,6 +27,7 @@ public final class UpdateManager
     private final JavaPlugin plugin;
     private final IPLogger logger;
     private final IConfigLoader config;
+    private final CompletableFutureHandler handler;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
@@ -36,12 +37,13 @@ public final class UpdateManager
 
     @Inject
     public UpdateManager(BigDoorsSpigot plugin, @Named("pluginSpigotID") int pluginID, IPLogger logger,
-                         IConfigLoader config)
+                         IConfigLoader config, CompletableFutureHandler handler)
     {
         this.plugin = plugin;
         this.logger = logger;
         this.config = config;
-        updater = new UpdateChecker(plugin, pluginID, logger);
+        this.handler = handler;
+        updater = new UpdateChecker(plugin, pluginID, logger, handler);
     }
 
     /**
@@ -125,7 +127,7 @@ public final class UpdateManager
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());
                 }
-            }).exceptionally(Util::exceptionally);
+            }).exceptionally(handler::exceptionally);
     }
 
     /**

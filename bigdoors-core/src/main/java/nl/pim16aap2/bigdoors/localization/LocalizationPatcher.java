@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -25,10 +25,12 @@ final class LocalizationPatcher
 {
     @Getter
     private final List<LocaleFile> patchFiles;
+    private final IPLogger logger;
 
-    LocalizationPatcher(Path directory, String baseName)
+    LocalizationPatcher(Path directory, String baseName, IPLogger logger)
         throws IOException
     {
+        this.logger = logger;
         // Ensure the base patch file exists.
         LocalizationUtil.ensureFileExists(directory.resolve(baseName + ".properties"));
         patchFiles = LocalizationUtil.getLocaleFilesInDirectory(directory, baseName);
@@ -59,7 +61,7 @@ final class LocalizationPatcher
      */
     void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
-        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path());
+        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path(), logger);
         final Set<String> appendableKeys = new LinkedHashSet<>(rootKeys);
         appendableKeys.removeAll(patchKeys);
         appendKeys(localeFile, appendableKeys);
@@ -86,7 +88,7 @@ final class LocalizationPatcher
         }
         catch (IOException e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to append new keys to file: " + localeFile.path());
+            logger.logThrowable(e, "Failed to append new keys to file: " + localeFile.path());
         }
     }
 
@@ -107,7 +109,7 @@ final class LocalizationPatcher
             final @Nullable String key = LocalizationUtil.getKeyFromLine(line);
             if (isValidPatch(key, line))
                 ret.put(key, line);
-        });
+        }, logger);
         return ret;
     }
 

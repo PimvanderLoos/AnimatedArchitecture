@@ -121,7 +121,7 @@ public final class DoorTypeLoader extends Restartable
             return Optional.empty();
         }
 
-        return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies));
+        return Optional.of(new DoorTypeInitializer.TypeInfo(typeName, version, className, file, dependencies, logger));
     }
 
     /**
@@ -147,19 +147,20 @@ public final class DoorTypeLoader extends Restartable
      */
     public List<DoorType> loadDoorTypesFromDirectory(String directory)
     {
-        final List<DoorTypeInitializer.TypeInfo> typeInfos = new ArrayList<>();
+        final List<DoorTypeInitializer.TypeInfo> typeInfoList = new ArrayList<>();
 
         try (Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
         {
             final Stream<Path> result = walk.filter(Files::isRegularFile);
-            result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfos::add));
+            result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfoList::add));
         }
         catch (IOException e)
         {
             logger.logThrowable(e);
         }
 
-        final List<DoorType> types = new DoorTypeInitializer(typeInfos, doorTypeClassLoader).loadDoorTypes();
+        final List<DoorType> types = new DoorTypeInitializer(typeInfoList, doorTypeClassLoader,
+                                                             logger, doorTypeManager).loadDoorTypes();
         doorTypeManager.registerDoorTypes(types);
         return types;
     }

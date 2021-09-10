@@ -72,8 +72,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         }
         catch (NoSuchMethodException | ClassNotFoundException | NoSuchFieldException e)
         {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
+            logger.logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
         }
         fakePlayerCreator = fakePlayerCreatorTmp;
         protectionCompats = new ArrayList<>();
@@ -275,8 +274,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                                                        .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
-                BigDoors.get().getPLogger()
-                        .logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
+                logger.logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
                 return;
             }
 
@@ -285,9 +283,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                BigDoors.get().getPLogger().severe("Could not find compatibility class for: \"" +
-                                                       ProtectionCompat.getName(compat) + "\". " +
-                                                       "This most likely means that this version is not supported!");
+                logger.severe("Could not find compatibility class for: \"" +
+                                  ProtectionCompat.getName(compat) + "\". " +
+                                  "This most likely means that this version is not supported!");
                 return;
             }
 

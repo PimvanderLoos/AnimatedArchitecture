@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import dagger.Component;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -47,18 +48,22 @@ import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
+import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
+import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
+import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessageableServerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine.SoundEngineSpigotModule;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteStorageModule;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
@@ -67,11 +72,16 @@ import javax.inject.Singleton;
     ConfigLoaderSpigotModule.class, LocalizationModule.class, PExecutorModule.class, GlowingBlockSpawnerModule.class,
     PServerModule.class, PWorldFactorySpigotModule.class, PLocationFactorySpigotModule.class,
     BigDoorsEventFactorySpigotModule.class, PPlayerFactorySpigotModule.class, ChunkManagerSpigotModule.class,
-    MessageableServerSpigotModule.class, MessagingInterfaceSpigotModule.class, SoundEngineSpigotModule.class,
-    PowerBlockRedstoneManagerSpigotModule.class, BigDoorsSpigotPlatformModule.class, SQLiteStorageModule.class,
+    MessagingInterfaceSpigotModule.class, SoundEngineSpigotModule.class, PowerBlockRedstoneManagerSpigotModule.class,
+    BigDoorsSpigotPlatformModule.class, SQLiteStorageModule.class, DebugReporterSpigotModule.class,
+    VaultManagerModule.class, PlatformManagerSpigotModule.class
 })
 interface BigDoorsSpigotComponent
 {
+    IBigDoorsPlatform getBigDoorsPlatform();
+
+    ISpigotPlatform getSpigotPlatform();
+
     IPLogger getLogger();
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
@@ -112,6 +122,7 @@ interface BigDoorsSpigotComponent
 
     IChunkManager getIChunkManager();
 
+    @Named("MessageableServer")
     IMessageable getMessageable();
 
     IBigDoorsEventFactory getIBigDoorsEventFactory();

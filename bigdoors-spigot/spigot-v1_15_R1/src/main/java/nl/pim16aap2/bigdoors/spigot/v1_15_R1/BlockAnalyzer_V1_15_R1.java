@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 import javax.inject.Singleton;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.logging.Level;
 
 /**
  * Represents a class that can perform basic analysis on blocks, such as if they're empty, blacklisted, and/or
@@ -38,9 +37,7 @@ public final class BlockAnalyzer_V1_15_R1 implements IBlockAnalyzer
                 GREYLIST.add(mat);
             else if (result == MaterialStatus.UNMAPPED)
             {
-                BigDoors.get().getPLogger().logMessage(Level.WARNING,
-                                                       "Material \"" + mat.name() +
-                                                           "\" is not mapped! Please contact pim16aap2!");
+                Bukkit.getLogger().warning("Material \"" + mat.name() + "\" is not mapped! Please contact pim16aap2!");
                 BLACKLIST.add(mat);
             }
         }

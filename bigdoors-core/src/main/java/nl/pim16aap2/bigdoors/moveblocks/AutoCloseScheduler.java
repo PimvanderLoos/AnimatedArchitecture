@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -36,14 +36,16 @@ public final class AutoCloseScheduler extends Restartable
     private final Map<Long, TimerTask> timers = new HashMap<>();
     private final DoorActivityManager doorActivityManager;
     private final DoorToggleRequestFactory doorToggleRequestFactory;
+    private final IPExecutor executor;
 
     @Inject
     public AutoCloseScheduler(IRestartableHolder holder, DoorActivityManager doorActivityManager,
-                              DoorToggleRequestFactory doorToggleRequestFactory)
+                              DoorToggleRequestFactory doorToggleRequestFactory, IPExecutor executor)
     {
         super(holder);
         this.doorActivityManager = doorActivityManager;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.executor = executor;
     }
 
     /**
@@ -116,7 +118,7 @@ public final class AutoCloseScheduler extends Restartable
             }
         };
         timers.put(door.getDoorUID(), task);
-        BigDoors.get().getPlatform().getPExecutor().runSyncLater(task, delay);
+        executor.runSyncLater(task, delay);
     }
 
     @Override

@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -25,9 +26,9 @@ public class Specify extends BaseCommand
 
     @AssistedInject //
     Specify(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-            @Assisted String input, DoorSpecificationManager doorSpecificationManager)
+            @Assisted String input, DoorSpecificationManager doorSpecificationManager, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.input = input;
         this.doorSpecificationManager = doorSpecificationManager;
     }

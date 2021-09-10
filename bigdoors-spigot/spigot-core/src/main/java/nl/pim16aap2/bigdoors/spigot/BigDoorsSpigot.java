@@ -47,12 +47,12 @@ import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
-import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -85,6 +85,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private boolean successfulInit;
 
     private final IPLogger pLogger;
+    private final ISpigotPlatform spigotPlatform;
     private final ConfigLoaderSpigot configLoader;
     private final RedstoneListener redstoneListener;
     private final LoginResourcePackListener loginResourcePackListener;
@@ -134,23 +135,13 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         BigDoors.get().setBigDoorsPlatform(this);
         BigDoors.get().registerRestartable(this);
 
-        final PlatformManagerSpigot platformManagerSpigot;
-        try
-        {
-            platformManagerSpigot = new PlatformManagerSpigot(this);
-        }
-        catch (InstantiationException e)
-        {
-            throw new RuntimeException(e);
-        }
-
         bigDoorsSpigotComponent = DaggerBigDoorsSpigotComponent
             .builder()
-            .bigDoorsSpigotModule(new BigDoorsSpigotModule(this, this, platformManagerSpigot.getSpigotPlatform()))
+            .bigDoorsSpigotModule(new BigDoorsSpigotModule(this, this))
             .restartableHolderModule(new RestartableHolderModule(BigDoors.get()))
             .build();
 
-
+        spigotPlatform = bigDoorsSpigotComponent.getSpigotPlatform();
         pLogger = bigDoorsSpigotComponent.getLogger();
         protectionCompatManager = bigDoorsSpigotComponent.getProtectionCompatManager();
 

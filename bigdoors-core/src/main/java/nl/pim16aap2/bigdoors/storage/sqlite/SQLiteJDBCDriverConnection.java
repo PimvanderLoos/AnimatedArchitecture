@@ -304,8 +304,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private Optional<AbstractDoor> constructDoor(ResultSet doorBaseRS)
         throws Exception
     {
-        final Optional<DoorType> doorType =
-            doorTypeManager.getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
+        final Optional<DoorType> doorType = doorTypeManager.getDoorTypeFromFullName(doorBaseRS.getString("doorType"));
 
         if (!doorType.map(doorTypeManager::isRegistered).orElse(false))
         {
@@ -320,13 +319,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // while this actually won't happen.
         // IntelliJ Struggles with <?> and nullability... :(
         @SuppressWarnings({"squid:S3655", "NullableProblems"}) //
-        final Optional<DoorSerializer<?>> serializerOpt = doorType.get().getDoorSerializer();
-
-        if (serializerOpt.isEmpty())
-        {
-            logger.severe("Failed to construct door: " + doorUID + "! Reason: Serializer unavailable!");
-            return Optional.empty();
-        }
+        final DoorSerializer<?> serializer = doorType.get().getDoorSerializer(logger);
 
         final Optional<AbstractDoor> registeredDoor = doorRegistry.getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
@@ -377,7 +370,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                  .doorOwners(doorOwners).build();
 
         final byte[] rawTypeData = doorBaseRS.getBytes("typeData");
-        return Optional.of(serializerOpt.get().deserialize(doorData, rawTypeData));
+        return Optional.of(serializer.deserialize(doorData, rawTypeData));
     }
 
     @Override
@@ -439,15 +432,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     public Optional<AbstractDoor> insert(AbstractDoor door)
     {
         @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-        final Optional<DoorSerializer<?>> serializerOpt = door.getDoorType().getDoorSerializer();
-        if (serializerOpt.isEmpty())
-        {
-            logger.severe("Failed to insert door: " + door.getBasicInfo() + "! Reason: Serializer unavailable!");
-            return Optional.empty();
-        }
+        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer(logger);
 
-        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-        final DoorSerializer<?> serializer = serializerOpt.get();
         final String typeName = door.getDoorType().getFullName();
         try
         {

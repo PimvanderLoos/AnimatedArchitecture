@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
@@ -10,34 +10,13 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
-    private static final @Nullable ISpigotPlatform SPIGOT_PLATFORM;
-    private static final Version SPIGOT_VERSION;
-    private static final String VERSION_STRING;
-
-    static
-    {
-        Version version;
-        @Nullable ISpigotPlatform spigotPlatformTmp = null;
-        String versionStr;
-        try
-        {
-            versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            version = Version.valueOf(versionStr);
-            if (version != Version.ERROR)
-                spigotPlatformTmp = version.getPlatform();
-        }
-        catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-            version = Version.ERROR;
-            versionStr = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",");
-        }
-        SPIGOT_VERSION = version;
-        SPIGOT_PLATFORM = spigotPlatformTmp;
-        VERSION_STRING = versionStr;
-    }
+    private final @Nullable ISpigotPlatform spigotPlatform;
+    private final Version version;
+    private final String versionString;
 
     /**
      * Instantiates the platform manager and initializes the version-specific platform with the provided Spigot
@@ -49,24 +28,46 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      *     When there is no version-specific platform available. This may happen when trying to instantiate this class
      *     on an unsupported version.
      */
-    public PlatformManagerSpigot(BigDoorsSpigot bigDoorsSpigot)
-        throws InstantiationException
+    @Inject
+    public PlatformManagerSpigot(BigDoorsSpigot bigDoorsSpigot, IPLogger logger)
     {
-        if (SPIGOT_VERSION == Version.ERROR)
-            throw new InstantiationException("No platform available for version " + VERSION_STRING);
-        Util.requireNonNull(SPIGOT_PLATFORM, "Platform").init(bigDoorsSpigot);
+        Version versionTmp;
+        String versionStringTmp;
+        @Nullable ISpigotPlatform spigotPlatformTmp = null;
+        try
+        {
+            versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            versionTmp = Version.valueOf(versionStringTmp);
+            if (versionTmp != Version.ERROR)
+                spigotPlatformTmp = versionTmp.getPlatform(logger);
+        }
+        catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
+        {
+            e.printStackTrace();
+            versionTmp = Version.ERROR;
+            versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",");
+        }
+        version = versionTmp;
+        versionString = versionStringTmp;
+        spigotPlatform = spigotPlatformTmp;
+
+        if (version == Version.ERROR)
+            throw new RuntimeException("No platform available for version " + versionString);
+        Util.requireNonNull(spigotPlatform, "Platform").init(bigDoorsSpigot);
+    }
+
+    @Override
+    public boolean isValidPlatform()
+    {
+        return spigotPlatform != null;
     }
 
     @Override
     public ISpigotPlatform getSpigotPlatform()
     {
-        if (SPIGOT_PLATFORM == null)
-        {
-            final IllegalStateException e = new IllegalStateException("No Spigot platform currently registered!");
-            BigDoors.get().getPLogger().logThrowable(e);
-            throw e;
-        }
-        return SPIGOT_PLATFORM;
+        if (spigotPlatform == null)
+            throw new IllegalStateException("No Spigot platform currently registered!");
+        return spigotPlatform;
     }
 
     private enum Version
@@ -74,7 +75,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         ERROR
             {
                 @Override
-                public @Nullable ISpigotPlatform getPlatform()
+                public @Nullable ISpigotPlatform getPlatform(IPLogger logger)
                 {
                     return null;
                 }
@@ -82,9 +83,9 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         V1_15_R1
             {
                 @Override
-                public ISpigotPlatform getPlatform()
+                public ISpigotPlatform getPlatform(IPLogger logger)
                 {
-                    return SpigotPlatform_V1_15_R1.get();
+                    return new SpigotPlatform_V1_15_R1(logger);
                 }
             },
         ;
@@ -94,7 +95,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
          *
          * @return The instance of the {@link ISpigotPlatform} for this {@link Version}.
          */
-        public abstract @Nullable ISpigotPlatform getPlatform()
+        public abstract @Nullable ISpigotPlatform getPlatform(IPLogger logger)
             throws UnsupportedOperationException;
     }
 }

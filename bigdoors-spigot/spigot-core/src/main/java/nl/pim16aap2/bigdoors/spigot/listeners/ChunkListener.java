@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
@@ -26,6 +27,7 @@ import java.lang.reflect.Method;
 public class ChunkListener extends AbstractListener
 {
     private final IPLogger logger;
+    private final DatabaseManager databaseManager;
 
     /**
      * Checks if the ChunkUnloadEvent can be cancelled or not. In version 1.14 of Minecraft and later, that's no longer
@@ -38,10 +40,11 @@ public class ChunkListener extends AbstractListener
     private @Nullable Method isForceLoaded;
 
     @Inject
-    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger)
+    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger, DatabaseManager databaseManager)
     {
         super(javaPlugin);
         this.logger = logger;
+        this.databaseManager = databaseManager;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
         register();
@@ -79,9 +82,9 @@ public class ChunkListener extends AbstractListener
     {
         final long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(),
                                                                         event.getChunk().getZ());
-        BigDoors.get().getDatabaseManager().getDoorsInChunk(chunkHash).whenComplete(
+        databaseManager.getDoorsInChunk(chunkHash).whenComplete(
             (doors, throwable) ->
-                doors.forEach(doorUID -> BigDoors.get().getDatabaseManager().getDoor(doorUID).whenComplete(
+                doors.forEach(doorUID -> databaseManager.getDoor(doorUID).whenComplete(
                     (optionalDoor, throwable2) ->
                         optionalDoor.ifPresent(
                             door ->
@@ -154,8 +157,7 @@ public class ChunkListener extends AbstractListener
             else if (isForceLoaded != null)
                 return (boolean) isForceLoaded.invoke(event.getChunk());
             else
-                BigDoors.get().getPLogger().warn("Both isCancelled and isForceLoaded are unavailable!" +
-                                                     "Chunk management is now unreliable!");
+                logger.warn("Both isCancelled and isForceLoaded are unavailable! Chunk management is now unreliable!");
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {

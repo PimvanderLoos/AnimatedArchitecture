@@ -5,17 +5,18 @@ import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 {
     private static final String VERSION = "v1_15_R1";
-    private static final SpigotPlatform_V1_15_R1 INSTANCE = new SpigotPlatform_V1_15_R1();
 
     @Getter
     private IFallingBlockFactory fallingBlockFactory;
@@ -29,8 +30,12 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     @Getter
     private IGlowingBlockFactory glowingBlockFactory;
 
-    private SpigotPlatform_V1_15_R1()
+    private final IPLogger logger;
+
+    @Inject
+    public SpigotPlatform_V1_15_R1(IPLogger logger)
     {
+        this.logger = logger;
     }
 
     @Override
@@ -39,21 +44,11 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
         return VERSION;
     }
 
-    /**
-     * Obtains the instance of this class.
-     *
-     * @return The instance of this class.
-     */
-    public static SpigotPlatform_V1_15_R1 get()
-    {
-        return INSTANCE;
-    }
-
     @Override
     @Initializer
     public void init(BigDoorsSpigotAbstract plugin)
     {
-        fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
+        fallingBlockFactory = new FallingBlockFactory_V1_15_R1(logger);
         pBlockDataFactory = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1();
         blockAnalyzer = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.BlockAnalyzer_V1_15_R1();
         glowingBlockFactory = new GlowingBlock_V1_15_R1.Factory();

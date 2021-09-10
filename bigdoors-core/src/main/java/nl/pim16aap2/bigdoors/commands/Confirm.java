@@ -7,6 +7,7 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,9 +27,10 @@ public class Confirm extends BaseCommand
 
     @AssistedInject //
     Confirm(@Assisted ICommandSender commandSender, IPLogger logger,
-            nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager)
+            nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager,
+            CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.toolUserManager = toolUserManager;
     }
 

@@ -9,10 +9,13 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Provider;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -26,15 +29,18 @@ public class NewDoor extends BaseCommand
     private final DoorType doorType;
     private final @Nullable String doorName;
     private final ToolUserManager toolUserManager;
+    private final Provider<Creator.Context> creatorContextProvider;
 
     @AssistedInject //
     NewDoor(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-            @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager)
+            @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
+            Provider<Creator.Context> creatorContextProvider, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.doorType = doorType;
         this.doorName = doorName;
         this.toolUserManager = toolUserManager;
+        this.creatorContextProvider = creatorContextProvider;
     }
 
     @Override
@@ -52,7 +58,8 @@ public class NewDoor extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        toolUserManager.startToolUser(doorType.getCreator((IPPlayer) getCommandSender(), doorName),
+        toolUserManager.startToolUser(doorType.getCreator(creatorContextProvider.get(),
+                                                          (IPPlayer) getCommandSender(), doorName),
                                       Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
     }

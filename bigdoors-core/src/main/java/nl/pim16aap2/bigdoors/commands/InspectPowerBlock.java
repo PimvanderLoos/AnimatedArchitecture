@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -24,13 +25,16 @@ import java.util.concurrent.CompletableFuture;
 public class InspectPowerBlock extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
+    private final PowerBlockInspector.Factory inspectPowerBlockFactory;
 
     @AssistedInject //
     InspectPowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                      ToolUserManager toolUserManager)
+                      ToolUserManager toolUserManager, PowerBlockInspector.Factory inspectPowerBlockFactory,
+                      CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, logger, localizer, handler);
         this.toolUserManager = toolUserManager;
+        this.inspectPowerBlockFactory = inspectPowerBlockFactory;
     }
 
     @Override
@@ -48,7 +52,8 @@ public class InspectPowerBlock extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        toolUserManager.startToolUser(new PowerBlockInspector((IPPlayer) getCommandSender(), permissions.second),
+        toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPPlayer) getCommandSender(),
+                                                                      permissions.second),
                                       Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
     }

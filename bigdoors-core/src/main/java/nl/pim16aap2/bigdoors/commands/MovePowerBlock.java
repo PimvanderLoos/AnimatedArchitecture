@@ -11,6 +11,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -29,9 +30,10 @@ public class MovePowerBlock extends DoorTargetCommand
 
     @AssistedInject //
     MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                   @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager)
+                   @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager,
+                   CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK, handler);
         this.toolUserManager = toolUserManager;
     }
 
@@ -50,7 +52,8 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        toolUserManager.startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),
+        toolUserManager.startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door,
+                                                              logger, localizer, toolUserManager),
                                       Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
 

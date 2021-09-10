@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
@@ -50,14 +51,16 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Map<PColor, Team> teams;
     private final Player player;
     private final IRestartableHolder restartableHolder;
+    private final IPLogger logger;
 
     public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
-                                 IRestartableHolder restartableHolder)
+                                 IRestartableHolder restartableHolder, IPLogger logger)
     {
         this.player = player;
         this.world = world;
         this.teams = teams;
         this.restartableHolder = restartableHolder;
+        this.logger = logger;
     }
 
     private Optional<PlayerConnection> getConnection()
@@ -65,7 +68,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
-            BigDoors.get().getPLogger().logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
+            logger.logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
                 " could not be found! They cannot receive Glowing Block packets!");
             return Optional.empty();
         }
@@ -99,8 +102,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
         {
-            BigDoors.get().getPLogger()
-                    .warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
+            logger.warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
             return;
         }
 
@@ -187,7 +189,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
-                                                          IRestartableHolder restartableHolder)
+                                                          IRestartableHolder restartableHolder, IPLogger logger)
         {
             final IGlowingBlockSpawner spawner = BigDoors.get().getPlatform().getGlowingBlockSpawner();
             if (!(spawner instanceof GlowingBlockSpawner))
@@ -195,7 +197,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
             return Optional.of(new GlowingBlock_V1_15_R1(player, world,
                                                          ((GlowingBlockSpawner) spawner).getTeams(),
-                                                         restartableHolder));
+                                                         restartableHolder, logger));
         }
     }
 }

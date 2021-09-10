@@ -1,9 +1,10 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import java.time.Duration;
@@ -21,18 +22,21 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
 {
     private final List<AbstractDoor> options;
     private final IPPlayer player;
+    private final DoorSpecificationManager doorSpecificationManager;
 
-    private DelayedDoorSpecificationInputRequest(Duration timeout, List<AbstractDoor> options, IPPlayer player)
+    private DelayedDoorSpecificationInputRequest(IPLogger logger, Duration timeout, List<AbstractDoor> options,
+                                                 IPPlayer player, DoorSpecificationManager doorSpecificationManager)
     {
-        super(timeout.toMillis());
+        super(logger, timeout.toMillis());
         this.options = options;
         this.player = player;
+        this.doorSpecificationManager = doorSpecificationManager;
         init();
     }
 
     private void init()
     {
-        BigDoors.get().getDoorSpecificationManager().placeRequest(player, this);
+        doorSpecificationManager.placeRequest(player, this);
         // TODO: Localization
         // TODO: Abstraction. It may be a list and it may specified using a command, but that's not always true.
         //       It may also use a GUI or clickable text or whatever.
@@ -56,15 +60,17 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
      *     The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,
-                                                                IPPlayer player)
+    public static CompletableFuture<Optional<AbstractDoor>> get(IPLogger logger, Duration timeout,
+                                                                List<AbstractDoor> options, IPPlayer player,
+                                                                DoorSpecificationManager doorSpecificationManager)
     {
         if (options.size() == 1)
             return CompletableFuture.completedFuture(Optional.of(options.get(0)));
         if (options.isEmpty())
             return CompletableFuture.completedFuture(Optional.empty());
 
-        return new DelayedDoorSpecificationInputRequest(timeout, options, player).getInputResult().thenApply(
+        return new DelayedDoorSpecificationInputRequest(logger, timeout, options, player,
+                                                        doorSpecificationManager).getInputResult().thenApply(
             input ->
             {
                 final OptionalLong uidOpt = Util.parseLong(input);
@@ -79,7 +85,7 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
     @Override
     protected void cleanup()
     {
-        BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
+        doorSpecificationManager.cancelRequest(player);
     }
 
     private void getDoorInfoList(StringBuilder sb)

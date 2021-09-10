@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -48,9 +49,9 @@ public class AddOwner extends DoorTargetCommand
     @AssistedInject //
     AddOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
              @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-             @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
+             @Assisted int targetPermissionLevel, DatabaseManager databaseManager, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.ADD_OWNER, handler);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
         this.databaseManager = databaseManager;

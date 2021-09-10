@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -32,9 +33,9 @@ public class RemoveOwner extends DoorTargetCommand
     @AssistedInject //
     RemoveOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
                 @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-                DatabaseManager databaseManager)
+                DatabaseManager databaseManager, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER, handler);
         this.targetPlayer = targetPlayer;
         this.databaseManager = databaseManager;
     }

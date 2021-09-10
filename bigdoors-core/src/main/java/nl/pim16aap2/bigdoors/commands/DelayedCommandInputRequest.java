@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -8,7 +11,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.Locale;
@@ -62,6 +65,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The class of the input object that is expected.
      */
     private final Class<T> inputClass;
+    private final CompletableFutureHandler handler;
 
     /**
      * The output of the command. See {@link BaseCommand#run()}.
@@ -89,12 +93,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * @param inputClass
      *     The class of the input object that is expected.
      */
-    DelayedCommandInputRequest(long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-                               IPLogger logger, ILocalizer localizer, Function<T, CompletableFuture<Boolean>> executor,
-                               Supplier<String> initMessageSupplier, Class<T> inputClass,
-                               DelayedCommandInputManager delayedCommandInputManager)
+    @AssistedInject //
+    DelayedCommandInputRequest(@Assisted long timeout, @Assisted ICommandSender commandSender,
+                               @Assisted CommandDefinition commandDefinition,
+                               @Assisted Function<T, CompletableFuture<Boolean>> executor,
+                               @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
+                               IPLogger logger, ILocalizer localizer,
+                               DelayedCommandInputManager delayedCommandInputManager, CompletableFutureHandler handler)
     {
-        super(timeout);
+        super(logger, timeout);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
         this.logger = logger;
@@ -102,6 +109,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
+        this.handler = handler;
         log();
         commandOutput = constructOutput(executor);
         init();
@@ -120,7 +128,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -167,5 +175,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     private void log()
     {
         logger.dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
+    }
+
+    @AssistedFactory
+    public interface Factory<T>
+    {
+        DelayedCommandInputRequest<T> create(long timeout, ICommandSender commandSender,
+                                             CommandDefinition commandDefinition,
+                                             Function<T, CompletableFuture<Boolean>> executor,
+                                             Supplier<String> initMessageSupplier, Class<T> inputClass);
     }
 }

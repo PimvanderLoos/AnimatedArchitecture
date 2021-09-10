@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -38,12 +39,15 @@ public abstract class BaseCommand
 
     protected final IPLogger logger;
     protected final ILocalizer localizer;
+    protected final CompletableFutureHandler handler;
 
-    public BaseCommand(ICommandSender commandSender, IPLogger logger, ILocalizer localizer)
+    public BaseCommand(ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                       CompletableFutureHandler handler)
     {
         this.commandSender = commandSender;
         this.logger = logger;
         this.localizer = localizer;
+        this.handler = handler;
     }
 
     /**

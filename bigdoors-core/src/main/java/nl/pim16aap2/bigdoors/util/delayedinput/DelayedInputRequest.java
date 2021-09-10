@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -35,6 +35,7 @@ public class DelayedInputRequest<T>
      * The completable future that waits for the delayed input.
      */
     private final CompletableFuture<@Nullable T> input = new CompletableFuture<>();
+    private final IPLogger logger;
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -44,8 +45,9 @@ public class DelayedInputRequest<T>
      * @param timeUnit
      *     The unit of time.
      */
-    protected DelayedInputRequest(long timeout, TimeUnit timeUnit)
+    protected DelayedInputRequest(IPLogger logger, long timeout, TimeUnit timeUnit)
     {
+        this.logger = logger;
         final long timeoutMillis = timeUnit.toMillis(timeout);
         if (timeoutMillis < 1)
             throw new RuntimeException("Timeout must be larger than 0!");
@@ -59,9 +61,9 @@ public class DelayedInputRequest<T>
      *     The amount of time to wait before cancelling the request.
      */
     @SuppressWarnings("unused")
-    protected DelayedInputRequest(Duration timeout)
+    protected DelayedInputRequest(IPLogger logger, Duration timeout)
     {
-        this(timeout.toMillis(), TimeUnit.MILLISECONDS);
+        this(logger, timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -70,9 +72,9 @@ public class DelayedInputRequest<T>
      * @param timeout
      *     The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
-    protected DelayedInputRequest(long timeout)
+    protected DelayedInputRequest(IPLogger logger, long timeout)
     {
-        this(timeout, TimeUnit.MILLISECONDS);
+        this(logger, timeout, TimeUnit.MILLISECONDS);
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like @Nullable in the input's generics.
@@ -116,7 +118,7 @@ public class DelayedInputRequest<T>
             .exceptionally(
                 ex ->
                 {
-                    BigDoors.get().getPLogger().logThrowable(ex);
+                    logger.logThrowable(ex);
                     exceptionally.set(true);
                     return Optional.empty();
                 });

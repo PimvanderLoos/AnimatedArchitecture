@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.WorldTime;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -24,13 +24,9 @@ public record PWorldSpigot(String worldName, @Nullable World world) implements I
         this(world.getName(), world);
     }
 
-    private static @Nullable World getNamedWorld(String worldName)
+    private static World getNamedWorld(String worldName)
     {
-        final @Nullable World bukkitWorld = Bukkit.getWorld(worldName);
-        if (bukkitWorld == null)
-            BigDoors.get().getPLogger().logThrowable(
-                new NullPointerException("World \"" + worldName + "\" could not be found!"));
-        return bukkitWorld;
+        return Util.requireNonNull(Bukkit.getWorld(worldName), "Bukkit world with name: " + worldName);
     }
 
     @Override

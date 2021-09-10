@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -29,9 +30,9 @@ public class SetOpenDirection extends DoorTargetCommand
     @AssistedInject //
     SetOpenDirection(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
                      @Assisted DoorRetriever.AbstractRetriever doorRetriever,
-                     @Assisted RotateDirection rotateDirection)
+                     @Assisted RotateDirection rotateDirection, CompletableFutureHandler handler)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.OPEN_DIRECTION);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.OPEN_DIRECTION, handler);
         this.rotateDirection = rotateDirection;
     }
 
