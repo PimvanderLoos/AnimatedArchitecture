@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
@@ -172,6 +171,16 @@ public interface IBigDoorsPlatform extends IRestartable
     boolean isMainThread(long threadID);
 
     /**
+     * Checks if the current thread is the main thread.
+     *
+     * @return True if the current thread is the main thread.
+     */
+    default boolean isMainThread()
+    {
+        return isMainThread(Thread.currentThread().getId());
+    }
+
+    /**
      * Constructs a new {@link IPExecutor}.
      *
      * @return A new {@link IPExecutor}.
@@ -247,13 +256,6 @@ public interface IBigDoorsPlatform extends IRestartable
      * @return The {@link ToolUserManager} instance.
      */
     ToolUserManager getToolUserManager();
-
-    /**
-     * Gets the {@link DoorOpener}.
-     *
-     * @return The {@link DoorOpener}.
-     */
-    DoorOpener getDoorOpener();
 
     /**
      * Gets the {@link DebugReporter}.

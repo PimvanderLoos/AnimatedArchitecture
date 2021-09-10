@@ -53,26 +53,27 @@ public abstract class AbstractDoor implements IDoor
     protected final ILocalizer localizer;
 
     private final DatabaseManager databaseManager;
-    private final DoorOpener doorOpener;
     private final DoorRegistry doorRegistry;
     private final DoorActivityManager doorActivityManager;
     private final LimitsManager limitsManager;
     private final AutoCloseScheduler autoCloseScheduler;
+    private final DoorOpeningHelper doorOpeningHelper;
 
     protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer, DatabaseManager databaseManager,
-                           DoorOpener doorOpener, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
-                           LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler)
+                           DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
+                           LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler,
+                           DoorOpeningHelper doorOpeningHelper)
     {
         serializer = getDoorType().getDoorSerializer(logger);
         this.doorBase = doorBase;
         this.logger = logger;
         this.localizer = localizer;
         this.databaseManager = databaseManager;
-        this.doorOpener = doorOpener;
         this.doorRegistry = doorRegistry;
         this.doorActivityManager = doorActivityManager;
         this.limitsManager = limitsManager;
         this.autoCloseScheduler = autoCloseScheduler;
+        this.doorOpeningHelper = doorOpeningHelper;
 
         logger.logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
         if (doorBase.getDoorUID() > 0 &&
@@ -88,8 +89,8 @@ public abstract class AbstractDoor implements IDoor
     protected AbstractDoor(DoorBase doorBase)
     {
         this(doorBase, doorBase.getLogger(), doorBase.getLocalizer(), doorBase.getDatabaseManager(),
-             doorBase.getDoorOpener(), doorBase.getDoorRegistry(), doorBase.getDoorActivityManager(),
-             doorBase.getLimitsManager(), doorBase.getAutoCloseScheduler());
+             doorBase.getDoorRegistry(), doorBase.getDoorActivityManager(), doorBase.getLimitsManager(),
+             doorBase.getAutoCloseScheduler(), doorBase.getDoorOpeningHelper());
     }
 
     /**
@@ -212,7 +213,7 @@ public abstract class AbstractDoor implements IDoor
 
         try
         {
-            DoorOpeningUtility.registerBlockMover(
+            doorOpeningHelper.registerBlockMover(
                 constructBlockMover(new BlockMover.Context(doorActivityManager, autoCloseScheduler, logger),
                                     cause, time, skipAnimation, newCuboid, responsible, actionType));
         }
@@ -226,8 +227,7 @@ public abstract class AbstractDoor implements IDoor
 
     /**
      * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at {@link
-     * DoorOpener#animateDoorAsync(AbstractDoor, DoorActionCause, IMessageable, IPPlayer, double, boolean,
-     * DoorActionType)}.
+     * DoorToggleRequestFactory}.
      *
      * @param cause
      *     What caused doorBase action.
@@ -245,8 +245,6 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
-    //       These aren't necessarily the same entity.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
                                                IPPlayer responsible, double time, boolean skipAnimation,
@@ -266,22 +264,23 @@ public abstract class AbstractDoor implements IDoor
         }
 
         if (!doorRegistry.isRegistered(this))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
+                                           messageReceiver);
 
         if (skipAnimation && !canSkipAnimation())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
-        final DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
+        final DoorToggleResult isOpenable = doorOpeningHelper.canBeToggled(this, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
+            return doorOpeningHelper.abort(this, isOpenable, cause, responsible, messageReceiver);
 
         if (limitsManager.exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.TOO_BIG, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
         final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
         if (newCuboid.isEmpty())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
         final IDoorEventTogglePrepare prepareEvent =
             BigDoors.get().getPlatform().getBigDoorsEventFactory()
@@ -290,14 +289,14 @@ public abstract class AbstractDoor implements IDoor
         BigDoors.get().getPlatform().callDoorEvent(prepareEvent);
 
         if (prepareEvent.isCancelled())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
 
         final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
-        if (!DoorOpeningUtility.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
+        if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
+            return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
 
-        if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible);
+        if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
+            return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
         final CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
             () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
@@ -323,19 +322,7 @@ public abstract class AbstractDoor implements IDoor
     @SuppressWarnings("unused")
     public final void onRedstoneChange(int newCurrent)
     {
-        final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getPrimeOwner().pPlayerData());
-
-        final @Nullable DoorActionType doorActionType;
-        if (newCurrent == 0 && isCloseable())
-            doorActionType = DoorActionType.CLOSE;
-        else if (newCurrent > 0 && isOpenable())
-            doorActionType = DoorActionType.CLOSE;
-        else
-            doorActionType = null;
-        if (doorActionType != null)
-            doorOpener.animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                        BigDoors.get().getPlatform().getMessageableServer(),
-                                        player, 0.0D, false, DoorActionType.CLOSE);
+        doorBase.onRedstoneChange(this, newCurrent);
     }
 
     /**

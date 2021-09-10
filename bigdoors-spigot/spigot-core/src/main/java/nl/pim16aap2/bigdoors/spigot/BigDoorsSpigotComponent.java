@@ -18,7 +18,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolderModule;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
@@ -122,8 +121,6 @@ interface BigDoorsSpigotComponent
     BigDoorsToolUtilSpigot getBigDoorsToolUtilSpigot();
 
     DatabaseManager getDatabaseManager();
-
-    DoorOpener getDoorOpener();
 
     DoorRegistry getDoorRegistry();
 

@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
+import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -93,10 +96,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final DoorOpener doorOpener;
-
-    @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
     private final DoorRegistry doorRegistry;
 
     @EqualsAndHashCode.Exclude
@@ -111,15 +110,25 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter(AccessLevel.PACKAGE)
     private final AutoCloseScheduler autoCloseScheduler;
 
+    @EqualsAndHashCode.Exclude
+    private final DoorToggleRequestFactory doorToggleRequestFactory;
+
+    @EqualsAndHashCode.Exclude
+    private final IPPlayerFactory playerFactory;
+
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final DoorOpeningHelper doorOpeningHelper;
+
     @AssistedInject //
     DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
              @Assisted("engine") Vector3Di engine, @Assisted("powerBlock") Vector3Di powerBlock,
              @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
              @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
              @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
-             DatabaseManager databaseManager, DoorOpener doorOpener, DoorRegistry doorRegistry,
-             DoorActivityManager doorActivityManager, LimitsManager limitsManager,
-             AutoCloseScheduler autoCloseScheduler)
+             DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
+             LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
+             DoorToggleRequestFactory doorToggleRequestFactory, IPPlayerFactory playerFactory)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -143,11 +152,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.logger = logger;
         this.localizer = localizer;
         this.databaseManager = databaseManager;
-        this.doorOpener = doorOpener;
         this.doorRegistry = doorRegistry;
         this.doorActivityManager = doorActivityManager;
         this.limitsManager = limitsManager;
         this.autoCloseScheduler = autoCloseScheduler;
+        this.doorOpeningHelper = doorOpeningHelper;
+        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.playerFactory = playerFactory;
     }
 
     // Copy constructor
@@ -168,11 +179,13 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         logger = other.logger;
         localizer = other.localizer;
         databaseManager = other.databaseManager;
-        doorOpener = other.doorOpener;
         doorRegistry = other.doorRegistry;
         doorActivityManager = other.doorActivityManager;
         limitsManager = other.limitsManager;
         autoCloseScheduler = other.autoCloseScheduler;
+        doorOpeningHelper = other.doorOpeningHelper;
+        doorToggleRequestFactory = other.doorToggleRequestFactory;
+        playerFactory = other.playerFactory;
     }
 
     /**
@@ -213,6 +226,27 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             return;
         }
         doorOwners.put(uuid, doorOwner);
+    }
+
+    void onRedstoneChange(AbstractDoor abstractDoor, int newCurrent)
+    {
+        final @Nullable DoorActionType doorActionType;
+        if (newCurrent == 0 && isCloseable())
+            doorActionType = DoorActionType.CLOSE;
+        else if (newCurrent > 0 && isOpenable())
+            doorActionType = DoorActionType.CLOSE;
+        else
+            doorActionType = null;
+
+        if (doorActionType != null)
+            doorToggleRequestFactory.builder()
+                                    .door(abstractDoor)
+                                    .doorActionCause(DoorActionCause.REDSTONE)
+                                    .doorActionType(doorActionType)
+                                    .messageReceiverServer()
+                                    .responsible(playerFactory.create(getPrimeOwner().pPlayerData()))
+                                    .build()
+                                    .execute();
     }
 
     @Override

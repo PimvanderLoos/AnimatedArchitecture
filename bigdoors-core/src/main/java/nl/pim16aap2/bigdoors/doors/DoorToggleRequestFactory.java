@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +28,16 @@ public class DoorToggleRequestFactory
 {
     private final DoorToggleRequest.Factory doorToggleRequestFactory;
     private final IMessageable messageableServer;
+    private final IPPlayerFactory playerFactory;
 
     @Inject //
     DoorToggleRequestFactory(DoorToggleRequest.Factory doorToggleRequestFactory,
-                             @Named("MessageableServer") IMessageable messageableServer)
+                             @Named("MessageableServer") IMessageable messageableServer,
+                             IPPlayerFactory playerFactory)
     {
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.messageableServer = messageableServer;
+        this.playerFactory = playerFactory;
     }
 
     /**
@@ -39,9 +45,9 @@ public class DoorToggleRequestFactory
      *
      * @return The first step of the guided builder.
      */
-    public IBuilderDoor build()
+    public IBuilderDoor builder()
     {
-        return new Builder(doorToggleRequestFactory, messageableServer);
+        return new Builder(doorToggleRequestFactory, messageableServer, playerFactory);
     }
 
     @RequiredArgsConstructor
@@ -50,6 +56,7 @@ public class DoorToggleRequestFactory
     {
         private final DoorToggleRequest.Factory doorToggleRequestFactory;
         private final IMessageable messageableServer;
+        private final IPPlayerFactory playerFactory;
 
         private DoorRetriever.AbstractRetriever doorRetriever;
         private DoorActionCause doorActionCause;
@@ -82,10 +89,22 @@ public class DoorToggleRequestFactory
         }
 
         @Override
+        public IBuilder responsible(PPlayerData playerData)
+        {
+            return responsible(playerFactory.create(playerData));
+        }
+
+        @Override
         public IBuilder messageReceiver(IMessageable messageReceiver)
         {
             this.messageReceiver = messageReceiver;
             return this;
+        }
+
+        @Override
+        public IBuilder messageReceiverServer()
+        {
+            return messageReceiver(messageableServer);
         }
 
         @Override
@@ -186,6 +205,19 @@ public class DoorToggleRequestFactory
         IBuilder responsible(IPPlayer responsible);
 
         /**
+         * See {@link #responsible(IPPlayer)}.
+         */
+        IBuilder responsible(PPlayerData playerData);
+
+        /**
+         * See {@link #responsible(IPPlayer)}.
+         */
+        default IBuilder responsible(DoorOwner doorOwner)
+        {
+            return responsible(doorOwner.pPlayerData());
+        }
+
+        /**
          * Optional: Sets the message receiver of the toggle request. The message receiver will receive all messages
          * related to the toggle request.
          * <p>
@@ -197,6 +229,13 @@ public class DoorToggleRequestFactory
          * @return The next step of the guided builder process.
          */
         IBuilder messageReceiver(IMessageable messageReceiver);
+
+        /**
+         * See {@link #messageReceiver(IMessageable)}.
+         * <p>
+         * Sets the server to be the message receiver.
+         */
+        IBuilder messageReceiverServer();
 
         /**
          * Constructs the new door toggle request.

@@ -207,6 +207,7 @@ public final class DoorRetriever
     @AllArgsConstructor
     private static final class DoorNameRetriever extends AbstractRetriever
     {
+        @ToString.Exclude
         private final DatabaseManager databaseManager;
         private final String name;
 
@@ -285,6 +286,7 @@ public final class DoorRetriever
     @AllArgsConstructor
     private static final class DoorUIDRetriever extends AbstractRetriever
     {
+        @ToString.Exclude
         private final DatabaseManager databaseManager;
         private final long uid;
 

@@ -23,7 +23,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolderModule;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -115,7 +114,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final IPowerBlockRedstoneManager powerBlockRedstoneManager;
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
     private final DatabaseManager databaseManager;
-    private final DoorOpener doorOpener;
     private final DoorRegistry doorRegistry;
     private final AutoCloseScheduler autoCloseScheduler;
     private final DoorActivityManager doorActivityManager;
@@ -180,7 +178,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         powerBlockRedstoneManager = bigDoorsSpigotComponent.getIPowerBlockRedstoneManager();
         bigDoorsToolUtil = bigDoorsSpigotComponent.getBigDoorsToolUtilSpigot();
         databaseManager = bigDoorsSpigotComponent.getDatabaseManager();
-        doorOpener = bigDoorsSpigotComponent.getDoorOpener();
         doorRegistry = bigDoorsSpigotComponent.getDoorRegistry();
         autoCloseScheduler = bigDoorsSpigotComponent.getAutoCloseScheduler();
         doorActivityManager = bigDoorsSpigotComponent.getDoorActivityManager();
@@ -288,8 +285,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         final File extensionsDir = new File(getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
         if (!extensionsDir.exists() && !extensionsDir.mkdirs())
         {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IOException("Failed to create folder: " + extensionsDir));
+            pLogger.logThrowable(new IOException("Failed to create folder: " + extensionsDir));
             return;
         }
 
