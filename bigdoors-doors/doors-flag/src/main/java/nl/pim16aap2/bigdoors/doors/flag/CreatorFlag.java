@@ -21,14 +21,14 @@ public class CreatorFlag extends Creator
     private static final DoorType DOOR_TYPE = DoorTypeFlag.get();
     protected boolean northSouthAligned;
 
-    public CreatorFlag(IPPlayer player, @Nullable String name)
+    public CreatorFlag(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorFlag(IPPlayer player)
+    public CreatorFlag(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class CreatorFlag extends Creator
             return super.setSecondPos(loc);
         }
 
-        getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.second_pos_not_2d"));
+        getPlayer().sendMessage(localizer.getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 

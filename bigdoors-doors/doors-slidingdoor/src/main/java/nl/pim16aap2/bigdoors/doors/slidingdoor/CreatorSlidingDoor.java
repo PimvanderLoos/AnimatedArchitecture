@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -22,21 +21,21 @@ public class CreatorSlidingDoor extends Creator
 
     protected int blocksToMove;
 
-    public CreatorSlidingDoor(IPPlayer player, @Nullable String name)
+    public CreatorSlidingDoor(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorSlidingDoor(IPPlayer player)
+    public CreatorSlidingDoor(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
+        final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
             .messageKey("creator.sliding_door.set_blocks_to_move")
             .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();
@@ -56,14 +55,12 @@ public class CreatorSlidingDoor extends Creator
         if (blocksToMove < 1)
             return false;
 
-        final OptionalInt blocksToMoveLimit = BigDoors.get().getLimitsManager()
-                                                      .getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
+        final OptionalInt blocksToMoveLimit = limitsManager.getLimit(getPlayer(), Limit.BLOCKS_TO_MOVE);
         if (blocksToMoveLimit.isPresent() && blocksToMove > blocksToMoveLimit.getAsInt())
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.blocks_to_move_too_far",
-                                                        Integer.toString(blocksToMove),
-                                                        Integer.toString(blocksToMoveLimit.getAsInt())));
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.blocks_to_move_too_far",
+                                                         Integer.toString(blocksToMove),
+                                                         Integer.toString(blocksToMoveLimit.getAsInt())));
             return false;
         }
 

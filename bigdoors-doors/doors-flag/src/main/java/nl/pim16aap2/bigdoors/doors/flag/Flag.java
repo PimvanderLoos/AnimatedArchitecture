@@ -81,7 +81,8 @@ public class Flag extends AbstractDoor implements IHorizontalAxisAligned, IPerpe
                                              DoorActionType actionType)
         throws Exception
     {
-        return new FlagMover(context, 60, this, DoorOpeningUtility.getMultiplier(this), responsible, cause, actionType);
+        return new FlagMover(context, 60, this, doorOpeningHelper.getAnimationTime(this), responsible, cause,
+                             actionType);
     }
 
     @Override

@@ -40,14 +40,8 @@ public final class DoorTypeSlidingDoor extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorSlidingDoor(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorSlidingDoor(player, name);
+        return new CreatorSlidingDoor(context, player, name);
     }
 }

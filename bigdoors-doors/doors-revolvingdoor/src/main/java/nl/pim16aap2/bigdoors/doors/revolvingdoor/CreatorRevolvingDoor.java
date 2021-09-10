@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.CreatorBigDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,17 +15,17 @@ public class CreatorRevolvingDoor extends CreatorBigDoor
 {
     private static final DoorType DOOR_TYPE = DoorTypeRevolvingDoor.get();
 
-    public CreatorRevolvingDoor(IPPlayer player, @Nullable String name)
+    public CreatorRevolvingDoor(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player);
+        super(context, player);
         if (name != null)
             completeNamingStep(name);
         prepareCurrentStep();
     }
 
-    public CreatorRevolvingDoor(IPPlayer player)
+    public CreatorRevolvingDoor(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override

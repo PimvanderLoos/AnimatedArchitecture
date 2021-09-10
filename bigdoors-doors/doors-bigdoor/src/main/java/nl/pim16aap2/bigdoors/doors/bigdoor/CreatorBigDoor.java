@@ -14,14 +14,14 @@ public class CreatorBigDoor extends Creator
 {
     private static final DoorType DOOR_TYPE = DoorTypeBigDoor.get();
 
-    public CreatorBigDoor(IPPlayer player, @Nullable String name)
+    public CreatorBigDoor(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorBigDoor(IPPlayer player)
+    public CreatorBigDoor(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override

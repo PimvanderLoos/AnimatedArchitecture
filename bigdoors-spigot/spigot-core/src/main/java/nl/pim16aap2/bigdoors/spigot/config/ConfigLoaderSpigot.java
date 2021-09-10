@@ -563,7 +563,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     @Override
-    public double getMultiplier(DoorType type)
+    public double getAnimationTime(DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
     }

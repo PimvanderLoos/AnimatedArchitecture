@@ -40,14 +40,8 @@ public final class DoorTypeClock extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorClock(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorClock(player, name);
+        return new CreatorClock(context, player, name);
     }
 }

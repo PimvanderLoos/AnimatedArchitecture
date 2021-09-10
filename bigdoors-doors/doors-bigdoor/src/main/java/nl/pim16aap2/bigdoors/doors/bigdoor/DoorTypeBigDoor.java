@@ -39,14 +39,8 @@ public final class DoorTypeBigDoor extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorBigDoor(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorBigDoor(player, name);
+        return new CreatorBigDoor(context, player, name);
     }
 }

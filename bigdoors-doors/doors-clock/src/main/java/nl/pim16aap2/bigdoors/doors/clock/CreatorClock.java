@@ -40,14 +40,14 @@ public class CreatorClock extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorClock(IPPlayer player, @Nullable String name)
+    public CreatorClock(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorClock(IPPlayer player)
+    public CreatorClock(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override
@@ -104,9 +104,8 @@ public class CreatorClock extends Creator
         // The clock has to be an odd number of blocks tall.
         if (cuboidDims.y() % 2 == 0)
         {
-            BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + getPlayer().asString() +
-                               ": The height of the selected area for the clock is not odd!");
+            logger.debug("ClockCreator: " + getPlayer().asString() +
+                             ": The height of the selected area for the clock is not odd!");
             return false;
         }
 
@@ -134,8 +133,7 @@ public class CreatorClock extends Creator
         }
         else
         {
-            BigDoors.get().getPLogger()
-                    .debug("ClockCreator: " + getPlayer().asString() + ": Selected Clock area is not valid!");
+            logger.debug("ClockCreator: " + getPlayer().asString() + ": Selected Clock area is not valid!");
             return false;
         }
 

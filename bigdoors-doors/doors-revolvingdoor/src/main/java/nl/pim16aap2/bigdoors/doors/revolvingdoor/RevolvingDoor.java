@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -67,9 +66,8 @@ public class RevolvingDoor extends AbstractDoor
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
         {
-            BigDoors.get().getPLogger()
-                    .severe("Invalid open direction \"" + rotateDirection.name() +
-                                "\" for revolving door: " + getDoorUID());
+            logger.severe("Invalid open direction \"" + rotateDirection.name() +
+                              "\" for revolving door: " + getDoorUID());
             return Optional.empty();
         }
 
@@ -91,7 +89,7 @@ public class RevolvingDoor extends AbstractDoor
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new RevolvingDoorMover(context, this, fixedTime, DoorOpeningUtility.getMultiplier(this),
+        return new RevolvingDoorMover(context, this, fixedTime, doorOpeningHelper.getAnimationTime(this),
                                       getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid, actionType);
     }
 

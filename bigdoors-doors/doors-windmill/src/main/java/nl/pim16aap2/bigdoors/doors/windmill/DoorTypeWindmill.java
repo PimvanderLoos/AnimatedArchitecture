@@ -40,14 +40,8 @@ public final class DoorTypeWindmill extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorWindMill(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorWindMill(player, name);
+        return new CreatorWindMill(context, player, name);
     }
 }

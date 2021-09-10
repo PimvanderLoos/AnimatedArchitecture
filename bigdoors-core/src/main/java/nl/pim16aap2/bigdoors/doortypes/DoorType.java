@@ -138,22 +138,29 @@ public abstract class DoorType
     /**
      * Creates (and registers) a new {@link Creator} for this type.
      *
+     * @param context
+     *     The context to run the creator in.
      * @param player
      *     The player who will own the {@link Creator}.
      * @return The newly created {@link Creator}.
      */
-    public abstract Creator getCreator(IPPlayer player);
+    public Creator getCreator(Creator.Context context, IPPlayer player)
+    {
+        return getCreator(context, player, null);
+    }
 
     /**
      * Creates (and registers) a new {@link Creator} for this type.
      *
+     * @param context
+     *     The context to run the creator in.
      * @param player
      *     The player who will own the {@link Creator}.
      * @param name
      *     The name that will be given to the door.
      * @return The newly created {@link Creator}.
      */
-    public abstract Creator getCreator(IPPlayer player, @Nullable String name);
+    public abstract Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name);
 
     @Override
     public final String toString()

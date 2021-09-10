@@ -75,9 +75,9 @@ public class DoorToggleRequestFactory
         }
 
         @Override
-        public IBuilder skipAnimation()
+        public IBuilder skipAnimation(boolean skip)
         {
-            skipAnimation = true;
+            skipAnimation = skip;
             return this;
         }
 
@@ -202,7 +202,15 @@ public class DoorToggleRequestFactory
          *
          * @return The next step of the guided builder process.
          */
-        IBuilder skipAnimation();
+        IBuilder skipAnimation(boolean skip);
+
+        /**
+         * See {@link #skipAnimation(boolean)}.
+         */
+        default IBuilder skipAnimation()
+        {
+            return skipAnimation(true);
+        }
 
         /**
          * Sets the player responsible for the toggle. When the toggle was not caused by a player this value is

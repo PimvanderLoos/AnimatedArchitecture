@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -101,6 +100,6 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
         throws Exception
     {
         return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
-                                DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+                                doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
     }
 }

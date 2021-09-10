@@ -31,7 +31,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-final class DoorOpeningHelper
+public final class DoorOpeningHelper
 {
     private final IPLogger logger;
     private final ILocalizer localizer;
@@ -39,9 +39,9 @@ final class DoorOpeningHelper
     private final DoorTypeManager doorTypeManager;
     private final IConfigLoader config;
 
-    @Inject
-    public DoorOpeningHelper(IPLogger logger, ILocalizer localizer, DoorActivityManager doorActivityManager,
-                             DoorTypeManager doorTypeManager, IConfigLoader config)
+    @Inject //
+    DoorOpeningHelper(IPLogger logger, ILocalizer localizer, DoorActivityManager doorActivityManager,
+                      DoorTypeManager doorTypeManager, IConfigLoader config)
     {
         this.logger = logger;
         this.localizer = localizer;
@@ -63,8 +63,8 @@ final class DoorOpeningHelper
      *     Who is responsible for the action.
      * @return The result.
      */
-    public DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible,
-                                  IMessageable messageReceiver)
+    DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible,
+                           IMessageable messageReceiver)
     {
         logger.logMessage(Level.FINE,
                           String.format("Aborted toggle for door %d because of %s. Toggle Reason: %s, Responsible: %s",
@@ -333,14 +333,14 @@ final class DoorOpeningHelper
     }
 
     /**
-     * Gets the speed multiplier of a {@link IDoor} from the config based on its {@link DoorType}.
+     * Gets the animation time of a {@link IDoor} from the config based on its {@link DoorType}.
      *
      * @param door
      *     The {@link AbstractDoor}.
-     * @return The speed multiplier of this {@link IDoor}.
+     * @return The animation time of this {@link IDoor}.
      */
-    public double getMultiplier(AbstractDoor door)
+    public double getAnimationTime(AbstractDoor door)
     {
-        return config.getMultiplier(door.getDoorType());
+        return config.getAnimationTime(door.getDoorType());
     }
 }

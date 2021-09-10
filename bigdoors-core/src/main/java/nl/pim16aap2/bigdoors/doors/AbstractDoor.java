@@ -43,12 +43,12 @@ public abstract class AbstractDoor implements IDoor
     private final DoorSerializer<?> serializer;
     private final DoorRegistry doorRegistry;
     private final AutoCloseScheduler autoCloseScheduler;
-    private final DoorOpeningHelper doorOpeningHelper;
 
     @Getter
     protected final DoorBase doorBase;
     protected final IPLogger logger;
     protected final ILocalizer localizer;
+    protected final DoorOpeningHelper doorOpeningHelper;
 
 
     protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer,

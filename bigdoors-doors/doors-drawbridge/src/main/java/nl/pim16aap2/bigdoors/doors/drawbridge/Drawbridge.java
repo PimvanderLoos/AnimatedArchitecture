@@ -3,12 +3,10 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -93,8 +91,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             angle = Math.PI / 2;
         else
         {
-            BigDoors.get().getPLogger()
-                    .severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            logger.severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
             return Optional.empty();
         }
 
@@ -112,7 +109,7 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
         throws Exception
     {
         return new BridgeMover<>(context, time, this, getCurrentToggleDir(), skipAnimation,
-                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+                                 doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
     }
 
     @Override

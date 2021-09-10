@@ -4,12 +4,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -130,7 +128,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalArgumentException(
+            logger.logThrowable(new IllegalArgumentException(
                 "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
                     getDoorType() + "\""));
             return Optional.empty();
@@ -199,7 +197,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new GarageDoorMover(context, this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
+        return new GarageDoorMover(context, this, fixedTime, doorOpeningHelper.getAnimationTime(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 }

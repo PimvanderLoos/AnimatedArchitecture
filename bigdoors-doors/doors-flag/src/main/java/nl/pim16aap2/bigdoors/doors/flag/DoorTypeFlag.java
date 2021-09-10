@@ -37,14 +37,8 @@ public final class DoorTypeFlag extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorFlag(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorFlag(player, name);
+        return new CreatorFlag(context, player, name);
     }
 }

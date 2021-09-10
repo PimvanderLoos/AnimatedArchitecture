@@ -35,14 +35,14 @@ public class CreatorGarageDoor extends Creator
 
     private boolean northSouthAligned;
 
-    public CreatorGarageDoor(IPPlayer player, @Nullable String name)
+    public CreatorGarageDoor(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorGarageDoor(IPPlayer player)
+    public CreatorGarageDoor(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class CreatorGarageDoor extends Creator
             return super.setSecondPos(loc);
         }
 
-        getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.second_pos_not_2d"));
+        getPlayer().sendMessage(localizer.getMessage("creator.base.second_pos_not_2d"));
         return false;
     }
 

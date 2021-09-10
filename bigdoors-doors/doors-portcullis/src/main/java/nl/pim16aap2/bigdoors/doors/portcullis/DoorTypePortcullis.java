@@ -39,14 +39,8 @@ public final class DoorTypePortcullis extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorPortcullis(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorPortcullis(player, name);
+        return new CreatorPortcullis(context, player, name);
     }
 }

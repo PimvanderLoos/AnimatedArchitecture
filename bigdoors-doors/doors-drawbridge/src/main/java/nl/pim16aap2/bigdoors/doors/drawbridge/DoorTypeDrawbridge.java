@@ -24,15 +24,9 @@ public final class DoorTypeDrawbridge extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorDrawbridge(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorDrawbridge(player, name);
+        return new CreatorDrawbridge(context, player, name);
     }
 
     /**
