@@ -191,14 +191,15 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new GarageDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
+        return new GarageDoorMover(context, this, fixedTime, DoorOpeningUtility.getMultiplier(this), skipAnimation,
                                    getCurrentToggleDir(), responsible, newCuboid, cause, actionType);
     }
 }

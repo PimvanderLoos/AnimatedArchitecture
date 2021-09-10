@@ -26,10 +26,10 @@ public class Lock extends DoorTargetCommand
     private final boolean lockedStatus;
     private final IBigDoorsPlatform bigDoorsPlatform;
 
-    @AssistedInject
-    public Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
-                IBigDoorsPlatform bigDoorsPlatform)
+    @AssistedInject //
+    Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+         @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
+         IBigDoorsPlatform bigDoorsPlatform)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;

@@ -31,16 +31,16 @@ public class Toggle extends BaseCommand
     private final DoorRetriever.AbstractRetriever[] doorRetrievers;
     private final DoorOpener doorOpener;
     private final DoorActionType doorActionType;
-    private final double speedMultiplier;
+    private final double time;
 
-    @AssistedInject
-    public Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                  @Assisted DoorActionType doorActionType, @Assisted double speedMultiplier,
-                  DoorOpener doorOpener, @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
+    @AssistedInject //
+    Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+           @Assisted DoorActionType doorActionType, @Assisted double time,
+           DoorOpener doorOpener, @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
     {
         super(commandSender, logger, localizer);
         this.doorActionType = doorActionType;
-        this.speedMultiplier = speedMultiplier;
+        this.time = time;
         this.doorRetrievers = doorRetrievers;
         this.doorOpener = doorOpener;
     }
@@ -109,7 +109,7 @@ public class Toggle extends BaseCommand
         }
 
         doorOpener.animateDoorAsync(door, doorActionCause, getCommandSender().getPlayer().orElse(null),
-                                    speedMultiplier, false, doorActionType);
+                                    time, false, doorActionType);
     }
 
     private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,

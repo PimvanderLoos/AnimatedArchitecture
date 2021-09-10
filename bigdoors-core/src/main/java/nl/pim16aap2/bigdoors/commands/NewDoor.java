@@ -27,9 +27,9 @@ public class NewDoor extends BaseCommand
     private final @Nullable String doorName;
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject
-    public NewDoor(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                   @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager)
+    @AssistedInject //
+    NewDoor(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+            @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager)
     {
         super(commandSender, logger, localizer);
         this.doorType = doorType;

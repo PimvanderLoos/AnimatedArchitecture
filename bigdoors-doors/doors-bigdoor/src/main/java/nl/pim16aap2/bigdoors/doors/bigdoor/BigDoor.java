@@ -4,7 +4,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -88,8 +87,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
         {
-            BigDoors.get().getPLogger()
-                    .severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            logger.severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
             return Optional.empty();
         }
 
@@ -97,11 +95,12 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
-        return new BigDoorMover(this, getCurrentToggleDir(), time, skipAnimation,
+        return new BigDoorMover(context, this, getCurrentToggleDir(), time, skipAnimation,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 }

@@ -103,12 +103,13 @@ public class SlidingDoor extends AbstractDoor implements IDiscreteMovement, ITim
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         final RotateDirection currentToggleDir = getCurrentToggleDir();
-        return new SlidingMover(this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
+        return new SlidingMover(context, this, time, skipAnimation, getBlocksToMove(), currentToggleDir,
                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 }

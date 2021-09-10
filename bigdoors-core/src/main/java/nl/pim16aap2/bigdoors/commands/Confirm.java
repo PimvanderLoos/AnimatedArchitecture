@@ -24,9 +24,9 @@ public class Confirm extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject
-    public Confirm(@Assisted ICommandSender commandSender, IPLogger logger,
-                   nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager)
+    @AssistedInject //
+    Confirm(@Assisted ICommandSender commandSender, IPLogger logger,
+            nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager)
     {
         super(commandSender, logger, localizer);
         this.toolUserManager = toolUserManager;

@@ -26,9 +26,9 @@ public class SetBlocksToMove extends DoorTargetCommand
 
     private final int blocksToMove;
 
-    @AssistedInject
-    public SetBlocksToMove(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                           @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int blocksToMove)
+    @AssistedInject //
+    SetBlocksToMove(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int blocksToMove)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;

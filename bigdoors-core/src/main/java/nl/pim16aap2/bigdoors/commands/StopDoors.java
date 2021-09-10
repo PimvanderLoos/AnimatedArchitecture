@@ -21,9 +21,9 @@ public class StopDoors extends BaseCommand
 {
     private final DoorActivityManager doorActivityManager;
 
-    @AssistedInject
-    public StopDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                     DoorActivityManager doorActivityManager)
+    @AssistedInject //
+    StopDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+              DoorActivityManager doorActivityManager)
     {
         super(commandSender, logger, localizer);
         this.doorActivityManager = doorActivityManager;

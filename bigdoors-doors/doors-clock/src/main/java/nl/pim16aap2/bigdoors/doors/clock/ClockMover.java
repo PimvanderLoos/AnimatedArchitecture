@@ -49,11 +49,11 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     protected final int angleDirectionMultiplier;
 
-    public ClockMover(T door, RotateDirection rotateDirection, IPPlayer player, DoorActionCause cause,
-                      DoorActionType actionType)
+    public ClockMover(Context context, T door, RotateDirection rotateDirection, IPPlayer player,
+                      DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
+        super(context, door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
         isHourArm = northSouth ? this::isHourArmNS : this::isHourArmEW;
         angleDirectionMultiplier =
             (rotateDirection == RotateDirection.EAST || rotateDirection == RotateDirection.SOUTH) ? -1 : 1;

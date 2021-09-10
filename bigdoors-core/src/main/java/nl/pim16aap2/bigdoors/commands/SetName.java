@@ -26,9 +26,9 @@ public class SetName extends BaseCommand
     private final String name;
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject
-    public SetName(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer, @Assisted String name,
-                   ToolUserManager toolUserManager)
+    @AssistedInject //
+    SetName(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer, @Assisted String name,
+            ToolUserManager toolUserManager)
     {
         super(commandSender, logger, localizer);
         this.name = name;

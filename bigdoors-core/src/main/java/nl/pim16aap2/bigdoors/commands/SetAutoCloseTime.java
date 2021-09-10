@@ -26,9 +26,9 @@ public class SetAutoCloseTime extends DoorTargetCommand
 
     private final int autoCloseTime;
 
-    @AssistedInject
-    public SetAutoCloseTime(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                            @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int autoCloseTime)
+    @AssistedInject //
+    SetAutoCloseTime(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                     @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int autoCloseTime)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;

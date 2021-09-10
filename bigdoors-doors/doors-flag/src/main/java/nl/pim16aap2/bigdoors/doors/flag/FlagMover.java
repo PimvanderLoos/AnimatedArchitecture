@@ -25,11 +25,11 @@ public class FlagMover extends BlockMover
     private final double amplitude;
     private final double waveSpeed;
 
-    public FlagMover(double time, Flag door, double multiplier, IPPlayer player, DoorActionCause cause,
-                     DoorActionType actionType)
+    public FlagMover(Context context, double time, Flag door, double multiplier, IPPlayer player,
+                     DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
+        super(context, door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
 
         final int xLen = Math.abs(xMax - xMin) + 1;
         final int zLen = Math.abs(zMax - zMin) + 1;

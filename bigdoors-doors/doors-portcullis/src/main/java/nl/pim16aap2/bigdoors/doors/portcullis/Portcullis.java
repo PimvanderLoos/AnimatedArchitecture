@@ -89,13 +89,14 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         final int directedBlocksToMove = getOpenDir().equals(RotateDirection.UP) ?
                                          getBlocksToMove() : -getBlocksToMove();
-        return new VerticalMover(this, time, skipAnimation, directedBlocksToMove,
+        return new VerticalMover(context, this, time, skipAnimation, directedBlocksToMove,
                                  DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
     }
 }

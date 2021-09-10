@@ -81,11 +81,12 @@ public class Clock extends AbstractDoor implements IHorizontalAxisAligned
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
-        return new ClockMover<>(this, getCurrentToggleDir(), responsible, cause, actionType);
+        return new ClockMover<>(context, this, getCurrentToggleDir(), responsible, cause, actionType);
     }
 
     @Override

@@ -26,9 +26,9 @@ public class ListDoors extends BaseCommand
 {
     private final DoorRetriever.AbstractRetriever doorRetriever;
 
-    @AssistedInject
-    public ListDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                     @Assisted DoorRetriever.AbstractRetriever doorRetriever)
+    @AssistedInject //
+    ListDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+              @Assisted DoorRetriever.AbstractRetriever doorRetriever)
     {
         super(commandSender, logger, localizer);
         this.doorRetriever = doorRetriever;

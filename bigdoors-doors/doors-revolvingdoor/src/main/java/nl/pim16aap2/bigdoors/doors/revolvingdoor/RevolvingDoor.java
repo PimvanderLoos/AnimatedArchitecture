@@ -83,15 +83,16 @@ public class RevolvingDoor extends AbstractDoor
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new RevolvingDoorMover(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
-                                      responsible, quarterCircles, cause, newCuboid, actionType);
+        return new RevolvingDoorMover(context, this, fixedTime, DoorOpeningUtility.getMultiplier(this),
+                                      getCurrentToggleDir(), responsible, quarterCircles, cause, newCuboid, actionType);
     }
 
     @Override

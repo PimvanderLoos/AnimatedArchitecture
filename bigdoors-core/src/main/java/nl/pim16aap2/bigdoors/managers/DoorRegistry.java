@@ -48,7 +48,7 @@ public final class DoorRegistry extends Restartable
      * @param cacheExpiry
      *     How long to keep stuff in the cache.
      */
-//    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
+//    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
     private DoorRegistry(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         super(BigDoors.get());

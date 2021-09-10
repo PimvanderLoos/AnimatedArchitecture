@@ -49,11 +49,12 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      * @param player
      *     The player who opened this door.
      */
-    public BridgeMover(double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
-                       IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
+    public BridgeMover(Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation,
+                       double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+                       DoorActionType actionType)
         throws Exception
     {
-        super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getEngine().toDouble().add(0.5, 0, 0.5);

@@ -33,15 +33,15 @@ public final class DoorBaseFactory
      *
      * @return A new guided builder.
      */
-    public BuilderUID builder()
+    public IBuilderUID builder()
     {
-        return new DoorBaseBuilder(doorBaseFactory);
+        return new Builder(doorBaseFactory);
     }
 
     @RequiredArgsConstructor
-    private static final class DoorBaseBuilder
-        implements BuilderUID, BuilderName, BuilderCuboid, BuilderEngine, BuilderPowerBlock, BuilderWorld,
-        BuilderIsOpen, BuilderIsLocked, BuilderOpenDir, BuilderPrimeOwner, BuilderDoorOwners, Builder
+    private static final class Builder
+        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderEngine, IBuilderPowerBlock, IBuilderWorld,
+        IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderDoorOwners, IBuilder
     {
         private final DoorBase.Factory doorBaseFactory;
 
@@ -59,7 +59,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderName uid(long doorUID)
+        public IBuilderName uid(long doorUID)
         {
             this.doorUID = doorUID;
             return this;
@@ -67,7 +67,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderCuboid name(String name)
+        public IBuilderCuboid name(String name)
         {
             this.name = name;
             return this;
@@ -75,7 +75,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderEngine cuboid(Cuboid cuboid)
+        public IBuilderEngine cuboid(Cuboid cuboid)
         {
             this.cuboid = cuboid;
             return this;
@@ -83,7 +83,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderPowerBlock engine(Vector3Di engine)
+        public IBuilderPowerBlock engine(Vector3Di engine)
         {
             this.engine = engine;
             return this;
@@ -91,7 +91,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderWorld powerBlock(Vector3Di powerBlock)
+        public IBuilderWorld powerBlock(Vector3Di powerBlock)
         {
             this.powerBlock = powerBlock;
             return this;
@@ -99,7 +99,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderIsOpen world(IPWorld world)
+        public IBuilderIsOpen world(IPWorld world)
         {
             this.world = world;
             return this;
@@ -107,7 +107,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderIsLocked isOpen(boolean isOpen)
+        public IBuilderIsLocked isOpen(boolean isOpen)
         {
             this.isOpen = isOpen;
             return this;
@@ -115,7 +115,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderOpenDir isLocked(boolean isLocked)
+        public IBuilderOpenDir isLocked(boolean isLocked)
         {
             this.isLocked = isLocked;
             return this;
@@ -123,7 +123,7 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderPrimeOwner openDir(RotateDirection openDir)
+        public IBuilderPrimeOwner openDir(RotateDirection openDir)
         {
             this.openDir = openDir;
             return this;
@@ -131,14 +131,14 @@ public final class DoorBaseFactory
 
         @Override
         @Initializer
-        public BuilderDoorOwners primeOwner(DoorOwner primeOwner)
+        public IBuilderDoorOwners primeOwner(DoorOwner primeOwner)
         {
             this.primeOwner = primeOwner;
             return this;
         }
 
         @Override
-        public Builder doorOwners(@Nullable Map<UUID, DoorOwner> doorOwners)
+        public IBuilder doorOwners(@Nullable Map<UUID, DoorOwner> doorOwners)
         {
             this.doorOwners = doorOwners;
             return this;
@@ -152,63 +152,161 @@ public final class DoorBaseFactory
         }
     }
 
-    public interface BuilderUID
+    public interface IBuilderUID
     {
-        BuilderName uid(long doorUID);
+        /**
+         * Provides the UID of the door to create. If this door hasn't been added to the database yet, this value should
+         * be -1.
+         *
+         * @param doorUID
+         *     The UID.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderName uid(long doorUID);
     }
 
-    public interface BuilderName
+    public interface IBuilderName
     {
-        BuilderCuboid name(String name);
+        /**
+         * Sets the name of the door.
+         *
+         * @param name
+         *     The name of the door.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderCuboid name(String name);
     }
 
-    public interface BuilderCuboid
+    public interface IBuilderCuboid
     {
-        BuilderEngine cuboid(Cuboid cuboid);
+        /**
+         * Sets the cuboid of the door. The cuboid refers to the 3d area defined by the min/max coordinate combination
+         * of the door.
+         *
+         * @param cuboid
+         *     The cuboid.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderEngine cuboid(Cuboid cuboid);
+
+        /**
+         * Sets the min/max coordinate pair of the door.
+         *
+         * @param min
+         *     The minimum x/y/z coordinates of the door.
+         * @param max
+         *     The maximum x/y/z coordinates of the door.
+         * @return The next step of the guided builder process.
+         */
+        default IBuilderEngine cuboid(Vector3Di min, Vector3Di max)
+        {
+            return cuboid(new Cuboid(min, max));
+        }
     }
 
-    public interface BuilderEngine
+    public interface IBuilderEngine
     {
-        BuilderPowerBlock engine(Vector3Di engine);
+        /**
+         * Sets the point around which the door will rotate.
+         *
+         * @param engine
+         *     The x/y/z coordinates of the rotation point of the door.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderPowerBlock engine(Vector3Di engine);
     }
 
-    public interface BuilderPowerBlock
+    public interface IBuilderPowerBlock
     {
-        BuilderWorld powerBlock(Vector3Di powerBlock);
+        /**
+         * Sets the location of the power block of the door.
+         *
+         * @param powerBlock
+         *     The x/y/z coordinates of the door's power block.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderWorld powerBlock(Vector3Di powerBlock);
     }
 
-    public interface BuilderWorld
+    public interface IBuilderWorld
     {
-        BuilderIsOpen world(IPWorld world);
+        /**
+         * Sets the world the door exists in.
+         *
+         * @param world
+         *     The world.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderIsOpen world(IPWorld world);
     }
 
-    public interface BuilderIsOpen
+    public interface IBuilderIsOpen
     {
-        BuilderIsLocked isOpen(boolean isOpen);
+        /**
+         * a
+         *
+         * @param isOpen
+         * @return The next step of the guided builder process.
+         */
+        IBuilderIsLocked isOpen(boolean isOpen);
     }
 
-    public interface BuilderIsLocked
+    public interface IBuilderIsLocked
     {
-        BuilderOpenDir isLocked(boolean isLocked);
+        /**
+         * Sets the open-status of the door.
+         *
+         * @param isLocked
+         *     Whether the door is currently locked (true) or unlocked (false).
+         * @return The next step of the guided builder process.
+         */
+        IBuilderOpenDir isLocked(boolean isLocked);
     }
 
-    public interface BuilderOpenDir
+    public interface IBuilderOpenDir
     {
-        BuilderPrimeOwner openDir(RotateDirection openDir);
+        /**
+         * Sets the open direction of the door.
+         *
+         * @param openDir
+         *     The rotation direction.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderPrimeOwner openDir(RotateDirection openDir);
     }
 
-    public interface BuilderPrimeOwner
+    public interface IBuilderPrimeOwner
     {
-        BuilderDoorOwners primeOwner(DoorOwner primeOwner);
+        /**
+         * Sets the prime owner of the door. This is the player who initially created the door. This is the player with
+         * permission level 0.
+         *
+         * @param primeOwner
+         *     The prime owner of the door.
+         * @return The next step of the guided builder process.
+         */
+        IBuilderDoorOwners primeOwner(DoorOwner primeOwner);
     }
 
-    public interface BuilderDoorOwners extends Builder
+    public interface IBuilderDoorOwners extends IBuilder
     {
-        Builder doorOwners(@Nullable Map<UUID, DoorOwner> doorOwners);
+        /**
+         * Sets the (co-)owner(s) of the door (including the prime owner).
+         *
+         * @param doorOwners
+         *     The (co-)owner(s) of the door.
+         * @return The next step of the guided builder process.
+         */
+        IBuilder doorOwners(@Nullable Map<UUID, DoorOwner> doorOwners);
     }
 
-    public interface Builder
+    public interface IBuilder
     {
+        /**
+         * Builds the {@link DoorBase} based on the provided input.
+         *
+         * @return The next step of the guided builder process.
+         */
         DoorBase build();
     }
 }

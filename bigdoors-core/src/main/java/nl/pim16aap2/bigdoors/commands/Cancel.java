@@ -24,10 +24,10 @@ public class Cancel extends BaseCommand
     private final ToolUserManager toolUserManager;
     private final DoorSpecificationManager doorSpecificationManager;
 
-    @AssistedInject
-    public Cancel(@Assisted ICommandSender commandSender, IPLogger logger,
-                  nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-                  ToolUserManager toolUserManager, DoorSpecificationManager doorSpecificationManager)
+    @AssistedInject //
+    Cancel(@Assisted ICommandSender commandSender, IPLogger logger,
+           nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager,
+           DoorSpecificationManager doorSpecificationManager)
     {
         super(commandSender, logger, localizer);
         this.toolUserManager = toolUserManager;

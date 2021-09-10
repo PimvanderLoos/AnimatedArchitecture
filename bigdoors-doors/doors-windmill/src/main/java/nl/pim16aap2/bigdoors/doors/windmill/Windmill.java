@@ -90,14 +90,15 @@ public class Windmill extends AbstractDoor implements IHorizontalAxisAligned, IP
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         // TODO: Get rid of this.
         final double fixedTime = time < 0.5 ? 5 : time;
 
-        return new WindmillMover<>(this, fixedTime, DoorOpeningUtility.getMultiplier(this), getCurrentToggleDir(),
-                                   responsible, cause, actionType);
+        return new WindmillMover<>(context, this, fixedTime, DoorOpeningUtility.getMultiplier(this),
+                                   getCurrentToggleDir(), responsible, cause, actionType);
     }
 }

@@ -21,9 +21,9 @@ public class Version extends BaseCommand
 {
     private final IBigDoorsPlatform platform;
 
-    @AssistedInject
-    public Version(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                   IBigDoorsPlatform platform)
+    @AssistedInject //
+    Version(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+            IBigDoorsPlatform platform)
     {
         super(commandSender, logger, localizer);
         this.platform = platform;

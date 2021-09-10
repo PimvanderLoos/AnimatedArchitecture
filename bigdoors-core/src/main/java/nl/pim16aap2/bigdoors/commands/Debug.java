@@ -24,10 +24,10 @@ public class Debug extends BaseCommand
     private final IMessagingInterface messagingInterface;
     private final DebugReporter debugReporter;
 
-    @AssistedInject
-    public Debug(@Assisted ICommandSender commandSender, IPLogger logger,
-                 nl.pim16aap2.bigdoors.localization.ILocalizer localizer, IMessagingInterface messagingInterface,
-                 DebugReporter debugReporter)
+    @AssistedInject //
+    Debug(@Assisted ICommandSender commandSender, IPLogger logger,
+          nl.pim16aap2.bigdoors.localization.ILocalizer localizer, IMessagingInterface messagingInterface,
+          DebugReporter debugReporter)
     {
         super(commandSender, logger, localizer);
         this.messagingInterface = messagingInterface;

@@ -25,9 +25,9 @@ public class InspectPowerBlock extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject
-    public InspectPowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                             ToolUserManager toolUserManager)
+    @AssistedInject //
+    InspectPowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                      ToolUserManager toolUserManager)
     {
         super(commandSender, logger, localizer);
         this.toolUserManager = toolUserManager;

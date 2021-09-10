@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -22,19 +21,18 @@ public class BigDoorMover extends BlockMover
     private final double angle;
     private double step;
 
-    public BigDoorMover(AbstractDoor door, RotateDirection rotDirection, double time, boolean skipAnimation,
-                        double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-                        DoorActionType actionType)
+    public BigDoorMover(Context context, AbstractDoor door, RotateDirection rotDirection, double time,
+                        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
+                        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
+        super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
 
         angle = rotDirection == RotateDirection.CLOCKWISE ? Math.PI / 2 :
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
 
         if (angle == 0.0D)
-            BigDoors.get().getPLogger()
-                    .severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
+            logger.severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
 
         rotationCenter = new Vector3Dd(door.getEngine().x() + 0.5, yMin, door.getEngine().z() + 0.5);
 

@@ -27,9 +27,9 @@ public class MovePowerBlock extends DoorTargetCommand
 {
     private final ToolUserManager toolUserManager;
 
-    @AssistedInject
-    public MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                          @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager)
+    @AssistedInject //
+    MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                   @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;

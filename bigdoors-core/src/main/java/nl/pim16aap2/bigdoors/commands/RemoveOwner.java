@@ -29,10 +29,10 @@ public class RemoveOwner extends DoorTargetCommand
     private final IPPlayer targetPlayer;
     private final DatabaseManager databaseManager;
 
-    @AssistedInject
-    public RemoveOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                       @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-                       DatabaseManager databaseManager)
+    @AssistedInject //
+    RemoveOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+                DatabaseManager databaseManager)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;

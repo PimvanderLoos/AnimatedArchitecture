@@ -45,10 +45,10 @@ public class AddOwner extends DoorTargetCommand
 
     private final DatabaseManager databaseManager;
 
-    @AssistedInject
-    public AddOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-                    @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
+    @AssistedInject //
+    AddOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+             @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
+             @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;

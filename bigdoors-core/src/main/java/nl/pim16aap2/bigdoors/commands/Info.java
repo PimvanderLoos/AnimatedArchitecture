@@ -25,9 +25,9 @@ public class Info extends DoorTargetCommand
 {
     private final IGlowingBlockSpawner glowingBlockSpawner;
 
-    @AssistedInject
-    public Info(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
+    @AssistedInject //
+    Info(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+         @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;

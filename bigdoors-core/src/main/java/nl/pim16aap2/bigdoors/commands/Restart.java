@@ -21,9 +21,9 @@ public class Restart extends BaseCommand
 {
     private final IBigDoorsPlatform bigDoorsPlatform;
 
-    @AssistedInject
-    public Restart(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                   IBigDoorsPlatform bigDoorsPlatform)
+    @AssistedInject //
+    Restart(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+            IBigDoorsPlatform bigDoorsPlatform)
     {
         super(commandSender, logger, localizer);
         this.bigDoorsPlatform = bigDoorsPlatform;

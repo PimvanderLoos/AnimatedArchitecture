@@ -14,6 +14,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -106,6 +107,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @Getter(AccessLevel.PACKAGE)
     private final LimitsManager limitsManager;
 
+    @EqualsAndHashCode.Exclude
+    @Getter(AccessLevel.PACKAGE)
+    private final AutoCloseScheduler autoCloseScheduler;
+
     @AssistedInject //
     DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
              @Assisted("engine") Vector3Di engine, @Assisted("powerBlock") Vector3Di powerBlock,
@@ -113,7 +118,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
              @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
              @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
              DatabaseManager databaseManager, DoorOpener doorOpener, DoorRegistry doorRegistry,
-             DoorActivityManager doorActivityManager, LimitsManager limitsManager)
+             DoorActivityManager doorActivityManager, LimitsManager limitsManager,
+             AutoCloseScheduler autoCloseScheduler)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -141,6 +147,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorRegistry = doorRegistry;
         this.doorActivityManager = doorActivityManager;
         this.limitsManager = limitsManager;
+        this.autoCloseScheduler = autoCloseScheduler;
     }
 
     // Copy constructor
@@ -165,6 +172,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         doorRegistry = other.doorRegistry;
         doorActivityManager = other.doorActivityManager;
         limitsManager = other.limitsManager;
+        autoCloseScheduler = other.autoCloseScheduler;
     }
 
     /**

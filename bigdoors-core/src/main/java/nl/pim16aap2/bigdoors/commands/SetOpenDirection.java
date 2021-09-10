@@ -26,10 +26,10 @@ public class SetOpenDirection extends DoorTargetCommand
 
     private final RotateDirection rotateDirection;
 
-    @AssistedInject
-    public SetOpenDirection(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                            @Assisted DoorRetriever.AbstractRetriever doorRetriever,
-                            @Assisted RotateDirection rotateDirection)
+    @AssistedInject //
+    SetOpenDirection(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                     @Assisted DoorRetriever.AbstractRetriever doorRetriever,
+                     @Assisted RotateDirection rotateDirection)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.OPEN_DIRECTION);
         this.rotateDirection = rotateDirection;

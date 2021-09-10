@@ -72,6 +72,18 @@ public final class DoorRetriever
     }
 
     /**
+     * Creates a new {@link DoorRetriever} from a door that is being retrieved.
+     *
+     * @param door
+     *     The door that is being retrieved.
+     * @return The new {@link DoorRetriever}.
+     */
+    public AbstractRetriever of(CompletableFuture<Optional<AbstractDoor>> door)
+    {
+        return DoorRetriever.ofDoor(door);
+    }
+
+    /**
      * Creates a new {@link DoorRetriever} from the door object itself.
      *
      * @param door
@@ -83,8 +95,13 @@ public final class DoorRetriever
         return new DoorObjectRetriever(door);
     }
 
+    public static AbstractRetriever ofDoor(CompletableFuture<Optional<AbstractDoor>> door)
+    {
+        return new FutureDoorRetriever(door);
+    }
+
     public static abstract sealed class AbstractRetriever
-        permits DoorNameRetriever, DoorUIDRetriever, DoorObjectRetriever
+        permits DoorNameRetriever, DoorUIDRetriever, DoorObjectRetriever, FutureDoorRetriever
     {
         /**
          * Checks if the door that is being retrieved is available.
@@ -307,6 +324,35 @@ public final class DoorRetriever
             return door.getDoorOwner(player).isPresent() ?
                    getDoor() :
                    CompletableFuture.completedFuture(Optional.empty());
+        }
+    }
+
+    /**
+     * Represents a {@link DoorRetriever} that references a future optional door directly.
+     *
+     * @author Pim
+     */
+    @ToString
+    @AllArgsConstructor
+    private static final class FutureDoorRetriever extends AbstractRetriever
+    {
+        private final CompletableFuture<Optional<AbstractDoor>> futureDoor;
+
+        @Override
+        public CompletableFuture<Optional<AbstractDoor>> getDoor()
+        {
+            return futureDoor;
+        }
+
+        @Override
+        public CompletableFuture<Optional<AbstractDoor>> getDoor(IPPlayer player)
+        {
+            return futureDoor.<Optional<AbstractDoor>>thenApply(
+                doorOpt ->
+                {
+                    final boolean playerIsPresent = doorOpt.flatMap(door -> door.getDoorOwner(player)).isPresent();
+                    return playerIsPresent ? doorOpt : Optional.empty();
+                }).exceptionally(Util::exceptionallyOptional);
         }
     }
 }

@@ -16,6 +16,7 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
@@ -56,10 +57,11 @@ public abstract class AbstractDoor implements IDoor
     private final DoorRegistry doorRegistry;
     private final DoorActivityManager doorActivityManager;
     private final LimitsManager limitsManager;
+    private final AutoCloseScheduler autoCloseScheduler;
 
     protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer, DatabaseManager databaseManager,
                            DoorOpener doorOpener, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
-                           LimitsManager limitsManager)
+                           LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler)
     {
         serializer = getDoorType().getDoorSerializer(logger);
         this.doorBase = doorBase;
@@ -70,6 +72,7 @@ public abstract class AbstractDoor implements IDoor
         this.doorRegistry = doorRegistry;
         this.doorActivityManager = doorActivityManager;
         this.limitsManager = limitsManager;
+        this.autoCloseScheduler = autoCloseScheduler;
 
         logger.logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
         if (doorBase.getDoorUID() > 0 &&
@@ -86,7 +89,7 @@ public abstract class AbstractDoor implements IDoor
     {
         this(doorBase, doorBase.getLogger(), doorBase.getLocalizer(), doorBase.getDatabaseManager(),
              doorBase.getDoorOpener(), doorBase.getDoorRegistry(), doorBase.getDoorActivityManager(),
-             doorBase.getLimitsManager());
+             doorBase.getLimitsManager(), doorBase.getAutoCloseScheduler());
     }
 
     /**
@@ -165,10 +168,13 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link IPPlayer} responsible for the door action.
      * @param actionType
      *     The type of action that will be performed by the BlockMover.
+     * @param context
+     *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                                      Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                                      boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                                      DoorActionType actionType)
         throws Exception;
 
 
@@ -206,8 +212,9 @@ public abstract class AbstractDoor implements IDoor
 
         try
         {
-            DoorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
-                                                                      responsible, actionType));
+            DoorOpeningUtility.registerBlockMover(
+                constructBlockMover(new BlockMover.Context(doorActivityManager, autoCloseScheduler, logger),
+                                    cause, time, skipAnimation, newCuboid, responsible, actionType));
         }
         catch (Exception e)
         {

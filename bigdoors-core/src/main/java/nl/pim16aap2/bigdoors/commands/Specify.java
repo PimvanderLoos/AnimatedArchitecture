@@ -23,9 +23,9 @@ public class Specify extends BaseCommand
     private final String input;
     private final DoorSpecificationManager doorSpecificationManager;
 
-    @AssistedInject
-    public Specify(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                   @Assisted String input, DoorSpecificationManager doorSpecificationManager)
+    @AssistedInject //
+    Specify(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+            @Assisted String input, DoorSpecificationManager doorSpecificationManager)
     {
         super(commandSender, logger, localizer);
         this.input = input;

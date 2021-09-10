@@ -25,6 +25,34 @@ import java.util.concurrent.CompletableFuture;
 @Reusable
 public final class DoorOpener
 {
+
+
+    /*
+
+
+
+
+    This class needs to be removed.
+
+    Instead, we want a guided builder + factory combination.
+
+    Take a look at the DoorBaseFactory class.
+
+
+
+    The idea is that the guided builder should create a ToggleRequest.
+
+    This request needs all the parameters shown in this class (door (probably either as AbstractDoor or as Retriever),
+    cause, responsible player/server, message receiver, etc).
+
+    In addition, the request should contain the context objects such as logger, activity manager, etc.
+
+
+
+
+
+     */
+
     private final IPLogger logger;
 
     @Inject

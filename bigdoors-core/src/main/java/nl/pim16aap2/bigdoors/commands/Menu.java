@@ -22,9 +22,9 @@ public class Menu extends BaseCommand
 {
     private final @Nullable IPPlayer target;
 
-    @AssistedInject
-    public Menu(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                @Assisted @Nullable IPPlayer target)
+    @AssistedInject //
+    Menu(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+         @Assisted @Nullable IPPlayer target)
     {
         super(commandSender, logger, localizer);
         this.target = target;

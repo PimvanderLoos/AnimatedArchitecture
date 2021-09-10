@@ -22,10 +22,10 @@ public class Delete extends DoorTargetCommand
 {
     private final DatabaseManager databaseManager;
 
-    @AssistedInject
-    public Delete(@Assisted ICommandSender commandSender, IPLogger logger,
-                  nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-                  @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager)
+    @AssistedInject //
+    Delete(@Assisted ICommandSender commandSender, IPLogger logger,
+           nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
+           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE);
         this.databaseManager = databaseManager;
