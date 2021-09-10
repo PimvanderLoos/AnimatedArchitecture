@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
@@ -29,7 +30,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
      *     on an unsupported version.
      */
     @Inject
-    public PlatformManagerSpigot(BigDoorsSpigot bigDoorsSpigot, IPLogger logger)
+    public PlatformManagerSpigot(BigDoorsSpigot bigDoorsSpigot, IPLogger logger, IPLocationFactory locationFactory)
     {
         Version versionTmp;
         String versionStringTmp;
@@ -39,7 +40,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
             versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
             versionTmp = Version.valueOf(versionStringTmp);
             if (versionTmp != Version.ERROR)
-                spigotPlatformTmp = versionTmp.getPlatform(logger);
+                spigotPlatformTmp = versionTmp.getPlatform(logger, locationFactory);
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
@@ -75,7 +76,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         ERROR
             {
                 @Override
-                public @Nullable ISpigotPlatform getPlatform(IPLogger logger)
+                public @Nullable ISpigotPlatform getPlatform(IPLogger logger, IPLocationFactory locationFactory)
                 {
                     return null;
                 }
@@ -83,9 +84,9 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
         V1_15_R1
             {
                 @Override
-                public ISpigotPlatform getPlatform(IPLogger logger)
+                public ISpigotPlatform getPlatform(IPLogger logger, IPLocationFactory locationFactory)
                 {
-                    return new SpigotPlatform_V1_15_R1(logger);
+                    return new SpigotPlatform_V1_15_R1(logger, locationFactory);
                 }
             },
         ;
@@ -95,7 +96,7 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
          *
          * @return The instance of the {@link ISpigotPlatform} for this {@link Version}.
          */
-        public abstract @Nullable ISpigotPlatform getPlatform(IPLogger logger)
+        public abstract @Nullable ISpigotPlatform getPlatform(IPLogger logger, IPLocationFactory locationFactory)
             throws UnsupportedOperationException;
     }
 }

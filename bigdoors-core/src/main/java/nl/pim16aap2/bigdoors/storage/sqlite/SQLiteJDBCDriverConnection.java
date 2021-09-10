@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
@@ -99,6 +99,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private final DoorTypeManager doorTypeManager;
 
+    private IPWorldFactory worldFactory;
+
     /**
      * Constructor of the SQLite driver connection.
      *
@@ -107,13 +109,15 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Inject
     public SQLiteJDBCDriverConnection(@Named("databaseFile") File dbFile, DoorBaseFactory doorBaseFactory,
-                                      IPLogger logger, DoorRegistry doorRegistry, DoorTypeManager doorTypeManager)
+                                      IPLogger logger, DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
+                                      IPWorldFactory worldFactory)
     {
         this.dbFile = dbFile;
         this.doorBaseFactory = doorBaseFactory;
         this.logger = logger;
         this.doorRegistry = doorRegistry;
         this.doorTypeManager = doorTypeManager;
+        this.worldFactory = worldFactory;
 
         configRW = new SQLiteConfig();
         configRW.enforceForeignKeys(true);
@@ -344,8 +348,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                    doorBaseRS.getInt("powerBlockY"),
                                                    doorBaseRS.getInt("powerBlockZ"));
 
-        final IPWorld world = BigDoors.get().getPlatform().getPWorldFactory()
-                                      .create(doorBaseRS.getString("world"));
+        final IPWorld world = worldFactory.create(doorBaseRS.getString("world"));
 
         final long bitflag = doorBaseRS.getLong("bitflag");
         final boolean isOpen = IBitFlag.hasFlag(DoorFlag.getFlagValue(DoorFlag.IS_OPEN), bitflag);

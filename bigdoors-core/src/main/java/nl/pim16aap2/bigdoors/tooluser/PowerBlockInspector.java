@@ -6,9 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -33,17 +30,16 @@ public class PowerBlockInspector extends ToolUser
     private final boolean bypassPermission;
 
     @AssistedInject
-    public PowerBlockInspector(@Assisted IPPlayer player, @Assisted boolean bypassPermission, IPLogger logger,
-                               ILocalizer localizer, ToolUserManager toolUserManager)
+    public PowerBlockInspector(ToolUser.Context context, @Assisted IPPlayer player, @Assisted boolean bypassPermission)
     {
-        super(player, logger, localizer, toolUserManager);
+        super(context, player);
         this.bypassPermission = bypassPermission;
     }
 
     @SuppressWarnings("unused")
-    public PowerBlockInspector(IPPlayer player, IPLogger logger, ILocalizer localizer, ToolUserManager toolUserManager)
+    public PowerBlockInspector(ToolUser.Context context, IPPlayer player)
     {
-        this(player, false, logger, localizer, toolUserManager);
+        this(context, player, false);
     }
 
     @Override

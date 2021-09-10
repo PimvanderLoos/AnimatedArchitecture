@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -26,15 +27,18 @@ public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
     private final IBigDoorsPlatform bigDoorsPlatform;
+    private final IBigDoorsEventFactory bigDoorsEventFactory;
 
     @AssistedInject //
     Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
          @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
-         IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler)
+         IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler,
+         IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK, handler);
         this.lockedStatus = lockedStatus;
         this.bigDoorsPlatform = bigDoorsPlatform;
+        this.bigDoorsEventFactory = bigDoorsEventFactory;
     }
 
     @Override
@@ -46,8 +50,7 @@ public class Lock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        final var event = bigDoorsPlatform
-            .getBigDoorsEventFactory()
+        final var event = bigDoorsEventFactory
             .createDoorPrepareLockChangeEvent(door, lockedStatus, getCommandSender().getPlayer().orElse(null));
 
         bigDoorsPlatform.callDoorEvent(event);

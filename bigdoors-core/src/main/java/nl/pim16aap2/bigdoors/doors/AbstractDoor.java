@@ -2,15 +2,13 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
+import lombok.val;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
-import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -185,12 +183,13 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
+    // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
                                                IPPlayer responsible, double time, boolean skipAnimation,
                                                DoorActionType actionType)
     {
-        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
+        if (!doorOpeningHelper.isMainThread())
         {
             logger.logThrowable(
                 new IllegalStateException("Doors must be toggled on the main thread!"));
@@ -222,11 +221,9 @@ public abstract class AbstractDoor implements IDoor
         if (newCuboid.isEmpty())
             return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
-        final IDoorEventTogglePrepare prepareEvent =
-            BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                    .createTogglePrepareEvent(this, cause, actionType, responsible,
-                                              time, skipAnimation, newCuboid.get());
-        BigDoors.get().getPlatform().callDoorEvent(prepareEvent);
+
+        val prepareEvent = doorOpeningHelper.callTogglePrepareEvent(this, cause, actionType, responsible,
+                                                                    time, skipAnimation, newCuboid.get());
 
         if (prepareEvent.isCancelled())
             return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
@@ -238,18 +235,15 @@ public abstract class AbstractDoor implements IDoor
         if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
             return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
-        final CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
-            () -> doorBase.registerBlockMover(this, cause, time, skipAnimation, newCuboid.get(), responsible,
-                                              actionType));
+        final CompletableFuture<Boolean> scheduled =
+            doorOpeningHelper.registerBlockMover(doorBase, this, cause, time, skipAnimation,
+                                                 newCuboid.get(), responsible, actionType);
 
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
-        final IDoorEventToggleStart toggleStartEvent =
-            BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                    .createToggleStartEvent(this, cause, actionType, responsible,
-                                            time, skipAnimation, newCuboid.get());
-        BigDoors.get().getPlatform().callDoorEvent(toggleStartEvent);
+        val toggleStartEvent = doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
+                                                                      time, skipAnimation, newCuboid.get());
 
         return DoorToggleResult.SUCCESS;
     }

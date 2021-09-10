@@ -1,19 +1,14 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -31,7 +26,6 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import javax.inject.Inject;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Collections;
@@ -174,41 +168,16 @@ public abstract class Creator extends ToolUser
 
     protected Creator(Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, context.logger, context.localizer, context.toolUserManager);
+        super(context, player);
         this.context = context;
-        handler = context.handler;
-        limitsManager = context.limitsManager;
+        handler = context.getHandler();
+        limitsManager = context.getLimitsManager();
 
         player.sendMessage(localizer.getMessage("creator.base.init"));
 
         if (name != null)
             handleInput(name);
         prepareCurrentStep();
-    }
-
-    public static final class Context
-    {
-        private final DoorBaseFactory doorBaseFactory;
-        private final IPLogger logger;
-        private final ILocalizer localizer;
-        private final ToolUserManager toolUserManager;
-        private final DatabaseManager databaseManager;
-        private final LimitsManager limitsManager;
-        private final CompletableFutureHandler handler;
-
-        @Inject
-        public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
-                       ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
-                       CompletableFutureHandler handler)
-        {
-            this.doorBaseFactory = doorBaseFactory;
-            this.logger = logger;
-            this.localizer = localizer;
-            this.toolUserManager = toolUserManager;
-            this.databaseManager = databaseManager;
-            this.limitsManager = limitsManager;
-            this.handler = handler;
-        }
     }
 
     @Override
@@ -267,19 +236,19 @@ public abstract class Creator extends ToolUser
         final long doorUID = -1;
         final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
 
-        return context.doorBaseFactory
-            .builder()
-            .uid(doorUID)
-            .name(Util.requireNonNull(name, "Name"))
-            .cuboid(Util.requireNonNull(cuboid, "cuboid"))
-            .engine(Util.requireNonNull(engine, "engine"))
-            .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
-            .world(Util.requireNonNull(world, "world"))
-            .isOpen(isOpen)
-            .isLocked(isLocked)
-            .openDir(Util.requireNonNull(openDir, "openDir"))
-            .primeOwner(owner)
-            .build();
+        return context.getDoorBaseFactory()
+                      .builder()
+                      .uid(doorUID)
+                      .name(Util.requireNonNull(name, "Name"))
+                      .cuboid(Util.requireNonNull(cuboid, "cuboid"))
+                      .engine(Util.requireNonNull(engine, "engine"))
+                      .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
+                      .world(Util.requireNonNull(world, "world"))
+                      .isOpen(isOpen)
+                      .isLocked(isLocked)
+                      .openDir(Util.requireNonNull(openDir, "openDir"))
+                      .primeOwner(owner)
+                      .build();
     }
 
     /**
@@ -363,7 +332,7 @@ public abstract class Creator extends ToolUser
         final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final OptionalInt sizeLimit = context.limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
+        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
@@ -510,7 +479,7 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(AbstractDoor door)
     {
-        context.databaseManager.addDoor(door, getPlayer()).whenComplete(
+        context.getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
@@ -542,12 +511,12 @@ public abstract class Creator extends ToolUser
      */
     protected boolean buyDoor()
     {
-        if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
+        if (!context.getEconomyManager().isEconomyEnabled())
             return true;
 
-        return BigDoors.get().getPlatform().getEconomyManager()
-                       .buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
-                                Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return context.getEconomyManager()
+                      .buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
+                               Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -558,10 +527,10 @@ public abstract class Creator extends ToolUser
      */
     protected OptionalDouble getPrice()
     {
-        if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
+        if (!context.getEconomyManager().isEconomyEnabled())
             return OptionalDouble.empty();
-        return BigDoors.get().getPlatform().getEconomyManager()
-                       .getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return context.getEconomyManager()
+                      .getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -629,7 +598,7 @@ public abstract class Creator extends ToolUser
                                         .getMessage("creator.base.error.powerblock_inside_door"));
             return false;
         }
-        final OptionalInt distanceLimit = context.limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
+        final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())

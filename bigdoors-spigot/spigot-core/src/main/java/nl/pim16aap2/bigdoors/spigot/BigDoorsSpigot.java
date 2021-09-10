@@ -3,15 +3,12 @@ package nl.pim16aap2.bigdoors.spigot;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
-import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
-import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -77,8 +74,6 @@ import java.util.stream.Collectors;
 public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 {
     @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.
-    private static BigDoorsSpigot INSTANCE;
-    @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.
     private static long MAIN_THREAD_ID = -1;
 
     private boolean validVersion;
@@ -86,7 +81,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
     private final IPLogger pLogger;
     private final ISpigotPlatform spigotPlatform;
-    private final ConfigLoaderSpigot configLoader;
+    private final ConfigLoaderSpigot bigDoorsConfig;
     private final RedstoneListener redstoneListener;
     private final LoginResourcePackListener loginResourcePackListener;
     private final IPExecutor pExecutor;
@@ -126,26 +121,25 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     private final LocalizationManager localizationManager;
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
     private final CommandFactory commandFactory;
+    private final BigDoors bigDoors;
 
     public BigDoorsSpigot()
     {
-        INSTANCE = this;
         MAIN_THREAD_ID = Thread.currentThread().getId();
 
-        BigDoors.get().setBigDoorsPlatform(this);
-        BigDoors.get().registerRestartable(this);
+        bigDoors = new BigDoors();
 
         bigDoorsSpigotComponent = DaggerBigDoorsSpigotComponent
             .builder()
             .bigDoorsSpigotModule(new BigDoorsSpigotModule(this, this))
-            .restartableHolderModule(new RestartableHolderModule(BigDoors.get()))
+            .restartableHolderModule(new RestartableHolderModule(bigDoors))
             .build();
 
         spigotPlatform = bigDoorsSpigotComponent.getSpigotPlatform();
         pLogger = bigDoorsSpigotComponent.getLogger();
         protectionCompatManager = bigDoorsSpigotComponent.getProtectionCompatManager();
 
-        configLoader = bigDoorsSpigotComponent.getConfig();
+        bigDoorsConfig = bigDoorsSpigotComponent.getConfig();
         redstoneListener = bigDoorsSpigotComponent.getRedstoneListener();
         loginResourcePackListener = bigDoorsSpigotComponent.getLoginResourcePackListener();
         pExecutor = bigDoorsSpigotComponent.getPExecutor();
@@ -290,21 +284,16 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         return null;
     }
 
-    public static BigDoorsSpigot get()
-    {
-        return INSTANCE;
-    }
-
     private void init()
     {
         if (!validVersion)
             return;
 
-        configLoader.restart();
+        bigDoorsConfig.restart();
 
         initLocalization();
 
-        updateManager.setEnabled(getConfigLoader().checkForUpdates(), getConfigLoader().autoDLUpdate());
+        updateManager.setEnabled(getBigDoorsConfig().checkForUpdates(), getBigDoorsConfig().autoDLUpdate());
     }
 
     private void initLocalization()
@@ -326,9 +315,9 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public DebugReporter getDebugReporter()
+    public boolean isMainThread()
     {
-        return null;
+        return isMainThread(Thread.currentThread().getId());
     }
 
     @Override
@@ -343,7 +332,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         if (!validVersion)
             return;
 
-        configLoader.restart();
+        bigDoorsConfig.restart();
 
         shutdown();
 
@@ -391,7 +380,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
                 "Please contact pim16aap2! Don't forget to attach both the server log AND the BigDoors log!\n";
         if (updateManager.updateAvailable())
         {
-            if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
+            if (getBigDoorsConfig().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
                 ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() +
                     ") has been downloaded! "
                     + "Restart your server to apply the update!\n";
@@ -408,24 +397,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     }
 
     @Override
-    public IEconomyManager getEconomyManager()
-    {
-        return vaultManager;
-    }
-
-    @Override
-    public IPermissionsManager getPermissionsManager()
-    {
-        return vaultManager;
-    }
-
-    @Override
-    public IPBlockDataFactory getPBlockDataFactory()
-    {
-        return blockDataFactory;
-    }
-
-    @Override
     public void callDoorEvent(IBigDoorsEvent doorEvent)
     {
         if (!(doorEvent instanceof BigDoorsSpigotEvent))
@@ -439,12 +410,28 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
         // Async events can only be called asynchronously and Sync events can only be called from the main thread.
         final boolean isMainThread = isMainThread(Thread.currentThread().getId());
         if (isMainThread && doorEvent.isAsynchronous())
-            BigDoors.get().getPlatform().getPExecutor()
-                    .runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
+            pExecutor.runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
         else if ((!isMainThread) && (!doorEvent.isAsynchronous()))
-            BigDoors.get().getPlatform().getPExecutor()
-                    .runSync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
+            pExecutor.runSync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent));
         else
             Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) doorEvent);
+    }
+
+    @Override
+    public VaultManager getEconomyManager()
+    {
+        return vaultManager;
+    }
+
+    @Override
+    public VaultManager getPermissionsManager()
+    {
+        return vaultManager;
+    }
+
+    @Override
+    public IPBlockDataFactory getPBlockDataFactory()
+    {
+        return blockDataFactory;
     }
 }

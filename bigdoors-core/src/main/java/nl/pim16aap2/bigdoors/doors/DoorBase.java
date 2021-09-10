@@ -416,6 +416,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
      *     The type of action that will be performed by the BlockMover.
      * @return True when everything went all right, otherwise false.
      */
+    // TODO: Move to DoorOpeningHelper.
     synchronized boolean registerBlockMover(AbstractDoor abstractDoor, DoorActionCause cause, double time,
                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
                                             DoorActionType actionType)

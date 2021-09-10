@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -37,16 +37,19 @@ public class RedstoneListener extends AbstractListener
     private final CompletableFutureHandler handler;
     private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final Set<Material> powerBlockTypes = new HashSet<>();
+    private final PowerBlockManager powerBlockManager;
 
     @Inject
     public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
-                            CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory)
+                            CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory,
+                            PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
         this.logger = logger;
         this.handler = handler;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.powerBlockManager = powerBlockManager;
     }
 
     /**
@@ -79,7 +82,7 @@ public class RedstoneListener extends AbstractListener
     private void checkDoors(Location loc)
     {
         final String worldName = Objects.requireNonNull(loc.getWorld(), "World cannot be null!").getName();
-        BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
+        powerBlockManager.doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
             (doorList, throwable) -> doorList.forEach(
                 door -> doorToggleRequestFactory.builder()
@@ -145,7 +148,7 @@ public class RedstoneListener extends AbstractListener
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
             return;
 
-        if (!BigDoors.get().getPlatform().getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getName()))
+        if (!powerBlockManager.isBigDoorsWorld(event.getBlock().getWorld().getName()))
             return;
 
         CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(handler::exceptionally);

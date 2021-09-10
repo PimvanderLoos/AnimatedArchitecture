@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.flag;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -81,8 +80,7 @@ public class CreatorFlag extends Creator
             (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
             return super.completeSetEngineStep(loc);
 
-        getPlayer().sendMessage(BigDoors.get().getPlatform().getLocalizer()
-                                        .getMessage("creator.base.position_not_in_corner"));
+        getPlayer().sendMessage(localizer.getMessage("creator.base.position_not_in_corner"));
         return false;
     }
 

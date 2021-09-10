@@ -125,7 +125,7 @@ public class CreatorTestsUtil
         Mockito.when(platform.getPLocationFactory()).thenReturn(new TestPLocationFactory());
         Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
         Mockito.when(platform.getProtectionCompatManager()).thenReturn(Mockito.mock(IProtectionCompatManager.class));
-        Mockito.when(platform.getConfigLoader()).thenReturn(configLoader);
+        Mockito.when(platform.getConfig()).thenReturn(configLoader);
         Mockito.when(platform.getPermissionsManager()).thenReturn(permissionsManager);
         Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
         Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));

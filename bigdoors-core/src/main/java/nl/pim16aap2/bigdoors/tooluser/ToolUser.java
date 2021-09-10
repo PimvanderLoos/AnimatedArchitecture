@@ -2,19 +2,26 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,13 +60,15 @@ public abstract class ToolUser implements IRestartable
      * Keeps track of whether the player has the tool or not.
      */
     protected boolean playerHasStick = false;
+    private IProtectionCompatManager protectionCompatManager;
+    private IBigDoorsToolUtil bigDoorsToolUtil;
 
-    protected ToolUser(IPPlayer player, IPLogger logger, ILocalizer localizer, ToolUserManager toolUserManager)
+    protected ToolUser(Context context, IPPlayer player)
     {
         this.player = player;
-        this.logger = logger;
-        this.localizer = localizer;
-        this.toolUserManager = toolUserManager;
+        logger = context.logger;
+        localizer = context.localizer;
+        toolUserManager = context.toolUserManager;
 
         init();
 
@@ -135,8 +144,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void giveTool(String nameKey, String loreKey, @Nullable String messageKey)
     {
-        BigDoors.get().getPlatform().getBigDoorsToolUtil()
-                .giveToPlayer(getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
+        bigDoorsToolUtil.giveToPlayer(getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
         playerHasStick = true;
 
         if (messageKey != null)
@@ -148,7 +156,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void removeTool()
     {
-        BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(getPlayer());
+        bigDoorsToolUtil.removeTool(getPlayer());
         playerHasStick = false;
     }
 
@@ -281,8 +289,7 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean playerHasAccessToLocation(IPLocation loc)
     {
-        final Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                .canBreakBlock(getPlayer(), loc);
+        final Optional<String> result = protectionCompatManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
             compat ->
             {
@@ -307,9 +314,8 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IPWorld world)
     {
-        final Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                .canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
-                                                                           cuboid.getMax(), world);
+        final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
+                                                                                          cuboid.getMax(), world);
         result.ifPresent(
             compat ->
             {
@@ -318,5 +324,33 @@ public abstract class ToolUser implements IRestartable
                 getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
+    }
+
+    @Getter
+    public static final class Context
+    {
+        final DoorBaseFactory doorBaseFactory;
+        final IPLogger logger;
+        final ILocalizer localizer;
+        final ToolUserManager toolUserManager;
+        final DatabaseManager databaseManager;
+        final LimitsManager limitsManager;
+        final CompletableFutureHandler handler;
+        final IEconomyManager economyManager;
+
+        @Inject
+        public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
+                       ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
+                       CompletableFutureHandler handler, IEconomyManager economyManager)
+        {
+            this.doorBaseFactory = doorBaseFactory;
+            this.logger = logger;
+            this.localizer = localizer;
+            this.toolUserManager = toolUserManager;
+            this.databaseManager = databaseManager;
+            this.limitsManager = limitsManager;
+            this.handler = handler;
+            this.economyManager = economyManager;
+        }
     }
 }

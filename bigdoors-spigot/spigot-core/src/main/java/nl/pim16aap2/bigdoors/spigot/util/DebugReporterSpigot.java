@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import nl.pim16aap2.bigdoors.api.DebugReporter;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
@@ -29,14 +30,17 @@ public class DebugReporterSpigot extends DebugReporter
     private final BigDoorsSpigot plugin;
     private final DoorTypeManager doorTypeManager;
     private final IPLogger logger;
+    private final IConfigLoader config;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsSpigot plugin, DoorTypeManager doorTypeManager, IPLogger logger)
+    public DebugReporterSpigot(BigDoorsSpigot plugin, DoorTypeManager doorTypeManager, IPLogger logger,
+                               IConfigLoader config)
     {
         super(plugin);
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
         this.logger = logger;
+        this.config = config;
     }
 
     @Override
@@ -74,7 +78,7 @@ public class DebugReporterSpigot extends DebugReporter
                                                              DoorEventTogglePrepare.class,
                                                              DoorEventToggleStart.class))
 
-            .append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n')
+            .append("Config: ").append(config).append('\n')
             .toString();
     }
 

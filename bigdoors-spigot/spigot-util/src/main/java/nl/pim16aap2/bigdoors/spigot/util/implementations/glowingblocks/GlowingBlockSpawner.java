@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 
+import dagger.Lazy;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
@@ -44,17 +46,23 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final IPLogger logger;
 
     private volatile @Nullable Scoreboard scoreboard;
+
     /**
      * Keeps track of whether this class (specifically, {@link #scoreboard}) is initialized.
      */
     private volatile boolean isInitialized = false;
+    private final IPExecutor executor;
+    private final Lazy<IGlowingBlockSpawner> glowingBlockSpawner;
 
     @Inject
-    public GlowingBlockSpawner(IRestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPLogger logger)
+    public GlowingBlockSpawner(IRestartableHolder holder, IGlowingBlockFactory glowingBlockFactory,
+                               IPLogger logger, IPExecutor executor, Lazy<IGlowingBlockSpawner> glowingBlockSpawner)
     {
         super(holder);
         this.logger = logger;
         this.glowingBlockFactory = glowingBlockFactory;
+        this.executor = executor;
+        this.glowingBlockSpawner = glowingBlockSpawner;
     }
 
     @Override
@@ -100,7 +108,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this, logger);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this, logger,
+                                                   glowingBlockSpawner.get(), executor);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }

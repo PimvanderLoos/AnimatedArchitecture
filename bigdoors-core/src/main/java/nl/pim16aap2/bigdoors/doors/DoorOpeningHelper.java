@@ -1,15 +1,23 @@
 package nl.pim16aap2.bigdoors.doors;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IMessageable;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PColor;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -24,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 /**
@@ -38,16 +47,33 @@ public final class DoorOpeningHelper
     private final DoorActivityManager doorActivityManager;
     private final DoorTypeManager doorTypeManager;
     private final IConfigLoader config;
+    private final IBlockAnalyzer blockAnalyzer;
+    private final IPLocationFactory locationFactory;
+    private final IProtectionCompatManager protectionCompatManager;
+    private final IGlowingBlockSpawner glowingBlockSpawner;
+    private final IBigDoorsEventFactory bigDoorsEventFactory;
+    private final IPExecutor executor;
+    private final IBigDoorsPlatform bigDoorsPlatform;
 
     @Inject //
     DoorOpeningHelper(IPLogger logger, ILocalizer localizer, DoorActivityManager doorActivityManager,
-                      DoorTypeManager doorTypeManager, IConfigLoader config)
+                      DoorTypeManager doorTypeManager, IConfigLoader config, IBlockAnalyzer blockAnalyzer,
+                      IPLocationFactory locationFactory, IProtectionCompatManager protectionCompatManager,
+                      IGlowingBlockSpawner glowingBlockSpawner, IBigDoorsEventFactory bigDoorsEventFactory,
+                      IPExecutor executor, IBigDoorsPlatform bigDoorsPlatform)
     {
         this.logger = logger;
         this.localizer = localizer;
         this.doorActivityManager = doorActivityManager;
         this.doorTypeManager = doorTypeManager;
         this.config = config;
+        this.blockAnalyzer = blockAnalyzer;
+        this.locationFactory = locationFactory;
+        this.protectionCompatManager = protectionCompatManager;
+        this.glowingBlockSpawner = glowingBlockSpawner;
+        this.bigDoorsEventFactory = bigDoorsEventFactory;
+        this.executor = executor;
+        this.bigDoorsPlatform = bigDoorsPlatform;
     }
 
     /**
@@ -87,6 +113,61 @@ public final class DoorOpeningHelper
     }
 
     /**
+     * See {@link IBigDoorsEventFactory#createTogglePrepareEvent(AbstractDoor, DoorActionCause, DoorActionType,
+     * IPPlayer, double, boolean, Cuboid)}.
+     */
+    IDoorEventTogglePrepare callTogglePrepareEvent(AbstractDoor door, DoorActionCause cause,
+                                                   DoorActionType actionType, IPPlayer responsible, double time,
+                                                   boolean skipAnimation, Cuboid newCuboid)
+    {
+        final IDoorEventTogglePrepare event =
+            bigDoorsEventFactory.createTogglePrepareEvent(door, cause, actionType, responsible,
+                                                          time, skipAnimation, newCuboid);
+        callDoorToggleEvent(event);
+        return event;
+    }
+
+    /**
+     * See {@link IBigDoorsEventFactory#createToggleStartEvent(AbstractDoor, DoorActionCause, DoorActionType, IPPlayer,
+     * double, boolean, Cuboid)}.
+     */
+    IDoorEventToggleStart callToggleStartEvent(AbstractDoor door, DoorActionCause cause, DoorActionType actionType,
+                                               IPPlayer responsible, double time, boolean skipAnimation,
+                                               Cuboid newCuboid)
+    {
+        final IDoorEventToggleStart event =
+            bigDoorsEventFactory.createToggleStartEvent(door, cause, actionType, responsible,
+                                                        time, skipAnimation, newCuboid);
+        callDoorToggleEvent(event);
+        return event;
+    }
+
+    private void callDoorToggleEvent(IDoorToggleEvent prepareEvent)
+    {
+        bigDoorsPlatform.callDoorEvent(prepareEvent);
+    }
+
+    /**
+     * Registers a new block mover on the main thread.
+     */
+    CompletableFuture<Boolean> registerBlockMover(DoorBase doorBase, AbstractDoor abstractDoor, DoorActionCause cause,
+                                                  double time, boolean skipAnimation, Cuboid newCuboid,
+                                                  IPPlayer responsible, DoorActionType actionType)
+    {
+        return executor.supplyOnMainThread(() -> doorBase.registerBlockMover(abstractDoor, cause, time, skipAnimation,
+                                                                             newCuboid, responsible, actionType));
+    }
+
+    /**
+     * See {@link IBigDoorsPlatform#isMainThread()}.
+     */
+    boolean isMainThread()
+    {
+        return bigDoorsPlatform.isMainThread();
+    }
+
+
+    /**
      * Checks if the owner of a door can break blocks between 2 positions.
      * <p>
      * If the player is not allowed to break the block(s), they'll receive a message about this.
@@ -102,14 +183,14 @@ public final class DoorOpeningHelper
     public boolean canBreakBlocksBetweenLocs(IDoor door, Cuboid cuboid, IPPlayer responsible)
     {
         // If the returned value is an empty Optional, the player is allowed to break blocks.
-        return BigDoors.get().getPlatform().getProtectionCompatManager()
-                       .canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(), door.getWorld()).map(
-                protectionCompat ->
-                {
-                    logger.warn("Player \"" + responsible + "\" is not allowed to open door " +
-                                    door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + protectionCompat);
-                    return false;
-                }).orElse(true);
+        return protectionCompatManager.canBreakBlocksBetweenLocs(responsible, cuboid.getMin(), cuboid.getMax(),
+                                                                 door.getWorld()).map(
+            protectionCompat ->
+            {
+                logger.warn("Player \"" + responsible + "\" is not allowed to open door " +
+                                door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + protectionCompat);
+                return false;
+            }).orElse(true);
     }
 
     /**
@@ -128,7 +209,6 @@ public final class DoorOpeningHelper
      */
     public boolean isLocationEmpty(Cuboid newCuboid, Cuboid currentCuboid, @Nullable IPPlayer player, IPWorld world)
     {
-        final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
         final Vector3Di newMin = newCuboid.getMin();
         final Vector3Di newMax = newCuboid.getMax();
         final Vector3Di curMin = currentCuboid.getMin();
@@ -148,14 +228,12 @@ public final class DoorOpeningHelper
                         Util.between(zAxis, curMin.z(), curMax.z()))
                         continue;
 
-                    if (!BigDoors.get().getPlatform().getBlockAnalyzer()
-                                 .isAirOrLiquid(locationFactory.create(world, xAxis, yAxis, zAxis)))
+                    if (!blockAnalyzer.isAirOrLiquid(locationFactory.create(world, xAxis, yAxis, zAxis)))
                     {
                         if (player == null)
                             return false;
 
-                        BigDoors.get().getPlatform().getGlowingBlockSpawner()
-                                .spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
+                        glowingBlockSpawner.spawnGlowingBlock(player, world, 10, xAxis, yAxis, zAxis, PColor.RED);
                         isEmpty = false;
                     }
                 }

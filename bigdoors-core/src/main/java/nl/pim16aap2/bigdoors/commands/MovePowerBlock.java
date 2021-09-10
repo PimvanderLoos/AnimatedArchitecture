@@ -27,14 +27,16 @@ import java.util.concurrent.CompletableFuture;
 public class MovePowerBlock extends DoorTargetCommand
 {
     private final ToolUserManager toolUserManager;
+    private final PowerBlockRelocator.Factory powerBlockRelocatorFactory;
 
     @AssistedInject //
     MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager,
-                   CompletableFutureHandler handler)
+                   CompletableFutureHandler handler, PowerBlockRelocator.Factory powerBlockRelocatorFactory)
     {
         super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK, handler);
         this.toolUserManager = toolUserManager;
+        this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }
 
     @Override
@@ -52,8 +54,7 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        toolUserManager.startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door,
-                                                              logger, localizer, toolUserManager),
+        toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), door),
                                       Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
 

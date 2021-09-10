@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.util.vector;
 
 import com.google.errorprone.annotations.CheckReturnValue;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import org.jetbrains.annotations.Contract;
 
 /**
@@ -134,10 +134,10 @@ class Vector3DUtil
          * @return A new {@link IPLocation}.
          */
         @CheckReturnValue
-        @Contract(value = "_ -> new", pure = true)
-        default IPLocation toLocation(IPWorld world)
+        @Contract(value = "_, _ -> new", pure = true)
+        default IPLocation toLocation(IPLocationFactory locationFactory, IPWorld world)
         {
-            return BigDoors.get().getPlatform().getPLocationFactory().create(world, xD(), yD(), zD());
+            return locationFactory.create(world, xD(), yD(), zD());
         }
     }
 }

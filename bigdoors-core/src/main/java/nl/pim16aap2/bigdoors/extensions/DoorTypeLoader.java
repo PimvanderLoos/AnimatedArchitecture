@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -12,6 +11,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
@@ -37,13 +37,16 @@ public final class DoorTypeLoader extends Restartable
 
     private final IPLogger logger;
     private final DoorTypeManager doorTypeManager;
+    private final File dataDirectory;
 
     @Inject
-    public DoorTypeLoader(IRestartableHolder holder, IPLogger logger, DoorTypeManager doorTypeManager)
+    public DoorTypeLoader(IRestartableHolder holder, IPLogger logger,
+                          DoorTypeManager doorTypeManager, @Named("pluginBaseDirectory") File dataDirectory)
     {
         super(holder);
         this.logger = logger;
         this.doorTypeManager = doorTypeManager;
+        this.dataDirectory = dataDirectory;
         init();
     }
 
@@ -134,8 +137,7 @@ public final class DoorTypeLoader extends Restartable
     @SuppressWarnings("UnusedReturnValue")
     public List<DoorType> loadDoorTypesFromDirectory()
     {
-        return loadDoorTypesFromDirectory(
-            BigDoors.get().getPlatform().getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
+        return loadDoorTypesFromDirectory(dataDirectory + Constants.BIGDOORS_EXTENSIONS_FOLDER);
     }
 
     /**

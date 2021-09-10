@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import dagger.Lazy;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -60,6 +61,8 @@ public final class DatabaseManager extends Restartable
 
     private final DoorRegistry doorRegistry;
     private final IBigDoorsPlatform bigDoorsPlatform;
+    private final Lazy<PowerBlockManager> powerBlockManager;
+    private final IBigDoorsEventFactory bigDoorsEventFactory;
     private final CompletableFutureHandler handler;
 
     /**
@@ -73,7 +76,8 @@ public final class DatabaseManager extends Restartable
     @Inject
     public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage, IPLogger logger,
                            DoorRegistry doorRegistry, IBigDoorsPlatform bigDoorsPlatform,
-                           CompletableFutureHandler handler)
+                           CompletableFutureHandler handler, Lazy<PowerBlockManager> powerBlockManager,
+                           IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(restartableHolder);
         this.handler = handler;
@@ -81,6 +85,8 @@ public final class DatabaseManager extends Restartable
         this.logger = logger;
         this.doorRegistry = doorRegistry;
         this.bigDoorsPlatform = bigDoorsPlatform;
+        this.powerBlockManager = powerBlockManager;
+        this.bigDoorsEventFactory = bigDoorsEventFactory;
 
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
@@ -150,11 +156,10 @@ public final class DatabaseManager extends Restartable
 
                 final Optional<AbstractDoor> result = db.insert(newDoor);
                 result.ifPresent(
-                    (door) -> bigDoorsPlatform.getPowerBlockManager()
-                                              .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(
-                                                  door.getPowerBlock().x(),
-                                                  door.getPowerBlock().y(),
-                                                  door.getPowerBlock().z())));
+                    (door) -> powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
+                                                                        new Vector3Di(door.getPowerBlock().x(),
+                                                                                      door.getPowerBlock().y(),
+                                                                                      door.getPowerBlock().z())));
                 return new Pair<>(false, result);
             }, threadPool).exceptionally(ex -> handler.exceptionally(ex, new Pair<>(false, Optional.empty())));
 
@@ -181,8 +186,7 @@ public final class DatabaseManager extends Restartable
                     return;
 
                 final IDoorCreatedEvent doorCreatedEvent =
-                    bigDoorsPlatform.getBigDoorsEventFactory()
-                                    .createDoorCreatedEvent(result.second.get(), responsible);
+                    bigDoorsEventFactory.createDoorCreatedEvent(result.second.get(), responsible);
                 bigDoorsPlatform.callDoorEvent(doorCreatedEvent);
             });
     }
@@ -224,11 +228,10 @@ public final class DatabaseManager extends Restartable
                 if (!result)
                     return ActionResult.FAIL;
 
-                bigDoorsPlatform.getPowerBlockManager()
-                                .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(door.getPowerBlock().x(),
-                                                                                              door.getPowerBlock().y(),
-                                                                                              door.getPowerBlock()
-                                                                                                  .z()));
+                powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
+                                                          new Vector3Di(door.getPowerBlock().x(),
+                                                                        door.getPowerBlock().y(),
+                                                                        door.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
             }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
     }
@@ -531,7 +534,7 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final var event = factoryMethod.apply(bigDoorsPlatform.getBigDoorsEventFactory());
+                final var event = factoryMethod.apply(bigDoorsEventFactory);
                 bigDoorsPlatform.callDoorEvent(event);
                 return event.isCancelled();
             });

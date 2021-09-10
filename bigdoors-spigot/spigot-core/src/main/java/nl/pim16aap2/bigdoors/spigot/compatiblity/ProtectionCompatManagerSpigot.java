@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -48,22 +47,26 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     private final @Nullable FakePlayerCreator fakePlayerCreator;
     private final VaultManager vaultManager;
     private final ConfigLoaderSpigot config;
+    private final IPLocationFactory locationFactory;
 
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
      *
      * @param plugin
      *     The instance of {@link BigDoorsSpigot}.
+     * @param locationFactory
      */
     @Inject
     public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, IRestartableHolder holder,
-                                         VaultManager vaultManager, ConfigLoaderSpigot config)
+                                         VaultManager vaultManager, ConfigLoaderSpigot config,
+                                         IPLocationFactory locationFactory)
     {
         super(holder);
         this.plugin = plugin;
         this.logger = logger;
         this.vaultManager = vaultManager;
         this.config = config;
+        this.locationFactory = locationFactory;
 
         @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
@@ -175,8 +178,6 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
-
-        final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
 
         final Location loc1 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos1));
         if (loc1.getWorld() == null)
@@ -293,7 +294,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getConstructor().newInstance());
+            addProtectionCompat(compatClass.getDeclaredConstructor(JavaPlugin.class, IPLogger.class)
+                                           .newInstance(plugin, logger));
         }
         catch (NullPointerException e)
         {

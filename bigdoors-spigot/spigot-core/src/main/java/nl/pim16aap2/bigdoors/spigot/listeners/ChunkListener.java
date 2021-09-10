@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import org.bukkit.event.EventHandler;
@@ -39,12 +39,16 @@ public class ChunkListener extends AbstractListener
     // 1.14 => method.
     private @Nullable Method isForceLoaded;
 
+    private final PowerBlockManager powerBlockManager;
+
     @Inject
-    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger, DatabaseManager databaseManager)
+    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger, DatabaseManager databaseManager,
+                         PowerBlockManager powerBlockManager)
     {
         super(javaPlugin);
         this.logger = logger;
         this.databaseManager = databaseManager;
+        this.powerBlockManager = powerBlockManager;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
         init();
         register();
@@ -109,9 +113,8 @@ public class ChunkListener extends AbstractListener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkUnload(ChunkUnloadEvent event)
     {
-        BigDoors.get().getPlatform().getPowerBlockManager()
-                .invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
-                                                                           event.getChunk().getZ()));
+        powerBlockManager.invalidateChunk(event.getWorld().getName(), new Vector2Di(event.getChunk().getX(),
+                                                                                    event.getChunk().getZ()));
 //        try
 //        {
 //            // If this class couldn't figure out reflection properly, give up.

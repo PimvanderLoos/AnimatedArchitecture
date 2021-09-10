@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
@@ -27,10 +27,10 @@ public class PowerBlockRelocator extends ToolUser
     private final AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(IPPlayer player, AbstractDoor door, IPLogger logger, ILocalizer localizer,
-                               ToolUserManager toolUserManager)
+    @AssistedInject
+    public PowerBlockRelocator(ToolUser.Context context, @Assisted IPPlayer player, @Assisted AbstractDoor door)
     {
-        super(player, logger, localizer, toolUserManager);
+        super(context, player);
         this.door = door;
     }
 
@@ -96,5 +96,11 @@ public class PowerBlockRelocator extends ToolUser
             .waitForUserInput(false).construct();
 
         return Arrays.asList(stepPowerblockRelocatorInit, stepPowerblockRelocatorCompleted);
+    }
+
+    @AssistedFactory
+    public interface Factory
+    {
+        PowerBlockRelocator create(IPPlayer player, AbstractDoor door);
     }
 }

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -70,6 +69,9 @@ public abstract class BlockMover implements IRestartable
 
     @ToString.Exclude
     private final Context context;
+
+    @ToString.Exclude
+    protected final IPExecutor executor;
 
     @Getter
     protected double time;
@@ -144,6 +146,7 @@ public abstract class BlockMover implements IRestartable
     {
         this.context = context;
         logger = context.logger;
+        executor = context.executor;
         doorActivityManager = context.doorActivityManager;
         autoCloseScheduler = context.autoCloseScheduler;
         blockDataFactory = context.blockDataFactory;
@@ -215,7 +218,7 @@ public abstract class BlockMover implements IRestartable
      */
     private boolean respawnBlock(PBlockData blockData, INMSBlock newBlock)
     {
-        final IPLocation loc = blockData.getFBlock().getPosition().toLocation(world);
+        final IPLocation loc = blockData.getFBlock().getPosition().toLocation(locationFactory, world);
         final Vector3Dd pVelocity = blockData.getFBlock().getPVelocity();
 
         try
@@ -257,7 +260,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void applyRotation()
     {
-        BigDoors.get().getPlatform().getPExecutor().runSync(this::applyRotationOnCurrentThread);
+        context.executor.runSync(this::applyRotationOnCurrentThread);
     }
 
     /**
@@ -273,7 +276,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void respawnBlocks()
     {
-        BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocksOnCurrentThread);
+        context.executor.runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -340,14 +343,13 @@ public abstract class BlockMover implements IRestartable
         for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-        final IPExecutor executor = BigDoors.get().getPlatform().getPExecutor();
-        executor.runSync(() -> putBlocks(false));
+        context.executor.runSync(() -> putBlocks(false));
         if (moverTask == null)
         {
             logger.logMessage(Level.WARNING, "MoverTask unexpectedly null for BlockMover: \n" + this);
             return;
         }
-        executor.cancel(moverTask, moverTaskID);
+        context.executor.cancel(moverTask, moverTaskID);
     }
 
     /**
@@ -398,7 +400,7 @@ public abstract class BlockMover implements IRestartable
                     executeAnimationStep(counter);
             }
         };
-        moverTaskID = BigDoors.get().getPlatform().getPExecutor().runAsyncRepeated(moverTask, 14, 1);
+        moverTaskID = context.executor.runAsyncRepeated(moverTask, 14, 1);
     }
 
     /**

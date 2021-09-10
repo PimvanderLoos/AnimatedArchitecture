@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
@@ -23,15 +23,18 @@ import javax.inject.Singleton;
 @Singleton
 public class SoundEngineSpigot implements ISoundEngine
 {
+    private final IPExecutor executor;
+
     @Inject
-    public SoundEngineSpigot()
+    public SoundEngineSpigot(IPExecutor executor)
     {
+        this.executor = executor;
     }
 
     @Override
     public void playSound(IPLocation loc, PSound sound, float volume, float pitch)
     {
-        BigDoors.get().getPlatform().getPExecutor().runAsync(() -> SpigotUtil
+        executor.runAsync(() -> SpigotUtil
             .playSound(SpigotAdapter.getBukkitLocation(loc), PSound.getSoundName(sound), volume, pitch));
     }
 

@@ -61,6 +61,14 @@ public class BigDoorsSpigotModule
 
     @Provides
     @Singleton
+    @Named("pluginBaseDirectory")
+    static File providePluginBaseDirectory(JavaPlugin plugin)
+    {
+        return plugin.getDataFolder();
+    }
+
+    @Provides
+    @Singleton
     @Named("logFile")
     static File provideLogFile(JavaPlugin plugin)
     {

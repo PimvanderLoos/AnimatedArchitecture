@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.factories.plocationfactory;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -19,9 +19,12 @@ import javax.inject.Singleton;
 @Singleton
 public class PLocationFactorySpigot implements IPLocationFactory
 {
+    private final IPWorldFactory worldFactory;
+
     @Inject
-    public PLocationFactorySpigot()
+    public PLocationFactorySpigot(IPWorldFactory worldFactory)
     {
+        this.worldFactory = worldFactory;
     }
 
     @Override
@@ -45,7 +48,7 @@ public class PLocationFactorySpigot implements IPLocationFactory
     @Override
     public IPLocation create(String worldName, double x, double y, double z)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName), x, y, z);
+        return create(worldFactory.create(worldName), x, y, z);
     }
 
     @Override
