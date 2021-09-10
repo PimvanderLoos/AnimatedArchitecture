@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
@@ -18,9 +19,11 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
+import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
+import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -32,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -76,7 +80,6 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private volatile boolean isLocked;
 
     @EqualsAndHashCode.Exclude
-    // This is a ConcurrentHashMap to ensure serialization uses the correct type.
     private final Map<UUID, DoorOwner> doorOwners;
 
     @Getter
@@ -92,33 +95,33 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final DatabaseManager databaseManager;
-
-    @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
     private final DoorRegistry doorRegistry;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
-    private final DoorActivityManager doorActivityManager;
-
-    @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
-    private final LimitsManager limitsManager;
+    private final DoorOpeningHelper doorOpeningHelper;
 
     @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PACKAGE)
     private final AutoCloseScheduler autoCloseScheduler;
 
     @EqualsAndHashCode.Exclude
+    private final IBigDoorsPlatform bigDoorsPlatform;
+
+    @EqualsAndHashCode.Exclude
+    private final DatabaseManager databaseManager;
+
+    @EqualsAndHashCode.Exclude
+    private final DoorActivityManager doorActivityManager;
+
+    @EqualsAndHashCode.Exclude
+    private final LimitsManager limitsManager;
+
+    @EqualsAndHashCode.Exclude
     private final DoorToggleRequestFactory doorToggleRequestFactory;
 
     @EqualsAndHashCode.Exclude
     private final IPPlayerFactory playerFactory;
-
-    @EqualsAndHashCode.Exclude
-    @Getter(AccessLevel.PACKAGE)
-    private final DoorOpeningHelper doorOpeningHelper;
 
     @AssistedInject //
     DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
@@ -128,7 +131,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
              @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, IPLogger logger, ILocalizer localizer,
              DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
              LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
-             DoorToggleRequestFactory doorToggleRequestFactory, IPPlayerFactory playerFactory)
+             DoorToggleRequestFactory doorToggleRequestFactory, IPPlayerFactory playerFactory,
+             IBigDoorsPlatform bigDoorsPlatform)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -159,6 +163,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorOpeningHelper = doorOpeningHelper;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.playerFactory = playerFactory;
+        this.bigDoorsPlatform = bigDoorsPlatform;
     }
 
     // Copy constructor
@@ -186,6 +191,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         doorOpeningHelper = other.doorOpeningHelper;
         doorToggleRequestFactory = other.doorToggleRequestFactory;
         playerFactory = other.playerFactory;
+        bigDoorsPlatform = other.bigDoorsPlatform;
     }
 
     /**
@@ -214,6 +220,19 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         return new DoorBase(this, null);
     }
 
+    /**
+     * Synchronizes this {@link DoorBase} and the serialized type-specific data of an {@link AbstractDoor} with the
+     * database.
+     *
+     * @param typeData
+     *     The type-specific data of an {@link AbstractDoor}.
+     * @return true if the synchronization was successful.
+     */
+    synchronized CompletableFuture<Boolean> syncData(byte[] typeData)
+    {
+        return databaseManager.syncDoorData(getPartialSnapshot(), typeData);
+    }
+
     @Override
     protected void addOwner(UUID uuid, DoorOwner doorOwner)
     {
@@ -226,6 +245,20 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             return;
         }
         doorOwners.put(uuid, doorOwner);
+    }
+
+    /**
+     * Checks if this door exceeds the size limit for the given player.
+     * <p>
+     * See {@link LimitsManager#exceedsLimit(IPPlayer, Limit, int)}.
+     *
+     * @param player
+     *     The player whose limit to compare against this door's size.
+     * @return True if {@link #getBlockCount()} exceeds the {@link Limit#DOOR_SIZE} for this door.
+     */
+    boolean exceedSizeLimit(IPPlayer player)
+    {
+        return limitsManager.exceedsLimit(player, Limit.DOOR_SIZE, getBlockCount());
     }
 
     void onRedstoneChange(AbstractDoor abstractDoor, int newCurrent)
@@ -352,6 +385,55 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     public synchronized long getSimplePowerBlockChunkHash()
     {
         return Util.simpleChunkHashFromLocation(powerBlock.x(), powerBlock.z());
+    }
+
+    /**
+     * Registers a {@link BlockMover} with the {@link DoorActivityManager}.
+     * <p>
+     * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
+     * synchronously)
+     *
+     * @param abstractDoor
+     *     The {@link AbstractDoor} to use.
+     * @param cause
+     *     What caused doorBase action.
+     * @param time
+     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
+     *     certain point lower values will not increase door speed.
+     * @param skipAnimation
+     *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
+     * @param newCuboid
+     *     The {@link Cuboid} representing the area the door will take up after the toggle.
+     * @param responsible
+     *     The {@link IPPlayer} responsible for the door action.
+     * @param actionType
+     *     The type of action that will be performed by the BlockMover.
+     * @return True when everything went all right, otherwise false.
+     */
+    synchronized boolean registerBlockMover(AbstractDoor abstractDoor, DoorActionCause cause, double time,
+                                            boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                            DoorActionType actionType)
+    {
+        if (!bigDoorsPlatform.isMainThread(Thread.currentThread().getId()))
+        {
+            doorActivityManager.setDoorAvailable(getDoorUID());
+            logger.logThrowable(
+                new IllegalThreadStateException("BlockMovers must be instantiated on the main thread!"));
+            return true;
+        }
+
+        try
+        {
+            final BlockMover.Context context = new BlockMover.Context(doorActivityManager, autoCloseScheduler, logger);
+            doorOpeningHelper.registerBlockMover(abstractDoor.constructBlockMover(context, cause, time, skipAnimation,
+                                                                                  newCuboid, responsible, actionType));
+        }
+        catch (Exception e)
+        {
+            logger.logThrowable(e);
+            return false;
+        }
+        return true;
     }
 
     /**
