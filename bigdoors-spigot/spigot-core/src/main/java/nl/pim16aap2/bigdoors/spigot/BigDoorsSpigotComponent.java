@@ -69,7 +69,8 @@ import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = {
-    BigDoorsSpigotModule.class, RestartableHolderModule.class, PLoggerModule.class, ProtectionCompatManagerModule.class,
+    BigDoorsSpigotModule.class, RestartableHolderModule.class, PLoggerModule.class,
+    ProtectionCompatManagerModule.class,
     ConfigLoaderSpigotModule.class, LocalizationModule.class, PExecutorModule.class, GlowingBlockSpawnerModule.class,
     PServerModule.class, PWorldFactorySpigotModule.class, PLocationFactorySpigotModule.class,
     BigDoorsEventFactorySpigotModule.class, PPlayerFactorySpigotModule.class, ChunkManagerSpigotModule.class,

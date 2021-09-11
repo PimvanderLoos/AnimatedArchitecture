@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.garagedoor;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;

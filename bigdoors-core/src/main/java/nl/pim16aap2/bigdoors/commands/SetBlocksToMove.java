@@ -63,7 +63,8 @@ public class SetBlocksToMove extends DoorTargetCommand
 //     * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
 //     * use the {@link SetBlocksToMove} command (again, if needed) to supply the missing data.
 //     * <p>
-//     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPLogger, ILocalizer, int)}.
+//     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPLogger, ILocalizer,
+//     * int)}.
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its

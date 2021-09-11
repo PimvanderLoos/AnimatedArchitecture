@@ -140,8 +140,8 @@ public class AddOwner extends DoorTargetCommand
 //     * @param targetPlayer
 //     *     The target player to add to this door as co-owner.
 //     *     <p>
-//     *     If this player is already an owner of the target door, their permission will be overridden provided that the
-//     *     command sender is allowed to add/remove co-owners at both the old and the new target permission level.
+//     *     If this player is already an owner of the target door, their permission will be overridden provided that
+//     *     the command sender is allowed to add/remove co-owners at both the old and the new target permission level.
 //     * @param targetPermissionLevel
 //     *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
 //     * @return See {@link BaseCommand#run()}.
@@ -150,7 +150,8 @@ public class AddOwner extends DoorTargetCommand
 //                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer,
 //                                                 int targetPermissionLevel)
 //    {
-//        return new AddOwner(commandSender, logger, localizer, doorRetriever, targetPlayer, targetPermissionLevel).run();
+//        return new AddOwner(commandSender, logger, localizer, doorRetriever,
+//                            targetPlayer, targetPermissionLevel).run();
 //    }
 //
 //    /**
@@ -170,8 +171,8 @@ public class AddOwner extends DoorTargetCommand
 //     * These missing values will be retrieved using a {@link DelayedCommandInputRequest}. The player will be asked to
 //     * use the {@link AddOwner} command (again, if needed) to supply the missing data.
 //     * <p>
-//     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPLogger, ILocalizer, IPPlayer,
-//     * int)}.
+//     * These missing data can be supplied using {@link #provideDelayedInput(ICommandSender, IPLogger, ILocalizer,
+//     *  IPPlayer, int)}.
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
@@ -206,8 +207,8 @@ public class AddOwner extends DoorTargetCommand
 //     * @param targetPlayer
 //     *     The target player to add to this door as co-owner.
 //     *     <p>
-//     *     If this player is already an owner of the target door, their permission will be overridden provided that the
-//     *     command sender is allowed to add/remove co-owners at both the old and the new target permission level.
+//     *     If this player is already an owner of the target door, their permission will be overridden provided that
+//     *     the command sender is allowed to add/remove co-owners at both the old and the new target permission level.
 //     * @param targetPermissionLevel
 //     *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
 //     * @return See {@link BaseCommand#run()}.
