@@ -20,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -27,18 +28,16 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class AddOwnerTest
 {
-    private final IPLogger logger = new BasicPLogger();
-    private final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
-
+    private IPLogger logger;
+    private CompletableFutureHandler handler;
     private ILocalizer localizer;
 
     @Mock
     private DatabaseManager databaseManager;
 
-    @Mock
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
     private AddOwner.IFactory factory;
 
-    @Mock
     private DoorRetriever.AbstractRetriever doorRetriever;
 
     @Mock
@@ -59,26 +58,25 @@ class AddOwnerTest
     {
         MockitoAnnotations.openMocks(this);
 
+        logger = new BasicPLogger();
+        handler = new CompletableFutureHandler(logger);
+        localizer = UnitTestUtil.initLocalizer();
+
         Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
-
-        localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newAddOwner(Mockito.any(ICommandSender.class),
                                          Mockito.any(DoorRetriever.AbstractRetriever.class),
                                          Mockito.any(IPPlayer.class),
                                          Mockito.anyInt()))
-               .thenAnswer((Answer<AddOwner>) invocationOnMock ->
-               {
-                   Object[] args = invocationOnMock.getArguments();
-                   return new AddOwner((ICommandSender) args[0], logger, localizer,
-                                       (DoorRetriever.AbstractRetriever) args[1], (IPPlayer) args[2], (int) args[3],
-                                       databaseManager, handler);
-               });
-
+               .thenAnswer((Answer<AddOwner>) invoc ->
+                   new AddOwner(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                                invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                invoc.getArgument(2, IPPlayer.class), invoc.getArgument(3, Integer.class),
+                                databaseManager, handler));
 
         initCommandSenderPermissions(commandSender, true, true);
-        initDoorRetriever(doorRetriever, door);
+        doorRetriever = DoorRetriever.ofDoor(door);
 
         addOwner0 = factory.newAddOwner(commandSender, doorRetriever, target, 0);
         addOwner1 = factory.newAddOwner(commandSender, doorRetriever, target, 1);
@@ -158,7 +156,7 @@ class AddOwnerTest
         Assertions.assertFalse(addOwner2.isAllowed(door, true));
     }
 
-    // TODO: Re-enable this.
+    // TODO: Re-implement this.
 //    @Test
 //    @SneakyThrows
 //    void testDelayedInput()
@@ -178,10 +176,12 @@ class AddOwnerTest
 
     @Test
     @SneakyThrows
-    void testStaticRunners()
+    void testDatabaseInteraction()
     {
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         final CompletableFuture<Boolean> result =
             factory.newAddOwner(commandSender, doorRetriever, target, AddOwner.DEFAULT_PERMISSION_LEVEL).run();

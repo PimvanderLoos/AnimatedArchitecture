@@ -14,16 +14,16 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Factory for {@link DoorBase} instances using a guided builder.
+ * IFactory for {@link DoorBase} instances using a guided builder.
  *
  * @author Pim
  */
 public final class DoorBaseFactory
 {
-    private final DoorBase.Factory doorBaseFactory;
+    private final DoorBase.IFactory doorBaseFactory;
 
     @Inject //
-    DoorBaseFactory(DoorBase.Factory doorBaseFactory)
+    DoorBaseFactory(DoorBase.IFactory doorBaseFactory)
     {
         this.doorBaseFactory = doorBaseFactory;
     }
@@ -43,7 +43,7 @@ public final class DoorBaseFactory
         implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderEngine, IBuilderPowerBlock, IBuilderWorld,
         IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderDoorOwners, IBuilder
     {
-        private final DoorBase.Factory doorBaseFactory;
+        private final DoorBase.IFactory doorBaseFactory;
 
         private long doorUID;
         private String name;

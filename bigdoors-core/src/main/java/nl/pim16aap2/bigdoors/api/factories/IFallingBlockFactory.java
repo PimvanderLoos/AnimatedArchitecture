@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 
 /**
- * Represents a Factory for {@link ICustomCraftFallingBlock} and {@link INMSBlock}.
+ * Represents a IFactory for {@link ICustomCraftFallingBlock} and {@link INMSBlock}.
  *
  * @author Pim
  */

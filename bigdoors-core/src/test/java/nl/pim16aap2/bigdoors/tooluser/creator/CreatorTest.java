@@ -1,14 +1,21 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -22,6 +29,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
@@ -29,8 +37,6 @@ import static nl.pim16aap2.bigdoors.UnitTestUtil.*;
 
 class CreatorTest
 {
-    private IBigDoorsPlatform platform;
-
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Creator creator;
 
@@ -40,19 +46,42 @@ class CreatorTest
     @Mock
     private IEconomyManager economyManager;
 
+    @Mock
+    private LimitsManager limitsManager;
+
     @BeforeEach
     void init()
     {
-        platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
-        final var doorType = Mockito.mock(DoorType.class);
+        final DoorType doorType = Mockito.mock(DoorType.class);
 
-        Mockito.when(creator.getPlayer()).thenReturn(player);
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
-
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-        Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+
+
+        final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
+        Mockito.when(protectionCompatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.empty());
+        Mockito.when(protectionCompatManager.canBreakBlocksBetweenLocs(Mockito.any(), Mockito.any(),
+                                                                       Mockito.any(), Mockito.any()))
+               .thenReturn(Optional.empty());
+
+
+        UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
+        UnitTestUtil.setField(Creator.class, creator, "handler", handler);
+        UnitTestUtil.setField(Creator.class, creator, "doorBaseFactory", Mockito.mock(DoorBaseFactory.class));
+        UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
+        UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
+
+        UnitTestUtil.setField(ToolUser.class, creator, "player", player);
+        UnitTestUtil.setField(ToolUser.class, creator, "logger", logger);
+        UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
+        UnitTestUtil.setField(ToolUser.class, creator, "protectionCompatManager", protectionCompatManager);
+        UnitTestUtil.setField(ToolUser.class, creator, "bigDoorsToolUtil", Mockito.mock(IBigDoorsToolUtil.class));
+        UnitTestUtil.setField(ToolUser.class, creator, "localizer", initLocalizer());
     }
 
     @Test
@@ -108,9 +137,6 @@ class CreatorTest
     void testSecondLocation()
     {
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
-
-        final var limitsManager = Mockito.mock(LimitsManager.class);
-        Mockito.when(platform.getLimitsManager()).thenReturn(limitsManager);
 
         final var world = getWorld();
 
@@ -208,10 +234,6 @@ class CreatorTest
     @Test
     void testGetPrice()
     {
-        final var economyManager = Mockito.mock(IEconomyManager.class);
-        Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
-        Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
-
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
         final var cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
@@ -229,9 +251,7 @@ class CreatorTest
     @Test
     void testBuyDoor()
     {
-        final var economyManager = Mockito.mock(IEconomyManager.class);
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
-        Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
 
         final var cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
@@ -252,10 +272,6 @@ class CreatorTest
     void testCompleteSetPowerBlockStep()
     {
         Mockito.doNothing().when(creator).shutdown();
-
-        final var limitsManager = Mockito.mock(LimitsManager.class);
-        Mockito.when(platform.getLimitsManager()).thenReturn(limitsManager);
-
 
         final var world = getWorld();
 
@@ -287,7 +303,6 @@ class CreatorTest
                                                          distance, lowLimit));
 
         Mockito.when(limitsManager.getLimit(Mockito.any(), Mockito.any())).thenReturn(OptionalInt.of(lowLimit + 10));
-        Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
         Assertions.assertTrue(creator.completeSetPowerBlockStep(outsideCuboid));
     }
 

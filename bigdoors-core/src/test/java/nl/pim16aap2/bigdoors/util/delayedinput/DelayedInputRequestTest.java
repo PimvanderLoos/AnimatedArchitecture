@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -144,9 +146,19 @@ class DelayedInputRequestTest
 
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
+        public DelayedInputRequestImpl(IPLogger logger, long timeout, TimeUnit timeUnit)
+        {
+            super(logger, timeout, timeUnit);
+        }
+
+        public DelayedInputRequestImpl(IPLogger logger, long timeout)
+        {
+            this(logger, timeout, TimeUnit.MILLISECONDS);
+        }
+
         public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)
         {
-            super(timeout, timeUnit);
+            this(new BasicPLogger(), timeout, timeUnit);
         }
 
         public DelayedInputRequestImpl(long timeout)

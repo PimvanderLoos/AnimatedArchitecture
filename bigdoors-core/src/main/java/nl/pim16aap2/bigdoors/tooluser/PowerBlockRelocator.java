@@ -99,7 +99,7 @@ public class PowerBlockRelocator extends ToolUser
     }
 
     @AssistedFactory
-    public interface Factory
+    public interface IFactory
     {
         PowerBlockRelocator create(IPPlayer player, AbstractDoor door);
     }

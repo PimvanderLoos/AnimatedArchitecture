@@ -1,9 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +21,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class ConfirmTest
@@ -30,28 +34,37 @@ class ConfirmTest
     @Mock
     private ToolUserManager toolUserManager;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private Confirm.IFactory factory;
+
     private UUID uuid;
 
     @BeforeEach
     void init()
     {
-        final var platform = initPlatform();
         uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-
-        Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        Mockito.when(factory.newConfirm(Mockito.any(ICommandSender.class)))
+               .thenAnswer(invoc -> new Confirm(invoc.getArgument(0, ICommandSender.class),
+                                                logger, localizer, toolUserManager, handler));
     }
 
     @Test
     @SneakyThrows
     void testServer()
     {
-        Assertions.assertTrue(Confirm.run(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS))
+        // Ensure the server running the method does not result in a ToolUser being started.
+        Assertions.assertTrue(factory.newConfirm(Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS)).run()
                                      .get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).getToolUser(Mockito.any(UUID.class));
     }
@@ -60,13 +73,13 @@ class ConfirmTest
     @SneakyThrows
     void test()
     {
-        Assertions.assertTrue(Confirm.run(commandSender).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
 
         Mockito.when(toolUserManager.getToolUser(Mockito.any(UUID.class))).thenReturn(Optional.empty());
-        Assertions.assertTrue(Confirm.run(commandSender).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newConfirm(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.times(2)).getToolUser(uuid);
         Mockito.verify(toolUser).handleInput(true);
         Mockito.verify(commandSender).sendMessage(Mockito.any());

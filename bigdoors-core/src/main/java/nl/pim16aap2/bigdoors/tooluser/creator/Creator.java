@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -44,11 +46,15 @@ import java.util.logging.Level;
 @ToString(callSuper = true)
 public abstract class Creator extends ToolUser
 {
-    private final Context context;
-
     protected final LimitsManager limitsManager;
 
     protected final CompletableFutureHandler handler;
+
+    protected final DoorBaseFactory doorBaseFactory;
+
+    protected final DatabaseManager databaseManager;
+
+    protected final IEconomyManager economyManager;
 
     /**
      * The name of the door that is to be created.
@@ -100,7 +106,7 @@ public abstract class Creator extends ToolUser
     protected boolean isLocked = false;
 
     /**
-     * Factory for the {@link IStep} that sets the name.
+     * IFactory for the {@link IStep} that sets the name.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -108,7 +114,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetName;
 
     /**
-     * Factory for the {@link IStep} that sets the first position of the area of the door.
+     * IFactory for the {@link IStep} that sets the first position of the area of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -116,7 +122,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * Factory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
+     * IFactory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
      * Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
@@ -125,7 +131,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * Factory for the {@link IStep} that sets the position of the door's engine.
+     * IFactory for the {@link IStep} that sets the position of the door's engine.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -133,7 +139,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetEnginePos;
 
     /**
-     * Factory for the {@link IStep} that sets the position of the door's power block.
+     * IFactory for the {@link IStep} that sets the position of the door's power block.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -141,7 +147,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * Factory for the {@link IStep} that sets the open direction of the door.
+     * IFactory for the {@link IStep} that sets the open direction of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -149,7 +155,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * Factory for the {@link IStep} that allows the player to confirm or reject the price of the door.
+     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -157,7 +163,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factoryConfirmPrice;
 
     /**
-     * Factory for the {@link IStep} that completes this process.
+     * IFactory for the {@link IStep} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -169,9 +175,11 @@ public abstract class Creator extends ToolUser
     protected Creator(Context context, IPPlayer player, @Nullable String name)
     {
         super(context, player);
-        this.context = context;
         handler = context.getHandler();
         limitsManager = context.getLimitsManager();
+        doorBaseFactory = context.getDoorBaseFactory();
+        databaseManager = context.getDatabaseManager();
+        economyManager = context.getEconomyManager();
 
         player.sendMessage(localizer.getMessage("creator.base.init"));
 
@@ -236,19 +244,19 @@ public abstract class Creator extends ToolUser
         final long doorUID = -1;
         final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
 
-        return context.getDoorBaseFactory()
-                      .builder()
-                      .uid(doorUID)
-                      .name(Util.requireNonNull(name, "Name"))
-                      .cuboid(Util.requireNonNull(cuboid, "cuboid"))
-                      .engine(Util.requireNonNull(engine, "engine"))
-                      .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
-                      .world(Util.requireNonNull(world, "world"))
-                      .isOpen(isOpen)
-                      .isLocked(isLocked)
-                      .openDir(Util.requireNonNull(openDir, "openDir"))
-                      .primeOwner(owner)
-                      .build();
+        return doorBaseFactory
+            .builder()
+            .uid(doorUID)
+            .name(Util.requireNonNull(name, "Name"))
+            .cuboid(Util.requireNonNull(cuboid, "cuboid"))
+            .engine(Util.requireNonNull(engine, "engine"))
+            .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
+            .world(Util.requireNonNull(world, "world"))
+            .isOpen(isOpen)
+            .isLocked(isLocked)
+            .openDir(Util.requireNonNull(openDir, "openDir"))
+            .primeOwner(owner)
+            .build();
     }
 
     /**
@@ -479,7 +487,7 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(AbstractDoor door)
     {
-        context.getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
+        databaseManager.addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
@@ -511,12 +519,11 @@ public abstract class Creator extends ToolUser
      */
     protected boolean buyDoor()
     {
-        if (!context.getEconomyManager().isEconomyEnabled())
+        if (!economyManager.isEconomyEnabled())
             return true;
 
-        return context.getEconomyManager()
-                      .buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
-                               Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
+                                      Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -527,10 +534,9 @@ public abstract class Creator extends ToolUser
      */
     protected OptionalDouble getPrice()
     {
-        if (!context.getEconomyManager().isEconomyEnabled())
+        if (!economyManager.isEconomyEnabled())
             return OptionalDouble.empty();
-        return context.getEconomyManager()
-                      .getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**

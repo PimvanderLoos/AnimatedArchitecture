@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
+import lombok.SneakyThrows;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -60,8 +61,7 @@ public class Toggle extends BaseCommand
         if (doorRetrievers.length > 0)
             return true;
 
-        getCommandSender().sendMessage(localizer
-                                           .getMessage("commands.toggle.error.not_enough_doors"));
+        getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.not_enough_doors"));
         return false;
     }
 
@@ -104,16 +104,14 @@ public class Toggle extends BaseCommand
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.no_access",
                                                                 door.getBasicInfo()));
-            logger
-                .logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
+            logger.logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
             return;
         }
         if (!canToggle(door))
         {
-            getCommandSender().sendMessage(
-                localizer.getMessage("commands.toggle.error.cannot_toggle", door.getBasicInfo()));
-            logger
-                .logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
+            getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.cannot_toggle",
+                                                                door.getBasicInfo()));
+            logger.logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
             return;
         }
 
@@ -124,9 +122,11 @@ public class Toggle extends BaseCommand
                                 .doorActionType(doorActionType)
                                 .responsible(playerOptional.orElse(null))
                                 .messageReceiver(playerOptional.isPresent() ? playerOptional.get() : messageableServer)
+                                .time(time)
                                 .build().execute();
     }
 
+    @SneakyThrows
     private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,
                                                       DoorActionCause doorActionCause, boolean hasBypassPermission)
     {
@@ -137,8 +137,9 @@ public class Toggle extends BaseCommand
     @Override
     protected final CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        final var actionCause = getCommandSender().isPlayer() ? DoorActionCause.PLAYER : DoorActionCause.SERVER;
-        final var actions = new CompletableFuture[doorRetrievers.length];
+        final DoorActionCause actionCause = getCommandSender().isPlayer() ?
+                                            DoorActionCause.PLAYER : DoorActionCause.SERVER;
+        final CompletableFuture<?>[] actions = new CompletableFuture[doorRetrievers.length];
         for (int idx = 0; idx < actions.length; ++idx)
             actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.second);
         return CompletableFuture.allOf(actions).thenApply(ignored -> true);

@@ -328,15 +328,15 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
-    {
-        return getDoorOwner(player.getUUID());
-    }
-
-    @Override
     public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return Optional.ofNullable(doorOwners.get(uuid));
+    }
+
+    @Override
+    public boolean isDoorOwner(UUID uuid)
+    {
+        return doorOwners.containsKey(uuid);
     }
 
     @Override
@@ -467,7 +467,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("engine") Vector3Di engine,
                         @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,

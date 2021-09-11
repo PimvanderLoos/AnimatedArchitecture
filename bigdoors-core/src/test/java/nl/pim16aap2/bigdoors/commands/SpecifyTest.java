@@ -1,8 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +18,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class SpecifyTest
 {
@@ -23,15 +27,23 @@ class SpecifyTest
     @Mock
     private DoorSpecificationManager doorSpecificationManager;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private Specify.IFactory factory;
+
     @BeforeEach
     void init()
     {
-        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        Mockito.when(platform.getDoorSpecificationManager()).thenReturn(doorSpecificationManager);
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        Mockito.when(factory.newSpecify(Mockito.any(ICommandSender.class), Mockito.anyString()))
+               .thenAnswer(invoc -> new Specify(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                                                invoc.getArgument(1, String.class), doorSpecificationManager, handler));
     }
 
     @Test
@@ -39,7 +51,7 @@ class SpecifyTest
     void testServer()
     {
         final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(Specify.run(server, "newDoor").get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }
 
@@ -49,13 +61,13 @@ class SpecifyTest
     {
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
         final var input = "newDoor";
-        Assertions.assertTrue(Specify.run(commandSender, input).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());
 
         // Test again, but now the command sender is not an active tool user.
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(false);
-        Assertions.assertTrue(Specify.run(commandSender, input).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.times(2)).handleInput(commandSender, input);
         Mockito.verify(commandSender).sendMessage(Mockito.any());
     }

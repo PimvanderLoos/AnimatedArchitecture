@@ -2,12 +2,13 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +27,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class RemoveOwnerTest
 {
-    @Mock
-    private DoorRetriever doorRetriever;
+    private DoorRetriever.AbstractRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -37,24 +38,36 @@ class RemoveOwnerTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer target;
 
-    private RemoveOwner removeOwner;
+    @Mock
+    private DatabaseManager databaseManager;
 
-    private IBigDoorsPlatform platform;
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private RemoveOwner.IFactory factory;
 
     @BeforeEach
     void beforeEach()
     {
-        platform = UnitTestUtil.initPlatform();
-        door = Mockito.mock(AbstractDoor.class);
-        doorRetriever = Mockito.mock(DoorRetriever.class);
-
-        initDoorRetriever(doorRetriever, door);
-
-        Mockito.when(platform.getDelayedCommandInputManager()).thenReturn(new DelayedCommandInputManager());
-
         MockitoAnnotations.openMocks(this);
         initCommandSenderPermissions(commandSender, true, true);
-        removeOwner = new RemoveOwner(commandSender, doorRetriever, target);
+
+        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+        doorRetriever = DoorRetriever.ofDoor(door);
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoor.class), Mockito.any(IPPlayer.class),
+                                                 Mockito.any(IPPlayer.class)))
+               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
+
+        Mockito.when(factory.newRemoveOwner(Mockito.any(ICommandSender.class),
+                                            Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                            Mockito.any(IPPlayer.class)))
+               .thenAnswer(invoc -> new RemoveOwner(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                                                    invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                                    invoc.getArgument(2, IPPlayer.class), databaseManager, handler));
     }
 
     /**
@@ -64,6 +77,8 @@ class RemoveOwnerTest
     @Test
     void testBypassLimitations()
     {
+        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
+
         // The target is not an owner, so this should be false despite the bypass permission.
         Assertions.assertFalse(removeOwner.isAllowed(door, true));
 
@@ -79,6 +94,8 @@ class RemoveOwnerTest
     @Test
     void testSuccess()
     {
+        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
+
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
         Assertions.assertTrue(removeOwner.isAllowed(door, false));
@@ -90,6 +107,8 @@ class RemoveOwnerTest
     @Test
     void testIsAllowed()
     {
+        final RemoveOwner removeOwner = factory.newRemoveOwner(commandSender, doorRetriever, target);
+
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
@@ -116,52 +135,38 @@ class RemoveOwnerTest
         Assertions.assertFalse(removeOwner.isAllowed(door, false));
     }
 
+    // TODO: Re-implement
+//    @Test
+//    @SneakyThrows
+//    void testDelayedInput()
+//    {
+//        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
+//        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
+//        final var databaseManager = mockDatabaseManager();
+//
+//        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+//        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
+//
+//        final var first = RemoveOwner.runDelayed(commandSender, doorRetriever);
+//        final var second = RemoveOwner.provideDelayedInput(commandSender, target);
+//
+//        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
+//        Assertions.assertEquals(first, second);
+//
+//        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
+//                                                                      commandSender.getPlayer().orElse(null));
+//    }
+
     @Test
     @SneakyThrows
-    void testDelayedInput()
+    void testDatabaseInteraction()
     {
-        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
-        final var databaseManager = mockDatabaseManager();
-
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
 
-        final var first = RemoveOwner.runDelayed(commandSender, doorRetriever);
-        final var second = RemoveOwner.provideDelayedInput(commandSender, target);
-
-        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
-        Assertions.assertEquals(first, second);
-
-        Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
-                                                                      commandSender.getPlayer().orElse(null));
-    }
-
-    @Test
-    @SneakyThrows
-    void testStaticRunners()
-    {
-        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
-        final var databaseManager = mockDatabaseManager();
-        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
-
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
-        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
-
-        final var result = RemoveOwner.run(commandSender, doorRetriever, target);
+        final var result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
                                                                       commandSender.getPlayer().orElse(null));
-    }
-
-    private DatabaseManager mockDatabaseManager()
-    {
-        final DatabaseManager databaseManager = Mockito.mock(DatabaseManager.class);
-        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
-
-        Mockito.when(databaseManager.removeOwner(Mockito.any(AbstractDoor.class), Mockito.any(IPPlayer.class),
-                                                 Mockito.any(IPPlayer.class)))
-               .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
-        return databaseManager;
     }
 }

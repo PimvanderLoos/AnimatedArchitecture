@@ -44,6 +44,7 @@ import nl.pim16aap2.bigdoors.spigot.factories.plocationfactory.PLocationFactoryS
 import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
+import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
@@ -74,7 +75,7 @@ import javax.inject.Singleton;
     BigDoorsEventFactorySpigotModule.class, PPlayerFactorySpigotModule.class, ChunkManagerSpigotModule.class,
     MessagingInterfaceSpigotModule.class, SoundEngineSpigotModule.class, PowerBlockRedstoneManagerSpigotModule.class,
     BigDoorsSpigotPlatformModule.class, SQLiteStorageModule.class, DebugReporterSpigotModule.class,
-    VaultManagerModule.class, PlatformManagerSpigotModule.class
+    VaultManagerModule.class, PlatformManagerSpigotModule.class, BigDoorsToolUtilSpigotModule.class
 })
 interface BigDoorsSpigotComponent
 {

@@ -1,8 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -13,20 +18,15 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initDoorRetriever;
 
 class DoorTargetCommandTest
 {
-    @Mock
-    private DoorRetriever doorRetriever;
-
     @Mock
     private AbstractDoor door;
 
@@ -39,17 +39,26 @@ class DoorTargetCommandTest
     @BeforeEach
     void init()
     {
-        initPlatform();
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        initDoorRetriever(doorRetriever, door);
+        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
-        Mockito.when(doorTargetCommand.getDoorRetriever()).thenReturn(doorRetriever);
         Mockito.doReturn(true).when(doorTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
-        Mockito.when(doorTargetCommand.getCommandSender()).thenReturn(commandSender);
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(true));
+
+        final IPLogger logger = new BasicPLogger();
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+
+        UnitTestUtil.setField(DoorTargetCommand.class, doorTargetCommand, "doorRetriever", DoorRetriever.ofDoor(door));
+
+        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "commandSender", commandSender);
+        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "logger", logger);
+        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "localizer", localizer);
+        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "handler", handler);
     }
 
     @Test
@@ -65,8 +74,8 @@ class DoorTargetCommandTest
     @SneakyThrows
     void testExecutionFailureNoDoor()
     {
-        Mockito.when(doorRetriever.getDoorInteractive(Mockito.any()))
-               .thenReturn(CompletableFuture.completedFuture(Optional.empty()));
+        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(false);
+        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
 
         Assertions.assertFalse(doorTargetCommand.executeCommand(new BooleanPair(true, true))
                                                 .get(1, TimeUnit.SECONDS));

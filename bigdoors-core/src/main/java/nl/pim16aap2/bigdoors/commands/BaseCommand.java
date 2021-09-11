@@ -80,13 +80,13 @@ public abstract class BaseCommand
      */
     protected boolean hasAccessToAttribute(AbstractDoor door, DoorAttribute doorAttribute, boolean hasBypassPermission)
     {
-        if (hasBypassPermission || !getCommandSender().isPlayer())
+        if (hasBypassPermission || !commandSender.isPlayer())
             return true;
 
-        return getCommandSender().getPlayer()
-                                 .flatMap(door::getDoorOwner)
-                                 .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
-                                 .orElse(false);
+        return commandSender.getPlayer()
+                            .flatMap(door::getDoorOwner)
+                            .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
+                            .orElse(false);
     }
 
     /**
@@ -125,17 +125,17 @@ public abstract class BaseCommand
             return CompletableFuture.completedFuture(false);
         }
 
-        final boolean isPlayer = getCommandSender() instanceof IPPlayer;
+        final boolean isPlayer = commandSender instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
             logger.logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
-            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
             logger.logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
-            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
         }
 
@@ -145,8 +145,8 @@ public abstract class BaseCommand
             throwable ->
             {
                 logger.logThrowable(throwable, "Failed to execute command: " + this);
-                if (getCommandSender().isPlayer())
-                    getCommandSender().sendMessage(localizer.getMessage("commands.base.error.generic"));
+                if (commandSender.isPlayer())
+                    commandSender.sendMessage(localizer.getMessage("commands.base.error.generic"));
                 return true;
             });
     }
@@ -172,8 +172,7 @@ public abstract class BaseCommand
                 break;
         }
         logger.logMessage(Level.FINE,
-                          () -> "Handling database action result: " + result.name() +
-                              " for command: " + this);
+                          () -> "Handling database action result: " + result.name() + " for command: " + this);
         return true;
     }
 
@@ -194,10 +193,8 @@ public abstract class BaseCommand
     {
         if (!permissionResult.first && !permissionResult.second)
         {
-            logger.logMessage(Level.FINE,
-                              () -> "Permission for command: " + this + ": " + permissionResult);
-            getCommandSender().sendMessage(localizer
-                                               .getMessage("commands.base.error.no_permission_for_command"));
+            logger.logMessage(Level.FINE, () -> "Permission for command: " + this + ": " + permissionResult);
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
         try
@@ -226,8 +223,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        logger
-            .dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
+        logger.dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
     }
 
     /**
@@ -242,16 +238,14 @@ public abstract class BaseCommand
      */
     protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever.AbstractRetriever doorRetriever)
     {
-        return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
-                                 .orElseGet(doorRetriever::getDoor).thenApplyAsync(
+        return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
+                            .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
-                    logger.logMessage(Level.FINE,
-                                      () -> "Retrieved door " + door + " for command: " + this);
+                    logger.logMessage(Level.FINE, () -> "Retrieved door " + door + " for command: " + this);
                     if (door.isPresent())
                         return door;
-                    getCommandSender().sendMessage(
-                        localizer.getMessage("commands.base.error.cannot_find_target_door"));
+                    commandSender.sendMessage(localizer.getMessage("commands.base.error.cannot_find_target_door"));
                     return Optional.empty();
                 });
     }
@@ -265,6 +259,6 @@ public abstract class BaseCommand
      */
     protected CompletableFuture<BooleanPair> hasPermission()
     {
-        return getCommandSender().hasPermission(getCommand());
+        return commandSender.hasPermission(getCommand());
     }
 }

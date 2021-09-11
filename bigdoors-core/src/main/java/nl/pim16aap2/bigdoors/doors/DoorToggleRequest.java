@@ -29,12 +29,19 @@ import java.util.logging.Level;
 @ToString
 public class DoorToggleRequest
 {
+    @Getter
     private final DoorRetriever.AbstractRetriever doorRetriever;
+    @Getter
     private final DoorActionCause doorActionCause;
+    @Getter
     private final IMessageable messageReceiver;
+    @Getter
     private final @Nullable IPPlayer responsible;
+    @Getter
     private final double time;
+    @Getter
     private final boolean skipAnimation;
+    @Getter
     private final DoorActionType doorActionType;
 
     private final IPLogger logger;
@@ -46,14 +53,14 @@ public class DoorToggleRequest
     private final IPExecutor executor;
     private final CompletableFutureHandler handler;
 
-    @AssistedInject //
-    DoorToggleRequest(@Assisted DoorRetriever.AbstractRetriever doorRetriever,
-                      @Assisted DoorActionCause doorActionCause, @Assisted IMessageable messageReceiver,
-                      @Assisted @Nullable IPPlayer responsible, @Assisted double time, @Assisted boolean skipAnimation,
-                      @Assisted DoorActionType doorActionType, IPLogger logger, ILocalizer localizer,
-                      DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
-                      IPPlayerFactory playerFactory, IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor,
-                      CompletableFutureHandler handler)
+    @AssistedInject
+    public DoorToggleRequest(@Assisted DoorRetriever.AbstractRetriever doorRetriever,
+                             @Assisted DoorActionCause doorActionCause, @Assisted IMessageable messageReceiver,
+                             @Assisted @Nullable IPPlayer responsible, @Assisted double time,
+                             @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType, IPLogger logger,
+                             ILocalizer localizer, DoorActivityManager doorActivityManager,
+                             AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
+                             IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor, CompletableFutureHandler handler)
     {
         this.doorRetriever = doorRetriever;
         this.doorActionCause = doorActionCause;
@@ -124,7 +131,7 @@ public class DoorToggleRequest
     }
 
     @AssistedFactory
-    interface Factory
+    public interface IFactory
     {
         DoorToggleRequest create(DoorRetriever.AbstractRetriever doorRetriever, DoorActionCause doorActionCause,
                                  IMessageable messageReceiver, @Nullable IPPlayer responsible, double time,

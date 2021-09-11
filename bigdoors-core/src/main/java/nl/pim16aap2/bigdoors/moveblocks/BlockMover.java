@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
@@ -122,6 +123,7 @@ public abstract class BlockMover implements IRestartable
     protected @Nullable PSoundDescription soundFinish = null;
 
     protected final Cuboid newCuboid;
+    private ISoundEngine soundEngine;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -145,15 +147,16 @@ public abstract class BlockMover implements IRestartable
         throws Exception
     {
         this.context = context;
-        logger = context.logger;
-        executor = context.executor;
-        doorActivityManager = context.doorActivityManager;
-        autoCloseScheduler = context.autoCloseScheduler;
-        blockDataFactory = context.blockDataFactory;
-        locationFactory = context.locationFactory;
-        fallingBlockFactory = context.fallingBlockFactory;
+        logger = context.getLogger();
+        executor = context.getExecutor();
+        doorActivityManager = context.getDoorActivityManager();
+        autoCloseScheduler = context.getAutoCloseScheduler();
+        blockDataFactory = context.getBlockDataFactory();
+        locationFactory = context.getLocationFactory();
+        fallingBlockFactory = context.getFallingBlockFactory();
+        soundEngine = context.getSoundEngine();
 
-        if (!context.bigDoorsPlatform.isMainThread(Thread.currentThread().getId()))
+        if (!context.getBigDoorsPlatform().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
@@ -184,8 +187,8 @@ public abstract class BlockMover implements IRestartable
      */
     protected void playSound(PSoundDescription soundDescription)
     {
-        context.soundEngine.playSound(door.getEngine(), door.getWorld(), soundDescription.sound(),
-                                      soundDescription.volume(), soundDescription.pitch());
+        soundEngine.playSound(door.getEngine(), door.getWorld(), soundDescription.sound(),
+                              soundDescription.volume(), soundDescription.pitch());
     }
 
     @Override
@@ -203,7 +206,7 @@ public abstract class BlockMover implements IRestartable
     public void abort()
     {
         if (moverTask != null)
-            context.executor.cancel(moverTask, moverTaskID);
+            executor.cancel(moverTask, moverTaskID);
         putBlocks(true);
     }
 
@@ -260,7 +263,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void applyRotation()
     {
-        context.executor.runSync(this::applyRotationOnCurrentThread);
+        executor.runSync(this::applyRotationOnCurrentThread);
     }
 
     /**
@@ -276,7 +279,7 @@ public abstract class BlockMover implements IRestartable
      */
     protected void respawnBlocks()
     {
-        context.executor.runSync(this::respawnBlocksOnCurrentThread);
+        executor.runSync(this::respawnBlocksOnCurrentThread);
     }
 
     /**
@@ -343,13 +346,13 @@ public abstract class BlockMover implements IRestartable
         for (final PBlockData savedBlock : savedBlocks)
             savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
 
-        context.executor.runSync(() -> putBlocks(false));
+        executor.runSync(() -> putBlocks(false));
         if (moverTask == null)
         {
             logger.logMessage(Level.WARNING, "MoverTask unexpectedly null for BlockMover: \n" + this);
             return;
         }
-        context.executor.cancel(moverTask, moverTaskID);
+        executor.cancel(moverTask, moverTaskID);
     }
 
     /**
@@ -400,7 +403,7 @@ public abstract class BlockMover implements IRestartable
                     executeAnimationStep(counter);
             }
         };
-        moverTaskID = context.executor.runAsyncRepeated(moverTask, 14, 1);
+        moverTaskID = executor.runAsyncRepeated(moverTask, 14, 1);
     }
 
     /**
@@ -540,6 +543,7 @@ public abstract class BlockMover implements IRestartable
         return door;
     }
 
+    @Getter(AccessLevel.PACKAGE)
     public static final class Context
     {
         private final DoorActivityManager doorActivityManager;

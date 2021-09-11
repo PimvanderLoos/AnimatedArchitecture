@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors;
 
+import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -10,7 +11,10 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -22,7 +26,7 @@ public class UnitTestUtil
 
     public static ILocalizer initLocalizer()
     {
-        final var localizer = Mockito.mock(ILocalizer.class);
+        final ILocalizer localizer = Mockito.mock(ILocalizer.class);
         Mockito.when(localizer.getMessage(Mockito.anyString()))
                .thenAnswer(invocation -> invocation.getArgument(0, String.class));
         Mockito.when(localizer.getMessage(Mockito.anyString(), Mockito.any()))
@@ -186,5 +190,65 @@ public class UnitTestUtil
             while (rte.getCause().getClass() == RuntimeException.class)
                 rte = (RuntimeException) rte.getCause();
         Assertions.assertEquals(expectedType, rte.getCause().getClass(), expectedType.toString());
+    }
+
+    /**
+     * Sets the field of a class to a value.
+     *
+     * @param clz
+     *     The type in which to look for the field.
+     * @param obj
+     *     The object whose field to modify.
+     * @param fieldName
+     *     The name of the field to modify.
+     * @param value
+     *     The value to set the field to.
+     */
+    @SneakyThrows
+    public static void setField(Class<?> clz, Object obj, String fieldName, Object value)
+    {
+        Field field = clz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(obj, value);
+    }
+
+    /**
+     * Collects the varargs from an {@link InvocationOnMock}.
+     *
+     * @param clz
+     *     The type of the array to instantiate.
+     * @param invocationOnMock
+     *     The {@link InvocationOnMock} from which to extract the varargs and put them in a single array.
+     * @param offset
+     *     The offset for the start of the varargs.
+     *     <p>
+     *     For example, when capturing the method "fun(int, int, String...)", the varargs would have an offset of 2, as
+     *     the index of the first vararg value will be 2.
+     * @param <T>
+     *     The type of the array elements.
+     * @return An array for the given type.
+     *
+     * @throws IllegalArgumentException
+     *     When one of the provided arguments are not of the correct type.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] arrayFromCapturedVarArgs(Class<T> clz, InvocationOnMock invocationOnMock, int offset)
+    {
+        final Object[] args = invocationOnMock.getArguments();
+        final int size = Math.max(0, args.length - offset);
+
+        final T[] ret = (T[]) Array.newInstance(clz, size);
+        if (size == 0)
+            return ret;
+
+        for (int idx = 0; idx < size; ++idx)
+        {
+            final Object obj = args[idx + offset];
+            if (!clz.isAssignableFrom(obj.getClass()))
+                throw new IllegalArgumentException("Object " + obj + " of type " + obj.getClass().getName() +
+                                                       " is not of type " + clz.getName() + "!");
+            ret[idx] = (T) obj;
+        }
+        return ret;
     }
 }

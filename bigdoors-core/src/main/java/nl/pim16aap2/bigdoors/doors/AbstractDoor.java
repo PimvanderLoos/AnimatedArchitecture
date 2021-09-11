@@ -320,15 +320,15 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
-    {
-        return doorBase.getDoorOwner(player);
-    }
-
-    @Override
     public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return doorBase.getDoorOwner(uuid);
+    }
+
+    @Override
+    public boolean isDoorOwner(UUID player)
+    {
+        return doorBase.isDoorOwner(player);
     }
 
     @Override

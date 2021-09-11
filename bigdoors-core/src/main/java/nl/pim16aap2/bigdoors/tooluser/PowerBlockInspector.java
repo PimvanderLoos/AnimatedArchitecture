@@ -66,7 +66,7 @@ public class PowerBlockInspector extends ToolUser
     }
 
     @AssistedFactory
-    public interface Factory
+    public interface IFactory
     {
         PowerBlockInspector create(IPPlayer player, boolean bypassPermission);
     }

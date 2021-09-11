@@ -25,11 +25,11 @@ import java.util.concurrent.CompletableFuture;
 public class InspectPowerBlock extends BaseCommand
 {
     private final ToolUserManager toolUserManager;
-    private final PowerBlockInspector.Factory inspectPowerBlockFactory;
+    private final PowerBlockInspector.IFactory inspectPowerBlockFactory;
 
     @AssistedInject //
     InspectPowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                      ToolUserManager toolUserManager, PowerBlockInspector.Factory inspectPowerBlockFactory,
+                      ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory,
                       CompletableFutureHandler handler)
     {
         super(commandSender, logger, localizer, handler);

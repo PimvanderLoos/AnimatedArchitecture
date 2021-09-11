@@ -2,12 +2,18 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorOpener;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequest;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -19,56 +25,90 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
+import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class ToggleTest
 {
-    @Mock
-    private DoorRetriever doorRetriever;
+    private DoorRetriever.AbstractRetriever doorRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
 
-    private IBigDoorsPlatform platform;
-
     @Mock
     private AbstractDoor door;
 
-    private DoorOpener doorOpener;
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private DoorToggleRequest.IFactory doorToggleRequestIFactory;
 
-    @BeforeEach
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private Toggle.IFactory factory;
+
+    private DoorToggleRequestFactory doorToggleRequestFactory;
+
+    @Mock
+    private IMessageable messageableServer;
+
+    @Mock
+    private DoorToggleRequest doorToggleRequest;
+
+    @SneakyThrows @BeforeEach
     void init()
     {
-        platform = UnitTestUtil.initPlatform();
-
         MockitoAnnotations.openMocks(this);
 
-        doorOpener = Mockito.mock(DoorOpener.class);
-        Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
         initCommandSenderPermissions(commandSender, true, true);
-        initDoorRetriever(doorRetriever, door);
+
+        Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
+        Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+
+        doorRetriever = DoorRetriever.ofDoor(door);
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        Mockito.when(doorToggleRequestIFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                                                      Mockito.anyDouble(), Mockito.anyBoolean(), Mockito.any()))
+               .thenReturn(doorToggleRequest);
+
+        doorToggleRequestFactory = new DoorToggleRequestFactory(doorToggleRequestIFactory, messageableServer,
+                                                                Mockito.mock(IPPlayerFactory.class));
+
+        Mockito.when(factory.newToggle(Mockito.any(ICommandSender.class), Mockito.any(DoorActionType.class),
+                                       Mockito.anyDouble(), Mockito.any()))
+               .thenAnswer(
+                   invoc ->
+                   {
+                       final DoorRetriever.AbstractRetriever[] retrievers =
+                           UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.AbstractRetriever.class, invoc, 3);
+
+                       return new Toggle(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                                         invoc.getArgument(1, DoorActionType.class),
+                                         invoc.getArgument(2, Double.class), doorToggleRequestFactory,
+                                         messageableServer, handler, retrievers);
+                   });
     }
 
     @Test
     @SneakyThrows
     void testSuccess()
     {
-        DoorOpener doorOpener = Mockito.mock(DoorOpener.class);
-        Mockito.when(platform.getDoorOpener()).thenReturn(doorOpener);
-
-        Toggle toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                   Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
+        final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                                Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
-        Mockito.verify(doorOpener).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                    0.0D, false, DoorActionType.TOGGLE);
+        Mockito.verify(doorToggleRequestIFactory).create(doorRetriever, DoorActionCause.PLAYER, commandSender,
+                                                         commandSender, 0.0D, false, DoorActionType.TOGGLE);
 
-        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
+        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.doorOwner0));
         toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS);
-        Mockito.verify(doorOpener, Mockito.times(2)).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                                      0.0D, false, DoorActionType.TOGGLE);
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(2)).create(doorRetriever, DoorActionCause.PLAYER,
+                                                                           commandSender, commandSender,
+                                                                           0.0D, false, DoorActionType.TOGGLE);
     }
 
     @Test
@@ -77,53 +117,61 @@ class ToggleTest
     {
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
         final int count = 10;
-        final var retrievers = new DoorRetriever[count];
-        final var doors = new AbstractDoor[count];
+        final DoorRetriever.AbstractRetriever[] retrievers = new DoorRetriever.AbstractRetriever[count];
         for (int idx = 0; idx < count; ++idx)
         {
-            doors[idx] = Mockito.mock(AbstractDoor.class);
-            retrievers[idx] = Mockito.mock(DoorRetriever.class);
-            initDoorRetriever(retrievers[idx], doors[idx]);
+            final AbstractDoor newDoor = Mockito.mock(AbstractDoor.class);
+            Mockito.when(newDoor.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
+            Mockito.when(newDoor.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
+            retrievers[idx] = DoorRetriever.ofDoor(newDoor);
         }
 
-        final var toggle = new Toggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
-                                      Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
+        final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
+                                                Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
 
-        final var toggledDoors = Mockito.mockingDetails(doorOpener).getInvocations().stream()
-                                        .<AbstractDoor>map(invocation -> invocation.getArgument(0))
-                                        .collect(Collectors.toSet());
+        final Set<DoorRetriever.AbstractRetriever> toggledDoors =
+            Mockito.mockingDetails(doorToggleRequestIFactory).getInvocations().stream()
+                   .<DoorRetriever.AbstractRetriever>map(invocation -> invocation.getArgument(0))
+                   .collect(Collectors.toSet());
 
         Assertions.assertEquals(count, toggledDoors.size());
         for (int idx = 0; idx < count; ++idx)
-            Assertions.assertTrue(toggledDoors.contains(doors[idx]));
+            Assertions.assertTrue(toggledDoors.contains(retrievers[idx]));
     }
 
     @Test
     @SneakyThrows
-    void testStaticRunners()
+    void testParameters()
     {
         Mockito.when(door.isCloseable()).thenReturn(true);
         Mockito.when(door.isOpenable()).thenReturn(true);
 
-        Assertions.assertTrue(Toggle.run(commandSender, doorRetriever).get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                                      Toggle.DEFAULT_SPEED_MULTIPLIER, false,
-                                                                      DoorActionType.TOGGLE);
+        Assertions.assertTrue(factory.newToggle(commandSender, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))
+               .create(doorRetriever, DoorActionCause.PLAYER, commandSender, commandSender,
+                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.TOGGLE);
 
-        Assertions.assertTrue(Toggle.run(commandSender, 3.141592653589793D, doorRetriever).get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                                      3.141592653589793D, false, DoorActionType.TOGGLE);
 
-        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.CLOSE, doorRetriever).get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                                      Toggle.DEFAULT_SPEED_MULTIPLIER, false,
-                                                                      DoorActionType.CLOSE);
+        Assertions.assertTrue(factory.newToggle(commandSender, 3.141592653589793D, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))
+               .create(doorRetriever, DoorActionCause.PLAYER, commandSender, commandSender,
+                       3.141592653589793D, false, DoorActionType.TOGGLE);
 
-        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.OPEN, 42, doorRetriever)
-                                    .get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.PLAYER, commandSender,
-                                                                      42, false, DoorActionType.OPEN);
+
+        Assertions.assertTrue(
+            factory.newToggle(commandSender, DoorActionType.CLOSE, doorRetriever).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))
+               .create(doorRetriever, DoorActionCause.PLAYER, commandSender, commandSender,
+                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.CLOSE);
+
+
+        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.OPEN, 42, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))
+               .create(doorRetriever, DoorActionCause.PLAYER, commandSender,
+                       commandSender, 42, false, DoorActionType.OPEN);
     }
 
     @Test
@@ -131,18 +179,18 @@ class ToggleTest
     void testServerCommandSender()
     {
         final var serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(Toggle.run(serverCommandSender, DoorActionType.TOGGLE, doorRetriever)
-                                    .get(1, TimeUnit.SECONDS));
-        Mockito.verify(doorOpener, Mockito.times(1)).animateDoorAsync(door, DoorActionCause.SERVER, null,
-                                                                      Toggle.DEFAULT_SPEED_MULTIPLIER, false,
-                                                                      DoorActionType.TOGGLE);
+        Assertions.assertTrue(factory.newToggle(serverCommandSender, DoorActionType.TOGGLE, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))
+               .create(doorRetriever, DoorActionCause.SERVER, messageableServer, null,
+                       Toggle.DEFAULT_SPEED_MULTIPLIER, false, DoorActionType.TOGGLE);
     }
 
     private void verifyNoOpenerCalls()
     {
-        Mockito.verify(doorOpener, Mockito.never())
-               .animateDoorAsync(Mockito.any(AbstractDoor.class), Mockito.any(), Mockito.any(),
-                                 Mockito.anyDouble(), Mockito.anyBoolean(), Mockito.any());
+        Mockito.verify(doorToggleRequestIFactory, Mockito.never())
+               .create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
+                       Mockito.anyDouble(), Mockito.anyBoolean(), Mockito.any());
     }
 
     @Test
@@ -151,18 +199,21 @@ class ToggleTest
     {
         Mockito.when(door.isCloseable()).thenReturn(false);
 
-        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.CLOSE, doorRetriever).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.CLOSE, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
 
         Mockito.when(door.isCloseable()).thenReturn(true);
         initCommandSenderPermissions(commandSender, false, false);
         Mockito.when(door.getDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(Optional.empty());
 
-        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.CLOSE, doorRetriever).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.CLOSE, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
 
         initCommandSenderPermissions(commandSender, true, false);
-        Assertions.assertTrue(Toggle.run(commandSender, DoorActionType.CLOSE, doorRetriever).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newToggle(commandSender, DoorActionType.CLOSE, doorRetriever).run()
+                                     .get(1, TimeUnit.SECONDS));
         verifyNoOpenerCalls();
     }
 }

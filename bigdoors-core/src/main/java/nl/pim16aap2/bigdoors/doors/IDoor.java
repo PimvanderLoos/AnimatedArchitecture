@@ -114,16 +114,6 @@ public interface IDoor
     List<DoorOwner> getDoorOwners();
 
     /**
-     * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
-     *
-     * @param player
-     *     The player that may or may not be an owner of this door.
-     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
-     * door.
-     */
-    Optional<DoorOwner> getDoorOwner(IPPlayer player);
-
-    /**
      * Attempts to get the {@link DoorOwner} of this door represented by the UUID of a player.
      *
      * @param player
@@ -132,6 +122,38 @@ public interface IDoor
      * door.
      */
     Optional<DoorOwner> getDoorOwner(UUID player);
+
+    /**
+     * Attempts to get the {@link DoorOwner} of this door represented by an {@link IPPlayer}.
+     *
+     * @param player
+     *     The player that may or may not be an owner of this door.
+     * @return The {@link DoorOwner} of this door for the given player, if this player is a {@link DoorOwner} of this
+     * door.
+     */
+    default Optional<DoorOwner> getDoorOwner(IPPlayer player)
+    {
+        return getDoorOwner(player.getUUID());
+    }
+
+    /**
+     * Checks if a player with a given UUID is a (co-)owner of this door with any level of ownership.
+     * <p>
+     * If the level of ownership matters, use {@link #getDoorOwner(UUID)} instead.
+     *
+     * @param player
+     *     The UUID of a player.
+     * @return True if the player with the given UUID is an owner of this door with any level of ownership.
+     */
+    boolean isDoorOwner(UUID player);
+
+    /**
+     * See {@link #isDoorOwner(UUID)}.
+     */
+    default boolean isDoorOwner(IPPlayer player)
+    {
+        return isDoorOwner(player.getUUID());
+    }
 
     /**
      * Gets the {@link RotateDirection} this {@link IDoor} will open if currently closed.

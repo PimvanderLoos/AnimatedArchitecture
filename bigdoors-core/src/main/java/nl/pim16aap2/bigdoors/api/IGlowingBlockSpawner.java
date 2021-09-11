@@ -153,25 +153,25 @@ public interface IGlowingBlockSpawner
     /**
      * Spawns the glowing blocks required to highlight a door.
      *
-     * @param doorBase
+     * @param abstractDoor
      *     The door to highlight.
      * @param player
      *     The {@link IPPlayer} for whom to highlight the door.
      * @return The list of {@link IGlowingBlock}s that were spawned.
      */
-    default List<IGlowingBlock> spawnGlowingBlocks(AbstractDoor doorBase, IPPlayer player)
+    default List<IGlowingBlock> spawnGlowingBlocks(AbstractDoor abstractDoor, IPPlayer player)
     {
         final List<IGlowingBlock> ret = new ArrayList<>(4);
-        final IPWorld world = doorBase.getWorld();
+        final IPWorld world = abstractDoor.getWorld();
 
-        spawnGlowingBlock(player, world, 15, doorBase.getPowerBlock().x(), doorBase.getPowerBlock().y(),
-                          doorBase.getPowerBlock().z(), PColor.GOLD);
-        spawnGlowingBlock(player, world, 15, doorBase.getEngine().x(), doorBase.getEngine().y(),
-                          doorBase.getEngine().z(), PColor.DARK_PURPLE);
-        spawnGlowingBlock(player, world, 15, doorBase.getMinimum().x(), doorBase.getMinimum().y(),
-                          doorBase.getMinimum().z(), PColor.BLUE);
-        spawnGlowingBlock(player, world, 15, doorBase.getMaximum().x(), doorBase.getMaximum().y(),
-                          doorBase.getMaximum().z(), PColor.RED);
+        spawnGlowingBlock(player, world, 15, abstractDoor.getPowerBlock().x(), abstractDoor.getPowerBlock().y(),
+                          abstractDoor.getPowerBlock().z(), PColor.GOLD);
+        spawnGlowingBlock(player, world, 15, abstractDoor.getEngine().x(), abstractDoor.getEngine().y(),
+                          abstractDoor.getEngine().z(), PColor.DARK_PURPLE);
+        spawnGlowingBlock(player, world, 15, abstractDoor.getMinimum().x(), abstractDoor.getMinimum().y(),
+                          abstractDoor.getMinimum().z(), PColor.BLUE);
+        spawnGlowingBlock(player, world, 15, abstractDoor.getMaximum().x(), abstractDoor.getMaximum().y(),
+                          abstractDoor.getMaximum().z(), PColor.RED);
         return ret;
     }
 

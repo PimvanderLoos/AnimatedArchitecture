@@ -39,6 +39,10 @@ public abstract class ToolUser implements IRestartable
 
     protected final ToolUserManager toolUserManager;
 
+    protected final IProtectionCompatManager protectionCompatManager;
+
+    protected final IBigDoorsToolUtil bigDoorsToolUtil;
+
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
      */
@@ -60,15 +64,15 @@ public abstract class ToolUser implements IRestartable
      * Keeps track of whether the player has the tool or not.
      */
     protected boolean playerHasStick = false;
-    private IProtectionCompatManager protectionCompatManager;
-    private IBigDoorsToolUtil bigDoorsToolUtil;
 
     protected ToolUser(Context context, IPPlayer player)
     {
         this.player = player;
-        logger = context.logger;
-        localizer = context.localizer;
-        toolUserManager = context.toolUserManager;
+        logger = context.getLogger();
+        localizer = context.getLocalizer();
+        toolUserManager = context.getToolUserManager();
+        protectionCompatManager = context.getProtectionCompatManager();
+        bigDoorsToolUtil = context.getBigDoorsToolUtil();
 
         init();
 
@@ -329,19 +333,22 @@ public abstract class ToolUser implements IRestartable
     @Getter
     public static final class Context
     {
-        final DoorBaseFactory doorBaseFactory;
-        final IPLogger logger;
-        final ILocalizer localizer;
-        final ToolUserManager toolUserManager;
-        final DatabaseManager databaseManager;
-        final LimitsManager limitsManager;
-        final CompletableFutureHandler handler;
-        final IEconomyManager economyManager;
+        private final DoorBaseFactory doorBaseFactory;
+        private final IPLogger logger;
+        private final ILocalizer localizer;
+        private final ToolUserManager toolUserManager;
+        private final DatabaseManager databaseManager;
+        private final LimitsManager limitsManager;
+        private final CompletableFutureHandler handler;
+        private final IEconomyManager economyManager;
+        private final IProtectionCompatManager protectionCompatManager;
+        private final IBigDoorsToolUtil bigDoorsToolUtil;
 
         @Inject
         public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
                        ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
-                       CompletableFutureHandler handler, IEconomyManager economyManager)
+                       CompletableFutureHandler handler, IEconomyManager economyManager,
+                       IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
         {
             this.doorBaseFactory = doorBaseFactory;
             this.logger = logger;
@@ -351,6 +358,8 @@ public abstract class ToolUser implements IRestartable
             this.limitsManager = limitsManager;
             this.handler = handler;
             this.economyManager = economyManager;
+            this.protectionCompatManager = protectionCompatManager;
+            this.bigDoorsToolUtil = bigDoorsToolUtil;
         }
     }
 }

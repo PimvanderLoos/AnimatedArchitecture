@@ -47,9 +47,8 @@ public class SetAutoCloseTime extends DoorTargetCommand
     {
         if (!(door instanceof ITimerToggleable))
         {
-            getCommandSender().sendMessage(localizer
-                                               .getMessage("commands.set_auto_close_timer.error.invalid_door_type",
-                                                           door.getBasicInfo()));
+            getCommandSender().sendMessage(localizer.getMessage("commands.set_auto_close_timer.error.invalid_door_type",
+                                                                door.getBasicInfo()));
             return CompletableFuture.completedFuture(true);
         }
 

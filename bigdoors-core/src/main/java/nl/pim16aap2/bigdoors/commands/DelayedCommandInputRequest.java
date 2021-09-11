@@ -178,7 +178,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     }
 
     @AssistedFactory
-    public interface Factory<T>
+    public interface IFactory<T>
     {
         DelayedCommandInputRequest<T> create(long timeout, ICommandSender commandSender,
                                              CommandDefinition commandDefinition,
