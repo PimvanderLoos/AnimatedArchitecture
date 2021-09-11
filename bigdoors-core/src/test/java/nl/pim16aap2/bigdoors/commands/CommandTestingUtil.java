@@ -28,7 +28,7 @@ class CommandTestingUtil
      * @param door
      *     The door to be retrieved by the retriever.
      */
-    public static void initDoorRetriever(DoorRetriever doorRetriever, AbstractDoor door)
+    public static void initDoorRetriever(DoorRetriever.AbstractRetriever doorRetriever, AbstractDoor door)
     {
         Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
         Mockito.when(doorRetriever.getDoor(Mockito.any()))

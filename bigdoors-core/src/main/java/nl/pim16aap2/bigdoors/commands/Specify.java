@@ -9,6 +9,7 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -56,7 +57,7 @@ public class Specify extends BaseCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link Specify} command.

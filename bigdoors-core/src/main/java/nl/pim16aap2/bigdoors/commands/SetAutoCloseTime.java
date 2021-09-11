@@ -143,7 +143,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
 //    }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link SetAutoCloseTime} command.

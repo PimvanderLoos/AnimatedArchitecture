@@ -44,7 +44,7 @@ public class Restart extends BaseCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link Restart} command.

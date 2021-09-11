@@ -1,10 +1,8 @@
 package nl.pim16aap2.bigdoors;
 
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -21,21 +19,6 @@ public class UnitTestUtil
 {
     @SuppressWarnings("unused")
     public static final double EPSILON = 1E-6;
-
-    /**
-     * Initializes and registers a new {@link IBigDoorsPlatform}. A {@link BasicPLogger} is also set up.
-     *
-     * @return The new {@link IBigDoorsPlatform}.
-     */
-    public static IBigDoorsPlatform initPlatform()
-    {
-        IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
-        BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
-        final var localizer = initLocalizer();
-        Mockito.when(platform.getLocalizer()).thenReturn(localizer);
-        return platform;
-    }
 
     public static ILocalizer initLocalizer()
     {

@@ -142,7 +142,7 @@ public class SetBlocksToMove extends DoorTargetCommand
 //    }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link SetBlocksToMove} command.

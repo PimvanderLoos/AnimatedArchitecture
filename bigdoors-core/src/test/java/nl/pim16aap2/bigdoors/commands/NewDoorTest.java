@@ -16,7 +16,6 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class NewDoorTest
@@ -33,10 +32,7 @@ class NewDoorTest
     @BeforeEach
     void init()
     {
-        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
-
-        Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
 
         initCommandSenderPermissions(commandSender, true, true);
     }
@@ -46,7 +42,7 @@ class NewDoorTest
     void testServer()
     {
         final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(NewDoor.run(server, doorType, null).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(new NewDoor(server, doorType, null).get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
@@ -62,10 +58,10 @@ class NewDoorTest
         Mockito.when(doorType.getCreator(Mockito.any(), Mockito.any()))
                .thenAnswer(inv -> name.equals(inv.getArgument(1, String.class)) ? namedCreator : unnamedCreator);
 
-        Assertions.assertTrue(NewDoor.run(commandSender, doorType).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(new NewDoor(commandSender, doorType).get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(unnamedCreator, Constants.DOOR_CREATOR_TIME_LIMIT);
 
-        Assertions.assertTrue(NewDoor.run(commandSender, doorType, name).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(new NewDoor(commandSender, doorType, name).get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(namedCreator, Constants.DOOR_CREATOR_TIME_LIMIT);
     }
 }

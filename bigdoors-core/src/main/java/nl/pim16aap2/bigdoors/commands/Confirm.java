@@ -59,7 +59,7 @@ public class Confirm extends BaseCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link Confirm} command.

@@ -12,72 +12,61 @@ import javax.inject.Inject;
 public class CommandFactory
 {
     @Delegate
-    private final AddOwner.Factory addOwnerFactory;
+    private final AddOwner.IFactory addOwnerFactory;
     @Delegate
-    private final Info.Factory infoFactory;
+    private final Info.IFactory infoFactory;
     @Delegate
-    private final SetBlocksToMove.Factory setBlocksToMoveFactory;
+    private final SetBlocksToMove.IFactory setBlocksToMoveFactory;
     @Delegate
-    private final Confirm.Factory confirmFactory;
+    private final Confirm.IFactory confirmFactory;
     @Delegate
-    private final InspectPowerBlock.Factory inspectPowerBlockFactory;
+    private final InspectPowerBlock.IFactory inspectPowerBlockFactory;
     @Delegate
-    private final Restart.Factory restartFactory;
+    private final Restart.IFactory restartFactory;
     @Delegate
-    private final Version.Factory versionFactory;
+    private final Version.IFactory versionFactory;
     @Delegate
-    private final Cancel.Factory cancelFactory;
+    private final Cancel.IFactory cancelFactory;
     @Delegate
-    private final Delete.Factory deleteFactory;
+    private final Delete.IFactory deleteFactory;
     @Delegate
-    private final Specify.Factory specifyFactory;
+    private final Specify.IFactory specifyFactory;
     @Delegate
-    private final Debug.Factory debugFactory;
+    private final Debug.IFactory debugFactory;
     @Delegate
-    private final Menu.Factory menuFactory;
+    private final Menu.IFactory menuFactory;
     @Delegate
-    private final RemoveOwner.Factory removeOwnerFactory;
+    private final RemoveOwner.IFactory removeOwnerFactory;
     @Delegate
-    private final SetAutoCloseTime.Factory setAutoCloseTimeFactory;
+    private final SetAutoCloseTime.IFactory setAutoCloseTimeFactory;
     @Delegate
-    private final Toggle.Factory toggleFactory;
+    private final Toggle.IFactory toggleFactory;
     @Delegate
-    private final SetOpenDirection.Factory setOpenDirectionFactory;
+    private final SetOpenDirection.IFactory setOpenDirectionFactory;
     @Delegate
-    private final StopDoors.Factory stopDoorsFactory;
+    private final StopDoors.IFactory stopDoorsFactory;
     @Delegate
-    private final Lock.Factory lockFactory;
+    private final Lock.IFactory lockFactory;
     @Delegate
-    private final SetName.Factory setNameFactory;
+    private final SetName.IFactory setNameFactory;
     @Delegate
-    private final MovePowerBlock.Factory movePowerBlockFactory;
+    private final MovePowerBlock.IFactory movePowerBlockFactory;
     @Delegate
-    private final NewDoor.Factory newDoorFactory;
+    private final NewDoor.IFactory newDoorFactory;
     @Delegate
-    private final ListDoors.Factory listDoorsFactory;
+    private final ListDoors.IFactory listDoorsFactory;
 
-    @Inject CommandFactory(AddOwner.Factory addOwnerFactory,
-                           Info.Factory infoFactory,
-                           SetBlocksToMove.Factory setBlocksToMoveFactory,
-                           Confirm.Factory confirmFactory,
-                           InspectPowerBlock.Factory inspectPowerBlockFactory,
-                           Restart.Factory restartFactory,
-                           Version.Factory versionFactory,
-                           Cancel.Factory cancelFactory,
-                           Delete.Factory deleteFactory,
-                           Specify.Factory specifyFactory,
-                           Debug.Factory debugFactory,
-                           Menu.Factory menuFactory,
-                           RemoveOwner.Factory removeOwnerFactory,
-                           SetAutoCloseTime.Factory setAutoCloseTimeFactory,
-                           Toggle.Factory toggleFactory,
-                           SetOpenDirection.Factory setOpenDirectionFactory,
-                           StopDoors.Factory stopDoorsFactory,
-                           Lock.Factory lockFactory,
-                           SetName.Factory setNameFactory,
-                           MovePowerBlock.Factory movePowerBlockFactory,
-                           NewDoor.Factory newDoorFactory,
-                           ListDoors.Factory listDoorsFactory)
+    @Inject //
+    CommandFactory(AddOwner.IFactory addOwnerFactory, Info.IFactory infoFactory,
+                   SetBlocksToMove.IFactory setBlocksToMoveFactory, Confirm.IFactory confirmFactory,
+                   InspectPowerBlock.IFactory inspectPowerBlockFactory, Restart.IFactory restartFactory,
+                   Version.IFactory versionFactory, Cancel.IFactory cancelFactory, Delete.IFactory deleteFactory,
+                   Specify.IFactory specifyFactory, Debug.IFactory debugFactory, Menu.IFactory menuFactory,
+                   RemoveOwner.IFactory removeOwnerFactory, SetAutoCloseTime.IFactory setAutoCloseTimeFactory,
+                   Toggle.IFactory toggleFactory, SetOpenDirection.IFactory setOpenDirectionFactory,
+                   StopDoors.IFactory stopDoorsFactory, Lock.IFactory lockFactory, SetName.IFactory setNameFactory,
+                   MovePowerBlock.IFactory movePowerBlockFactory, NewDoor.IFactory newDoorFactory,
+                   ListDoors.IFactory listDoorsFactory)
     {
         this.addOwnerFactory = addOwnerFactory;
         this.infoFactory = infoFactory;

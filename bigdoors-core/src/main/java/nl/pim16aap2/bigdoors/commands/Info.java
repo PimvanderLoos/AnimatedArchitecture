@@ -57,7 +57,7 @@ public class Info extends DoorTargetCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link Info} command.

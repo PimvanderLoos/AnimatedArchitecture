@@ -65,7 +65,7 @@ public class NewDoor extends BaseCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link NewDoor} command.

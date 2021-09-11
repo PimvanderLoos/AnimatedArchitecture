@@ -55,7 +55,7 @@ public class Cancel extends BaseCommand
     }
 
     @AssistedFactory
-    interface Factory
+    interface IFactory
     {
         /**
          * Creates (but does not execute!) a new {@link Cancel} command.
