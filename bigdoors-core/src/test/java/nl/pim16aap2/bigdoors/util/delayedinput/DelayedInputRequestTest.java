@@ -7,6 +7,8 @@ import nl.pim16aap2.bigdoors.util.Util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -22,9 +24,9 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testTimeout()
     {
-        final var request = new DelayedInputRequestImpl(100);
-        final var output = request.getInputResult();
-        final var result = output.get(1000, TimeUnit.MILLISECONDS);
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(100);
+        final CompletableFuture<Optional<String>> output = request.getInputResult();
+        final Optional<String> result = output.get(1000, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.timedOut());
         Assertions.assertTrue(result.isEmpty());
@@ -37,13 +39,13 @@ class DelayedInputRequestTest
         final String firstInput = Util.randomInsecureString(10);
         final String secondInput = Util.randomInsecureString(10);
 
-        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
-        final var output = request.getInputResult();
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final CompletableFuture<Optional<String>> output = request.getInputResult();
 
         request.set(firstInput);
         request.set(secondInput);
 
-        final var result = output.get(100, TimeUnit.MILLISECONDS);
+        final Optional<String> result = output.get(100, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.success());
         Assertions.assertTrue(result.isPresent());
@@ -60,12 +62,12 @@ class DelayedInputRequestTest
     {
         final String inputString = Util.randomInsecureString(10);
 
-        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
-        final var output = request.getInputResult();
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final CompletableFuture<Optional<String>> output = request.getInputResult();
 
         request.set(inputString);
 
-        final var result = output.get(100, TimeUnit.MILLISECONDS);
+        final Optional<String> result = output.get(100, TimeUnit.MILLISECONDS);
 
         Assertions.assertTrue(request.success());
         Assertions.assertTrue(result.isPresent());
@@ -76,7 +78,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusCancelled()
     {
-        final var request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(5, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.WAITING, request.getStatus());
         Assertions.assertFalse(request.success());
         Assertions.assertFalse(request.cancelled());
@@ -97,7 +99,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusTimedOut()
     {
-        final var request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.MILLISECONDS);
         request.getInputResult().get(1, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.TIMED_OUT, request.getStatus());
         Assertions.assertFalse(request.success());
@@ -111,7 +113,7 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusSuccess()
     {
-        final var request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
         request.set("VALUE");
         request.getInputResult().get(1, TimeUnit.SECONDS);
         Assertions.assertEquals(DelayedInputRequest.Status.COMPLETED, request.getStatus());
@@ -126,11 +128,12 @@ class DelayedInputRequestTest
     @SneakyThrows
     void testStatusException()
     {
-        final var f = DelayedInputRequest.class.getDeclaredField("input");
+        final Field f = DelayedInputRequest.class.getDeclaredField("input");
         f.setAccessible(true);
-        final var request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
+        final DelayedInputRequestImpl request = new DelayedInputRequestImpl(1, TimeUnit.SECONDS);
 
-        @SuppressWarnings("unchecked") final var input = (CompletableFuture<String>) f.get(request);
+        @SuppressWarnings("unchecked") //
+        final CompletableFuture<String> input = (CompletableFuture<String>) f.get(request);
 
         input.completeExceptionally(new RuntimeException("ExceptionTest!"));
 
@@ -149,11 +152,6 @@ class DelayedInputRequestTest
         public DelayedInputRequestImpl(IPLogger logger, long timeout, TimeUnit timeUnit)
         {
             super(logger, timeout, timeUnit);
-        }
-
-        public DelayedInputRequestImpl(IPLogger logger, long timeout)
-        {
-            this(logger, timeout, TimeUnit.MILLISECONDS);
         }
 
         public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)

@@ -117,8 +117,8 @@ class AddOwnerTest
     @Test
     void nonPlayer()
     {
-        final var server = Mockito.mock(ICommandSender.class, Answers.CALLS_REAL_METHODS);
-        final var addOwner = factory.newAddOwner(server, doorRetriever, target, 0);
+        final ICommandSender server = Mockito.mock(ICommandSender.class, Answers.CALLS_REAL_METHODS);
+        final AddOwner addOwner = factory.newAddOwner(server, doorRetriever, target, 0);
 
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner0));
         Assertions.assertFalse(addOwner.isAllowed(door, false));
@@ -164,8 +164,8 @@ class AddOwnerTest
 //        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
 //        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
 //
-//        final var first = AddOwner.runDelayed(commandSender, doorRetriever);
-//        final var second = AddOwner.provideDelayedInput(commandSender, target);
+//        final int first = AddOwner.runDelayed(commandSender, doorRetriever);
+//        final int second = AddOwner.provideDelayedInput(commandSender, target);
 //
 //        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
 //        Assertions.assertEquals(first, second);

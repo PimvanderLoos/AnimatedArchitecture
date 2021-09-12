@@ -63,7 +63,7 @@ class NewDoorTest
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newNewDoor(server, doorType, null).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
@@ -72,10 +72,10 @@ class NewDoorTest
     @SneakyThrows
     void testExecution()
     {
-        final var name = "newDoor";
+        final String name = "newDoor";
 
-        final var unnamedCreator = Mockito.mock(Creator.class);
-        final var namedCreator = Mockito.mock(Creator.class);
+        final Creator unnamedCreator = Mockito.mock(Creator.class);
+        final Creator namedCreator = Mockito.mock(Creator.class);
 
         Mockito.when(doorType.getCreator(Mockito.any(), Mockito.any(), Mockito.any()))
                .thenAnswer(inv -> name.equals(inv.getArgument(2, String.class)) ? namedCreator : unnamedCreator);

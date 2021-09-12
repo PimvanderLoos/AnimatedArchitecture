@@ -62,7 +62,7 @@ class InfoTest
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newInfo(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(glowingBlockSpawner, Mockito.never()).spawnGlowingBlocks(Mockito.any(), Mockito.any());
         Mockito.verify(server).sendMessage(door.toString());

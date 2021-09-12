@@ -133,7 +133,7 @@ class TimedCacheTest
     @Test
     void testSoftReference()
     {
-        final var longDuration = Duration.ofHours(100);
+        final Duration longDuration = Duration.ofHours(100);
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new TimedCache<>(clock, Duration.ZERO, longDuration, false, false, false));
         Assertions.assertThrows(IllegalArgumentException.class,

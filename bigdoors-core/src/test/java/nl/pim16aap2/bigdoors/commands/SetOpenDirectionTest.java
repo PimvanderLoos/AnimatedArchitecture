@@ -70,7 +70,7 @@ class SetOpenDirectionTest
         final RotateDirection rotateDirection = RotateDirection.CLOCKWISE;
 
         Mockito.when(doorType.isValidOpenDirection(Mockito.any())).thenReturn(false);
-        final var command = factory.newSetOpenDirection(commandSender, doorRetriever, rotateDirection);
+        final SetOpenDirection command = factory.newSetOpenDirection(commandSender, doorRetriever, rotateDirection);
 
         Assertions.assertTrue(command.performAction(door).get(1, TimeUnit.SECONDS));
         Mockito.verify(door, Mockito.never()).syncData();
@@ -91,8 +91,8 @@ class SetOpenDirectionTest
 //        final RotateDirection rotateDirection = RotateDirection.CLOCKWISE;
 //        Mockito.when(doorType.isValidOpenDirection(rotateDirection)).thenReturn(true);
 //
-//        final var first = SetOpenDirection.runDelayed(commandSender, doorRetriever);
-//        final var second = SetOpenDirection.provideDelayedInput(commandSender, rotateDirection);
+//        final int first = SetOpenDirection.runDelayed(commandSender, doorRetriever);
+//        final int second = SetOpenDirection.provideDelayedInput(commandSender, rotateDirection);
 //
 //        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
 //        Assertions.assertEquals(first, second);

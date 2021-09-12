@@ -71,7 +71,7 @@ class DeleteTest
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newDelete(server, doorRetriever).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager).deleteDoor(door, null);
     }

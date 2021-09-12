@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
@@ -28,7 +29,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -87,7 +90,7 @@ class CreatorTest
     @Test
     void testNameInput()
     {
-        final var input = "1";
+        final String input = "1";
         // Numerical names are not allowed.
         Assertions.assertFalse(creator.completeNamingStep(input));
         Mockito.verify(player).sendMessage("creator.base.error.invalid_name " + input);
@@ -99,7 +102,7 @@ class CreatorTest
     @Test
     void testFirstLocation()
     {
-        final var loc = getLocation(12.7, 128, 56.12);
+        final IPLocation loc = getLocation(12.7, 128, 56.12);
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // No access to location
@@ -114,11 +117,11 @@ class CreatorTest
     @Test
     void testWorldMatch()
     {
-        final var world = getWorld();
-        final var worldName = world.worldName();
+        final IPWorld world = getWorld();
+        final String worldName = world.worldName();
         setField("world", world);
 
-        final var secondWorld = getWorld();
+        final IPWorld secondWorld = getWorld();
         // Different world, so no match!
         Assertions.assertFalse(creator.verifyWorldMatch(Mockito.mock(IPWorld.class)));
 
@@ -138,16 +141,16 @@ class CreatorTest
     {
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
 
-        final var world = getWorld();
+        final IPWorld world = getWorld();
 
-        final var vec1 = new Vector3Di(12, 128, 56);
-        final var vec2 = vec1.add(10, 10, 10);
-        final var cuboid = new Cuboid(vec1, vec2);
+        final Vector3Di vec1 = new Vector3Di(12, 128, 56);
+        final Vector3Di vec2 = vec1.add(10, 10, 10);
+        final Cuboid cuboid = new Cuboid(vec1, vec2);
 
         setField("firstPos", vec1);
         setField("world", world);
 
-        final var loc = getLocation(vec2, world);
+        final IPLocation loc = getLocation(vec2, world);
 
         // Not allowed, because no access to location
         Assertions.assertFalse(creator.setSecondPos(loc));
@@ -176,7 +179,7 @@ class CreatorTest
     {
         Mockito.doNothing().when(creator).shutdown();
 
-        final var procedure = Mockito.mock(Procedure.class);
+        final Procedure procedure = Mockito.mock(Procedure.class);
         Mockito.doReturn(procedure).when(creator).getProcedure();
 
         Assertions.assertTrue(creator.confirmPrice(false));
@@ -188,7 +191,7 @@ class CreatorTest
         Assertions.assertTrue(creator.confirmPrice(true));
         Mockito.verify(player).sendMessage("creator.base.error.insufficient_funds 0");
 
-        var price = 123.41;
+        double price = 123.41;
         Mockito.doReturn(OptionalDouble.of(price)).when(creator).getPrice();
         Mockito.doReturn(false).when(creator).buyDoor();
         Assertions.assertTrue(creator.confirmPrice(true));
@@ -212,8 +215,8 @@ class CreatorTest
     @Test
     void testOpenDirectionStep()
     {
-        final var doorType = Mockito.mock(DoorType.class);
-        final var validOpenDirections = Arrays.asList(RotateDirection.EAST, RotateDirection.WEST);
+        final DoorType doorType = Mockito.mock(DoorType.class);
+        final List<RotateDirection> validOpenDirections = Arrays.asList(RotateDirection.EAST, RotateDirection.WEST);
         Mockito.when(doorType.getValidOpenDirections()).thenReturn(validOpenDirections);
 
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
@@ -235,7 +238,7 @@ class CreatorTest
     void testGetPrice()
     {
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
-        final var cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
+        final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
         Assertions.assertTrue(creator.getPrice().isEmpty());
 
@@ -243,7 +246,7 @@ class CreatorTest
         Mockito.when(economyManager.getPrice(Mockito.any(), Mockito.anyInt()))
                .thenAnswer(invocation -> OptionalDouble.of(invocation.getArgument(1, Integer.class).doubleValue()));
 
-        final var price = creator.getPrice();
+        final OptionalDouble price = creator.getPrice();
         Assertions.assertTrue(price.isPresent());
         Assertions.assertEquals(cuboid.getVolume(), price.getAsDouble());
     }
@@ -253,14 +256,14 @@ class CreatorTest
     {
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(false);
 
-        final var cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
+        final Cuboid cuboid = new Cuboid(new Vector3Di(1, 2, 3), new Vector3Di(4, 5, 6));
         setField("cuboid", cuboid);
         Assertions.assertTrue(creator.buyDoor());
 
-        final var world = Mockito.mock(IPWorld.class);
+        final IPWorld world = Mockito.mock(IPWorld.class);
         setField("world", world);
 
-        final var doorType = Mockito.mock(DoorType.class);
+        final DoorType doorType = Mockito.mock(DoorType.class);
         Mockito.when(creator.getDoorType()).thenReturn(doorType);
 
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
@@ -273,14 +276,14 @@ class CreatorTest
     {
         Mockito.doNothing().when(creator).shutdown();
 
-        final var world = getWorld();
+        final IPWorld world = getWorld();
 
-        final var cuboidMin = new Vector3Di(10, 20, 30);
-        final var cuboidMax = new Vector3Di(40, 50, 60);
-        final var cuboid = new Cuboid(cuboidMin, cuboidMax);
+        final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
+        final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
+        final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
 
-        final var outsideCuboid = getLocation(70, 80, 90, world);
-        final var insideCuboid = getLocation(25, 35, 45, world);
+        final IPLocation outsideCuboid = getLocation(70, 80, 90, world);
+        final IPLocation insideCuboid = getLocation(25, 35, 45, world);
 
         setField("cuboid", cuboid);
         setField("world", world);
@@ -309,11 +312,11 @@ class CreatorTest
     @Test
     void testCompleteSetEngineStep()
     {
-        final var world = getWorld();
+        final IPWorld world = getWorld();
 
-        final var cuboidMin = new Vector3Di(10, 20, 30);
-        final var cuboidMax = new Vector3Di(40, 50, 60);
-        final var cuboid = new Cuboid(cuboidMin, cuboidMax);
+        final Vector3Di cuboidMin = new Vector3Di(10, 20, 30);
+        final Vector3Di cuboidMax = new Vector3Di(40, 50, 60);
+        final Cuboid cuboid = new Cuboid(cuboidMin, cuboidMax);
 
         setField("world", world);
         setField("cuboid", cuboid);
@@ -337,7 +340,7 @@ class CreatorTest
     @SneakyThrows
     private void setField(String fieldName, @Nullable Object obj)
     {
-        final var f = Creator.class.getDeclaredField(fieldName);
+        final Field f = Creator.class.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(creator, obj);
     }

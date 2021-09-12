@@ -41,7 +41,7 @@ class InspectPowerBlockTest
     @BeforeEach
     void init()
     {
-        final var uuid = UUID.randomUUID();
+        final UUID uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
@@ -64,7 +64,7 @@ class InspectPowerBlockTest
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newInspectPowerBlock(server).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }

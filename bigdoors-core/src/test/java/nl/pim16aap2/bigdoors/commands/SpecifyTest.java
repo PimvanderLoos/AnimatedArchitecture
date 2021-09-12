@@ -50,7 +50,7 @@ class SpecifyTest
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newSpecify(server, "newDoor").run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager, Mockito.never()).handleInput(Mockito.any(), Mockito.any());
     }
@@ -60,7 +60,7 @@ class SpecifyTest
     void testExecution()
     {
         Mockito.when(doorSpecificationManager.handleInput(Mockito.any(), Mockito.any())).thenReturn(true);
-        final var input = "newDoor";
+        final String input = "newDoor";
         Assertions.assertTrue(factory.newSpecify(commandSender, input).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(doorSpecificationManager).handleInput(commandSender, input);
         Mockito.verify(commandSender, Mockito.never()).sendMessage(Mockito.any());

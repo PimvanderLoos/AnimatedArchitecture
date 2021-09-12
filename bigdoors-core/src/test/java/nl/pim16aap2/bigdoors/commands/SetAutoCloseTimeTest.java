@@ -86,8 +86,8 @@ class SetAutoCloseTimeTest
 //    {
 //        final int autoCloseValue = 42;
 //
-//        final var first = SetAutoCloseTime.runDelayed(commandSender, doorRetriever);
-//        final var second = SetAutoCloseTime.provideDelayedInput(commandSender, autoCloseValue);
+//        final int first = SetAutoCloseTime.runDelayed(commandSender, doorRetriever);
+//        final int second = SetAutoCloseTime.provideDelayedInput(commandSender, autoCloseValue);
 //
 //        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
 //        Assertions.assertEquals(first, second);

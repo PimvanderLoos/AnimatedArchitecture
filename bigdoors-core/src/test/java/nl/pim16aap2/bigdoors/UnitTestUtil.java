@@ -46,7 +46,7 @@ public class UnitTestUtil
 
     public static IPWorld getWorld()
     {
-        final var world = Mockito.mock(IPWorld.class);
+        final IPWorld world = Mockito.mock(IPWorld.class);
         Mockito.when(world.worldName()).thenReturn(UUID.randomUUID().toString());
         return world;
     }
@@ -81,7 +81,7 @@ public class UnitTestUtil
 
     public static IPLocation getLocation(double x, double y, double z, IPWorld world)
     {
-        final var loc = Mockito.mock(IPLocation.class);
+        final IPLocation loc = Mockito.mock(IPLocation.class);
 
         Mockito.when(loc.getWorld()).thenReturn(world);
 

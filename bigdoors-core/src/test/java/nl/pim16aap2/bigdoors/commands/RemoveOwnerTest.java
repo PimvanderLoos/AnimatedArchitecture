@@ -142,13 +142,13 @@ class RemoveOwnerTest
 //    {
 //        Mockito.when(doorRetriever.getDoor()).thenReturn(CompletableFuture.completedFuture(Optional.of(door)));
 //        Mockito.when(platform.getLocalizer()).thenReturn(Mockito.mock(ILocalizer.class));
-//        final var databaseManager = mockDatabaseManager();
+//        final int databaseManager = mockDatabaseManager();
 //
 //        Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
 //        Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
 //
-//        final var first = RemoveOwner.runDelayed(commandSender, doorRetriever);
-//        final var second = RemoveOwner.provideDelayedInput(commandSender, target);
+//        final int first = RemoveOwner.runDelayed(commandSender, doorRetriever);
+//        final int second = RemoveOwner.provideDelayedInput(commandSender, target);
 //
 //        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
 //        Assertions.assertEquals(first, second);
@@ -164,7 +164,7 @@ class RemoveOwnerTest
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(doorOwner0));
         Mockito.when(door.getDoorOwner(target)).thenReturn(Optional.of(doorOwner1));
 
-        final var result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
+        final CompletableFuture<Boolean> result = factory.newRemoveOwner(commandSender, doorRetriever, target).run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
         Mockito.verify(databaseManager, Mockito.times(1)).removeOwner(door, target,
                                                                       commandSender.getPlayer().orElse(null));

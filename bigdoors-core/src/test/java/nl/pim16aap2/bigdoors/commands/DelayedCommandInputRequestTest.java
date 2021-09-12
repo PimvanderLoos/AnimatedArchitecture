@@ -50,15 +50,14 @@ class DelayedCommandInputRequestTest
     @SneakyThrows
     void test()
     {
-        final var delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                                  input -> verifyInput(delayedInput, input),
-                                                                  () -> "", DelayedInput.class,
-                                                                  logger, localizer, delayedCommandInputManager,
-                                                                  handler);
+        final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
+        final DelayedCommandInputRequest<?> inputRequest =
+            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                             input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
+                                             logger, localizer, delayedCommandInputManager, handler);
 
-        final var first = inputRequest.getCommandOutput();
-        final var second = inputRequest.provide(delayedInput);
+        final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
+        final CompletableFuture<Boolean> second = inputRequest.provide(delayedInput);
 
         Assertions.assertTrue(second.get(1, TimeUnit.SECONDS));
         Assertions.assertEquals(first, second);
@@ -68,14 +67,14 @@ class DelayedCommandInputRequestTest
     @SneakyThrows
     void testInvalidInput()
     {
-        final var delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
-        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                                  input -> verifyInput(delayedInput, input),
-                                                                  () -> "", DelayedInput.class, logger, localizer,
-                                                                  delayedCommandInputManager, handler);
+        final DelayedInput delayedInput = new DelayedInput(UUID.randomUUID(), "Some string");
+        final DelayedCommandInputRequest<?> inputRequest =
+            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                             input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
+                                             logger, localizer, delayedCommandInputManager, handler);
 
-        final var first = inputRequest.getCommandOutput();
-        final var second = inputRequest.provide("Invalid!");
+        final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
+        final CompletableFuture<Boolean> second = inputRequest.provide("Invalid!");
 
         Assertions.assertFalse(second.get(1, TimeUnit.SECONDS));
         Assertions.assertNotEquals(first, second);
@@ -86,13 +85,13 @@ class DelayedCommandInputRequestTest
     void testException()
     {
         // Ensure that exceptions are properly propagated.
-        final var inputRequest = new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
-                                                                  input ->
-                                                                  {
-                                                                      throw new RuntimeException(input.toString());
-                                                                  },
-                                                                  () -> "", DelayedInput.class, logger, localizer,
-                                                                  delayedCommandInputManager, handler);
+        final DelayedCommandInputRequest<?> inputRequest =
+            new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
+                                             input ->
+                                             {
+                                                 throw new RuntimeException(input.toString());
+                                             }, () -> "", DelayedInput.class, logger, localizer,
+                                             delayedCommandInputManager, handler);
         Assertions.assertThrows(ExecutionException.class,
                                 () -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
                                                   .get(1, TimeUnit.SECONDS));

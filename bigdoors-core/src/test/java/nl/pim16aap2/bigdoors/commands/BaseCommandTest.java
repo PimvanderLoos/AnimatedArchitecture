@@ -63,7 +63,7 @@ class BaseCommandTest
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, true));
         Assertions.assertTrue(baseCommand.hasAccessToAttribute(door, DoorAttribute.DELETE, false));
 
-        final var player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
+        final IPPlayer player = Mockito.mock(IPPlayer.class, Answers.CALLS_REAL_METHODS);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", player);
 
         Mockito.when(door.getDoorOwner(player)).thenReturn(Optional.of(doorOwner3));
@@ -82,7 +82,7 @@ class BaseCommandTest
     void testBasic()
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
-        final var result = baseCommand.run();
+        final CompletableFuture<Boolean> result = baseCommand.run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -91,7 +91,7 @@ class BaseCommandTest
     void testNegativeExecution()
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(false));
-        final var result = baseCommand.run();
+        final CompletableFuture<Boolean> result = baseCommand.run();
         Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -100,7 +100,7 @@ class BaseCommandTest
     void invalidInput()
     {
         Mockito.when(baseCommand.validInput()).thenReturn(false);
-        final var result = baseCommand.run();
+        final CompletableFuture<Boolean> result = baseCommand.run();
         Assertions.assertFalse(result.get(1, TimeUnit.SECONDS));
     }
 
@@ -112,7 +112,7 @@ class BaseCommandTest
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
                .thenReturn(CompletableFuture.completedFuture(new BooleanPair(false, false)));
 
-        final var result = baseCommand.run();
+        final CompletableFuture<Boolean> result = baseCommand.run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
     }
 

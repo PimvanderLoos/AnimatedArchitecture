@@ -178,7 +178,7 @@ class ToggleTest
     @SneakyThrows
     void testServerCommandSender()
     {
-        final var serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        final IPServer serverCommandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
         Assertions.assertTrue(factory.newToggle(serverCommandSender, DoorActionType.TOGGLE, doorRetriever).run()
                                      .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorToggleRequestIFactory, Mockito.times(1))

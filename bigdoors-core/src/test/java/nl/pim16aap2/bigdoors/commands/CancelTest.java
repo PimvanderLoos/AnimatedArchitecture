@@ -44,7 +44,7 @@ class CancelTest
     @BeforeEach
     void init()
     {
-        final var uuid = UUID.randomUUID();
+        final UUID uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 

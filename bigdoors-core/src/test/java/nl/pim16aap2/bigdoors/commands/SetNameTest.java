@@ -54,10 +54,10 @@ class SetNameTest
     @SneakyThrows
     void testExecution()
     {
-        final var uuid = UUID.randomUUID();
-        final var name = "newDoor";
+        final UUID uuid = UUID.randomUUID();
+        final String name = "newDoor";
 
-        final var toolUser = Mockito.mock(Creator.class);
+        final Creator toolUser = Mockito.mock(Creator.class);
         Mockito.when(toolUser.handleInput(name)).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
@@ -71,10 +71,10 @@ class SetNameTest
     @SneakyThrows
     void testIncorrectToolUser()
     {
-        final var uuid = UUID.randomUUID();
-        final var name = "newDoor";
+        final UUID uuid = UUID.randomUUID();
+        final String name = "newDoor";
 
-        final var toolUser = Mockito.mock(ToolUser.class);
+        final ToolUser toolUser = Mockito.mock(ToolUser.class);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 

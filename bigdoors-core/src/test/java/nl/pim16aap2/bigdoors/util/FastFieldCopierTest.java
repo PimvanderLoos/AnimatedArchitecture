@@ -19,8 +19,8 @@ class FastFieldCopierTest
 
         final String a = "a-a-a-a-a";
         final String b = "b-b-b-b-b";
-        final var foo = new Foo(a);
-        final var bar = new Bar(b, -1);
+        final Foo foo = new Foo(a);
+        final Bar bar = new Bar(b, -1);
 
         Assertions.assertEquals(b, bar.str);
         copier.copy(foo, bar);
@@ -31,8 +31,9 @@ class FastFieldCopierTest
     @SneakyThrows
     void testInvalidTypes()
     {
-        final var ex = Assertions.assertThrows(RuntimeException.class,
-                                               () -> FastFieldCopier.of(logger, Foo.class, "str", Bar.class, "intVal"));
+        final RuntimeException ex =
+            Assertions.assertThrows(RuntimeException.class,
+                                    () -> FastFieldCopier.of(logger, Foo.class, "str", Bar.class, "intVal"));
         Assertions.assertEquals(IllegalArgumentException.class, ex.getCause().getClass());
     }
 

@@ -64,8 +64,8 @@ class SetBlocksToMoveTest
     {
         final int blocksToMove = 42;
 
-        final var command = factory.newSetBlocksToMove(commandSender, doorRetriever, blocksToMove);
-        final var altDoor = Mockito.mock(AbstractDoor.class);
+        final SetBlocksToMove command = factory.newSetBlocksToMove(commandSender, doorRetriever, blocksToMove);
+        final AbstractDoor altDoor = Mockito.mock(AbstractDoor.class);
 
         Assertions.assertTrue(command.performAction(altDoor).get(1, TimeUnit.SECONDS));
         Mockito.verify(altDoor, Mockito.never()).syncData();
@@ -82,8 +82,8 @@ class SetBlocksToMoveTest
 //    {
 //        final int blocksToMove = 42;
 //
-//        final var first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
-//        final var second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);
+//        final int first = SetBlocksToMove.runDelayed(commandSender, doorRetriever);
+//        final int second = SetBlocksToMove.provideDelayedInput(commandSender, blocksToMove);
 //
 //        Assertions.assertTrue(first.get(1, TimeUnit.SECONDS));
 //        Assertions.assertEquals(first, second);

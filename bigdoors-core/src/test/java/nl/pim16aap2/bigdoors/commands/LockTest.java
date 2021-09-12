@@ -57,7 +57,7 @@ class LockTest
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
-        final var eventFactory = Mockito.mock(IBigDoorsEventFactory.class);
+        final IBigDoorsEventFactory eventFactory = Mockito.mock(IBigDoorsEventFactory.class);
         Mockito.when(eventFactory.createDoorPrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                .thenReturn(event);
 

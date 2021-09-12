@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 class DelayedCommandInputManagerTest
 {
     @Mock
@@ -23,12 +25,12 @@ class DelayedCommandInputManagerTest
     @Test
     void testRegistration()
     {
-        final var manager = new DelayedCommandInputManager();
-        final var request = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputRequest<?> request = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, request);
 
-        final var returned = manager.getInputRequest(commandSender);
+        final Optional<DelayedCommandInputRequest<?>> returned = manager.getInputRequest(commandSender);
         Assertions.assertTrue(returned.isPresent());
         Assertions.assertEquals(request, returned.get());
         Mockito.verify(request, Mockito.never()).cancel();
@@ -37,9 +39,9 @@ class DelayedCommandInputManagerTest
     @Test
     void testCommandSenders()
     {
-        final var manager = new DelayedCommandInputManager();
-        final var request = Mockito.mock(DelayedCommandInputRequest.class);
-        final var altSender = Mockito.mock(ICommandSender.class);
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputRequest<?> request = Mockito.mock(DelayedCommandInputRequest.class);
+        final ICommandSender altSender = Mockito.mock(ICommandSender.class);
 
         manager.register(commandSender, request);
         Assertions.assertTrue(manager.getInputRequest(altSender).isEmpty());
@@ -50,10 +52,10 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregistration()
     {
-        final var manager = new DelayedCommandInputManager();
-        final var first = Mockito.mock(DelayedCommandInputRequest.class);
-        final var second = Mockito.mock(DelayedCommandInputRequest.class);
-        final var altSender = Mockito.mock(ICommandSender.class);
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputRequest<?> second = Mockito.mock(DelayedCommandInputRequest.class);
+        final ICommandSender altSender = Mockito.mock(ICommandSender.class);
 
         manager.register(commandSender, first);
 
@@ -73,8 +75,8 @@ class DelayedCommandInputManagerTest
     @Test
     void testCancelAll()
     {
-        final var manager = new DelayedCommandInputManager();
-        final var first = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.cancelAll(commandSender);
@@ -85,9 +87,9 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregisterAll()
     {
-        final var manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
 
-        final var first = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.deregisterAll(commandSender);
@@ -98,16 +100,16 @@ class DelayedCommandInputManagerTest
     @Test
     void testOverride()
     {
-        final var manager = new DelayedCommandInputManager();
-        final var first = Mockito.mock(DelayedCommandInputRequest.class);
-        final var second = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
+        final DelayedCommandInputRequest<?> second = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
         manager.register(commandSender, second);
 
         Mockito.verify(first).cancel();
 
-        final var returned = manager.getInputRequest(commandSender);
+        final Optional<DelayedCommandInputRequest<?>> returned = manager.getInputRequest(commandSender);
         Assertions.assertTrue(returned.isPresent());
         Assertions.assertNotEquals(first, returned.get());
         Assertions.assertEquals(second, returned.get());
