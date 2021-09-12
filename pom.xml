@@ -51,6 +51,7 @@
         <module>bigdoors-spigot</module>
         <module>bigdoors-doors</module>
         <module>bigdoors-integration-test</module>
+        <module>bigdoors-test-util</module>
     </modules>
 
     <repositories>
