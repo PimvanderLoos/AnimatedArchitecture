@@ -15,11 +15,17 @@
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-core</artifactId>
+            <artifactId>bigdoors-test-util</artifactId>
             <version>1</version>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>bigdoors-core</artifactId>
+            <version>1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>bigdoors-core</artifactId>
