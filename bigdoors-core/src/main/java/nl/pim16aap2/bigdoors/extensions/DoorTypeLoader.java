@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
+import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -33,7 +34,8 @@ import java.util.stream.Stream;
 @Singleton
 public final class DoorTypeLoader extends Restartable
 {
-    private DoorTypeClassLoader doorTypeClassLoader = new DoorTypeClassLoader(getClass().getClassLoader());
+    private final ClassLoader classLoader = getClass().getClassLoader();
+    private DoorTypeClassLoader doorTypeClassLoader;
 
     private final IPLogger logger;
     private final DoorTypeManager doorTypeManager;
@@ -50,12 +52,13 @@ public final class DoorTypeLoader extends Restartable
         init();
     }
 
+    @Initializer
     private void init()
     {
-        doorTypeClassLoader = new DoorTypeClassLoader(doorTypeClassLoader);
+        doorTypeClassLoader = new DoorTypeClassLoader(classLoader);
     }
 
-    private void deregisterDoorTypes()
+    private void unloadDoorTypes()
     {
         try
         {
@@ -170,6 +173,7 @@ public final class DoorTypeLoader extends Restartable
     @Override
     public void restart()
     {
+        shutdown();
         init();
         loadDoorTypesFromDirectory();
     }
@@ -177,8 +181,7 @@ public final class DoorTypeLoader extends Restartable
     @Override
     public void shutdown()
     {
-        doorTypeManager.shutdown();
-        deregisterDoorTypes();
+        unloadDoorTypes();
     }
 }
 

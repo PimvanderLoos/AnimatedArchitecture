@@ -467,7 +467,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @AssistedFactory
-    interface IFactory
+    public interface IFactory
     {
         DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("engine") Vector3Di engine,
                         @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,

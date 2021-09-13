@@ -1,12 +1,13 @@
 package nl.pim16aap2.bigdoors.storage;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
@@ -22,7 +23,7 @@ import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.util.Cuboid;
+import nl.pim16aap2.bigdoors.testing.AssistedFactoryMocker;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -33,7 +34,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.sqlite.SQLiteConfig;
 
@@ -48,6 +48,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SQLiteJDBCDriverConnectionTest
 {
+    /**
+     * Name of door 1.
+     */
+    private static final String DOOR_1_NAME = "random_door_name";
+
+    /**
+     * Name of doors 2 and 3.
+     */
+    private static final String DOORS_2_3_NAME = "popular_door_name";
+
     private static final String DELETE_DOOR_NAME = "delete_meh";
 
     private static final String WORLD_NAME = "TestWorld";
@@ -65,120 +75,55 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final IPWorld WORLD = new TestPWorld(WORLD_NAME);
 
-    private static AbstractDoor door1;
-    private static AbstractDoor door2;
-    private static AbstractDoor door3;
-
     private static final File DB_FILE;
     private static final File DB_FILE_BACKUP;
-    private static SQLiteJDBCDriverConnection storage;
 
-    @Mock
-    protected IBigDoorsPlatform platform;
+    private SQLiteJDBCDriverConnection storage;
 
-    // Initialize files.
+    private AbstractDoor door1;
+    private AbstractDoor door2;
+    private AbstractDoor door3;
+
+    private IPLogger logger;
+
     static
     {
         DB_FILE = new File("./tests/test.db");
         DB_FILE_BACKUP = new File(DB_FILE + ".BACKUP");
     }
 
-    @BeforeAll
-    public static void baseSetup()
-    {
-        // Set up a temporary platform and logger for the base setup.
-        // This will be overwritten by the foreach method.
-        final var tmpPlatform = Mockito.mock(IBigDoorsPlatform.class);
-        BigDoors.get().setBigDoorsPlatform(tmpPlatform);
-        Mockito.when(tmpPlatform.getPLogger()).thenReturn(new BasicPLogger());
-        Mockito.when(tmpPlatform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
+    private IPWorldFactory worldFactory;
 
-        DoorBase doorData;
-        {
-            final int doorUID = 1;
-            final int autoOpen = 0;
-            final int autoClose = 0;
-            final boolean isOpen = false;
-            final boolean isLocked = false;
-            final String name = "massive1";
-            final Vector3Di min = new Vector3Di(144, 75, 153);
-            final Vector3Di max = new Vector3Di(144, 131, 167);
-            final Vector3Di engine = new Vector3Di(144, 75, 153);
-            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
+    private DoorTypeManager doorTypeManager;
 
-            doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
-                                    isLocked, RotateDirection.EAST, doorOwner);
-            door1 = new BigDoor(doorData, autoClose, autoOpen);
-        }
+    private DoorBaseFactory doorBaseFactory;
 
-        {
-            final int doorUID = 2;
-            final int autoOpen = 10;
-            final int autoClose = -1;
-            final boolean modeUp = true;
-            final boolean isOpen = false;
-            final boolean isLocked = false;
-            final String name = "massive2";
-            final Vector3Di min = new Vector3Di(144, 75, 168);
-            final Vector3Di max = new Vector3Di(144, 131, 182);
-            final Vector3Di engine = new Vector3Di(144, 75, 153);
-            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_1);
+    private DoorRegistry doorRegistry;
 
-            doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
-                                    isLocked, Util.requireNonNull(RotateDirection.valueOf(0), "Dir0"),
-                                    doorOwner);
-            door2 = new Drawbridge(doorData, autoClose, autoOpen, modeUp);
-        }
-
-        {
-            final int doorUID = 3;
-            final int autoOpen = 0;
-            final int autoClose = 10;
-            final int blocksToMove = 8;
-            final boolean isOpen = false;
-            final boolean isLocked = false;
-            final String name = "massive2";
-            final Vector3Di min = new Vector3Di(144, 70, 168);
-            final Vector3Di max = new Vector3Di(144, 151, 112);
-            final Vector3Di engine = new Vector3Di(144, 75, 153);
-            final Vector3Di powerBlock = new Vector3Di(144, 75, 153);
-            final DoorOwner doorOwner = new DoorOwner(doorUID, 0, PLAYER_DATA_2);
-
-            doorData = new DoorBase(doorUID, name, new Cuboid(min, max), engine, powerBlock, WORLD, isOpen,
-                                    isLocked, RotateDirection.UP, doorOwner);
-            door3 = new Portcullis(doorData, blocksToMove, autoClose, autoOpen);
-        }
-    }
+    @Mock
+    private IRestartableHolder restartableHolder;
 
     @BeforeEach
-    protected void beforeEach()
+    void beforeEach()
+        throws NoSuchMethodException
     {
         MockitoAnnotations.openMocks(this);
-        BigDoors.get().setBigDoorsPlatform(platform);
-        IPLogger logger = new BasicPLogger();
-        Mockito.when(platform.getPLogger()).thenReturn(logger);
-        Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
-        Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
-        Mockito.when(platform.getDoorTypeManager()).thenReturn(new DoorTypeManager(logger));
+
+        worldFactory = new TestPWorldFactory();
+        doorRegistry = DoorRegistry.uncached(restartableHolder);
+        logger = new BasicPLogger();
+        doorTypeManager = new DoorTypeManager(restartableHolder, logger);
+
+        final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
+            new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
+                .setMock(IPLogger.class, logger)
+                .setMock(DoorRegistry.class, doorRegistry);
+
+        doorBaseFactory = new DoorBaseFactory(assistedFactoryMocker.getFactory());
+
+        initDoors();
 
         initStorage();
-    }
-
-    /**
-     * Initializes the storage object.
-     */
-    private void initStorage()
-    {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE);
-
-        // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
-        // More info:
-        // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
-        // https://www.sqlite.org/pragma.html#pragma_synchronous
-        storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
-        storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
     }
 
     /**
@@ -242,9 +187,9 @@ public class SQLiteJDBCDriverConnectionTest
 
     private void registerDoorTypes()
     {
-        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeBigDoor.get());
-        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypePortcullis.get());
-        BigDoors.get().getDoorTypeManager().registerDoorType(DoorTypeDrawbridge.get());
+        doorTypeManager.registerDoorType(DoorTypeBigDoor.get());
+        doorTypeManager.registerDoorType(DoorTypePortcullis.get());
+        doorTypeManager.registerDoorType(DoorTypeDrawbridge.get());
     }
 
     /**
@@ -315,10 +260,10 @@ public class SQLiteJDBCDriverConnectionTest
     public void auxiliaryMethods()
     {
         // Check simple methods.
-        Assertions.assertEquals(1, storage.getDoorCountForPlayer(PLAYER_DATA_1.getUUID(), "massive1"));
+        Assertions.assertEquals(1, storage.getDoorCountForPlayer(PLAYER_DATA_1.getUUID(), DOOR_1_NAME));
         Assertions.assertEquals(2, storage.getDoorCountForPlayer(PLAYER_DATA_1.getUUID()));
         Assertions.assertEquals(1, storage.getDoorCountForPlayer(PLAYER_DATA_2.getUUID()));
-        Assertions.assertEquals(1, storage.getDoorCountByName("massive1"));
+        Assertions.assertEquals(1, storage.getDoorCountByName(DOOR_1_NAME));
         Assertions.assertTrue(storage.getDoor(PLAYER_DATA_1.getUUID(), 1).isPresent());
         Assertions.assertEquals(door1, storage.getDoor(PLAYER_DATA_1.getUUID(), 1).get());
         Assertions.assertFalse(storage.getDoor(PLAYER_DATA_1.getUUID(), 3).isPresent());
@@ -366,11 +311,13 @@ public class SQLiteJDBCDriverConnectionTest
         // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors (door 3 (0) and door 2 (1)).
         Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), 1).size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors, both named "massive2".
-        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), "massive2", 1).size());
+        // Verify that player 2 is owner with permission level <= 1 of exactly 2 doors,
+        // with the name shared between doors 2 and 3.
+        Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 1).size());
 
-        // Verify that player 2 is owner with permission level <= 1 of exactly 1 door, named "massive2".
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), "massive2", 0).size());
+        // Verify that player 2 is owner with permission level <= 1 of exactly 1 door,
+        // with the name shared between doors 2 and 3.
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 0).size());
 
         // Verify that adding an existing owner overrides the permission level.
         Assertions.assertTrue(storage.addOwner(2L, PLAYER_DATA_2, 2));
@@ -387,34 +334,34 @@ public class SQLiteJDBCDriverConnectionTest
         UnitTestUtil.optionalEquals(1, storage.getDoor(2L), (door) -> door.getDoorOwners().size());
 
         // Verify that after deletion of player 2 as owner, player 2 is now owner with permission level <= 1
-        // of exactly 1 door, named "massive2" (door 3).
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), "massive2", 1).size());
+        // of exactly 1 door, with the name shared between doors 2 and 3. This will be door 3.
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_2.getUUID(), DOORS_2_3_NAME, 1).size());
 
-        // Verify that player 1 is owner of exactly 1 door named "massive2".
-        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_1.getUUID(), "massive2").size());
+        // Verify that player 1 is owner of exactly 1 door with the name shared between doors 2 and 3.
+        Assertions.assertEquals(1, storage.getDoors(PLAYER_DATA_1.getUUID(), DOORS_2_3_NAME).size());
 
         // Verify that player 1 owns exactly 2 doors.
         Assertions.assertEquals(2, storage.getDoors(PLAYER_DATA_1.getUUID()).size());
 
-        // Verify that there are exactly 2 doors named "massive2" in the database.
-        Assertions.assertEquals(2, storage.getDoors("massive2").size());
+        // Verify that there are exactly 2 doors with the name shared between doors 2 and 3 in the database.
+        Assertions.assertEquals(2, storage.getDoors(DOORS_2_3_NAME).size());
 
         // Insert a copy of door 1 in the database (will have doorUID = 4).
         Assertions.assertTrue(storage.insert(door1).isPresent());
 
-        // Verify there are now exactly 2 doors named "massive1" in the database.
-        Assertions.assertEquals(2, storage.getDoors("massive1").size());
+        // Verify there are now exactly 2 doors with the name of door 1 in the database.
+        Assertions.assertEquals(2, storage.getDoors(DOOR_1_NAME).size());
 
         // Remove the just-added copy of door 1 (doorUID = 4) from the database.
         Assertions.assertTrue(storage.removeDoor(4L));
 
         // Verify that after removal of the copy of door 1 (doorUID = 4), there is now exactly 1 door named
-        // "massive1" in the database again.
-        Assertions.assertEquals(1, storage.getDoors("massive1").size());
+        // DOOR_1_NAME in the database again.
+        Assertions.assertEquals(1, storage.getDoors(DOOR_1_NAME).size());
 
         // Verify that player 2 cannot delete doors they do not own (door 1 belongs to player 1).
         Assertions.assertFalse(storage.removeOwner(1L, PLAYER_DATA_2.getUUID()));
-        Assertions.assertEquals(1, storage.getDoors("massive1").size());
+        Assertions.assertEquals(1, storage.getDoors(DOOR_1_NAME).size());
 
         // Add 10 copies of door3 with a different name to the database.
         door3.setName(DELETE_DOOR_NAME);
@@ -470,7 +417,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         DoorSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass(), logger));
         Assertions.assertNotNull(serializer);
 
         // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
@@ -598,5 +545,67 @@ public class SQLiteJDBCDriverConnectionTest
         // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
         Assertions.assertTrue(storage.getDoor(PLAYER_DATA_1.getUUID(), 1L).isPresent());
+    }
+
+    /**
+     * Initializes the storage object.
+     */
+    private void initStorage()
+    {
+        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseFactory, logger, doorRegistry,
+                                                 doorTypeManager, worldFactory);
+
+        // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
+        // More info:
+        // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
+        // https://www.sqlite.org/pragma.html#pragma_synchronous
+        storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+        storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+    }
+
+    private void initDoors()
+    {
+        Vector3Di min = new Vector3Di(144, 75, 153);
+        Vector3Di max = new Vector3Di(144, 131, 167);
+        Vector3Di engine = new Vector3Di(144, 75, 153);
+        Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+        int autoOpen = 0;
+        int autoClose = 0;
+        door1 = new BigDoor(doorBaseFactory.builder()
+                                           .uid(1).name(DOOR_1_NAME).cuboid(min, max).engine(engine)
+                                           .powerBlock(powerBlock)
+                                           .world(WORLD).isOpen(false).isLocked(false).openDir(RotateDirection.EAST)
+                                           .primeOwner(new DoorOwner(1, 0, PLAYER_DATA_1)).build(),
+                            autoClose, autoOpen);
+
+
+        min = new Vector3Di(144, 75, 168);
+        max = new Vector3Di(144, 131, 182);
+        engine = new Vector3Di(144, 75, 153);
+        powerBlock = new Vector3Di(144, 75, 153);
+        autoOpen = 10;
+        autoClose = -1;
+        boolean modeUp = true;
+        door2 = new Drawbridge(doorBaseFactory.builder()
+                                              .uid(2).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
+                                              .powerBlock(powerBlock).world(WORLD).isOpen(false)
+                                              .isLocked(false).openDir(RotateDirection.NONE)
+                                              .primeOwner(new DoorOwner(2, 0, PLAYER_DATA_1)).build(),
+                               autoClose, autoOpen, modeUp);
+
+
+        min = new Vector3Di(144, 70, 168);
+        max = new Vector3Di(144, 151, 112);
+        engine = new Vector3Di(144, 75, 153);
+        powerBlock = new Vector3Di(144, 75, 153);
+        autoOpen = 0;
+        autoClose = 3;
+        int blocksToMove = 8;
+        door3 = new Portcullis(doorBaseFactory.builder()
+                                              .uid(3).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
+                                              .powerBlock(powerBlock).world(WORLD).isOpen(false)
+                                              .isLocked(false).openDir(RotateDirection.UP)
+                                              .primeOwner(new DoorOwner(3, 0, PLAYER_DATA_2)).build(),
+                               blocksToMove, autoClose, autoOpen);
     }
 }

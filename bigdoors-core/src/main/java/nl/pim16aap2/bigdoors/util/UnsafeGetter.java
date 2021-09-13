@@ -28,7 +28,7 @@ public class UnsafeGetter
     {
         try
         {
-            return unsafe;
+            return getUnsafe0();
         }
         catch (Exception e)
         {

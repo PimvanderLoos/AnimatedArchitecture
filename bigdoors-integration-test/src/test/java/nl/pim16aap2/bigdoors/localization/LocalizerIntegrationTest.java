@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +17,6 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.ZipOutputStream;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.appendToFileInZip;
 import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.writeEntry;
 
@@ -28,6 +29,7 @@ class LocalizerIntegrationTest
     private FileSystem fs;
     private Path directory;
     private Path bundle;
+    private IPLogger logger;
 
     private void initFileSystem()
         throws IOException
@@ -41,8 +43,9 @@ class LocalizerIntegrationTest
     void init()
         throws IOException
     {
-        initPlatform();
         initFileSystem();
+
+        logger = new BasicPLogger();
 
         final ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(bundle));
         String baseFileContents = """
@@ -69,7 +72,7 @@ class LocalizerIntegrationTest
     @Test
     void testGetMessage()
     {
-        final Localizer localizer = new Localizer(directory, BASE_NAME);
+        final Localizer localizer = new Localizer(directory, BASE_NAME, logger);
         Assertions.assertEquals("waarde0", localizer.getMessage("key0", LOCALE_DUTCH));
         final String input = "A_B_C_D_E";
         Assertions.assertEquals(input, localizer.getMessage("key1", LOCALE_DUTCH, input));
@@ -81,7 +84,7 @@ class LocalizerIntegrationTest
     void testAppendingMessages()
         throws IOException, URISyntaxException
     {
-        final Localizer localizer = new Localizer(directory, BASE_NAME);
+        final Localizer localizer = new Localizer(directory, BASE_NAME, logger);
         // Just ensure that it's loaded properly.
         Assertions.assertEquals("value0", localizer.getMessage("key0"));
         // Ensure that the key doesn't exist (yet!).

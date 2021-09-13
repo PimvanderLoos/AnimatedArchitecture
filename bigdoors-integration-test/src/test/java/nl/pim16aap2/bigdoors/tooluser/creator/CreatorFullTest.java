@@ -1,14 +1,13 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -38,15 +37,13 @@ class CreatorFullTest extends CreatorTestsUtil
         final var door = Mockito.mock(AbstractDoor.class);
         Mockito.when(door.getDoorType()).thenReturn(doorType);
 
-        final var creator = new CreatorTestImpl(player, door);
+        final var creator = new CreatorTestImpl(context, player, door);
 
         setEconomyEnabled(true);
         setEconomyPrice(12.34);
         setBuyDoor(true);
 
-        Assertions.assertTrue(BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled());
-
-        BigDoors.get().getPLogger().setConsoleLogLevel(Level.ALL);
+        logger.setConsoleLogLevel(Level.ALL);
         testCreation(creator, door,
                      doorName,
                      UnitTestUtil.getLocation(min, world),
@@ -61,9 +58,9 @@ class CreatorFullTest extends CreatorTestsUtil
     {
         private final AbstractDoor door;
 
-        protected CreatorTestImpl(IPPlayer player, AbstractDoor door)
+        protected CreatorTestImpl(ToolUser.Context context, IPPlayer player, AbstractDoor door)
         {
-            super(player, null);
+            super(context, player, null);
             this.door = door;
         }
 

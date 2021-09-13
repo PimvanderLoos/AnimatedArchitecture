@@ -22,13 +22,13 @@ class CreatorBigDoorTest extends CreatorTestsUtil
 
         final BigDoor actualDoor = new BigDoor(constructDoorBase());
         Assertions.assertNotNull(DoorTypeBigDoor.get());
-        final CreatorBigDoor creator = new CreatorBigDoor(player);
+        final CreatorBigDoor creator = new CreatorBigDoor(context, player);
         testCreation(creator, actualDoor,
                      doorName,
-                     min.toLocation(world),
-                     max.toLocation(world),
-                     engine.toLocation(world),
-                     powerblock.toLocation(world),
+                     min.toLocation(locationFactory, world),
+                     max.toLocation(locationFactory, world),
+                     engine.toLocation(locationFactory, world),
+                     powerblock.toLocation(locationFactory, world),
                      openDirectionName);
     }
 }

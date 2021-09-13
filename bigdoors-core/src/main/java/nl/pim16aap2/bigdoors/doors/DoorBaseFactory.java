@@ -23,7 +23,7 @@ public final class DoorBaseFactory
     private final DoorBase.IFactory doorBaseFactory;
 
     @Inject //
-    DoorBaseFactory(DoorBase.IFactory doorBaseFactory)
+    public DoorBaseFactory(DoorBase.IFactory doorBaseFactory)
     {
         this.doorBaseFactory = doorBaseFactory;
     }

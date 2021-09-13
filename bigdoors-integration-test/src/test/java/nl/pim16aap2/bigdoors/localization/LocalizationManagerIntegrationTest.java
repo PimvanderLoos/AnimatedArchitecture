@@ -2,11 +2,10 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,14 +27,13 @@ class LocalizationManagerIntegrationTest
 {
     private FileSystem fs;
     private Path directoryOutput;
+    private IPLogger logger;
 
     @BeforeEach
     void init()
         throws IOException
     {
-        final IBigDoorsPlatform platform = Mockito.mock(IBigDoorsPlatform.class);
-        BigDoors.get().setBigDoorsPlatform(platform);
-        Mockito.when(platform.getPLogger()).thenReturn(new BasicPLogger());
+        logger = new BasicPLogger();
 
         fs = Jimfs.newFileSystem(Configuration.unix());
         directoryOutput = Files.createDirectory(fs.getPath("/output"));
@@ -63,7 +61,7 @@ class LocalizationManagerIntegrationTest
 
         final LocalizationManager localizationManager =
             new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput,
-                                    baseName, configLoader);
+                                    baseName, configLoader, logger);
 
         localizationManager.restart();
 
@@ -91,7 +89,8 @@ class LocalizationManagerIntegrationTest
         outputStream.close();
 
         final LocalizationManager localizationManager =
-            new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput, baseName, configLoader);
+            new LocalizationManager(Mockito.mock(IRestartableHolder.class), directoryOutput,
+                                    baseName, configLoader, logger);
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("value3", localizationManager.getLocalizer().getMessage("key3"));
