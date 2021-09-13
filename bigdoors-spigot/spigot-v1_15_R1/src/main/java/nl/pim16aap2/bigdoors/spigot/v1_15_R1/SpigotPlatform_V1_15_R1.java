@@ -32,7 +32,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     private IGlowingBlockFactory glowingBlockFactory;
 
     private final IPLogger logger;
-    private IPLocationFactory locationFactory;
+    private final IPLocationFactory locationFactory;
 
     @Inject
     public SpigotPlatform_V1_15_R1(IPLogger logger, IPLocationFactory locationFactory)

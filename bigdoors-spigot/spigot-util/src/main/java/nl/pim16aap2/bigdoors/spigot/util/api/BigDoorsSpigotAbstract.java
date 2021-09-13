@@ -11,5 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public abstract class BigDoorsSpigotAbstract extends JavaPlugin implements Listener, IBigDoorsPlatform
 {
-    public abstract IPlatformManagerSpigot getPlatformManagerSpigot();
+    protected BigDoorsSpigotAbstract()
+    {
+    }
 }

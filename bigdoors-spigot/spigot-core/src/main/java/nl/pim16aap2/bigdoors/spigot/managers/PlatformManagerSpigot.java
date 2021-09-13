@@ -16,8 +16,6 @@ import javax.inject.Inject;
 public final class PlatformManagerSpigot implements IPlatformManagerSpigot
 {
     private final @Nullable ISpigotPlatform spigotPlatform;
-    private final Version version;
-    private final String versionString;
 
     /**
      * Instantiates the platform manager and initializes the version-specific platform with the provided Spigot
@@ -48,8 +46,8 @@ public final class PlatformManagerSpigot implements IPlatformManagerSpigot
             versionTmp = Version.ERROR;
             versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",");
         }
-        version = versionTmp;
-        versionString = versionStringTmp;
+        final Version version = versionTmp;
+        final String versionString = versionStringTmp;
         spigotPlatform = spigotPlatformTmp;
 
         if (version == Version.ERROR)

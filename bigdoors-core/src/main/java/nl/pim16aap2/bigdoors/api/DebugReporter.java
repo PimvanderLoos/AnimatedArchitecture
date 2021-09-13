@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.api;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public abstract class DebugReporter
+public class DebugReporter
 {
     private final IBigDoorsPlatform platform;
 

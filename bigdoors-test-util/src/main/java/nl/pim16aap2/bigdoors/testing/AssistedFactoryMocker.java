@@ -98,7 +98,7 @@ public class AssistedFactoryMocker<T, U>
         final Object[] ctorParams = new Object[targetCtor.getParameterCount()];
         final Object[] factoryParams = invocation.getArguments();
 
-        for (MappedParameter parameter : mappedParameters)
+        for (final MappedParameter parameter : mappedParameters)
         {
             final int idx = parameter.getTargetIdx();
             final @Nullable Object value = parameter.isMocked() ?
@@ -238,7 +238,7 @@ public class AssistedFactoryMocker<T, U>
     private Map<Integer, MappedParameter> insertMocks()
     {
         final Map<Integer, MappedParameter> ret = new HashMap<>();
-        for (MappedParameter parameter : mappedParameters)
+        for (final MappedParameter parameter : mappedParameters)
         {
             if (!parameter.isMocked())
                 continue;
@@ -258,7 +258,7 @@ public class AssistedFactoryMocker<T, U>
     private void validateAssistedParameterCounts()
     {
         int assistedTargetCount = 0;
-        for (Parameter parameter : targetCtor.getParameters())
+        for (final Parameter parameter : targetCtor.getParameters())
             if (parameter.isAnnotationPresent(Assisted.class))
                 assistedTargetCount++;
 
@@ -282,7 +282,7 @@ public class AssistedFactoryMocker<T, U>
         //noinspection ConstantConditions
         if (annotation == null)
             return null;
-        @Nullable String val = mapper.apply(annotation);
+        final @Nullable String val = mapper.apply(annotation);
         if ("".equals(val))
             return null;
         return val;
@@ -295,7 +295,7 @@ public class AssistedFactoryMocker<T, U>
      *     The parameters to analyze.
      * @return The list of {@link ParameterDescription}s representing the parameters.
      */
-    static List<ParameterDescription> getParameterDescriptions(Parameter[] parameters)
+    static List<ParameterDescription> getParameterDescriptions(Parameter... parameters)
     {
         final Function<Named, @Nullable String> namedMapper = Named::value;
         final Function<Assisted, @Nullable String> assistedMapper = Assisted::value;
@@ -345,7 +345,7 @@ public class AssistedFactoryMocker<T, U>
                                                         "Name of parameter " + param + " cannot be null!");
         final List<ParameterDescription> result = matches.stream().filter(val -> paramName.equals(val.name()))
                                                          .collect(Collectors.toList());
-        if (result.size() == 0)
+        if (result.isEmpty())
             throw new IllegalStateException(
                 "Failed to find a matching factory parameter for constructor parameter: " + param);
         if (result.size() > 1)
@@ -421,7 +421,7 @@ public class AssistedFactoryMocker<T, U>
     static Method findFactoryMethod(Class<?> targetClass, Class<?> factoryClass)
         throws NoSuchMethodException
     {
-        for (Method method : factoryClass.getDeclaredMethods())
+        for (final Method method : factoryClass.getDeclaredMethods())
         {
             if (method.isDefault())
                 continue;
@@ -449,7 +449,7 @@ public class AssistedFactoryMocker<T, U>
     static <T> Constructor<T> findTargetCtor(Class<T> targetClass)
         throws NoSuchMethodException
     {
-        for (Constructor<?> ctor : targetClass.getDeclaredConstructors())
+        for (final Constructor<?> ctor : targetClass.getDeclaredConstructors())
         {
             if (!ctor.isAnnotationPresent(AssistedInject.class))
                 continue;

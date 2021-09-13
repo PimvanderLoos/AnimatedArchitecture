@@ -99,7 +99,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private final DoorTypeManager doorTypeManager;
 
-    private IPWorldFactory worldFactory;
+    private final IPWorldFactory worldFactory;
 
     /**
      * Constructor of the SQLite driver connection.

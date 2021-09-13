@@ -55,6 +55,7 @@ import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
@@ -83,6 +84,8 @@ interface BigDoorsSpigotComponent
     IBigDoorsPlatform getBigDoorsPlatform();
 
     ISpigotPlatform getSpigotPlatform();
+
+    IPlatformManagerSpigot getPlatformManagerSpigot();
 
     IPLogger getLogger();
 

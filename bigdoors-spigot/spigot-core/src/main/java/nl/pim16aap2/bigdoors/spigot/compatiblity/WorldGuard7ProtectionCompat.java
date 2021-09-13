@@ -29,14 +29,9 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     private final WorldGuardPlugin worldGuardPlugin;
     private final boolean success;
 
-    private final JavaPlugin bigDoors;
-    private final IPLogger logger;
-
+    @SuppressWarnings("unused")
     public WorldGuard7ProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
-        this.bigDoors = bigDoors;
-        this.logger = logger;
-
         worldGuard = WorldGuard.getInstance();
 
         final @Nullable Plugin wgPlugin =

@@ -11,11 +11,16 @@ import java.lang.reflect.Field;
  *
  * @author Pim
  */
-public class UnsafeGetter
+public final class UnsafeGetter
 {
     private static @Nullable Unsafe unsafe;
     private static volatile boolean unsafeInitialized = false;
-    private static final Object lck = new Object();
+    private static final Object LCK = new Object();
+
+    private UnsafeGetter()
+    {
+        // Utility class
+    }
 
     /**
      * Tries to retrieve {@link Unsafe}.
@@ -57,7 +62,7 @@ public class UnsafeGetter
         if (unsafeInitialized)
             return unsafe;
 
-        synchronized (lck)
+        synchronized (LCK)
         {
             if (!unsafeInitialized)
                 unsafe = newUnsafe();

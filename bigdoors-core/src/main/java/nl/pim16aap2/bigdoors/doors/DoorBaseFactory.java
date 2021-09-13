@@ -20,12 +20,12 @@ import java.util.UUID;
  */
 public final class DoorBaseFactory
 {
-    private final DoorBase.IFactory doorBaseFactory;
+    private final DoorBase.IFactory doorBaseIFactory;
 
     @Inject //
-    public DoorBaseFactory(DoorBase.IFactory doorBaseFactory)
+    public DoorBaseFactory(DoorBase.IFactory doorBaseIFactory)
     {
-        this.doorBaseFactory = doorBaseFactory;
+        this.doorBaseIFactory = doorBaseIFactory;
     }
 
     /**
@@ -35,7 +35,7 @@ public final class DoorBaseFactory
      */
     public IBuilderUID builder()
     {
-        return new Builder(doorBaseFactory);
+        return new Builder(doorBaseIFactory);
     }
 
     @RequiredArgsConstructor

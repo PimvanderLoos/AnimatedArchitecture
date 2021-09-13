@@ -25,12 +25,11 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private final boolean success;
     private final Method m;
 
-    private final JavaPlugin bigDoors;
     private final IPLogger logger;
 
+    @SuppressWarnings("unused")
     public WorldGuard6ProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
-        this.bigDoors = bigDoors;
         this.logger = logger;
 
         final @Nullable Plugin wgPlugin =

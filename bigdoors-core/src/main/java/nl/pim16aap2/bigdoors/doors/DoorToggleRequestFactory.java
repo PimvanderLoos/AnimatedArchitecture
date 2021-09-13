@@ -26,16 +26,16 @@ import java.util.concurrent.CompletableFuture;
  */
 public class DoorToggleRequestFactory
 {
-    private final DoorToggleRequest.IFactory doorToggleRequestFactory;
+    private final DoorToggleRequest.IFactory doorToggleRequestIFactory;
     private final IMessageable messageableServer;
     private final IPPlayerFactory playerFactory;
 
     @Inject
-    public DoorToggleRequestFactory(DoorToggleRequest.IFactory doorToggleRequestFactory,
+    public DoorToggleRequestFactory(DoorToggleRequest.IFactory doorToggleRequestIFactory,
                                     @Named("MessageableServer") IMessageable messageableServer,
                                     IPPlayerFactory playerFactory)
     {
-        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.doorToggleRequestIFactory = doorToggleRequestIFactory;
         this.messageableServer = messageableServer;
         this.playerFactory = playerFactory;
     }
@@ -47,7 +47,7 @@ public class DoorToggleRequestFactory
      */
     public IBuilderDoor builder()
     {
-        return new Builder(doorToggleRequestFactory, messageableServer, playerFactory);
+        return new Builder(doorToggleRequestIFactory, messageableServer, playerFactory);
     }
 
     @RequiredArgsConstructor

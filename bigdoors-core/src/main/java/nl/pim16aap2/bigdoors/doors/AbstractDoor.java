@@ -2,13 +2,14 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.val;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
+import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -221,9 +222,9 @@ public abstract class AbstractDoor implements IDoor
         if (newCuboid.isEmpty())
             return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
-
-        val prepareEvent = doorOpeningHelper.callTogglePrepareEvent(this, cause, actionType, responsible,
-                                                                    time, skipAnimation, newCuboid.get());
+        final IDoorEventTogglePrepare prepareEvent =
+            doorOpeningHelper.callTogglePrepareEvent(this, cause, actionType, responsible,
+                                                     time, skipAnimation, newCuboid.get());
 
         if (prepareEvent.isCancelled())
             return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
@@ -242,8 +243,9 @@ public abstract class AbstractDoor implements IDoor
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
-        val toggleStartEvent = doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
-                                                                      time, skipAnimation, newCuboid.get());
+        final IDoorEventToggleStart toggleStartEvent =
+            doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
+                                                   time, skipAnimation, newCuboid.get());
 
         return DoorToggleResult.SUCCESS;
     }

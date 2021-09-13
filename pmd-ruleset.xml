@@ -51,8 +51,8 @@
     <rule ref="category/java/bestpractices.xml/UseStandardCharsets"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usetrywithresources -->
     <rule ref="category/java/bestpractices.xml/UseTryWithResources"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usevarargs -->
-    <rule ref="category/java/bestpractices.xml/UseVarargs"/>
+    <!--    &lt;!&ndash; https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usevarargs &ndash;&gt;-->
+    <!--    <rule ref="category/java/bestpractices.xml/UseVarargs"/>-->
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#whileloopwithliteralboolean -->
     <rule ref="category/java/bestpractices.xml/WhileLoopWithLiteralBoolean"/>
 
@@ -131,8 +131,6 @@
     <rule ref="category/java/design.xml/SwitchDensity"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#uselessoverridingmethod -->
     <rule ref="category/java/design.xml/UselessOverridingMethod"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_design.html#useutilityclass -->
-    <rule ref="category/java/design.xml/UseUtilityClass"/>
 
 
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcallingfinalize -->

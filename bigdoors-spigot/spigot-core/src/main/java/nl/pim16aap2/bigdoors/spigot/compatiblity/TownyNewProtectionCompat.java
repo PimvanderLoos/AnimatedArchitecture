@@ -16,17 +16,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TownyNewProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat COMPAT = ProtectionCompat.TOWNY;
-    private final boolean success;
 
-    private final JavaPlugin bigDoors;
-    private final IPLogger logger;
-
+    @SuppressWarnings("unused")
     public TownyNewProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
-        this.bigDoors = bigDoors;
-        this.logger = logger;
-
-        success = true;
     }
 
     @Override
@@ -60,7 +53,7 @@ public class TownyNewProtectionCompat implements IProtectionCompat
     @Override
     public boolean success()
     {
-        return success;
+        return true;
     }
 
     @Override

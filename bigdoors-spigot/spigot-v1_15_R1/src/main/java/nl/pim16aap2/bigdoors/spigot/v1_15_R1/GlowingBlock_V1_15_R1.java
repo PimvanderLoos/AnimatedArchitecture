@@ -52,7 +52,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Player player;
     private final IRestartableHolder restartableHolder;
     private final IPLogger logger;
-    private IPExecutor executor;
+    private final IPExecutor executor;
 
     public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
                                  IRestartableHolder restartableHolder, IPLogger logger, IPExecutor executor)

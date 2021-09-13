@@ -69,9 +69,6 @@ public abstract class BlockMover implements IRestartable
     protected final AutoCloseScheduler autoCloseScheduler;
 
     @ToString.Exclude
-    private final Context context;
-
-    @ToString.Exclude
     protected final IPExecutor executor;
 
     @Getter
@@ -123,7 +120,7 @@ public abstract class BlockMover implements IRestartable
     protected @Nullable PSoundDescription soundFinish = null;
 
     protected final Cuboid newCuboid;
-    private ISoundEngine soundEngine;
+    private final ISoundEngine soundEngine;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -146,7 +143,6 @@ public abstract class BlockMover implements IRestartable
                          DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        this.context = context;
         logger = context.getLogger();
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();

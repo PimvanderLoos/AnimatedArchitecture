@@ -76,6 +76,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @SuppressWarnings({"squid:S3008", "PMD.FieldNamingConventions"}) // TODO: Remove this.
     private static long MAIN_THREAD_ID = -1;
 
+    @SuppressWarnings("unused")
     private boolean validVersion;
     private boolean successfulInit;
 
@@ -135,6 +136,10 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
             .restartableHolderModule(new RestartableHolderModule(bigDoors))
             .build();
 
+        @SuppressWarnings("unused") //
+        final IPlatformManagerSpigot platformManager = bigDoorsSpigotComponent.getPlatformManagerSpigot();
+
+
         spigotPlatform = bigDoorsSpigotComponent.getSpigotPlatform();
         pLogger = bigDoorsSpigotComponent.getLogger();
         protectionCompatManager = bigDoorsSpigotComponent.getProtectionCompatManager();
@@ -185,6 +190,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     {
         Bukkit.getLogger().setLevel(Level.FINER);
 
+        // TODO: Port to new system.
 //        try
 //        {
 //            // Register this here so it can check for updates even when loaded on an incorrect version.
@@ -256,15 +262,18 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     /**
      * Disables this plugin.
      */
+    @SuppressWarnings("unused")
     private void disablePlugin()
     {
         successfulInit = false;
+
         Bukkit.getPluginManager().disablePlugin(this);
     }
 
     /**
-     * Registers all BigDoor's own door types.
+     * Registers all door types that can be found in the extensions folder.
      */
+    @SuppressWarnings("unused")
     private void registerDoorTypes()
     {
         final File extensionsDir = new File(getDataDirectory() + Constants.BIGDOORS_EXTENSIONS_FOLDER);
@@ -276,12 +285,6 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
 
         Bukkit.getLogger().setLevel(Level.ALL);
         doorTypeLoader.loadDoorTypesFromDirectory();
-    }
-
-    @Override
-    public IPlatformManagerSpigot getPlatformManagerSpigot()
-    {
-        return null;
     }
 
     private void init()
@@ -323,7 +326,7 @@ public final class BigDoorsSpigot extends BigDoorsSpigotAbstract
     @Override
     public String getVersion()
     {
-        return null;
+        return getDescription().getVersion();
     }
 
     @Override

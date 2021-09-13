@@ -15,11 +15,11 @@ import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
-import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,23 +31,23 @@ public class DebugReporterSpigot extends DebugReporter
     private final DoorTypeManager doorTypeManager;
     private final IPLogger logger;
     private final IConfigLoader config;
+    private final ISpigotPlatform platform;
 
     @Inject
     public DebugReporterSpigot(BigDoorsSpigot plugin, DoorTypeManager doorTypeManager, IPLogger logger,
-                               IConfigLoader config)
+                               IConfigLoader config, ISpigotPlatform platform)
     {
         super(plugin);
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
         this.logger = logger;
         this.config = config;
+        this.platform = platform;
     }
 
     @Override
     public String getDump()
     {
-        final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-
         return new StringBuilder(super.getDump())
             .append("BigDoors version: ")
             .append(plugin.getDescription().getVersion()).append('\n')

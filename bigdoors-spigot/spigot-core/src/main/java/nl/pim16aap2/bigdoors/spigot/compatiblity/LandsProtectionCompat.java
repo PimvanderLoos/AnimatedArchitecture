@@ -23,14 +23,10 @@ public class LandsProtectionCompat implements IProtectionCompat
     private static final ProtectionCompat COMPAT = ProtectionCompat.LANDS;
     private final boolean success;
     private final LandsIntegration landsAddon;
-    private final JavaPlugin bigDoors;
-    private final IPLogger logger;
 
+    @SuppressWarnings("unused")
     public LandsProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
-        this.bigDoors = bigDoors;
-        this.logger = logger;
-
         landsAddon = new LandsIntegration(bigDoors, false);
         success = true;
     }
