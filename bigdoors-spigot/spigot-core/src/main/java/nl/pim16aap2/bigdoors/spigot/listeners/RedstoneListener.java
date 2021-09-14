@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -40,7 +40,7 @@ public class RedstoneListener extends AbstractListener
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
+    public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
                             CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory,
                             PowerBlockManager powerBlockManager)
     {

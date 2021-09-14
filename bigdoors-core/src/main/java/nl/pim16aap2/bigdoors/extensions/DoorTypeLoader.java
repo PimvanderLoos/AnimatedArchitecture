@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.extensions;
 
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,17 +38,22 @@ public final class DoorTypeLoader extends Restartable
 
     private final IPLogger logger;
     private final DoorTypeManager doorTypeManager;
-    private final File dataDirectory;
+    private final File extensionsDirectory;
+    private boolean successfulInit;
 
     @Inject
-    public DoorTypeLoader(IRestartableHolder holder, IPLogger logger,
+    public DoorTypeLoader(RestartableHolder holder, IPLogger logger,
                           DoorTypeManager doorTypeManager, @Named("pluginBaseDirectory") File dataDirectory)
     {
         super(holder);
         this.logger = logger;
         this.doorTypeManager = doorTypeManager;
-        this.dataDirectory = dataDirectory;
+        extensionsDirectory = new File(dataDirectory, Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
+        successfulInit = ensureDirectoryExists();
+        if (!successfulInit)
+            return;
         init();
+        loadDoorTypesFromDirectory();
     }
 
     @Initializer
@@ -66,8 +70,22 @@ public final class DoorTypeLoader extends Restartable
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to close door type classloader! Extensions will NOT be reloaded!");
+            logger.logThrowable(e, "Failed to close door type classloader! Extensions will NOT be loaded!");
         }
+    }
+
+    /**
+     * Ensure that the {@link #extensionsDirectory} exists.
+     *
+     * @return True if the {@link #extensionsDirectory} exists or could be created.
+     */
+    private boolean ensureDirectoryExists()
+    {
+        if (extensionsDirectory.exists() || extensionsDirectory.mkdirs())
+            return true;
+
+        logger.logThrowable(new IOException("Failed to create folder: " + extensionsDirectory));
+        return false;
     }
 
     private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(File file)
@@ -133,14 +151,14 @@ public final class DoorTypeLoader extends Restartable
     /**
      * Attempts to load and register all jars in the default directory:
      * <p>
-     * {@link IBigDoorsPlatform#getDataDirectory()} + {@link Constants#BIGDOORS_EXTENSIONS_FOLDER}.
+     * {@link IBigDoorsPlatform#getDataDirectory()} + {@link Constants#BIGDOORS_EXTENSIONS_FOLDER_NAME}.
      * <p>
-     * See also {@link #loadDoorTypesFromDirectory(String)}.
+     * See also {@link #loadDoorTypesFromDirectory(File)}.
      */
     @SuppressWarnings("UnusedReturnValue")
     public List<DoorType> loadDoorTypesFromDirectory()
     {
-        return loadDoorTypesFromDirectory(dataDirectory + Constants.BIGDOORS_EXTENSIONS_FOLDER);
+        return loadDoorTypesFromDirectory(extensionsDirectory);
     }
 
     /**
@@ -150,11 +168,11 @@ public final class DoorTypeLoader extends Restartable
      *     The directory.
      * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    public List<DoorType> loadDoorTypesFromDirectory(String directory)
+    public List<DoorType> loadDoorTypesFromDirectory(File directory)
     {
         final List<DoorTypeInitializer.TypeInfo> typeInfoList = new ArrayList<>();
 
-        try (Stream<Path> walk = Files.walk(Paths.get(directory), 1, FileVisitOption.FOLLOW_LINKS))
+        try (Stream<Path> walk = Files.walk(directory.toPath(), 1, FileVisitOption.FOLLOW_LINKS))
         {
             final Stream<Path> result = walk.filter(Files::isRegularFile);
             result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfoList::add));
@@ -173,6 +191,10 @@ public final class DoorTypeLoader extends Restartable
     @Override
     public void restart()
     {
+        if (!successfulInit &&
+            !(successfulInit = ensureDirectoryExists()))
+            return;
+
         shutdown();
         init();
         loadDoorTypesFromDirectory();

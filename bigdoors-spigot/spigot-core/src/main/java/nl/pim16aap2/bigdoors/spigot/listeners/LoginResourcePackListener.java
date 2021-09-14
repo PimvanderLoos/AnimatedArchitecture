@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public class LoginResourcePackListener extends AbstractListener
     private String resourcePackURL = "";
 
     @Inject
-    public LoginResourcePackListener(IRestartableHolder holder, IPLogger logger, ConfigLoaderSpigot config,
+    public LoginResourcePackListener(RestartableHolder holder, IPLogger logger, ConfigLoaderSpigot config,
                                      JavaPlugin plugin)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));

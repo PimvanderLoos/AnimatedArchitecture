@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -19,7 +19,7 @@ class DoorTypeLoaderTest
     private IPLogger logger;
 
     @Mock
-    private IRestartableHolder restartableHolder;
+    private RestartableHolder restartableHolder;
 
     @Mock
     private DoorTypeManager doorTypeManager;
@@ -41,6 +41,6 @@ class DoorTypeLoaderTest
 
         Assertions.assertEquals(inputCount,
                                 new DoorTypeLoader(restartableHolder, logger, doorTypeManager, new File("."))
-                                    .loadDoorTypesFromDirectory(extensionsPath).size());
+                                    .loadDoorTypesFromDirectory(new File(extensionsPath)).size());
     }
 }

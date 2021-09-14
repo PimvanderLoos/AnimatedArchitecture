@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -37,23 +37,23 @@ import javax.inject.Singleton;
 @Singleton
 public class EventListeners extends AbstractListener
 {
-    private final BigDoorsSpigot base;
     private final IPLogger logger;
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;
+    private final DelayedCommandInputManager delayedCommandInputManager;
 
     @Inject
-    public EventListeners(JavaPlugin javaPlugin, BigDoorsSpigot base, IPLogger logger,
-                          BigDoorsToolUtilSpigot bigDoorsToolUtil, DatabaseManager databaseManager,
-                          ToolUserManager toolUserManager)
+    public EventListeners(JavaPlugin javaPlugin, IPLogger logger, BigDoorsToolUtilSpigot bigDoorsToolUtil,
+                          DatabaseManager databaseManager, ToolUserManager toolUserManager,
+                          DelayedCommandInputManager delayedCommandInputManager)
     {
         super(javaPlugin);
-        this.base = base;
         this.logger = logger;
         this.bigDoorsToolUtil = bigDoorsToolUtil;
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
+        this.delayedCommandInputManager = delayedCommandInputManager;
         register();
     }
 
@@ -113,8 +113,10 @@ public class EventListeners extends AbstractListener
     {
         try
         {
-            base.onPlayerLogout(event.getPlayer());
-            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
+            final Player player = event.getPlayer();
+            delayedCommandInputManager.cancelAll(SpigotAdapter.wrapPlayer(player));
+            toolUserManager.abortToolUser(player.getUniqueId());
+            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(player));
         }
         catch (Exception e)
         {

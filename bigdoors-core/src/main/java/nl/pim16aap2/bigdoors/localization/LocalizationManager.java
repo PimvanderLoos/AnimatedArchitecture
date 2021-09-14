@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Represents a manager for the localization system.
@@ -31,12 +34,13 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     private final IPLogger logger;
     private final Localizer localizer;
     private final LocalizationGenerator baseGenerator;
+    private final DoorTypeManager doorTypeManager;
     private @Nullable LocalizationGenerator patchGenerator;
 
     @Inject
-    public LocalizationManager(IRestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
+    public LocalizationManager(RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
                                @Named("localizationBaseName") String baseName, IConfigLoader configLoader,
-                               IPLogger logger)
+                               IPLogger logger, DoorTypeManager doorTypeManager)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
@@ -46,6 +50,16 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         localizer = new Localizer(baseDir, baseName, logger);
         localizer.setDefaultLocale(configLoader.locale());
         baseGenerator = new LocalizationGenerator(baseDir, baseName, logger);
+        this.doorTypeManager = doorTypeManager;
+    }
+
+    private void init()
+    {
+        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
+                                                    .map(DoorType::getDoorClass)
+                                                    .collect(Collectors.toList());
+        addResourcesFromClass(types);
+        addResourcesFromClass(List.of(LocalizationManager.class));
     }
 
     /**
@@ -143,6 +157,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     {
         shutdown();
         localizer.setDefaultLocale(configLoader.locale());
+        init();
         applyPatches();
         localizer.reInit();
     }

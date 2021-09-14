@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -11,37 +11,11 @@ import java.io.File;
 import java.nio.file.Path;
 
 @Module
-public class BigDoorsSpigotModule
+public abstract class BigDoorsPluginModule
 {
-    private final BigDoorsSpigot bigDoorsSpigot;
-    private final JavaPlugin javaPlugin;
-
-    BigDoorsSpigotModule(BigDoorsSpigot bigDoorsSpigot, JavaPlugin javaPlugin)
-    {
-        this.bigDoorsSpigot = bigDoorsSpigot;
-        this.javaPlugin = javaPlugin;
-    }
-
-    @Provides
+    @Binds
     @Singleton
-    IBigDoorsPlatform bindBigDoorsPlatform()
-    {
-        return bigDoorsSpigot;
-    }
-
-    @Provides
-    @Singleton
-    BigDoorsSpigot provideMain()
-    {
-        return bigDoorsSpigot;
-    }
-
-    @Provides
-    @Singleton
-    JavaPlugin providePlugin()
-    {
-        return javaPlugin;
-    }
+    abstract JavaPlugin getPlugin(BigDoorsPlugin bigDoorsPlugin);
 
     @Provides
     @Singleton

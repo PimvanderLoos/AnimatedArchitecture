@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -23,7 +23,7 @@ public abstract class AbstractListener implements Listener, IRestartable
     protected boolean isRegistered = false;
 
     // Private back-end constructor that has the true nullability annotations for the different types.
-    private AbstractListener(JavaPlugin plugin, @Nullable IRestartableHolder holder,
+    private AbstractListener(JavaPlugin plugin, @Nullable RestartableHolder holder,
                              @Nullable Supplier<Boolean> enabler)
     {
         if (holder != null)
@@ -38,23 +38,23 @@ public abstract class AbstractListener implements Listener, IRestartable
      *     The {@link JavaPlugin} to use for (un)registering this listener. May be null.
      * @param enabler
      *     A supplier that is used to query whether this listener should be enabled. When this is not provided, it is
-     *     assumed that this listener should always be enabled and cannot be restarted.
+     *     assumed that this listener should always be enabled.
      */
-    public AbstractListener(IRestartableHolder holder, JavaPlugin plugin, Supplier<Boolean> enabler)
+    public AbstractListener(RestartableHolder holder, JavaPlugin plugin, Supplier<Boolean> enabler)
     {
         this(plugin, holder, enabler);
     }
 
     /**
-     * See {@link #AbstractListener(IRestartableHolder, JavaPlugin, Supplier)}
+     * See {@link #AbstractListener(RestartableHolder, JavaPlugin, Supplier)}
      */
-    protected AbstractListener(IRestartableHolder holder, JavaPlugin plugin)
+    protected AbstractListener(RestartableHolder holder, JavaPlugin plugin)
     {
         this(plugin, holder, null);
     }
 
     /**
-     * See {@link #AbstractListener(IRestartableHolder, JavaPlugin, Supplier)}
+     * See {@link #AbstractListener(RestartableHolder, JavaPlugin, Supplier)}
      */
     protected AbstractListener(JavaPlugin plugin)
     {
@@ -98,21 +98,15 @@ public abstract class AbstractListener implements Listener, IRestartable
     @Override
     public void restart()
     {
-        if (enabler == null)
-            return;
-
         shutdown();
 
-        if (enabler.get())
+        if (enabler == null || enabler.get())
             register();
     }
 
     @Override
     public void shutdown()
     {
-        if (enabler == null)
-            return;
-
         unregister();
     }
 }

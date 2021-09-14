@@ -11,9 +11,9 @@ public abstract class Restartable implements IRestartable
      * Registers a {@link Restartable} with the given holder.
      *
      * @param holder
-     *     The {@link IRestartableHolder} to register this {@link Restartable} with.
+     *     The {@link RestartableHolder} to register this {@link Restartable} with.
      */
-    protected Restartable(IRestartableHolder holder)
+    protected Restartable(RestartableHolder holder)
     {
         holder.registerRestartable(this);
     }

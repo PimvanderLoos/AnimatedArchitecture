@@ -48,6 +48,6 @@ class RestartTest
     void test()
     {
         Assertions.assertTrue(factory.newRestart(commandSender).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(bigDoorsPlatform).restart();
+        Mockito.verify(bigDoorsPlatform).restartPlugin();
     }
 }

@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.managers;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +38,7 @@ public final class DoorTypeManager extends Restartable
     private final IPLogger logger;
 
     @Inject
-    public DoorTypeManager(IRestartableHolder holder, IPLogger logger)
+    public DoorTypeManager(RestartableHolder holder, IPLogger logger)
     {
         super(holder);
         this.logger = logger;

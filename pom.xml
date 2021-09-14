@@ -99,6 +99,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>${dependency.version.dagger}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger-compiler</artifactId>
+            <version>${dependency.version.dagger}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>${dependency.version.annotations}</version>
@@ -156,13 +170,6 @@
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
             <version>${dependency.version.checkstyle}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.dagger</groupId>
-            <artifactId>dagger</artifactId>
-            <version>${dependency.version.dagger}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -263,6 +270,14 @@
                             <relocation>
                                 <pattern>com.google.errorprone</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.errorprone</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>javax.inject</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.javax.inject</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>dagger</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.dagger</shadedPattern>
                             </relocation>
                         </relocations>
                     </configuration>

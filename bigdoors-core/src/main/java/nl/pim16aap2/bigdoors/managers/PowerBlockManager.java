@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
@@ -44,7 +44,7 @@ public final class PowerBlockManager extends Restartable
      * instead.
      *
      * @param restartableHolder
-     *     The {@link IRestartableHolder} that manages this object.
+     *     The {@link RestartableHolder} that manages this object.
      * @param config
      *     The configuration of this plugin.
      * @param databaseManager
@@ -53,7 +53,7 @@ public final class PowerBlockManager extends Restartable
      *     The logger used for error logging.
      */
     @Inject
-    public PowerBlockManager(IRestartableHolder restartableHolder, IConfigLoader config,
+    public PowerBlockManager(RestartableHolder restartableHolder, IConfigLoader config,
                              DatabaseManager databaseManager, IPLogger pLogger, CompletableFutureHandler handler)
     {
         super(restartableHolder);

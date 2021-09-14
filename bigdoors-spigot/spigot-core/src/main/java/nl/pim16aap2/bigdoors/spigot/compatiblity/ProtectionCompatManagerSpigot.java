@@ -5,10 +5,10 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -53,11 +53,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * Constructor of {@link ProtectionCompatManagerSpigot}.
      *
      * @param plugin
-     *     The instance of {@link BigDoorsSpigot}.
+     *     The instance of {@link BigDoorsPlugin}.
      * @param locationFactory
      */
     @Inject
-    public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, IRestartableHolder holder,
+    public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, RestartableHolder holder,
                                          VaultManager vaultManager, ConfigLoaderSpigot config,
                                          IPLocationFactory locationFactory)
     {

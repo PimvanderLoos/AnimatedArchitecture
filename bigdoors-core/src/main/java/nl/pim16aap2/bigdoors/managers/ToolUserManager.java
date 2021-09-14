@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -28,7 +28,7 @@ public final class ToolUserManager extends Restartable
     private final IPExecutor executor;
 
     @Inject
-    public ToolUserManager(IRestartableHolder holder, IPLogger logger, ILocalizer localizer, IPExecutor executor)
+    public ToolUserManager(RestartableHolder holder, IPLogger logger, ILocalizer localizer, IPExecutor executor)
     {
         super(holder);
         this.logger = logger;

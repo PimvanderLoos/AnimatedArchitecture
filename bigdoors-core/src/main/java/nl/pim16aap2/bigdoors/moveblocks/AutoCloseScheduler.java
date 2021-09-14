@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.moveblocks;
 
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
@@ -39,7 +39,7 @@ public final class AutoCloseScheduler extends Restartable
     private final IPExecutor executor;
 
     @Inject
-    public AutoCloseScheduler(IRestartableHolder holder, DoorActivityManager doorActivityManager,
+    public AutoCloseScheduler(RestartableHolder holder, DoorActivityManager doorActivityManager,
                               DoorToggleRequestFactory doorToggleRequestFactory, IPExecutor executor)
     {
         super(holder);

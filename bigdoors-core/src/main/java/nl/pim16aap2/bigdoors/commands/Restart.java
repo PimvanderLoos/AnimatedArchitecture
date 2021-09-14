@@ -39,7 +39,7 @@ public class Restart extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        bigDoorsPlatform.restart();
+        bigDoorsPlatform.restartPlugin();
         return CompletableFuture.completedFuture(true);
     }
 

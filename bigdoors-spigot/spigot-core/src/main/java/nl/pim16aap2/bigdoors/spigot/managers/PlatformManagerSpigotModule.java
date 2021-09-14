@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 
 import javax.inject.Singleton;
 
@@ -13,12 +13,12 @@ public abstract class PlatformManagerSpigotModule
 {
     @Provides
     @Singleton
-    static ISpigotPlatform provideSpigotPlatform(PlatformManagerSpigot platformManagerSpigot)
+    static IBigDoorsSpigotSubPlatform provideSpigotPlatform(SubPlatformManagerSpigot platformManagerSpigot)
     {
         return platformManagerSpigot.getSpigotPlatform();
     }
 
     @Binds
     @Singleton
-    abstract IPlatformManagerSpigot providePlatformManagerSpigot(PlatformManagerSpigot manager);
+    abstract ISubPlatformManagerSpigot providePlatformManagerSpigot(SubPlatformManagerSpigot manager);
 }

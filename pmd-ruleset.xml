@@ -51,8 +51,8 @@
     <rule ref="category/java/bestpractices.xml/UseStandardCharsets"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usetrywithresources -->
     <rule ref="category/java/bestpractices.xml/UseTryWithResources"/>
-    <!--    &lt;!&ndash; https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usevarargs &ndash;&gt;-->
-    <!--    <rule ref="category/java/bestpractices.xml/UseVarargs"/>-->
+    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#usevarargs -->
+    <rule ref="category/java/bestpractices.xml/UseVarargs"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_bestpractices.html#whileloopwithliteralboolean -->
     <rule ref="category/java/bestpractices.xml/WhileLoopWithLiteralBoolean"/>
 

@@ -2,43 +2,19 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import dagger.Module;
 import dagger.Provides;
-import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
-import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 
 import javax.inject.Singleton;
+import java.util.Objects;
 
 @Module
 public class BigDoorsSpigotPlatformModule
 {
     @Provides
     @Singleton
-    static IGlowingBlockFactory getGlowingBlockFactory(ISpigotPlatform spigotPlatform)
+    IBigDoorsPlatform getBigDoorsPlatform(BigDoorsPlugin bigDoorsPlugin)
     {
-        return spigotPlatform.getGlowingBlockFactory();
+        //noinspection ConstantConditions
+        return Objects.requireNonNull(bigDoorsPlugin.getBigDoorsSpigotPlatform(), "No platform registered!");
     }
-
-    @Provides
-    @Singleton
-    static IPBlockDataFactory getPBlockDataFactory(ISpigotPlatform spigotPlatform)
-    {
-        return spigotPlatform.getPBlockDataFactory();
-    }
-
-    @Provides
-    @Singleton
-    static IFallingBlockFactory getFallingBlockFactory(ISpigotPlatform spigotPlatform)
-    {
-        return spigotPlatform.getFallingBlockFactory();
-    }
-
-    @Provides
-    @Singleton
-    static IBlockAnalyzer getBlockAnalyzer(ISpigotPlatform spigotPlatform)
-    {
-        return spigotPlatform.getBlockAnalyzer();
-    }
-
 }

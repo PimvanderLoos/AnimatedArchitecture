@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
@@ -30,7 +29,7 @@ import java.io.File;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public interface IBigDoorsPlatform extends IRestartable
+public interface IBigDoorsPlatform
 {
     /**
      * Gets the directory where all data will stored.
@@ -38,6 +37,16 @@ public interface IBigDoorsPlatform extends IRestartable
      * @return The directory where all data will stored.
      */
     File getDataDirectory();
+
+    /**
+     * Restarts the plugin.
+     */
+    void restartPlugin();
+
+    /**
+     * Shuts the plugin down.
+     */
+    void shutDownPlugin();
 
     /**
      * Calls a {@link IBigDoorsEvent}.
@@ -50,11 +59,11 @@ public interface IBigDoorsPlatform extends IRestartable
     /**
      * Checks if a thread is the main thread.
      *
-     * @param threadID
+     * @param threadId
      *     The ID of the thread to compare.
      * @return True if the thread is the main thread.
      */
-    boolean isMainThread(long threadID);
+    boolean isMainThread(long threadId);
 
     /**
      * Checks if the current thread is the main thread.
@@ -155,7 +164,7 @@ public interface IBigDoorsPlatform extends IRestartable
      *
      * @return The {@link IPLogger} for this platform.
      */
-    IPLogger getPLogger();
+    IPLogger getLogger();
 
     /**
      * Gets the {@link ILocalizer} used to localize strings.

@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
@@ -74,7 +74,7 @@ public final class DatabaseManager extends Restartable
      *     The {@link IStorage} to use for all database calls.
      */
     @Inject
-    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage, IPLogger logger,
+    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, IPLogger logger,
                            DoorRegistry doorRegistry, IBigDoorsPlatform bigDoorsPlatform,
                            CompletableFutureHandler handler, Lazy<PowerBlockManager> powerBlockManager,
                            IBigDoorsEventFactory bigDoorsEventFactory)
