@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lombok.encoding>UTF-8</lombok.encoding>
-        <maven.compiler.release>16</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
 
         <lombok.inputDir>${project.basedir}</lombok.inputDir>
         <lombok.outputDir>${project.build.directory}/generated-sources/delombok</lombok.outputDir>
@@ -218,7 +218,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${dependency.version.surefire}</version>
                     <configuration>
-                        <argLine>--enable-preview</argLine>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
                     </configuration>
@@ -365,7 +364,6 @@
                             <artifactId>maven-compiler-plugin</artifactId>
                             <version>${dependency.version.maven-compiler}</version>
                             <configuration>
-                                <compilerArgs>--enable-preview</compilerArgs>
                                 <encoding>UTF-8</encoding>
                                 <release>${maven.compiler.release}</release>
                                 <annotationProcessorPaths>
@@ -402,7 +400,6 @@
                                 <fork>true</fork>
                                 <release>${maven.compiler.release}</release>
                                 <compilerArgs>
-                                    <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
                                     <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
