@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
+import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,13 +21,15 @@ import javax.inject.Singleton;
 @Singleton
 public final class LoginMessageListener extends AbstractListener
 {
-    private final BigDoorsSpigot plugin;
+    private final BigDoorsPlugin plugin;
+    private final UpdateManager updateManager;
 
     @Inject
-    public LoginMessageListener(JavaPlugin javaPlugin, BigDoorsSpigot plugin)
+    public LoginMessageListener(BigDoorsPlugin plugin, UpdateManager updateManager)
     {
-        super(javaPlugin);
+        super(plugin);
         this.plugin = plugin;
+        this.updateManager = updateManager;
         register();
     }
 
@@ -36,32 +39,58 @@ public final class LoginMessageListener extends AbstractListener
      * @param event
      *     The {@link PlayerJoinEvent}.
      */
-    // TODO: Write a nicer system for login messages that doesn't require code in the BigDoorsSpigot class.
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        try
-        {
-            final Player player = event.getPlayer();
-            // Normally, only send to those with permission, so they can disable it.
-            // But when it's a devbuild, also send it to everyone who's OP, to make it
-            // a bit harder to get around the message.
-            if (player.hasPermission("bigdoors.admin") || (player.isOp() && Constants.DEV_BUILD))
-                // Slight delay so the player actually receives the message;
-                new BukkitRunnable()
+        final Player player = event.getPlayer();
+        if (player.hasPermission("bigdoors.admin.info"))
+            // Slight delay so the player actually receives the message;
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
                 {
-                    @Override
-                    public void run()
-                    {
-                        final String loginString = plugin.getLoginMessage();
-                        if (!loginString.isEmpty())
-                            player.sendMessage(ChatColor.AQUA + plugin.getLoginMessage());
-                    }
-                }.runTaskLater(plugin, 120);
-        }
-        catch (Exception e)
-        {
-            plugin.getPLogger().logThrowable(e);
-        }
+                    final @Nullable String loginString = getLoginMessage();
+                    if (loginString != null)
+                        player.sendMessage(ChatColor.AQUA + loginString);
+                }
+            }.runTaskLater(plugin, 120);
+    }
+
+    private @Nullable String getLoginMessage()
+    {
+        String ret = "";
+        ret += formatMessage("Error", plugin.getInitErrorMessage());
+        ret += formatMessage("Warning", getDevBuildWarning());
+        ret += formatMessage(null, getUpdateMessage());
+        return ret.isBlank() ? null : ret;
+    }
+
+    private @Nullable String getDevBuildWarning()
+    {
+        if (Constants.DEV_BUILD)
+            return "You are running a dev-build!";
+        return null;
+    }
+
+    private @Nullable String getUpdateMessage()
+    {
+        if (updateManager.hasUpdateBeenDownloaded())
+            return "A new update (" + updateManager.getNewestVersion() + ") has been downloaded! " +
+                "Restart your server to apply the update!";
+        if (updateManager.updateAvailable())
+            return "A new update is available: " + updateManager.getNewestVersion() + "!";
+        return null;
+    }
+
+    private String formatMessage(@Nullable String prefix, @Nullable String msg)
+    {
+        if (msg == null || msg.isBlank())
+            return "";
+
+        String ret = "[BigDoors] ";
+        if (prefix != null && !prefix.isBlank())
+            ret += prefix + ": ";
+        return ret + msg + '\n';
     }
 }

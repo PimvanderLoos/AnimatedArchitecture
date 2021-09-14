@@ -12,7 +12,7 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
@@ -144,7 +144,7 @@ public class CreatorTestsUtil
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
                 .setMock(IPLogger.class, logger)
                 .setMock(ILocalizer.class, localizer)
-                .setMock(DoorRegistry.class, DoorRegistry.uncached(Mockito.mock(IRestartableHolder.class)))
+                .setMock(DoorRegistry.class, DoorRegistry.uncached(Mockito.mock(RestartableHolder.class)))
                 .getFactory();
         doorBaseFactory = new DoorBaseFactory(doorBaseIFactory);
 

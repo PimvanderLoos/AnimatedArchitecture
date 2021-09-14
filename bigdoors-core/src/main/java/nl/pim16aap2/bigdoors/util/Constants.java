@@ -43,7 +43,7 @@ public final class Constants
     /**
      * The directory where all the extensions are loaded from.
      */
-    public static final String BIGDOORS_EXTENSIONS_FOLDER = "/Extensions";
+    public static final String BIGDOORS_EXTENSIONS_FOLDER_NAME = "Extensions";
 
     /**
      * The amount of time (in seconds) a user has to complete the door creation process.

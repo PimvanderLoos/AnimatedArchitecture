@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot;
 
+import dagger.BindsInstance;
 import dagger.Component;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
@@ -16,7 +17,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.api.restartable.RestartableHolderModule;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -55,8 +56,8 @@ import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.util.api.IPlatformManagerSpigot;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
@@ -64,30 +65,64 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModu
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine.SoundEngineSpigotModule;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteStorageModule;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = {
-    BigDoorsSpigotModule.class, RestartableHolderModule.class, PLoggerModule.class,
+    BigDoorsPluginModule.class,
+    PLoggerModule.class,
+    PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
-    ConfigLoaderSpigotModule.class, LocalizationModule.class, PExecutorModule.class, GlowingBlockSpawnerModule.class,
-    PServerModule.class, PWorldFactorySpigotModule.class, PLocationFactorySpigotModule.class,
-    BigDoorsEventFactorySpigotModule.class, PPlayerFactorySpigotModule.class, ChunkManagerSpigotModule.class,
-    MessagingInterfaceSpigotModule.class, SoundEngineSpigotModule.class, PowerBlockRedstoneManagerSpigotModule.class,
-    BigDoorsSpigotPlatformModule.class, SQLiteStorageModule.class, DebugReporterSpigotModule.class,
-    VaultManagerModule.class, PlatformManagerSpigotModule.class, BigDoorsToolUtilSpigotModule.class
+    ConfigLoaderSpigotModule.class,
+    LocalizationModule.class,
+    PExecutorModule.class,
+    GlowingBlockSpawnerModule.class,
+    PServerModule.class,
+    PWorldFactorySpigotModule.class,
+    PLocationFactorySpigotModule.class,
+    BigDoorsEventFactorySpigotModule.class,
+    PPlayerFactorySpigotModule.class,
+    ChunkManagerSpigotModule.class,
+    MessagingInterfaceSpigotModule.class,
+    SoundEngineSpigotModule.class,
+    PowerBlockRedstoneManagerSpigotModule.class,
+    BigDoorsSpigotSubPlatformModule.class,
+    SQLiteStorageModule.class,
+    DebugReporterSpigotModule.class,
+    VaultManagerModule.class,
+    BigDoorsToolUtilSpigotModule.class,
 })
 interface BigDoorsSpigotComponent
 {
-    IBigDoorsPlatform getBigDoorsPlatform();
+    @Component.Builder
+    interface Builder
+    {
+        @BindsInstance
+        Builder setPlugin(BigDoorsPlugin javaPlugin);
 
-    ISpigotPlatform getSpigotPlatform();
+        @BindsInstance
+        Builder setPlatform(IBigDoorsPlatform bigDoorsPlatform);
 
-    IPlatformManagerSpigot getPlatformManagerSpigot();
+        @BindsInstance
+        Builder setRestartableHolder(RestartableHolder restartableHolder);
+
+        BigDoorsSpigotComponent build();
+    }
+
+    JavaPlugin getBigDoorsJavaPlugin();
+
+    RestartableHolder getRestartableHolder();
 
     IPLogger getLogger();
+
+    ISubPlatformManagerSpigot getSubPlatformManagerSpigot();
+
+    IBigDoorsPlatform getBigDoorsPlatform();
+
+    IBigDoorsSpigotSubPlatform getSpigotPlatform();
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 

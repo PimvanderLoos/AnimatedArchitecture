@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class DebugReporter
 {
-    private final IBigDoorsPlatform platform;
+    protected final IBigDoorsPlatform platform;
 
     /**
      * Gets the data-dump containing useful information for debugging issues.

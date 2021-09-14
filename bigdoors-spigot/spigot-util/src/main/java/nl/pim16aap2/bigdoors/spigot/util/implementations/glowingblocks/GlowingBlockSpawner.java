@@ -7,8 +7,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Singleton
-public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner, IRestartableHolder
+public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner
 {
     @Getter
     private final Map<PColor, Team> teams = new EnumMap<>(PColor.class);
@@ -51,9 +51,10 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private volatile boolean isInitialized = false;
     private final IPExecutor executor;
+    private final RestartableHolder restartableHolder = new RestartableHolder();
 
     @Inject
-    public GlowingBlockSpawner(IRestartableHolder holder, IGlowingBlockFactory glowingBlockFactory,
+    public GlowingBlockSpawner(RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory,
                                IPLogger logger, IPExecutor executor)
     {
         super(holder);
@@ -105,29 +106,11 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, this, logger, this, executor);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, restartableHolder,
+                                                   logger, this, executor);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }
-
-    @Override
-    public void registerRestartable(IRestartable restartable)
-    {
-        restartables.add(restartable);
-    }
-
-    @Override
-    public boolean isRestartableRegistered(IRestartable restartable)
-    {
-        return restartables.contains(restartable);
-    }
-
-    @Override
-    public void deregisterRestartable(IRestartable restartable)
-    {
-        restartables.remove(restartable);
-    }
-
 
     /**
      * Registers a new team with a specific color.

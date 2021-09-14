@@ -1,5 +1,5 @@
 name: BigDoors2
-main: nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot
+main: nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin
 version: ${project.version}
 author: pim16aap2
 api-version: 1.14
@@ -41,6 +41,7 @@ permissions:
       bigdoors.admin.restart: true
       bigdoors.admin.stopdoors: true
       bigdoors.admin.version: true
+      bigdoors.admin.info: true
   bigdoors.user.createdoor.*:
     description: Allows a user to create all door types.
     children:
@@ -101,6 +102,9 @@ permissions:
     default: op
   bigdoors.admin.version:
     description: Allows a user to retrieve the version of this plugin.
+    default: op
+  bigdoors.admin.info:
+    description: Allows a user to receive BigDoors status information (e.g. when the plugin failed to initialize properly).
     default: op
   bigdoorsdebug.iknowishouldnotusethis:
     description: Do not use this!

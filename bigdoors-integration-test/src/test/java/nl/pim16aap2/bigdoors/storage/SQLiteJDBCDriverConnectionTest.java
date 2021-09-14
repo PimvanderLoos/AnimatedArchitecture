@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
@@ -101,7 +101,7 @@ public class SQLiteJDBCDriverConnectionTest
     private DoorRegistry doorRegistry;
 
     @Mock
-    private IRestartableHolder restartableHolder;
+    private RestartableHolder restartableHolder;
 
     @BeforeEach
     void beforeEach()

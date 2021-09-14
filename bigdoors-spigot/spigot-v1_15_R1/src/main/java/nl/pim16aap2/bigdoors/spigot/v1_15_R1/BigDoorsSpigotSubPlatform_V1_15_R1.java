@@ -7,15 +7,15 @@ import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.spigot.util.api.BigDoorsSpigotAbstract;
+import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
+public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigotSubPlatform
 {
     private static final String VERSION = "v1_15_R1";
 
@@ -35,7 +35,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
     private final IPLocationFactory locationFactory;
 
     @Inject
-    public SpigotPlatform_V1_15_R1(IPLogger logger, IPLocationFactory locationFactory)
+    public BigDoorsSpigotSubPlatform_V1_15_R1(IPLogger logger, IPLocationFactory locationFactory)
     {
         this.logger = logger;
         this.locationFactory = locationFactory;
@@ -49,7 +49,7 @@ public final class SpigotPlatform_V1_15_R1 implements ISpigotPlatform
 
     @Override
     @Initializer
-    public void init(BigDoorsSpigotAbstract plugin)
+    public void init(JavaPlugin plugin)
     {
         fallingBlockFactory = new FallingBlockFactory_V1_15_R1(logger);
         pBlockDataFactory =

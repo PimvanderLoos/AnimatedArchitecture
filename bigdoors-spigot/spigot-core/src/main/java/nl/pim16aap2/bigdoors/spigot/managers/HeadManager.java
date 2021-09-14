@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
@@ -44,12 +44,12 @@ public final class HeadManager extends Restartable
      * Constructs a new {@link HeadManager}.
      *
      * @param holder
-     *     The {@link IRestartableHolder} that manages this object.
+     *     The {@link RestartableHolder} that manages this object.
      * @param config
      *     The BigDoors configuration.
      */
     @Inject
-    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config, CompletableFutureHandler handler)
+    public HeadManager(RestartableHolder holder, ConfigLoaderSpigot config, CompletableFutureHandler handler)
     {
         super(holder);
         this.config = config;

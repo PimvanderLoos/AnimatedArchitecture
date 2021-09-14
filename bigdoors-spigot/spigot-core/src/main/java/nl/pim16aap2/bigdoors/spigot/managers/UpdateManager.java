@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
 import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -22,7 +24,7 @@ import javax.inject.Singleton;
  * @author Pim
  */
 @Singleton
-public final class UpdateManager
+public final class UpdateManager extends Restartable
 {
     private final JavaPlugin plugin;
     private final IPLogger logger;
@@ -36,29 +38,17 @@ public final class UpdateManager
     private @Nullable BukkitTask updateRunner = null;
 
     @Inject
-    public UpdateManager(BigDoorsSpigot plugin, @Named("pluginSpigotID") int pluginID, IPLogger logger,
-                         IConfigLoader config, CompletableFutureHandler handler)
+    public UpdateManager(RestartableHolder restartableHolder, BigDoorsPlugin plugin,
+                         @Named("pluginSpigotID") int pluginID, IPLogger logger, IConfigLoader config,
+                         CompletableFutureHandler handler)
     {
+        super(restartableHolder);
         this.plugin = plugin;
         this.logger = logger;
         this.config = config;
         this.handler = handler;
         updater = new UpdateChecker(plugin, pluginID, logger, handler);
-    }
-
-    /**
-     * Enables or disables update checking and/or downloading.
-     *
-     * @param newCheckForUpdates
-     *     True if update checking should be enabled.
-     * @param newDownloadUpdates
-     *     True if update downloading should be enabled.
-     */
-    public void setEnabled(boolean newCheckForUpdates, boolean newDownloadUpdates)
-    {
-        checkForUpdates = newCheckForUpdates;
-        downloadUpdates = newDownloadUpdates;
-        initUpdater();
+        init();
     }
 
     /**
@@ -133,8 +123,11 @@ public final class UpdateManager
     /**
      * (Re)Initializes the updater.
      */
-    private void initUpdater()
+    private void init()
     {
+        checkForUpdates = config.checkForUpdates();
+        downloadUpdates = config.autoDLUpdate();
+
         if (checkForUpdates)
         {
             // Run the UpdateChecker regularly.
@@ -151,12 +144,23 @@ public final class UpdateManager
             }
         }
         else
+            shutdown();
+    }
+
+    @Override
+    public void restart()
+    {
+        shutdown();
+        init();
+    }
+
+    @Override
+    public void shutdown()
+    {
+        if (updateRunner != null)
         {
-            if (updateRunner != null)
-            {
-                updateRunner.cancel();
-                updateRunner = null;
-            }
+            updateRunner.cancel();
+            updateRunner = null;
         }
     }
 }

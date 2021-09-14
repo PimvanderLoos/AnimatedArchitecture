@@ -13,7 +13,7 @@ import net.minecraft.server.v1_15_R1.PlayerConnection;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
@@ -50,12 +50,12 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 
     private final Map<PColor, Team> teams;
     private final Player player;
-    private final IRestartableHolder restartableHolder;
+    private final RestartableHolder restartableHolder;
     private final IPLogger logger;
     private final IPExecutor executor;
 
     public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
-                                 IRestartableHolder restartableHolder, IPLogger logger, IPExecutor executor)
+                                 RestartableHolder restartableHolder, IPLogger logger, IPExecutor executor)
     {
         this.player = player;
         this.world = world;
@@ -191,7 +191,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
-                                                          IRestartableHolder restartableHolder, IPLogger logger,
+                                                          RestartableHolder restartableHolder, IPLogger logger,
                                                           IGlowingBlockSpawner glowingBlockSpawner, IPExecutor executor)
         {
             if (!(glowingBlockSpawner instanceof GlowingBlockSpawner))

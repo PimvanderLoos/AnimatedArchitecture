@@ -101,26 +101,18 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     @Override
     public void restart()
     {
-        reloadConfig();
+        shutdown();
+        plugin.reloadConfig();
+        makeConfig();
     }
 
     @Override
     public void shutdown()
     {
-        reloadConfig();
-    }
-
-    /**
-     * Reload the config file and read in the new values.
-     */
-    public void reloadConfig()
-    {
-        plugin.reloadConfig();
         configEntries.clear();
         powerBlockTypes.clear();
         doorPrices.clear();
         doorMultipliers.clear();
-        makeConfig();
     }
 
     /**

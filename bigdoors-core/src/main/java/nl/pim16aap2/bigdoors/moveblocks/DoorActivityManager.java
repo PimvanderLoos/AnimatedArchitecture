@@ -5,8 +5,8 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
@@ -39,12 +39,12 @@ public final class DoorActivityManager extends Restartable
      * Constructs a new {@link DoorActivityManager}.
      *
      * @param holder
-     *     The {@link IRestartableHolder} that manages this object.
+     *     The {@link RestartableHolder} that manages this object.
      * @param autoCloseScheduler
      *     The {@link AutoCloseScheduler} to use for scheduling auto close actions when required.
      */
     @Inject
-    public DoorActivityManager(IRestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
+    public DoorActivityManager(RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
                                IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
                                IBigDoorsPlatform bigDoorsPlatform)
     {
