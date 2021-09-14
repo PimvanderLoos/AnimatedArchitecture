@@ -155,6 +155,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <directory>../../target/</directory>
         <finalName>BigDoors-Spigot</finalName>
         <plugins>
