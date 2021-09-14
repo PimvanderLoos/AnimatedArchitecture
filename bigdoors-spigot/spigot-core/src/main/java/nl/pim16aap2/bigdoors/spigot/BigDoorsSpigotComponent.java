@@ -46,6 +46,9 @@ import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigo
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
+import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
+import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
@@ -137,6 +140,12 @@ interface BigDoorsSpigotComponent
     PowerBlockManager getPowerBlockManager();
 
     WorldListener getWorldListener();
+
+    ChunkListener getChunkListener();
+
+    EventListeners getEventListeners();
+
+    LoginMessageListener getLoginMessageListener();
 
     VaultManager getVaultManager();
 

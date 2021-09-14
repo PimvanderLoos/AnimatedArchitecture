@@ -41,12 +41,14 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
+import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
+import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
+import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
-import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import org.bukkit.Bukkit;
 
@@ -178,17 +180,24 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @Getter
     private final IBigDoorsSpigotSubPlatform spigotPlatform;
 
+
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final RedstoneListener redstoneListener;
+    private final ChunkListener chunkListener;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
+    private final EventListeners eventListeners;
+
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
+    private final LoginMessageListener loginMessageListener;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final LoginResourcePackListener loginResourcePackListener;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final WorldListener worldListener;
+    private final RedstoneListener redstoneListener;
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
-    private final VaultManager vaultManager;
+    private final WorldListener worldListener;
 
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin, long mainThreadId)
         throws Exception
@@ -202,7 +211,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         protectionCompatManager = bigDoorsSpigotComponent.getProtectionCompatManager();
         economyManager = bigDoorsSpigotComponent.getVaultManager();
         permissionsManager = bigDoorsSpigotComponent.getVaultManager();
-        vaultManager = bigDoorsSpigotComponent.getVaultManager();
         limitsManager = bigDoorsSpigotComponent.getLimitsManager();
         headManager = bigDoorsSpigotComponent.getHeadManager();
         updateManager = bigDoorsSpigotComponent.getUpdateManager();
@@ -226,9 +234,13 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         fallingBlockFactory = bigDoorsSpigotComponent.getFallingBlockFactory();
         bigDoorsEventFactory = bigDoorsSpigotComponent.getIBigDoorsEventFactory();
 
-        bigDoorsConfig = bigDoorsSpigotComponent.getConfig();
         redstoneListener = bigDoorsSpigotComponent.getRedstoneListener();
         loginResourcePackListener = bigDoorsSpigotComponent.getLoginResourcePackListener();
+        chunkListener = bigDoorsSpigotComponent.getChunkListener();
+        eventListeners = bigDoorsSpigotComponent.getEventListeners();
+        loginMessageListener = bigDoorsSpigotComponent.getLoginMessageListener();
+
+        bigDoorsConfig = bigDoorsSpigotComponent.getConfig();
         pExecutor = bigDoorsSpigotComponent.getPExecutor();
         worldListener = bigDoorsSpigotComponent.getWorldListener();
         glowingBlockSpawner = bigDoorsSpigotComponent.getIGlowingBlockSpawner();
