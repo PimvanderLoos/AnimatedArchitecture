@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
@@ -8,11 +7,14 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,12 +30,14 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class PowerBlockManager extends Restartable
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final IConfigLoader config;
     private final DatabaseManager databaseManager;
     private final IPLogger pLogger;
+    private final CompletableFutureHandler handler;
 
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
@@ -48,21 +52,23 @@ public final class PowerBlockManager extends Restartable
      * @param pLogger
      *     The logger used for error logging.
      */
+    @Inject
     public PowerBlockManager(IRestartableHolder restartableHolder, IConfigLoader config,
-                             DatabaseManager databaseManager, IPLogger pLogger)
+                             DatabaseManager databaseManager, IPLogger pLogger, CompletableFutureHandler handler)
     {
         super(restartableHolder);
         this.config = config;
         this.databaseManager = databaseManager;
         this.pLogger = pLogger;
 
+        this.handler = handler;
     }
 
     /**
      * Unloads a world from the cache.
      *
      * @param worldName
-     *     The name of the world the unload.
+     *     The name of the world to unload.
      */
     public void unloadWorld(String worldName)
     {
@@ -106,7 +112,7 @@ public final class PowerBlockManager extends Restartable
                 final List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
                 list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
-            }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+            }).exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -263,7 +269,7 @@ public final class PowerBlockManager extends Restartable
                 final PowerBlockChunk powerBlockChunk =
                     powerBlockChunks.put(chunkHash, new PowerBlockChunk());
 
-                return BigDoors.get().getDatabaseManager().getPowerBlockData(chunkHash).handle(
+                return databaseManager.getPowerBlockData(chunkHash).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);
@@ -271,7 +277,7 @@ public final class PowerBlockManager extends Restartable
                         final List<Long> doorUIDs = new ArrayList<>(map.size());
                         map.forEach((key, value) -> doorUIDs.addAll(value));
                         return doorUIDs;
-                    }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                    }).exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
             }
 
             return CompletableFuture.completedFuture(powerBlockChunks.get(chunkHash)
@@ -298,7 +304,7 @@ public final class PowerBlockManager extends Restartable
         private void checkBigDoorsWorldStatus()
         {
             databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result)
-                           .exceptionally(Util::exceptionally);
+                           .exceptionally(handler::exceptionally);
         }
 
         @Override

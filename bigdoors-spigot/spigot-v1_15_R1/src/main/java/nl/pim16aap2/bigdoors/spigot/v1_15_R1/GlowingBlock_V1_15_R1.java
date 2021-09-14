@@ -10,12 +10,13 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
-import nl.pim16aap2.bigdoors.spigot.util.GlowingBlockSpawner;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.World;
@@ -50,14 +51,18 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Map<PColor, Team> teams;
     private final Player player;
     private final IRestartableHolder restartableHolder;
+    private final IPLogger logger;
+    private final IPExecutor executor;
 
     public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
-                                 IRestartableHolder restartableHolder)
+                                 IRestartableHolder restartableHolder, IPLogger logger, IPExecutor executor)
     {
         this.player = player;
         this.world = world;
         this.teams = teams;
         this.restartableHolder = restartableHolder;
+        this.logger = logger;
+        this.executor = executor;
     }
 
     private Optional<PlayerConnection> getConnection()
@@ -65,7 +70,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
-            BigDoors.get().getPLogger().logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
+            logger.logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
                 " could not be found! They cannot receive Glowing Block packets!");
             return Optional.empty();
         }
@@ -99,8 +104,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
         {
-            BigDoors.get().getPLogger()
-                    .warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
+            logger.warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
             return;
         }
 
@@ -146,7 +150,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
                 kill();
             }
         };
-        BigDoors.get().getPlatform().getPExecutor().runSyncLater(killTask, ticks);
+        executor.runSyncLater(killTask, ticks);
     }
 
     @Override
@@ -187,15 +191,15 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
-                                                          IRestartableHolder restartableHolder)
+                                                          IRestartableHolder restartableHolder, IPLogger logger,
+                                                          IGlowingBlockSpawner glowingBlockSpawner, IPExecutor executor)
         {
-            final Optional<IGlowingBlockSpawner> spawnerOpt = BigDoors.get().getPlatform().getGlowingBlockSpawner();
-            if (spawnerOpt.isEmpty() || !(spawnerOpt.get() instanceof GlowingBlockSpawner))
+            if (!(glowingBlockSpawner instanceof GlowingBlockSpawner))
                 return Optional.empty();
 
             return Optional.of(new GlowingBlock_V1_15_R1(player, world,
-                                                         ((GlowingBlockSpawner) spawnerOpt.get()).getTeams(),
-                                                         restartableHolder));
+                                                         ((GlowingBlockSpawner) glowingBlockSpawner).getTeams(),
+                                                         restartableHolder, logger, executor));
         }
     }
 }

@@ -1,13 +1,17 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.util.pair.PairNullable;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -15,13 +19,21 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Singleton
 public final class ToolUserManager extends Restartable
 {
     private final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private final IPLogger logger;
+    private final ILocalizer localizer;
+    private final IPExecutor executor;
 
-    public ToolUserManager(IRestartableHolder holder)
+    @Inject
+    public ToolUserManager(IRestartableHolder holder, IPLogger logger, ILocalizer localizer, IPExecutor executor)
     {
         super(holder);
+        this.logger = logger;
+        this.localizer = localizer;
+        this.executor = executor;
     }
 
     public void registerToolUser(ToolUser toolUser)
@@ -31,10 +43,10 @@ public final class ToolUserManager extends Restartable
 
         if (result != null)
         {
-            BigDoors.get().getPLogger().info("Aborting previous ToolUser for user: " +
-                                                 toolUser.getPlayer().getName() + " (" +
-                                                 toolUser.getPlayer().getUUID() + ") " +
-                                                 "because a new ToolUser was initiated.");
+            logger.info("Aborting previous ToolUser for user: " +
+                            toolUser.getPlayer().getName() + " (" +
+                            toolUser.getPlayer().getUUID() + ") " +
+                            "because a new ToolUser was initiated.");
             abortPair(toolUser.getPlayer().getUUID(), result);
         }
     }
@@ -74,8 +86,8 @@ public final class ToolUserManager extends Restartable
 
         if (!toolUsers.isEmpty())
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
-            toolUsers.forEach((uuid, pair) -> BigDoors.get().getPLogger().severe(uuid.toString()));
+            logger.logThrowable(new IllegalStateException("Failed to properly remove ToolUsers!"));
+            toolUsers.forEach((uuid, pair) -> logger.severe(uuid.toString()));
             toolUsers.clear();
         }
     }
@@ -112,14 +124,14 @@ public final class ToolUserManager extends Restartable
         final @Nullable PairNullable<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException("Trying to start a tool user even though it wasn't registered, somehow!"));
             return;
         }
 
         if (pair.second != null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException(
                     "Trying to create a timer for a tool user even though it already has one! Aborting..."));
             abortToolUser(toolUser.getPlayer().getUUID());
@@ -132,14 +144,13 @@ public final class ToolUserManager extends Restartable
             public void run()
             {
                 if (toolUser.isActive())
-                    toolUser.getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                             .getMessage("creator.base.error.timed_out"));
+                    toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.timed_out"));
                 toolUser.shutdown();
             }
         };
 
         pair.second = timerTask;
-        BigDoors.get().getPlatform().getPExecutor().runSyncLater(timerTask, time);
+        executor.runSyncLater(timerTask, time);
     }
 
     /**
@@ -179,8 +190,7 @@ public final class ToolUserManager extends Restartable
         if (pair.first != null)
         {
             if (pair.first.isActive())
-                pair.first.getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                           .getMessage("creator.base.error.creation_cancelled"));
+                pair.first.getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
             pair.first.shutdown();
         }
 

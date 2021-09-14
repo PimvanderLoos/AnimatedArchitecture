@@ -1,13 +1,16 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
+import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -19,8 +22,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,31 +38,44 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
 {
     private final List<IProtectionCompat> protectionCompats;
-    private final BigDoorsSpigot plugin;
+    private final JavaPlugin plugin;
+    private final IPLogger logger;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
+    private final VaultManager vaultManager;
+    private final ConfigLoaderSpigot config;
+    private final IPLocationFactory locationFactory;
 
     /**
      * Constructor of {@link ProtectionCompatManagerSpigot}.
      *
      * @param plugin
      *     The instance of {@link BigDoorsSpigot}.
+     * @param locationFactory
      */
-    public ProtectionCompatManagerSpigot(BigDoorsSpigot plugin)
+    @Inject
+    public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, IRestartableHolder holder,
+                                         VaultManager vaultManager, ConfigLoaderSpigot config,
+                                         IPLocationFactory locationFactory)
     {
-        super(plugin);
+        super(holder);
         this.plugin = plugin;
+        this.logger = logger;
+        this.vaultManager = vaultManager;
+        this.config = config;
+        this.locationFactory = locationFactory;
+
         @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
         {
-            fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
+            fakePlayerCreatorTmp = new FakePlayerCreator(plugin, logger);
         }
         catch (NoSuchMethodException | ClassNotFoundException | NoSuchFieldException e)
         {
-            BigDoors.get().getPLogger()
-                    .logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
+            logger.logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
         }
         fakePlayerCreator = fakePlayerCreatorTmp;
         protectionCompats = new ArrayList<>();
@@ -99,7 +118,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         // offline players don't have permissions, so use Vault if that's the case.
         if (!player.hasMetadata(FakePlayerCreator.FAKE_PLAYER_METADATA))
             return player.hasPermission(Constants.COMPAT_BYPASS_PERMISSION);
-        return plugin.getVaultManager().hasPermission(player, Constants.COMPAT_BYPASS_PERMISSION);
+        return vaultManager.hasPermission(player, Constants.COMPAT_BYPASS_PERMISSION);
     }
 
     /**
@@ -148,7 +167,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logThrowable(e, "Failed to use \"" + compat.getName()
+                logger.logThrowable(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -159,8 +178,6 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         if (protectionCompats.isEmpty())
             return Optional.empty();
-
-        final IPLocationFactory locationFactory = BigDoors.get().getPlatform().getPLocationFactory();
 
         final Location loc1 = SpigotAdapter.getBukkitLocation(locationFactory.create(world, pos1));
         if (loc1.getWorld() == null)
@@ -186,7 +203,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                plugin.getPLogger().logThrowable(e, "Failed to use \"" + compat.getName()
+                logger.logThrowable(e, "Failed to use \"" + compat.getName()
                     + "\"! Please send this error to pim16aap2:");
             }
         return Optional.empty();
@@ -218,10 +235,10 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getPLogger().info("Successfully hooked into \"" + hook.getName() + "\"!");
+            logger.info("Successfully hooked into \"" + hook.getName() + "\"!");
         }
         else
-            plugin.getPLogger().info("Failed to hook into \"" + hook.getName() + "\"!");
+            logger.info("Failed to hook into \"" + hook.getName() + "\"!");
     }
 
     /**
@@ -249,7 +266,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (compat == null)
             return;
 
-        if (!BigDoorsSpigot.get().getConfigLoader().isHookEnabled(compat))
+        if (!config.isHookEnabled(compat))
             return;
 
         try
@@ -258,8 +275,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                                                        .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
-                BigDoors.get().getPLogger()
-                        .logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
+                logger.logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
                 return;
             }
 
@@ -268,9 +284,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                BigDoors.get().getPLogger().severe("Could not find compatibility class for: \"" +
-                                                       ProtectionCompat.getName(compat) + "\". " +
-                                                       "This most likely means that this version is not supported!");
+                logger.severe("Could not find compatibility class for: \"" +
+                                  ProtectionCompat.getName(compat) + "\". " +
+                                  "This most likely means that this version is not supported!");
                 return;
             }
 
@@ -278,16 +294,17 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getConstructor().newInstance());
+            addProtectionCompat(compatClass.getDeclaredConstructor(JavaPlugin.class, IPLogger.class)
+                                           .newInstance(plugin, logger));
         }
         catch (NullPointerException e)
         {
-            plugin.getPLogger().warn("Could not find \"" + compatName + "\"! Hook not enabled!");
+            logger.warn("Could not find \"" + compatName + "\"! Hook not enabled!");
         }
         catch (NoClassDefFoundError | Exception e)
         {
-            plugin.getPLogger()
-                  .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+            logger
+                .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
         }
     }
 }

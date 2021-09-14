@@ -1,9 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -17,23 +21,16 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Delete extends DoorTargetCommand
 {
-    protected Delete(ICommandSender commandSender, DoorRetriever doorRetriever)
-    {
-        super(commandSender, doorRetriever, DoorAttribute.DELETE);
-    }
+    private final DatabaseManager databaseManager;
 
-    /**
-     * Runs the {@link Delete} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for deleting the door.
-     * @param doorRetriever
-     *     A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for deletion.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    @AssistedInject //
+    Delete(@Assisted ICommandSender commandSender, IPLogger logger,
+           nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
+           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager,
+           CompletableFutureHandler handler)
     {
-        return new Delete(commandSender, doorRetriever).run();
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE, handler);
+        this.databaseManager = databaseManager;
     }
 
     @Override
@@ -51,8 +48,22 @@ public class Delete extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        return BigDoors.get().getDatabaseManager()
-                       .deleteDoor(door, getCommandSender().getPlayer().orElse(null))
-                       .thenApply(this::handleDatabaseActionResult);
+        return databaseManager.deleteDoor(door, getCommandSender().getPlayer().orElse(null))
+                              .thenApply(this::handleDatabaseActionResult);
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Delete} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for deleting the door.
+         * @param doorRetriever
+         *     A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for deletion.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Delete newDelete(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
     }
 }

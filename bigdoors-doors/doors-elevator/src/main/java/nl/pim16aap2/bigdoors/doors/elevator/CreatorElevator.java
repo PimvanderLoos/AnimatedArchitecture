@@ -4,6 +4,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.portcullis.CreatorPortcullis;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.step.Step;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorInteger;
@@ -17,23 +18,23 @@ public class CreatorElevator extends CreatorPortcullis
 {
     private static final DoorType DOOR_TYPE = DoorTypeElevator.get();
 
-    public CreatorElevator(IPPlayer player, @Nullable String name)
+    public CreatorElevator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorElevator(IPPlayer player)
+    public CreatorElevator(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory("SET_BLOCKS_TO_MOVE")
+        final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
             .messageKey("creator.elevator.set_blocks_to_move")
-            .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
+            .stepExecutor(new StepExecutorInteger(logger, this::setBlocksToMove))
             .waitForUserInput(true).construct();
 
         return Arrays.asList(factorySetName.construct(),

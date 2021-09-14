@@ -40,14 +40,8 @@ public final class DoorTypeGarageDoor extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorGarageDoor(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorGarageDoor(player, name);
+        return new CreatorGarageDoor(context, player, name);
     }
 }

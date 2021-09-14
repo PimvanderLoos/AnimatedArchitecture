@@ -26,6 +26,7 @@
         <dependency.version.checker-framework>3.17.0</dependency.version.checker-framework>
         <dependency.version.checkstyle>8.45.1</dependency.version.checkstyle>
         <dependency.version.pmd>3.15.0-SNAPSHOT</dependency.version.pmd>
+        <dependency.version.dagger>2.38.1</dependency.version.dagger>
         <dependency.version.mockito>3.11.2</dependency.version.mockito>
         <dependency.version.junit>5.8.0-M1</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
@@ -50,6 +51,7 @@
         <module>bigdoors-spigot</module>
         <module>bigdoors-doors</module>
         <module>bigdoors-integration-test</module>
+        <module>bigdoors-test-util</module>
     </modules>
 
     <repositories>
@@ -76,6 +78,10 @@
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>google</id>
+            <url>https://maven.google.com/</url>
         </repository>
     </repositories>
 
@@ -152,6 +158,13 @@
             <version>${dependency.version.checkstyle}</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>${dependency.version.dagger}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -223,6 +236,9 @@
                         </dependency>
                     </dependencies>
                     <configuration>
+                        <sourceDirectories>
+                            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+                        </sourceDirectories>
                         <configLocation>${user.dir}/checkstyle/checkstyle.xml</configLocation>
                         <encoding>UTF-8</encoding>
                         <consoleOutput>true</consoleOutput>
@@ -316,6 +332,11 @@
                         <showPmdLog>true</showPmdLog>
                         <detail>true</detail>
                         <printFailingErrors>true</printFailingErrors>
+                        <excludes>
+                            <!-- Exclude files created by Dagger -->
+                            <exclude>**\/Dagger*.java</exclude>
+                            <exclude>**\/*_Factory.java</exclude>
+                        </excludes>
                     </configuration>
                     <executions>
                         <execution>
@@ -353,6 +374,11 @@
                                         <artifactId>lombok</artifactId>
                                         <version>${dependency.version.lombok}</version>
                                     </path>
+                                    <path>
+                                        <groupId>com.google.dagger</groupId>
+                                        <artifactId>dagger-compiler</artifactId>
+                                        <version>${dependency.version.dagger}</version>
+                                    </path>
                                 </annotationProcessorPaths>
                             </configuration>
                         </plugin>
@@ -379,7 +405,7 @@
                                     <arg>--enable-preview</arg>
                                     <arg>-XDcompilePolicy=simple</arg>
                                     <!-- SameNameButDifferent is disabled because it doesn't work with Lombok's UtilityClass: https://github.com/google/error-prone/issues/2290 -->
-                                    <arg>-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2 -XepExcludedPaths:.*/test/.*</arg>
+                                    <arg>-Xplugin:ErrorProne -XepExcludedPaths:.*/(target|test)/.* -XepDisableWarningsInGeneratedCode -Xep:SameNameButDifferent:OFF -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=nl.pim16aap2</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
                                     <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
@@ -406,6 +432,11 @@
                                         <groupId>com.github.PimvanderLoos</groupId>
                                         <artifactId>NullAway</artifactId>
                                         <version>${dependency.version.nullaway}</version>
+                                    </path>
+                                    <path>
+                                        <groupId>com.google.dagger</groupId>
+                                        <artifactId>dagger-compiler</artifactId>
+                                        <version>${dependency.version.dagger}</version>
                                     </path>
                                 </annotationProcessorPaths>
                             </configuration>

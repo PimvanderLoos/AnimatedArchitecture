@@ -1,12 +1,17 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.Locale;
@@ -41,6 +46,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private final CommandDefinition commandDefinition;
 
+    private final IPLogger logger;
+
+    private final ILocalizer localizer;
+
+    private final DelayedCommandInputManager delayedCommandInputManager;
+
     /**
      * The supplier used to retrieve the message that will be sent to the command sender when this request is
      * initialized (after calling {@link BaseCommand#run()}).
@@ -54,6 +65,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The class of the input object that is expected.
      */
     private final Class<T> inputClass;
+    private final CompletableFutureHandler handler;
 
     /**
      * The output of the command. See {@link BaseCommand#run()}.
@@ -81,15 +93,23 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * @param inputClass
      *     The class of the input object that is expected.
      */
-    DelayedCommandInputRequest(long timeout, ICommandSender commandSender, CommandDefinition commandDefinition,
-                               Function<T, CompletableFuture<Boolean>> executor, Supplier<String> initMessageSupplier,
-                               Class<T> inputClass)
+    @AssistedInject //
+    DelayedCommandInputRequest(@Assisted long timeout, @Assisted ICommandSender commandSender,
+                               @Assisted CommandDefinition commandDefinition,
+                               @Assisted Function<T, CompletableFuture<Boolean>> executor,
+                               @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
+                               IPLogger logger, ILocalizer localizer,
+                               DelayedCommandInputManager delayedCommandInputManager, CompletableFutureHandler handler)
     {
-        super(timeout);
+        super(logger, timeout);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
+        this.logger = logger;
+        this.localizer = localizer;
+        this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
+        this.handler = handler;
         log();
         commandOutput = constructOutput(executor);
         init();
@@ -97,7 +117,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 
     private void init()
     {
-        BigDoors.get().getDelayedCommandInputManager().register(commandSender, this);
+        delayedCommandInputManager.register(commandSender, this);
         final var initMessage = initMessageSupplier.get();
         //noinspection ConstantConditions
         if (initMessage != null && !initMessage.isBlank())
@@ -108,7 +128,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -125,9 +145,9 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         if (!inputClass.isInstance(input))
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to supply object of type " + input.getClass().getName()
-                                                       + " for request: " + this);
+            logger.logMessage(Level.FINE,
+                              "Trying to supply object of type " + input.getClass().getName()
+                                  + " for request: " + this);
             return CompletableFuture.completedFuture(Boolean.FALSE);
         }
 
@@ -139,16 +159,14 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     @Override
     protected void cleanup()
     {
-        BigDoors.get().getDelayedCommandInputManager().deregister(commandSender, this);
+        delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
-            commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                              .getMessage("commands.base.error.timed_out",
-                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.timed_out",
+                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
 
         if (getStatus() == Status.CANCELLED)
-            commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                              .getMessage("commands.base.error.cancelled",
-                                                          commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.cancelled",
+                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
     }
 
     /**
@@ -156,7 +174,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        BigDoors.get().getPLogger()
-                .dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
+        logger.dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
+    }
+
+    @AssistedFactory
+    public interface IFactory<T>
+    {
+        DelayedCommandInputRequest<T> create(long timeout, ICommandSender commandSender,
+                                             CommandDefinition commandDefinition,
+                                             Function<T, CompletableFuture<Boolean>> executor,
+                                             Supplier<String> initMessageSupplier, Class<T> inputClass);
     }
 }

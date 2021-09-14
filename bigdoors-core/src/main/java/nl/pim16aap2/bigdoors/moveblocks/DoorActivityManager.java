@@ -1,6 +1,10 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import dagger.Lazy;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -8,6 +12,8 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.util.Constants;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,19 +24,36 @@ import java.util.stream.Stream;
  *
  * @author Pim
  */
+@Singleton
 public final class DoorActivityManager extends Restartable
 {
     private final Map<Long, Optional<BlockMover>> busyDoors = new ConcurrentHashMap<>();
+
+    private final Lazy<AutoCloseScheduler> autoCloseScheduler;
+    private final IConfigLoader config;
+    private final IPExecutor executor;
+    private final IBigDoorsEventFactory eventFactory;
+    private final IBigDoorsPlatform bigDoorsPlatform;
 
     /**
      * Constructs a new {@link DoorActivityManager}.
      *
      * @param holder
      *     The {@link IRestartableHolder} that manages this object.
+     * @param autoCloseScheduler
+     *     The {@link AutoCloseScheduler} to use for scheduling auto close actions when required.
      */
-    public DoorActivityManager(IRestartableHolder holder)
+    @Inject
+    public DoorActivityManager(IRestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
+                               IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
+                               IBigDoorsPlatform bigDoorsPlatform)
     {
         super(holder);
+        this.autoCloseScheduler = autoCloseScheduler;
+        this.config = config;
+        this.executor = executor;
+        this.eventFactory = eventFactory;
+        this.bigDoorsPlatform = bigDoorsPlatform;
     }
 
     /**
@@ -82,17 +105,15 @@ public final class DoorActivityManager extends Restartable
      * scheduling that is required will be performed.
      *
      * @param blockMover
-     *     The {@link BlockMover} to postprocess.
+     *     The {@link BlockMover} to post-process.
      * @param allowReschedule
      *     Whether to allow rescheduling (e.g. autoClose).
      */
     void processFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
     {
-        final int delay = Math.max(Constants.MINIMUM_DOOR_DELAY,
-                                   BigDoors.get().getPlatform().getConfigLoader().coolDown() * 20);
+        final int delay = Math.max(Constants.MINIMUM_DOOR_DELAY, config.coolDown() * 20);
 
-        BigDoors.get().getPlatform().getPExecutor()
-                .runSyncLater(() -> handleFinishedBlockMover(blockMover, allowReschedule), delay);
+        executor.runSyncLater(() -> handleFinishedBlockMover(blockMover, allowReschedule), delay);
     }
 
     private void handleFinishedBlockMover(BlockMover blockMover, boolean allowReschedule)
@@ -102,17 +123,16 @@ public final class DoorActivityManager extends Restartable
         if (!allowReschedule)
             return;
 
-        BigDoors.get().getPlatform().callDoorEvent(
-            BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                    .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
-                                          blockMover.getPlayer(), blockMover.getTime(),
-                                          blockMover.isSkipAnimation()));
+        bigDoorsPlatform.callDoorEvent(
+            eventFactory
+                .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
+                                      blockMover.getPlayer(), blockMover.getTime(),
+                                      blockMover.isSkipAnimation()));
 
         if (blockMover.getDoor() instanceof ITimerToggleable)
-            BigDoors.get().getAutoCloseScheduler()
-                    .scheduleAutoClose(blockMover.getPlayer(),
-                                       (AbstractDoor & ITimerToggleable) blockMover.getDoor(),
-                                       blockMover.getTime(), blockMover.isSkipAnimation());
+            autoCloseScheduler.get().scheduleAutoClose(blockMover.getPlayer(),
+                                                       (AbstractDoor & ITimerToggleable) blockMover.getDoor(),
+                                                       blockMover.getTime(), blockMover.isSkipAnimation());
     }
 
     /**

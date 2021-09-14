@@ -1,11 +1,13 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,13 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Pim
  */
+@Singleton
 public final class DoorSpecificationManager extends Restartable
 {
     private final Map<IPPlayer, DelayedInputRequest<String>> requests = new ConcurrentHashMap<>();
 
-    public DoorSpecificationManager()
+    @Inject
+    public DoorSpecificationManager(IRestartableHolder holder)
     {
-        super(BigDoors.get());
+        super(holder);
     }
 
     /**

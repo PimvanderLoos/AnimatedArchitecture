@@ -14,14 +14,14 @@ public class CreatorWindMill extends Creator
 {
     private static final DoorType DOOR_TYPE = DoorTypeWindmill.get();
 
-    public CreatorWindMill(IPPlayer player, @Nullable String name)
+    public CreatorWindMill(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        super(player, name);
+        super(context, player, name);
     }
 
-    public CreatorWindMill(IPPlayer player)
+    public CreatorWindMill(Creator.Context context, IPPlayer player)
     {
-        this(player, null);
+        this(context, player, null);
     }
 
     @Override

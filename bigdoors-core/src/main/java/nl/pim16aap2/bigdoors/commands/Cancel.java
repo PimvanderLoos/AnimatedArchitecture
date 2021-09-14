@@ -1,9 +1,15 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -16,21 +22,17 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Cancel extends BaseCommand
 {
-    protected Cancel(ICommandSender commandSender)
-    {
-        super(commandSender);
-    }
+    private final ToolUserManager toolUserManager;
+    private final DoorSpecificationManager doorSpecificationManager;
 
-    /**
-     * Runs the {@link Cancel} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} for which to cancel any active processes.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    @AssistedInject //
+    Cancel(@Assisted ICommandSender commandSender, IPLogger logger,
+           nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager,
+           DoorSpecificationManager doorSpecificationManager, CompletableFutureHandler handler)
     {
-        return new Cancel(commandSender).run();
+        super(commandSender, logger, localizer, handler);
+        this.toolUserManager = toolUserManager;
+        this.doorSpecificationManager = doorSpecificationManager;
     }
 
     @Override
@@ -48,7 +50,20 @@ public class Cancel extends BaseCommand
 
     private void cancelPlayer(IPPlayer player)
     {
-        BigDoors.get().getToolUserManager().getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
-        BigDoors.get().getDoorSpecificationManager().cancelRequest(player);
+        toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
+        doorSpecificationManager.cancelRequest(player);
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Cancel} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} for which to cancel any active processes.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Cancel newCancel(ICommandSender commandSender);
     }
 }

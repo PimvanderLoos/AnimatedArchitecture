@@ -1,9 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.implementations;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,14 +13,27 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Arrays;
 
+@Singleton
 public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
 {
     private static final Material TOOL_MATERIAL = Material.STICK;
-    private static final NamespacedKey BIG_DOORS_TOOL_KEY = new NamespacedKey(BigDoorsSpigot.get(), "BIG_DOORS_TOOL");
+
+    private final IPLogger logger;
+    private final NamespacedKey bigDoorsToolKey;
+
+    @Inject
+    public BigDoorsToolUtilSpigot(IPLogger logger, JavaPlugin javaPlugin)
+    {
+        this.logger = logger;
+        bigDoorsToolKey = new NamespacedKey(javaPlugin, "BIG_DOORS_TOOL");
+    }
 
     @Override
     public void giveToPlayer(IPPlayer player, String name, String lore)
@@ -29,7 +41,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
             return;
         }
@@ -41,7 +53,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
             tool.hasItemMeta() ? tool.getItemMeta() : Bukkit.getItemFactory().getItemMeta(tool.getType());
         if (itemMeta == null)
             throw new IllegalArgumentException("Tried to create tool from invalid item: " + tool);
-        itemMeta.getPersistentDataContainer().set(BIG_DOORS_TOOL_KEY, PersistentDataType.BYTE, (byte) 1);
+        itemMeta.getPersistentDataContainer().set(bigDoorsToolKey, PersistentDataType.BYTE, (byte) 1);
         itemMeta.setDisplayName(name);
         itemMeta.setLore(Arrays.asList(lore.split("\n")));
         itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -61,8 +73,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
+            logger.logThrowable(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
             return;
         }
         spigotPlayer.getInventory().forEach(
@@ -82,7 +94,7 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         if (itemMeta == null)
             return false;
 
-        return itemMeta.getPersistentDataContainer().get(BIG_DOORS_TOOL_KEY, PersistentDataType.BYTE) != null;
+        return itemMeta.getPersistentDataContainer().get(bigDoorsToolKey, PersistentDataType.BYTE) != null;
     }
 
     @Override
@@ -91,8 +103,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID().toString()));
+            logger.logThrowable(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
             return false;
         }
 

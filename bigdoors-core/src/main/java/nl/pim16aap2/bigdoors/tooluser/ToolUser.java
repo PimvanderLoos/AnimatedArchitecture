@@ -2,16 +2,26 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -22,6 +32,16 @@ public abstract class ToolUser implements IRestartable
 {
     @Getter
     private final IPPlayer player;
+
+    protected final IPLogger logger;
+
+    protected final ILocalizer localizer;
+
+    protected final ToolUserManager toolUserManager;
+
+    protected final IProtectionCompatManager protectionCompatManager;
+
+    protected final IBigDoorsToolUtil bigDoorsToolUtil;
 
     /**
      * The {@link Procedure} that this {@link ToolUser} will go through.
@@ -45,27 +65,33 @@ public abstract class ToolUser implements IRestartable
      */
     protected boolean playerHasStick = false;
 
-    protected ToolUser(IPPlayer player)
+    protected ToolUser(Context context, IPPlayer player)
     {
         this.player = player;
+        logger = context.getLogger();
+        localizer = context.getLocalizer();
+        toolUserManager = context.getToolUserManager();
+        protectionCompatManager = context.getProtectionCompatManager();
+        bigDoorsToolUtil = context.getBigDoorsToolUtil();
+
         init();
 
         try
         {
-            procedure = new Procedure(generateSteps());
+            procedure = new Procedure(generateSteps(), logger, localizer);
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
             final var ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
                                                     getPlayer().asString(), e);
-            BigDoors.get().getPLogger().logThrowableSilently(ex);
+            logger.logThrowableSilently(ex);
             throw ex;
         }
 
         if (!active)
             return;
 
-        BigDoors.get().getToolUserManager().registerToolUser(this);
+        toolUserManager.registerToolUser(this);
     }
 
     /**
@@ -95,7 +121,7 @@ public abstract class ToolUser implements IRestartable
             return;
         removeTool();
         active = false;
-        BigDoors.get().getToolUserManager().abortToolUser(this);
+        toolUserManager.abortToolUser(this);
     }
 
     @Override
@@ -122,14 +148,11 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void giveTool(String nameKey, String loreKey, @Nullable String messageKey)
     {
-        BigDoors.get().getPlatform().getBigDoorsToolUtil()
-                .giveToPlayer(getPlayer(),
-                              BigDoors.get().getLocalizer().getMessage(nameKey),
-                              BigDoors.get().getLocalizer().getMessage(loreKey));
+        bigDoorsToolUtil.giveToPlayer(getPlayer(), localizer.getMessage(nameKey), localizer.getMessage(loreKey));
         playerHasStick = true;
 
         if (messageKey != null)
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage(messageKey));
+            getPlayer().sendMessage(localizer.getMessage(messageKey));
     }
 
     /**
@@ -137,7 +160,7 @@ public abstract class ToolUser implements IRestartable
      */
     protected final void removeTool()
     {
-        BigDoors.get().getPlatform().getBigDoorsToolUtil().removeTool(getPlayer());
+        bigDoorsToolUtil.removeTool(getPlayer());
         playerHasStick = false;
     }
 
@@ -194,8 +217,8 @@ public abstract class ToolUser implements IRestartable
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, toString());
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+            logger.logThrowable(e, toString());
+            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
             shutdown();
             return false;
         }
@@ -211,7 +234,7 @@ public abstract class ToolUser implements IRestartable
     @SuppressWarnings("PMD.PrematureDeclaration")
     public boolean handleInput(@Nullable Object obj)
     {
-        BigDoors.get().getPLogger().debug(
+        logger.debug(
             "Handling input: " + obj + " (" + (obj == null ? "null" : obj.getClass().getSimpleName()) + ") for step: " +
                 getProcedure().getCurrentStepName() + " in ToolUser: " + this);
 
@@ -243,7 +266,7 @@ public abstract class ToolUser implements IRestartable
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
-            BigDoors.get().getPLogger().warn("Missing translation for step: " + getProcedure().getCurrentStepName());
+            logger.warn("Missing translation for step: " + getProcedure().getCurrentStepName());
         else
             getPlayer().sendMessage(message);
     }
@@ -270,16 +293,13 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean playerHasAccessToLocation(IPLocation loc)
     {
-        final Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                .canBreakBlock(getPlayer(), loc);
+        final Optional<String> result = protectionCompatManager.canBreakBlock(getPlayer(), loc);
         result.ifPresent(
             compat ->
             {
-                BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                       "Blocked access to cuboid " + loc + " for player " +
-                                                           getPlayer() + ". Reason: " + compat);
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.base.error.no_permission_for_location"));
+                logger.logMessage(Level.FINE, "Blocked access to cuboid " + loc + " for player " +
+                    getPlayer() + ". Reason: " + compat);
+                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
     }
@@ -298,19 +318,48 @@ public abstract class ToolUser implements IRestartable
      */
     public boolean playerHasAccessToCuboid(Cuboid cuboid, IPWorld world)
     {
-        final Optional<String> result = BigDoors.get().getPlatform().getProtectionCompatManager()
-                                                .canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
-                                                                           cuboid.getMax(), world);
+        final Optional<String> result = protectionCompatManager.canBreakBlocksBetweenLocs(getPlayer(), cuboid.getMin(),
+                                                                                          cuboid.getMax(), world);
         result.ifPresent(
             compat ->
             {
-                BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                       "Blocked access to cuboid " + cuboid + " for player " +
-                                                           getPlayer() + " in world " + world + ". Reason: " +
-                                                           compat);
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("tool_user.base.error.no_permission_for_location"));
+                logger.logMessage(Level.FINE, "Blocked access to cuboid " + cuboid + " for player " +
+                    getPlayer() + " in world " + world + ". Reason: " + compat);
+                getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
+    }
+
+    @Getter
+    public static final class Context
+    {
+        private final DoorBaseFactory doorBaseFactory;
+        private final IPLogger logger;
+        private final ILocalizer localizer;
+        private final ToolUserManager toolUserManager;
+        private final DatabaseManager databaseManager;
+        private final LimitsManager limitsManager;
+        private final CompletableFutureHandler handler;
+        private final IEconomyManager economyManager;
+        private final IProtectionCompatManager protectionCompatManager;
+        private final IBigDoorsToolUtil bigDoorsToolUtil;
+
+        @Inject
+        public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
+                       ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
+                       CompletableFutureHandler handler, IEconomyManager economyManager,
+                       IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
+        {
+            this.doorBaseFactory = doorBaseFactory;
+            this.logger = logger;
+            this.localizer = localizer;
+            this.toolUserManager = toolUserManager;
+            this.databaseManager = databaseManager;
+            this.limitsManager = limitsManager;
+            this.handler = handler;
+            this.economyManager = economyManager;
+            this.protectionCompatManager = protectionCompatManager;
+            this.bigDoorsToolUtil = bigDoorsToolUtil;
+        }
     }
 }

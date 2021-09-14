@@ -1,67 +1,48 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of {@link Player}s logging in to send them the resource pack.
  *
  * @author Pim
  */
-public class LoginResourcePackListener extends Restartable implements Listener
+@Singleton
+public class LoginResourcePackListener extends AbstractListener
 {
-    private final BigDoorsSpigot plugin;
-    private final String url;
-    private boolean isRegistered = false;
+    private final IPLogger logger;
+    private final ConfigLoaderSpigot config;
+    private String resourcePackURL = "";
 
-    public LoginResourcePackListener(BigDoorsSpigot plugin, String url)
+    @Inject
+    public LoginResourcePackListener(IRestartableHolder holder, IPLogger logger, ConfigLoaderSpigot config,
+                                     JavaPlugin plugin)
     {
-        super(plugin);
-        this.plugin = plugin;
-        this.url = url;
-    }
-
-    @Override
-    public void restart()
-    {
-        if (plugin.getConfigLoader().enableRedstone())
-            register();
-        else
-            unregister();
+        super(holder, plugin, () -> shouldBeEnabled(config));
+        this.logger = logger;
+        this.config = config;
+        resourcePackURL = config.resourcePack();
     }
 
     /**
-     * Registers this listener if it isn't already registered.
+     * Checks if this listener should be enabled as based on the config settings.
+     *
+     * @param config
+     *     The config to use to determine the status of this listener.
+     * @return True if this listener should be enabled.
      */
-    private void register()
+    private static boolean shouldBeEnabled(ConfigLoaderSpigot config)
     {
-        if (isRegistered)
-            return;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        isRegistered = true;
-    }
-
-    /**
-     * Unregisters this listener if it isn't already unregistered.
-     */
-    private void unregister()
-    {
-        if (!isRegistered)
-            return;
-        HandlerList.unregisterAll(this);
-        isRegistered = false;
-    }
-
-    @Override
-    public void shutdown()
-    {
-        unregister();
+        return !config.resourcePack().isBlank();
     }
 
     /**
@@ -73,13 +54,22 @@ public class LoginResourcePackListener extends Restartable implements Listener
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event)
     {
+        if (resourcePackURL.isBlank())
+            return;
         try
         {
-            event.getPlayer().setResourcePack(url);
+            event.getPlayer().setResourcePack(resourcePackURL);
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
+    }
+
+    @Override
+    public void restart()
+    {
+        super.restart();
+        resourcePackURL = config.resourcePack();
     }
 }

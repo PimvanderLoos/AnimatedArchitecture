@@ -1,9 +1,11 @@
 package nl.pim16aap2.bigdoors.logging;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,6 +20,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class PLogger implements IPLogger
 {
     /**
@@ -29,6 +32,7 @@ public final class PLogger implements IPLogger
      * The queue of {@link LogMessage}s that will be written to the log.
      */
     private final BlockingQueue<LogMessage> messageQueue = new LinkedBlockingQueue<>();
+    private final IMessagingInterface messagingInterface;
 
     /**
      * Check if the log file could be initialized properly.
@@ -48,11 +52,15 @@ public final class PLogger implements IPLogger
     @Getter
     private Level lowestLevel = Level.CONFIG;
 
-    public PLogger(File logFile)
+    @Inject
+    public PLogger(@Named("logFile") File logFile, IMessagingInterface messagingInterface)
     {
-        updateLowestLevel();
         this.logFile = logFile;
+        this.messagingInterface = messagingInterface;
+
+        updateLowestLevel();
         prepareLog();
+
         if (success)
             new Thread(this::processQueue).start();
     }
@@ -206,7 +214,7 @@ public final class PLogger implements IPLogger
      */
     private void writeToConsole(Level level, String string)
     {
-        BigDoors.get().getMessagingInterface().writeToConsole(level, string);
+        messagingInterface.writeToConsole(level, string);
     }
 
     @Override

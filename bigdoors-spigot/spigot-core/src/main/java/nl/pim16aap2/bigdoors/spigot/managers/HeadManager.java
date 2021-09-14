@@ -4,7 +4,7 @@ import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,6 +26,7 @@ import java.util.function.Function;
  *
  * @author Pim
  */
+@Singleton
 public final class HeadManager extends Restartable
 {
     /**
@@ -35,6 +38,7 @@ public final class HeadManager extends Restartable
      */
     private transient TimedCache<UUID, Optional<ItemStack>> headMap;
     private final ConfigLoaderSpigot config;
+    private final CompletableFutureHandler handler;
 
     /**
      * Constructs a new {@link HeadManager}.
@@ -44,10 +48,12 @@ public final class HeadManager extends Restartable
      * @param config
      *     The BigDoors configuration.
      */
-    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config)
+    @Inject
+    public HeadManager(IRestartableHolder holder, ConfigLoaderSpigot config, CompletableFutureHandler handler)
     {
         super(holder);
         this.config = config;
+        this.handler = handler;
         init();
     }
 
@@ -75,7 +81,7 @@ public final class HeadManager extends Restartable
                                     () -> headMap.computeIfAbsent(playerUUID,
                                                                   (p) -> createItemStack(playerUUID, displayName))
                                                  .flatMap(Function.identity()))
-                                .exceptionally(Util::exceptionallyOptional);
+                                .exceptionally(handler::exceptionallyOptional);
     }
 
     private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)

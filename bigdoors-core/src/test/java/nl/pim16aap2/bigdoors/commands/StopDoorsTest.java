@@ -1,29 +1,55 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class StopDoorsTest
 {
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private IPServer commandSender;
+
+    @Mock
+    private DoorActivityManager doorActivityManager;
+
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private StopDoors.IFactory factory;
+
+    @BeforeEach
+    void init()
+    {
+        MockitoAnnotations.openMocks(this);
+
+        CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+
+        Mockito.when(factory.newStopDoors(Mockito.any(ICommandSender.class)))
+               .thenAnswer(invoc -> new StopDoors(invoc.getArgument(0, ICommandSender.class), logger,
+                                                  localizer, doorActivityManager, handler));
+    }
+
     @Test
     @SneakyThrows
     void test()
     {
-        final var platform = initPlatform();
-        final var activityManager = Mockito.mock(DoorActivityManager.class);
-        final var commandSender = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-
-        Mockito.when(platform.getDoorActivityManager()).thenReturn(activityManager);
-
-        Assertions.assertTrue(StopDoors.run(commandSender).get(1, TimeUnit.SECONDS));
-        Mockito.verify(activityManager).stopDoors();
+        Assertions.assertTrue(factory.newStopDoors(commandSender).run().get(1, TimeUnit.SECONDS));
+        Mockito.verify(doorActivityManager).stopDoors();
     }
 }

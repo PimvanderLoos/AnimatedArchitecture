@@ -6,10 +6,12 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -27,7 +29,8 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     private final WorldGuardPlugin worldGuardPlugin;
     private final boolean success;
 
-    public WorldGuard7ProtectionCompat()
+    @SuppressWarnings("unused")
+    public WorldGuard7ProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
         worldGuard = WorldGuard.getInstance();
 

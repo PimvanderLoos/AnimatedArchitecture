@@ -24,12 +24,12 @@ class CreatorElevatorTest extends CreatorTestsUtil
         String openDirectionName = "0";
 
         final Elevator actualDoor = new Elevator(constructDoorBase(), blocksToMove);
-        final CreatorElevator creator = new CreatorElevator(player);
+        final CreatorElevator creator = new CreatorElevator(context, player);
         testCreation(creator, actualDoor,
                      doorName,
-                     min.toLocation(world),
-                     max.toLocation(world),
-                     powerblock.toLocation(world),
+                     min.toLocation(locationFactory, world),
+                     max.toLocation(locationFactory, world),
+                     powerblock.toLocation(locationFactory, world),
                      openDirectionName,
                      blocksToMove);
     }

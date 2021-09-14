@@ -1,7 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,21 +20,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class Restart extends BaseCommand
 {
-    protected Restart(ICommandSender commandSender)
-    {
-        super(commandSender);
-    }
+    private final IBigDoorsPlatform bigDoorsPlatform;
 
-    /**
-     * Runs the {@link Restart} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for restarting BigDoors.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    @AssistedInject //
+    Restart(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+            IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler)
     {
-        return new Restart(commandSender).run();
+        super(commandSender, logger, localizer, handler);
+        this.bigDoorsPlatform = bigDoorsPlatform;
     }
 
     @Override
@@ -40,7 +39,20 @@ public class Restart extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        BigDoors.get().restart();
+        bigDoorsPlatform.restart();
         return CompletableFuture.completedFuture(true);
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Restart} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for restarting BigDoors.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Restart newRestart(ICommandSender commandSender);
     }
 }

@@ -2,8 +2,10 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
@@ -14,11 +16,10 @@ import org.bukkit.entity.Player;
 public class TownyOldProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat COMPAT = ProtectionCompat.TOWNY;
-    private final boolean success;
 
-    public TownyOldProtectionCompat()
+    @SuppressWarnings("unused")
+    public TownyOldProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
     {
-        success = true;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     @Override
     public boolean success()
     {
-        return success;
+        return true;
     }
 
     @Override

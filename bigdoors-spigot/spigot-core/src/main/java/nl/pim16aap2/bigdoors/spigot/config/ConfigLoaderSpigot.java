@@ -1,23 +1,24 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -39,13 +40,13 @@ import java.util.Set;
  * @author Pim
  */
 @ToString
+@Singleton
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
-    @SuppressWarnings({"PMD.FieldNamingConventions", "squid:S3008"}) // TODO: Get rid of this.
-    private static @Nullable ConfigLoaderSpigot INSTANCE;
-    private final BigDoorsSpigot plugin;
+    private final JavaPlugin plugin;
     @ToString.Exclude
     private final IPLogger logger;
+    private final DoorTypeManager doorTypeManager;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
@@ -85,39 +86,16 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      * @param logger
      *     The logger used for error logging.
      */
-    private ConfigLoaderSpigot(BigDoorsSpigot plugin, IPLogger logger)
+    @Inject
+    public ConfigLoaderSpigot(JavaPlugin plugin, IPLogger logger, DoorTypeManager doorTypeManager)
     {
         this.plugin = plugin;
         this.logger = logger;
+        this.doorTypeManager = doorTypeManager;
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
-    }
-
-    /**
-     * Initializes the {@link ConfigLoaderSpigot}. If it has already been initialized, it'll return that instance
-     * instead.
-     *
-     * @param plugin
-     *     The spigot core.
-     * @param logger
-     *     The logger used for error logging.
-     * @return The instance of this {@link ConfigLoaderSpigot}.
-     */
-    public static ConfigLoaderSpigot init(BigDoorsSpigot plugin, IPLogger logger)
-    {
-        return (INSTANCE == null) ? INSTANCE = new ConfigLoaderSpigot(plugin, logger) : INSTANCE;
-    }
-
-    /**
-     * Gets the instance of the {@link ConfigLoaderSpigot} if it exists.
-     *
-     * @return The instance of the {@link ConfigLoaderSpigot}.
-     */
-    public static ConfigLoaderSpigot get()
-    {
-        return Util.requireNonNull(INSTANCE, "Instance");
     }
 
     @Override
@@ -259,9 +237,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
         addNewConfigEntry(config, "powerBlockTypes", DEFAULT_POWERBLOCK_TYPE, powerBlockTypeComment,
-                          new MaterialVerifier(powerBlockTypes));
+                          new MaterialVerifier(logger, powerBlockTypes));
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
-                          new MaterialVerifier(materialBlacklist));
+                          new MaterialVerifier(logger, materialBlacklist));
 
         final int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
@@ -308,12 +286,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
 
         flagFormula = addNewConfigEntry(config, "flagFormula",
-                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", null);
+                                        "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
 
         String @Nullable [] usedMulitplierComment = multiplierComment;
         String @Nullable [] usedPricesComment = pricesComment;
-        for (final DoorType type : BigDoors.get().getDoorTypeManager().getEnabledDoorTypes())
+        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
         {
             doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMulitplierComment));
             doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));
@@ -367,7 +345,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
                                     String @Nullable ... comment)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment);
+        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment);
         configEntries.add(option);
         return option.getValue();
     }
@@ -392,7 +370,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
                                     ConfigEntry.ITestValue<T> verifyValue)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(plugin.getPLogger(), config, optionName, defaultValue, comment,
+        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment,
                                                         verifyValue);
         configEntries.add(option);
         return option.getValue();
@@ -582,12 +560,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         final String ret = doorPrices.get(type);
         if (ret != null)
             return ret;
-        BigDoors.get().getPLogger().logThrowable(new IllegalStateException("No price found for type: " + type));
+        logger.logThrowable(new IllegalStateException("No price found for type: " + type));
         return "0";
     }
 
     @Override
-    public double getMultiplier(DoorType type)
+    public double getAnimationTime(DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
     }
@@ -601,13 +579,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>
-     * See {@link #verifyMaterials(List, Set)}.
+     * See {@link #verifyMaterials(IPLogger, List, Set)}.
      *
      * @author Pim
      */
     private static class MaterialVerifier implements ConfigEntry.ITestValue<List<String>>
     {
         private final Set<Material> output;
+        private final IPLogger logger;
 
         /**
          * Constructs a new MaterialVerifier.
@@ -617,16 +596,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * @param output
          *     The set to write the parsed materials to.
          */
-        private MaterialVerifier(Set<Material> output)
+        private MaterialVerifier(IPLogger logger, Set<Material> output)
         {
             this.output = output;
+            this.logger = logger;
             output.clear();
         }
 
         @Override
         public List<String> test(List<String> input)
         {
-            return MaterialVerifier.verifyMaterials(input, output);
+            return MaterialVerifier.verifyMaterials(logger, input, output);
         }
 
         /**
@@ -641,7 +621,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          *     The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
-        private static List<String> verifyMaterials(List<String> input, Set<Material> output)
+        private static List<String> verifyMaterials(IPLogger logger, List<String> input, Set<Material> output)
         {
             output.clear();
             final Iterator<String> it = input.iterator();
@@ -653,8 +633,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     final Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
-                        BigDoors.get().getPLogger()
-                                .warn("Failed to add material: \"" + str + "\". It was already on the list!");
+                        logger.warn("Failed to add material: \"" + str + "\". It was already on the list!");
                         it.remove();
                     }
                     else if (mat.isSolid())
@@ -663,14 +642,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     }
                     else
                     {
-                        BigDoors.get().getPLogger()
-                                .warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
+                        logger.warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
                         it.remove();
                     }
                 }
                 catch (Exception e)
                 {
-                    BigDoors.get().getPLogger().warn("Failed to parse material: \"" + str + "\"");
+                    logger.warn("Failed to parse material: \"" + str + "\"");
                     it.remove();
                 }
             }

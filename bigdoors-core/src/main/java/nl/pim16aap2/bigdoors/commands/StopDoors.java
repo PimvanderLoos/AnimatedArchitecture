@@ -1,7 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,21 +20,14 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class StopDoors extends BaseCommand
 {
-    protected StopDoors(ICommandSender commandSender)
-    {
-        super(commandSender);
-    }
+    private final DoorActivityManager doorActivityManager;
 
-    /**
-     * Runs the {@link StopDoors} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for stopping all active doors.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender)
+    @AssistedInject //
+    StopDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+              DoorActivityManager doorActivityManager, CompletableFutureHandler handler)
     {
-        return new StopDoors(commandSender).run();
+        super(commandSender, logger, localizer, handler);
+        this.doorActivityManager = doorActivityManager;
     }
 
     @Override
@@ -40,7 +39,20 @@ public class StopDoors extends BaseCommand
     @Override
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
-        BigDoors.get().getDoorActivityManager().stopDoors();
+        doorActivityManager.stopDoors();
         return CompletableFuture.completedFuture(true);
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link StopDoors} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for stopping all active doors.
+         * @return See {@link BaseCommand#run()}.
+         */
+        StopDoors newStopDoors(ICommandSender commandSender);
     }
 }

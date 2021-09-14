@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -26,16 +29,17 @@ public class PowerBlockInspector extends ToolUser
     @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
     private final boolean bypassPermission;
 
-    public PowerBlockInspector(IPPlayer player, boolean bypassPermission)
+    @AssistedInject
+    public PowerBlockInspector(ToolUser.Context context, @Assisted IPPlayer player, @Assisted boolean bypassPermission)
     {
-        super(player);
+        super(context, player);
         this.bypassPermission = bypassPermission;
     }
 
     @SuppressWarnings("unused")
-    public PowerBlockInspector(IPPlayer player)
+    public PowerBlockInspector(ToolUser.Context context, IPPlayer player)
     {
-        this(player, false);
+        this(context, player, false);
     }
 
     @Override
@@ -54,10 +58,16 @@ public class PowerBlockInspector extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepBlocksToMove = new Step.Factory("INSPECT_POWER_BLOCK")
+        final Step stepBlocksToMove = new Step.Factory(localizer, "INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
-            .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
+            .stepExecutor(new StepExecutorPLocation(logger, this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
+    }
+
+    @AssistedFactory
+    public interface IFactory
+    {
+        PowerBlockInspector create(IPPlayer player, boolean bypassPermission);
     }
 }

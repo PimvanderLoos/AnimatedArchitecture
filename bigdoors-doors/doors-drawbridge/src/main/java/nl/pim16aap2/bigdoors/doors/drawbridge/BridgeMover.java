@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.doors.drawbridge;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -49,11 +48,12 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      * @param player
      *     The player who opened this door.
      */
-    public BridgeMover(double time, T door, RotateDirection rotateDirection, boolean skipAnimation, double multiplier,
-                       IPPlayer player, Cuboid newCuboid, DoorActionCause cause, DoorActionType actionType)
+    public BridgeMover(Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation,
+                       double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+                       DoorActionType actionType)
         throws Exception
     {
-        super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         northSouth = door.isNorthSouthAligned();
         rotationCenter = door.getEngine().toDouble().add(0.5, 0, 0.5);
@@ -130,7 +130,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         // so delete the current fBlock and replace it by one that's been rotated.
         // Also, this stuff needs to be done on the main thread.
         if (replace)
-            BigDoors.get().getPlatform().getPExecutor().runSync(this::respawnBlocks);
+            executor.runSync(this::respawnBlocks);
 
         for (final PBlockData block : savedBlocks)
             block.getFBlock().teleport(getGoalPos(stepSum, block));
@@ -149,7 +149,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     @Override
     protected IPLocation getNewLocation(double radius, double xAxis, double yAxis, double zAxis)
     {
-        return BigDoors.get().getPlatform().getPLocationFactory().create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
+        return locationFactory.create(world, getGoalPos(angle, xAxis, yAxis, zAxis));
     }
 
     @Override

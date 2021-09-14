@@ -5,6 +5,8 @@ import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,9 +16,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Pim
  */
+@Singleton
 public class DelayedCommandInputManager
 {
     private final Map<ICommandSender, DelayedCommandInputRequest<?>> requests = new ConcurrentHashMap<>();
+
+    @Inject
+    public DelayedCommandInputManager()
+    {
+    }
 
     /**
      * Registers an input request for a command sender.

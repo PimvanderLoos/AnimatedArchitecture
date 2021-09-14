@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import dagger.Lazy;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -12,15 +13,17 @@ import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +41,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public final class DatabaseManager extends Restartable
 {
     /**
@@ -53,18 +57,13 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
 
-    /**
-     * Constructs a new {@link DatabaseManager}.
-     *
-     * @param restartableHolder
-     *     The object managing restarts for this object.
-     * @param dbFile
-     *     The name of the database file.
-     */
-    public DatabaseManager(IRestartableHolder restartableHolder, File dbFile)
-    {
-        this(restartableHolder, new SQLiteJDBCDriverConnection(dbFile));
-    }
+    private final IPLogger logger;
+
+    private final DoorRegistry doorRegistry;
+    private final IBigDoorsPlatform bigDoorsPlatform;
+    private final Lazy<PowerBlockManager> powerBlockManager;
+    private final IBigDoorsEventFactory bigDoorsEventFactory;
+    private final CompletableFutureHandler handler;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -74,10 +73,21 @@ public final class DatabaseManager extends Restartable
      * @param storage
      *     The {@link IStorage} to use for all database calls.
      */
-    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage)
+    @Inject
+    public DatabaseManager(IRestartableHolder restartableHolder, IStorage storage, IPLogger logger,
+                           DoorRegistry doorRegistry, IBigDoorsPlatform bigDoorsPlatform,
+                           CompletableFutureHandler handler, Lazy<PowerBlockManager> powerBlockManager,
+                           IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(restartableHolder);
+        this.handler = handler;
         db = storage;
+        this.logger = logger;
+        this.doorRegistry = doorRegistry;
+        this.bigDoorsPlatform = bigDoorsPlatform;
+        this.powerBlockManager = powerBlockManager;
+        this.bigDoorsEventFactory = bigDoorsEventFactory;
+
         if (db.isSingleThreaded())
             threadPool = Executors.newSingleThreadExecutor();
         else
@@ -146,13 +156,12 @@ public final class DatabaseManager extends Restartable
 
                 final Optional<AbstractDoor> result = db.insert(newDoor);
                 result.ifPresent(
-                    (door) -> BigDoors.get().getPlatform().getPowerBlockManager()
-                                      .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(
-                                          door.getPowerBlock().x(),
-                                          door.getPowerBlock().y(),
-                                          door.getPowerBlock().z())));
+                    (door) -> powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
+                                                                        new Vector3Di(door.getPowerBlock().x(),
+                                                                                      door.getPowerBlock().y(),
+                                                                                      door.getPowerBlock().z())));
                 return new Pair<>(false, result);
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
+            }, threadPool).exceptionally(ex -> handler.exceptionally(ex, new Pair<>(false, Optional.empty())));
 
         ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
 
@@ -177,9 +186,8 @@ public final class DatabaseManager extends Restartable
                     return;
 
                 final IDoorCreatedEvent doorCreatedEvent =
-                    BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                            .createDoorCreatedEvent(result.second.get(), responsible);
-                BigDoors.get().getPlatform().callDoorEvent(doorCreatedEvent);
+                    bigDoorsEventFactory.createDoorCreatedEvent(result.second.get(), responsible);
+                bigDoorsPlatform.callDoorEvent(doorCreatedEvent);
             });
     }
 
@@ -215,17 +223,17 @@ public final class DatabaseManager extends Restartable
                 if (cancelled)
                     return ActionResult.CANCELLED;
 
-                BigDoors.get().getDoorRegistry().deregisterDoor(door.getDoorUID());
+                doorRegistry.deregisterDoor(door.getDoorUID());
                 final boolean result = db.removeDoor(door.getDoorUID());
                 if (!result)
                     return ActionResult.FAIL;
 
-                BigDoors.get().getPlatform().getPowerBlockManager()
-                        .onDoorAddOrRemove(door.getWorld().worldName(), new Vector3Di(door.getPowerBlock().x(),
-                                                                                      door.getPowerBlock().y(),
-                                                                                      door.getPowerBlock().z()));
+                powerBlockManager.get().onDoorAddOrRemove(door.getWorld().worldName(),
+                                                          new Vector3Di(door.getPowerBlock().x(),
+                                                                        door.getPowerBlock().y(),
+                                                                        door.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+            }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -238,7 +246,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -260,10 +268,10 @@ public final class DatabaseManager extends Restartable
                 .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
-                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
 
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -284,7 +292,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -309,7 +317,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -322,7 +330,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(String name)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -336,7 +344,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Boolean> updatePlayer(IPPlayer player)
     {
         return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -349,7 +357,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+                                .exceptionally(handler::exceptionallyOptional);
     }
 
     /**
@@ -366,7 +374,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<PPlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -379,7 +387,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+                                .exceptionally(handler::exceptionallyOptional);
     }
 
     /**
@@ -410,7 +418,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
-                                .exceptionally(Util::exceptionallyOptional);
+                                .exceptionally(handler::exceptionallyOptional);
     }
 
     /**
@@ -424,7 +432,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+                                .exceptionally(ex -> handler.exceptionally(ex, -1));
     }
 
     /**
@@ -440,7 +448,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID, String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+                                .exceptionally(ex -> handler.exceptionally(ex, -1));
     }
 
     /**
@@ -454,7 +462,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsByName(String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, -1));
+                                .exceptionally(ex -> handler.exceptionally(ex, -1));
     }
 
     /**
@@ -510,7 +518,7 @@ public final class DatabaseManager extends Restartable
                         .addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(), permission, playerData));
 
                     return ActionResult.SUCCESS;
-                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+                }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -526,8 +534,8 @@ public final class DatabaseManager extends Restartable
         return CompletableFuture.supplyAsync(
             () ->
             {
-                final var event = factoryMethod.apply(BigDoors.get().getPlatform().getBigDoorsEventFactory());
-                BigDoors.get().getPlatform().callDoorEvent(event);
+                final var event = factoryMethod.apply(bigDoorsEventFactory);
+                bigDoorsPlatform.callDoorEvent(event);
                 return event.isCancelled();
             });
     }
@@ -597,18 +605,14 @@ public final class DatabaseManager extends Restartable
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to remove player: " + playerUUID + " from door: " +
-                                                       door.getDoorUID() +
-                                                       ", but the player is not an owner!");
+            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
+                door.getDoorUID() + ", but the player is not an owner!");
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (doorOwner.get().permission() == 0)
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   "Trying to remove player: " + playerUUID + " from door: " +
-                                                       door.getDoorUID() +
-                                                       ", but the player is the prime owner! This is not allowed!");
+            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
+                door.getDoorUID() + ", but the player is the prime owner! This is not allowed!");
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
@@ -625,7 +629,7 @@ public final class DatabaseManager extends Restartable
 
                     ((FriendDoorAccessor) door.getDoorBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
-                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
+                }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -640,7 +644,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
     {
         return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -653,7 +657,7 @@ public final class DatabaseManager extends Restartable
     CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
         return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -669,7 +673,7 @@ public final class DatabaseManager extends Restartable
     CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
-                                .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
+                                .exceptionally(ex -> handler.exceptionally(ex, new ConcurrentHashMap<>(0)));
     }
 
     /**

@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorOpeningUtility;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -64,6 +63,7 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
         this(doorBase, blocksToMove, -1, -1);
     }
 
+    @SuppressWarnings("unused")
     private Portcullis(DoorBase doorBase)
     {
         this(doorBase, -1); // Add tmp/default values
@@ -89,13 +89,14 @@ public class Portcullis extends AbstractDoor implements IDiscreteMovement, ITime
     }
 
     @Override
-    protected BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                             Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                             DoorActionType actionType)
         throws Exception
     {
         final int directedBlocksToMove = getOpenDir().equals(RotateDirection.UP) ?
                                          getBlocksToMove() : -getBlocksToMove();
-        return new VerticalMover(this, time, skipAnimation, directedBlocksToMove,
-                                 DoorOpeningUtility.getMultiplier(this), responsible, newCuboid, cause, actionType);
+        return new VerticalMover(context, this, time, skipAnimation, directedBlocksToMove,
+                                 doorOpeningHelper.getAnimationTime(this), responsible, newCuboid, cause, actionType);
     }
 }

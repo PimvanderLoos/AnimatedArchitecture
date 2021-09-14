@@ -1,14 +1,16 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.mojang.authlib.GameProfile;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -20,13 +22,16 @@ import java.util.Optional;
  *
  * @author Pim
  */
+@Singleton
 class FakePlayerCreator
 {
     static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";
 
+    private final JavaPlugin plugin;
+    private final IPLogger logger;
+
     private final String nmsBase;
     private final String craftBase;
-    private final BigDoorsSpigot plugin;
     private final Class<?> craftOfflinePlayer;
     private final Class<?> craftWorld;
     private final Method getProfile;
@@ -38,10 +43,11 @@ class FakePlayerCreator
     private final Field uuid;
     private final boolean success;
 
-    FakePlayerCreator(BigDoorsSpigot plugin)
+    FakePlayerCreator(JavaPlugin plugin, IPLogger logger)
         throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
+        this.logger = logger;
 
         final String packageName = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         nmsBase = "net.minecraft.server." + packageName;
@@ -114,7 +120,7 @@ class FakePlayerCreator
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
 
         if (player != null)

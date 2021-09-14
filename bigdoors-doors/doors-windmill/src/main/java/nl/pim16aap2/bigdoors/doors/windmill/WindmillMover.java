@@ -24,11 +24,11 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
 
     private double step;
 
-    public WindmillMover(T door, double time, double multiplier, RotateDirection rotateDirection, IPPlayer player,
-                         DoorActionCause cause, DoorActionType actionType)
+    public WindmillMover(Context context, T door, double time, double multiplier, RotateDirection rotateDirection,
+                         IPPlayer player, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
+        super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
     }
 
     @Override

@@ -1,12 +1,14 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
+import nl.pim16aap2.bigdoors.spigot.implementations.BigDoorsToolUtilSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -20,20 +22,39 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Represents a listener that keeps track of various events.
  *
  * @author Pim
  */
-public class EventListeners implements Listener
+// TODO: Split this class up. It's got too much stuff.
+@Singleton
+public class EventListeners extends AbstractListener
 {
-    private final BigDoorsSpigot plugin;
+    private final BigDoorsSpigot base;
+    private final IPLogger logger;
+    private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
+    private final DatabaseManager databaseManager;
+    private final ToolUserManager toolUserManager;
 
-    public EventListeners(BigDoorsSpigot plugin)
+    @Inject
+    public EventListeners(JavaPlugin javaPlugin, BigDoorsSpigot base, IPLogger logger,
+                          BigDoorsToolUtilSpigot bigDoorsToolUtil, DatabaseManager databaseManager,
+                          ToolUserManager toolUserManager)
     {
-        this.plugin = plugin;
+        super(javaPlugin);
+        this.base = base;
+        this.logger = logger;
+        this.bigDoorsToolUtil = bigDoorsToolUtil;
+        this.databaseManager = databaseManager;
+        this.toolUserManager = toolUserManager;
+        register();
     }
 
     /**
@@ -51,11 +72,10 @@ public class EventListeners implements Listener
         if (event.getClickedBlock() == null)
             return;
 
-        if (!BigDoors.get().getPlatform().getBigDoorsToolUtil()
-                     .isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
+        if (!bigDoorsToolUtil.isPlayerHoldingTool(SpigotAdapter.wrapPlayer(event.getPlayer())))
             return;
 
-        BigDoors.get().getToolUserManager().getToolUser(event.getPlayer().getUniqueId()).ifPresent(
+        toolUserManager.getToolUser(event.getPlayer().getUniqueId()).ifPresent(
             toolUser ->
             {
                 event.setCancelled(true);
@@ -74,11 +94,11 @@ public class EventListeners implements Listener
     {
         try
         {
-            BigDoors.get().getDatabaseManager().updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
+            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 
@@ -93,12 +113,12 @@ public class EventListeners implements Listener
     {
         try
         {
-            plugin.onPlayerLogout(event.getPlayer());
-            BigDoors.get().getDatabaseManager().updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
+            base.onPlayerLogout(event.getPlayer());
+            databaseManager.updatePlayer(SpigotAdapter.wrapPlayer(event.getPlayer()));
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 
@@ -111,7 +131,7 @@ public class EventListeners implements Listener
      */
     private boolean isToolUser(@Nullable Player player)
     {
-        return player != null && BigDoors.get().getToolUserManager().isToolUser(player.getUniqueId());
+        return player != null && toolUserManager.isToolUser(player.getUniqueId());
     }
 
     /**
@@ -128,7 +148,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (plugin.getBigDoorsToolUtil().isPlayerHoldingTool(event.getPlayer()))
+            if (bigDoorsToolUtil.isPlayerHoldingTool(event.getPlayer()))
             {
                 if (isToolUser(event.getPlayer()))
                     event.setCancelled(true);
@@ -138,7 +158,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 
@@ -155,7 +175,7 @@ public class EventListeners implements Listener
         try
         {
             final @Nullable ItemStack currentItem = event.getCurrentItem();
-            if (currentItem != null && !plugin.getBigDoorsToolUtil().isTool(currentItem))
+            if (currentItem != null && !bigDoorsToolUtil.isTool(currentItem))
                 return;
 
             final @Nullable Inventory clickedInventory = event.getClickedInventory();
@@ -177,7 +197,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 
@@ -196,13 +216,13 @@ public class EventListeners implements Listener
             event.getNewItems().forEach(
                 (key, value) ->
                 {
-                    if (plugin.getBigDoorsToolUtil().isTool(value))
+                    if (bigDoorsToolUtil.isTool(value))
                         event.setCancelled(true);
                 });
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 
@@ -217,7 +237,7 @@ public class EventListeners implements Listener
     {
         try
         {
-            if (!plugin.getBigDoorsToolUtil().isTool(event.getItem()))
+            if (!bigDoorsToolUtil.isTool(event.getItem()))
                 return;
 
             final Inventory src = event.getSource();
@@ -233,7 +253,7 @@ public class EventListeners implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e);
+            logger.logThrowable(e);
         }
     }
 }

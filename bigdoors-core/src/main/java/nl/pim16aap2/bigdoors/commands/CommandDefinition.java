@@ -11,6 +11,7 @@ import java.util.Optional;
  *
  * @author Pim
  */
+// TODO: NOT AN ENUM!
 @ToString
 public enum CommandDefinition
 {

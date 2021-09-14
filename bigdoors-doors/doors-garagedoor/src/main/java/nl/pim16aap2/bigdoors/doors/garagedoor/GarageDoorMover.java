@@ -34,12 +34,12 @@ public class GarageDoorMover extends BlockMover
 
     private double step;
 
-    public GarageDoorMover(GarageDoor door, double time, double multiplier, boolean skipAnimation,
+    public GarageDoorMover(Context context, GarageDoor door, double time, double multiplier, boolean skipAnimation,
                            RotateDirection rotateDirection, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
                            DoorActionType actionType)
         throws Exception
     {
-        super(door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
+        super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         resultHeight = door.getMaximum().y() + 1.0D;
 

@@ -1,8 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
-import lombok.AllArgsConstructor;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
@@ -14,36 +15,53 @@ import nl.pim16aap2.bigdoors.spigot.events.DoorPrepareRemoveOwnerEvent;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleEnd;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISpigotPlatform;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
-import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsSpigot plugin;
+    private final DoorTypeManager doorTypeManager;
+    private final IPLogger logger;
+    private final IConfigLoader config;
+    private final ISpigotPlatform platform;
+
+    @Inject
+    public DebugReporterSpigot(BigDoorsSpigot plugin, DoorTypeManager doorTypeManager, IPLogger logger,
+                               IConfigLoader config, ISpigotPlatform platform)
+    {
+        super(plugin);
+        this.plugin = plugin;
+        this.doorTypeManager = doorTypeManager;
+        this.logger = logger;
+        this.config = config;
+        this.platform = platform;
+    }
 
     @Override
     public String getDump()
     {
-        final @Nullable var platform = plugin.getPlatformManagerSpigot().getSpigotPlatform();
-
         return new StringBuilder(super.getDump())
             .append("BigDoors version: ")
             .append(plugin.getDescription().getVersion()).append('\n')
             .append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n')
 
             .append("Registered door types: ")
-            .append(Util.toString(BigDoors.get().getDoorTypeManager().getRegisteredDoorTypes()))
+            .append(Util.toString(doorTypeManager.getRegisteredDoorTypes()))
             .append('\n')
 
             .append("Enabled door types:    ")
-            .append(Util.toString(BigDoors.get().getDoorTypeManager().getEnabledDoorTypes()))
+            .append(Util.toString(doorTypeManager.getEnabledDoorTypes()))
             .append('\n')
 
-            .append("SpigotPlatform: ").append(platform == null ? "NULL" : platform.getClass().getName())
+            .append("SpigotPlatform: ").append(platform.getClass().getName())
             .append('\n')
 
 //            // TODO: Implement this:
@@ -60,7 +78,7 @@ public class DebugReporterSpigot extends DebugReporter
                                                              DoorEventTogglePrepare.class,
                                                              DoorEventToggleStart.class))
 
-            .append("Config: ").append(BigDoorsSpigot.get().getConfigLoader()).append('\n')
+            .append("Config: ").append(config).append('\n')
             .toString();
     }
 
@@ -86,8 +104,7 @@ public class DebugReporterSpigot extends DebugReporter
             }
             catch (Exception e)
             {
-                BigDoors.get().getPLogger()
-                        .logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
+                logger.logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
                 sb.append("ERROR: ").append(clz.getName()).append('\n');
             }
         }

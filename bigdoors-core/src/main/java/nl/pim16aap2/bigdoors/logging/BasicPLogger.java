@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.logging;
 
 import org.jetbrains.annotations.Nullable;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -15,6 +17,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Singleton
 public class BasicPLogger implements IPLogger
 {
     private Level logLevel = Level.CONFIG;
@@ -26,6 +29,7 @@ public class BasicPLogger implements IPLogger
         this.stringConsumer = stringConsumer;
     }
 
+    @Inject
     public BasicPLogger()
     {
         this(System.out::println);

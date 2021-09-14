@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Setter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -29,6 +29,7 @@ final class Localizer implements ILocalizer
     private Path directory;
     private String baseName;
     private String bundleName;
+    private final IPLogger logger;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
@@ -49,21 +50,22 @@ final class Localizer implements ILocalizer
      *     The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to
      *     {@link Locale#ROOT}.
      */
-    Localizer(Path directory, String baseName, Locale defaultLocale)
+    Localizer(Path directory, String baseName, Locale defaultLocale, IPLogger logger)
     {
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
         bundleName = baseName + ".bundle";
+        this.logger = logger;
         init();
     }
 
     /**
-     * See {@link #Localizer(Path, String, Locale)}.
+     * See {@link #Localizer(Path, String, Locale, IPLogger)}.
      */
-    Localizer(Path directory, String baseName)
+    Localizer(Path directory, String baseName, IPLogger logger)
     {
-        this(directory, baseName, Locale.ROOT);
+        this(directory, baseName, Locale.ROOT, logger);
     }
 
     /**
@@ -89,8 +91,7 @@ final class Localizer implements ILocalizer
     {
         if (classLoader == null)
         {
-            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
-                                                 "\"! Reason: ClassLoader is null!");
+            logger.warn("Failed to find localization key \"" + key + "\"! Reason: ClassLoader is null!");
             return KEY_NOT_FOUND_MESSAGE + key;
         }
 
@@ -101,8 +102,7 @@ final class Localizer implements ILocalizer
         }
         catch (MissingResourceException e)
         {
-            BigDoors.get().getPLogger().warn("Failed to find localization key \"" + key +
-                                                 "\"! Reason: Key does not exist!");
+            logger.warn("Failed to find localization key \"" + key + "\"! Reason: Key does not exist!");
             return KEY_NOT_FOUND_MESSAGE + key;
         }
     }
@@ -134,15 +134,15 @@ final class Localizer implements ILocalizer
             throw new IllegalStateException("ClassLoader is already initialized!");
 
         final Path bundlePath = directory.resolve(bundleName);
-        LocalizationUtil.ensureZipFileExists(bundlePath);
+        LocalizationUtil.ensureZipFileExists(bundlePath, logger);
         try
         {
             classLoader = getNewURLClassLoader(bundlePath, baseName);
-            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName);
+            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName, logger);
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to initialize localizer!");
+            logger.logThrowable(e, "Failed to initialize localizer!");
             classLoader = null;
             localeList = Collections.emptyList();
         }
@@ -181,8 +181,7 @@ final class Localizer implements ILocalizer
             }
             catch (IOException e)
             {
-                BigDoors.get().getPLogger()
-                        .logThrowable(e, "Failed to close class loader! Localizations cannot be reloaded!");
+                logger.logThrowable(e, "Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
     }

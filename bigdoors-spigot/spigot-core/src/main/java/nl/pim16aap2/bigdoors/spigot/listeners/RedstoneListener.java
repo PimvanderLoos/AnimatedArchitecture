@@ -1,22 +1,24 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.restartable.Restartable;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.spigot.BigDoorsSpigot;
-import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
+import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -27,71 +29,67 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Pim
  */
-public class RedstoneListener extends Restartable implements Listener
+@Singleton
+public class RedstoneListener extends AbstractListener
 {
-    private final BigDoorsSpigot plugin;
+    private final ConfigLoaderSpigot config;
+    private final IPLogger logger;
+    private final CompletableFutureHandler handler;
+    private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final Set<Material> powerBlockTypes = new HashSet<>();
-    private boolean isRegistered = false;
+    private final PowerBlockManager powerBlockManager;
 
-    public RedstoneListener(BigDoorsSpigot plugin)
+    @Inject
+    public RedstoneListener(IRestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
+                            CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory,
+                            PowerBlockManager powerBlockManager)
     {
-        super(plugin);
-        this.plugin = plugin;
-        restart();
+        super(holder, plugin, () -> shouldBeEnabled(config));
+        this.config = config;
+        this.logger = logger;
+        this.handler = handler;
+        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.powerBlockManager = powerBlockManager;
+    }
+
+    /**
+     * Checks if this listener should be enabled as based on the config settings.
+     *
+     * @param config
+     *     The config to use to determine the status of this listener.
+     * @return True if this listener should be enabled.
+     */
+    private static boolean shouldBeEnabled(ConfigLoaderSpigot config)
+    {
+        return config.enableRedstone();
     }
 
     @Override
     public void restart()
     {
-        powerBlockTypes.clear();
-
-        if (plugin.getConfigLoader().enableRedstone())
-        {
-            register();
-            powerBlockTypes.addAll(plugin.getConfigLoader().powerBlockTypes());
-            return;
-        }
-        unregister();
-    }
-
-    /**
-     * Registers this listener if it isn't already registered.
-     */
-    private void register()
-    {
-        if (isRegistered)
-            return;
-        Bukkit.getPluginManager().registerEvents(this, plugin);
-        isRegistered = true;
-    }
-
-    /**
-     * Unregisters this listener if it isn't already unregistered.
-     */
-    private void unregister()
-    {
-        if (!isRegistered)
-            return;
-        HandlerList.unregisterAll(this);
-        isRegistered = false;
+        super.restart();
+        if (super.isRegistered)
+            powerBlockTypes.addAll(config.powerBlockTypes());
     }
 
     @Override
     public void shutdown()
     {
+        super.shutdown();
         powerBlockTypes.clear();
-        unregister();
     }
 
     private void checkDoors(Location loc)
     {
         final String worldName = Objects.requireNonNull(loc.getWorld(), "World cannot be null!").getName();
-        BigDoors.get().getPlatform().getPowerBlockManager().doorsFromPowerBlockLoc(
+        powerBlockManager.doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> BigDoors.get().getDoorOpener()
-                                .animateDoorAsync(door, DoorActionCause.REDSTONE, null, 0, false,
-                                                  DoorActionType.TOGGLE)));
+                door -> doorToggleRequestFactory.builder()
+                                                .door(door)
+                                                .doorActionCause(DoorActionCause.REDSTONE)
+                                                .doorActionType(DoorActionType.TOGGLE)
+                                                .build().execute()));
     }
 
     /**
@@ -132,7 +130,7 @@ public class RedstoneListener extends Restartable implements Listener
         }
         catch (Exception e)
         {
-            plugin.getPLogger().logThrowable(e, "Exception thrown while handling redstone event!");
+            logger.logThrowable(e, "Exception thrown while handling redstone event!");
         }
     }
 
@@ -150,9 +148,9 @@ public class RedstoneListener extends Restartable implements Listener
         if (event.getOldCurrent() != 0 && event.getNewCurrent() != 0)
             return;
 
-        if (!BigDoors.get().getPlatform().getPowerBlockManager().isBigDoorsWorld(event.getBlock().getWorld().getName()))
+        if (!powerBlockManager.isBigDoorsWorld(event.getBlock().getWorld().getName()))
             return;
 
-        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(Util::exceptionally);
+        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(handler::exceptionally);
     }
 }

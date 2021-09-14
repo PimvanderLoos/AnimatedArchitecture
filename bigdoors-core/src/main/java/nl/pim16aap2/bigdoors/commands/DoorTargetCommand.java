@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -22,13 +22,16 @@ import java.util.logging.Level;
 public abstract class DoorTargetCommand extends BaseCommand
 {
     @Getter
-    protected final DoorRetriever doorRetriever;
+    protected final DoorRetriever.AbstractRetriever doorRetriever;
 
     private final DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(ICommandSender commandSender, DoorRetriever doorRetriever, DoorAttribute doorAttribute)
+    protected DoorTargetCommand(ICommandSender commandSender, IPLogger logger,
+                                nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
+                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute,
+                                CompletableFutureHandler handler)
     {
-        super(commandSender);
+        super(commandSender, logger, localizer, handler);
         this.doorRetriever = doorRetriever;
         this.doorAttribute = doorAttribute;
     }
@@ -38,7 +41,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         return getDoor(getDoorRetriever())
             .thenApplyAsync(door -> processDoorResult(door, permissions))
-            .exceptionally(t -> Util.exceptionally(t, false));
+            .exceptionally(t -> handler.exceptionally(t, false));
     }
 
     /**
@@ -54,21 +57,21 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         if (door.isEmpty())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () ->
+            logger.logMessage(Level.FINE, () ->
                 "Failed to find door " + getDoorRetriever() + " for command: " + this);
 
             getCommandSender().sendMessage(
-                BigDoors.get().getLocalizer().getMessage("commands.door_target_command.base.error.door_not_found"));
+                localizer.getMessage("commands.door_target_command.base.error.door_not_found"));
             return false;
         }
 
         if (!isAllowed(door.get(), permissions.second))
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   () -> getCommandSender() + " does not have access to door " + door +
-                                                       " for command " + this);
+            logger.logMessage(Level.FINE,
+                              () -> getCommandSender() + " does not have access to door " + door +
+                                  " for command " + this);
 
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer().getMessage(
+            getCommandSender().sendMessage(localizer.getMessage(
                 "commands.door_target_command.base.error.no_permission_for_action"));
             return true;
         }
@@ -89,7 +92,7 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param door
      *     The {@link AbstractDoor} that is the target for this command.
      * @param bypassPermission
-     *     Whether or not the {@link ICommandSender} has bypass access.
+     *     Whether the {@link ICommandSender} has bypass access.
      * @return True if execution of this command is allowed.
      */
     protected boolean isAllowed(AbstractDoor door, boolean bypassPermission)

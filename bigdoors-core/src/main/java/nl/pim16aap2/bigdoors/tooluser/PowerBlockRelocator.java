@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -25,9 +27,10 @@ public class PowerBlockRelocator extends ToolUser
     private final AbstractDoor door;
     private @Nullable IPLocation newLoc;
 
-    public PowerBlockRelocator(IPPlayer player, AbstractDoor door)
+    @AssistedInject
+    public PowerBlockRelocator(ToolUser.Context context, @Assisted IPPlayer player, @Assisted AbstractDoor door)
     {
-        super(player);
+        super(context, player);
         this.door = door;
     }
 
@@ -42,8 +45,7 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (!loc.getWorld().equals(door.getWorld()))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.world_mismatch"));
             return false;
         }
 
@@ -64,19 +66,17 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new NullPointerException("newLoc is null, which should not be possible at this point!"));
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+            getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.error.location_unchanged"));
         else
         {
             door.setPowerBlockPosition(newLoc.getPosition());
             door.syncData();
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("tool_user.powerblock_relocator.success"));
+            getPlayer().sendMessage(localizer.getMessage("tool_user.powerblock_relocator.success"));
         }
         return true;
     }
@@ -85,16 +85,22 @@ public class PowerBlockRelocator extends ToolUser
     protected List<IStep> generateSteps()
         throws InstantiationException
     {
-        final Step stepPowerblockRelocatorInit = new Step.Factory("RELOCATE_POWER_BLOCK_INIT")
+        final Step stepPowerblockRelocatorInit = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
-            .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
+            .stepExecutor(new StepExecutorPLocation(logger, this::moveToLoc))
             .waitForUserInput(true).construct();
 
-        final Step stepPowerblockRelocatorCompleted = new Step.Factory("RELOCATE_POWER_BLOCK_COMPLETED")
+        final Step stepPowerblockRelocatorCompleted = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_COMPLETED")
             .messageKey("tool_user.powerblock_relocator.success")
-            .stepExecutor(new StepExecutorVoid(this::completeProcess))
+            .stepExecutor(new StepExecutorVoid(logger, this::completeProcess))
             .waitForUserInput(false).construct();
 
         return Arrays.asList(stepPowerblockRelocatorInit, stepPowerblockRelocatorCompleted);
+    }
+
+    @AssistedFactory
+    public interface IFactory
+    {
+        PowerBlockRelocator create(IPPlayer player, AbstractDoor door);
     }
 }

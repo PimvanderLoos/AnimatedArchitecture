@@ -39,14 +39,8 @@ public final class DoorTypeElevator extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorElevator(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorElevator(player, name);
+        return new CreatorElevator(context, player, name);
     }
 }

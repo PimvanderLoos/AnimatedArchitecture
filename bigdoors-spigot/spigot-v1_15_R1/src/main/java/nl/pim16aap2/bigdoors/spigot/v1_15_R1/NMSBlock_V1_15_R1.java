@@ -6,9 +6,9 @@ import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
@@ -42,6 +42,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
+    private final IPLogger logger;
 
     @GuardedBy("blockDataLock")
     private IBlockData blockData;
@@ -69,9 +70,10 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_15_R1(PWorldSpigot pWorld, int x, int y, int z)
+    NMSBlock_V1_15_R1(IPLogger logger, PWorldSpigot pWorld, int x, int y, int z)
     {
         super(newBlockInfo(pWorld, new BlockPosition(x, y, z)));
+        this.logger = logger;
 
         final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(pWorld),
                                                       "Spigot world of world: " + pWorld);
@@ -248,7 +250,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException("Failed to get face from vector " + dir +
                                               ". Rotations will not work as expected!"));
             return;
@@ -291,7 +293,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException("Failed to get face from vector " + dir +
                                               ". Rotations will not work as expected!"));
             return;

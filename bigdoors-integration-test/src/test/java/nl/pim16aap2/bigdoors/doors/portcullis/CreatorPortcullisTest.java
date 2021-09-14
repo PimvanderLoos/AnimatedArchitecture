@@ -32,12 +32,12 @@ class CreatorPortcullisTest extends CreatorTestsUtil
         setBuyDoor(true);
 
         final Portcullis actualDoor = new Portcullis(constructDoorBase(), blocksToMove);
-        final CreatorPortcullis creator = new CreatorPortcullis(player);
+        final CreatorPortcullis creator = new CreatorPortcullis(context, player);
         testCreation(creator, actualDoor,
                      doorName,
-                     min.toLocation(world),
-                     max.toLocation(world),
-                     powerblock.toLocation(world),
+                     min.toLocation(locationFactory, world),
+                     max.toLocation(locationFactory, world),
+                     powerblock.toLocation(locationFactory, world),
                      openDirectionName,
                      blocksToMove,
                      true);
@@ -46,7 +46,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     @Test
     void testBlocksToMove()
     {
-        final CreatorPortcullis creator = new CreatorPortcullis(player);
+        final CreatorPortcullis creator = new CreatorPortcullis(context, player);
         final int blocksToMoveLimit = blocksToMove - 1;
         Mockito.when(configLoader.maxBlocksToMove()).thenReturn(OptionalInt.of(blocksToMoveLimit));
 

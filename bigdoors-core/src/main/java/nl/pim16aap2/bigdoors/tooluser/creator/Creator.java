@@ -1,14 +1,16 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IEconomyManager;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
@@ -17,6 +19,7 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -43,6 +46,16 @@ import java.util.logging.Level;
 @ToString(callSuper = true)
 public abstract class Creator extends ToolUser
 {
+    protected final LimitsManager limitsManager;
+
+    protected final CompletableFutureHandler handler;
+
+    protected final DoorBaseFactory doorBaseFactory;
+
+    protected final DatabaseManager databaseManager;
+
+    protected final IEconomyManager economyManager;
+
     /**
      * The name of the door that is to be created.
      */
@@ -93,7 +106,7 @@ public abstract class Creator extends ToolUser
     protected boolean isLocked = false;
 
     /**
-     * Factory for the {@link IStep} that sets the name.
+     * IFactory for the {@link IStep} that sets the name.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -101,7 +114,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetName;
 
     /**
-     * Factory for the {@link IStep} that sets the first position of the area of the door.
+     * IFactory for the {@link IStep} that sets the first position of the area of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -109,7 +122,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetFirstPos;
 
     /**
-     * Factory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
+     * IFactory for the {@link IStep} that sets the second position of the area of the door, thus completing the {@link
      * Cuboid}.
      * <p>
      * Don't forget to set the message before using it!
@@ -118,7 +131,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * Factory for the {@link IStep} that sets the position of the door's engine.
+     * IFactory for the {@link IStep} that sets the position of the door's engine.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -126,7 +139,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetEnginePos;
 
     /**
-     * Factory for the {@link IStep} that sets the position of the door's power block.
+     * IFactory for the {@link IStep} that sets the position of the door's power block.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -134,7 +147,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetPowerBlockPos;
 
     /**
-     * Factory for the {@link IStep} that sets the open direction of the door.
+     * IFactory for the {@link IStep} that sets the open direction of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -142,7 +155,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetOpenDir;
 
     /**
-     * Factory for the {@link IStep} that allows the player to confirm or reject the price of the door.
+     * IFactory for the {@link IStep} that allows the player to confirm or reject the price of the door.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -150,7 +163,7 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factoryConfirmPrice;
 
     /**
-     * Factory for the {@link IStep} that completes this process.
+     * IFactory for the {@link IStep} that completes this process.
      * <p>
      * Don't forget to set the message before using it!
      */
@@ -159,11 +172,16 @@ public abstract class Creator extends ToolUser
 
     private static final MyDecimalFormat DECIMAL_FORMAT = new MyDecimalFormat();
 
-    protected Creator(IPPlayer player, @Nullable String name)
+    protected Creator(Context context, IPPlayer player, @Nullable String name)
     {
-        super(player);
+        super(context, player);
+        handler = context.getHandler();
+        limitsManager = context.getLimitsManager();
+        doorBaseFactory = context.getDoorBaseFactory();
+        databaseManager = context.getDatabaseManager();
+        economyManager = context.getEconomyManager();
 
-        player.sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.init"));
+        player.sendMessage(localizer.getMessage("creator.base.init"));
 
         if (name != null)
             handleInput(name);
@@ -174,44 +192,45 @@ public abstract class Creator extends ToolUser
     protected void init()
     {
         factorySetName =
-            new Step.Factory("SET_NAME")
-                .stepExecutor(new StepExecutorString(this::completeNamingStep)).messageKey("creator.base.give_name")
+            new Step.Factory(localizer, "SET_NAME")
+                .stepExecutor(new StepExecutorString(logger, this::completeNamingStep))
+                .messageKey("creator.base.give_name")
                 .messageVariableRetriever(getDoorType()::getLocalizationKey);
 
         factorySetFirstPos =
-            new Step.Factory("SET_FIRST_POST")
-                .stepExecutor(new StepExecutorPLocation(this::setFirstPos));
+            new Step.Factory(localizer, "SET_FIRST_POST")
+                .stepExecutor(new StepExecutorPLocation(logger, this::setFirstPos));
 
         factorySetSecondPos =
-            new Step.Factory("SET_SECOND_POS")
-                .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
+            new Step.Factory(localizer, "SET_SECOND_POS")
+                .stepExecutor(new StepExecutorPLocation(logger, this::setSecondPos));
 
         factorySetEnginePos =
-            new Step.Factory("SET_ENGINE_POS")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
+            new Step.Factory(localizer, "SET_ENGINE_POS")
+                .stepExecutor(new StepExecutorPLocation(logger, this::completeSetEngineStep));
 
         factorySetPowerBlockPos =
-            new Step.Factory("SET_POWER_BLOCK_POS")
+            new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
                 .messageKey("creator.base.set_power_block")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetPowerBlockStep));
+                .stepExecutor(new StepExecutorPLocation(logger, this::completeSetPowerBlockStep));
 
         factorySetOpenDir =
-            new Step.Factory("SET_OPEN_DIRECTION")
-                .stepExecutor(new StepExecutorString(this::completeSetOpenDirStep))
+            new Step.Factory(localizer, "SET_OPEN_DIRECTION")
+                .stepExecutor(new StepExecutorString(logger, this::completeSetOpenDirStep))
                 .messageKey("creator.base.set_open_dir")
                 .messageVariableRetrievers(Collections.singletonList(this::getOpenDirections));
 
         factoryConfirmPrice =
-            new Step.Factory("CONFIRM_DOOR_PRICE")
-                .stepExecutor(new StepExecutorBoolean(this::confirmPrice))
+            new Step.Factory(localizer, "CONFIRM_DOOR_PRICE")
+                .stepExecutor(new StepExecutorBoolean(logger, this::confirmPrice))
                 .skipCondition(this::skipConfirmPrice)
                 .messageKey("creator.base.confirm_door_price")
                 .messageVariableRetrievers(Collections.singletonList(() -> String.format("%.2f", getPrice().orElse(0))))
                 .implicitNextStep(false);
 
         factoryCompleteProcess =
-            new Step.Factory("COMPLETE_CREATION_PROCESS")
-                .stepExecutor(new StepExecutorVoid(this::completeCreationProcess))
+            new Step.Factory(localizer, "COMPLETE_CREATION_PROCESS")
+                .stepExecutor(new StepExecutorVoid(logger, this::completeCreationProcess))
                 .waitForUserInput(false);
     }
 
@@ -224,15 +243,20 @@ public abstract class Creator extends ToolUser
     {
         final long doorUID = -1;
         final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
-        return new DoorBase(doorUID,
-                            Util.requireNonNull(name, "Name"),
-                            Util.requireNonNull(cuboid, "cuboid"),
-                            Util.requireNonNull(engine, "engine"),
-                            Util.requireNonNull(powerblock, "powerblock"),
-                            Util.requireNonNull(world, "world"),
-                            isOpen, isLocked,
-                            Util.requireNonNull(openDir, "openDir"),
-                            owner);
+
+        return doorBaseFactory
+            .builder()
+            .uid(doorUID)
+            .name(Util.requireNonNull(name, "Name"))
+            .cuboid(Util.requireNonNull(cuboid, "cuboid"))
+            .engine(Util.requireNonNull(engine, "engine"))
+            .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
+            .world(Util.requireNonNull(world, "world"))
+            .isOpen(isOpen)
+            .isLocked(isLocked)
+            .openDir(Util.requireNonNull(openDir, "openDir"))
+            .primeOwner(owner)
+            .build();
     }
 
     /**
@@ -271,9 +295,8 @@ public abstract class Creator extends ToolUser
     {
         if (!Util.isValidDoorName(str))
         {
-            BigDoors.get().getPLogger()
-                    .logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
-            getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("creator.base.error.invalid_name", str));
+            logger.logMessage(Level.FINE, () -> "Invalid name \"" + str + "\" for selected in Creator: " + this);
+            getPlayer().sendMessage(localizer.getMessage("creator.base.error.invalid_name", str));
             return false;
         }
 
@@ -317,13 +340,13 @@ public abstract class Creator extends ToolUser
         final Cuboid newCuboid = new Cuboid(Util.requireNonNull(firstPos, "firstPos"),
                                             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
 
-        final OptionalInt sizeLimit = BigDoors.get().getLimitsManager().getLimit(getPlayer(), Limit.DOOR_SIZE);
+        final OptionalInt sizeLimit = limitsManager.getLimit(getPlayer(), Limit.DOOR_SIZE);
         if (sizeLimit.isPresent() && newCuboid.getVolume() > sizeLimit.getAsInt())
         {
             getPlayer().sendMessage(
-                BigDoors.get().getLocalizer()
-                        .getMessage("creator.base.error.area_too_big", Integer.toString(newCuboid.getVolume()),
-                                    Integer.toString(sizeLimit.getAsInt())));
+                localizer
+                    .getMessage("creator.base.error.area_too_big", Integer.toString(newCuboid.getVolume()),
+                                Integer.toString(sizeLimit.getAsInt())));
             return false;
         }
 
@@ -350,17 +373,17 @@ public abstract class Creator extends ToolUser
     {
         if (!confirm)
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.creation_cancelled"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.creation_cancelled"));
             shutdown();
             return true;
         }
         if (!buyDoor())
         {
 
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.insufficient_funds",
-                                                        DECIMAL_FORMAT.format(getPrice().orElse(0))));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.insufficient_funds",
+                                                    DECIMAL_FORMAT.format(getPrice().orElse(0))));
             shutdown();
             return true;
         }
@@ -395,9 +418,8 @@ public abstract class Creator extends ToolUser
             final int id = idOpt.getAsInt();
             if (id < 0 || id >= validOpenDirs.size())
             {
-                BigDoors.get().getPLogger().debug(
-                    getClass().getSimpleName() + ": Player " + getPlayer().getUUID() + " selected ID: " + id +
-                        " out of " + validOpenDirs.size() + " options.");
+                logger.debug(getClass().getSimpleName() + ": Player " + getPlayer().getUUID() + " selected ID: " + id +
+                                 " out of " + validOpenDirs.size() + " options.");
                 return Optional.empty();
             }
 
@@ -429,8 +451,8 @@ public abstract class Creator extends ToolUser
             }).orElseGet(
             () ->
             {
-                getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                .getMessage("creator.base.error.invalid_option", str));
+                getPlayer().sendMessage(localizer
+                                            .getMessage("creator.base.error.invalid_option", str));
                 return false;
             });
     }
@@ -453,7 +475,7 @@ public abstract class Creator extends ToolUser
     {
         if (Util.requireNonNull(world, "world").worldName().equals(targetWorld.worldName()))
             return true;
-        BigDoors.get().getPLogger().debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
+        logger.debug("World mismatch in ToolUser for player: " + getPlayer().getUUID());
         return false;
     }
 
@@ -465,22 +487,22 @@ public abstract class Creator extends ToolUser
      */
     protected void insertDoor(AbstractDoor door)
     {
-        BigDoors.get().getDatabaseManager().addDoor(door, getPlayer()).whenComplete(
+        databaseManager.addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
                 if (!result.first)
                 {
-                    getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                                    .getMessage("creator.base.error.creation_cancelled"));
+                    getPlayer().sendMessage(localizer
+                                                .getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
                 if (result.second.isEmpty())
                 {
-                    getPlayer().sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
-                    BigDoors.get().getPLogger().severe("Failed to insert door after creation!");
+                    getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
+                    logger.severe("Failed to insert door after creation!");
                 }
-            }).exceptionally(Util::exceptionally);
+            }).exceptionally(handler::exceptionally);
     }
 
     /**
@@ -497,12 +519,11 @@ public abstract class Creator extends ToolUser
      */
     protected boolean buyDoor()
     {
-        if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
+        if (!economyManager.isEconomyEnabled())
             return true;
 
-        return BigDoors.get().getPlatform().getEconomyManager()
-                       .buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
-                                Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.buyDoor(getPlayer(), Util.requireNonNull(world, "world"), getDoorType(),
+                                      Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -513,10 +534,9 @@ public abstract class Creator extends ToolUser
      */
     protected OptionalDouble getPrice()
     {
-        if (!BigDoors.get().getPlatform().getEconomyManager().isEconomyEnabled())
+        if (!economyManager.isEconomyEnabled())
             return OptionalDouble.empty();
-        return BigDoors.get().getPlatform().getEconomyManager()
-                       .getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
+        return economyManager.getPrice(getDoorType(), Util.requireNonNull(cuboid, "cuboid").getVolume());
     }
 
     /**
@@ -546,7 +566,7 @@ public abstract class Creator extends ToolUser
         int idx = 0;
         for (final RotateDirection rotateDirection : getValidOpenDirections())
             sb.append(idx++).append(": ")
-              .append(BigDoors.get().getLocalizer().getMessage(rotateDirection.getLocalizationKey())).append('\n');
+              .append(localizer.getMessage(rotateDirection.getLocalizationKey())).append('\n');
         return sb.toString();
     }
 
@@ -580,20 +600,19 @@ public abstract class Creator extends ToolUser
         final Vector3Di pos = loc.getPosition();
         if (Util.requireNonNull(cuboid, "cuboid").isPosInsideCuboid(pos))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.powerblock_inside_door"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.powerblock_inside_door"));
             return false;
         }
-        final OptionalInt distanceLimit = BigDoors.get().getLimitsManager()
-                                                  .getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
+        final OptionalInt distanceLimit = limitsManager.getLimit(getPlayer(), Limit.POWERBLOCK_DISTANCE);
         final double distance;
         if (distanceLimit.isPresent() &&
             (distance = cuboid.getCenter().getDistance(pos)) > distanceLimit.getAsInt())
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.powerblock_too_far",
-                                                        DECIMAL_FORMAT.format(distance),
-                                                        Integer.toString(distanceLimit.getAsInt())));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.powerblock_too_far",
+                                                    DECIMAL_FORMAT.format(distance),
+                                                    Integer.toString(distanceLimit.getAsInt())));
             return false;
         }
 
@@ -621,8 +640,8 @@ public abstract class Creator extends ToolUser
 
         if (!Util.requireNonNull(cuboid, "cuboid").isInRange(loc, 1))
         {
-            getPlayer().sendMessage(BigDoors.get().getLocalizer()
-                                            .getMessage("creator.base.error.invalid_rotation_point"));
+            getPlayer().sendMessage(localizer
+                                        .getMessage("creator.base.error.invalid_rotation_point"));
             return false;
         }
 
@@ -653,7 +672,7 @@ public abstract class Creator extends ToolUser
          * @return The String representation of the provided double value.
          *
          * @throws ArithmeticException
-         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSAR
+         *     If rounding is needed with rounding mode being set to RoundingMode.UNNECESSARY.
          */
         public synchronized String format(double number)
         {

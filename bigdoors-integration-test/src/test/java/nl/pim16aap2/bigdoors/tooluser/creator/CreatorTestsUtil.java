@@ -1,8 +1,7 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.BigDoors;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -11,17 +10,25 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
-import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
+import nl.pim16aap2.bigdoors.testing.AssistedFactoryMocker;
+import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -43,7 +50,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static nl.pim16aap2.bigdoors.UnitTestUtil.getWorld;
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 public class CreatorTestsUtil
 {
@@ -57,13 +63,21 @@ public class CreatorTestsUtil
 
     protected DoorOwner doorOwner;
 
+    protected DoorBaseFactory doorBaseFactory;
+
+    protected IPLogger logger;
+
+    protected ILocalizer localizer;
+
+    protected PPlayerData playerData;
+
+    protected CompletableFutureHandler handler;
+
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     protected IPPlayer player;
 
     @Mock
     protected DatabaseManager databaseManager;
-
-    protected IBigDoorsPlatform platform;
 
     @Mock
     protected PowerBlockManager powerBlockManager;
@@ -77,7 +91,20 @@ public class CreatorTestsUtil
     @Mock
     protected IPermissionsManager permissionsManager;
 
-    protected PPlayerData playerData;
+    @Mock
+    protected ToolUserManager toolUserManager;
+
+    protected LimitsManager limitsManager;
+
+    @Mock
+    protected IProtectionCompatManager protectionCompatManager;
+
+    @Mock
+    protected IBigDoorsToolUtil bigDoorsToolUtil;
+
+    protected IPLocationFactory locationFactory = new TestPLocationFactory();
+
+    protected ToolUser.Context context;
 
     private void initPlayer()
     {
@@ -103,32 +130,33 @@ public class CreatorTestsUtil
     }
 
     @BeforeEach
+    @SneakyThrows
     protected void beforeEach()
     {
         MockitoAnnotations.openMocks(this);
-        platform = initPlatform();
-        BigDoors.get().setBigDoorsPlatform(platform);
 
-        Mockito.when(platform.getLimitsManager()).thenReturn(new LimitsManager());
+        logger = new BasicPLogger();
+        handler = new CompletableFutureHandler(logger);
+        localizer = UnitTestUtil.initLocalizer();
+        limitsManager = new LimitsManager(permissionsManager, configLoader);
+
+        final DoorBase.IFactory doorBaseIFactory =
+            new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
+                .setMock(IPLogger.class, logger)
+                .setMock(ILocalizer.class, localizer)
+                .setMock(DoorRegistry.class, DoorRegistry.uncached(Mockito.mock(IRestartableHolder.class)))
+                .getFactory();
+        doorBaseFactory = new DoorBaseFactory(doorBaseIFactory);
+
+        context = new ToolUser.Context(doorBaseFactory, logger, localizer, toolUserManager, databaseManager,
+                                       limitsManager, handler, economyManager, protectionCompatManager,
+                                       bigDoorsToolUtil);
 
         initPlayer();
 
-        final var playerFactory = Mockito.mock(IPPlayerFactory.class);
+        final IPPlayerFactory playerFactory = Mockito.mock(IPPlayerFactory.class);
         Mockito.when(playerFactory.create(playerData.getUUID()))
                .thenReturn(CompletableFuture.completedFuture(Optional.of(player)));
-
-        Mockito.when(platform.getPPlayerFactory()).thenReturn(playerFactory);
-        Mockito.when(platform.getDatabaseManager()).thenReturn(databaseManager);
-        Mockito.when(platform.getEconomyManager()).thenReturn(economyManager);
-        Mockito.when(platform.getPowerBlockManager()).thenReturn(powerBlockManager);
-        Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
-        Mockito.when(platform.getPLocationFactory()).thenReturn(new TestPLocationFactory());
-        Mockito.when(platform.getPWorldFactory()).thenReturn(new TestPWorldFactory());
-        Mockito.when(platform.getProtectionCompatManager()).thenReturn(Mockito.mock(IProtectionCompatManager.class));
-        Mockito.when(platform.getConfigLoader()).thenReturn(configLoader);
-        Mockito.when(platform.getPermissionsManager()).thenReturn(permissionsManager);
-        Mockito.when(platform.getDoorRegistry()).thenReturn(DoorRegistry.uncached());
-        Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
 
         // Immediately return whatever door was being added to the database as if it was successful.
         Mockito.when(databaseManager.addDoor(ArgumentMatchers.any())).thenAnswer(
@@ -167,8 +195,11 @@ public class CreatorTestsUtil
 
     protected DoorBase constructDoorBase()
     {
-        return new DoorBase(-1, doorName, new Cuboid(min, max), engine, powerblock,
-                            world, false, false, openDirection, doorOwner);
+        return doorBaseFactory.builder()
+                              .uid(-1).name(doorName).cuboid(new Cuboid(min, max)).engine(engine)
+                              .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
+                              .openDir(openDirection).primeOwner(doorOwner)
+                              .build();
     }
 
     @SneakyThrows

@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.testimplementations;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
@@ -30,20 +29,18 @@ public class TestPLocationFactory implements IPLocationFactory
     @Override
     public IPLocation create(String worldName, double x, double y, double z)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName), x, y, z);
+        throw new UnsupportedOperationException("Not implemented!");
     }
 
     @Override
     public IPLocation create(String worldName, Vector3Di position)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
-                      position.x(), position.y(), position.z());
+        throw new UnsupportedOperationException("Not implemented!");
     }
 
     @Override
     public IPLocation create(String worldName, Vector3Dd position)
     {
-        return create(BigDoors.get().getPlatform().getPWorldFactory().create(worldName),
-                      position.x(), position.y(), position.z());
+        throw new UnsupportedOperationException("Not implemented!");
     }
 }

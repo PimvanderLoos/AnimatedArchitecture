@@ -1,9 +1,16 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -19,28 +26,19 @@ import java.util.logging.Level;
 public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
+    private final IBigDoorsPlatform bigDoorsPlatform;
+    private final IBigDoorsEventFactory bigDoorsEventFactory;
 
-    protected Lock(ICommandSender commandSender, DoorRetriever doorRetriever, boolean lockedStatus)
+    @AssistedInject //
+    Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+         @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
+         IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler,
+         IBigDoorsEventFactory bigDoorsEventFactory)
     {
-        super(commandSender, doorRetriever, DoorAttribute.LOCK);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK, handler);
         this.lockedStatus = lockedStatus;
-    }
-
-    /**
-     * Runs the {@link Lock} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for changing the locked status of the door.
-     * @param doorRetriever
-     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will be modified.
-     * @param lock
-     *     The new lock status.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever,
-                                                 boolean lock)
-    {
-        return new Lock(commandSender, doorRetriever, lock).run();
+        this.bigDoorsPlatform = bigDoorsPlatform;
+        this.bigDoorsEventFactory = bigDoorsEventFactory;
     }
 
     @Override
@@ -52,18 +50,35 @@ public class Lock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        final var event = BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                                  .createDoorPrepareLockChangeEvent(door, lockedStatus,
-                                                                    getCommandSender().getPlayer().orElse(null));
-        BigDoors.get().getPlatform().callDoorEvent(event);
+        final var event = bigDoorsEventFactory
+            .createDoorPrepareLockChangeEvent(door, lockedStatus, getCommandSender().getPlayer().orElse(null));
+
+        bigDoorsPlatform.callDoorEvent(event);
 
         if (event.isCancelled())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINEST, "Event " + event + " was cancelled!");
+            logger.logMessage(Level.FINEST, "Event " + event + " was cancelled!");
             return CompletableFuture.completedFuture(true);
         }
 
         door.setLocked(lockedStatus);
         return door.syncData().thenApply(x -> true);
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link Lock} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for changing the locked status of the door.
+         * @param doorRetriever
+         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will be modified.
+         * @param lock
+         *     The new lock status.
+         * @return See {@link BaseCommand#run()}.
+         */
+        Lock newLock(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever, boolean lock);
     }
 }

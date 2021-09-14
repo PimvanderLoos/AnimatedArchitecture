@@ -1,10 +1,15 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +22,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
 
 class InspectPowerBlockTest
@@ -31,27 +35,37 @@ class InspectPowerBlockTest
     @Mock
     private ToolUserManager toolUserManager;
 
+    @Mock(answer = Answers.CALLS_REAL_METHODS)
+    private InspectPowerBlock.IFactory factory;
+
     @BeforeEach
     void init()
     {
-        final var platform = initPlatform();
-        final var uuid = UUID.randomUUID();
+        final UUID uuid = UUID.randomUUID();
 
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
-        Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
-        Mockito.when(platform.getToolUserManager()).thenReturn(toolUserManager);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
+
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+        final PowerBlockInspector.IFactory inspectPowerBlockFactory = Mockito.mock(PowerBlockInspector.IFactory.class);
+
+        Mockito.when(factory.newInspectPowerBlock(Mockito.any(ICommandSender.class)))
+               .thenAnswer(invoc -> new InspectPowerBlock(invoc.getArgument(0, ICommandSender.class),
+                                                          logger, localizer, toolUserManager, inspectPowerBlockFactory,
+                                                          handler));
     }
 
     @Test
     @SneakyThrows
     void testServer()
     {
-        final var server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
-        Assertions.assertTrue(InspectPowerBlock.run(server).get(1, TimeUnit.SECONDS));
+        final IPServer server = Mockito.mock(IPServer.class, Answers.CALLS_REAL_METHODS);
+        Assertions.assertTrue(factory.newInspectPowerBlock(server).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager, Mockito.never()).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 
@@ -59,7 +73,7 @@ class InspectPowerBlockTest
     @SneakyThrows
     void testExecution()
     {
-        Assertions.assertTrue(InspectPowerBlock.run(commandSender).get(1, TimeUnit.SECONDS));
+        Assertions.assertTrue(factory.newInspectPowerBlock(commandSender).run().get(1, TimeUnit.SECONDS));
         Mockito.verify(toolUserManager).startToolUser(Mockito.any(), Mockito.anyInt());
     }
 }

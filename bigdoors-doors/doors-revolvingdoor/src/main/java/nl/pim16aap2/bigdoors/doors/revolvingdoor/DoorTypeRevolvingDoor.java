@@ -39,14 +39,8 @@ public final class DoorTypeRevolvingDoor extends DoorType
     }
 
     @Override
-    public Creator getCreator(IPPlayer player)
+    public Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name)
     {
-        return new CreatorRevolvingDoor(player);
-    }
-
-    @Override
-    public Creator getCreator(IPPlayer player, @Nullable String name)
-    {
-        return new CreatorRevolvingDoor(player, name);
+        return new CreatorRevolvingDoor(context, player, name);
     }
 }

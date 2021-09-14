@@ -4,21 +4,27 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Process world (un)load events.
  *
  * @author Pim
  */
-public final class WorldListener implements Listener
+@Singleton
+public final class WorldListener extends AbstractListener
 {
     private final PowerBlockManager powerBlockManager;
 
-    public WorldListener(PowerBlockManager powerBlockManager)
+    @Inject
+    public WorldListener(JavaPlugin plugin, PowerBlockManager powerBlockManager)
     {
+        super(plugin);
         this.powerBlockManager = powerBlockManager;
         for (final World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());

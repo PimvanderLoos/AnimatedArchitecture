@@ -1,11 +1,17 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -20,23 +26,17 @@ import java.util.concurrent.CompletableFuture;
 @ToString
 public class MovePowerBlock extends DoorTargetCommand
 {
-    protected MovePowerBlock(ICommandSender commandSender, DoorRetriever doorRetriever)
-    {
-        super(commandSender, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
-    }
+    private final ToolUserManager toolUserManager;
+    private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
-    /**
-     * Runs the {@link MovePowerBlock} command.
-     *
-     * @param commandSender
-     *     The {@link ICommandSender} responsible for moving the powerblock for the door.
-     * @param doorRetriever
-     *     A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be moved.
-     * @return See {@link BaseCommand#run()}.
-     */
-    public static CompletableFuture<Boolean> run(ICommandSender commandSender, DoorRetriever doorRetriever)
+    @AssistedInject //
+    MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                   @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager,
+                   CompletableFutureHandler handler, PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
-        return new MovePowerBlock(commandSender, doorRetriever).run();
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK, handler);
+        this.toolUserManager = toolUserManager;
+        this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }
 
     @Override
@@ -54,10 +54,24 @@ public class MovePowerBlock extends DoorTargetCommand
     @Override
     protected CompletableFuture<Boolean> performAction(AbstractDoor door)
     {
-        BigDoors.get().getToolUserManager()
-                .startToolUser(new PowerBlockRelocator((IPPlayer) getCommandSender(), door),
-                               Constants.DOOR_CREATOR_TIME_LIMIT);
+        toolUserManager.startToolUser(powerBlockRelocatorFactory.create((IPPlayer) getCommandSender(), door),
+                                      Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
 
+    }
+
+    @AssistedFactory
+    interface IFactory
+    {
+        /**
+         * Creates (but does not execute!) a new {@link MovePowerBlock} command.
+         *
+         * @param commandSender
+         *     The {@link ICommandSender} responsible for moving the powerblock for the door.
+         * @param doorRetriever
+         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be moved.
+         * @return See {@link BaseCommand#run()}.
+         */
+        MovePowerBlock newMovePowerBlock(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
     }
 }

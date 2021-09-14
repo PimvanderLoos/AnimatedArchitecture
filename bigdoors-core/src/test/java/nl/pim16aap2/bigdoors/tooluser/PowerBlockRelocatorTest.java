@@ -1,12 +1,15 @@
 package nl.pim16aap2.bigdoors.tooluser;
 
-import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
+import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.managers.ToolUserManager;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.BasicPLogger;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +20,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
-
-import static nl.pim16aap2.bigdoors.UnitTestUtil.initPlatform;
 
 class PowerBlockRelocatorTest
 {
@@ -38,10 +39,12 @@ class PowerBlockRelocatorTest
     @Mock
     private IPLocation location;
 
+    @Mock
+    private PowerBlockRelocator.IFactory factory;
+
     @BeforeEach
     void init()
     {
-        final var platform = initPlatform();
         MockitoAnnotations.openMocks(this);
 
         Mockito.when(door.getWorld()).thenReturn(world);
@@ -53,15 +56,25 @@ class PowerBlockRelocatorTest
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
-        Mockito.when(platform.getProtectionCompatManager()).thenReturn(compatManager);
-        Mockito.when(platform.getToolUserManager()).thenReturn(Mockito.mock(ToolUserManager.class));
-        Mockito.when(platform.getBigDoorsToolUtil()).thenReturn(Mockito.mock(IBigDoorsToolUtil.class));
+        final IPLogger logger = new BasicPLogger();
+        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
+
+        final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
+        Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
+        Mockito.when(context.getLogger()).thenReturn(logger);
+        final ILocalizer localizer = UnitTestUtil.initLocalizer();
+        Mockito.when(context.getLocalizer()).thenReturn(localizer);
+        Mockito.when(context.getHandler()).thenReturn(handler);
+
+        Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractDoor.class)))
+               .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),
+                                                            invoc.getArgument(1, AbstractDoor.class)));
     }
 
     @Test
     void testMoveToLocWorld()
     {
-        final var relocator = new PowerBlockRelocator(player, door);
+        final PowerBlockRelocator relocator = factory.create(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(Mockito.mock(IPWorld.class));
 
@@ -74,7 +87,7 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocDuplicated()
     {
-        final var relocator = new PowerBlockRelocator(player, door);
+        final PowerBlockRelocator relocator = factory.create(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
 
@@ -88,9 +101,9 @@ class PowerBlockRelocatorTest
     @Test
     void testMoveToLocNoAccess()
     {
-        final var relocator = new PowerBlockRelocator(player, door);
+        final PowerBlockRelocator relocator = factory.create(player, door);
 
-        final var compat = "TestCompat";
+        final String compat = "TestCompat";
         Mockito.when(compatManager.canBreakBlock(Mockito.any(), Mockito.any())).thenReturn(Optional.of(compat));
 
         Mockito.when(location.getWorld()).thenReturn(world);
@@ -102,7 +115,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecution()
     {
-        final var relocator = new PowerBlockRelocator(player, door);
+        final PowerBlockRelocator relocator = factory.create(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(new Vector3Di(0, 0, 0));
@@ -115,7 +128,7 @@ class PowerBlockRelocatorTest
     @Test
     void testExecutionUnchanged()
     {
-        final var relocator = new PowerBlockRelocator(player, door);
+        final PowerBlockRelocator relocator = factory.create(player, door);
 
         Mockito.when(location.getWorld()).thenReturn(world);
         Mockito.when(location.getPosition()).thenReturn(currentPowerBlockLoc);

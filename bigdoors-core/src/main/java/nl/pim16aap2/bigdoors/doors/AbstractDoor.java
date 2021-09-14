@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -11,12 +10,14 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.managers.DoorRegistry;
+import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
-import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
-import nl.pim16aap2.bigdoors.util.Limit;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
@@ -38,24 +39,44 @@ public abstract class AbstractDoor implements IDoor
 {
     @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     @EqualsAndHashCode.Exclude
-    private final @Nullable DoorSerializer<?> serializer = getDoorType().getDoorSerializer().orElse(null);
+    private final DoorSerializer<?> serializer;
+    private final DoorRegistry doorRegistry;
+    private final AutoCloseScheduler autoCloseScheduler;
 
     @Getter
     protected final DoorBase doorBase;
+    protected final IPLogger logger;
+    protected final ILocalizer localizer;
+    protected final DoorOpeningHelper doorOpeningHelper;
 
-    protected AbstractDoor(DoorBase doorBase)
+
+    protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer,
+                           DoorRegistry doorRegistry, AutoCloseScheduler autoCloseScheduler,
+                           DoorOpeningHelper doorOpeningHelper)
     {
+        serializer = getDoorType().getDoorSerializer(logger);
         this.doorBase = doorBase;
+        this.logger = logger;
+        this.localizer = localizer;
+        this.doorRegistry = doorRegistry;
+        this.autoCloseScheduler = autoCloseScheduler;
+        this.doorOpeningHelper = doorOpeningHelper;
 
-        BigDoors.get().getPLogger().logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
+        logger.logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
         if (doorBase.getDoorUID() > 0 &&
-            !BigDoors.get().getDoorRegistry().registerDoor(new Registrable()))
+            !doorRegistry.registerDoor(new Registrable()))
         {
             final IllegalStateException exception = new IllegalStateException(
                 "Tried to create new door \"" + doorBase.getDoorUID() + "\" while it is already registered!");
-            BigDoors.get().getPLogger().logThrowableSilently(exception);
+            logger.logThrowableSilently(exception);
             throw exception;
         }
+    }
+
+    protected AbstractDoor(DoorBase doorBase)
+    {
+        this(doorBase, doorBase.getLogger(), doorBase.getLocalizer(), doorBase.getDoorRegistry(),
+             doorBase.getAutoCloseScheduler(), doorBase.getDoorOpeningHelper());
     }
 
     /**
@@ -134,62 +155,18 @@ public abstract class AbstractDoor implements IDoor
      *     The {@link IPPlayer} responsible for the door action.
      * @param actionType
      *     The type of action that will be performed by the BlockMover.
+     * @param context
+     *     The {@link BlockMover.Context} to run the block mover in.
      * @return The {@link BlockMover} for doorBase class.
      */
-    protected abstract BlockMover constructBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                                      Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
+    protected abstract BlockMover constructBlockMover(BlockMover.Context context, DoorActionCause cause, double time,
+                                                      boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
+                                                      DoorActionType actionType)
         throws Exception;
-
-
-    /**
-     * Registers a {@link BlockMover} with the {@link DoorActivityManager}.
-     * <p>
-     * doorBase method MUST BE CALLED FROM THE MAIN THREAD! (Because of MC, spawning entities needs to happen
-     * synchronously)
-     *
-     * @param cause
-     *     What caused doorBase action.
-     * @param time
-     *     The amount of time doorBase {@link DoorBase} will try to use to move. The maximum speed is limited, so at a
-     *     certain point lower values will not increase door speed.
-     * @param skipAnimation
-     *     If the {@link DoorBase} should be opened instantly (i.e. skip animation) or not.
-     * @param newCuboid
-     *     The {@link Cuboid} representing the area the door will take up after the toggle.
-     * @param responsible
-     *     The {@link IPPlayer} responsible for the door action.
-     * @param actionType
-     *     The type of action that will be performed by the BlockMover.
-     * @return True when everything went all right, otherwise false.
-     */
-    private synchronized boolean registerBlockMover(DoorActionCause cause, double time, boolean skipAnimation,
-                                                    Cuboid newCuboid, IPPlayer responsible, DoorActionType actionType)
-    {
-        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
-        {
-            BigDoors.get().getDoorActivityManager().setDoorAvailable(getDoorUID());
-            BigDoors.get().getPLogger().logThrowable(
-                new IllegalThreadStateException("BlockMovers must be instantiated on the main thread!"));
-            return true;
-        }
-
-        try
-        {
-            DoorOpeningUtility.registerBlockMover(constructBlockMover(cause, time, skipAnimation, newCuboid,
-                                                                      responsible, actionType));
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at {@link
-     * DoorOpener#animateDoorAsync(AbstractDoor, DoorActionCause, IMessageable, IPPlayer, double, boolean,
-     * DoorActionType)}.
+     * DoorToggleRequestFactory}.
      *
      * @param cause
      *     What caused doorBase action.
@@ -207,71 +184,68 @@ public abstract class AbstractDoor implements IDoor
      *     The type of action.
      * @return The result of the attempt.
      */
-    // TODO: When aborting the toggle, send the messages to the messageReceiver, not to the responsible player.
-    //       These aren't necessarily the same entity.
+    // TODO: Simplify this method.
     @SuppressWarnings({"unused", "squid:S1172"}) // messageReceiver isn't used yet, but it will be.
     final synchronized DoorToggleResult toggle(DoorActionCause cause, IMessageable messageReceiver,
                                                IPPlayer responsible, double time, boolean skipAnimation,
                                                DoorActionType actionType)
     {
-        if (!BigDoors.get().getPlatform().isMainThread(Thread.currentThread().getId()))
+        if (!doorOpeningHelper.isMainThread())
         {
-            BigDoors.get().getPLogger().logThrowable(
+            logger.logThrowable(
                 new IllegalStateException("Doors must be toggled on the main thread!"));
             return DoorToggleResult.ERROR;
         }
 
         if (getOpenDir() == RotateDirection.NONE)
         {
-            BigDoors.get().getPLogger().logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
+            logger.logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
             return DoorToggleResult.ERROR;
         }
 
-        if (!BigDoors.get().getDoorRegistry().isRegistered(this))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible);
+        if (!doorRegistry.isRegistered(this))
+            return doorOpeningHelper.abort(this, DoorToggleResult.INSTANCE_UNREGISTERED, cause, responsible,
+                                           messageReceiver);
 
         if (skipAnimation && !canSkipAnimation())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
-        final DoorToggleResult isOpenable = DoorOpeningUtility.canBeToggled(this, cause, actionType);
+        final DoorToggleResult isOpenable = doorOpeningHelper.canBeToggled(this, actionType);
         if (isOpenable != DoorToggleResult.SUCCESS)
-            return DoorOpeningUtility.abort(this, isOpenable, cause, responsible);
+            return doorOpeningHelper.abort(this, isOpenable, cause, responsible, messageReceiver);
 
-        if (BigDoors.get().getLimitsManager().exceedsLimit(responsible, Limit.DOOR_SIZE, getBlockCount()))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.TOO_BIG, cause, responsible);
+        if (doorBase.exceedSizeLimit(responsible))
+            return doorOpeningHelper.abort(this, DoorToggleResult.TOO_BIG, cause, responsible, messageReceiver);
 
         final Optional<Cuboid> newCuboid = getPotentialNewCoordinates();
 
         if (newCuboid.isEmpty())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.ERROR, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.ERROR, cause, responsible, messageReceiver);
 
         final IDoorEventTogglePrepare prepareEvent =
-            BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                    .createTogglePrepareEvent(this, cause, actionType, responsible,
-                                              time, skipAnimation, newCuboid.get());
-        BigDoors.get().getPlatform().callDoorEvent(prepareEvent);
+            doorOpeningHelper.callTogglePrepareEvent(this, cause, actionType, responsible,
+                                                     time, skipAnimation, newCuboid.get());
 
         if (prepareEvent.isCancelled())
-            return DoorOpeningUtility.abort(this, DoorToggleResult.CANCELLED, cause, responsible);
+            return doorOpeningHelper.abort(this, DoorToggleResult.CANCELLED, cause, responsible, messageReceiver);
 
         final @Nullable IPPlayer responsiblePlayer = cause.equals(DoorActionCause.PLAYER) ? responsible : null;
-        if (!DoorOpeningUtility.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible);
+        if (!doorOpeningHelper.isLocationEmpty(newCuboid.get(), getCuboid(), responsiblePlayer, getWorld()))
+            return doorOpeningHelper.abort(this, DoorToggleResult.OBSTRUCTED, cause, responsible, messageReceiver);
 
-        if (!DoorOpeningUtility.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
-            return DoorOpeningUtility.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible);
+        if (!doorOpeningHelper.canBreakBlocksBetweenLocs(this, newCuboid.get(), responsible))
+            return doorOpeningHelper.abort(this, DoorToggleResult.NO_PERMISSION, cause, responsible, messageReceiver);
 
-        final CompletableFuture<Boolean> scheduled = BigDoors.get().getPlatform().getPExecutor().supplyOnMainThread(
-            () -> registerBlockMover(cause, time, skipAnimation, newCuboid.get(), responsible, actionType));
+        final CompletableFuture<Boolean> scheduled =
+            doorOpeningHelper.registerBlockMover(doorBase, this, cause, time, skipAnimation,
+                                                 newCuboid.get(), responsible, actionType);
 
         if (!scheduled.join())
             return DoorToggleResult.ERROR;
 
         final IDoorEventToggleStart toggleStartEvent =
-            BigDoors.get().getPlatform().getBigDoorsEventFactory()
-                    .createToggleStartEvent(this, cause, actionType, responsible,
-                                            time, skipAnimation, newCuboid.get());
-        BigDoors.get().getPlatform().callDoorEvent(toggleStartEvent);
+            doorOpeningHelper.callToggleStartEvent(this, cause, actionType, responsible,
+                                                   time, skipAnimation, newCuboid.get());
 
         return DoorToggleResult.SUCCESS;
     }
@@ -285,20 +259,7 @@ public abstract class AbstractDoor implements IDoor
     @SuppressWarnings("unused")
     public final void onRedstoneChange(int newCurrent)
     {
-        final IPPlayer player = BigDoors.get().getPlatform().getPPlayerFactory().create(getPrimeOwner().pPlayerData());
-
-        final @Nullable DoorActionType doorActionType;
-        if (newCurrent == 0 && isCloseable())
-            doorActionType = DoorActionType.CLOSE;
-        else if (newCurrent > 0 && isOpenable())
-            doorActionType = DoorActionType.CLOSE;
-        else
-            doorActionType = null;
-        if (doorActionType != null)
-            BigDoors.get().getDoorOpener()
-                    .animateDoorAsync(this, DoorActionCause.REDSTONE,
-                                      BigDoors.get().getPlatform().getMessageableServer(),
-                                      player, 0.0D, false, DoorActionType.CLOSE);
+        doorBase.onRedstoneChange(this, newCurrent);
     }
 
     /**
@@ -308,21 +269,13 @@ public abstract class AbstractDoor implements IDoor
      */
     public final synchronized CompletableFuture<Boolean> syncData()
     {
-        if (serializer == null)
-        {
-            BigDoors.get().getPLogger()
-                    .severe("Failed to sync data for door: " + getBasicInfo() + "! Reason: Serializer unavailable!");
-            return CompletableFuture.completedFuture(false);
-        }
-
         try
         {
-            return BigDoors.get().getDatabaseManager()
-                           .syncDoorData(doorBase.getPartialSnapshot(), serializer.serialize(this));
+            return doorBase.syncData(serializer.serialize(this));
         }
         catch (Exception e)
         {
-            BigDoors.get().getPLogger().logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
+            logger.logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
         }
         return CompletableFuture.completedFuture(false);
     }
@@ -339,11 +292,7 @@ public abstract class AbstractDoor implements IDoor
             + "Type-specific data:\n"
             + "type: " + getDoorType() + "\n";
 
-        final var serializerOpt = getDoorType().getDoorSerializer();
-        if (serializerOpt.isEmpty())
-            ret += "Invalid serializer!\n";
-        else
-            ret += serializerOpt.get().toString(this);
+        ret += serializer.toString(this);
 
         return ret;
     }
@@ -373,15 +322,15 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public Optional<DoorOwner> getDoorOwner(IPPlayer player)
-    {
-        return doorBase.getDoorOwner(player);
-    }
-
-    @Override
     public Optional<DoorOwner> getDoorOwner(UUID uuid)
     {
         return doorBase.getDoorOwner(uuid);
+    }
+
+    @Override
+    public boolean isDoorOwner(UUID player)
+    {
+        return doorBase.isDoorOwner(player);
     }
 
     @Override

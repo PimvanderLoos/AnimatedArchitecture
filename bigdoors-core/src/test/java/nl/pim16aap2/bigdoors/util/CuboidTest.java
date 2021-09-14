@@ -145,9 +145,9 @@ class CuboidTest
     @Test
     void testIsInRange()
     {
-        final var val1 = new Vector3Di(-10, 0, 10);
-        final var val2 = new Vector3Di(20, 30, 40);
-        final var cuboid = new Cuboid(val1, val2);
+        final Vector3Di val1 = new Vector3Di(-10, 0, 10);
+        final Vector3Di val2 = new Vector3Di(20, 30, 40);
+        final Cuboid cuboid = new Cuboid(val1, val2);
 
         //noinspection ResultOfMethodCallIgnored
         Assertions.assertThrows(IllegalArgumentException.class, () -> cuboid.isInRange(val1, -1));

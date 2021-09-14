@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.BigDoors;
-import org.jetbrains.annotations.Nullable;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -17,28 +16,6 @@ import java.lang.reflect.Field;
  */
 public abstract class FastFieldSetter<T, U>
 {
-    /**
-     * The {@link Unsafe} instance.
-     */
-    private static final @Nullable Unsafe UNSAFE;
-
-    static
-    {
-        // Get the Unsafe instance.
-        @Nullable Unsafe unsafe = null;
-        try
-        {
-            final Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-            unsafeField.setAccessible(true);
-            unsafe = (Unsafe) unsafeField.get(null);
-        }
-        catch (Exception e)
-        {
-            BigDoors.get().getPLogger().logThrowable(e);
-        }
-        UNSAFE = unsafe;
-    }
-
     protected FastFieldSetter()
     {
     }
@@ -74,9 +51,10 @@ public abstract class FastFieldSetter<T, U>
      *     The type of the target class.
      * @return A new {@link FastFieldSetter} for the appropriate type.
      */
-    public static <T, U> FastFieldSetter<T, U> of(Class<U> fieldType, Class<T> targetClass, String nameTarget)
+
+    public static <T, U> FastFieldSetter<T, U> of(IPLogger logger, Unsafe unsafe,
+                                                  Class<U> fieldType, Class<T> targetClass, String nameTarget)
     {
-        final Unsafe unsafe = Util.requireNonNull(UNSAFE, "Unsafe");
         final long offsetTarget;
         final Class<?> targetType;
         try
@@ -94,7 +72,7 @@ public abstract class FastFieldSetter<T, U>
         catch (Exception t)
         {
             final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
-            BigDoors.get().getPLogger().logThrowableSilently(e);
+            logger.logThrowableSilently(e);
             throw e;
         }
 
@@ -188,5 +166,19 @@ public abstract class FastFieldSetter<T, U>
                 unsafe.putObject(target, offsetTarget, obj);
             }
         };
+    }
+
+    /**
+     * See {@link #of(IPLogger, Unsafe, Class, Class, String)}.
+     *
+     * @throws Exception
+     *     When an exception was thrown while trying to access Unsafe.
+     */
+    public static <T, U> FastFieldSetter<T, U> of(IPLogger logger,
+                                                  Class<U> fieldType, Class<T> targetClass, String nameTarget)
+        throws Exception
+    {
+        final Unsafe unsafe = UnsafeGetter.getUnsafe();
+        return of(logger, unsafe, fieldType, targetClass, nameTarget);
     }
 }

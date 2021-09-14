@@ -1,13 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
+import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
+import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -25,17 +26,29 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
-@RequiredArgsConstructor
 public abstract class BaseCommand
 {
     /**
      * The entity (e.g. player, server, or command block) that initiated the command.
      * <p>
-     * This is the entity that is held responsible for the command (i.e. their permissions are checked and they will
+     * This is the entity that is held responsible for the command (i.e. their permissions are checked, and they will
      * receive error/success/information messages when applicable).
      */
     @Getter
     private final ICommandSender commandSender;
+
+    protected final IPLogger logger;
+    protected final ILocalizer localizer;
+    protected final CompletableFutureHandler handler;
+
+    public BaseCommand(ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+                       CompletableFutureHandler handler)
+    {
+        this.commandSender = commandSender;
+        this.logger = logger;
+        this.localizer = localizer;
+        this.handler = handler;
+    }
 
     /**
      * Gets the {@link CommandDefinition} that contains the definition of this {@link BaseCommand}.
@@ -67,13 +80,13 @@ public abstract class BaseCommand
      */
     protected boolean hasAccessToAttribute(AbstractDoor door, DoorAttribute doorAttribute, boolean hasBypassPermission)
     {
-        if (hasBypassPermission || !getCommandSender().isPlayer())
+        if (hasBypassPermission || !commandSender.isPlayer())
             return true;
 
-        return getCommandSender().getPlayer()
-                                 .flatMap(door::getDoorOwner)
-                                 .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
-                                 .orElse(false);
+        return commandSender.getPlayer()
+                            .flatMap(door::getDoorOwner)
+                            .map(doorOwner -> doorOwner.permission() <= doorAttribute.getPermissionLevel())
+                            .orElse(false);
     }
 
     /**
@@ -89,7 +102,7 @@ public abstract class BaseCommand
     /**
      * Checks if this {@link BaseCommand} is available for non-{@link IPPlayer}s (e.g. the server).
      *
-     * @return True if an non-{@link IPPlayer} can execute this command.
+     * @return True if a non-{@link IPPlayer} can execute this command.
      */
     protected boolean availableForNonPlayers()
     {
@@ -97,8 +110,8 @@ public abstract class BaseCommand
     }
 
     /**
-     * Runs the command if certain criteria are met (i.e. the {@link ICommandSender} has access and {@link
-     * #validInput()} returns true).
+     * Creates (but does not execute!) a new command if certain criteria are met (i.e. the {@link ICommandSender} has
+     * access and {@link #validInput()} returns true).
      *
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.
@@ -108,22 +121,21 @@ public abstract class BaseCommand
         log();
         if (!validInput())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Invalid input for command: " + this);
+            logger.logMessage(Level.FINE, () -> "Invalid input for command: " + this);
             return CompletableFuture.completedFuture(false);
         }
 
-        final var localizer = BigDoors.get().getLocalizer();
-        final boolean isPlayer = getCommandSender() instanceof IPPlayer;
+        final boolean isPlayer = commandSender instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
-            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
+            logger.logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
-            getCommandSender().sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
+            logger.logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
         }
 
@@ -132,9 +144,9 @@ public abstract class BaseCommand
         return startExecution().exceptionally(
             throwable ->
             {
-                BigDoors.get().getPLogger().logThrowable(throwable, "Failed to execute command: " + this);
-                if (getCommandSender().isPlayer())
-                    getCommandSender().sendMessage(localizer.getMessage("commands.base.error.generic"));
+                logger.logThrowable(throwable, "Failed to execute command: " + this);
+                if (commandSender.isPlayer())
+                    commandSender.sendMessage(localizer.getMessage("commands.base.error.generic"));
                 return true;
             });
     }
@@ -151,18 +163,16 @@ public abstract class BaseCommand
         switch (result)
         {
             case CANCELLED:
-                commandSender.sendMessage(BigDoors.get().getLocalizer()
-                                                  .getMessage("commands.base.error.action_cancelled"));
+                commandSender.sendMessage(localizer.getMessage("commands.base.error.action_cancelled"));
                 break;
             case SUCCESS:
                 break;
             case FAIL:
-                commandSender.sendMessage(BigDoors.get().getLocalizer().getMessage("constants.error.generic"));
+                commandSender.sendMessage(localizer.getMessage("constants.error.generic"));
                 break;
         }
-        BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                               () -> "Handling database action result: " + result.name() +
-                                                   " for command: " + this);
+        logger.logMessage(Level.FINE,
+                          () -> "Handling database action result: " + result.name() + " for command: " + this);
         return true;
     }
 
@@ -183,10 +193,8 @@ public abstract class BaseCommand
     {
         if (!permissionResult.first && !permissionResult.second)
         {
-            BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                   () -> "Permission for command: " + this + ": " + permissionResult);
-            getCommandSender().sendMessage(BigDoors.get().getLocalizer()
-                                                   .getMessage("commands.base.error.no_permission_for_command"));
+            logger.logMessage(Level.FINE, () -> "Permission for command: " + this + ": " + permissionResult);
+            commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
         try
@@ -215,8 +223,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        BigDoors.get().getPLogger()
-                .dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
+        logger.dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
     }
 
     /**
@@ -229,18 +236,16 @@ public abstract class BaseCommand
      *     The {@link DoorRetriever} to use
      * @return The {@link DoorBase} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever.AbstractRetriever doorRetriever)
     {
-        return getCommandSender().getPlayer().map(doorRetriever::getDoorInteractive)
-                                 .orElseGet(doorRetriever::getDoor).thenApplyAsync(
+        return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
+                            .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
-                    BigDoors.get().getPLogger().logMessage(Level.FINE,
-                                                           () -> "Retrieved door " + door + " for command: " + this);
+                    logger.logMessage(Level.FINE, () -> "Retrieved door " + door + " for command: " + this);
                     if (door.isPresent())
                         return door;
-                    getCommandSender().sendMessage(
-                        BigDoors.get().getLocalizer().getMessage("commands.base.error.cannot_find_target_door"));
+                    commandSender.sendMessage(localizer.getMessage("commands.base.error.cannot_find_target_door"));
                     return Optional.empty();
                 });
     }
@@ -254,6 +259,6 @@ public abstract class BaseCommand
      */
     protected CompletableFuture<BooleanPair> hasPermission()
     {
-        return getCommandSender().hasPermission(getCommand());
+        return commandSender.hasPermission(getCommand());
     }
 }

@@ -1,14 +1,28 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.util.Limit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.OptionalInt;
 
+@Singleton
 public class LimitsManager
 {
+
+    private final IPermissionsManager permissionsManager;
+    private final IConfigLoader config;
+
+    @Inject
+    public LimitsManager(IPermissionsManager permissionsManager, IConfigLoader config)
+    {
+        this.permissionsManager = permissionsManager;
+        this.config = config;
+    }
+
     /**
      * Gets the value of the {@link Limit} for the given player. It checks the global limit, any admin bypass
      * permission, and the player's personal limit.
@@ -26,14 +40,12 @@ public class LimitsManager
      */
     public OptionalInt getLimit(IPPlayer player, Limit limit)
     {
-        final boolean hasBypass = BigDoors.get().getPlatform().getPermissionsManager()
-                                          .hasPermission(player, limit.getAdminPermission());
-        final OptionalInt globalLimit = limit.getGlobalLimit(BigDoors.get().getPlatform().getConfigLoader());
+        final boolean hasBypass = permissionsManager.hasPermission(player, limit.getAdminPermission());
+        final OptionalInt globalLimit = limit.getGlobalLimit(config);
         if (hasBypass)
             return globalLimit;
 
-        final OptionalInt playerLimit = BigDoors.get().getPlatform().getPermissionsManager()
-                                                .getMaxPermissionSuffix(player, limit.getUserPermission());
+        final OptionalInt playerLimit = permissionsManager.getMaxPermissionSuffix(player, limit.getUserPermission());
 
         if (globalLimit.isPresent() && playerLimit.isPresent())
             return OptionalInt.of(Math.min(globalLimit.getAsInt(), playerLimit.getAsInt()));

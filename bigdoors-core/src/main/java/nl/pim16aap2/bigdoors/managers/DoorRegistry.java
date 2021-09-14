@@ -1,13 +1,15 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.BigDoors;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.restartable.IRestartableHolder;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.IDoor;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ import java.util.Optional;
  * @author Pim
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
+@Singleton
 public final class DoorRegistry extends Restartable
 {
     public static final int CONCURRENCY_LEVEL = 4;
@@ -45,10 +48,11 @@ public final class DoorRegistry extends Restartable
      * @param cacheExpiry
      *     How long to keep stuff in the cache.
      */
-//    @Builder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
+//    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
+    private DoorRegistry(IRestartableHolder restartableHolder, int concurrencyLevel,
+                         int initialCapacity, Duration cacheExpiry)
     {
-        super(BigDoors.get());
+        super(restartableHolder);
         init(concurrencyLevel, initialCapacity, cacheExpiry);
     }
 
@@ -57,9 +61,10 @@ public final class DoorRegistry extends Restartable
      * <p>
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
-    public DoorRegistry()
+    @Inject
+    public DoorRegistry(IRestartableHolder restartableHolder)
     {
-        this(CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     /**
@@ -67,9 +72,9 @@ public final class DoorRegistry extends Restartable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static DoorRegistry uncached()
+    public static DoorRegistry uncached(IRestartableHolder restartableHolder)
     {
-        final DoorRegistry doorRegistry = new DoorRegistry(-1, -1, Duration.ofMillis(-1));
+        final DoorRegistry doorRegistry = new DoorRegistry(restartableHolder, -1, -1, Duration.ofMillis(-1));
         doorRegistry.acceptNewEntries = false;
         return doorRegistry;
     }

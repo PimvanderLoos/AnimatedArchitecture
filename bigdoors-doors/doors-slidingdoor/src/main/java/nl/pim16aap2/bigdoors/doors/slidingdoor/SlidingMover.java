@@ -31,12 +31,12 @@ public class SlidingMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public SlidingMover(AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
+    public SlidingMover(Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
                         RotateDirection openDirection, double multiplier, IPPlayer player, Cuboid newCuboid,
                         DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        super(door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
+        super(context, door, time, skipAnimation, openDirection, player, newCuboid, cause, actionType);
         this.blocksToMove = blocksToMove;
 
         northSouth = openDirection.equals(RotateDirection.NORTH) || openDirection.equals(RotateDirection.SOUTH);

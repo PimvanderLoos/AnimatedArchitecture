@@ -34,12 +34,12 @@ public class RevolvingDoorMover extends BlockMover
     private double endStepSum = 0;
 
     @SuppressWarnings("unused")
-    public RevolvingDoorMover(AbstractDoor door, double time, double multiplier, RotateDirection rotateDirection,
-                              IPPlayer player, int quarterCircles, DoorActionCause cause, Cuboid newCuboid,
-                              DoorActionType actionType)
+    public RevolvingDoorMover(Context context, AbstractDoor door, double time, double multiplier,
+                              RotateDirection rotateDirection, IPPlayer player, int quarterCircles,
+                              DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
         throws Exception
     {
-        super(door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
+        super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
 
         this.quarterCircles = quarterCircles;
 
