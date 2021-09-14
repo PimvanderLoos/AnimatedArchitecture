@@ -6,6 +6,9 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
+import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
+import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
+import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +37,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 
     private @Nullable BigDoorsSpigotPlatform bigDoorsSpigotPlatform;
 
-    private boolean validVersion;
     private boolean successfulInit;
     private boolean initialized = false;
 
@@ -68,6 +70,11 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
         return bigDoorsSpigotPlatform;
     }
 
+    @Nullable BigDoorsSpigotPlatform getBigDoorsSpigotPlatform()
+    {
+        return bigDoorsSpigotPlatform;
+    }
+
     /**
      * Retrieves all the plugins that have requested access to BigDoors' internals.
      *
@@ -83,9 +90,11 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     {
         Bukkit.getLogger().setLevel(Level.FINER);
 
-        if (!validVersion)
-            logger.severe("Failed to enable BigDoors: The current version is invalid!");
-        else if (!initialized)
+        // onEnable may be called more than once during the lifetime of the plugin.
+        // As such, we make sure to initialize the platform just once and then
+        // restart it on all onEnable calls after the first one, provided it was
+        // initialized properly.
+        if (!initialized)
             bigDoorsSpigotPlatform = initPlatform();
         else if (bigDoorsSpigotPlatform != null)
             restart();
@@ -111,24 +120,41 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             logger.info("Successfully enabled BigDoors " + getDescription().getVersion());
             return platform;
         }
-        catch (RuntimeException e)
-        {
-            logger.logThrowable(e, "Failed to initialize BigDoors' Spigot platform!");
-            initErrorMessage = e.getMessage();
-        }
         catch (Exception e)
         {
             logger.logThrowable(e, "Failed to initialize BigDoors' Spigot platform!");
+            initErrorMessage = e.getMessage();
+            onInitFailure();
+            return null;
         }
-        onInitFailure();
-        return null;
     }
 
     private void onInitFailure()
     {
         shutdown();
         new BackupCommandListener(this, logger, initErrorMessage);
+        registerFailureLoginListener();
+        logger.logMessage(Level.WARNING, new DebugReporterSpigot(this, logger, null, null, null, null).getDump());
         successfulInit = false;
+    }
+
+    /**
+     * Registers a {@link LoginMessageListener} outside of the Dagger object graph.
+     * <p>
+     * This listener will inform admins about the issues that came up during plugin initialization.
+     */
+    private void registerFailureLoginListener()
+    {
+        @Nullable UpdateManager updateManager;
+        try
+        {
+            updateManager = bigDoorsSpigotComponent.getUpdateManager();
+        }
+        catch (Exception e)
+        {
+            updateManager = null;
+        }
+        new LoginMessageListener(this, updateManager);
     }
 
     @Override
@@ -147,33 +173,4 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     {
         restartableHolder.shutdown();
     }
-
-//    /**
-//     * Gets the message to send to admins and OPs when they log in. This message can contain all kinds of information,
-//     * including but not limited to: The current build is a dev build, the plugin could not be initialized properly,
-//     * an update is available.
-//     *
-//     * @return The message to send to admins and OPs when they log in.
-//     */
-//    public String getLoginMessage()
-//    {
-//        String ret = "";
-//        if (Constants.DEV_BUILD)
-//            ret += "[BigDoors] Warning: You are running a devbuild!\n";
-//        if (!validVersion)
-//            ret += "[BigDoors] Error: Trying to load the game on an invalid version! Plugin disabled!\n";
-//        if (!successfulInit)
-//            ret += "[BigDoors] Error: Failed to initialize the plugin! Some functions may not work as expected. " +
-//                "Please contact pim16aap2! Don't forget to attach both the server log AND the BigDoors log!\n";
-//        if (updateManager.updateAvailable())
-//        {
-//            if (getBigDoorsConfig().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
-//                ret += "[BigDoors] A new update (" + updateManager.getNewestVersion() +
-//                    ") has been downloaded! "
-//                    + "Restart your server to apply the update!\n";
-//            else if (updateManager.updateAvailable())
-//                ret += "[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n";
-//        }
-//        return ret;
-//    }
 }

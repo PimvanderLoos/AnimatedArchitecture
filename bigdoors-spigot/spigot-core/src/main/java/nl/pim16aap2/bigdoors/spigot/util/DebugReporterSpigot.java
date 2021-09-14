@@ -37,7 +37,7 @@ public class DebugReporterSpigot extends DebugReporter
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatform platform, IPLogger logger,
+    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IPLogger logger, @Nullable IBigDoorsPlatform platform,
                                @Nullable DoorTypeManager doorTypeManager, @Nullable IConfigLoader config,
                                @Nullable IBigDoorsSpigotSubPlatform subPlatform)
     {
@@ -54,31 +54,28 @@ public class DebugReporterSpigot extends DebugReporter
     public String getDump()
     {
         return new StringBuilder(super.getDump())
-            .append("BigDoors version: ")
-            .append(platform.getVersion()).append('\n')
-            .append("Server version: ").append(Bukkit.getServer().getVersion()).append('\n')
-
+            // Try to use the platform's version first because that might contain more information (build id etc.)
+            // But if that's not available, use the JavaPlugin's version instead.
+            .append("BigDoors version: ").append(platform == null ?
+                                                 bigDoorsPlugin.getDescription().getVersion() : platform.getVersion())
+            .append('\n')
+            .append("Server version: ").append(Bukkit.getServer().getVersion())
+            .append('\n')
             .append("Registered door types: ")
-            .append(Util.toString(doorTypeManager == null ? "NULL" : doorTypeManager.getRegisteredDoorTypes()))
+            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
             .append('\n')
-
             .append("Enabled door types:    ")
-            .append(Util.toString(doorTypeManager == null ? "NULL" : doorTypeManager.getEnabledDoorTypes()))
+            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getEnabledDoorTypes()))
             .append('\n')
-
-            .append("SpigotPlatform: ").append(platform.getClass().getName())
+            .append("SpigotPlatform: ").append(platform == null ? "null" : platform.getClass().getName())
             .append('\n')
-
-            .append("SpigotSubPlatform: ").append(subPlatform == null ? "NULL" : subPlatform.getClass().getName())
+            .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
-
             .append("Registered plugins: ").append(bigDoorsPlugin.getRegisteredPlugins())
             .append('\n')
-
 //            // TODO: Implement this:
 //            .append("Enabled protection hooks: ")
 //            .append(getAllProtectionHooksOrSomething())
-
             .append("EventListeners:\n").append(getListeners(DoorPrepareAddOwnerEvent.class,
                                                              DoorPrepareCreateEvent.class,
                                                              DoorPrepareDeleteEvent.class,
@@ -88,8 +85,8 @@ public class DebugReporterSpigot extends DebugReporter
                                                              DoorEventToggleEnd.class,
                                                              DoorEventTogglePrepare.class,
                                                              DoorEventToggleStart.class))
-
-            .append("Config: ").append(config).append('\n')
+            .append("Config: ").append(config)
+            .append('\n')
             .toString();
     }
 

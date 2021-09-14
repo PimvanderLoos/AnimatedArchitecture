@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.BigDoorsSpigotSubPlatform_V1_15_R1;
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +15,10 @@ import javax.inject.Inject;
 public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
 {
     private final @Nullable IBigDoorsSpigotSubPlatform spigotPlatform;
+
+    private final String serverVersion;
+
+    private final Version subPlatformVersion;
 
     /**
      * Instantiates the platform manager and initializes the version-specific platform with the provided Spigot
@@ -31,28 +34,26 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
     public SubPlatformManagerSpigot(BigDoorsPlugin bigDoorsPlugin, IPLogger logger, IPLocationFactory locationFactory)
     {
         Version versionTmp;
-        String versionStringTmp;
         @Nullable IBigDoorsSpigotSubPlatform spigotPlatformTmp = null;
         try
         {
-            versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
-            versionTmp = Version.valueOf(versionStringTmp);
-            if (versionTmp != Version.ERROR)
+            final String versionStringTmp =
+                Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            versionTmp = Version.parseVersion(versionStringTmp);
+            if (versionTmp != Version.UNSUPPORTED_VERSION)
                 spigotPlatformTmp = versionTmp.getPlatform(logger, locationFactory);
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
             e.printStackTrace();
-            versionTmp = Version.ERROR;
-            versionStringTmp = Bukkit.getServer().getClass().getPackage().getName().replace(".", ",");
+            versionTmp = Version.UNSUPPORTED_VERSION;
         }
-        final Version version = versionTmp;
-        final String versionString = versionStringTmp;
+        serverVersion = Bukkit.getServer().getClass().getPackage().getName();
+        subPlatformVersion = versionTmp;
         spigotPlatform = spigotPlatformTmp;
 
-        if (version == Version.ERROR)
-            throw new RuntimeException("No platform available for version " + versionString);
-        Util.requireNonNull(spigotPlatform, "Platform").init(bigDoorsPlugin);
+        if (spigotPlatform != null)
+            spigotPlatform.init(bigDoorsPlugin);
     }
 
     @Override
@@ -69,9 +70,21 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
         return spigotPlatform;
     }
 
+    @Override
+    public String getSubPlatformVersion()
+    {
+        return subPlatformVersion.name();
+    }
+
+    @Override
+    public String getServerVersion()
+    {
+        return serverVersion;
+    }
+
     private enum Version
     {
-        ERROR
+        UNSUPPORTED_VERSION
             {
                 @Override
                 public @Nullable IBigDoorsSpigotSubPlatform getPlatform(IPLogger logger,
@@ -98,5 +111,18 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
         public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform(IPLogger logger,
                                                                          IPLocationFactory locationFactory)
             throws UnsupportedOperationException;
+
+        public static Version parseVersion(String version)
+        {
+            try
+            {
+                return Version.valueOf(version);
+            }
+            // No enum constant...
+            catch (IllegalArgumentException e)
+            {
+                return Version.UNSUPPORTED_VERSION;
+            }
+        }
     }
 }

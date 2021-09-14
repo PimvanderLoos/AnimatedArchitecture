@@ -651,7 +651,7 @@ public final class Util
     {
         final StringBuilder builder = new StringBuilder("[");
         for (@Nullable final T obj : entries)
-            builder.append(obj == null ? "NULL" : mapper.apply(obj)).append(", ");
+            builder.append(obj == null ? "null" : mapper.apply(obj)).append(", ");
 
         final String result = builder.toString();
         final int len = result.length();

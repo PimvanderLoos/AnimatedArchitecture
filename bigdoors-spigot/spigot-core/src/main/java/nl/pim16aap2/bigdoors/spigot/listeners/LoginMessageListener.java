@@ -22,10 +22,10 @@ import javax.inject.Singleton;
 public final class LoginMessageListener extends AbstractListener
 {
     private final BigDoorsPlugin plugin;
-    private final UpdateManager updateManager;
+    private final @Nullable UpdateManager updateManager;
 
     @Inject
-    public LoginMessageListener(BigDoorsPlugin plugin, UpdateManager updateManager)
+    public LoginMessageListener(BigDoorsPlugin plugin, @Nullable UpdateManager updateManager)
     {
         super(plugin);
         this.plugin = plugin;
@@ -75,6 +75,9 @@ public final class LoginMessageListener extends AbstractListener
 
     private @Nullable String getUpdateMessage()
     {
+        if (updateManager == null)
+            return null;
+
         if (updateManager.hasUpdateBeenDownloaded())
             return "A new update (" + updateManager.getNewestVersion() + ") has been downloaded! " +
                 "Restart your server to apply the update!";

@@ -24,7 +24,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -41,6 +40,7 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
+import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
@@ -50,16 +50,20 @@ import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
+import nl.pim16aap2.bigdoors.storage.IStorage;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
 import java.io.File;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Singleton //
 final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 {
+    private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
+
     private final long mainThreadId;
 
     private final BigDoorsPlugin plugin;
@@ -178,7 +182,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final LocalizationManager localizationManager;
 
     @Getter
-    private final IBigDoorsSpigotSubPlatform spigotPlatform;
+    private final IBigDoorsSpigotSubPlatform spigotSubPlatform;
 
 
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
@@ -200,71 +204,91 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final WorldListener worldListener;
 
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin, long mainThreadId)
-        throws Exception
+        throws InitializationException
     {
+        this.bigDoorsSpigotComponent = bigDoorsSpigotComponent;
         this.plugin = plugin;
         this.mainThreadId = mainThreadId;
 
-        spigotPlatform = bigDoorsSpigotComponent.getSpigotPlatform();
-        logger = bigDoorsSpigotComponent.getLogger();
+        final ISubPlatformManagerSpigot subPlatformManagerSpigot =
+            bigDoorsSpigotComponent.getSubPlatformManagerSpigot();
 
-        protectionCompatManager = bigDoorsSpigotComponent.getProtectionCompatManager();
-        economyManager = bigDoorsSpigotComponent.getVaultManager();
-        permissionsManager = bigDoorsSpigotComponent.getVaultManager();
-        limitsManager = bigDoorsSpigotComponent.getLimitsManager();
-        headManager = bigDoorsSpigotComponent.getHeadManager();
-        updateManager = bigDoorsSpigotComponent.getUpdateManager();
-        powerBlockManager = bigDoorsSpigotComponent.getPowerBlockManager();
+        if (!subPlatformManagerSpigot.isValidPlatform())
+            throw new InitializationException("Failed to initialize BigDoors SubPlatform version " +
+                                                  subPlatformManagerSpigot.getSubPlatformVersion() +
+                                                  " for server version: " +
+                                                  subPlatformManagerSpigot.getServerVersion());
+
         databaseManager = bigDoorsSpigotComponent.getDatabaseManager();
-        doorRegistry = bigDoorsSpigotComponent.getDoorRegistry();
-        localizationManager = bigDoorsSpigotComponent.getLocalizationManager();
-        chunkManager = bigDoorsSpigotComponent.getIChunkManager();
-        powerBlockRedstoneManager = bigDoorsSpigotComponent.getIPowerBlockRedstoneManager();
-        doorActivityManager = bigDoorsSpigotComponent.getDoorActivityManager();
-        doorSpecificationManager = bigDoorsSpigotComponent.getDoorSpecificationManager();
-        doorTypeManager = bigDoorsSpigotComponent.getDoorTypeManager();
-        toolUserManager = bigDoorsSpigotComponent.getToolUserManager();
-        delayedCommandInputManager = bigDoorsSpigotComponent.getDelayedCommandInputManager();
+        if (databaseManager.getDatabaseState() != IStorage.DatabaseState.OK)
+            throw new InitializationException("Failed to initialize BigDoors database! Database state: " +
+                                                  databaseManager.getDatabaseState().name());
 
-        pLocationFactory = bigDoorsSpigotComponent.getIPLocationFactory();
-        pWorldFactory = bigDoorsSpigotComponent.getIPWorldFactory();
-        pPlayerFactory = bigDoorsSpigotComponent.getIPPlayerFactory();
-        commandFactory = bigDoorsSpigotComponent.getCommandFactory();
-        pBlockDataFactory = bigDoorsSpigotComponent.getBlockDataFactory();
-        fallingBlockFactory = bigDoorsSpigotComponent.getFallingBlockFactory();
-        bigDoorsEventFactory = bigDoorsSpigotComponent.getIBigDoorsEventFactory();
+        spigotSubPlatform = safeGetter(BigDoorsSpigotComponent::getSpigotSubPlatform);
+        logger = safeGetter(BigDoorsSpigotComponent::getLogger);
+        protectionCompatManager = safeGetter(BigDoorsSpigotComponent::getProtectionCompatManager);
+        economyManager = safeGetter(BigDoorsSpigotComponent::getVaultManager);
+        permissionsManager = safeGetter(BigDoorsSpigotComponent::getVaultManager);
+        limitsManager = safeGetter(BigDoorsSpigotComponent::getLimitsManager);
+        headManager = safeGetter(BigDoorsSpigotComponent::getHeadManager);
+        updateManager = safeGetter(BigDoorsSpigotComponent::getUpdateManager);
+        powerBlockManager = safeGetter(BigDoorsSpigotComponent::getPowerBlockManager);
+        doorRegistry = safeGetter(BigDoorsSpigotComponent::getDoorRegistry);
+        localizationManager = safeGetter(BigDoorsSpigotComponent::getLocalizationManager);
+        chunkManager = safeGetter(BigDoorsSpigotComponent::getIChunkManager);
+        powerBlockRedstoneManager = safeGetter(BigDoorsSpigotComponent::getIPowerBlockRedstoneManager);
+        doorActivityManager = safeGetter(BigDoorsSpigotComponent::getDoorActivityManager);
+        doorSpecificationManager = safeGetter(BigDoorsSpigotComponent::getDoorSpecificationManager);
+        doorTypeManager = safeGetter(BigDoorsSpigotComponent::getDoorTypeManager);
+        toolUserManager = safeGetter(BigDoorsSpigotComponent::getToolUserManager);
+        delayedCommandInputManager = safeGetter(BigDoorsSpigotComponent::getDelayedCommandInputManager);
 
-        redstoneListener = bigDoorsSpigotComponent.getRedstoneListener();
-        loginResourcePackListener = bigDoorsSpigotComponent.getLoginResourcePackListener();
-        chunkListener = bigDoorsSpigotComponent.getChunkListener();
-        eventListeners = bigDoorsSpigotComponent.getEventListeners();
-        loginMessageListener = bigDoorsSpigotComponent.getLoginMessageListener();
+        pLocationFactory = safeGetter(BigDoorsSpigotComponent::getIPLocationFactory);
+        pWorldFactory = safeGetter(BigDoorsSpigotComponent::getIPWorldFactory);
+        pPlayerFactory = safeGetter(BigDoorsSpigotComponent::getIPPlayerFactory);
+        commandFactory = safeGetter(BigDoorsSpigotComponent::getCommandFactory);
+        pBlockDataFactory = safeGetter(BigDoorsSpigotComponent::getBlockDataFactory);
+        fallingBlockFactory = safeGetter(BigDoorsSpigotComponent::getFallingBlockFactory);
+        bigDoorsEventFactory = safeGetter(BigDoorsSpigotComponent::getIBigDoorsEventFactory);
 
-        bigDoorsConfig = bigDoorsSpigotComponent.getConfig();
-        pExecutor = bigDoorsSpigotComponent.getPExecutor();
-        worldListener = bigDoorsSpigotComponent.getWorldListener();
-        glowingBlockSpawner = bigDoorsSpigotComponent.getIGlowingBlockSpawner();
-        pServer = bigDoorsSpigotComponent.getIPServer();
-        soundEngine = bigDoorsSpigotComponent.getISoundEngine();
-        messagingInterface = bigDoorsSpigotComponent.getIMessagingInterface();
-        messageableServer = bigDoorsSpigotComponent.getMessageable();
-        bigDoorsToolUtil = bigDoorsSpigotComponent.getBigDoorsToolUtilSpigot();
-        autoCloseScheduler = bigDoorsSpigotComponent.getAutoCloseScheduler();
-        localizer = bigDoorsSpigotComponent.getILocalizer();
-        blockAnalyzer = bigDoorsSpigotComponent.getBlockAnalyzer();
-        doorTypeLoader = bigDoorsSpigotComponent.getDoorTypeLoader();
-        restartableHolder = bigDoorsSpigotComponent.getRestartableHolder();
+        redstoneListener = safeGetter(BigDoorsSpigotComponent::getRedstoneListener);
+        loginResourcePackListener = safeGetter(BigDoorsSpigotComponent::getLoginResourcePackListener);
+        chunkListener = safeGetter(BigDoorsSpigotComponent::getChunkListener);
+        eventListeners = safeGetter(BigDoorsSpigotComponent::getEventListeners);
+        loginMessageListener = safeGetter(BigDoorsSpigotComponent::getLoginMessageListener);
 
-        initLocalization();
+        bigDoorsConfig = safeGetter(BigDoorsSpigotComponent::getConfig);
+        pExecutor = safeGetter(BigDoorsSpigotComponent::getPExecutor);
+        worldListener = safeGetter(BigDoorsSpigotComponent::getWorldListener);
+        glowingBlockSpawner = safeGetter(BigDoorsSpigotComponent::getIGlowingBlockSpawner);
+        pServer = safeGetter(BigDoorsSpigotComponent::getIPServer);
+        soundEngine = safeGetter(BigDoorsSpigotComponent::getISoundEngine);
+        messagingInterface = safeGetter(BigDoorsSpigotComponent::getIMessagingInterface);
+        messageableServer = safeGetter(BigDoorsSpigotComponent::getMessageable);
+        bigDoorsToolUtil = safeGetter(BigDoorsSpigotComponent::getBigDoorsToolUtilSpigot);
+        autoCloseScheduler = safeGetter(BigDoorsSpigotComponent::getAutoCloseScheduler);
+        localizer = safeGetter(BigDoorsSpigotComponent::getILocalizer);
+        blockAnalyzer = safeGetter(BigDoorsSpigotComponent::getBlockAnalyzer);
+        doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
+        restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
     }
 
-    private void initLocalization()
+    private <T> T safeGetter(Function<BigDoorsSpigotComponent, @Nullable T> fun)
+        throws InitializationException
     {
-        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
-                                                    .map(DoorType::getDoorClass)
-                                                    .collect(Collectors.toList());
-        localizationManager.addResourcesFromClass(types);
-        localizationManager.addResourcesFromClass(List.of(getClass()));
+        final @Nullable T ret;
+        try
+        {
+            ret = fun.apply(bigDoorsSpigotComponent);
+        }
+        catch (Exception e)
+        {
+            throw new InitializationException(e.getMessage());
+        }
+        if (ret == null)
+            throw new InitializationException(
+                "Failed to instantiate the BigDoors platform for Spigot: Missing dependency!");
+        return ret;
     }
 
     @Override

@@ -76,6 +76,7 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     BigDoorsPluginModule.class,
+    BigDoorsSpigotPlatformModule.class,
     PLoggerModule.class,
     PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
@@ -107,9 +108,6 @@ interface BigDoorsSpigotComponent
         Builder setPlugin(BigDoorsPlugin javaPlugin);
 
         @BindsInstance
-        Builder setPlatform(IBigDoorsPlatform bigDoorsPlatform);
-
-        @BindsInstance
         Builder setRestartableHolder(RestartableHolder restartableHolder);
 
         BigDoorsSpigotComponent build();
@@ -125,7 +123,7 @@ interface BigDoorsSpigotComponent
 
     IBigDoorsPlatform getBigDoorsPlatform();
 
-    IBigDoorsSpigotSubPlatform getSpigotPlatform();
+    IBigDoorsSpigotSubPlatform getSpigotSubPlatform();
 
     ProtectionCompatManagerSpigot getProtectionCompatManager();
 
