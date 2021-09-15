@@ -63,6 +63,11 @@ commands:
     usage: /NewPortcullis <portcullisName>
     permission: bigdoors.user.createdoor.portcullis
     permission-message: You do not have the bigdoors.user.createdoor.portcullis permission node.
+  newslidingdoor:
+    description: Create a new sliding door with the provided name.
+    usage: /NewSlidingDoor <slidingDoorName>
+    permission: bigdoors.user.createdoor.slidingdoor
+    permission-message: You do not have the bigdoors.user.createdoor.slidingdoor permission node.
   newdrawbridge:
     description: Create a new portcullis from selection with name "portcullisName".
     usage: /NewDrawbridge <drawbridgeName>
@@ -284,5 +289,4 @@ permissions:
     default: op
   bigdoors.admin.bypass.removeowner:
     description: Allows a user to remove owners from a door not owned by them.
-    default: op   
-    
+    default: op

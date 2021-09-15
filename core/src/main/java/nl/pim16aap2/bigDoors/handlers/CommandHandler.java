@@ -1060,6 +1060,14 @@ public class CommandHandler implements CommandExecutor
                     return true;
                 }
 
+            // /newslidingdoor <doorName>
+            if (cmd.getName().equalsIgnoreCase("newslidingdoor"))
+                if (args.length == 1)
+                {
+                    startCreator(player, args[0], DoorType.SLIDINGDOOR);
+                    return true;
+                }
+
             // /newdrawbridge <doorName>
             if (cmd.getName().equalsIgnoreCase("newdrawbridge"))
                 if (args.length == 1)

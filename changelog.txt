@@ -2,6 +2,7 @@ Alpha 0.1.8.33
 - Added code generation to generate the required code for unsupported versions. This is disabled by default, but can be enabled in the config via the "allowCodeGeneration" and the "forceCodeGeneration" options. This can only be used to generate code for versions after 1.17.
 - Removed a bunch of unused code to make updates a bit easier going forward.
 - Fix the /namedoor command giving you more sticks when running the command multiple times. Thanks, MiniMoro, for the bug report!
+- Add /newslidingdoor command as a shortcut command for creating new sliding doors. Thanks, Vexius, for the suggestion!
 
 Alpha 0.1.8.32
 - Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!
@@ -26,15 +27,15 @@ Alpha 0.1.8.30
 - Updated XMaterial.
 - Fixed jungle logs not rotating properly in east/south-aligned drawbridges. Thanks, @Nateboy, for the bug report and for helping fix it!
 - Fix PlotSquared v4.4.495 support. All older versions of v4 aren't supported anymore. Thanks, @Arma, for the bug report!
-- Fix support for version 1.13.2 (previously 1.13 and 1.13.1 were the only working 1.13.x versions) 
+- Fix support for version 1.13.2 (previously 1.13 and 1.13.1 were the only working 1.13.x versions)
 
 Alpha 0.1.8.29
 - Improved checking if the open GUI is ours. Thanks, @GodsDead, for the bug report!
 - Fixed admin bypass permissions not being taken into account when using commands. Thanks, @yriokiri and @Endaar, for the bug reports!
 - When moving a powerblock, selecting the current powerblock's location will no longer tell you that the location is already occupied. Instead, it'll just tell you everything went well.
-- Executing "/listdoors" in the console without any player/doorName argument will now list all doors instead of complain about being unable to find any doors. 
+- Executing "/listdoors" in the console without any player/doorName argument will now list all doors instead of complain about being unable to find any doors.
 - Added new notification system for door creators. Thanks, @IronAR, for the suggestion! This allows door creators to opt-in on a per-door basis to receive notifications whenever a door is toggled.
-- Added config option "allowNotifications" (default: true) to enable/disable the notification system. 
+- Added config option "allowNotifications" (default: true) to enable/disable the notification system.
 - Added permission node "bigdoors.user.receivenotifications" that gives access to both signing up for and receiving notifications. (again, only the original creator of a door has access to this!)
 - Added command "/setnotification <doorName || doorUID> <true || false>" to enable/disable notifications for a door. There's also a corresponding GUI option.
 - Added new localizable messages for the notification system.
@@ -63,7 +64,7 @@ Alpha 0.1.8.26
 Alpha 0.1.8.25
 - Added support for version 1.16.2 of Minecraft.
 - Added support for PlotSquared v5 (in addition to v3 and v4). Thanks, @xTronix, for the bug report!
-- The update-checker will no longer read the hash of the file if it's not needed; it only reads it right before downloading the latest update now. Thanks, @SlimeDog, for the report! 
+- The update-checker will no longer read the hash of the file if it's not needed; it only reads it right before downloading the latest update now. Thanks, @SlimeDog, for the report!
 - Fixed fast doors (e.g. very small ones) getting toggled twice by the same button. Thanks, @Wolf2323, for the bug report!
 
 Alpha 0.1.8.24
@@ -72,12 +73,12 @@ Alpha 0.1.8.24
 - Added new config option "loadChunksForToggle" (default: true) that determines how the plugin handles unloaded chunks. When set to true, it will load any necessary chunks and move the blocks without animation. When set to false, it will abort the toggle attempt (and not load any chunks).
 - Added new config option "skipUnloadedAutoCloseToggle" (default: true) that will prevent a door being toggled in unloaded chunks if it has an autoCloseTimer set, to avoid unnecessary chunk loading. Only takes effect if "loadChunksForToggle" is enabled.
 - Added new config option "maxPowerBlockDistance" (default: -1 (unlimited)) that, as the name implies, limits the maximum distance between a powerblock and the door it belongs to (its engine, specifically). Thanks, @PirateCraft, for the suggestion!
-- Added new config option "maxAutoCloseTimer" (default 6000 (=5 mins)) that determines the time limit for autoCloseTimers. 
+- Added new config option "maxAutoCloseTimer" (default 6000 (=5 mins)) that determines the time limit for autoCloseTimers.
 
 Alpha 0.1.8.23
 - Added full support for 1.16's new blocks so you no longer have to manually add them to the whitelist. Thanks, @thedarkonekiller, for the bug report!
 - Permissions now default to OPs again.
-- Removed Spiget in favor of GitHub releases, as Spiget proved to be too unreliable. 
+- Removed Spiget in favor of GitHub releases, as Spiget proved to be too unreliable.
 - Renamed "bigdoors.user" permission node to "bigdoors.user.base", so that "bigdoors.user.*" will include the most important permissions as well.
 - A portcullis will now respect its open direction, even if there is no space to go in that direction. Thanks, @xph11, for the bug report!
 
@@ -139,7 +140,7 @@ Alpha 0.1.8.15
 
 Alpha 0.1.8.14
 - Fixed materials in 1.12. Thanks, @GameFire99 for the bug report!
-- Updated to JCalculator 1.6 (for the price formulas in the config), fixing issues with exponentiation and adding some more operators. 
+- Updated to JCalculator 1.6 (for the price formulas in the config), fixing issues with exponentiation and adding some more operators.
 
 Alpha 0.1.8.13
 - Added support for Towny. Thanks, @Onions for the suggestion!
@@ -178,9 +179,9 @@ Alpha 0.1.8.11
 - Fixed minor memory leak when players disconnect with their BigDoors menu still open.
 - Using new update checker. Dev builds now force enable update checking + updating, so people don't linger on them after they've been released.
 - Added "/BigDoors upgradedatabaseforv2" command that will prepare the database for v2 of BigDoors. Note that there is no way back, so DO NOT USE THIS COMMAND!!
-- In further preparation of v2 of BigDoors, the naive opening system has been deprecated. 
+- In further preparation of v2 of BigDoors, the naive opening system has been deprecated.
   What this means, is that whenever a door that does not have an explicitly defined openDirection (default), they will set the open direction they find when they are first toggled.
-  The old system where you could determine the direction a door would go by blocking the other directions will therefore ONLY work the first time you open a door. 
+  The old system where you could determine the direction a door would go by blocking the other directions will therefore ONLY work the first time you open a door.
   After that it will ALWAYS go in that direction unless you change it via the GUI / Commands.
 - Removed NONE open direction option from the GUI + commands.
 - Updated database to v6.
@@ -211,7 +212,7 @@ Alpha 0.1.8.7
 - Added support for 1.14's new blocks.
 - Added missing multipliers for the new door types to the config. Thanks, @kristinr96 for the report!
 - Instead of a single powerblocktype, the config now accepts a list of materials.
-- Fixed NPE thrown by bypassCompat when checking for offline players. Thanks, @bolleboor and @mafen for the bug reports! 
+- Fixed NPE thrown by bypassCompat when checking for offline players. Thanks, @bolleboor and @mafen for the bug reports!
 - Fixed incorrect import throwing errors. Thanks, @Relaxing for the bug report!
 
 Alpha 0.1.8.6
@@ -240,14 +241,14 @@ Alpha 0.1.8.1
 
 Alpha 0.1.8
 - Added "/BigDoors restart" to reload the config and the translation file and generally reinitialize everything.
-- "/BigDoors" no longer opens GUI. Use "/BDM" or "/BigDoors Menu" instead. 
+- "/BigDoors" no longer opens GUI. Use "/BDM" or "/BigDoors Menu" instead.
 - Added (very) basic help menu for /BigDoors.
 - Fixed translation for setting close timer. Thanks, @WHiZSTA.
 - Doors can now go through water and lava.
 - Added DEBUG option in the config that you should not use!! Just leave it on false.
 - Made update checking a little less frequent (once every 4h now (and on startup) instead of every 30 mins).
 - Fixed incompatibility with Wireless Redstone. Thanks, @DaniRadio for the bug report!
-- Fixed terracotta accidentally being blacklisted in <1.13.*. Thanks, @Minestick for the bug report! 
+- Fixed terracotta accidentally being blacklisted in <1.13.*. Thanks, @Minestick for the bug report!
 - Added "/fillDoor" command to quickly generate doors.
 - Added sliding door and elevator door types. Note that you cannot ride elevators (yet)!
 - Added translations.
@@ -322,8 +323,8 @@ Alpha 0.1.6
 - Added support for custom sounds via a resource pack. Thank you @Achaius for all your help with this!
 - Added config options for resource pack loading.
 - Added portcullis/drawbridge/door speed multiplier variables in the config.
-- Speed variable (now called time) in the API now describes amount of time (measured in seconds) it will take to open a door of any type. 
-- Now using variable tickrate based on door speed and size! Faster = higher tickrate, slower = lower tickrate. 
+- Speed variable (now called time) in the API now describes amount of time (measured in seconds) it will take to open a door of any type.
+- Now using variable tickrate based on door speed and size! Faster = higher tickrate, slower = lower tickrate.
 - Fixed materials such as andesite turning into stone in < 1.12. (again... Thank you, 1.13).
 - Added "/bdversion" command to display the version of this plugin.
 - Double steps no longer allowed for now, as they bug out everything.
