@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.testing;
+package nl.pim16aap2.testing;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;

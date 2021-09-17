@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.testing;
+package nl.pim16aap2.testing;
 
 import org.jetbrains.annotations.Nullable;
 import org.mockito.MockSettings;

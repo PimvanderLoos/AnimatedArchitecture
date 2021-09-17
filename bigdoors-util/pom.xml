@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>bigdoors-test-util</artifactId>
+    <artifactId>bigdoors-util</artifactId>
     <packaging>jar</packaging>
     <description>Utilities for unit tests</description>
     <version>1</version>
@@ -13,11 +13,6 @@
         <artifactId>bigdoors-parent</artifactId>
         <version>1</version>
     </parent>
-
-    <properties>
-        <maven.compiler.source>16</maven.compiler.source>
-        <maven.compiler.target>16</maven.compiler.target>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -31,6 +26,13 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${dependency.version.mockito}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.icongmbh.oss.maven.plugins</groupId>
+            <artifactId>javassist-maven-plugin</artifactId>
+            <version>2.0.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -62,7 +64,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${dependency.version.maven-compiler}</version>
                 <configuration>
-                    <compilerArgs>--enable-preview</compilerArgs>
                     <encoding>UTF-8</encoding>
                     <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>

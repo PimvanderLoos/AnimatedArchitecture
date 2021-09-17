@@ -18,6 +18,9 @@
         <src.dir>${basedir}/src/main/java</src.dir>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
+        <dependency.version.flogger>0.6</dependency.version.flogger>
+        <dependency.version.slf4j>1.7.32</dependency.version.slf4j>
+        <dependency.version.logback>1.2.6</dependency.version.logback>
         <dependency.version.annotations>22.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.20</dependency.version.lombok>
         <dependency.version.lombok-plugin>1.18.20.0</dependency.version.lombok-plugin>
@@ -51,7 +54,7 @@
         <module>bigdoors-spigot</module>
         <module>bigdoors-doors</module>
         <module>bigdoors-integration-test</module>
-        <module>bigdoors-test-util</module>
+        <module>bigdoors-util</module>
     </modules>
 
     <repositories>
@@ -110,6 +113,49 @@
             <artifactId>dagger-compiler</artifactId>
             <version>${dependency.version.dagger}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger</artifactId>
+            <version>${dependency.version.flogger}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-system-backend</artifactId>
+            <version>${dependency.version.flogger}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-slf4j-backend</artifactId>
+            <version>${dependency.version.flogger}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${dependency.version.slf4j}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${dependency.version.logback}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${dependency.version.logback}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -214,6 +260,7 @@
                     <version>${dependency.version.maven-dependency}</version>
                 </plugin>
 
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
@@ -227,6 +274,11 @@
                     <configuration>
                         <trimStackTrace>false</trimStackTrace>
                         <useFile>false</useFile>
+                        <systemPropertyVariables>
+                            <!-- Our DefaultPlatform override isn't available during the test phase,
+                                 so we use the environment variable to ensure we use slf4j regardless -->
+                            <flogger.backend_factory>com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance</flogger.backend_factory>
+                        </systemPropertyVariables>
                     </configuration>
                 </plugin>
 
@@ -279,7 +331,34 @@
                                 <pattern>dagger</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.dagger</shadedPattern>
                             </relocation>
+                            <relocation>
+                                <pattern>org.checkerframework</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.checkerframework</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>org.slf4j</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.slf4j</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.common.flogger</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.flogger</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>ch.qos.logback</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.logback</shadedPattern>
+                            </relocation>
                         </relocations>
+
+                        <!-- We want to override the DefaultPlatform with our own one,
+                             so we exclude the existing one -->
+                        <filters>
+                            <filter>
+                                <artifact>com.google.flogger:flogger-system-backend</artifact>
+                                <excludes>
+                                    <exclude>com.google.common.flogger.backend.system.DefaultPlatform</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
                     </configuration>
                     <executions>
                         <execution>
