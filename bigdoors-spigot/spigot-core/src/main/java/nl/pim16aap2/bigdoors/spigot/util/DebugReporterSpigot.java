@@ -73,9 +73,11 @@ public class DebugReporterSpigot extends DebugReporter
             .append('\n')
             .append("Registered plugins: ").append(bigDoorsPlugin.getRegisteredPlugins())
             .append('\n')
+
 //            // TODO: Implement this:
 //            .append("Enabled protection hooks: ")
 //            .append(getAllProtectionHooksOrSomething())
+
             .append("EventListeners:\n").append(getListeners(DoorPrepareAddOwnerEvent.class,
                                                              DoorPrepareCreateEvent.class,
                                                              DoorPrepareDeleteEvent.class,
@@ -124,5 +126,11 @@ public class DebugReporterSpigot extends DebugReporter
     {
         return String.format("{%s: %s (%s)}",
                              listener.getPlugin(), listener.getListener(), listener.getPriority());
+    }
+
+    @Override
+    public String toString()
+    {
+        return getDump();
     }
 }
