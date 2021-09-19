@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -9,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Singleton
+@Flogger
 public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpawner
 {
     @Getter
@@ -42,7 +43,6 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final Set<IRestartable> restartables = new ConcurrentHashMap<IRestartable, Boolean>().keySet();
 
     private final IGlowingBlockFactory glowingBlockFactory;
-    private final IPLogger logger;
 
     private volatile @Nullable Scoreboard scoreboard;
 
@@ -54,11 +54,9 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     private final RestartableHolder restartableHolder = new RestartableHolder();
 
     @Inject
-    public GlowingBlockSpawner(RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory,
-                               IPLogger logger, IPExecutor executor)
+    public GlowingBlockSpawner(RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPExecutor executor)
     {
         super(holder);
-        this.logger = logger;
         this.glowingBlockFactory = glowingBlockFactory;
         this.executor = executor;
     }
@@ -70,44 +68,43 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         ensureInitialized();
         if (scoreboard == null)
         {
-            logger.warn("Failed to spawn glowing block: Scoreboard is null!");
+            log.at(Level.WARNING).log("Failed to spawn glowing block: Scoreboard is null!");
             return Optional.empty();
         }
 
         if (teams.get(pColor) == null)
         {
             // FINER because it will already have been logged on startup.
-            logger.logMessage(Level.FINER, "GlowingBlock Color " + pColor.name() + " was not registered properly!");
+            log.at(Level.FINER).log("GlowingBlock Color %s was not registered properly!", pColor.name());
             return Optional.empty();
         }
 
         final long ticks = TimeUnit.MILLISECONDS.convert(time, timeUnit) / 50;
         if (ticks == 0)
         {
-            logger.logThrowable(
-                new IllegalArgumentException("Invalid duration of " + time + " " + timeUnit.name() + " provided! "));
+            log.at(Level.SEVERE).withCause(new IllegalArgumentException("Invalid duration of " + time + " " +
+                                                                            timeUnit.name() + " provided! ")).log();
             return Optional.empty();
         }
 
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            logger.logThrowable(new NullPointerException(), "Player " + player +
-                " does not appear to be online! They will not receive any GlowingBlock packets!");
+            log.at(Level.SEVERE).withCause(new NullPointerException())
+               .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
 
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            logger.logThrowable(new NullPointerException(), "World " + world +
-                " does not appear to be online! No Glowing Blocks can be spawned here!");
+            log.at(Level.SEVERE).withCause(new NullPointerException())
+               .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, restartableHolder,
-                                                   logger, this, executor);
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, restartableHolder, this, executor);
         blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
         return blockOpt;
     }

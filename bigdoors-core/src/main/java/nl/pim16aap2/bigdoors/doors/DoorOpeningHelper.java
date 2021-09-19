@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -19,7 +20,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorToggleEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -40,9 +40,9 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Flogger
 public final class DoorOpeningHelper
 {
-    private final IPLogger logger;
     private final ILocalizer localizer;
     private final DoorActivityManager doorActivityManager;
     private final DoorTypeManager doorTypeManager;
@@ -56,13 +56,12 @@ public final class DoorOpeningHelper
     private final IBigDoorsPlatform bigDoorsPlatform;
 
     @Inject //
-    DoorOpeningHelper(IPLogger logger, ILocalizer localizer, DoorActivityManager doorActivityManager,
-                      DoorTypeManager doorTypeManager, IConfigLoader config, IBlockAnalyzer blockAnalyzer,
-                      IPLocationFactory locationFactory, IProtectionCompatManager protectionCompatManager,
-                      IGlowingBlockSpawner glowingBlockSpawner, IBigDoorsEventFactory bigDoorsEventFactory,
-                      IPExecutor executor, IBigDoorsPlatform bigDoorsPlatform)
+    DoorOpeningHelper(ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
+                      IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
+                      IProtectionCompatManager protectionCompatManager, IGlowingBlockSpawner glowingBlockSpawner,
+                      IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor,
+                      IBigDoorsPlatform bigDoorsPlatform)
     {
-        this.logger = logger;
         this.localizer = localizer;
         this.doorActivityManager = doorActivityManager;
         this.doorTypeManager = doorTypeManager;
@@ -92,9 +91,8 @@ public final class DoorOpeningHelper
     DoorToggleResult abort(IDoor door, DoorToggleResult result, DoorActionCause cause, IPPlayer responsible,
                            IMessageable messageReceiver)
     {
-        logger.logMessage(Level.FINE,
-                          String.format("Aborted toggle for door %d because of %s. Toggle Reason: %s, Responsible: %s",
-                                        door.getDoorUID(), result.name(), cause.name(), responsible.asString()));
+        log.at(Level.FINE).log("Aborted toggle for door %d because of %s. Toggle Reason: %s, Responsible: %s",
+                               door.getDoorUID(), result.name(), cause.name(), responsible.asString());
 
         // If the reason the toggle attempt was cancelled was because it was busy, it should obviously
         // not reset the busy status of this door. However, in every other case it should, because the door is
@@ -107,7 +105,7 @@ public final class DoorOpeningHelper
             if (messageReceiver instanceof IPPlayer)
                 messageReceiver.sendMessage(localizer.getMessage(result.getLocalizationKey(), door.getName()));
             else
-                logger.info("Failed to toggle door: " + door.getDoorUID() + ", reason: " + result.name());
+                log.at(Level.INFO).log("Failed to toggle door: %d, reason: %s", door.getDoorUID(), result.name());
         }
         return result;
     }
@@ -187,8 +185,8 @@ public final class DoorOpeningHelper
                                                                  door.getWorld()).map(
             protectionCompat ->
             {
-                logger.warn("Player \"" + responsible + "\" is not allowed to open door " +
-                                door.getName() + " (" + door.getDoorUID() + ") here! Reason: " + protectionCompat);
+                log.at(Level.WARNING).log("Player '%s' is not allowed to open door '%s' (%d) here! Reason: %s",
+                                          responsible, door.getName(), door.getDoorUID(), protectionCompat);
                 return false;
             }).orElse(true);
     }
@@ -361,7 +359,7 @@ public final class DoorOpeningHelper
 
         if (!chunksLoaded(door))
         {
-            logger.warn("Chunks for door " + door.getName() + " could not be not loaded!");
+            log.at(Level.WARNING).log("Chunks for door '%s' could not be not loaded!", door.getName());
             return DoorToggleResult.ERROR;
         }
 

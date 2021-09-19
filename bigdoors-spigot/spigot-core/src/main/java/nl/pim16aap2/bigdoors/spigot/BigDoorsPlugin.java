@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.spigot;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
 import nl.pim16aap2.bigdoors.spigot.logging.ConsoleAppender;
@@ -42,7 +42,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
     private final RestartableHolder restartableHolder;
     private final long mainThreadId;
-    private final IPLogger logger;
 
     private @Nullable BigDoorsSpigotPlatform bigDoorsSpigotPlatform;
 
@@ -64,7 +63,32 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             .setPlugin(this)
             .setRestartableHolder(restartableHolder)
             .build();
-        logger = bigDoorsSpigotComponent.getLogger();
+
+        // Update logger again because the config *should* be available now.
+        updateLogger();
+    }
+
+    /**
+     * Tries to update the logger using {@link IConfigLoader#logLevel()}.
+     * <p>
+     * If the config is not available for some reason, the log level defaults to {@link Level#ALL}.
+     */
+    private void updateLogger()
+    {
+        Level level;
+        try
+        {
+            level = bigDoorsSpigotComponent.getConfig().logLevel();
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to read config! Defaulting to logging everything!");
+            level = Level.ALL;
+        }
+        LOG_BACK_CONFIGURATOR
+            .setLogFile(new File(getDataFolder(), "log.txt"))
+            .setLevel(level)
+            .apply();
     }
 
     /**
@@ -144,9 +168,9 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     private void onInitFailure()
     {
         shutdown();
-        new BackupCommandListener(this, logger, initErrorMessage);
+        new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, logger, null, null, null, null));
+        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, null, null, null, null));
         successfulInit = false;
     }
 

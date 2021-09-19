@@ -1,16 +1,18 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.util.logging.Level;
 
 /**
  * Represents an accessor for {@link Unsafe}.
  *
  * @author Pim
  */
+@Flogger
 public final class UnsafeGetter
 {
     private static @Nullable Unsafe unsafe;
@@ -25,11 +27,9 @@ public final class UnsafeGetter
     /**
      * Tries to retrieve {@link Unsafe}.
      *
-     * @param logger
-     *     The logger to log any exceptions to.
      * @return Unsafe if it could be found, otherwise null.
      */
-    public static @Nullable Unsafe getUnsafe(IPLogger logger)
+    public static @Nullable Unsafe getUnsafe()
     {
         try
         {
@@ -37,20 +37,20 @@ public final class UnsafeGetter
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to access unsafe!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to access unsafe!");
             return null;
         }
     }
 
     /**
-     * Tries to retrieve {@link Unsafe}.
+     * Tries to retrieve {@link Unsafe} and throws an exception when it is not available.
      *
      * @return Unsafe.
      *
      * @throws Exception
      *     When an exception occurred trying to access Unsafe.
      */
-    public static Unsafe getUnsafe()
+    public static Unsafe getRequiredUnsafe()
         throws Exception
     {
         return Util.requireNonNull(getUnsafe0(), "unsafe");

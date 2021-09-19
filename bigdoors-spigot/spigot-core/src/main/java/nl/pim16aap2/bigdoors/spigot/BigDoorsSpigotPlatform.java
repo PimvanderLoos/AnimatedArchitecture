@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
@@ -28,7 +29,6 @@ import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -58,7 +58,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Singleton;
 import java.io.File;
 import java.util.function.Function;
+import java.util.logging.Level;
 
+@Flogger
 @Singleton //
 final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 {
@@ -102,9 +104,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 
     @Getter
     private final IGlowingBlockSpawner glowingBlockSpawner;
-
-    @Getter
-    private final IPLogger logger;
 
     @Getter
     private final ILocalizer localizer;
@@ -184,7 +183,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @Getter
     private final IBigDoorsSpigotSubPlatform spigotSubPlatform;
 
-
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final ChunkListener chunkListener;
 
@@ -225,7 +223,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
                                                   databaseManager.getDatabaseState().name());
 
         spigotSubPlatform = safeGetter(BigDoorsSpigotComponent::getSpigotSubPlatform);
-        logger = safeGetter(BigDoorsSpigotComponent::getLogger);
         protectionCompatManager = safeGetter(BigDoorsSpigotComponent::getProtectionCompatManager);
         economyManager = safeGetter(BigDoorsSpigotComponent::getVaultManager);
         permissionsManager = safeGetter(BigDoorsSpigotComponent::getVaultManager);
@@ -283,7 +280,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         }
         catch (Exception e)
         {
-            throw new InitializationException(e.getMessage());
+            throw new InitializationException(e.getMessage(), e);
         }
         if (ret == null)
             throw new InitializationException(
@@ -314,9 +311,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     {
         if (!(bigDoorsEvent instanceof BigDoorsSpigotEvent))
         {
-            getLogger().logThrowable(new IllegalArgumentException(
+            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
                 "Event " + bigDoorsEvent.getEventName() +
-                    ", is not a Spigot event, but it was called on the Spigot platform!"));
+                    ", is not a Spigot event, but it was called on the Spigot platform!")).log();
             return;
         }
 

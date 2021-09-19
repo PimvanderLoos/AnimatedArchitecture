@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -13,7 +14,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
@@ -27,6 +27,7 @@ import java.util.logging.Level;
 
 @Getter
 @ToString
+@Flogger
 public class DoorToggleRequest
 {
     @Getter
@@ -44,7 +45,6 @@ public class DoorToggleRequest
     @Getter
     private final DoorActionType doorActionType;
 
-    private final IPLogger logger;
     private final ILocalizer localizer;
     private final DoorActivityManager doorActivityManager;
     private final AutoCloseScheduler autoCloseScheduler;
@@ -56,7 +56,7 @@ public class DoorToggleRequest
     public DoorToggleRequest(@Assisted DoorRetriever.AbstractRetriever doorRetriever,
                              @Assisted DoorActionCause doorActionCause, @Assisted IMessageable messageReceiver,
                              @Assisted @Nullable IPPlayer responsible, @Assisted double time,
-                             @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType, IPLogger logger,
+                             @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType,
                              ILocalizer localizer, DoorActivityManager doorActivityManager,
                              AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
                              IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor)
@@ -68,7 +68,6 @@ public class DoorToggleRequest
         this.time = time;
         this.skipAnimation = skipAnimation;
         this.doorActionType = doorActionType;
-        this.logger = logger;
         this.localizer = localizer;
         this.doorActivityManager = doorActivityManager;
         this.autoCloseScheduler = autoCloseScheduler;
@@ -84,7 +83,7 @@ public class DoorToggleRequest
      */
     public CompletableFuture<DoorToggleResult> execute()
     {
-        logger.logMessage(Level.FINE, () -> "Executing toggle request: " + this);
+        log.at(Level.FINE).log("Executing toggle request: %s", this);
         return doorRetriever.getDoor().thenCompose(this::execute)
                             .exceptionally(throwable -> Util.exceptionally(throwable, DoorToggleResult.ERROR));
     }
@@ -93,7 +92,7 @@ public class DoorToggleRequest
     {
         if (doorOpt.isEmpty())
         {
-            logger.logMessage(Level.INFO, () -> "Toggle failure (no door found): " + this);
+            log.at(Level.INFO).log("Toggle failure (no door found): %s", this);
             return CompletableFuture.completedFuture(DoorToggleResult.ERROR);
         }
         final AbstractDoor door = doorOpt.get();

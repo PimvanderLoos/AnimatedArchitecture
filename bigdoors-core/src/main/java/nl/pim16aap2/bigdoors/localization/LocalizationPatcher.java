@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 
 /**
@@ -21,16 +22,15 @@ import java.util.Set;
  *
  * @author Pim
  */
+@Flogger //
 final class LocalizationPatcher
 {
     @Getter
     private final List<LocaleFile> patchFiles;
-    private final IPLogger logger;
 
-    LocalizationPatcher(Path directory, String baseName, IPLogger logger)
+    LocalizationPatcher(Path directory, String baseName)
         throws IOException
     {
-        this.logger = logger;
         // Ensure the base patch file exists.
         LocalizationUtil.ensureFileExists(directory.resolve(baseName + ".properties"));
         patchFiles = LocalizationUtil.getLocaleFilesInDirectory(directory, baseName);
@@ -61,7 +61,7 @@ final class LocalizationPatcher
      */
     void updatePatchKeys(Collection<String> rootKeys, LocaleFile localeFile)
     {
-        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path(), logger);
+        final Set<String> patchKeys = LocalizationUtil.getKeySet(localeFile.path());
         final Set<String> appendableKeys = new LinkedHashSet<>(rootKeys);
         appendableKeys.removeAll(patchKeys);
         appendKeys(localeFile, appendableKeys);
@@ -88,7 +88,7 @@ final class LocalizationPatcher
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to append new keys to file: " + localeFile.path());
+            log.at(Level.SEVERE).withCause(e).log("Failed to append new keys to file: %s", localeFile.path());
         }
     }
 
@@ -109,7 +109,7 @@ final class LocalizationPatcher
             final @Nullable String key = LocalizationUtil.getKeyFromLine(line);
             if (isValidPatch(key, line))
                 ret.put(key, line);
-        }, logger);
+        });
         return ret;
     }
 

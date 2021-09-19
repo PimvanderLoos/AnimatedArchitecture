@@ -5,6 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -12,7 +13,6 @@ import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -28,6 +28,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
+@Flogger
 public class Toggle extends BaseCommand
 {
     protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
@@ -40,13 +41,13 @@ public class Toggle extends BaseCommand
     private final double time;
 
     @AssistedInject //
-    Toggle(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+    Toggle(@Assisted ICommandSender commandSender, ILocalizer localizer,
            @Assisted DoorActionType doorActionType, @Assisted double time,
            DoorToggleRequestFactory doorToggleRequestFactory,
            @Named("MessageableServer") IMessageable messageableServer,
            @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, localizer);
         this.doorActionType = doorActionType;
         this.time = time;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
@@ -91,8 +92,9 @@ public class Toggle extends BaseCommand
             case CLOSE:
                 return door.isOpenable();
             default:
-                logger
-                    .logThrowable(new IllegalStateException("Reached unregistered case: " + doorActionType.name()));
+                log.at(Level.SEVERE)
+                   .withCause(new IllegalStateException("Reached unregistered case: " + doorActionType.name()))
+                   .log();
                 return false;
         }
     }
@@ -103,14 +105,14 @@ public class Toggle extends BaseCommand
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.no_access",
                                                                 door.getBasicInfo()));
-            logger.logMessage(Level.FINE, () -> "No access access for command " + this + " for door: " + door);
+            log.at(Level.FINE).log("%s has no access for command %s for door %s!", getCommandSender(), this, door);
             return;
         }
         if (!canToggle(door))
         {
             getCommandSender().sendMessage(localizer.getMessage("commands.toggle.error.cannot_toggle",
                                                                 door.getBasicInfo()));
-            logger.logMessage(Level.FINER, () -> "Blocked action for command " + this + " for door: " + door);
+            log.at(Level.FINER).log("Blocked action for command %s for door %s by %s", this, door, getCommandSender());
             return;
         }
 

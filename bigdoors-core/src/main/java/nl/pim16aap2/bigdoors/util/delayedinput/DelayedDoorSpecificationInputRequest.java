@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.Util;
 
@@ -24,10 +23,10 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
     private final IPPlayer player;
     private final DoorSpecificationManager doorSpecificationManager;
 
-    private DelayedDoorSpecificationInputRequest(IPLogger logger, Duration timeout, List<AbstractDoor> options,
-                                                 IPPlayer player, DoorSpecificationManager doorSpecificationManager)
+    private DelayedDoorSpecificationInputRequest(Duration timeout, List<AbstractDoor> options, IPPlayer player,
+                                                 DoorSpecificationManager doorSpecificationManager)
     {
-        super(logger, timeout.toMillis());
+        super(timeout.toMillis());
         this.options = options;
         this.player = player;
         this.doorSpecificationManager = doorSpecificationManager;
@@ -60,8 +59,8 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
      *     The player that is asked to make a choice.
      * @return The specified door if the user specified a valid one. Otherwise, an empty Optional.
      */
-    public static CompletableFuture<Optional<AbstractDoor>> get(IPLogger logger, Duration timeout,
-                                                                List<AbstractDoor> options, IPPlayer player,
+    public static CompletableFuture<Optional<AbstractDoor>> get(Duration timeout, List<AbstractDoor> options,
+                                                                IPPlayer player,
                                                                 DoorSpecificationManager doorSpecificationManager)
     {
         if (options.size() == 1)
@@ -69,7 +68,7 @@ public final class DelayedDoorSpecificationInputRequest extends DelayedInputRequ
         if (options.isEmpty())
             return CompletableFuture.completedFuture(Optional.empty());
 
-        return new DelayedDoorSpecificationInputRequest(logger, timeout, options, player,
+        return new DelayedDoorSpecificationInputRequest(timeout, options, player,
                                                         doorSpecificationManager).getInputResult().thenApply(
             input ->
             {

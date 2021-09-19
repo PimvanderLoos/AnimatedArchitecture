@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.extensions;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
  *
  * @author Pim
  */
+@Flogger //
 final class DoorTypeInitializer
 {
     /**
@@ -65,7 +66,6 @@ final class DoorTypeInitializer
     private final List<TypeInfo> sorted;
 
     private final DoorTypeClassLoader doorTypeClassLoader;
-    private final IPLogger logger;
     private final DoorTypeManager doorTypeManager;
 
     /**
@@ -77,10 +77,9 @@ final class DoorTypeInitializer
      *     The list of {@link TypeInfo}s that should be loaded.
      */
     DoorTypeInitializer(List<TypeInfo> typeInfoList, DoorTypeClassLoader doorTypeClassLoader,
-                        IPLogger logger, DoorTypeManager doorTypeManager)
+                        DoorTypeManager doorTypeManager)
     {
         this.doorTypeClassLoader = doorTypeClassLoader;
-        this.logger = logger;
         this.doorTypeManager = doorTypeManager;
 
         typeInfoList.forEach(info -> registrationQueue.put(info.getTypeName(), new TypeInfoAndWeight(info, null)));
@@ -90,11 +89,12 @@ final class DoorTypeInitializer
                 final LoadResult loadResult = processDependencies(pair.typeInfo);
                 if (loadResult.loadResultType != LoadResultType.DEPENDENCIES_AVAILABLE &&
                     (!loadResult.message.isEmpty()))
-                    logger.warn(loadResult.message);
+                    log.at(Level.WARNING).log(loadResult.message);
             });
 
         sorted = getSortedDoorTypeInfo();
-        logger.logMessage(Level.FINER, this::sortedDependenciesToString);
+        log.at(Level.FINER).log("List of sorted dependencies:\n%s",
+                                new SortedDependenciesPrinter().sortedDependenciesToString());
     }
 
     /**
@@ -120,24 +120,39 @@ final class DoorTypeInitializer
     }
 
     /**
-     * Formats the {@link #sorted} list into a pretty string.
-     *
-     * @return The formatted String representing {@link #sorted}.
+     * Simple class used to print the {@link #sorted} dependencies.
+     * <p>
+     * It's wrapped in this class to allow for delayed logging of the sorted dependencies (the delayed logging used the
+     * toString method).
      */
-    private String sortedDependenciesToString()
+    private class SortedDependenciesPrinter
     {
-        final StringBuilder sb = new StringBuilder();
-        for (int idx = 0; idx < sorted.size(); ++idx)
+        /**
+         * Formats the {@link #sorted} list into a pretty string.
+         *
+         * @return The formatted String representing {@link #sorted}.
+         */
+        public String sortedDependenciesToString()
         {
-            final TypeInfo info = sorted.get(idx);
-            final StringBuilder depSB = new StringBuilder();
-            info.getDependencies().forEach(dependencyOpt -> dependencyOpt
-                .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(' ')));
+            final StringBuilder sb = new StringBuilder();
+            for (int idx = 0; idx < sorted.size(); ++idx)
+            {
+                final TypeInfo info = sorted.get(idx);
+                final StringBuilder depSB = new StringBuilder();
+                info.getDependencies().forEach(dependencyOpt -> dependencyOpt
+                    .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(' ')));
 
-            sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
-                                    idx, info.weight, info.getTypeName(), depSB)).append('\n');
+                sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
+                                        idx, info.weight, info.getTypeName(), depSB)).append('\n');
+            }
+            return sb.toString();
         }
-        return sb.toString();
+
+        @Override
+        public String toString()
+        {
+            return sortedDependenciesToString();
+        }
     }
 
     /**
@@ -155,7 +170,7 @@ final class DoorTypeInitializer
         }
         catch (Exception e)
         {
-            logger.logThrowable(Level.FINE, e);
+            log.at(Level.FINE).withCause(e).log();
             return false;
         }
         return true;
@@ -170,13 +185,13 @@ final class DoorTypeInitializer
      */
     private Optional<DoorType> loadDoorType(TypeInfo typeInfo)
     {
-        logger.logMessage(Level.FINE, "Trying to load type: " + typeInfo.getTypeName());
+        log.at(Level.FINE).log("Trying to load type: %s", typeInfo.getTypeName());
 
         if (!loadJar(typeInfo.jarFile))
         {
-            logger.logMessage(Level.WARNING,
-                              "Failed to load file: \"" + typeInfo.getJarFile() + "\"! This type (\"" +
-                                  typeInfo.getTypeName() + "\") will not be loaded! See the log for more details.");
+            log.at(Level.WARNING)
+               .log("Failed to load file: '%s'! This type ('%s') will not be loaded! See the log for more details.",
+                    typeInfo.getJarFile(), typeInfo.getTypeName());
             return Optional.empty();
         }
 
@@ -189,12 +204,11 @@ final class DoorTypeInitializer
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to load extension: " + typeInfo.getTypeName());
+            log.at(Level.SEVERE).withCause(e).log("Failed to load extension: %s", typeInfo.getTypeName());
             return Optional.empty();
         }
 
-        logger.logMessage(Level.FINE,
-                          "Loaded BigDoors extension: " + Util.capitalizeFirstLetter(doorType.getSimpleName()));
+        log.at(Level.FINE).log("Loaded BigDoors extension: %s", Util.capitalizeFirstLetter(doorType.getSimpleName()));
         return Optional.of(doorType);
     }
 
@@ -316,7 +330,6 @@ final class DoorTypeInitializer
         private final File jarFile;
         @Getter
         private final List<Optional<Dependency>> dependencies;
-        private final IPLogger logger;
         @Getter(AccessLevel.PRIVATE)
         @Setter(AccessLevel.PRIVATE)
         private int weight;
@@ -325,15 +338,13 @@ final class DoorTypeInitializer
         private static final Pattern MIN_VERSION_MATCH = Pattern.compile("[0-9]*;");
         private static final Pattern MAX_VERSION_MATCH = Pattern.compile(";[0-9]*");
 
-        public TypeInfo(String typeName, int version, String mainClass, File jarFile, @Nullable String dependencies,
-                        IPLogger logger)
+        public TypeInfo(String typeName, int version, String mainClass, File jarFile, @Nullable String dependencies)
         {
             this.typeName = typeName.toLowerCase(Locale.ENGLISH);
             this.version = version;
             this.mainClass = mainClass;
             this.jarFile = jarFile;
             this.dependencies = parseDependencies(dependencies);
-            this.logger = logger;
         }
 
         private List<Optional<Dependency>> parseDependencies(@Nullable String dependencies)
@@ -348,7 +359,7 @@ final class DoorTypeInitializer
             {
                 final Optional<Dependency> dependency = parseDependency(split[idx]);
                 if (dependency.isEmpty())
-                    logger.severe("Failed to parse dependency \"" + split[idx] + "\" for type: " + typeName);
+                    log.at(Level.SEVERE).log("Failed to parse dependency '%s' for type: %s", split[idx], typeName);
                 ret.add(idx, dependency);
             }
             return ret;
@@ -359,8 +370,7 @@ final class DoorTypeInitializer
             final Matcher nameMatcher = NAME_MATCH.matcher(dependency);
             if (!nameMatcher.find())
             {
-                logger
-                    .logMessage(Level.FINE, "Failed to find the dependency name in: " + dependency);
+                log.at(Level.FINE).log("Failed to find the dependency name in: %s", dependency);
                 return Optional.empty();
             }
             final String dependencyName = nameMatcher.group();
@@ -368,7 +378,7 @@ final class DoorTypeInitializer
             final Matcher minVersionMatcher = MIN_VERSION_MATCH.matcher(dependency);
             if (!minVersionMatcher.find())
             {
-                logger.logMessage(Level.FINE, "Failed to find the min version in: " + dependency);
+                log.at(Level.FINE).log("Failed to find the min version in: %s", dependency);
                 return Optional.empty();
             }
             String minVersionStr = minVersionMatcher.group();
@@ -376,15 +386,14 @@ final class DoorTypeInitializer
             final OptionalInt minVersionOpt = Util.parseInt(minVersionStr);
             if (minVersionOpt.isEmpty())
             {
-                logger
-                    .logMessage(Level.FINE, "Failed to parse min version from: " + minVersionStr);
+                log.at(Level.FINE).log("Failed to parse min version from: %s", minVersionStr);
                 return Optional.empty();
             }
 
             final Matcher maxVersionMatcher = MAX_VERSION_MATCH.matcher(dependency);
             if (!maxVersionMatcher.find())
             {
-                logger.logMessage(Level.FINE, "Failed to find the max version in: " + dependency);
+                log.at(Level.FINE).log("Failed to find the max version in: %s", dependency);
                 return Optional.empty();
             }
 
@@ -393,8 +402,7 @@ final class DoorTypeInitializer
             final OptionalInt maxVersionOpt = Util.parseInt(maxVersionStr);
             if (maxVersionOpt.isEmpty())
             {
-                logger
-                    .logMessage(Level.FINE, "Failed to parse max version from: " + maxVersionStr);
+                log.at(Level.FINE).log("Failed to parse max version from: %s", maxVersionStr);
                 return Optional.empty();
             }
 

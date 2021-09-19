@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Setter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -16,12 +16,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
 
 /**
  * Represents a class that can be used to localize Strings.
  *
  * @author Pim
  */
+@Flogger //
 final class Localizer implements ILocalizer
 {
     static final String KEY_NOT_FOUND_MESSAGE = "Failed to localize message: ";
@@ -29,7 +31,6 @@ final class Localizer implements ILocalizer
     private Path directory;
     private String baseName;
     private String bundleName;
-    private final IPLogger logger;
 
     /**
      * The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to {@link
@@ -50,22 +51,21 @@ final class Localizer implements ILocalizer
      *     The default {@link Locale} to use when no locale is specified when requesting a translation. Defaults to
      *     {@link Locale#ROOT}.
      */
-    Localizer(Path directory, String baseName, Locale defaultLocale, IPLogger logger)
+    Localizer(Path directory, String baseName, Locale defaultLocale)
     {
         this.baseName = baseName;
         this.directory = directory;
         this.defaultLocale = defaultLocale;
         bundleName = baseName + ".bundle";
-        this.logger = logger;
         init();
     }
 
     /**
-     * See {@link #Localizer(Path, String, Locale, IPLogger)}.
+     * See {@link #Localizer(Path, String, Locale)}.
      */
-    Localizer(Path directory, String baseName, IPLogger logger)
+    Localizer(Path directory, String baseName)
     {
-        this(directory, baseName, Locale.ROOT, logger);
+        this(directory, baseName, Locale.ROOT);
     }
 
     /**
@@ -91,7 +91,7 @@ final class Localizer implements ILocalizer
     {
         if (classLoader == null)
         {
-            logger.warn("Failed to find localization key \"" + key + "\"! Reason: ClassLoader is null!");
+            log.at(Level.WARNING).log("Failed to find localization key \"" + key + "\"! Reason: ClassLoader is null!");
             return KEY_NOT_FOUND_MESSAGE + key;
         }
 
@@ -102,7 +102,7 @@ final class Localizer implements ILocalizer
         }
         catch (MissingResourceException e)
         {
-            logger.warn("Failed to find localization key \"" + key + "\"! Reason: Key does not exist!");
+            log.at(Level.WARNING).log("Failed to find localization key \"" + key + "\"! Reason: Key does not exist!");
             return KEY_NOT_FOUND_MESSAGE + key;
         }
     }
@@ -134,15 +134,15 @@ final class Localizer implements ILocalizer
             throw new IllegalStateException("ClassLoader is already initialized!");
 
         final Path bundlePath = directory.resolve(bundleName);
-        LocalizationUtil.ensureZipFileExists(bundlePath, logger);
+        LocalizationUtil.ensureZipFileExists(bundlePath);
         try
         {
             classLoader = getNewURLClassLoader(bundlePath, baseName);
-            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName, logger);
+            localeList = LocalizationUtil.getLocalesInZip(bundlePath, baseName);
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to initialize localizer!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to initialize localizer!");
             classLoader = null;
             localeList = Collections.emptyList();
         }
@@ -181,7 +181,8 @@ final class Localizer implements ILocalizer
             }
             catch (IOException e)
             {
-                logger.logThrowable(e, "Failed to close class loader! Localizations cannot be reloaded!");
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to close class loader! Localizations cannot be reloaded!");
             }
         }
     }

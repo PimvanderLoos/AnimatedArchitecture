@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -52,29 +51,31 @@ public abstract class FastFieldSetter<T, U>
      * @return A new {@link FastFieldSetter} for the appropriate type.
      */
 
-    public static <T, U> FastFieldSetter<T, U> of(IPLogger logger, Unsafe unsafe,
+    public static <T, U> FastFieldSetter<T, U> of(Unsafe unsafe,
                                                   Class<U> fieldType, Class<T> targetClass, String nameTarget)
+        throws Exception
     {
         final long offsetTarget;
         final Class<?> targetType;
+        final Field fieldTarget;
         try
         {
-            final Field fieldTarget = getField(targetClass, nameTarget);
-            if (fieldTarget.getType() != fieldType)
-                throw new IllegalArgumentException(
-                    String.format("Target type %s does not match source type %s for target class %s",
-                                  fieldTarget.getType().getName(), fieldType.getName(),
-                                  targetClass.getName()));
-
-            offsetTarget = unsafe.objectFieldOffset(fieldTarget);
-            targetType = fieldTarget.getType();
+            fieldTarget = getField(targetClass, nameTarget);
         }
-        catch (Exception t)
+        catch (NoSuchFieldException e)
         {
-            final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
-            logger.logThrowableSilently(e);
-            throw e;
+            throw new Exception("Failed to find method \"" + nameTarget +
+                                    "\" in target class: " + targetClass.getName(), e);
         }
+
+        if (fieldTarget.getType() != fieldType)
+            throw new IllegalArgumentException(
+                String.format("Target type %s does not match source type %s for target class %s",
+                              fieldTarget.getType().getName(), fieldType.getName(),
+                              targetClass.getName()));
+
+        offsetTarget = unsafe.objectFieldOffset(fieldTarget);
+        targetType = fieldTarget.getType();
 
         // All these methods suppress NullAway, because it complains about UNSAFE, but it should
         // never even get to this point if UNSAFE is null.
@@ -169,16 +170,15 @@ public abstract class FastFieldSetter<T, U>
     }
 
     /**
-     * See {@link #of(IPLogger, Unsafe, Class, Class, String)}.
+     * See {@link #of(Unsafe, Class, Class, String)}.
      *
      * @throws Exception
      *     When an exception was thrown while trying to access Unsafe.
      */
-    public static <T, U> FastFieldSetter<T, U> of(IPLogger logger,
-                                                  Class<U> fieldType, Class<T> targetClass, String nameTarget)
+    public static <T, U> FastFieldSetter<T, U> of(Class<U> fieldType, Class<T> targetClass, String nameTarget)
         throws Exception
     {
-        final Unsafe unsafe = UnsafeGetter.getUnsafe();
-        return of(logger, unsafe, fieldType, targetClass, nameTarget);
+        final Unsafe unsafe = UnsafeGetter.getRequiredUnsafe();
+        return of(unsafe, fieldType, targetClass, nameTarget);
     }
 }

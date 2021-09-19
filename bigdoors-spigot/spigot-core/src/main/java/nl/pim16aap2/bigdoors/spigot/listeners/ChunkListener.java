@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track of chunks being unloaded.
@@ -24,9 +25,9 @@ import java.lang.reflect.Method;
  * @author Pim
  */
 @Singleton
+@Flogger
 public class ChunkListener extends AbstractListener
 {
-    private final IPLogger logger;
     private final DatabaseManager databaseManager;
 
     /**
@@ -42,11 +43,9 @@ public class ChunkListener extends AbstractListener
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public ChunkListener(JavaPlugin javaPlugin, IPLogger logger, DatabaseManager databaseManager,
-                         PowerBlockManager powerBlockManager)
+    public ChunkListener(JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager)
     {
         super(javaPlugin);
-        this.logger = logger;
         this.databaseManager = databaseManager;
         this.powerBlockManager = powerBlockManager;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);
@@ -70,7 +69,8 @@ public class ChunkListener extends AbstractListener
         }
         catch (NoSuchMethodException | SecurityException e)
         {
-            logger.logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
         }
     }
 
@@ -140,7 +140,7 @@ public class ChunkListener extends AbstractListener
 //        }
 //        catch (Exception e)
 //        {
-//            logger.logThrowable(e);
+//            log.at(Level.SEVERE).withCause(e).log();
 //        }
     }
 
@@ -160,11 +160,13 @@ public class ChunkListener extends AbstractListener
             else if (isForceLoaded != null)
                 return (boolean) isForceLoaded.invoke(event.getChunk());
             else
-                logger.warn("Both isCancelled and isForceLoaded are unavailable! Chunk management is now unreliable!");
+                log.at(Level.WARNING)
+                   .log("Both isCancelled and isForceLoaded are unavailable! Chunk management is now unreliable!");
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            logger.logThrowable(e, "Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Serious error encountered! Unloading chunks with active doors IS UNSAFE!");
             return false;
         }
         return false;

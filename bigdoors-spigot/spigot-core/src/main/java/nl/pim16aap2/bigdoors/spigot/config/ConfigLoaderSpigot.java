@@ -1,11 +1,11 @@
 package nl.pim16aap2.bigdoors.spigot.config;
 
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompat;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
@@ -43,11 +43,10 @@ import java.util.logging.Level;
  */
 @ToString
 @Singleton
+@Flogger
 public final class ConfigLoaderSpigot implements IConfigLoader
 {
     private final JavaPlugin plugin;
-    @ToString.Exclude
-    private final IPLogger logger;
     private final DoorTypeManager doorTypeManager;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
@@ -86,14 +85,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      *
      * @param plugin
      *     The Spigot core.
-     * @param logger
-     *     The logger used for error logging.
      */
     @Inject
-    public ConfigLoaderSpigot(JavaPlugin plugin, IPLogger logger, DoorTypeManager doorTypeManager)
+    public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager)
     {
         this.plugin = plugin;
-        this.logger = logger;
         this.doorTypeManager = doorTypeManager;
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
@@ -237,9 +233,9 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Because all entries need to be verified as valid blocks anyway, the list of power block types is
         // populated in the verification method.
         addNewConfigEntry(config, "powerBlockTypes", DEFAULT_POWERBLOCK_TYPE, powerBlockTypeComment,
-                          new MaterialVerifier(logger, powerBlockTypes));
+                          new MaterialVerifier(powerBlockTypes));
         addNewConfigEntry(config, "materialBlacklist", DEFAULT_BLACKLIST, blacklistComment,
-                          new MaterialVerifier(logger, materialBlacklist));
+                          new MaterialVerifier(materialBlacklist));
 
         final int maxDoorCount = addNewConfigEntry(config, "maxDoorCount", -1, maxDoorCountComment);
         this.maxDoorCount = maxDoorCount > 0 ? OptionalInt.of(maxDoorCount) : OptionalInt.empty();
@@ -320,15 +316,17 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     private void printInfo()
     {
-        logger.info("Power Block Types:");
-        powerBlockTypes.forEach(mat -> logger.info(" - " + mat));
+        final StringBuilder powerBlockTypes = new StringBuilder();
+        this.powerBlockTypes.forEach(mat -> powerBlockTypes.append(String.format(" - %s\n", mat)));
+        log.at(Level.INFO).log("Power Block Types:\n%s", powerBlockTypes);
 
         if (materialBlacklist.isEmpty())
-            logger.info("No materials are blacklisted!");
+            log.at(Level.INFO).log("No materials are blacklisted!");
         else
         {
-            logger.info("Blacklisted materials:");
-            materialBlacklist.forEach(mat -> logger.info(" - " + mat));
+            final StringBuilder blackListedMaterials = new StringBuilder();
+            materialBlacklist.forEach(mat -> blackListedMaterials.append(String.format(" - %s\n", mat)));
+            log.at(Level.INFO).log("Blacklisted materials:\n%s", blackListedMaterials);
         }
     }
 
@@ -350,7 +348,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue,
                                     String @Nullable ... comment)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment);
+        final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment);
         configEntries.add(option);
         return option.getValue();
     }
@@ -375,8 +373,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private <T> T addNewConfigEntry(IConfigReader config, String optionName, T defaultValue, String[] comment,
                                     ConfigEntry.ITestValue<T> verifyValue)
     {
-        final ConfigEntry<T> option = new ConfigEntry<>(logger, config, optionName, defaultValue, comment,
-                                                        verifyValue);
+        final ConfigEntry<T> option = new ConfigEntry<>(config, optionName, defaultValue, comment, verifyValue);
         configEntries.add(option);
         return option.getValue();
     }
@@ -392,28 +389,29 @@ public final class ConfigLoaderSpigot implements IConfigLoader
             final File dataFolder = plugin.getDataFolder();
             if (!dataFolder.exists() && !dataFolder.mkdirs())
             {
-                logger.logThrowable(new IOException("Failed to create folder: \"" + dataFolder + "\""));
+                log.at(Level.SEVERE).withCause(new IOException("Failed to create folder: \"" + dataFolder + "\""))
+                   .log();
                 return;
             }
 
             final File saveTo = new File(plugin.getDataFolder(), "config.yml");
             if (!saveTo.exists() && !saveTo.createNewFile())
             {
-                logger.logThrowable(new IOException("Failed to create file: \"" + saveTo + "\""));
+                log.at(Level.SEVERE).withCause(new IOException("Failed to create file: \"" + saveTo + "\"")).log();
                 return;
             }
 
             if (!saveTo.canWrite())
             {
-                logger.warn("=======================================");
-                logger.warn("============== !WARNING! ==============");
-                logger.warn("=======================================");
-                logger.warn("====== CANNOT WRITE CONFIG FILE! ======");
-                logger.warn("==== NEW OPTIONS WILL NOT SHOW UP! ====");
-                logger.warn("==== THEY WILL USE DEFAULT VALUES! ====");
-                logger.warn("=======================================");
-                logger.warn("============== !WARNING! ==============");
-                logger.warn("=======================================");
+                log.at(Level.WARNING).log("=======================================");
+                log.at(Level.WARNING).log("============== !WARNING! ==============");
+                log.at(Level.WARNING).log("=======================================");
+                log.at(Level.WARNING).log("====== CANNOT WRITE CONFIG FILE! ======");
+                log.at(Level.WARNING).log("==== NEW OPTIONS WILL NOT SHOW UP! ====");
+                log.at(Level.WARNING).log("==== THEY WILL USE DEFAULT VALUES! ====");
+                log.at(Level.WARNING).log("=======================================");
+                log.at(Level.WARNING).log("============== !WARNING! ==============");
+                log.at(Level.WARNING).log("=======================================");
             }
 
             final StringBuilder sb = new StringBuilder()
@@ -429,8 +427,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Could not save config.yml! "
-                + "Please contact pim16aap2 and show him the following stacktrace:");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Could not save config.yml! Please contact pim16aap2 and show him the following stacktrace:");
         }
     }
 
@@ -565,7 +563,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         final String ret = doorPrices.get(type);
         if (ret != null)
             return ret;
-        logger.logThrowable(new IllegalStateException("No price found for type: " + type));
+        log.at(Level.SEVERE).withCause(new IllegalStateException("No price found for type: " + type)).log();
         return "0";
     }
 
@@ -590,14 +588,13 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     /**
      * Represents a class that attempts to parse a list of materials represented as Strings into a list of Materials.
      * <p>
-     * See {@link #verifyMaterials(IPLogger, List, Set)}.
+     * See {@link #verifyMaterials(List, Set)}.
      *
      * @author Pim
      */
     private static class MaterialVerifier implements ConfigEntry.ITestValue<List<String>>
     {
         private final Set<Material> output;
-        private final IPLogger logger;
 
         /**
          * Constructs a new MaterialVerifier.
@@ -607,17 +604,16 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          * @param output
          *     The set to write the parsed materials to.
          */
-        private MaterialVerifier(IPLogger logger, Set<Material> output)
+        private MaterialVerifier(Set<Material> output)
         {
             this.output = output;
-            this.logger = logger;
             output.clear();
         }
 
         @Override
         public List<String> test(List<String> input)
         {
-            return MaterialVerifier.verifyMaterials(logger, input, output);
+            return MaterialVerifier.verifyMaterials(input, output);
         }
 
         /**
@@ -632,7 +628,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
          *     The set to put all valid materials in.
          * @return The list of names of all valid materials in the list without duplication.
          */
-        private static List<String> verifyMaterials(IPLogger logger, List<String> input, Set<Material> output)
+        private static List<String> verifyMaterials(List<String> input, Set<Material> output)
         {
             output.clear();
             final Iterator<String> it = input.iterator();
@@ -644,7 +640,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     final Material mat = Material.valueOf(str);
                     if (output.contains(mat))
                     {
-                        logger.warn("Failed to add material: \"" + str + "\". It was already on the list!");
+                        log.at(Level.WARNING).log("Failed to add material: \"%s\". It was already on the list!", str);
                         it.remove();
                     }
                     else if (mat.isSolid())
@@ -653,13 +649,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                     }
                     else
                     {
-                        logger.warn("Failed to add material: \"" + str + "\". Only solid materials are allowed!");
+                        log.at(Level.WARNING)
+                           .log("Failed to add material: \"%s\". Only solid materials are allowed!", str);
                         it.remove();
                     }
                 }
                 catch (Exception e)
                 {
-                    logger.warn("Failed to parse material: \"" + str + "\"");
+                    log.at(Level.WARNING).log("Failed to parse material: \"%s\".", str);
                     it.remove();
                 }
             }

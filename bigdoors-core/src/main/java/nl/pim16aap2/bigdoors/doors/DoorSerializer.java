@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.doors;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +28,7 @@ import java.util.logging.Level;
  *     The type of door.
  * @author Pim
  */
+@Flogger
 public class DoorSerializer<T extends AbstractDoor>
 {
     /**
@@ -46,22 +47,14 @@ public class DoorSerializer<T extends AbstractDoor>
      */
     private final @Nullable Constructor<T> ctor;
 
-    private final @Nullable FastFieldSetter<AbstractDoor, DoorBase> fieldCopierDoorBase;
+    private static final @Nullable Unsafe unsafe = UnsafeGetter.getUnsafe();
 
-    private final IPLogger logger;
+    private final @Nullable FastFieldSetter<AbstractDoor, DoorBase> fieldCopierDoorBase =
+        getFieldCopierDoorBase(unsafe);
 
-    private final @Nullable Unsafe unsafe;
-
-    public DoorSerializer(Class<T> doorClass, IPLogger logger)
+    public DoorSerializer(Class<T> doorClass)
     {
         this.doorClass = doorClass;
-        this.logger = logger;
-        unsafe = UnsafeGetter.getUnsafe(logger);
-
-        if (unsafe == null)
-            fieldCopierDoorBase = null;
-        else
-            fieldCopierDoorBase = FastFieldSetter.of(logger, unsafe, DoorBase.class, AbstractDoor.class, "doorBase");
 
         if (Modifier.isAbstract(doorClass.getModifiers()))
             throw new IllegalArgumentException("THe DoorSerializer only works for concrete classes!");
@@ -74,16 +67,16 @@ public class DoorSerializer<T extends AbstractDoor>
         }
         catch (Exception e)
         {
-            logger.logThrowable(Level.FINER, e, "Class " + getDoorTypeName() +
-                " does not have DoorData ctor! Using Unsafe instead!");
+            log.at(Level.FINER).withCause(e).log("Class %s does not have a DoorData ctor! Using Unsafe instead!",
+                                                 getDoorTypeName());
         }
         ctor = ctorTmp;
         if (ctor == null && unsafe == null)
             throw new RuntimeException("Could not find CTOR for class " + getDoorTypeName() +
                                            " and Unsafe is unavailable! This type cannot be enabled!");
 
-        logger.logMessage(Level.FINE, "Using " + (ctor == null ? "Unsafe" : "Reflection") +
-            " construction method for class " + getDoorTypeName());
+        log.at(Level.FINE).log("Using %s construction method for class %s.",
+                               (ctor == null ? "Unsafe" : "Reflection"), getDoorTypeName());
 
         findAnnotatedFields();
     }
@@ -253,8 +246,8 @@ public class DoorSerializer<T extends AbstractDoor>
     {
         if (!doorClass.isAssignableFrom(door.getClass()))
         {
-            logger.logThrowable(new IllegalArgumentException(
-                "Expected type " + getDoorTypeName() + " but received type " + door.getClass().getName()));
+            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
+                "Expected type " + getDoorTypeName() + " but received type " + door.getClass().getName())).log();
             return "";
         }
 
@@ -268,7 +261,7 @@ public class DoorSerializer<T extends AbstractDoor>
             }
             catch (IllegalAccessException e)
             {
-                logger.logThrowable(e);
+                log.at(Level.SEVERE).withCause(e).log();
                 value = "ERROR";
             }
             sb.append(field.getName()).append(": ").append(value).append('\n');
@@ -285,5 +278,20 @@ public class DoorSerializer<T extends AbstractDoor>
               .append(", name: ").append(field.getName())
               .append('\n');
         return sb.toString();
+    }
+
+    private static @Nullable FastFieldSetter<AbstractDoor, DoorBase> getFieldCopierDoorBase(@Nullable Unsafe unsafe)
+    {
+        if (unsafe == null)
+            return null;
+        try
+        {
+            return FastFieldSetter.of(unsafe, DoorBase.class, AbstractDoor.class, "doorBase");
+        }
+        catch (Exception e)
+        {
+            log.at(Level.FINE).withCause(e).log("Failed to get FastFieldSetter for DoorBase of class: ");
+            return null;
+        }
     }
 }

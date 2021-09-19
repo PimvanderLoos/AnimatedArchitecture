@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
 
 /**
  * Compatibility hook for version 6 of WorldGuard.
@@ -18,6 +19,7 @@ import java.lang.reflect.Method;
  * @author Pim
  * @see IProtectionCompat
  */
+@Flogger //
 class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
     private static final ProtectionCompat COMPAT = ProtectionCompat.WORLDGUARD;
@@ -25,13 +27,9 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private final boolean success;
     private final Method m;
 
-    private final IPLogger logger;
-
     @SuppressWarnings("unused")
-    public WorldGuard6ProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
+    public WorldGuard6ProtectionCompat(JavaPlugin bigDoors)
     {
-        this.logger = logger;
-
         final @Nullable Plugin wgPlugin =
             Bukkit.getServer().getPluginManager().getPlugin(ProtectionCompat.getName(COMPAT));
 
@@ -61,7 +59,7 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return false;
     }

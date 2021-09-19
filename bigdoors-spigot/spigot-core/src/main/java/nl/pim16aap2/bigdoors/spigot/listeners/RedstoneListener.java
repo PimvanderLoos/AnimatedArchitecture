@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track redstone changes.
@@ -30,21 +31,20 @@ import java.util.concurrent.CompletableFuture;
  * @author Pim
  */
 @Singleton
+@Flogger
 public class RedstoneListener extends AbstractListener
 {
     private final ConfigLoaderSpigot config;
-    private final IPLogger logger;
     private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
+    public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
                             DoorToggleRequestFactory doorToggleRequestFactory, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
-        this.logger = logger;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.powerBlockManager = powerBlockManager;
     }
@@ -127,7 +127,7 @@ public class RedstoneListener extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Exception thrown while handling redstone event!");
+            log.at(Level.SEVERE).withCause(e).log("Exception thrown while handling redstone event!");
         }
     }
 

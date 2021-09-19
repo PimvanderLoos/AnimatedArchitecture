@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.util.api;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -25,6 +24,5 @@ public interface IGlowingBlockFactory
      * @return The {@link IGlowingBlock} that was spawned.
      */
     Optional<IGlowingBlock> createGlowingBlock(Player player, World world, RestartableHolder restartableHolder,
-                                               IPLogger logger, IGlowingBlockSpawner glowingBlockSpawner,
-                                               IPExecutor executor);
+                                               IGlowingBlockSpawner glowingBlockSpawner, IPExecutor executor);
 }

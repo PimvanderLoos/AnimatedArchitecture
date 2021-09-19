@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot.implementations;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,19 +19,19 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 @Singleton
+@Flogger
 public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
 {
     private static final Material TOOL_MATERIAL = Material.STICK;
 
-    private final IPLogger logger;
     private final NamespacedKey bigDoorsToolKey;
 
     @Inject
-    public BigDoorsToolUtilSpigot(IPLogger logger, JavaPlugin javaPlugin)
+    public BigDoorsToolUtilSpigot(JavaPlugin javaPlugin)
     {
-        this.logger = logger;
         bigDoorsToolKey = new NamespacedKey(javaPlugin, "BIG_DOORS_TOOL");
     }
 
@@ -41,8 +41,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            logger.logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
+            log.at(Level.SEVERE).withCause(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return;
         }
 
@@ -73,8 +73,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            logger.logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
+            log.at(Level.SEVERE).withCause(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return;
         }
         spigotPlayer.getInventory().forEach(
@@ -103,8 +103,8 @@ public class BigDoorsToolUtilSpigot implements IBigDoorsToolUtil
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            logger.logThrowable(
-                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID()));
+            log.at(Level.SEVERE).withCause(
+                new NullPointerException("Failed to obtain Spigot player: " + player.getUUID())).log();
             return false;
         }
 

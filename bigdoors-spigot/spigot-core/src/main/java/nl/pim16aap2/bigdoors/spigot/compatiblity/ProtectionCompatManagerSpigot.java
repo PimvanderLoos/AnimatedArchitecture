@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -7,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
@@ -39,11 +39,11 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class ProtectionCompatManagerSpigot extends Restartable implements Listener, IProtectionCompatManager
 {
     private final List<IProtectionCompat> protectionCompats;
     private final JavaPlugin plugin;
-    private final IPLogger logger;
     private final @Nullable FakePlayerCreator fakePlayerCreator;
     private final VaultManager vaultManager;
     private final ConfigLoaderSpigot config;
@@ -57,13 +57,11 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * @param locationFactory
      */
     @Inject
-    public ProtectionCompatManagerSpigot(JavaPlugin plugin, IPLogger logger, RestartableHolder holder,
-                                         VaultManager vaultManager, ConfigLoaderSpigot config,
-                                         IPLocationFactory locationFactory)
+    public ProtectionCompatManagerSpigot(JavaPlugin plugin, RestartableHolder holder, VaultManager vaultManager,
+                                         ConfigLoaderSpigot config, IPLocationFactory locationFactory)
     {
         super(holder);
         this.plugin = plugin;
-        this.logger = logger;
         this.vaultManager = vaultManager;
         this.config = config;
         this.locationFactory = locationFactory;
@@ -71,11 +69,12 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
         try
         {
-            fakePlayerCreatorTmp = new FakePlayerCreator(plugin, logger);
+            fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
         }
         catch (NoSuchMethodException | ClassNotFoundException | NoSuchFieldException e)
         {
-            logger.logThrowable(new IllegalStateException("Failed to construct FakePlayerCreator!", e));
+            log.at(Level.SEVERE).withCause(new IllegalStateException("Failed to construct FakePlayerCreator!", e))
+               .log();
         }
         fakePlayerCreator = fakePlayerCreatorTmp;
         protectionCompats = new ArrayList<>();
@@ -167,8 +166,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                logger.logThrowable(e, "Failed to use \"" + compat.getName()
-                    + "\"! Please send this error to pim16aap2:");
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to use '%s'! Please send this error to pim16aap2:", compat.getName());
             }
         return Optional.empty();
     }
@@ -203,8 +202,8 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             }
             catch (Exception e)
             {
-                logger.logThrowable(e, "Failed to use \"" + compat.getName()
-                    + "\"! Please send this error to pim16aap2:");
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to use '%s'! Please send this error to pim16aap2:", compat.getName());
             }
         return Optional.empty();
     }
@@ -235,10 +234,10 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         if (hook.success())
         {
             protectionCompats.add(hook);
-            logger.info("Successfully hooked into \"" + hook.getName() + "\"!");
+            log.at(Level.INFO).log("Successfully hooked into %s!", hook.getName());
         }
         else
-            logger.info("Failed to hook into \"" + hook.getName() + "\"!");
+            log.at(Level.INFO).log("Failed to hook into %s!", hook.getName());
     }
 
     /**
@@ -275,7 +274,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
                                                        .getPlugin(ProtectionCompat.getName(compat));
             if (otherPlugin == null)
             {
-                logger.logMessage(Level.FINE, "Failed to obtain instance of \"" + compatName + "\"!");
+                log.at(Level.FINE).log("Failed to obtain instance of %s!", compatName);
                 return;
             }
 
@@ -284,9 +283,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                logger.severe("Could not find compatibility class for: \"" +
-                                  ProtectionCompat.getName(compat) + "\". " +
-                                  "This most likely means that this version is not supported!");
+                log.at(Level.SEVERE).log(
+                    "Could not find compatibility class for: '%s'! This most likely means that this version is not supported!",
+                    ProtectionCompat.getName(compat));
                 return;
             }
 
@@ -294,17 +293,16 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getDeclaredConstructor(JavaPlugin.class, IPLogger.class)
-                                           .newInstance(plugin, logger));
+            addProtectionCompat(compatClass.getDeclaredConstructor(JavaPlugin.class).newInstance(plugin));
         }
         catch (NullPointerException e)
         {
-            logger.warn("Could not find \"" + compatName + "\"! Hook not enabled!");
+            log.at(Level.WARNING).log("Could not find '%s'! Hook not enabled!", compatName);
         }
         catch (NoClassDefFoundError | Exception e)
         {
-            logger
-                .logThrowable(e, "Failed to initialize \"" + compatName + "\" compatibility hook! Hook not enabled!");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to initialize '%' compatibility hook! Hook not enabled!", compatName);
         }
     }
 }

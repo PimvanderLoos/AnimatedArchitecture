@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
@@ -46,11 +45,11 @@ public class AddOwner extends DoorTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    AddOwner(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+    AddOwner(@Assisted ICommandSender commandSender, ILocalizer localizer,
              @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
              @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
+        super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
         this.targetPermissionLevel = targetPermissionLevel;
         this.databaseManager = databaseManager;
@@ -145,11 +144,11 @@ public class AddOwner extends DoorTargetCommand
 //     *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
 //     * @return See {@link BaseCommand#run()}.
 //     */
-//    public static CompletableFuture<Boolean> run(ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+//    public static CompletableFuture<Boolean> run(ICommandSender commandSender,ILocalizer localizer,
 //                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer,
 //                                                 int targetPermissionLevel)
 //    {
-//        return new AddOwner(commandSender, logger, localizer, doorRetriever,
+//        return new AddOwner(commandSender, localizer, doorRetriever,
 //                            targetPlayer, targetPermissionLevel).run();
 //    }
 //
@@ -158,10 +157,10 @@ public class AddOwner extends DoorTargetCommand
 //     * <p>
 //     * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
 //     */
-//    public static CompletableFuture<Boolean> run(ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+//    public static CompletableFuture<Boolean> run(ICommandSender commandSender,ILocalizer localizer,
 //                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer)
 //    {
-//        return run(commandSender, logger, localizer, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+//        return run(commandSender, localizer, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
 //    }
 //
 //    /**
@@ -231,7 +230,7 @@ public class AddOwner extends DoorTargetCommand
 //                                                                 ILocalizer localizer,
 //                                                                 IPPlayer targetPlayer)
 //    {
-//        return provideDelayedInput(commandSender, logger, localizer, targetPlayer, DEFAULT_PERMISSION_LEVEL);
+//        return provideDelayedInput(commandSender, localizer, targetPlayer, DEFAULT_PERMISSION_LEVEL);
 //    }
 //
 //    /**
@@ -254,7 +253,7 @@ public class AddOwner extends DoorTargetCommand
 //                                                                   DoorRetriever.AbstractRetriever doorRetriever,
 //                                                                   DelayedInput delayedInput)
 //    {
-//        return new AddOwner(commandSender, logger, localizer, doorRetriever, delayedInput.targetPlayer(),
+//        return new AddOwner(commandSender, localizer, doorRetriever, delayedInput.targetPlayer(),
 //                            delayedInput.permission()).run();
 //    }
 //

@@ -27,6 +27,7 @@ public class PowerBlockInspector extends ToolUser
      * When this is true, the user does not have to be an owner of the door to retrieve its location.
      */
     @SuppressWarnings({"PMD.SingularField", "PMD.UnusedPrivateField"}) // Not used... YET!
+    // TODO: Use bypassPermission for PowerBlockInspector.
     private final boolean bypassPermission;
 
     @AssistedInject
@@ -60,7 +61,7 @@ public class PowerBlockInspector extends ToolUser
     {
         final Step stepBlocksToMove = new Step.Factory(localizer, "INSPECT_POWER_BLOCK")
             .messageKey("tool_user.powerblock_inspector.init")
-            .stepExecutor(new StepExecutorPLocation(logger, this::inspectLoc))
+            .stepExecutor(new StepExecutorPLocation(this::inspectLoc))
             .waitForUserInput(true).construct();
         return Collections.singletonList(stepBlocksToMove);
     }

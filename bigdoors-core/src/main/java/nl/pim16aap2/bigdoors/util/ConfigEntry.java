@@ -1,20 +1,21 @@
 package nl.pim16aap2.bigdoors.util;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Represents an option in a config file.
  *
  * @author Pim
  */
+@Flogger
 public final class ConfigEntry<V>
 {
-    private final IPLogger logger;
     private final IConfigReader config;
     private final String optionName;
     private final V defaultValue;
@@ -25,8 +26,6 @@ public final class ConfigEntry<V>
     /**
      * ConfigEntry Constructor.
      *
-     * @param logger
-     *     The logger to use for exception reporting.
      * @param config
      *     The config file to read from.
      * @param optionName
@@ -38,10 +37,9 @@ public final class ConfigEntry<V>
      * @param verifyValue
      *     Function to use to verify the validity of a value and change it if necessary.
      */
-    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable [] comment, @Nullable ConfigEntry.ITestValue<V> verifyValue)
+    public ConfigEntry(IConfigReader config, String optionName, V defaultValue, String @Nullable [] comment,
+                       @Nullable ConfigEntry.ITestValue<V> verifyValue)
     {
-        this.logger = logger;
         this.config = config;
         this.optionName = optionName;
         this.defaultValue = defaultValue;
@@ -53,8 +51,6 @@ public final class ConfigEntry<V>
     /**
      * ConfigEntry Constructor.
      *
-     * @param logger
-     *     The logger to use for exception reporting.
      * @param config
      *     The config file to read from.
      * @param optionName
@@ -64,10 +60,9 @@ public final class ConfigEntry<V>
      * @param comment
      *     The comment that will precede this option.
      */
-    public ConfigEntry(IPLogger logger, IConfigReader config, String optionName, V defaultValue,
-                       String @Nullable ... comment)
+    public ConfigEntry(IConfigReader config, String optionName, V defaultValue, String @Nullable ... comment)
     {
-        this(logger, config, optionName, defaultValue, comment, null);
+        this(config, optionName, defaultValue, comment, null);
     }
 
     /**
@@ -83,8 +78,8 @@ public final class ConfigEntry<V>
         }
         catch (Exception e)
         {
-            logger.logThrowable(e,
-                                "Failed to read config value of: \"" + optionName + "\"! Using default value instead!");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to read config value of: \"%s\"! Using default value instead!", optionName);
             value = defaultValue;
         }
         if (verifyValue != null)

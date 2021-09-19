@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -17,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a DrawBrige doorType.
@@ -24,6 +26,7 @@ import java.util.Optional;
  * @author Pim
  */
 @EqualsAndHashCode(callSuper = true)
+@Flogger
 public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
@@ -91,7 +94,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
             angle = Math.PI / 2;
         else
         {
-            logger.severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+
+            log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getDoorUID());
             return Optional.empty();
         }
 

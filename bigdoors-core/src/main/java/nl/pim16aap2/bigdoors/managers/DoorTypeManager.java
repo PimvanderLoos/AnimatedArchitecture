@@ -3,10 +3,10 @@ package nl.pim16aap2.bigdoors.managers;
 import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 
 /**
  * This class manages all {@link DoorType}s. Before a type can be used, it will have to be registered here.
@@ -29,19 +30,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class DoorTypeManager extends Restartable
 {
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
-    private final IPLogger logger;
-
     @Inject
-    public DoorTypeManager(RestartableHolder holder, IPLogger logger)
+    public DoorTypeManager(RestartableHolder holder)
     {
         super(holder);
-        this.logger = logger;
     }
 
     /**
@@ -158,7 +157,7 @@ public final class DoorTypeManager extends Restartable
      */
     public void registerDoorType(DoorType doorType, boolean isEnabled)
     {
-        logger.info("Registering door type: " + doorType + "...");
+        log.at(Level.INFO).log("Registering door type: %s...", doorType);
 
         doorTypeStatus.put(doorType, new DoorRegistrationStatus(doorType.getFullName(), isEnabled));
         doorTypeFromName.put(doorType.getSimpleName(), doorType);
@@ -181,8 +180,8 @@ public final class DoorTypeManager extends Restartable
     {
         if (doorTypeStatus.remove(doorType) == null)
         {
-            logger.warn("Trying to unregister door of type: " + doorType.getSimpleName() + ", but it isn't " +
-                            "registered already!");
+            log.at(Level.WARNING).log("Trying to unregister door of type: %s, but it isn't registered already!",
+                                      doorType.getSimpleName());
             return;
         }
         doorTypeFromName.remove(doorType.getSimpleName());

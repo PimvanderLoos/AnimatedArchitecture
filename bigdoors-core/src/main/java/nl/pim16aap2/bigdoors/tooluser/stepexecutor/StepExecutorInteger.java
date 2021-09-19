@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,9 +12,8 @@ public class StepExecutorInteger extends StepExecutor
     @ToString.Exclude
     private final Function<Integer, Boolean> fun;
 
-    public StepExecutorInteger(IPLogger logger, Function<Integer, Boolean> fun)
+    public StepExecutorInteger(Function<Integer, Boolean> fun)
     {
-        super(logger);
         this.fun = fun;
     }
 

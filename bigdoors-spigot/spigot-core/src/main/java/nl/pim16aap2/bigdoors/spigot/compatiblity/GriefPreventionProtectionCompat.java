@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -24,7 +23,7 @@ class GriefPreventionProtectionCompat implements IProtectionCompat
     private final boolean success;
 
     @SuppressWarnings("unused")
-    public GriefPreventionProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
+    public GriefPreventionProtectionCompat(JavaPlugin bigDoors)
     {
         final @Nullable Plugin griefPreventionPlugin = Bukkit.getServer().getPluginManager()
                                                              .getPlugin(ProtectionCompat.getName(COMPAT));

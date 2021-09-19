@@ -6,7 +6,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorSpecificationManager;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedDoorSpecificationInputRequest;
@@ -31,16 +30,14 @@ public final class DoorRetriever
 {
     private final DatabaseManager databaseManager;
     private final IConfigLoader config;
-    private final IPLogger logger;
     private final DoorSpecificationManager doorSpecificationManager;
 
     @Inject
-    public DoorRetriever(DatabaseManager databaseManager, IConfigLoader config, IPLogger logger,
+    public DoorRetriever(DatabaseManager databaseManager, IConfigLoader config,
                          DoorSpecificationManager doorSpecificationManager)
     {
         this.databaseManager = databaseManager;
         this.config = config;
-        this.logger = logger;
         this.doorSpecificationManager = doorSpecificationManager;
     }
 
@@ -56,7 +53,7 @@ public final class DoorRetriever
         final OptionalLong doorUID = Util.parseLong(doorID);
         return doorUID.isPresent() ?
                new DoorUIDRetriever(databaseManager, doorUID.getAsLong()) :
-               new DoorNameRetriever(databaseManager, config, logger, doorSpecificationManager, doorID);
+               new DoorNameRetriever(databaseManager, config, doorSpecificationManager, doorID);
     }
 
     /**
@@ -242,9 +239,6 @@ public final class DoorRetriever
         private IConfigLoader config;
 
         @ToString.Exclude
-        private IPLogger logger;
-
-        @ToString.Exclude
         private DoorSpecificationManager doorSpecificationManager;
 
         private final String name;
@@ -288,7 +282,7 @@ public final class DoorRetriever
                         return CompletableFuture.completedFuture(Optional.empty());
 
                     final Duration timeOut = Duration.ofSeconds(config.specificationTimeout());
-                    return DelayedDoorSpecificationInputRequest.get(logger, timeOut, doorList, player,
+                    return DelayedDoorSpecificationInputRequest.get(timeOut, doorList, player,
                                                                     doorSpecificationManager);
 
                 }).exceptionally(Util::exceptionallyOptional);

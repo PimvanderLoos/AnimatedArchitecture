@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.AccessLevel;
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 /**
  * Represents a request for delayed input. E.g. by waiting for user input.
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T>
  *     The type of data to request.
  */
+@Flogger
 public class DelayedInputRequest<T>
 {
     private final AtomicBoolean timedOut = new AtomicBoolean(false);
@@ -35,7 +37,6 @@ public class DelayedInputRequest<T>
      * The completable future that waits for the delayed input.
      */
     private final CompletableFuture<@Nullable T> input = new CompletableFuture<>();
-    private final IPLogger logger;
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -45,9 +46,8 @@ public class DelayedInputRequest<T>
      * @param timeUnit
      *     The unit of time.
      */
-    protected DelayedInputRequest(IPLogger logger, long timeout, TimeUnit timeUnit)
+    protected DelayedInputRequest(long timeout, TimeUnit timeUnit)
     {
-        this.logger = logger;
         final long timeoutMillis = timeUnit.toMillis(timeout);
         if (timeoutMillis < 1)
             throw new RuntimeException("Timeout must be larger than 0!");
@@ -61,9 +61,9 @@ public class DelayedInputRequest<T>
      *     The amount of time to wait before cancelling the request.
      */
     @SuppressWarnings("unused")
-    protected DelayedInputRequest(IPLogger logger, Duration timeout)
+    protected DelayedInputRequest(Duration timeout)
     {
-        this(logger, timeout.toMillis(), TimeUnit.MILLISECONDS);
+        this(timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -72,9 +72,9 @@ public class DelayedInputRequest<T>
      * @param timeout
      *     The timeout (in ms) to wait before giving up. Must be larger than 0.
      */
-    protected DelayedInputRequest(IPLogger logger, long timeout)
+    protected DelayedInputRequest(long timeout)
     {
-        this(logger, timeout, TimeUnit.MILLISECONDS);
+        this(timeout, TimeUnit.MILLISECONDS);
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like @Nullable in the input's generics.
@@ -118,7 +118,7 @@ public class DelayedInputRequest<T>
             .exceptionally(
                 ex ->
                 {
-                    logger.logThrowable(ex);
+                    log.at(Level.SEVERE).withCause(ex).log();
                     exceptionally.set(true);
                     return Optional.empty();
                 });
@@ -127,7 +127,7 @@ public class DelayedInputRequest<T>
     /**
      * Cancels the request if it is still waiting for input.
      * <p>
-     * Calling this method after the request has already completed has not effect.
+     * Calling this method after the request has already completed has no effect.
      * <p>
      * See {@link #completed()}.
      */
@@ -139,7 +139,7 @@ public class DelayedInputRequest<T>
     /**
      * Provides the value that this object is waiting for.
      * <p>
-     * Calling this method after the request has already completed has not effect.
+     * Calling this method after the request has already completed has no effect.
      * <p>
      * See {@link #completed()}.
      *

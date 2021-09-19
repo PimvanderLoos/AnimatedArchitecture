@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -29,11 +28,11 @@ public class MovePowerBlock extends DoorTargetCommand
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
     @AssistedInject //
-    MovePowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+    MovePowerBlock(@Assisted ICommandSender commandSender, ILocalizer localizer,
                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager,
                    PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
+        super(commandSender, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;
         this.powerBlockRelocatorFactory = powerBlockRelocatorFactory;
     }

@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
@@ -25,25 +25,25 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.logging.Level;
 
 @Singleton
+@Flogger
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsPlugin bigDoorsPlugin;
-    private final IPLogger logger;
 
     private final @Nullable DoorTypeManager doorTypeManager;
     private final @Nullable IConfigLoader config;
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IPLogger logger, @Nullable IBigDoorsPlatform platform,
+    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, @Nullable IBigDoorsPlatform platform,
                                @Nullable DoorTypeManager doorTypeManager, @Nullable IConfigLoader config,
                                @Nullable IBigDoorsSpigotSubPlatform subPlatform)
     {
         super(platform);
         this.bigDoorsPlugin = bigDoorsPlugin;
-        this.logger = logger;
 
         this.doorTypeManager = doorTypeManager;
         this.config = config;
@@ -114,7 +114,8 @@ public class DebugReporterSpigot extends DebugReporter
             }
             catch (Exception e)
             {
-                logger.logThrowable(new RuntimeException("Failed to find MethodHandle for handlers!", e));
+                log.at(Level.SEVERE).withCause(new RuntimeException("Failed to find MethodHandle for handlers!", e))
+                   .log();
                 sb.append("ERROR: ").append(clz.getName()).append('\n');
             }
         }

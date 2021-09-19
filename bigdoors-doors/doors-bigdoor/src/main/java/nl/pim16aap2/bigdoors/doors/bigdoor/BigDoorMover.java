@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.bigdoor;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PBlockData;
@@ -14,6 +15,9 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
+import java.util.logging.Level;
+
+@Flogger
 public class BigDoorMover extends BlockMover
 {
     private final Vector3Dd rotationCenter;
@@ -32,7 +36,7 @@ public class BigDoorMover extends BlockMover
                 rotDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
 
         if (angle == 0.0D)
-            logger.severe("Invalid open direction \"" + rotDirection.name() + "\" for door: " + getDoorUID());
+            log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotDirection.name(), getDoorUID());
 
         rotationCenter = new Vector3Dd(door.getEngine().x() + 0.5, yMin, door.getEngine().z() + 0.5);
 

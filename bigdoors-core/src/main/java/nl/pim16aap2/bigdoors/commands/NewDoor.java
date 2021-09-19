@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -31,11 +30,11 @@ public class NewDoor extends BaseCommand
     private final Provider<Creator.Context> creatorContextProvider;
 
     @AssistedInject //
-    NewDoor(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-            @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
+    NewDoor(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorType doorType,
+            @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
             Provider<Creator.Context> creatorContextProvider)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, localizer);
         this.doorType = doorType;
         this.doorName = doorName;
         this.toolUserManager = toolUserManager;

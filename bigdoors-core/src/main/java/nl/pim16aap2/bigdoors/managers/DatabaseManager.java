@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import dagger.Lazy;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -13,7 +14,6 @@ import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -41,6 +41,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class DatabaseManager extends Restartable
 {
     /**
@@ -56,8 +57,6 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
 
-    private final IPLogger logger;
-
     private final DoorRegistry doorRegistry;
     private final IBigDoorsPlatform bigDoorsPlatform;
     private final Lazy<PowerBlockManager> powerBlockManager;
@@ -72,13 +71,12 @@ public final class DatabaseManager extends Restartable
      *     The {@link IStorage} to use for all database calls.
      */
     @Inject
-    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, IPLogger logger,
-                           DoorRegistry doorRegistry, IBigDoorsPlatform bigDoorsPlatform,
-                           Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory)
+    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
+                           IBigDoorsPlatform bigDoorsPlatform, Lazy<PowerBlockManager> powerBlockManager,
+                           IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(restartableHolder);
         db = storage;
-        this.logger = logger;
         this.doorRegistry = doorRegistry;
         this.bigDoorsPlatform = bigDoorsPlatform;
         this.powerBlockManager = powerBlockManager;
@@ -601,14 +599,15 @@ public final class DatabaseManager extends Restartable
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
-            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
-                door.getDoorUID() + ", but the player is not an owner!");
+            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is not an owner!",
+                                   playerUUID, door.getDoorUID());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (doorOwner.get().permission() == 0)
         {
-            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
-                door.getDoorUID() + ", but the player is the prime owner! This is not allowed!");
+            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is the prime owner! " +
+                                       "This is not allowed!",
+                                   playerUUID, door.getDoorUID());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 

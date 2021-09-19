@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.localization;
 
 import lombok.Getter;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Represents a class that can generate a localization file from multiple sources.
@@ -26,6 +27,7 @@ import java.util.Set;
  *
  * @author Pim
  */
+@Flogger //
 final class LocalizationGenerator implements ILocalizationGenerator
 {
     /**
@@ -33,7 +35,6 @@ final class LocalizationGenerator implements ILocalizationGenerator
      */
     @Getter
     private final Path outputFile;
-    private final IPLogger logger;
     private final String outputBaseName;
 
     /**
@@ -42,12 +43,11 @@ final class LocalizationGenerator implements ILocalizationGenerator
      * @param outputBaseName
      *     The base name of the properties files in the output directory.
      */
-    LocalizationGenerator(Path outputDirectory, String outputBaseName, IPLogger logger)
+    LocalizationGenerator(Path outputDirectory, String outputBaseName)
     {
         this.outputBaseName = outputBaseName;
         outputFile = outputDirectory.resolve(this.outputBaseName + ".bundle");
-        this.logger = logger;
-        LocalizationUtil.ensureZipFileExists(outputFile, logger);
+        LocalizationUtil.ensureZipFileExists(outputFile);
     }
 
     @Override
@@ -75,8 +75,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to add resources from directory \"" +
-                directory + "\" with base name: \"" + baseName + "\"");
+            log.at(Level.SEVERE).withCause(e).log("Failed to add resources from directory '%s' with base name: '%s",
+                                                  directory, baseName);
         }
     }
 
@@ -98,7 +98,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            logger.logThrowable(e, "Failed to read resource from file: " + jarFile);
+            log.at(Level.SEVERE).withCause(e).log("Failed to read resource from file: %s", jarFile);
         }
     }
 
@@ -114,11 +114,11 @@ final class LocalizationGenerator implements ILocalizationGenerator
             final Path existingLocaleFile =
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, ""));
             LocalizationUtil.ensureFileExists(existingLocaleFile);
-            return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile), logger);
+            return LocalizationUtil.getKeySet(Files.newInputStream(existingLocaleFile));
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            logger.logThrowable(e, "Failed to get keys from base locale file.");
+            log.at(Level.SEVERE).withCause(e).log("Failed to get keys from base locale file.");
             return Collections.emptySet();
         }
     }
@@ -164,7 +164,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
                 outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, localeSuffix));
             LocalizationUtil.ensureFileExists(existingLocaleFile);
 
-            final List<String> lines = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile), logger);
+            final List<String> lines = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
             mergeWithPatches(lines, patches);
 
             final StringBuilder sb = new StringBuilder();
@@ -173,7 +173,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            logger.logThrowable(e, "Failed to open output file!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to open output file!");
         }
     }
 
@@ -223,7 +223,7 @@ final class LocalizationGenerator implements ILocalizationGenerator
     private FileSystem getOutputFileFileSystem()
         throws IOException, URISyntaxException, ProviderNotFoundException
     {
-        LocalizationUtil.ensureZipFileExists(outputFile, logger);
+        LocalizationUtil.ensureZipFileExists(outputFile);
         return LocalizationUtil.createNewFileSystem(outputFile);
     }
 
@@ -251,8 +251,8 @@ final class LocalizationGenerator implements ILocalizationGenerator
             outputFileSystem.getPath(LocalizationUtil.getOutputLocaleFileName(outputBaseName, locale));
         LocalizationUtil.ensureFileExists(existingLocaleFile);
         LocalizationUtil.ensureFileExists(outputFile);
-        final List<String> existing = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile), logger);
-        final List<String> newlines = LocalizationUtil.readFile(inputStream, logger);
+        final List<String> existing = LocalizationUtil.readFile(Files.newInputStream(existingLocaleFile));
+        final List<String> newlines = LocalizationUtil.readFile(inputStream);
         final List<String> appendable = LocalizationUtil.getAppendable(existing, newlines);
         LocalizationUtil.appendToFile(existingLocaleFile, appendable);
     }

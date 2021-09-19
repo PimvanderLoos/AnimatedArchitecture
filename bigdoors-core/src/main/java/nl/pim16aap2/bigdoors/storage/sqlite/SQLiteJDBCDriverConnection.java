@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
@@ -9,7 +10,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -54,6 +54,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
@@ -93,8 +94,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private final DoorBaseFactory doorBaseFactory;
 
-    private final IPLogger logger;
-
     private final DoorRegistry doorRegistry;
 
     private final DoorTypeManager doorTypeManager;
@@ -109,12 +108,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     @Inject
     public SQLiteJDBCDriverConnection(@Named("databaseFile") File dbFile, DoorBaseFactory doorBaseFactory,
-                                      IPLogger logger, DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
+                                      DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
                                       IPWorldFactory worldFactory)
     {
         this.dbFile = dbFile;
         this.doorBaseFactory = doorBaseFactory;
-        this.logger = logger;
         this.doorRegistry = doorRegistry;
         this.doorTypeManager = doorTypeManager;
         this.worldFactory = worldFactory;
@@ -174,9 +172,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         if (!databaseState.equals(state))
         {
-            logger.logThrowable(new IllegalStateException(
+            log.at(Level.SEVERE).withCause(new IllegalStateException(
                 "The database is in an incorrect state: " + databaseState.name() +
-                    ". All database operations are disabled!"));
+                    ". All database operations are disabled!")).log();
             return null;
         }
 
@@ -188,10 +186,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            logger.logThrowable(e, "Failed to open connection!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to open connection!");
         }
         if (conn == null)
-            logger.logThrowable(new NullPointerException("Could not open connection!"));
+            log.at(Level.SEVERE).withCause(new NullPointerException("Could not open connection!")).log();
         return conn;
     }
 
@@ -248,23 +246,22 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
                 {
-                    logger.logThrowable(
-                        new IOException("Failed to create directory \"" + dbFile.getParentFile() + "\""));
+                    log.at(Level.SEVERE).withCause(
+                        new IOException("Failed to create directory \"" + dbFile.getParentFile() + "\"")).log();
                     databaseState = DatabaseState.ERROR;
                     return;
                 }
                 if (!dbFile.createNewFile())
                 {
-                    logger.logThrowable(new IOException("Failed to create file \"" + dbFile + "\""));
+                    log.at(Level.SEVERE).withCause(new IOException("Failed to create file \"" + dbFile + "\"")).log();
                     databaseState = DatabaseState.ERROR;
                     return;
                 }
-                logger.info("New file created at " + dbFile);
+                log.at(Level.INFO).log("New file created at: %s", dbFile);
             }
             catch (IOException e)
             {
-                logger.severe("File write error: " + dbFile);
-                logger.logThrowable(e);
+                log.at(Level.SEVERE).withCause(e).log("File write error: %s", dbFile);
                 databaseState = DatabaseState.ERROR;
                 return;
             }
@@ -300,7 +297,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -312,8 +309,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (!doorType.map(doorTypeManager::isRegistered).orElse(false))
         {
-            logger.logThrowable(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
-                                                              " has not been registered (yet)!"));
+            log.at(Level.SEVERE).withCause(new IllegalStateException("Type with ID: " + doorBaseRS.getInt("doorType") +
+                                                                         " has not been registered (yet)!")).log();
             return Optional.empty();
         }
 
@@ -323,7 +320,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         // while this actually won't happen.
         // IntelliJ Struggles with <?> and nullability... :(
         @SuppressWarnings({"squid:S3655", "NullableProblems"}) //
-        final DoorSerializer<?> serializer = doorType.get().getDoorSerializer(logger);
+        final DoorSerializer<?> serializer = doorType.get().getDoorSerializer();
 
         final Optional<AbstractDoor> registeredDoor = doorRegistry.getRegisteredDoor(doorUID);
         if (registeredDoor.isPresent())
@@ -435,7 +432,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     public Optional<AbstractDoor> insert(AbstractDoor door)
     {
         @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
-        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer(logger);
+        final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer();
 
         final String typeName = door.getDoorType().getFullName();
         try
@@ -452,7 +449,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception t)
         {
-            logger.logThrowable(t);
+            log.at(Level.SEVERE).withCause(t).log();
         }
         return Optional.empty();
     }
@@ -845,7 +842,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                            rs -> rs.getInt(1), -1);
         if (dbVersion == -1)
         {
-            logger.logMessage(Level.SEVERE, "Failed to obtain database version!");
+            log.at(Level.SEVERE).log("Failed to obtain database version!");
             databaseState = DatabaseState.ERROR;
             return dbVersion;
         }
@@ -857,15 +854,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         if (dbVersion < MIN_DATABASE_VERSION)
         {
-            logger.logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
-                " while the minimum allowed version is " + MIN_DATABASE_VERSION);
+            log.at(Level.SEVERE)
+               .log("Trying to load database version %s while the minimum allowed version is %s",
+                    dbVersion, MIN_DATABASE_VERSION);
             databaseState = DatabaseState.TOO_OLD;
         }
 
         if (dbVersion > DATABASE_VERSION)
         {
-            logger.logMessage(Level.SEVERE, "Trying to load database version " + dbVersion +
-                " while the maximum allowed version is " + DATABASE_VERSION);
+            log.at(Level.SEVERE)
+               .log("Trying to load database version %s while the maximum allowed version is %s",
+                    dbVersion, DATABASE_VERSION);
             databaseState = DatabaseState.TOO_NEW;
         }
         return dbVersion;
@@ -906,7 +905,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -930,8 +929,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to create backup of the database! "
-                + "Database upgrade aborted and access is disabled!");
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to create backup of the database! Database upgrade aborted and access is disabled!");
             return false;
         }
         return true;
@@ -951,7 +950,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -970,7 +969,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         try (PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
              ResultSet rs1 = ps1.executeQuery())
         {
-            logger.warn("Upgrading database to V11!");
+            log.at(Level.WARNING).log("Upgrading database to V11!");
 
             while (rs1.next())
             {
@@ -985,7 +984,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException | NullPointerException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -1009,7 +1008,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return -1;
     }
@@ -1032,7 +1031,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return -1;
     }
@@ -1059,7 +1058,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return -1;
     }
@@ -1086,12 +1085,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             catch (SQLException ex)
             {
-                logger.logThrowable(ex);
+                log.at(Level.SEVERE).withCause(ex).log();
             }
         }
         catch (SQLException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return -1;
     }
@@ -1125,7 +1124,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return fallback;
     }
@@ -1165,7 +1164,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return fallback;
     }
@@ -1197,7 +1196,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return fallback;
     }
@@ -1253,12 +1252,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             {
                 if (failureAction == FailureAction.ROLLBACK)
                     conn.rollback();
-                logger.logThrowable(e);
+                log.at(Level.SEVERE).withCause(e).log();
             }
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
         return fallback;
     }
@@ -1296,7 +1295,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void logStatement(PPreparedStatement pPreparedStatement)
     {
-        logger.logMessage(Level.ALL, "Executed statement:", pPreparedStatement::toString);
+        log.at(Level.FINEST).log("Executed statement: %s", pPreparedStatement);
     }
 
     /**

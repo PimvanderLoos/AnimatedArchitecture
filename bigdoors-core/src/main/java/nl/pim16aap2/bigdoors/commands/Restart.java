@@ -6,7 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,10 +21,9 @@ public class Restart extends BaseCommand
     private final IBigDoorsPlatform bigDoorsPlatform;
 
     @AssistedInject //
-    Restart(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-            IBigDoorsPlatform bigDoorsPlatform)
+    Restart(@Assisted ICommandSender commandSender, ILocalizer localizer, IBigDoorsPlatform bigDoorsPlatform)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, localizer);
         this.bigDoorsPlatform = bigDoorsPlatform;
     }
 

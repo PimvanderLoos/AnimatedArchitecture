@@ -2,14 +2,15 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Represents a procedure as defined by a series of {@link IStep}s.
@@ -17,19 +18,18 @@ import java.util.List;
  * @author Pim
  */
 @ToString
+@Flogger
 public final class Procedure
 {
     @Getter
     private @Nullable IStep currentStep;
 
     private final Iterator<IStep> steps;
-    private final IPLogger logger;
     private final ILocalizer localizer;
 
-    public Procedure(List<IStep> steps, IPLogger logger, ILocalizer localizer)
+    public Procedure(List<IStep> steps, ILocalizer localizer)
     {
         this.steps = steps.iterator();
-        this.logger = logger;
         this.localizer = localizer;
         goToNextStep();
     }
@@ -51,9 +51,9 @@ public final class Procedure
     {
         if (!steps.hasNext())
         {
-            logger.logThrowable(new IndexOutOfBoundsException(
+            log.at(Level.SEVERE).withCause(new IndexOutOfBoundsException(
                 "Trying to advance to the next step while there is none! Step: " +
-                    (currentStep == null ? "NULL" : getCurrentStepName())));
+                    (currentStep == null ? "NULL" : getCurrentStepName()))).log();
             return;
         }
         currentStep = steps.next();
@@ -96,8 +96,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            logger.logThrowable(
-                new IllegalStateException("Cannot apply step executor because there is no active step!"));
+            log.at(Level.SEVERE).withCause(
+                new IllegalStateException("Cannot apply step executor because there is no active step!")).log();
             return false;
         }
         return currentStep.getStepExecutor().map(stepExecutor -> stepExecutor.apply(obj)).orElse(false);
@@ -112,8 +112,9 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            logger.logThrowable(
-                new IllegalStateException("Cannot get the current step message because there is no active step!"));
+            log.at(Level.SEVERE).withCause(
+                   new IllegalStateException("Cannot get the current step message because there is no active step!"))
+               .log();
             return localizer.getMessage("constants.error.generic");
         }
         return currentStep.getLocalizedMessage();
@@ -128,8 +129,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            logger.logThrowable(
-                new IllegalStateException("Cannot get the name of the current because there is no active step!"));
+            log.at(Level.SEVERE).withCause(
+                new IllegalStateException("Cannot get the name of the current because there is no active step!")).log();
             return "NULL";
         }
         return currentStep.getName();
@@ -144,8 +145,8 @@ public final class Procedure
     {
         if (currentStep == null)
         {
-            logger.logThrowable(
-                new IllegalStateException("Cannot wait for user input because there is no active step!"));
+            log.at(Level.SEVERE).withCause(
+                new IllegalStateException("Cannot wait for user input because there is no active step!")).log();
             return false;
         }
         return currentStep.waitForUserInput();
@@ -168,8 +169,8 @@ public final class Procedure
 
         if (currentStep == null)
         {
-            logger.logThrowable(
-                new IllegalStateException("Cannot check for implicit next step as there is no current step!"));
+            log.at(Level.SEVERE).withCause(
+                new IllegalStateException("Cannot check for implicit next step as there is no current step!")).log();
             return false;
         }
         return currentStep.isImplicitNextStep();

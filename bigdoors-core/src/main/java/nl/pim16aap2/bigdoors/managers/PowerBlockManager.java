@@ -1,12 +1,12 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -30,12 +30,12 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class PowerBlockManager extends Restartable
 {
     private final Map<String, PowerBlockWorld> powerBlockWorlds = new ConcurrentHashMap<>();
     private final IConfigLoader config;
     private final DatabaseManager databaseManager;
-    private final IPLogger pLogger;
 
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
@@ -47,17 +47,13 @@ public final class PowerBlockManager extends Restartable
      *     The configuration of this plugin.
      * @param databaseManager
      *     The database manager to use for power block retrieval.
-     * @param pLogger
-     *     The logger used for error logging.
      */
     @Inject
-    public PowerBlockManager(RestartableHolder restartableHolder, IConfigLoader config,
-                             DatabaseManager databaseManager, IPLogger pLogger)
+    public PowerBlockManager(RestartableHolder restartableHolder, IConfigLoader config, DatabaseManager databaseManager)
     {
         super(restartableHolder);
         this.config = config;
         this.databaseManager = databaseManager;
-        this.pLogger = pLogger;
     }
 
     /**
@@ -98,7 +94,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
             return CompletableFuture.completedFuture(Collections.emptyList());
         }
 
@@ -123,7 +119,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
             return false;
         }
         return powerBlockWorld.isBigDoorsWorld();
@@ -147,8 +143,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(door.getWorld().worldName());
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING,
-                               "Failed to load power blocks for world: \"" + door.getWorld().worldName() + "\".");
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", door.getWorld().worldName());
             return;
         }
 
@@ -170,7 +165,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(pos);
@@ -190,7 +185,7 @@ public final class PowerBlockManager extends Restartable
         final PowerBlockWorld powerBlockWorld = powerBlockWorlds.get(worldName);
         if (powerBlockWorld == null)
         {
-            pLogger.logMessage(Level.WARNING, "Failed to load power blocks for world: \"" + worldName + "\".");
+            log.at(Level.WARNING).log("Failed to load power blocks for world: '%s'.", worldName);
             return;
         }
         powerBlockWorld.invalidatePosition(new Vector3Di(chunk.x(), 64, chunk.y()));

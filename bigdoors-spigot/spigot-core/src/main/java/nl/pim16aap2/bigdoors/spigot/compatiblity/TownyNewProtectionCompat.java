@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,7 +17,7 @@ public class TownyNewProtectionCompat implements IProtectionCompat
     private static final ProtectionCompat COMPAT = ProtectionCompat.TOWNY;
 
     @SuppressWarnings("unused")
-    public TownyNewProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
+    public TownyNewProtectionCompat(JavaPlugin bigDoors)
     {
     }
 

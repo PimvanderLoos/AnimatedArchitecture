@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doors;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -11,7 +12,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventToggleStart;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -35,6 +35,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @EqualsAndHashCode
+@Flogger
 public abstract class AbstractDoor implements IDoor
 {
     @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
@@ -45,37 +46,29 @@ public abstract class AbstractDoor implements IDoor
 
     @Getter
     protected final DoorBase doorBase;
-    protected final IPLogger logger;
     protected final ILocalizer localizer;
     protected final DoorOpeningHelper doorOpeningHelper;
 
 
-    protected AbstractDoor(DoorBase doorBase, IPLogger logger, ILocalizer localizer,
-                           DoorRegistry doorRegistry, AutoCloseScheduler autoCloseScheduler,
-                           DoorOpeningHelper doorOpeningHelper)
+    protected AbstractDoor(DoorBase doorBase, ILocalizer localizer, DoorRegistry doorRegistry,
+                           AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper)
     {
-        serializer = getDoorType().getDoorSerializer(logger);
+        serializer = getDoorType().getDoorSerializer();
         this.doorBase = doorBase;
-        this.logger = logger;
         this.localizer = localizer;
         this.doorRegistry = doorRegistry;
         this.autoCloseScheduler = autoCloseScheduler;
         this.doorOpeningHelper = doorOpeningHelper;
 
-        logger.logMessage(Level.FINEST, "Instantiating door: " + doorBase.getDoorUID());
-        if (doorBase.getDoorUID() > 0 &&
-            !doorRegistry.registerDoor(new Registrable()))
-        {
-            final IllegalStateException exception = new IllegalStateException(
-                "Tried to create new door \"" + doorBase.getDoorUID() + "\" while it is already registered!");
-            logger.logThrowableSilently(exception);
-            throw exception;
-        }
+        log.at(Level.FINEST).log("Instantiating door: %d", doorBase.getDoorUID());
+        if (doorBase.getDoorUID() > 0 && !doorRegistry.registerDoor(new Registrable()))
+            throw new IllegalStateException("Tried to create new door \"" + doorBase.getDoorUID() +
+                                                "\" while it is already registered!");
     }
 
     protected AbstractDoor(DoorBase doorBase)
     {
-        this(doorBase, doorBase.getLogger(), doorBase.getLocalizer(), doorBase.getDoorRegistry(),
+        this(doorBase, doorBase.getLocalizer(), doorBase.getDoorRegistry(),
              doorBase.getAutoCloseScheduler(), doorBase.getDoorOpeningHelper());
     }
 
@@ -192,14 +185,14 @@ public abstract class AbstractDoor implements IDoor
     {
         if (!doorOpeningHelper.isMainThread())
         {
-            logger.logThrowable(
-                new IllegalStateException("Doors must be toggled on the main thread!"));
+            log.at(Level.SEVERE).withCause(new IllegalStateException("Doors must be toggled on the main thread!"))
+               .log();
             return DoorToggleResult.ERROR;
         }
 
         if (getOpenDir() == RotateDirection.NONE)
         {
-            logger.logThrowable(new IllegalStateException("OpenDir cannot be NONE!"));
+            log.at(Level.SEVERE).withCause(new IllegalStateException("OpenDir cannot be NONE!")).log();
             return DoorToggleResult.ERROR;
         }
 
@@ -275,7 +268,7 @@ public abstract class AbstractDoor implements IDoor
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to sync data for door: " + getBasicInfo());
+            log.at(Level.SEVERE).withCause(e).log("Failed to sync data for door: %s", getBasicInfo());
         }
         return CompletableFuture.completedFuture(false);
     }

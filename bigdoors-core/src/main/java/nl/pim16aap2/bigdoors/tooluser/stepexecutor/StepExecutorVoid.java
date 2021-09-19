@@ -1,21 +1,22 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
+import com.google.common.flogger.StackSize;
 import lombok.ToString;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 import java.util.logging.Level;
 
 @ToString
+@Flogger
 public class StepExecutorVoid extends StepExecutor
 {
     @ToString.Exclude
     private final Supplier<Boolean> fun;
 
-    public StepExecutorVoid(IPLogger logger, Supplier<Boolean> fun)
+    public StepExecutorVoid(Supplier<Boolean> fun)
     {
-        super(logger);
         this.fun = fun;
     }
 
@@ -23,7 +24,8 @@ public class StepExecutorVoid extends StepExecutor
     protected boolean protectedAccept(@Nullable Object input)
     {
         if (input != null)
-            logger.dumpStackTrace(Level.FINE, "Void input should not have a value. Received " + input);
+            log.at(Level.FINE).withStackTrace(StackSize.FULL)
+               .log("Void input should not have a value. Received %s", input);
         return fun.get();
     }
 

@@ -5,7 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -25,10 +25,9 @@ public class Confirm extends BaseCommand
     private final ToolUserManager toolUserManager;
 
     @AssistedInject //
-    Confirm(@Assisted ICommandSender commandSender, IPLogger logger,
-            nl.pim16aap2.bigdoors.localization.ILocalizer localizer, ToolUserManager toolUserManager)
+    Confirm(@Assisted ICommandSender commandSender, ILocalizer localizer, ToolUserManager toolUserManager)
     {
-        super(commandSender, logger, localizer);
+        super(commandSender, localizer);
         this.toolUserManager = toolUserManager;
     }
 

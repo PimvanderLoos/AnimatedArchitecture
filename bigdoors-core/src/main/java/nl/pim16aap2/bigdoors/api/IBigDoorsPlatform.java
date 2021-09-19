@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -158,13 +157,6 @@ public interface IBigDoorsPlatform
      * @return The {@link IGlowingBlockSpawner} for the current platform.
      */
     IGlowingBlockSpawner getGlowingBlockSpawner();
-
-    /**
-     * Gets the {@link IPLogger} for this platform.
-     *
-     * @return The {@link IPLogger} for this platform.
-     */
-    IPLogger getLogger();
 
     /**
      * Gets the {@link ILocalizer} used to localize strings.

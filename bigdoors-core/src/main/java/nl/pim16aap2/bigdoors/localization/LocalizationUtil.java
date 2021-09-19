@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.localization;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
 
@@ -32,6 +33,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Pim
  */
+@Flogger
 public final class LocalizationUtil
 {
     private LocalizationUtil()
@@ -129,7 +131,7 @@ public final class LocalizationUtil
      *     The input stream to read lines of Strings from. These lines are expected to be of the format "key=value".
      * @return A set with all the keys used in the input stream.
      */
-    static Set<String> getKeySet(InputStream inputStream, IPLogger logger)
+    static Set<String> getKeySet(InputStream inputStream)
     {
         final Set<String> ret = new LinkedHashSet<>();
         readFile(inputStream, line ->
@@ -137,7 +139,7 @@ public final class LocalizationUtil
             final @Nullable String key = getKeyFromLine(line);
             if (key != null)
                 ret.add(key);
-        }, logger);
+        });
         return ret;
     }
 
@@ -148,17 +150,17 @@ public final class LocalizationUtil
      *     The path to a file.
      * @return A set with all the keys used in the file.
      */
-    static Set<String> getKeySet(Path path, IPLogger logger)
+    static Set<String> getKeySet(Path path)
     {
         if (!Files.isRegularFile(path))
             return Collections.emptySet();
         try (InputStream inputStream = Files.newInputStream(path))
         {
-            return getKeySet(inputStream, logger);
+            return getKeySet(inputStream);
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to get keys from file: " + path);
+            log.at(Level.SEVERE).withCause(e).log("Failed to get keys from file: %s", path);
             return Collections.emptySet();
         }
     }
@@ -208,7 +210,7 @@ public final class LocalizationUtil
      * @param fun
      *     The function to apply for each line retrieved from the input stream.
      */
-    static void readFile(InputStream inputStream, Consumer<String> fun, IPLogger logger)
+    static void readFile(InputStream inputStream, Consumer<String> fun)
     {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
         {
@@ -223,7 +225,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to read localization file!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to read localization file!");
         }
     }
 
@@ -234,10 +236,10 @@ public final class LocalizationUtil
      *     The input stream to read the data from.
      * @return A list of Strings where every string represents a single line in the provided input stream.
      */
-    static List<String> readFile(InputStream inputStream, IPLogger logger)
+    static List<String> readFile(InputStream inputStream)
     {
         final List<String> ret = new ArrayList<>();
-        readFile(inputStream, ret::add, logger);
+        readFile(inputStream, ret::add);
         return ret;
     }
 
@@ -250,18 +252,18 @@ public final class LocalizationUtil
      *     The function to apply for each line retrieved from the input stream.
      * @return A list of Strings where every string represents a single line in the provided file.
      */
-    static void readFile(Path path, Consumer<String> fun, IPLogger logger)
+    static void readFile(Path path, Consumer<String> fun)
     {
         if (!Files.isRegularFile(path))
             return;
 
         try (InputStream inputStream = Files.newInputStream(path))
         {
-            readFile(inputStream, fun, logger);
+            readFile(inputStream, fun);
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to read file: " + path);
+            log.at(Level.SEVERE).withCause(e).log("Failed to read file: %s", path);
         }
     }
 
@@ -429,7 +431,7 @@ public final class LocalizationUtil
     /**
      * Ensures a given zip file exists.
      */
-    static void ensureZipFileExists(Path zipFile, IPLogger logger)
+    static void ensureZipFileExists(Path zipFile)
     {
         if (Files.exists(zipFile))
             return;
@@ -443,7 +445,7 @@ public final class LocalizationUtil
             }
             catch (IOException e)
             {
-                logger.logThrowable(e, "Failed to create directories: " + parent);
+                log.at(Level.SEVERE).withCause(e).log("Failed to create directories: %s", parent);
                 return;
             }
         }
@@ -457,7 +459,7 @@ public final class LocalizationUtil
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to create file: " + zipFile);
+            log.at(Level.SEVERE).withCause(e).log("Failed to create file: %s", zipFile);
         }
     }
 
@@ -469,7 +471,7 @@ public final class LocalizationUtil
      * @param baseName
      *     The base name of the localization files.
      */
-    static List<Locale> getLocalesInZip(Path zipFile, String baseName, IPLogger logger)
+    static List<Locale> getLocalesInZip(Path zipFile, String baseName)
     {
         try (FileSystem fs = createNewFileSystem(zipFile))
         {
@@ -478,7 +480,7 @@ public final class LocalizationUtil
         }
         catch (IOException | URISyntaxException | ProviderNotFoundException e)
         {
-            logger.logThrowable(e, "Failed to find locales in file: " + zipFile);
+            log.at(Level.SEVERE).withCause(e).log("Failed to find locales in file: %s", zipFile);
             return Collections.emptyList();
         }
     }

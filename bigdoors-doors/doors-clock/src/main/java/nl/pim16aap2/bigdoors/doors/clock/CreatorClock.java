@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -18,7 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
+@Flogger
 public class CreatorClock extends Creator
 {
     private static final DoorType DOOR_TYPE = DoorTypeClock.get();
@@ -44,6 +47,7 @@ public class CreatorClock extends Creator
         super(context, player, name);
     }
 
+    @SuppressWarnings("unused")
     public CreatorClock(Creator.Context context, IPPlayer player)
     {
         this(context, player, null);
@@ -55,7 +59,7 @@ public class CreatorClock extends Creator
     {
         final Step stepSelectHourArm = new Step.Factory(localizer, "SELECT_HOUR_ARM")
             .messageKey("creator.clock.step_3")
-            .stepExecutor(new StepExecutorPLocation(logger, this::completeSelectHourArmStep))
+            .stepExecutor(new StepExecutorPLocation(this::completeSelectHourArmStep))
             .waitForUserInput(true).construct();
 
         return Arrays.asList(factorySetName.construct(),
@@ -103,8 +107,8 @@ public class CreatorClock extends Creator
         // The clock has to be an odd number of blocks tall.
         if (cuboidDims.y() % 2 == 0)
         {
-            logger.debug("ClockCreator: " + getPlayer().asString() +
-                             ": The height of the selected area for the clock is not odd!");
+            log.at(Level.FINE).log("ClockCreator: %s: The height of the selected clock area (%d) is not an odd value!",
+                                   getPlayer(), cuboidDims.y());
             return false;
         }
 
@@ -113,8 +117,9 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.y() != cuboidDims.z())
             {
-                logger.debug("ClockCreator: " + getPlayer().asString() +
-                                 ": The selected Clock area is not square! The x-axis is valid.");
+                log.at(Level.FINE)
+                   .log("ClockCreator: %s: The selected Clock area (%s) is not square! The x-axis is valid.",
+                        getPlayer(), cuboidDims);
                 return false;
             }
             northSouthAligned = false;
@@ -124,15 +129,17 @@ public class CreatorClock extends Creator
             // It has to be a square.
             if (cuboidDims.y() != cuboidDims.x())
             {
-                logger.debug("ClockCreator: " + getPlayer().asString() +
-                                 ": The selected Clock area is not square! The z-axis is valid.");
+                log.at(Level.FINE)
+                   .log("ClockCreator: %s: The selected Clock area (%s) is not square! The z-axis is valid.",
+                        getPlayer(), cuboidDims);
                 return false;
             }
             northSouthAligned = true;
         }
         else
         {
-            logger.debug("ClockCreator: " + getPlayer().asString() + ": Selected Clock area is not valid!");
+            log.at(Level.FINE)
+               .log("ClockCreator: %s: The selected Clock area (%s) is not valid!", getPlayer(), cuboidDims);
             return false;
         }
 
