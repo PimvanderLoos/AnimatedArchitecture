@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -687,5 +688,44 @@ public final class Util
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
         return new double[0];
+    }
+
+    /**
+     * Parses the {@link Level} from its name.
+     * <p>
+     * The strict refers to the aspect that only name matches are allowed. See {@link Level#getName()}. Contrary to
+     * {@link Level#parse(String)}, this method won't define new levels from integer inputs.
+     *
+     * @param logLevelName
+     *     The name of the log level.
+     * @return The {@link Level} if an exact match could be found, otherwise null.
+     */
+    public static @Nullable Level parseLogLevelStrict(@Nullable String logLevelName)
+    {
+        if (logLevelName == null)
+            return null;
+        final String preparedLogLevelName = logLevelName.toUpperCase(Locale.ENGLISH).strip();
+        if (preparedLogLevelName.isBlank())
+            return null;
+
+        if ("OFF".equals(preparedLogLevelName))
+            return Level.OFF;
+        if ("SEVERE".equals(preparedLogLevelName))
+            return Level.SEVERE;
+        if ("WARNING".equals(preparedLogLevelName))
+            return Level.WARNING;
+        if ("INFO".equals(preparedLogLevelName))
+            return Level.INFO;
+        if ("CONFIG".equals(preparedLogLevelName))
+            return Level.CONFIG;
+        if ("FINE".equals(preparedLogLevelName))
+            return Level.FINE;
+        if ("FINER".equals(preparedLogLevelName))
+            return Level.FINER;
+        if ("FINEST".equals(preparedLogLevelName))
+            return Level.FINEST;
+        if ("ALL".equals(preparedLogLevelName))
+            return Level.ALL;
+        return null;
     }
 }

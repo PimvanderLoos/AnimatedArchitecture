@@ -3,12 +3,17 @@ package nl.pim16aap2.logging;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.FileAppender;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import nl.pim16aap2.util.LazyInit;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +36,8 @@ public class LogBackConfigurator
         LEVEL_MAPPER.put(java.util.logging.Level.WARNING, Level.WARN);
         LEVEL_MAPPER.put(java.util.logging.Level.INFO, Level.INFO);
         LEVEL_MAPPER.put(java.util.logging.Level.CONFIG, Level.DEBUG);
-        LEVEL_MAPPER.put(java.util.logging.Level.FINE, Level.TRACE);
-        LEVEL_MAPPER.put(java.util.logging.Level.FINER, Level.TRACE);
+        LEVEL_MAPPER.put(java.util.logging.Level.FINE, Level.DEBUG);
+        LEVEL_MAPPER.put(java.util.logging.Level.FINER, Level.DEBUG);
         LEVEL_MAPPER.put(java.util.logging.Level.FINEST, Level.TRACE);
         LEVEL_MAPPER.put(java.util.logging.Level.ALL, Level.ALL);
     }
@@ -42,7 +47,11 @@ public class LogBackConfigurator
 
     private final List<AppenderSpecification> appenderList = new ArrayList<>();
 
-    private Level level;
+    private @Nullable Level level = null;
+
+    @Setter
+    @Accessors(chain = true)
+    private @Nullable File logFile = null;
 
     /**
      * Sets the log level of the root logger.
@@ -145,17 +154,93 @@ public class LogBackConfigurator
     private String buildConfig()
     {
         final StringBuilder sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<configuration>\n");
+        final boolean fileEnabled = logFile != null && isFileLoggingEnabled();
 
         final StringBuilder appenderRefs = new StringBuilder();
         for (AppenderSpecification appender : appenderList)
         {
             sb.append(appender.toString());
-            appenderRefs.append("\t\t<appender-ref ref=\"").append(appender.name()).append("\" />\n");
+            appenderRefs.append(getAppenderRef(appender.name()));
         }
 
-        return sb.append("\t<root level=\"").append(level.toString()).append("\">\n")
+        if (fileEnabled)
+        {
+            sb.append(getLogFileAppenderConfig(logFile));
+            appenderRefs.append(getAppenderRef("FileLogger"));
+        }
+        return sb.append("\t<root level=\"").append(level).append("\">\n")
                  .append(appenderRefs)
                  .append("\t</root>\n</configuration>").toString();
+    }
+
+    /**
+     * Gets the configuration portion of the logFile appender.
+     *
+     * @param file
+     *     The logFile to use.
+     * @return The configuration of the logFile appender.
+     */
+    private String getLogFileAppenderConfig(File file)
+    {
+        return
+            """
+                <appender name="FileLogger" class="${FILE_APPENDER_CLASS}">
+                    <file>${LOG_FILE_NAME}</file>
+                    <append>true</append>
+                    <encoder>
+                        <pattern>[%date{ISO8601}] [%thread/%level]: %logger: %message%n</pattern>
+                    </encoder>
+                </appender>
+            """.replace("${LOG_FILE_NAME}", file.getAbsolutePath())
+               // Use placeholder for class name to ensure that it works nicely with relocation.
+               .replace("${FILE_APPENDER_CLASS}", FileAppender.class.getName());
+    }
+
+    /**
+     * Checks if file logging should be enabled.
+     * <p>
+     * File logging should be enabled when {@link #logFile} is not null and can be used for logging. See {@link
+     * #ensureLogFileExists(File)}.
+     *
+     * @return True if file logging should be enabled.
+     */
+    private boolean isFileLoggingEnabled()
+    {
+        if (logFile == null)
+            return false;
+        try
+        {
+            ensureLogFileExists(logFile);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    /**
+     * Ensures that the provided file can be used for logging. This means that the file exists (or can be created) and
+     * that the file is writable (or can be made so).
+     *
+     * @param file
+     *     The file to check.
+     * @throws IOException
+     *     If an issue occurred creating the file or updating it writable status.
+     */
+    private static void ensureLogFileExists(File file)
+        throws IOException
+    {
+        if (!file.exists() && !file.createNewFile())
+            throw new IOException("Failed to create file \"" + file + "\"! Is it a directory?");
+
+        if (!file.canWrite() && !file.setWritable(true))
+            throw new IOException("Failed to make file \"" + file + "\" writable! Is it a directory?");
+    }
+
+    private static String getAppenderRef(String name)
+    {
+        return String.format("\t\t<appender-ref ref=\"%s\" />\n", name);
     }
 
     public record AppenderSpecification(String name, String clz, @Nullable String pattern)

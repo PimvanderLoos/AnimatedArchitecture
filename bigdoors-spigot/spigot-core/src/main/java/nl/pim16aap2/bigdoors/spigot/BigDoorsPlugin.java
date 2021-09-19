@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot;
 
-import com.google.common.flogger.FluentLogger;
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,22 +30,13 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 {
-    // Suppress unused because it isn't used yet. However, it will be in the future.
-    @SuppressWarnings("unused")
-    private static final LogBackConfigurator LOG_BACK_CONFIGURATOR;
-    private static final FluentLogger log;
-
-    static
-    {
-        LOG_BACK_CONFIGURATOR = new LogBackConfigurator()
-            .addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
-            .setLevel(Level.INFO)
-            .apply();
-
-        log = FluentLogger.forEnclosingClass();
-    }
+    private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
+        new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
+                                 .setLevel(Level.FINEST)
+                                 .apply();
 
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
@@ -62,6 +54,8 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 
     public BigDoorsPlugin()
     {
+        LOG_BACK_CONFIGURATOR.setLogFile(new File(getDataFolder(), "log.txt")).apply();
+
         mainThreadId = Thread.currentThread().getId();
         restartableHolder = new RestartableHolder();
 
@@ -115,6 +109,9 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             restart();
         else
             log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
+
+        if (bigDoorsSpigotPlatform != null)
+            LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
 
         initialized = true;
     }

@@ -13,6 +13,7 @@ import nl.pim16aap2.bigdoors.spigot.util.implementations.ConfigReaderSpigot;
 import nl.pim16aap2.bigdoors.util.ConfigEntry;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Limit;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.logging.Level;
 
 /**
  * Represents the config loader.
@@ -75,6 +77,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
     private boolean consoleLogging;
+    private Level logLevel;
     private boolean debug = false;
     private String flagFormula = "";
 
@@ -218,6 +221,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         final String[] consoleLoggingComment = {
             "Write errors and exceptions to console. If disabled, they will only be written to the bigdoors log. ",
             "If enabled, they will be written to both the console and the bigdoors log."};
+        final String[] logLevelComment = {
+            "The log level to use. Note that levels lower than INFO aren't shown in the console by default, " +
+                "regardless of this setting.",
+            "Supported levels are: OFF, SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST, ALL.",
+            "This will default to INFO in case an invalid option is provided."};
 
 
         final IConfigReader config = new ConfigReaderSpigot(plugin.getConfig());
@@ -293,6 +301,11 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         }
 
         consoleLogging = addNewConfigEntry(config, "consoleLogging", true, consoleLoggingComment);
+        final String logLevelName = addNewConfigEntry(config, "logLevel", "INFO", logLevelComment);
+        final @Nullable Level logLevelTmp = Util.parseLogLevelStrict(logLevelName);
+        logLevel = logLevelTmp == null ? Level.INFO : logLevelTmp;
+
+
         // This is a bit special, as it's public static (for SpigotUtil debug messages).
         debug = addNewConfigEntry(config, "DEBUG", false, debugComment);
         if (debug)
@@ -560,6 +573,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public double getAnimationTime(DoorType type)
     {
         return doorMultipliers.getOrDefault(type, 0.0D);
+    }
+
+    @Override
+    public Level logLevel()
+    {
+        return logLevel;
     }
 
     @Override
