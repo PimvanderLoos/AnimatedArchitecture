@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,14 +56,12 @@ class PowerBlockRelocatorTest
                .thenReturn(Optional.empty());
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
 
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
         Mockito.when(context.getLogger()).thenReturn(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
-        Mockito.when(context.getHandler()).thenReturn(handler);
 
         Mockito.when(factory.create(Mockito.any(IPPlayer.class), Mockito.any(AbstractDoor.class)))
                .thenAnswer(invoc -> new PowerBlockRelocator(context, invoc.getArgument(0, IPPlayer.class),

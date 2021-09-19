@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,20 +34,17 @@ public class RedstoneListener extends AbstractListener
 {
     private final ConfigLoaderSpigot config;
     private final IPLogger logger;
-    private final CompletableFutureHandler handler;
     private final DoorToggleRequestFactory doorToggleRequestFactory;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
     @Inject
     public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config, IPLogger logger,
-                            CompletableFutureHandler handler, DoorToggleRequestFactory doorToggleRequestFactory,
-                            PowerBlockManager powerBlockManager)
+                            DoorToggleRequestFactory doorToggleRequestFactory, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
         this.logger = logger;
-        this.handler = handler;
         this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.powerBlockManager = powerBlockManager;
     }
@@ -151,6 +148,6 @@ public class RedstoneListener extends AbstractListener
         if (!powerBlockManager.isBigDoorsWorld(event.getBlock().getWorld().getName()))
             return;
 
-        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(handler::exceptionally);
+        CompletableFuture.runAsync(() -> processRedstoneEvent(event)).exceptionally(Util::exceptionally);
     }
 }

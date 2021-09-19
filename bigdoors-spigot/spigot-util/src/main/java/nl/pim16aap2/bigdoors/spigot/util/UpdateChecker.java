@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
@@ -70,7 +69,6 @@ public final class UpdateChecker
     private static final String UPDATE_URL = "https://api.spiget.org/v2/resources/%d/versions?size=1&sort=-releaseDate";
     private static final Pattern DECIMAL_SCHEME_PATTERN = Pattern.compile("\\d+(?:\\.\\d+)*");
     private final String downloadURL;
-    private final CompletableFutureHandler handler;
 
     @SuppressWarnings("PMD.ImmutableField")
     private @Nullable UpdateResult lastResult = null;
@@ -81,13 +79,12 @@ public final class UpdateChecker
     private final IPLogger logger;
 
     @Inject
-    public UpdateChecker(JavaPlugin plugin, int pluginID, IPLogger logger, CompletableFutureHandler handler)
+    public UpdateChecker(JavaPlugin plugin, int pluginID, IPLogger logger)
     {
         this.plugin = plugin;
         this.pluginID = pluginID;
         this.logger = logger;
         downloadURL = "https://api.spiget.org/v2/resources/" + pluginID + "/download";
-        this.handler = handler;
     }
 
     /**
@@ -148,7 +145,7 @@ public final class UpdateChecker
 
                 return new UpdateResult(
                     responseCode == 401 ? UpdateReason.UNAUTHORIZED_QUERY : UpdateReason.UNKNOWN_ERROR);
-            }).exceptionally(ex -> handler.exceptionally(ex, new UpdateResult(UpdateReason.UNKNOWN_ERROR)));
+            }).exceptionally(ex -> Util.exceptionally(ex, new UpdateResult(UpdateReason.UNKNOWN_ERROR)));
     }
 
     /**

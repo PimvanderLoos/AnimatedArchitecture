@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
@@ -34,9 +33,9 @@ public class NewDoor extends BaseCommand
     @AssistedInject //
     NewDoor(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
             @Assisted DoorType doorType, @Assisted @Nullable String doorName, ToolUserManager toolUserManager,
-            Provider<Creator.Context> creatorContextProvider, CompletableFutureHandler handler)
+            Provider<Creator.Context> creatorContextProvider)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, logger, localizer);
         this.doorType = doorType;
         this.doorName = doorName;
         this.toolUserManager = toolUserManager;

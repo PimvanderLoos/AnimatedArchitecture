@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,12 +34,11 @@ class RestartTest
         MockitoAnnotations.openMocks(this);
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newRestart(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Restart(invoc.getArgument(0, ICommandSender.class),
-                                                logger, localizer, bigDoorsPlatform, handler));
+                                                logger, localizer, bigDoorsPlatform));
     }
 
     @Test

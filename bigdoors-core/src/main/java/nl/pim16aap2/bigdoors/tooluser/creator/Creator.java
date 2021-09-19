@@ -19,7 +19,6 @@ import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorBoolean;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorPLocation;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorString;
 import nl.pim16aap2.bigdoors.tooluser.stepexecutor.StepExecutorVoid;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Limit;
@@ -47,8 +46,6 @@ import java.util.logging.Level;
 public abstract class Creator extends ToolUser
 {
     protected final LimitsManager limitsManager;
-
-    protected final CompletableFutureHandler handler;
 
     protected final DoorBaseFactory doorBaseFactory;
 
@@ -175,7 +172,6 @@ public abstract class Creator extends ToolUser
     protected Creator(Context context, IPPlayer player, @Nullable String name)
     {
         super(context, player);
-        handler = context.getHandler();
         limitsManager = context.getLimitsManager();
         doorBaseFactory = context.getDoorBaseFactory();
         databaseManager = context.getDatabaseManager();
@@ -502,7 +498,7 @@ public abstract class Creator extends ToolUser
                     getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
                     logger.severe("Failed to insert door after creation!");
                 }
-            }).exceptionally(handler::exceptionally);
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

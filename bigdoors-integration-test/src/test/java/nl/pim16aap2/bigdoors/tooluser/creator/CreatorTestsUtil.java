@@ -22,12 +22,10 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
-import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.testimplementations.TestPLocationFactory;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -71,16 +69,11 @@ public class CreatorTestsUtil
 
     protected PPlayerData playerData;
 
-    protected CompletableFutureHandler handler;
-
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     protected IPPlayer player;
 
     @Mock
     protected DatabaseManager databaseManager;
-
-    @Mock
-    protected PowerBlockManager powerBlockManager;
 
     @Mock
     protected IEconomyManager economyManager;
@@ -136,7 +129,6 @@ public class CreatorTestsUtil
         MockitoAnnotations.openMocks(this);
 
         logger = new BasicPLogger();
-        handler = new CompletableFutureHandler(logger);
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
 
@@ -149,8 +141,7 @@ public class CreatorTestsUtil
         doorBaseFactory = new DoorBaseFactory(doorBaseIFactory);
 
         context = new ToolUser.Context(doorBaseFactory, logger, localizer, toolUserManager, databaseManager,
-                                       limitsManager, handler, economyManager, protectionCompatManager,
-                                       bigDoorsToolUtil);
+                                       limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil);
 
         initPlayer();
 

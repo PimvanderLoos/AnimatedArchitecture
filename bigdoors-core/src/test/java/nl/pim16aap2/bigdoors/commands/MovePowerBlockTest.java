@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +59,6 @@ class MovePowerBlockTest
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         final PowerBlockRelocator.IFactory powerBlockRelocatorFactory =
@@ -72,7 +70,7 @@ class MovePowerBlockTest
                                                Mockito.any(DoorRetriever.AbstractRetriever.class)))
                .thenAnswer(invoc -> new MovePowerBlock(invoc.getArgument(0, ICommandSender.class), logger, localizer,
                                                        invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
-                                                       toolUserManager, handler, powerBlockRelocatorFactory));
+                                                       toolUserManager, powerBlockRelocatorFactory));
     }
 
     @Test

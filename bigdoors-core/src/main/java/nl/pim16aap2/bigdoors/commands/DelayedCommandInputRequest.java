@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.Locale;
@@ -65,7 +65,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The class of the input object that is expected.
      */
     private final Class<T> inputClass;
-    private final CompletableFutureHandler handler;
 
     /**
      * The output of the command. See {@link BaseCommand#run()}.
@@ -99,7 +98,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
                                @Assisted Function<T, CompletableFuture<Boolean>> executor,
                                @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
                                IPLogger logger, ILocalizer localizer,
-                               DelayedCommandInputManager delayedCommandInputManager, CompletableFutureHandler handler)
+                               DelayedCommandInputManager delayedCommandInputManager)
     {
         super(logger, timeout);
         this.commandSender = commandSender;
@@ -109,7 +108,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
-        this.handler = handler;
         log();
         commandOutput = constructOutput(executor);
         init();
@@ -128,7 +126,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-            .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**

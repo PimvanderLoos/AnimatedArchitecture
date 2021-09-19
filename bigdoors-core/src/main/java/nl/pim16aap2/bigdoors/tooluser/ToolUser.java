@@ -17,7 +17,6 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -339,7 +338,6 @@ public abstract class ToolUser implements IRestartable
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
-        private final CompletableFutureHandler handler;
         private final IEconomyManager economyManager;
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
@@ -347,8 +345,8 @@ public abstract class ToolUser implements IRestartable
         @Inject
         public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
                        ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
-                       CompletableFutureHandler handler, IEconomyManager economyManager,
-                       IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
+                       IEconomyManager economyManager, IProtectionCompatManager protectionCompatManager,
+                       IBigDoorsToolUtil bigDoorsToolUtil)
         {
             this.doorBaseFactory = doorBaseFactory;
             this.logger = logger;
@@ -356,7 +354,6 @@ public abstract class ToolUser implements IRestartable
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;
             this.limitsManager = limitsManager;
-            this.handler = handler;
             this.economyManager = economyManager;
             this.protectionCompatManager = protectionCompatManager;
             this.bigDoorsToolUtil = bigDoorsToolUtil;

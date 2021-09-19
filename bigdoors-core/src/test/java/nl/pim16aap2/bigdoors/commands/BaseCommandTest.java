@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -46,8 +45,7 @@ class BaseCommandTest
 
         MockitoAnnotations.openMocks(this);
 
-        initBaseCommand(baseCommand, commandSender, logger, UnitTestUtil.initLocalizer(),
-                        new CompletableFutureHandler(logger));
+        initBaseCommand(baseCommand, commandSender, logger, UnitTestUtil.initLocalizer());
 
         Mockito.when(baseCommand.getCommand()).thenReturn(CommandDefinition.ADD_OWNER);
         Mockito.when(baseCommand.validInput()).thenCallRealMethod();
@@ -153,11 +151,10 @@ class BaseCommandTest
 
     @SneakyThrows
     private static void initBaseCommand(BaseCommand baseCommand, ICommandSender commandSender, IPLogger logger,
-                                        ILocalizer localizer, CompletableFutureHandler handler)
+                                        ILocalizer localizer)
     {
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "logger", logger);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "localizer", localizer);
-        UnitTestUtil.setField(BaseCommand.class, baseCommand, "handler", handler);
     }
 }

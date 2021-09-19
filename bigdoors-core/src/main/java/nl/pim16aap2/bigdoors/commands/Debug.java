@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -28,9 +27,9 @@ public class Debug extends BaseCommand
     @AssistedInject //
     Debug(@Assisted ICommandSender commandSender, IPLogger logger,
           nl.pim16aap2.bigdoors.localization.ILocalizer localizer, IMessagingInterface messagingInterface,
-          DebugReporter debugReporter, CompletableFutureHandler handler)
+          DebugReporter debugReporter)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, logger, localizer);
         this.messagingInterface = messagingInterface;
         this.debugReporter = debugReporter;
     }

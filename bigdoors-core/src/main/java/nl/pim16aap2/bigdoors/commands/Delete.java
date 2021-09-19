@@ -5,9 +5,9 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -26,10 +26,9 @@ public class Delete extends DoorTargetCommand
     @AssistedInject //
     Delete(@Assisted ICommandSender commandSender, IPLogger logger,
            nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager,
-           CompletableFutureHandler handler)
+           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE, handler);
+        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.DELETE);
         this.databaseManager = databaseManager;
     }
 

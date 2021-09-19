@@ -73,7 +73,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-@Singleton
+@SuppressWarnings("unused") @Singleton
 @Component(modules = {
     BigDoorsPluginModule.class,
     BigDoorsSpigotPlatformModule.class,

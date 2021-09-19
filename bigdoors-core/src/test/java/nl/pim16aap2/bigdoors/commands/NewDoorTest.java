@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,7 +47,6 @@ class NewDoorTest
         initCommandSenderPermissions(commandSender, true, true);
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newNewDoor(Mockito.any(ICommandSender.class), Mockito.any(DoorType.class),
@@ -56,7 +54,7 @@ class NewDoorTest
                .thenAnswer(invoc -> new NewDoor(invoc.getArgument(0, ICommandSender.class), logger, localizer,
                                                 invoc.getArgument(1, DoorType.class),
                                                 invoc.getArgument(2, String.class),
-                                                toolUserManager, creatorContextProvider, handler));
+                                                toolUserManager, creatorContextProvider));
     }
 
     @Test

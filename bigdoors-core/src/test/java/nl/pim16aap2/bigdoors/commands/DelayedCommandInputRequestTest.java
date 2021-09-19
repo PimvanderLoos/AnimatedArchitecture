@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ class DelayedCommandInputRequestTest
 
     private IPLogger logger;
 
-    private CompletableFutureHandler handler;
 
     private ILocalizer localizer;
 
@@ -41,7 +39,6 @@ class DelayedCommandInputRequestTest
         MockitoAnnotations.openMocks(this);
 
         logger = new BasicPLogger();
-        handler = new CompletableFutureHandler(logger);
         localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager();
     }
@@ -54,7 +51,7 @@ class DelayedCommandInputRequestTest
         final DelayedCommandInputRequest<?> inputRequest =
             new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
                                              input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             logger, localizer, delayedCommandInputManager, handler);
+                                             logger, localizer, delayedCommandInputManager);
 
         final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
         final CompletableFuture<Boolean> second = inputRequest.provide(delayedInput);
@@ -71,7 +68,7 @@ class DelayedCommandInputRequestTest
         final DelayedCommandInputRequest<?> inputRequest =
             new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
                                              input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             logger, localizer, delayedCommandInputManager, handler);
+                                             logger, localizer, delayedCommandInputManager);
 
         final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
         final CompletableFuture<Boolean> second = inputRequest.provide("Invalid!");
@@ -91,7 +88,7 @@ class DelayedCommandInputRequestTest
                                              {
                                                  throw new RuntimeException(input.toString());
                                              }, () -> "", DelayedInput.class, logger, localizer,
-                                             delayedCommandInputManager, handler);
+                                             delayedCommandInputManager);
         Assertions.assertThrows(ExecutionException.class,
                                 () -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
                                                   .get(1, TimeUnit.SECONDS));

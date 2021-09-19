@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -29,7 +29,6 @@ public final class UpdateManager extends Restartable
     private final JavaPlugin plugin;
     private final IPLogger logger;
     private final IConfigLoader config;
-    private final CompletableFutureHandler handler;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
@@ -39,15 +38,13 @@ public final class UpdateManager extends Restartable
 
     @Inject
     public UpdateManager(RestartableHolder restartableHolder, BigDoorsPlugin plugin,
-                         @Named("pluginSpigotID") int pluginID, IPLogger logger, IConfigLoader config,
-                         CompletableFutureHandler handler)
+                         @Named("pluginSpigotID") int pluginID, IPLogger logger, IConfigLoader config)
     {
         super(restartableHolder);
         this.plugin = plugin;
         this.logger = logger;
         this.config = config;
-        this.handler = handler;
-        updater = new UpdateChecker(plugin, pluginID, logger, handler);
+        updater = new UpdateChecker(plugin, pluginID, logger);
         init();
     }
 
@@ -117,7 +114,7 @@ public final class UpdateManager extends Restartable
                         logger.info("Failed to download latest version! You can download it manually at: " +
                                         updater.getDownloadUrl());
                 }
-            }).exceptionally(handler::exceptionally);
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

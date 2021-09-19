@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -24,9 +23,9 @@ public class StopDoors extends BaseCommand
 
     @AssistedInject //
     StopDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-              DoorActivityManager doorActivityManager, CompletableFutureHandler handler)
+              DoorActivityManager doorActivityManager)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, logger, localizer);
         this.doorActivityManager = doorActivityManager;
     }
 

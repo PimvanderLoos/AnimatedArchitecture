@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,12 +41,11 @@ class SetNameTest
         initCommandSenderPermissions(commandSender, true, true);
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetName(Mockito.any(ICommandSender.class), Mockito.anyString()))
                .thenAnswer(invoc -> new SetName(invoc.getArgument(0, ICommandSender.class), logger, localizer,
-                                                invoc.getArgument(1, String.class), toolUserManager, handler));
+                                                invoc.getArgument(1, String.class), toolUserManager));
     }
 
     @Test

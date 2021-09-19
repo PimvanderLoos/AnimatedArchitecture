@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -51,14 +50,12 @@ class DoorTargetCommandTest
 
         final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
 
         UnitTestUtil.setField(DoorTargetCommand.class, doorTargetCommand, "doorRetriever", DoorRetriever.ofDoor(door));
 
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "logger", logger);
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "localizer", localizer);
-        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "handler", handler);
     }
 
     @Test

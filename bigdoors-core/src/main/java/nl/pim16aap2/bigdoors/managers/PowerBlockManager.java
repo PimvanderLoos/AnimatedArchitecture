@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.cache.TimedCache;
 import nl.pim16aap2.bigdoors.util.vector.Vector2Di;
@@ -37,7 +36,6 @@ public final class PowerBlockManager extends Restartable
     private final IConfigLoader config;
     private final DatabaseManager databaseManager;
     private final IPLogger pLogger;
-    private final CompletableFutureHandler handler;
 
     /**
      * Initializes the {@link PowerBlockManager}. If it has already been initialized, it'll return that instance
@@ -54,14 +52,12 @@ public final class PowerBlockManager extends Restartable
      */
     @Inject
     public PowerBlockManager(RestartableHolder restartableHolder, IConfigLoader config,
-                             DatabaseManager databaseManager, IPLogger pLogger, CompletableFutureHandler handler)
+                             DatabaseManager databaseManager, IPLogger pLogger)
     {
         super(restartableHolder);
         this.config = config;
         this.databaseManager = databaseManager;
         this.pLogger = pLogger;
-
-        this.handler = handler;
     }
 
     /**
@@ -112,7 +108,7 @@ public final class PowerBlockManager extends Restartable
                 final List<CompletableFuture<Optional<AbstractDoor>>> doorBases = new ArrayList<>();
                 list.forEach(doorUID -> doorBases.add(databaseManager.getDoor(doorUID)));
                 return doorBases;
-            }).exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+            }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -277,7 +273,7 @@ public final class PowerBlockManager extends Restartable
                         final List<Long> doorUIDs = new ArrayList<>(map.size());
                         map.forEach((key, value) -> doorUIDs.addAll(value));
                         return doorUIDs;
-                    }).exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                    }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
             }
 
             return CompletableFuture.completedFuture(powerBlockChunks.get(chunkHash)
@@ -304,7 +300,7 @@ public final class PowerBlockManager extends Restartable
         private void checkBigDoorsWorldStatus()
         {
             databaseManager.isBigDoorsWorld(worldName).whenComplete((result, throwable) -> isBigDoorsWorld = result)
-                           .exceptionally(handler::exceptionally);
+                           .exceptionally(Util::exceptionally);
         }
 
         @Override

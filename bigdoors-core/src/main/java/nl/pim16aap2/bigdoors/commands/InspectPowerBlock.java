@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -29,10 +28,9 @@ public class InspectPowerBlock extends BaseCommand
 
     @AssistedInject //
     InspectPowerBlock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                      ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory,
-                      CompletableFutureHandler handler)
+                      ToolUserManager toolUserManager, PowerBlockInspector.IFactory inspectPowerBlockFactory)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, logger, localizer);
         this.toolUserManager = toolUserManager;
         this.inspectPowerBlockFactory = inspectPowerBlockFactory;
     }

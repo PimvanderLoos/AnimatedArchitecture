@@ -6,7 +6,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.OfflinePPlayerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PPlayerSpigot;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -26,13 +26,11 @@ import java.util.concurrent.CompletableFuture;
 public class PPlayerFactorySpigot implements IPPlayerFactory
 {
     private final DatabaseManager databaseManager;
-    private final CompletableFutureHandler handler;
 
     @Inject
-    public PPlayerFactorySpigot(DatabaseManager databaseManager, CompletableFutureHandler handler)
+    public PPlayerFactorySpigot(DatabaseManager databaseManager)
     {
         this.databaseManager = databaseManager;
-        this.handler = handler;
     }
 
     @Override
@@ -53,6 +51,6 @@ public class PPlayerFactorySpigot implements IPPlayerFactory
 
         return databaseManager.getPlayerData(uuid)
                               .thenApply(playerData -> playerData.<IPPlayer>map(OfflinePPlayerSpigot::new))
-                              .exceptionally(handler::exceptionallyOptional);
+                              .exceptionally(Util::exceptionallyOptional);
     }
 }

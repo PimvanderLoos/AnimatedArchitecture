@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.tooluser.Procedure;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -63,7 +62,6 @@ class CreatorTest
         Mockito.when(economyManager.isEconomyEnabled()).thenReturn(true);
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
 
 
         final IProtectionCompatManager protectionCompatManager = Mockito.mock(IProtectionCompatManager.class);
@@ -74,7 +72,6 @@ class CreatorTest
 
 
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "handler", handler);
         UnitTestUtil.setField(Creator.class, creator, "doorBaseFactory", Mockito.mock(DoorBaseFactory.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);

@@ -4,9 +4,9 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -28,10 +28,9 @@ public abstract class DoorTargetCommand extends BaseCommand
 
     protected DoorTargetCommand(ICommandSender commandSender, IPLogger logger,
                                 nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute,
-                                CompletableFutureHandler handler)
+                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, logger, localizer);
         this.doorRetriever = doorRetriever;
         this.doorAttribute = doorAttribute;
     }
@@ -41,7 +40,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         return getDoor(getDoorRetriever())
             .thenApplyAsync(door -> processDoorResult(door, permissions))
-            .exceptionally(t -> handler.exceptionally(t, false));
+            .exceptionally(t -> Util.exceptionally(t, false));
     }
 
     /**

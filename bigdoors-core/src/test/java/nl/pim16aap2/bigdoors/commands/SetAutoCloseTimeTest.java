@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.BasicPLogger;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +50,6 @@ class SetAutoCloseTimeTest
         doorRetriever = DoorRetriever.ofDoor(door);
 
         final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetAutoCloseTime(Mockito.any(ICommandSender.class),
@@ -59,7 +57,7 @@ class SetAutoCloseTimeTest
                                                  Mockito.anyInt()))
                .thenAnswer(invoc -> new SetAutoCloseTime(invoc.getArgument(0, ICommandSender.class), logger, localizer,
                                                          invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
-                                                         invoc.getArgument(2, Integer.class), handler));
+                                                         invoc.getArgument(2, Integer.class)));
     }
 
     @Test

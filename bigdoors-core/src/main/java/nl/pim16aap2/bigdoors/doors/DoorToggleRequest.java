@@ -16,9 +16,9 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -51,7 +51,6 @@ public class DoorToggleRequest
     private final IPPlayerFactory playerFactory;
     private final IBigDoorsPlatform bigDoorsPlatform;
     private final IPExecutor executor;
-    private final CompletableFutureHandler handler;
 
     @AssistedInject
     public DoorToggleRequest(@Assisted DoorRetriever.AbstractRetriever doorRetriever,
@@ -60,7 +59,7 @@ public class DoorToggleRequest
                              @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType, IPLogger logger,
                              ILocalizer localizer, DoorActivityManager doorActivityManager,
                              AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
-                             IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor, CompletableFutureHandler handler)
+                             IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor)
     {
         this.doorRetriever = doorRetriever;
         this.doorActionCause = doorActionCause;
@@ -76,7 +75,6 @@ public class DoorToggleRequest
         this.playerFactory = playerFactory;
         this.bigDoorsPlatform = bigDoorsPlatform;
         this.executor = executor;
-        this.handler = handler;
     }
 
     /**
@@ -88,7 +86,7 @@ public class DoorToggleRequest
     {
         logger.logMessage(Level.FINE, () -> "Executing toggle request: " + this);
         return doorRetriever.getDoor().thenCompose(this::execute)
-                            .exceptionally(throwable -> handler.exceptionally(throwable, DoorToggleResult.ERROR));
+                            .exceptionally(throwable -> Util.exceptionally(throwable, DoorToggleResult.ERROR));
     }
 
     private CompletableFuture<DoorToggleResult> execute(Optional<AbstractDoor> doorOpt)
