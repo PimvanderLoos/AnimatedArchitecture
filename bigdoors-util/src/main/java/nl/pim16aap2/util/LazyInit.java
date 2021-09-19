@@ -1,5 +1,8 @@
 package nl.pim16aap2.util;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.util.function.Supplier;
 
 /**
@@ -11,8 +14,11 @@ import java.util.function.Supplier;
  *     The type of the object to initialize lazily.
  * @author Pim
  */
+@ToString
+@EqualsAndHashCode
 public final class LazyInit<T>
 {
+    @ToString.Exclude
     private final Supplier<T> supplier;
     private volatile T obj;
 
