@@ -22,9 +22,28 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- TODO: Split up this module so we don't depend on this for non-test stuff -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${dependency.version.junit}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
+            <version>${dependency.version.mockito}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
             <version>${dependency.version.mockito}</version>
             <scope>provided</scope>
         </dependency>
