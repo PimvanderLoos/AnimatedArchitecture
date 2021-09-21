@@ -95,7 +95,7 @@ public final class Util
     }
 
     /**
-     * Gets the File of the jar that contained a specific class.
+     * Gets the file of the jar that contained a specific class.
      *
      * @param clz
      *     The class for which to find the jar file.

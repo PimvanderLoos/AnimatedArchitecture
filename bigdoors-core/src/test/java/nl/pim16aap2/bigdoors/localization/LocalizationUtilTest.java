@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -19,18 +18,18 @@ class LocalizationUtilTest
         final String baseName = "Translation";
         final List<Path> paths = new ArrayList<>(5);
 
-        final Path path0 = Paths.get("./" + baseName + ".properties");
-        final Path path1 = Paths.get("./" + baseName + "_en_US.properties");
+        final Path path0 = Path.of(".", baseName + ".properties");
+        final Path path1 = Path.of(".", baseName + "_en_US.properties");
 
         paths.add(path0);
         paths.add(path1);
         // Ignored because it doesn't start with the correct base name.
-        paths.add(Paths.get("./randomFile_nl_NL.properties"));
+        paths.add(Path.of(".", "randomFile_nl_NL.properties"));
         // Ignored because we only look for ".properties" files.
-        paths.add(Paths.get("./" + baseName + "_nl_NL.txt"));
+        paths.add(Path.of(".", baseName + "_nl_NL.txt"));
         // Ignored because the basename isn't followed by either ".properties"
         // (default file) or by _[locale].
-        paths.add(Paths.get("./" + baseName + "nl_NL.txt"));
+        paths.add(Path.of(".", baseName + "nl_NL.txt"));
 
         final List<LocaleFile> localeFiles = getLocaleFiles(baseName, paths);
         System.out.println(localeFiles);

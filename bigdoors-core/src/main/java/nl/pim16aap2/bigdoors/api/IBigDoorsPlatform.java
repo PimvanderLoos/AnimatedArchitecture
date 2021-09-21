@@ -20,8 +20,6 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
 
-import java.io.File;
-
 /**
  * Represents a set of getter methods to get access to the internals of BigDoors.
  *
@@ -30,13 +28,6 @@ import java.io.File;
 @SuppressWarnings("unused")
 public interface IBigDoorsPlatform
 {
-    /**
-     * Gets the directory where all data will stored.
-     *
-     * @return The directory where all data will stored.
-     */
-    File getDataDirectory();
-
     /**
      * Restarts the plugin.
      */

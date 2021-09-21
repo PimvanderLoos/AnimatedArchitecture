@@ -56,7 +56,6 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
-import java.io.File;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -286,12 +285,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
             throw new InitializationException(
                 "Failed to instantiate the BigDoors platform for Spigot: Missing dependency!");
         return ret;
-    }
-
-    @Override
-    public File getDataDirectory()
-    {
-        return plugin.getDataFolder();
     }
 
     @Override

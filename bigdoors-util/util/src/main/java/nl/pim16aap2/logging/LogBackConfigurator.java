@@ -12,9 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class LogBackConfigurator
 
     @Setter
     @Accessors(chain = true)
-    private @Nullable File logFile = null;
+    private @Nullable Path logFile = null;
 
     /**
      * Sets the log level of the root logger.
@@ -159,7 +160,7 @@ public class LogBackConfigurator
         final StringBuilder appenderRefs = new StringBuilder();
         for (AppenderSpecification appender : appenderList)
         {
-            sb.append(appender.toString());
+            sb.append(appender);
             appenderRefs.append(getAppenderRef(appender.name()));
         }
 
@@ -180,7 +181,7 @@ public class LogBackConfigurator
      *     The logFile to use.
      * @return The configuration of the logFile appender.
      */
-    private String getLogFileAppenderConfig(File file)
+    private String getLogFileAppenderConfig(Path file)
     {
         return
             """
@@ -191,7 +192,7 @@ public class LogBackConfigurator
                         <pattern>[%date{ISO8601}] [%thread/%level]: %logger: %message%n</pattern>
                     </encoder>
                 </appender>
-            """.replace("${LOG_FILE_NAME}", file.getAbsolutePath())
+            """.replace("${LOG_FILE_NAME}", file.toAbsolutePath().toString())
                // Use placeholder for class name to ensure that it works nicely with relocation.
                .replace("${FILE_APPENDER_CLASS}", FileAppender.class.getName());
     }
@@ -200,7 +201,7 @@ public class LogBackConfigurator
      * Checks if file logging should be enabled.
      * <p>
      * File logging should be enabled when {@link #logFile} is not null and can be used for logging. See {@link
-     * #ensureLogFileExists(File)}.
+     * #ensureLogFileExists(Path)}.
      *
      * @return True if file logging should be enabled.
      */
@@ -212,7 +213,7 @@ public class LogBackConfigurator
         {
             ensureLogFileExists(logFile);
         }
-        catch (IOException e)
+        catch (IOException | UnsupportedOperationException e)
         {
             throw new RuntimeException(e);
         }
@@ -228,13 +229,13 @@ public class LogBackConfigurator
      * @throws IOException
      *     If an issue occurred creating the file or updating it writable status.
      */
-    private static void ensureLogFileExists(File file)
+    private static void ensureLogFileExists(Path file)
         throws IOException
     {
-        if (!file.exists() && !file.createNewFile())
-            throw new IOException("Failed to create file \"" + file + "\"! Is it a directory?");
+        if (!Files.isRegularFile(file))
+            Files.createFile(file);
 
-        if (!file.canWrite() && !file.setWritable(true))
+        if (!Files.isWritable(file) && !file.toFile().setWritable(true))
             throw new IOException("Failed to make file \"" + file + "\" writable! Is it a directory?");
     }
 

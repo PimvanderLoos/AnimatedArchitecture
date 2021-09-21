@@ -29,10 +29,10 @@ import org.sqlite.SQLiteConfig;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,7 +75,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     /**
      * The database file.
      */
-    private final File dbFile;
+    private final Path dbFile;
 
     /**
      * The URL of the database.
@@ -107,7 +107,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *     The file to store the database in.
      */
     @Inject
-    public SQLiteJDBCDriverConnection(@Named("databaseFile") File dbFile, DoorBaseFactory doorBaseFactory,
+    public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseFactory doorBaseFactory,
                                       DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
                                       IPWorldFactory worldFactory)
     {
@@ -241,30 +241,21 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void init()
     {
-        if (!dbFile.exists())
-            try
+        try
+        {
+            if (!Files.isRegularFile(dbFile))
             {
-                if (!dbFile.getParentFile().exists() && !dbFile.getParentFile().mkdirs())
-                {
-                    log.at(Level.SEVERE).withCause(
-                        new IOException("Failed to create directory \"" + dbFile.getParentFile() + "\"")).log();
-                    databaseState = DatabaseState.ERROR;
-                    return;
-                }
-                if (!dbFile.createNewFile())
-                {
-                    log.at(Level.SEVERE).withCause(new IOException("Failed to create file \"" + dbFile + "\"")).log();
-                    databaseState = DatabaseState.ERROR;
-                    return;
-                }
+                Files.createDirectories(dbFile.getParent());
+                Files.createFile(dbFile);
                 log.at(Level.INFO).log("New file created at: %s", dbFile);
             }
-            catch (IOException e)
-            {
-                log.at(Level.SEVERE).withCause(e).log("File write error: %s", dbFile);
-                databaseState = DatabaseState.ERROR;
-                return;
-            }
+        }
+        catch (IOException e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("File write error: %s", dbFile);
+            databaseState = DatabaseState.ERROR;
+            return;
+        }
 
         // Table creation
         try (@Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED, ReadMode.READ_WRITE))
@@ -917,15 +908,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private boolean makeBackup()
     {
-        final File dbFileBackup = new File(dbFile + ".BACKUP");
-        // Only the most recent backup is kept, so delete the old one if a new one needs to be created.
+        final Path dbFileBackup = dbFile.resolveSibling(dbFile.getFileName() + ".BACKUP");
 
         try
         {
-            final Path dbFileBackupPath = dbFileBackup.toPath();
-            if (Files.exists(dbFileBackupPath))
-                Files.delete(dbFileBackupPath);
-            Files.copy(dbFile.toPath(), dbFileBackupPath);
+            // Only the most recent backup is kept, so replace any existing backups.
+            Files.copy(dbFile, dbFileBackup, StandardCopyOption.REPLACE_EXISTING);
         }
         catch (IOException e)
         {

@@ -16,13 +16,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -188,12 +188,10 @@ public final class UpdateChecker
         boolean downloadSuccessfull = false;
         try
         {
-            final File updateFolder = Bukkit.getUpdateFolderFile();
-            if (!updateFolder.exists() && !updateFolder.mkdirs())
-                throw new RuntimeException("Failed to create update folder!");
+            final Path updateFolder = Bukkit.getUpdateFolderFile().toPath();
+            Files.createDirectories(updateFolder);
 
-            final String fileName = plugin.getName() + ".jar";
-            final File updateFile = new File(updateFolder + File.separator + fileName);
+            final Path updateFile = updateFolder.resolve(plugin.getName() + ".jar");
 
             // Follow any and all redirects until we've finally found the actual file.
             String location = downloadURL;
@@ -222,7 +220,7 @@ public final class UpdateChecker
             final int grabSize = 4096;
 
             try (BufferedInputStream in = new BufferedInputStream(httpConnection.getInputStream());
-                 OutputStream os = Files.newOutputStream(updateFile.toPath());
+                 OutputStream os = Files.newOutputStream(updateFile);
                  BufferedOutputStream bout = new BufferedOutputStream(os, grabSize))
             {
                 final byte[] data = new byte[grabSize];
@@ -305,10 +303,9 @@ public final class UpdateChecker
         UNSUPPORTED_VERSION_SCHEME,
 
         /**
-         * The plugin is up to date with the version released on SpigotMC's resources section.
+         * The plugin is up-to-date with the version released on SpigotMC's resources section.
          */
         UP_TO_DATE
-
     }
 
     /**

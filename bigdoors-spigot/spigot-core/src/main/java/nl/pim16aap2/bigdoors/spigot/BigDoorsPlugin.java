@@ -16,7 +16,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
-import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -53,7 +52,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 
     public BigDoorsPlugin()
     {
-        LOG_BACK_CONFIGURATOR.setLogFile(new File(getDataFolder(), "log.txt")).apply();
+        LOG_BACK_CONFIGURATOR.setLogFile(getDataFolder().toPath().resolve("log.txt")).apply();
 
         mainThreadId = Thread.currentThread().getId();
         restartableHolder = new RestartableHolder();
@@ -86,7 +85,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             level = Level.ALL;
         }
         LOG_BACK_CONFIGURATOR
-            .setLogFile(new File(getDataFolder(), "log.txt"))
+            .setLogFile(getDataFolder().toPath().resolve("log.txt"))
             .setLevel(level)
             .apply();
     }

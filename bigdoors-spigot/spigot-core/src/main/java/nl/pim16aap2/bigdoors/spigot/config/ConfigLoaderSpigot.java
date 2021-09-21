@@ -19,10 +19,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -48,6 +49,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 {
     private final JavaPlugin plugin;
     private final DoorTypeManager doorTypeManager;
+    private final Path baseDir;
 
     private static final List<String> DEFAULT_POWERBLOCK_TYPE = List.of("GOLD_BLOCK");
     private static final List<String> DEFAULT_BLACKLIST = Collections.emptyList();
@@ -87,10 +89,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      *     The Spigot core.
      */
     @Inject
-    public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager)
+    public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager,
+                              @Named("pluginBaseDirectory") Path baseDir)
     {
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
+        this.baseDir = baseDir;
         doorPrices = new HashMap<>();
         doorMultipliers = new HashMap<>();
 
@@ -192,7 +196,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 "If the plugins aren't installed, these options do nothing.",
             "When enabled, doors cannot be opened or created in areas not owned by the door's owner."};
         final String[] coolDownComment = {
-            "Cooldown on using doors. Time is measured in seconds."};
+            "Cool-down on using doors. Time is measured in seconds."};
         final String[] cacheTimeoutComment = {
             "Amount of time (in minutes) to cache power block positions in a chunk. " +
                 "-1 means no caching (not recommended!), 0 = infinite cache (not recommended either!).",
@@ -200,7 +204,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                 "It'll get updated automatically when needed anyway."};
         final String[] pricesComment = {
             "When Vault is present, you can set the price of doorBase creation here for every type of door.",
-            "You can use the word \"blockCount\" (without quotationmarks, case sensitive) as a " +
+            "You can use the word \"blockCount\" (without quotation marks, case sensitive) as a " +
                 "variable that will be replaced by the actual blockCount.",
             "Furthermore, you can use these operators: -, +, *, /, sqrt(), ^, %, " +
                 "min(a,b), max(a,b), abs(), and parentheses.",
@@ -285,14 +289,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                                         "Math.min(0.3 * radius, 3) * Math.sin((counter / 4) * 3)", (String[]) null);
 
 
-        String @Nullable [] usedMulitplierComment = multiplierComment;
+        String @Nullable [] usedMultiplierComment = multiplierComment;
         String @Nullable [] usedPricesComment = pricesComment;
         for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
         {
-            doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMulitplierComment));
+            doorMultipliers.put(type, addNewConfigEntry(config, "multiplier_" + type, 0.0D, usedMultiplierComment));
             doorPrices.put(type, addNewConfigEntry(config, "price_" + type, "0", usedPricesComment));
 
-            usedMulitplierComment = null;
+            usedMultiplierComment = null;
             usedPricesComment = null;
         }
 
@@ -386,22 +390,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Write all the config options to the config.yml.
         try
         {
-            final File dataFolder = plugin.getDataFolder();
-            if (!dataFolder.exists() && !dataFolder.mkdirs())
-            {
-                log.at(Level.SEVERE).withCause(new IOException("Failed to create folder: \"" + dataFolder + "\""))
-                   .log();
-                return;
-            }
+            Files.createDirectories(baseDir);
 
-            final File saveTo = new File(plugin.getDataFolder(), "config.yml");
-            if (!saveTo.exists() && !saveTo.createNewFile())
-            {
-                log.at(Level.SEVERE).withCause(new IOException("Failed to create file: \"" + saveTo + "\"")).log();
-                return;
-            }
+            final Path configFile = baseDir.resolve("config.yml");
 
-            if (!saveTo.canWrite())
+            if (!Files.isRegularFile(configFile))
+                Files.createFile(configFile);
+
+            if (!Files.isWritable(configFile))
             {
                 log.at(Level.WARNING).log("=======================================");
                 log.at(Level.WARNING).log("============== !WARNING! ==============");
@@ -423,7 +419,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
                   .append((idx < configEntries.size() - 1 && configEntries.get(idx + 1).getComment() == null ?
                            "" : '\n'));
 
-            Files.writeString(saveTo.toPath(), sb.toString());
+            Files.writeString(configFile, sb.toString());
         }
         catch (IOException e)
         {
@@ -505,7 +501,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
 
     /**
      * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
-     * an update was released on Monday June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
+     * an update was released on Monday, June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
      * When running a dev-build, however, this value is overridden to 0.
      *
      * @return The amount time (in seconds) to wait before downloading an update.
@@ -542,7 +538,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     }
 
     /**
-     * Gets the amount of time to keeps heads cached.
+     * Gets the amount of time to keep heads cached.
      *
      * @return The amount of time (in minutes) to cache head items.
      */

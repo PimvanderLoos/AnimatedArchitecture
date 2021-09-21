@@ -7,7 +7,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
 import java.nio.file.Path;
 
 @Module
@@ -28,33 +27,25 @@ public abstract class BigDoorsPluginModule
     @Provides
     @Singleton
     @Named("databaseFile")
-    static File provideDatabaseFile(JavaPlugin plugin)
+    static Path provideDatabaseFile(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
-        return new File(plugin.getDataFolder(), "doorDB.db");
+        return pluginBaseDirectory.resolve("doorDB.db");
     }
 
     @Provides
     @Singleton
     @Named("pluginBaseDirectory")
-    static File providePluginBaseDirectory(JavaPlugin plugin)
+    static Path providePluginBaseDirectory(JavaPlugin plugin)
     {
-        return plugin.getDataFolder();
-    }
-
-    @Provides
-    @Singleton
-    @Named("logFile")
-    static File provideLogFile(JavaPlugin plugin)
-    {
-        return new File(plugin.getDataFolder(), "log.txt");
+        return plugin.getDataFolder().toPath();
     }
 
     @Provides
     @Singleton
     @Named("localizationBaseDir")
-    static Path provideLocalizationBaseDir(JavaPlugin plugin)
+    static Path provideLocalizationBaseDir(@Named("pluginBaseDirectory") Path pluginBaseDirectory)
     {
-        return plugin.getDataFolder().toPath().resolve("");
+        return pluginBaseDirectory;
     }
 
     @Provides

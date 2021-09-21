@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Objects;
 
 class DoorTypeLoaderTest
@@ -31,11 +32,12 @@ class DoorTypeLoaderTest
         throws IOException
     {
         final String extensionsPath =
-            new File(".").getCanonicalPath().replace("bigdoors-integration-test", "bigdoors-doors/DoorTypes");
+            new File(".").getCanonicalPath()
+                         .replace("bigdoors-integration-test", "bigdoors-doors" + File.separator + "DoorTypes");
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
         Assertions.assertEquals(inputCount,
-                                new DoorTypeLoader(restartableHolder, doorTypeManager, new File("."))
-                                    .loadDoorTypesFromDirectory(new File(extensionsPath)).size());
+                                new DoorTypeLoader(restartableHolder, doorTypeManager, Path.of(""))
+                                    .loadDoorTypesFromDirectory(Path.of(extensionsPath)).size());
     }
 }

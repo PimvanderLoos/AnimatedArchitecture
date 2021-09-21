@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
+import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -37,10 +38,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sqlite.SQLiteConfig;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -75,8 +76,8 @@ public class SQLiteJDBCDriverConnectionTest
 
     private static final IPWorld WORLD = new TestPWorld(WORLD_NAME);
 
-    private static final File DB_FILE;
-    private static final File DB_FILE_BACKUP;
+    private static final Path DB_FILE;
+    private static final Path DB_FILE_BACKUP;
 
     private SQLiteJDBCDriverConnection storage;
 
@@ -87,8 +88,8 @@ public class SQLiteJDBCDriverConnectionTest
     static
     {
         LogInspector.get().clearHistory();
-        DB_FILE = new File("./tests/test.db");
-        DB_FILE_BACKUP = new File(DB_FILE + ".BACKUP");
+        DB_FILE = Path.of(".", "tests", "test.db");
+        DB_FILE_BACKUP = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".BACKUP");
     }
 
     private IPWorldFactory worldFactory;
@@ -127,18 +128,11 @@ public class SQLiteJDBCDriverConnectionTest
      * Prepares files for a test run.
      */
     @BeforeAll
+    @SneakyThrows
     public static void prepare()
     {
-        if (DB_FILE.exists())
-        {
-            System.out.println("WARNING! FILE \"dbFile\" STILL EXISTS! Attempting deletion now!");
-            Assertions.assertTrue(DB_FILE.delete());
-        }
-        if (DB_FILE_BACKUP.exists())
-        {
-            System.out.println("WARNING! FILE \"dbFileBackup\" STILL EXISTS! Attempting deletion now!");
-            Assertions.assertTrue(DB_FILE_BACKUP.delete());
-        }
+        Files.deleteIfExists(DB_FILE);
+        Files.deleteIfExists(DB_FILE_BACKUP);
     }
 
     /**
@@ -146,25 +140,13 @@ public class SQLiteJDBCDriverConnectionTest
      * (for debugging purposes).
      */
     @AfterAll
+    @SneakyThrows
     public static void cleanup()
     {
-        // Remove any old database files and append ".FINISHED" to the name of the current one, so it
-        // won't interfere with the next run, but can still be used for manual inspection.
-        final File oldDB = new File(DB_FILE + ".FINISHED");
+        final Path finishedDB = DB_FILE.resolveSibling(DB_FILE.getFileName() + ".FINISHED");
+        Files.move(DB_FILE, finishedDB, StandardCopyOption.REPLACE_EXISTING);
 
-        if (oldDB.exists())
-            Assertions.assertTrue(oldDB.delete());
-        if (DB_FILE_BACKUP.exists())
-            Assertions.assertTrue(DB_FILE_BACKUP.delete());
-
-        try
-        {
-            Files.move(DB_FILE.toPath(), oldDB.toPath());
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
+        Files.deleteIfExists(DB_FILE_BACKUP);
     }
 
     private void deleteDoorTypeTestDoors()

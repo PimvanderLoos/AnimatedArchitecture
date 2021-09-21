@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.extensions;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileVisitOption;
@@ -38,16 +36,16 @@ public final class DoorTypeLoader extends Restartable
     private DoorTypeClassLoader doorTypeClassLoader;
 
     private final DoorTypeManager doorTypeManager;
-    private final File extensionsDirectory;
+    private final Path extensionsDirectory;
     private boolean successfulInit;
 
     @Inject
     public DoorTypeLoader(RestartableHolder holder, DoorTypeManager doorTypeManager,
-                          @Named("pluginBaseDirectory") File dataDirectory)
+                          @Named("pluginBaseDirectory") Path dataDirectory)
     {
         super(holder);
         this.doorTypeManager = doorTypeManager;
-        extensionsDirectory = new File(dataDirectory, Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
+        extensionsDirectory = dataDirectory.resolve(Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
         successfulInit = ensureDirectoryExists();
         if (!successfulInit)
             return;
@@ -81,14 +79,19 @@ public final class DoorTypeLoader extends Restartable
      */
     private boolean ensureDirectoryExists()
     {
-        if (extensionsDirectory.exists() || extensionsDirectory.mkdirs())
+        try
+        {
+            Files.createDirectories(extensionsDirectory);
             return true;
-
-        log.at(Level.SEVERE).withCause(new IOException("Failed to create folder: " + extensionsDirectory)).log();
+        }
+        catch (IOException e)
+        {
+            log.at(Level.SEVERE).withCause(new IOException("Failed to create directory: " + extensionsDirectory)).log();
+        }
         return false;
     }
 
-    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(File file)
+    private Optional<DoorTypeInitializer.TypeInfo> getDoorTypeInfo(Path file)
     {
         log.at(Level.FINE).log("Attempting to load DoorType from jar: %s", file);
         if (!file.toString().endsWith(".jar"))
@@ -103,7 +106,7 @@ public final class DoorTypeLoader extends Restartable
         @Nullable String dependencies;
         final int version;
 
-        try (InputStream fileInputStream = Files.newInputStream(file.toPath());
+        try (InputStream fileInputStream = Files.newInputStream(file);
              JarInputStream jarStream = new JarInputStream(fileInputStream))
         {
             final Manifest manifest = jarStream.getManifest();
@@ -150,11 +153,10 @@ public final class DoorTypeLoader extends Restartable
     }
 
     /**
-     * Attempts to load and register all jars in the default directory:
+     * Attempts to load and register all jars in the default directory, which is the base plugin directory + {@link
+     * Constants#BIGDOORS_EXTENSIONS_FOLDER_NAME}.
      * <p>
-     * {@link IBigDoorsPlatform#getDataDirectory()} + {@link Constants#BIGDOORS_EXTENSIONS_FOLDER_NAME}.
-     * <p>
-     * See also {@link #loadDoorTypesFromDirectory(File)}.
+     * See also {@link #loadDoorTypesFromDirectory(Path)}.
      */
     @SuppressWarnings("UnusedReturnValue")
     public List<DoorType> loadDoorTypesFromDirectory()
@@ -169,14 +171,14 @@ public final class DoorTypeLoader extends Restartable
      *     The directory.
      * @return The list of {@link DoorType}s that were loaded successfully.
      */
-    public List<DoorType> loadDoorTypesFromDirectory(File directory)
+    public List<DoorType> loadDoorTypesFromDirectory(Path directory)
     {
         final List<DoorTypeInitializer.TypeInfo> typeInfoList = new ArrayList<>();
 
-        try (Stream<Path> walk = Files.walk(directory.toPath(), 1, FileVisitOption.FOLLOW_LINKS))
+        try (Stream<Path> walk = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS))
         {
             final Stream<Path> result = walk.filter(Files::isRegularFile);
-            result.forEach(path -> getDoorTypeInfo(path.toFile()).ifPresent(typeInfoList::add));
+            result.forEach(path -> getDoorTypeInfo(path).ifPresent(typeInfoList::add));
         }
         catch (IOException e)
         {

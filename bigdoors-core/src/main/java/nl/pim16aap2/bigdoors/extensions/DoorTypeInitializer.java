@@ -9,8 +9,8 @@ import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -162,11 +162,11 @@ final class DoorTypeInitializer
      *     The jar file.
      * @return True if the jar loaded successfully.
      */
-    private boolean loadJar(File file)
+    private boolean loadJar(Path file)
     {
         try
         {
-            doorTypeClassLoader.addURL(file.toURI().toURL());
+            doorTypeClassLoader.addURL(file.toUri().toURL());
         }
         catch (Exception e)
         {
@@ -327,7 +327,7 @@ final class DoorTypeInitializer
         @Getter
         private final String mainClass;
         @Getter
-        private final File jarFile;
+        private final Path jarFile;
         @Getter
         private final List<Optional<Dependency>> dependencies;
         @Getter(AccessLevel.PRIVATE)
@@ -338,7 +338,7 @@ final class DoorTypeInitializer
         private static final Pattern MIN_VERSION_MATCH = Pattern.compile("[0-9]*;");
         private static final Pattern MAX_VERSION_MATCH = Pattern.compile(";[0-9]*");
 
-        public TypeInfo(String typeName, int version, String mainClass, File jarFile, @Nullable String dependencies)
+        public TypeInfo(String typeName, int version, String mainClass, Path jarFile, @Nullable String dependencies)
         {
             this.typeName = typeName.toLowerCase(Locale.ENGLISH);
             this.version = version;
