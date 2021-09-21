@@ -283,9 +283,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
 
             if (compatClass == null)
             {
-                log.at(Level.SEVERE).log(
-                    "Could not find compatibility class for: '%s'! This most likely means that this version is not supported!",
-                    ProtectionCompat.getName(compat));
+                log.at(Level.SEVERE).log("Could not find compatibility class for: '%s'! " +
+                                             "This most likely means that this version is not supported!",
+                                         ProtectionCompat.getName(compat));
                 return;
             }
 

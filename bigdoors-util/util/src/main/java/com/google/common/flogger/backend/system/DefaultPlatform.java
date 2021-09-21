@@ -22,9 +22,8 @@ import com.google.common.flogger.backend.NoOpContextDataProvider;
 import com.google.common.flogger.backend.Platform;
 import com.google.common.flogger.backend.slf4j.Slf4jBackendFactory;
 import com.google.common.flogger.context.ContextDataProvider;
+import com.google.common.flogger.util.StaticMethodCaller;
 import org.jetbrains.annotations.Nullable;
-
-import static com.google.common.flogger.util.StaticMethodCaller.callGetterFromSystemProperty;
 
 /**
  * The default fluent logger platform for a server-side Java environment. The default platform implements the following
@@ -75,9 +74,9 @@ public final class DefaultPlatform extends Platform
     public DefaultPlatform()
     {
         final @Nullable ContextDataProvider context =
-            callGetterFromSystemProperty(LOGGING_CONTEXT, ContextDataProvider.class);
+            StaticMethodCaller.callGetterFromSystemProperty(LOGGING_CONTEXT, ContextDataProvider.class);
         this.context = (context != null) ? context : NoOpContextDataProvider.getInstance();
-        final @Nullable Clock clock = callGetterFromSystemProperty(CLOCK, Clock.class);
+        final @Nullable Clock clock = StaticMethodCaller.callGetterFromSystemProperty(CLOCK, Clock.class);
         this.clock = (clock != null) ? clock : SystemClock.getInstance();
         // TODO(dbeaumont): Figure out how to handle StackWalker when it becomes available (Java9).
         callerFinder = StackBasedCallerFinder.getInstance();

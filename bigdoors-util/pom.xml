@@ -3,9 +3,10 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.pim16aap2</groupId>
     <artifactId>bigdoors-util</artifactId>
-    <packaging>jar</packaging>
-    <description>Utilities for unit tests</description>
+    <packaging>pom</packaging>
+    <description>General utilities for runtime and testing</description>
     <version>1</version>
 
     <parent>
@@ -14,40 +15,10 @@
         <version>1</version>
     </parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.google.jimfs</groupId>
-            <artifactId>jimfs</artifactId>
-            <version>${dependency.version.jimfs}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- TODO: Split up this module so we don't depend on this for non-test stuff -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${dependency.version.junit}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${dependency.version.junit}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${dependency.version.mockito}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${dependency.version.mockito}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <modules>
+        <module>test-util</module>
+        <module>util</module>
+    </modules>
 
     <build>
         <plugins>
