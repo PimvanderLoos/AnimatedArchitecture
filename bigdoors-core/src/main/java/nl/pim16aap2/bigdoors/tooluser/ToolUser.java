@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.tooluser;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBigDoorsToolUtil;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -12,12 +13,10 @@ import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.step.IStep;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,12 +27,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 @ToString
+@Flogger
 public abstract class ToolUser implements IRestartable
 {
     @Getter
     private final IPPlayer player;
-
-    protected final IPLogger logger;
 
     protected final ILocalizer localizer;
 
@@ -68,7 +66,6 @@ public abstract class ToolUser implements IRestartable
     protected ToolUser(Context context, IPPlayer player)
     {
         this.player = player;
-        logger = context.getLogger();
         localizer = context.getLocalizer();
         toolUserManager = context.getToolUserManager();
         protectionCompatManager = context.getProtectionCompatManager();
@@ -78,14 +75,12 @@ public abstract class ToolUser implements IRestartable
 
         try
         {
-            procedure = new Procedure(generateSteps(), logger, localizer);
+            procedure = new Procedure(generateSteps(), localizer);
         }
         catch (InstantiationException | IndexOutOfBoundsException e)
         {
-            final var ex = new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
-                                                    getPlayer().asString(), e);
-            logger.logThrowableSilently(ex);
-            throw ex;
+            throw new RuntimeException("Failed to instantiate procedure for ToolUser for player: " +
+                                           getPlayer().asString(), e);
         }
 
         if (!active)
@@ -217,7 +212,7 @@ public abstract class ToolUser implements IRestartable
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, toString());
+            log.at(Level.SEVERE).withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
             getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
             shutdown();
             return false;
@@ -234,9 +229,9 @@ public abstract class ToolUser implements IRestartable
     @SuppressWarnings("PMD.PrematureDeclaration")
     public boolean handleInput(@Nullable Object obj)
     {
-        logger.debug(
-            "Handling input: " + obj + " (" + (obj == null ? "null" : obj.getClass().getSimpleName()) + ") for step: " +
-                getProcedure().getCurrentStepName() + " in ToolUser: " + this);
+        log.at(Level.FINE).log("Handling input: %s (%s) for step: %s in ToolUser: %s.",
+                               obj, (obj == null ? "null" : obj.getClass().getSimpleName()),
+                               getProcedure().getCurrentStepName(), this);
 
         if (!active)
             return false;
@@ -266,7 +261,7 @@ public abstract class ToolUser implements IRestartable
     {
         final var message = getProcedure().getMessage();
         if (message.isEmpty())
-            logger.warn("Missing translation for step: " + getProcedure().getCurrentStepName());
+            log.at(Level.WARNING).log("Missing translation for step: %s", getProcedure().getCurrentStepName());
         else
             getPlayer().sendMessage(message);
     }
@@ -297,8 +292,8 @@ public abstract class ToolUser implements IRestartable
         result.ifPresent(
             compat ->
             {
-                logger.logMessage(Level.FINE, "Blocked access to cuboid " + loc + " for player " +
-                    getPlayer() + ". Reason: " + compat);
+                log.at(Level.FINE).log("Blocked access to cuboid %s for player %s! Reason: %s",
+                                       loc, getPlayer(), compat);
                 getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
@@ -323,8 +318,8 @@ public abstract class ToolUser implements IRestartable
         result.ifPresent(
             compat ->
             {
-                logger.logMessage(Level.FINE, "Blocked access to cuboid " + cuboid + " for player " +
-                    getPlayer() + " in world " + world + ". Reason: " + compat);
+                log.at(Level.FINE).log("Blocked access to cuboid %s for player %s in world %s. Reason: %s",
+                                       cuboid, getPlayer(), world, compat);
                 getPlayer().sendMessage(localizer.getMessage("tool_user.base.error.no_permission_for_location"));
             });
         return result.isEmpty();
@@ -334,29 +329,24 @@ public abstract class ToolUser implements IRestartable
     public static final class Context
     {
         private final DoorBaseFactory doorBaseFactory;
-        private final IPLogger logger;
         private final ILocalizer localizer;
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
         private final LimitsManager limitsManager;
-        private final CompletableFutureHandler handler;
         private final IEconomyManager economyManager;
         private final IProtectionCompatManager protectionCompatManager;
         private final IBigDoorsToolUtil bigDoorsToolUtil;
 
         @Inject
-        public Context(DoorBaseFactory doorBaseFactory, IPLogger logger, ILocalizer localizer,
-                       ToolUserManager toolUserManager, DatabaseManager databaseManager, LimitsManager limitsManager,
-                       CompletableFutureHandler handler, IEconomyManager economyManager,
+        public Context(DoorBaseFactory doorBaseFactory, ILocalizer localizer, ToolUserManager toolUserManager,
+                       DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
                        IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
         {
             this.doorBaseFactory = doorBaseFactory;
-            this.logger = logger;
             this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;
             this.limitsManager = limitsManager;
-            this.handler = handler;
             this.economyManager = economyManager;
             this.protectionCompatManager = protectionCompatManager;
             this.bigDoorsToolUtil = bigDoorsToolUtil;

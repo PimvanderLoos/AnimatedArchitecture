@@ -5,6 +5,7 @@ import nl.pim16aap2.bigdoors.doortypes.DoorType;
 
 import java.util.Locale;
 import java.util.OptionalInt;
+import java.util.logging.Level;
 
 // TODO: Change this description and while I'm at it, also the name of the class.
 
@@ -141,6 +142,13 @@ public interface IConfigLoader extends IRestartable
      * @return The animation time for the door type.
      */
     double getAnimationTime(DoorType type);
+
+    /**
+     * The log level to use.
+     *
+     * @return The log level.
+     */
+    Level logLevel();
 
     /**
      * Checks if errors should be logged to the console.

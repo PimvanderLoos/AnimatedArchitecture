@@ -5,9 +5,6 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -22,14 +19,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class BaseCommandTest
 {
-    private IPLogger logger;
-
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private BaseCommand baseCommand;
 
@@ -42,12 +36,9 @@ class BaseCommandTest
     @BeforeEach
     void init()
     {
-        logger = new BasicPLogger();
-
         MockitoAnnotations.openMocks(this);
 
-        initBaseCommand(baseCommand, commandSender, logger, UnitTestUtil.initLocalizer(),
-                        new CompletableFutureHandler(logger));
+        initBaseCommand(baseCommand, commandSender, UnitTestUtil.initLocalizer());
 
         Mockito.when(baseCommand.getCommand()).thenReturn(CommandDefinition.ADD_OWNER);
         Mockito.when(baseCommand.validInput()).thenCallRealMethod();
@@ -119,8 +110,6 @@ class BaseCommandTest
     @Test
     void testExceptionPermission()
     {
-        logger.setConsoleLogLevel(Level.OFF);
-
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
 
         final CompletableFuture<BooleanPair> exceptional = new CompletableFuture<>();
@@ -137,8 +126,6 @@ class BaseCommandTest
     @Test
     void testExecutionException()
     {
-        logger.setConsoleLogLevel(Level.OFF);
-
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
         final CompletableFuture<Boolean> exceptional = new CompletableFuture<>();
         exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
@@ -152,12 +139,9 @@ class BaseCommandTest
     }
 
     @SneakyThrows
-    private static void initBaseCommand(BaseCommand baseCommand, ICommandSender commandSender, IPLogger logger,
-                                        ILocalizer localizer, CompletableFutureHandler handler)
+    private static void initBaseCommand(BaseCommand baseCommand, ICommandSender commandSender, ILocalizer localizer)
     {
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "commandSender", commandSender);
-        UnitTestUtil.setField(BaseCommand.class, baseCommand, "logger", logger);
         UnitTestUtil.setField(BaseCommand.class, baseCommand, "localizer", localizer);
-        UnitTestUtil.setField(BaseCommand.class, baseCommand, "handler", handler);
     }
 }

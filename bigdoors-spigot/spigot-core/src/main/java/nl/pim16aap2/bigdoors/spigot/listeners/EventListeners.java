@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.logging.Level;
 
 /**
  * Represents a listener that keeps track of various events.
@@ -35,21 +36,20 @@ import javax.inject.Singleton;
  */
 // TODO: Split this class up. It's got too much stuff.
 @Singleton
+@Flogger
 public class EventListeners extends AbstractListener
 {
-    private final IPLogger logger;
     private final BigDoorsToolUtilSpigot bigDoorsToolUtil;
     private final DatabaseManager databaseManager;
     private final ToolUserManager toolUserManager;
     private final DelayedCommandInputManager delayedCommandInputManager;
 
     @Inject
-    public EventListeners(JavaPlugin javaPlugin, IPLogger logger, BigDoorsToolUtilSpigot bigDoorsToolUtil,
+    public EventListeners(JavaPlugin javaPlugin, BigDoorsToolUtilSpigot bigDoorsToolUtil,
                           DatabaseManager databaseManager, ToolUserManager toolUserManager,
                           DelayedCommandInputManager delayedCommandInputManager)
     {
         super(javaPlugin);
-        this.logger = logger;
         this.bigDoorsToolUtil = bigDoorsToolUtil;
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
@@ -98,7 +98,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -120,7 +120,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -160,7 +160,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -199,7 +199,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -224,7 +224,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 
@@ -255,7 +255,7 @@ public class EventListeners extends AbstractListener
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
     }
 }

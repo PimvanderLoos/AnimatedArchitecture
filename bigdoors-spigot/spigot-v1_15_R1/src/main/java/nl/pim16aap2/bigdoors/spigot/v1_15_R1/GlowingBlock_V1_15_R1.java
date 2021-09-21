@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.flogger.Flogger;
 import net.minecraft.server.v1_15_R1.EntityMagmaCube;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EntityTypes;
@@ -14,7 +15,6 @@ import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
@@ -38,6 +38,7 @@ import java.util.logging.Level;
  * @author Pim
  * @see IGlowingBlock
  */
+@Flogger
 public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 {
     private final World world;
@@ -51,17 +52,15 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     private final Map<PColor, Team> teams;
     private final Player player;
     private final RestartableHolder restartableHolder;
-    private final IPLogger logger;
     private final IPExecutor executor;
 
     public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
-                                 RestartableHolder restartableHolder, IPLogger logger, IPExecutor executor)
+                                 RestartableHolder restartableHolder, IPExecutor executor)
     {
         this.player = player;
         this.world = world;
         this.teams = teams;
         this.restartableHolder = restartableHolder;
-        this.logger = logger;
         this.executor = executor;
     }
 
@@ -70,8 +69,9 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
         if (entityPlayer == null)
         {
-            logger.logMessage(Level.WARNING, "NMS entity of player: " + player.getDisplayName() +
-                " could not be found! They cannot receive Glowing Block packets!");
+            log.at(Level.WARNING)
+               .log("NMS entity of player: '%s' could not be found! They cannot receive Glowing Block packets!",
+                    player.getDisplayName());
             return Optional.empty();
         }
         return Optional.ofNullable(entityPlayer.playerConnection);
@@ -104,7 +104,8 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
         {
-            logger.warn("Failed to spawn glowing block: Could not find team for color: " + pColor.name());
+            log.at(Level.WARNING)
+               .log("Failed to spawn glowing block: Could not find team for color: %s", pColor.name());
             return;
         }
 
@@ -191,15 +192,15 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     {
         @Override
         public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
-                                                          RestartableHolder restartableHolder, IPLogger logger,
+                                                          RestartableHolder restartableHolder,
                                                           IGlowingBlockSpawner glowingBlockSpawner, IPExecutor executor)
         {
             if (!(glowingBlockSpawner instanceof GlowingBlockSpawner))
                 return Optional.empty();
 
-            return Optional.of(new GlowingBlock_V1_15_R1(player, world,
-                                                         ((GlowingBlockSpawner) glowingBlockSpawner).getTeams(),
-                                                         restartableHolder, logger, executor));
+            return Optional.of(
+                new GlowingBlock_V1_15_R1(player, world, ((GlowingBlockSpawner) glowingBlockSpawner).getTeams(),
+                                          restartableHolder, executor));
         }
     }
 }

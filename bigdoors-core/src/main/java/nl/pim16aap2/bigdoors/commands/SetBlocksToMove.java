@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -28,11 +26,10 @@ public class SetBlocksToMove extends DoorTargetCommand
     private final int blocksToMove;
 
     @AssistedInject //
-    SetBlocksToMove(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int blocksToMove,
-                    CompletableFutureHandler handler)
+    SetBlocksToMove(@Assisted ICommandSender commandSender, ILocalizer localizer,
+                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int blocksToMove)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE, handler);
+        super(commandSender, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
     }
 

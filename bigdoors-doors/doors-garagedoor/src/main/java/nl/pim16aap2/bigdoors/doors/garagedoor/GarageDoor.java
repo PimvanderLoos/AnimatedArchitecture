@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -21,6 +22,7 @@ import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a Garage Door doorType.
@@ -29,6 +31,7 @@ import java.util.Optional;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@Flogger
 public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
@@ -41,7 +44,7 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
      * <p>
      * To be situated along a specific axis means that the blocks move along that axis. For example, if the door moves
      * along the North/South <i>(= Z)</i> axis, all animated blocks will have a different Z-coordinate depending on the
-     * time of day and a X-coordinate depending on the X-coordinate they originally started at.
+     * time of day and an X-coordinate depending on the X-coordinate they originally started at.
      *
      * @return True if this door is animated along the North/South axis.
      */
@@ -128,9 +131,11 @@ public class GarageDoor extends AbstractDoor implements IHorizontalAxisAligned, 
         }
         catch (Exception e)
         {
-            logger.logThrowable(new IllegalArgumentException(
-                "RotateDirection \"" + rotateDirection.name() + "\" is not a valid direction for a door of type \"" +
-                    getDoorType() + "\""));
+            log.at(Level.SEVERE).withCause(
+                new IllegalArgumentException(
+                    "RotateDirection \"" + rotateDirection.name() +
+                        "\" is not a valid direction for a door of type \"" +
+                        getDoorType() + "\"")).log();
             return Optional.empty();
         }
 

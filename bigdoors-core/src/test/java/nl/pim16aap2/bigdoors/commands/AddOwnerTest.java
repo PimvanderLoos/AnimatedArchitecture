@@ -5,10 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +25,6 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class AddOwnerTest
 {
-    private IPLogger logger;
-    private CompletableFutureHandler handler;
     private ILocalizer localizer;
 
     @Mock
@@ -58,8 +53,6 @@ class AddOwnerTest
     {
         MockitoAnnotations.openMocks(this);
 
-        logger = new BasicPLogger();
-        handler = new CompletableFutureHandler(logger);
         localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(databaseManager.addOwner(Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.any()))
@@ -70,10 +63,10 @@ class AddOwnerTest
                                          Mockito.any(IPPlayer.class),
                                          Mockito.anyInt()))
                .thenAnswer((Answer<AddOwner>) invoc ->
-                   new AddOwner(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                   new AddOwner(invoc.getArgument(0, ICommandSender.class), localizer,
                                 invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
                                 invoc.getArgument(2, IPPlayer.class), invoc.getArgument(3, Integer.class),
-                                databaseManager, handler));
+                                databaseManager));
 
         initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = DoorRetriever.ofDoor(door);

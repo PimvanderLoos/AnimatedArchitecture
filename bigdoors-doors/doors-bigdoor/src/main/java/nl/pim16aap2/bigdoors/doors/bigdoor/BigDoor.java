@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -17,6 +18,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Represents a Big Door doorType.
@@ -26,6 +28,7 @@ import java.util.Optional;
  */
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@Flogger
 public class BigDoor extends AbstractDoor implements ITimerToggleable
 {
     @EqualsAndHashCode.Exclude
@@ -86,7 +89,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
                              rotateDirection == RotateDirection.COUNTERCLOCKWISE ? -Math.PI / 2 : 0.0D;
         if (angle == 0.0D)
         {
-            logger.severe("Invalid open direction \"" + rotateDirection.name() + "\" for door: " + getDoorUID());
+            log.at(Level.SEVERE).log("Invalid open direction '%s' for door: %d", rotateDirection.name(), getDoorUID());
             return Optional.empty();
         }
 

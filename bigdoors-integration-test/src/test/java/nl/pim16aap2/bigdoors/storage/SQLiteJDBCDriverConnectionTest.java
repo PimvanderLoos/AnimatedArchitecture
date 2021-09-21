@@ -16,18 +16,18 @@ import nl.pim16aap2.bigdoors.doors.drawbridge.DoorTypeDrawbridge;
 import nl.pim16aap2.bigdoors.doors.drawbridge.Drawbridge;
 import nl.pim16aap2.bigdoors.doors.portcullis.DoorTypePortcullis;
 import nl.pim16aap2.bigdoors.doors.portcullis.Portcullis;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteJDBCDriverConnection;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorldFactory;
-import nl.pim16aap2.bigdoors.testing.AssistedFactoryMocker;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.testing.AssertionsUtil;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
+import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -84,10 +84,9 @@ public class SQLiteJDBCDriverConnectionTest
     private AbstractDoor door2;
     private AbstractDoor door3;
 
-    private IPLogger logger;
-
     static
     {
+        LogInspector.get().clearHistory();
         DB_FILE = new File("./tests/test.db");
         DB_FILE_BACKUP = new File(DB_FILE + ".BACKUP");
     }
@@ -111,12 +110,10 @@ public class SQLiteJDBCDriverConnectionTest
 
         worldFactory = new TestPWorldFactory();
         doorRegistry = DoorRegistry.uncached(restartableHolder);
-        logger = new BasicPLogger();
-        doorTypeManager = new DoorTypeManager(restartableHolder, logger);
+        doorTypeManager = new DoorTypeManager(restartableHolder);
 
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
-                .setMock(IPLogger.class, logger)
                 .setMock(DoorRegistry.class, doorRegistry);
 
         doorBaseFactory = new DoorBaseFactory(assistedFactoryMocker.getFactory());
@@ -417,7 +414,7 @@ public class SQLiteJDBCDriverConnectionTest
     {
         @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         DoorSerializer<?> serializer =
-            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass(), logger));
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);
 
         // Test changing autoCloseTime value.  (i.e. syncing type-specific data).
@@ -539,8 +536,8 @@ public class SQLiteJDBCDriverConnectionTest
         databaseLock.setAccessible(true);
         databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
-        UnitTestUtil.assertWrappedThrows(IllegalStateException.class,
-                                         () -> storage.getDoor(PLAYER_DATA_1.getUUID(), 1L), true);
+        AssertionsUtil.assertThrowablesLogged(() -> storage.getDoor(PLAYER_DATA_1.getUUID(), 1L),
+                                              IllegalStateException.class);
 
         // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
@@ -552,8 +549,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     private void initStorage()
     {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseFactory, logger, doorRegistry,
-                                                 doorTypeManager, worldFactory);
+        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseFactory, doorRegistry, doorTypeManager, worldFactory);
 
         // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
         // More info:

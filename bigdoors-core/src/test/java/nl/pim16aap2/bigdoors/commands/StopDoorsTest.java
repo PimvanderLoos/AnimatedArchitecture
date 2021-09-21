@@ -3,10 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +33,11 @@ class StopDoorsTest
 
         CommandTestingUtil.initCommandSenderPermissions(commandSender, true, true);
 
-        final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newStopDoors(Mockito.any(ICommandSender.class)))
-               .thenAnswer(invoc -> new StopDoors(invoc.getArgument(0, ICommandSender.class), logger,
-                                                  localizer, doorActivityManager, handler));
+               .thenAnswer(invoc -> new StopDoors(invoc.getArgument(0, ICommandSender.class),
+                                                  localizer, doorActivityManager));
     }
 
     @Test

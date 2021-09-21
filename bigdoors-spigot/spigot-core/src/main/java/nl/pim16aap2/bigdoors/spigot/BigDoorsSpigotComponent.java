@@ -24,8 +24,6 @@ import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.localization.LocalizationModule;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.logging.PLoggerModule;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -73,11 +71,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+@SuppressWarnings("unused")
 @Singleton
 @Component(modules = {
     BigDoorsPluginModule.class,
     BigDoorsSpigotPlatformModule.class,
-    PLoggerModule.class,
     PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
     ConfigLoaderSpigotModule.class,
@@ -116,8 +114,6 @@ interface BigDoorsSpigotComponent
     JavaPlugin getBigDoorsJavaPlugin();
 
     RestartableHolder getRestartableHolder();
-
-    IPLogger getLogger();
 
     ISubPlatformManagerSpigot getSubPlatformManagerSpigot();
 

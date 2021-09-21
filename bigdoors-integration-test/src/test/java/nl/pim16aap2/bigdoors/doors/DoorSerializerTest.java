@@ -8,16 +8,14 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.testimplementations.TestPWorld;
-import nl.pim16aap2.bigdoors.testing.AssistedFactoryMocker;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
+import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,17 +30,12 @@ class DoorSerializerTest
 {
     private DoorBase doorBase;
 
-    private IPLogger logger;
-
     @BeforeEach
     void init()
         throws NoSuchMethodException
     {
-        logger = new BasicPLogger();
-
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
-            new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
-                .setMock(IPLogger.class, logger);
+            new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class);
 
         final DoorRegistry doorRegistry = assistedFactoryMocker.getMock(DoorRegistry.class);
         Mockito.when(doorRegistry.registerDoor(Mockito.any())).thenReturn(true);
@@ -63,7 +56,7 @@ class DoorSerializerTest
     @Test
     void instantiate()
     {
-        final var instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class, logger));
+        final var instantiator = Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType base = new TestDoorType(doorBase, "test", true, 42);
 
         TestDoorType test = Assertions.assertDoesNotThrow(
@@ -79,7 +72,7 @@ class DoorSerializerTest
     void instantiateUnsafe()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new DoorSerializer<>(TestDoorSubType.class, logger));
+            () -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType base = new TestDoorSubType(doorBase, "test", true, 42, 1);
 
         TestDoorType test = Assertions.assertDoesNotThrow(
@@ -95,7 +88,7 @@ class DoorSerializerTest
     void serialize()
     {
         final DoorSerializer<TestDoorType> instantiator =
-            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class, logger));
+            Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(TestDoorType.class));
         final TestDoorType testDoorType1 = new TestDoorType(doorBase, "test", true, 42);
 
         final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorType1));
@@ -107,7 +100,7 @@ class DoorSerializerTest
     void subclass()
     {
         final var instantiator = Assertions.assertDoesNotThrow(
-            () -> new DoorSerializer<>(TestDoorSubType.class, logger));
+            () -> new DoorSerializer<>(TestDoorSubType.class));
         final TestDoorSubType testDoorSubType1 = new TestDoorSubType(doorBase, "test", true, 42, 6);
 
         final byte[] serialized = Assertions.assertDoesNotThrow(() -> instantiator.serialize(testDoorSubType1));

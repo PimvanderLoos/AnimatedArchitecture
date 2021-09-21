@@ -6,8 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,10 +22,9 @@ public class Menu extends BaseCommand
     private final @Nullable IPPlayer target;
 
     @AssistedInject //
-    Menu(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-         @Assisted @Nullable IPPlayer target, CompletableFutureHandler handler)
+    Menu(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted @Nullable IPPlayer target)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, localizer);
         this.target = target;
     }
 

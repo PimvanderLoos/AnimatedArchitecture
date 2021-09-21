@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.localization;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +27,12 @@ import java.util.stream.Collectors;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class LocalizationManager extends Restartable implements ILocalizationGenerator
 {
     private final Path baseDir;
     private final String baseName;
     private final IConfigLoader configLoader;
-    private final IPLogger logger;
     private final Localizer localizer;
     private final LocalizationGenerator baseGenerator;
     private final DoorTypeManager doorTypeManager;
@@ -40,16 +41,15 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     @Inject
     public LocalizationManager(RestartableHolder restartableHolder, @Named("localizationBaseDir") Path baseDir,
                                @Named("localizationBaseName") String baseName, IConfigLoader configLoader,
-                               IPLogger logger, DoorTypeManager doorTypeManager)
+                               DoorTypeManager doorTypeManager)
     {
         super(restartableHolder);
         this.baseDir = baseDir;
         this.baseName = baseName;
         this.configLoader = configLoader;
-        this.logger = logger;
-        localizer = new Localizer(baseDir, baseName, logger);
+        localizer = new Localizer(baseDir, baseName);
         localizer.setDefaultLocale(configLoader.locale());
-        baseGenerator = new LocalizationGenerator(baseDir, baseName, logger);
+        baseGenerator = new LocalizationGenerator(baseDir, baseName);
         this.doorTypeManager = doorTypeManager;
     }
 
@@ -99,7 +99,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
     {
         try
         {
-            final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName, logger);
+            final LocalizationPatcher localizationPatcher = new LocalizationPatcher(baseDir, baseName);
             final Set<String> rootKeys = (patchGenerator == null ? baseGenerator : patchGenerator).getOutputRootKeys();
             localizationPatcher.updatePatchKeys(rootKeys);
 
@@ -113,7 +113,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
 
             if (patchGenerator == null)
             {
-                patchGenerator = new LocalizationGenerator(baseDir, baseName + "_patched", logger);
+                patchGenerator = new LocalizationGenerator(baseDir, baseName + "_patched");
                 localizer.updateBundleLocation(baseDir, baseName + "_patched");
             }
 
@@ -124,7 +124,7 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         }
         catch (IOException e)
         {
-            logger.logThrowable(e, "Failed to apply localization patches!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to apply localization patches!");
         }
     }
 

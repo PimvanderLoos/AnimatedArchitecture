@@ -5,9 +5,7 @@ import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
@@ -23,10 +21,9 @@ public class StopDoors extends BaseCommand
     private final DoorActivityManager doorActivityManager;
 
     @AssistedInject //
-    StopDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-              DoorActivityManager doorActivityManager, CompletableFutureHandler handler)
+    StopDoors(@Assisted ICommandSender commandSender, ILocalizer localizer, DoorActivityManager doorActivityManager)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, localizer);
         this.doorActivityManager = doorActivityManager;
     }
 

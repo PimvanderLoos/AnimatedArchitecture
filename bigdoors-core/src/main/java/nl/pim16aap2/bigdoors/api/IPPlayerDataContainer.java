@@ -35,7 +35,7 @@ interface IPPlayerDataContainer
      */
     default String asString()
     {
-        return String.format("\"%s\" (%s)", getName(), getUUID());
+        return String.format("'%s' (%s)", getName(), getUUID());
     }
 
     /**

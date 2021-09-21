@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.util;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.flogger.Flogger;
 import lombok.val;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -30,9 +31,11 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -45,6 +48,7 @@ import java.util.zip.ZipInputStream;
  */
 @SuppressWarnings("unused")
 @UtilityClass
+@Flogger
 public final class Util
 {
     /**
@@ -687,5 +691,118 @@ public final class Util
     public static double[] calculateTimeAndTickRate(int doorSize, double time, double speedMultiplier, double baseSpeed)
     {
         return new double[0];
+    }
+
+    /**
+     * Logs a throwable and returns a fallback value.
+     * <p>
+     * Mostly useful for {@link CompletableFuture#exceptionally(Function)}.
+     *
+     * @param throwable
+     *     The throwable to send to the logger.
+     * @param fallback
+     *     The fallback value to return.
+     * @param <T>
+     *     The type of the fallback value.
+     * @return The fallback value.
+     */
+    @Contract("_, !null -> !null")
+    public @Nullable <T> T exceptionally(Throwable throwable, @Nullable T fallback)
+    {
+        log.at(Level.SEVERE).withCause(throwable).log();
+        return fallback;
+    }
+
+    /**
+     * See {@link #exceptionally(Throwable, Object)} with a null fallback value.
+     *
+     * @return Always null
+     */
+    public @Nullable <T> T exceptionally(Throwable throwable)
+    {
+        return exceptionally(throwable, null);
+    }
+
+    /**
+     * See {@link #exceptionally(Throwable, Object)} with a fallback value of {@link Optional#empty()}.
+     *
+     * @return Always {@link Optional#empty()}.
+     */
+    public <T> Optional<T> exceptionallyOptional(Throwable throwable)
+    {
+        return exceptionally(throwable, Optional.empty());
+    }
+
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable
+     *     The {@link Throwable} to log.
+     * @param fallback
+     *     The fallback value to return.
+     * @param target
+     *     The {@link CompletableFuture} to complete.
+     * @return The fallback value.
+     */
+    public <T, U> T exceptionallyCompletion(Throwable throwable, T fallback, CompletableFuture<U> target)
+    {
+        target.completeExceptionally(throwable);
+        return fallback;
+    }
+
+    /**
+     * Handles exceptional completion of a {@link CompletableFuture}. This ensure that the target is finished
+     * exceptionally as well, to propagate the exception.
+     *
+     * @param throwable
+     *     The {@link Throwable} to log.
+     * @param target
+     *     The {@link CompletableFuture} to complete.
+     * @return Always null;
+     */
+    public <T> Void exceptionallyCompletion(Throwable throwable, CompletableFuture<T> target)
+    {
+        target.completeExceptionally(throwable);
+        return null;
+    }
+
+    /**
+     * Parses the {@link Level} from its name.
+     * <p>
+     * The strict refers to the aspect that only name matches are allowed. See {@link Level#getName()}. Contrary to
+     * {@link Level#parse(String)}, this method won't define new levels from integer inputs.
+     *
+     * @param logLevelName
+     *     The name of the log level.
+     * @return The {@link Level} if an exact match could be found, otherwise null.
+     */
+    public static @Nullable Level parseLogLevelStrict(@Nullable String logLevelName)
+    {
+        if (logLevelName == null)
+            return null;
+        final String preparedLogLevelName = logLevelName.toUpperCase(Locale.ENGLISH).strip();
+        if (preparedLogLevelName.isBlank())
+            return null;
+
+        if ("OFF".equals(preparedLogLevelName))
+            return Level.OFF;
+        if ("SEVERE".equals(preparedLogLevelName))
+            return Level.SEVERE;
+        if ("WARNING".equals(preparedLogLevelName))
+            return Level.WARNING;
+        if ("INFO".equals(preparedLogLevelName))
+            return Level.INFO;
+        if ("CONFIG".equals(preparedLogLevelName))
+            return Level.CONFIG;
+        if ("FINE".equals(preparedLogLevelName))
+            return Level.FINE;
+        if ("FINER".equals(preparedLogLevelName))
+            return Level.FINER;
+        if ("FINEST".equals(preparedLogLevelName))
+            return Level.FINEST;
+        if ("ALL".equals(preparedLogLevelName))
+            return Level.ALL;
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.logging.Level;
+
 /**
  * Represents a command listener that replaces all command input with failure messages.
  * <p>
@@ -17,24 +19,23 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Pim
  */
+@Flogger
 public final class BackupCommandListener implements CommandExecutor
 {
     private final JavaPlugin plugin;
     private final String errorMessage;
-    private final IPLogger logger;
 
-    public BackupCommandListener(JavaPlugin plugin, IPLogger logger, @Nullable String errorMessage)
+    public BackupCommandListener(JavaPlugin plugin, @Nullable String errorMessage)
     {
         this.plugin = plugin;
         this.errorMessage = errorMessage == null ? "NULL" : errorMessage;
-        this.logger = logger;
         registerCommands();
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        logger.warn(errorMessage);
+        log.at(Level.WARNING).log(errorMessage);
 
         if (sender instanceof Player player)
             player.sendMessage(ChatColor.YELLOW + getReturnMessage(player));

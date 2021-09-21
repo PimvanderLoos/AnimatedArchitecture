@@ -4,13 +4,12 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -23,6 +22,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
+@Flogger
 public class Lock extends DoorTargetCommand
 {
     private final boolean lockedStatus;
@@ -30,12 +30,11 @@ public class Lock extends DoorTargetCommand
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
     @AssistedInject //
-    Lock(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
+    Lock(@Assisted ICommandSender commandSender, ILocalizer localizer,
          @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
-         IBigDoorsPlatform bigDoorsPlatform, CompletableFutureHandler handler,
-         IBigDoorsEventFactory bigDoorsEventFactory)
+         IBigDoorsPlatform bigDoorsPlatform, IBigDoorsEventFactory bigDoorsEventFactory)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.LOCK, handler);
+        super(commandSender, localizer, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
         this.bigDoorsPlatform = bigDoorsPlatform;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
@@ -57,7 +56,7 @@ public class Lock extends DoorTargetCommand
 
         if (event.isCancelled())
         {
-            logger.logMessage(Level.FINEST, "Event " + event + " was cancelled!");
+            log.at(Level.FINEST).log("Event %s was cancelled!", event);
             return CompletableFuture.completedFuture(true);
         }
 

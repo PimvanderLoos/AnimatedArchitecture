@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import dagger.Lazy;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -13,9 +14,7 @@ import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.Pair;
@@ -42,6 +41,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class DatabaseManager extends Restartable
 {
     /**
@@ -57,13 +57,10 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
 
-    private final IPLogger logger;
-
     private final DoorRegistry doorRegistry;
     private final IBigDoorsPlatform bigDoorsPlatform;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
-    private final CompletableFutureHandler handler;
 
     /**
      * Constructs a new {@link DatabaseManager}.
@@ -74,15 +71,12 @@ public final class DatabaseManager extends Restartable
      *     The {@link IStorage} to use for all database calls.
      */
     @Inject
-    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, IPLogger logger,
-                           DoorRegistry doorRegistry, IBigDoorsPlatform bigDoorsPlatform,
-                           CompletableFutureHandler handler, Lazy<PowerBlockManager> powerBlockManager,
+    public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
+                           IBigDoorsPlatform bigDoorsPlatform, Lazy<PowerBlockManager> powerBlockManager,
                            IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(restartableHolder);
-        this.handler = handler;
         db = storage;
-        this.logger = logger;
         this.doorRegistry = doorRegistry;
         this.bigDoorsPlatform = bigDoorsPlatform;
         this.powerBlockManager = powerBlockManager;
@@ -161,7 +155,7 @@ public final class DatabaseManager extends Restartable
                                                                                       door.getPowerBlock().y(),
                                                                                       door.getPowerBlock().z())));
                 return new Pair<>(false, result);
-            }, threadPool).exceptionally(ex -> handler.exceptionally(ex, new Pair<>(false, Optional.empty())));
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
 
         ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
 
@@ -233,7 +227,7 @@ public final class DatabaseManager extends Restartable
                                                                         door.getPowerBlock().y(),
                                                                         door.getPowerBlock().z()));
                 return ActionResult.SUCCESS;
-            }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -246,7 +240,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -268,10 +262,10 @@ public final class DatabaseManager extends Restartable
                 .supplyAsync(() -> db.getDoor(playerUUID, doorUID.getAsLong())
                                      .map(Collections::singletonList)
                                      .orElse(Collections.emptyList()), threadPool)
-                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
 
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, doorID), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -292,7 +286,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -317,7 +311,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(UUID playerUUID, String name, int maxPermission)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(playerUUID, name, maxPermission), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -330,7 +324,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<AbstractDoor>> getDoors(String name)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoors(name), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -344,7 +338,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Boolean> updatePlayer(IPPlayer player)
     {
         return CompletableFuture.supplyAsync(() -> db.updatePlayerData(player.getPPlayerData()), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -357,7 +351,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<PPlayerData>> getPlayerData(UUID uuid)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(uuid), threadPool)
-                                .exceptionally(handler::exceptionallyOptional);
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -374,7 +368,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<List<PPlayerData>> getPlayerData(String playerName)
     {
         return CompletableFuture.supplyAsync(() -> db.getPlayerData(playerName), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Collections.emptyList()));
+                                .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
     /**
@@ -387,7 +381,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<AbstractDoor>> getDoor(long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(doorUID), threadPool)
-                                .exceptionally(handler::exceptionallyOptional);
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -418,7 +412,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Optional<AbstractDoor>> getDoor(UUID uuid, long doorUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoor(uuid, doorUID), threadPool)
-                                .exceptionally(handler::exceptionallyOptional);
+                                .exceptionally(Util::exceptionallyOptional);
     }
 
     /**
@@ -432,7 +426,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, -1));
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -448,7 +442,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsOwnedByPlayer(UUID playerUUID, String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountForPlayer(playerUUID, doorName), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, -1));
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -462,7 +456,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Integer> countDoorsByName(String doorName)
     {
         return CompletableFuture.supplyAsync(() -> db.getDoorCountByName(doorName), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, -1));
+                                .exceptionally(ex -> Util.exceptionally(ex, -1));
     }
 
     /**
@@ -518,7 +512,7 @@ public final class DatabaseManager extends Restartable
                         .addOwner(player.getUUID(), new DoorOwner(door.getDoorUID(), permission, playerData));
 
                     return ActionResult.SUCCESS;
-                }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -605,14 +599,15 @@ public final class DatabaseManager extends Restartable
         final Optional<DoorOwner> doorOwner = door.getDoorOwner(playerUUID);
         if (doorOwner.isEmpty())
         {
-            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
-                door.getDoorUID() + ", but the player is not an owner!");
+            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is not an owner!",
+                                   playerUUID, door.getDoorUID());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
         if (doorOwner.get().permission() == 0)
         {
-            logger.logMessage(Level.FINE, "Trying to remove player: " + playerUUID + " from door: " +
-                door.getDoorUID() + ", but the player is the prime owner! This is not allowed!");
+            log.at(Level.FINE).log("Trying to remove player: %s from door: %d, but the player is the prime owner! " +
+                                       "This is not allowed!",
+                                   playerUUID, door.getDoorUID());
             return CompletableFuture.completedFuture(ActionResult.FAIL);
         }
 
@@ -629,7 +624,7 @@ public final class DatabaseManager extends Restartable
 
                     ((FriendDoorAccessor) door.getDoorBase()).removeOwner(playerUUID);
                     return ActionResult.SUCCESS;
-                }, threadPool).exceptionally(ex -> handler.exceptionally(ex, ActionResult.FAIL));
+                }, threadPool).exceptionally(ex -> Util.exceptionally(ex, ActionResult.FAIL));
     }
 
     /**
@@ -644,7 +639,7 @@ public final class DatabaseManager extends Restartable
     public CompletableFuture<Boolean> syncDoorData(DoorBase doorBase, byte[] typeData)
     {
         return CompletableFuture.supplyAsync(() -> db.syncDoorData(doorBase, typeData), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -657,7 +652,7 @@ public final class DatabaseManager extends Restartable
     CompletableFuture<Boolean> isBigDoorsWorld(String worldName)
     {
         return CompletableFuture.supplyAsync(() -> db.isBigDoorsWorld(worldName), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
+                                .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -673,7 +668,7 @@ public final class DatabaseManager extends Restartable
     CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
-                                .exceptionally(ex -> handler.exceptionally(ex, new ConcurrentHashMap<>(0)));
+                                .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
     }
 
     /**

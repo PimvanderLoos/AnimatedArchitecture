@@ -1,12 +1,13 @@
 package nl.pim16aap2.bigdoors.commands;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
+@Flogger
 public abstract class DoorTargetCommand extends BaseCommand
 {
     @Getter
@@ -26,12 +28,10 @@ public abstract class DoorTargetCommand extends BaseCommand
 
     private final DoorAttribute doorAttribute;
 
-    protected DoorTargetCommand(ICommandSender commandSender, IPLogger logger,
-                                nl.pim16aap2.bigdoors.localization.ILocalizer localizer,
-                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute,
-                                CompletableFutureHandler handler)
+    protected DoorTargetCommand(ICommandSender commandSender, ILocalizer localizer,
+                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, localizer);
         this.doorRetriever = doorRetriever;
         this.doorAttribute = doorAttribute;
     }
@@ -41,7 +41,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         return getDoor(getDoorRetriever())
             .thenApplyAsync(door -> processDoorResult(door, permissions))
-            .exceptionally(t -> handler.exceptionally(t, false));
+            .exceptionally(t -> Util.exceptionally(t, false));
     }
 
     /**
@@ -57,8 +57,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     {
         if (door.isEmpty())
         {
-            logger.logMessage(Level.FINE, () ->
-                "Failed to find door " + getDoorRetriever() + " for command: " + this);
+            log.at(Level.FINE).log("Failed to find door %s for command: %s", getDoorRetriever(), this);
 
             getCommandSender().sendMessage(
                 localizer.getMessage("commands.door_target_command.base.error.door_not_found"));
@@ -67,9 +66,7 @@ public abstract class DoorTargetCommand extends BaseCommand
 
         if (!isAllowed(door.get(), permissions.second))
         {
-            logger.logMessage(Level.FINE,
-                              () -> getCommandSender() + " does not have access to door " + door +
-                                  " for command " + this);
+            log.at(Level.FINE).log("%s does not have access to door %s for command %s", getCommandSender(), door, this);
 
             getCommandSender().sendMessage(localizer.getMessage(
                 "commands.door_target_command.base.error.no_permission_for_action"));

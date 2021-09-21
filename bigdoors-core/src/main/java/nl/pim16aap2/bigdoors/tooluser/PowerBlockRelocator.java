@@ -4,6 +4,7 @@ import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Represents a tool user that relocates a powerblock to a new position.
@@ -22,6 +24,7 @@ import java.util.List;
  * @author Pim
  */
 @ToString
+@Flogger
 public class PowerBlockRelocator extends ToolUser
 {
     private final AbstractDoor door;
@@ -66,8 +69,8 @@ public class PowerBlockRelocator extends ToolUser
     {
         if (newLoc == null)
         {
-            logger.logThrowable(
-                new NullPointerException("newLoc is null, which should not be possible at this point!"));
+            log.at(Level.SEVERE).withCause(
+                new NullPointerException("newLoc is null, which should not be possible at this point!")).log();
             getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
         }
         else if (door.getPowerBlock().equals(newLoc.getPosition()))
@@ -87,12 +90,12 @@ public class PowerBlockRelocator extends ToolUser
     {
         final Step stepPowerblockRelocatorInit = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_INIT")
             .messageKey("tool_user.powerblock_relocator.init")
-            .stepExecutor(new StepExecutorPLocation(logger, this::moveToLoc))
+            .stepExecutor(new StepExecutorPLocation(this::moveToLoc))
             .waitForUserInput(true).construct();
 
         final Step stepPowerblockRelocatorCompleted = new Step.Factory(localizer, "RELOCATE_POWER_BLOCK_COMPLETED")
             .messageKey("tool_user.powerblock_relocator.success")
-            .stepExecutor(new StepExecutorVoid(logger, this::completeProcess))
+            .stepExecutor(new StepExecutorVoid(this::completeProcess))
             .waitForUserInput(false).construct();
 
         return Arrays.asList(stepPowerblockRelocatorInit, stepPowerblockRelocatorCompleted);

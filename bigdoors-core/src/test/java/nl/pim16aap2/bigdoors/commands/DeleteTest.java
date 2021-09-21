@@ -5,10 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,15 +53,13 @@ class DeleteTest
         Mockito.when(databaseManager.deleteDoor(Mockito.any(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
 
         Mockito.when(factory.newDelete(Mockito.any(ICommandSender.class),
                                        Mockito.any(DoorRetriever.AbstractRetriever.class)))
-               .thenAnswer(invoc -> new Delete(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+               .thenAnswer(invoc -> new Delete(invoc.getArgument(0, ICommandSender.class), localizer,
                                                invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
-                                               databaseManager, handler));
+                                               databaseManager));
     }
 
     @Test

@@ -5,9 +5,6 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,15 +41,12 @@ class ListDoorsTest
         for (int idx = 0; idx < size; ++idx)
             doors.add(Mockito.mock(AbstractDoor.class));
 
-        final IPLogger logger = new BasicPLogger();
-        final CompletableFutureHandler handler = new CompletableFutureHandler(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newListDoors(Mockito.any(ICommandSender.class),
                                           Mockito.any(DoorRetriever.AbstractRetriever.class)))
-               .thenAnswer(invoc -> new ListDoors(invoc.getArgument(0, ICommandSender.class), logger, localizer,
-                                                  invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
-                                                  handler));
+               .thenAnswer(invoc -> new ListDoors(invoc.getArgument(0, ICommandSender.class), localizer,
+                                                  invoc.getArgument(1, DoorRetriever.AbstractRetriever.class)));
     }
 
     @Test

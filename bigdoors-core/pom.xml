@@ -27,9 +27,17 @@
         </dependency>
 
         <dependency>
-            <groupId>nl.pim16aap2.bigdoors</groupId>
-            <artifactId>bigdoors-test-util</artifactId>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>util</artifactId>
             <version>1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2</groupId>
+            <artifactId>test-util</artifactId>
+            <version>1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

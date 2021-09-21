@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.stepexecutor;
 
-import lombok.AllArgsConstructor;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiFunction;
@@ -12,11 +11,9 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-@AllArgsConstructor
+@Flogger
 public abstract class StepExecutor
 {
-    protected final IPLogger logger;
-
     /**
      * Applies an object to the {@link BiFunction} of this step.
      *
@@ -29,9 +26,9 @@ public abstract class StepExecutor
             return protectedAccept(input);
         else
         {
-            logger.logMessage(Level.FINE,
-                              "Trying to pass a(n) " + (input == null ? "null" : input.getClass().getSimpleName()) +
-                                  " into " + getInputClass().getSimpleName());
+            log.at(Level.FINE).log("Trying to pass a(n) %s into %s! This is an invalid operation!",
+                                   (input == null ? "null" : input.getClass().getSimpleName()),
+                                   getInputClass().getSimpleName());
             return false;
         }
     }

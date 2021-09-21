@@ -1,15 +1,15 @@
 package nl.pim16aap2.bigdoors.util.delayedinput;
 
 import lombok.SneakyThrows;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -137,7 +137,15 @@ class DelayedInputRequestTest
 
         input.completeExceptionally(new RuntimeException("ExceptionTest!"));
 
-        Assertions.assertThrows(ExecutionException.class, () -> request.getInputResult().get(1, TimeUnit.SECONDS));
+        AssertionsUtil.assertThrowablesLogged(() -> request.getInputResult().get(1, TimeUnit.SECONDS),
+                                              // Logged by the inputResult's exception handler.
+                                              CompletionException.class,
+                                              // waitForResult fails because waiting for input failed.
+                                              RuntimeException.class,
+                                              // blockingWaitForInput fails its retrieval exceptionally
+                                              ExecutionException.class,
+                                              // Root exception that was thrown by completing the request exceptionally.
+                                              RuntimeException.class);
 
         Assertions.assertEquals(DelayedInputRequest.Status.EXCEPTION, request.getStatus());
         Assertions.assertFalse(request.success());
@@ -149,14 +157,9 @@ class DelayedInputRequestTest
 
     private static class DelayedInputRequestImpl extends DelayedInputRequest<String>
     {
-        public DelayedInputRequestImpl(IPLogger logger, long timeout, TimeUnit timeUnit)
-        {
-            super(logger, timeout, timeUnit);
-        }
-
         public DelayedInputRequestImpl(long timeout, TimeUnit timeUnit)
         {
-            this(new BasicPLogger(), timeout, timeUnit);
+            super(timeout, timeUnit);
         }
 
         public DelayedInputRequestImpl(long timeout)

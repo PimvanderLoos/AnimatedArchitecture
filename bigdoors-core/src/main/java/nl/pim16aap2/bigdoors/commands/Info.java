@@ -9,8 +9,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 
@@ -27,11 +25,10 @@ public class Info extends DoorTargetCommand
     private final IGlowingBlockSpawner glowingBlockSpawner;
 
     @AssistedInject //
-    Info(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-         @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner,
-         CompletableFutureHandler handler)
+    Info(@Assisted ICommandSender commandSender, ILocalizer localizer,
+         @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
     {
-        super(commandSender, logger, localizer, doorRetriever, DoorAttribute.INFO, handler);
+        super(commandSender, localizer, doorRetriever, DoorAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
     }
 

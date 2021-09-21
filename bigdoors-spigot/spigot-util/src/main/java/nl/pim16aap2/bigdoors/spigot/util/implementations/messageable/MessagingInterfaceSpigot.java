@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations.messageable;
 
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,7 +27,7 @@ public class MessagingInterfaceSpigot implements IMessagingInterface
     @Inject
     public MessagingInterfaceSpigot(JavaPlugin plugin)
     {
-        formattedName = IPLogger.formatName(plugin.getName());
+        formattedName = '[' + plugin.getName() + "] ";
     }
 
     @Override

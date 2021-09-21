@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import com.google.common.flogger.StackSize;
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedFactory;
 import dagger.assisted.AssistedInject;
@@ -7,11 +8,11 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.delayedinput.DelayedInputRequest;
 
 import java.util.Locale;
@@ -34,6 +35,7 @@ import java.util.logging.Level;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
+@Flogger
 public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
 {
     /**
@@ -45,8 +47,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The {@link CommandDefinition} for which the delayed input will be retrieved.
      */
     private final CommandDefinition commandDefinition;
-
-    private final IPLogger logger;
 
     private final ILocalizer localizer;
 
@@ -65,7 +65,6 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The class of the input object that is expected.
      */
     private final Class<T> inputClass;
-    private final CompletableFutureHandler handler;
 
     /**
      * The output of the command. See {@link BaseCommand#run()}.
@@ -98,18 +97,15 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
                                @Assisted CommandDefinition commandDefinition,
                                @Assisted Function<T, CompletableFuture<Boolean>> executor,
                                @Assisted Supplier<String> initMessageSupplier, @Assisted Class<T> inputClass,
-                               IPLogger logger, ILocalizer localizer,
-                               DelayedCommandInputManager delayedCommandInputManager, CompletableFutureHandler handler)
+                               ILocalizer localizer, DelayedCommandInputManager delayedCommandInputManager)
     {
-        super(logger, timeout);
+        super(timeout);
         this.commandSender = commandSender;
         this.commandDefinition = commandDefinition;
-        this.logger = logger;
         this.localizer = localizer;
         this.delayedCommandInputManager = delayedCommandInputManager;
         this.initMessageSupplier = initMessageSupplier;
         this.inputClass = inputClass;
-        this.handler = handler;
         log();
         commandOutput = constructOutput(executor);
         init();
@@ -128,7 +124,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         return getInputResult()
             .thenCompose(input -> input.map(executor).orElse(CompletableFuture.completedFuture(Boolean.FALSE)))
-            .exceptionally(ex -> handler.exceptionally(ex, Boolean.FALSE));
+            .exceptionally(ex -> Util.exceptionally(ex, Boolean.FALSE));
     }
 
     /**
@@ -145,9 +141,8 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
     {
         if (!inputClass.isInstance(input))
         {
-            logger.logMessage(Level.FINE,
-                              "Trying to supply object of type " + input.getClass().getName()
-                                  + " for request: " + this);
+            log.at(Level.FINE).log("Trying to supply object of type %s for request: %s",
+                                   input.getClass().getName(), this);
             return CompletableFuture.completedFuture(Boolean.FALSE);
         }
 
@@ -174,7 +169,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private void log()
     {
-        logger.dumpStackTrace(Level.FINEST, "Started delayed input request for command: " + this);
+        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Started delayed input request for command: %s", this);
     }
 
     @AssistedFactory

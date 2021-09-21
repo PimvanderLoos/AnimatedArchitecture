@@ -1,19 +1,22 @@
 package nl.pim16aap2.bigdoors.spigot;
 
 import lombok.Getter;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
+import nl.pim16aap2.bigdoors.spigot.logging.ConsoleAppender;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigot;
-import org.bukkit.Bukkit;
+import nl.pim16aap2.logging.LogBackConfigurator;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -27,13 +30,18 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 {
+    private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
+        new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
+                                 .setLevel(Level.FINEST)
+                                 .apply();
+
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
     private final RestartableHolder restartableHolder;
     private final long mainThreadId;
-    private final IPLogger logger;
 
     private @Nullable BigDoorsSpigotPlatform bigDoorsSpigotPlatform;
 
@@ -45,6 +53,8 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
 
     public BigDoorsPlugin()
     {
+        LOG_BACK_CONFIGURATOR.setLogFile(new File(getDataFolder(), "log.txt")).apply();
+
         mainThreadId = Thread.currentThread().getId();
         restartableHolder = new RestartableHolder();
 
@@ -53,7 +63,32 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             .setPlugin(this)
             .setRestartableHolder(restartableHolder)
             .build();
-        logger = bigDoorsSpigotComponent.getLogger();
+
+        // Update logger again because the config *should* be available now.
+        updateLogger();
+    }
+
+    /**
+     * Tries to update the logger using {@link IConfigLoader#logLevel()}.
+     * <p>
+     * If the config is not available for some reason, the log level defaults to {@link Level#ALL}.
+     */
+    private void updateLogger()
+    {
+        Level level;
+        try
+        {
+            level = bigDoorsSpigotComponent.getConfig().logLevel();
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to read config! Defaulting to logging everything!");
+            level = Level.ALL;
+        }
+        LOG_BACK_CONFIGURATOR
+            .setLogFile(new File(getDataFolder(), "log.txt"))
+            .setLevel(level)
+            .apply();
     }
 
     /**
@@ -88,8 +123,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     @Override
     public void onEnable()
     {
-        Bukkit.getLogger().setLevel(Level.FINER);
-
         // onEnable may be called more than once during the lifetime of the plugin.
         // As such, we make sure to initialize the platform just once and then
         // restart it on all onEnable calls after the first one, provided it was
@@ -99,7 +132,10 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
         else if (bigDoorsSpigotPlatform != null)
             restart();
         else
-            logger.severe("Failed to enable BigDoors: Platform could not be initialized!");
+            log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
+
+        if (bigDoorsSpigotPlatform != null)
+            LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
 
         initialized = true;
     }
@@ -117,12 +153,12 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             final BigDoorsSpigotPlatform platform =
                 new BigDoorsSpigotPlatform(bigDoorsSpigotComponent, this, mainThreadId);
             successfulInit = true;
-            logger.info("Successfully enabled BigDoors " + getDescription().getVersion());
+            log.at(Level.INFO).log("Successfully enabled BigDoors %s", getDescription().getVersion());
             return platform;
         }
         catch (Exception e)
         {
-            logger.logThrowable(e, "Failed to initialize BigDoors' Spigot platform!");
+            log.at(Level.SEVERE).withCause(e).log("Failed to initialize BigDoors' Spigot platform!");
             initErrorMessage = e.getMessage();
             onInitFailure();
             return null;
@@ -132,9 +168,9 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     private void onInitFailure()
     {
         shutdown();
-        new BackupCommandListener(this, logger, initErrorMessage);
+        new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        logger.logMessage(Level.WARNING, new DebugReporterSpigot(this, logger, null, null, null, null).getDump());
+        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, null, null, null, null));
         successfulInit = false;
     }
 

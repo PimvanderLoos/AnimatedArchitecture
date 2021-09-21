@@ -1,13 +1,13 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.UpdateChecker;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.Constants;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
+import java.util.logging.Level;
 
 
 /**
@@ -24,12 +25,11 @@ import javax.inject.Singleton;
  * @author Pim
  */
 @Singleton
+@Flogger
 public final class UpdateManager extends Restartable
 {
     private final JavaPlugin plugin;
-    private final IPLogger logger;
     private final IConfigLoader config;
-    private final CompletableFutureHandler handler;
     private boolean checkForUpdates = false;
     private boolean downloadUpdates = false;
     private boolean updateDownloaded = false;
@@ -39,15 +39,12 @@ public final class UpdateManager extends Restartable
 
     @Inject
     public UpdateManager(RestartableHolder restartableHolder, BigDoorsPlugin plugin,
-                         @Named("pluginSpigotID") int pluginID, IPLogger logger, IConfigLoader config,
-                         CompletableFutureHandler handler)
+                         @Named("pluginSpigotID") int pluginID, IConfigLoader config)
     {
         super(restartableHolder);
         this.plugin = plugin;
-        this.logger = logger;
         this.config = config;
-        this.handler = handler;
-        updater = new UpdateChecker(plugin, pluginID, logger, handler);
+        updater = new UpdateChecker(plugin, pluginID);
         init();
     }
 
@@ -103,21 +100,22 @@ public final class UpdateManager extends Restartable
             {
                 final boolean updateAvailable = updateAvailable();
                 if (updateAvailable)
-                    logger.info("A new update is available: " + getNewestVersion());
+                    log.at(Level.INFO).log("A new update is available: %s", getNewestVersion());
 
                 if (downloadUpdates && updateAvailable && result.getAge() >= config.downloadDelay())
                 {
                     updateDownloaded = updater.downloadUpdate();
                     if (updateDownloaded && updater.getLastResult() != null)
-                        logger.info("Update downloaded! Restart to apply it! " +
-                                        "New version is " + updater.getLastResult().getNewestVersion() +
-                                        ", Currently running " + plugin.getDescription().getVersion() +
-                                        (Constants.DEV_BUILD ? " (but a DEV-build)" : ""));
+                        log.at(Level.INFO)
+                           .log("Update downloaded! Restart to apply it! New version is %s, Currently running %s%s",
+                                updater.getLastResult().getNewestVersion(), plugin.getDescription().getVersion(),
+                                (Constants.DEV_BUILD ? " (but a DEV-build)" : "")
+                           );
                     else
-                        logger.info("Failed to download latest version! You can download it manually at: " +
-                                        updater.getDownloadUrl());
+                        log.at(Level.INFO).log("Failed to download latest version! You can download it manually at: %s",
+                                               updater.getDownloadUrl());
                 }
-            }).exceptionally(handler::exceptionally);
+            }).exceptionally(Util::exceptionally);
     }
 
     /**

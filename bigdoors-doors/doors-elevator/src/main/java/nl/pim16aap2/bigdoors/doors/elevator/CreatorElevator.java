@@ -34,7 +34,7 @@ public class CreatorElevator extends CreatorPortcullis
     {
         final Step stepBlocksToMove = new Step.Factory(localizer, "SET_BLOCKS_TO_MOVE")
             .messageKey("creator.elevator.set_blocks_to_move")
-            .stepExecutor(new StepExecutorInteger(logger, this::setBlocksToMove))
+            .stepExecutor(new StepExecutorInteger(this::setBlocksToMove))
             .waitForUserInput(true).construct();
 
         return Arrays.asList(factorySetName.construct(),

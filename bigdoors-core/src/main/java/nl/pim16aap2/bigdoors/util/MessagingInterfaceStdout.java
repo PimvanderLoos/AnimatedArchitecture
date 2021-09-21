@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.util;
 
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 
 import java.util.logging.Level;
 
@@ -18,7 +17,7 @@ public class MessagingInterfaceStdout implements IMessagingInterface
 
     public MessagingInterfaceStdout(String name)
     {
-        formattedName = IPLogger.formatName(name);
+        formattedName = "[" + name + "] ";
     }
 
     @Override

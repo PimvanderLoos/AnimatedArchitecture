@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +14,6 @@ import java.util.Objects;
 
 class DoorTypeLoaderTest
 {
-    private IPLogger logger;
-
     @Mock
     private RestartableHolder restartableHolder;
 
@@ -28,7 +24,6 @@ class DoorTypeLoaderTest
     public void init()
     {
         MockitoAnnotations.openMocks(this);
-        logger = new BasicPLogger();
     }
 
     @Test
@@ -40,7 +35,7 @@ class DoorTypeLoaderTest
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
         Assertions.assertEquals(inputCount,
-                                new DoorTypeLoader(restartableHolder, logger, doorTypeManager, new File("."))
+                                new DoorTypeLoader(restartableHolder, doorTypeManager, new File("."))
                                     .loadDoorTypesFromDirectory(new File(extensionsPath)).size());
     }
 }

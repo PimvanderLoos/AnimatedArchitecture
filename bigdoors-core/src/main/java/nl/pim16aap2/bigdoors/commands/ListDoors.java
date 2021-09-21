@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
@@ -28,10 +26,10 @@ public class ListDoors extends BaseCommand
     private final DoorRetriever.AbstractRetriever doorRetriever;
 
     @AssistedInject //
-    ListDoors(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-              @Assisted DoorRetriever.AbstractRetriever doorRetriever, CompletableFutureHandler handler)
+    ListDoors(@Assisted ICommandSender commandSender, ILocalizer localizer,
+              @Assisted DoorRetriever.AbstractRetriever doorRetriever)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, localizer);
         this.doorRetriever = doorRetriever;
     }
 

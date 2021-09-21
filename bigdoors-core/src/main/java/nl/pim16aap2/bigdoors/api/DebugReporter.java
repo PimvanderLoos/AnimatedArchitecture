@@ -13,7 +13,7 @@ public class DebugReporter
      */
     public String getDump()
     {
-        return new StringBuilder()
+        return new StringBuilder("BigDoors debug dump:\n")
             .append("Java home: ").append(System.getProperty("java.home"))
             .append('\n')
             .append("Java compiler: ").append(System.getProperty("java.compiler"))
@@ -46,5 +46,11 @@ public class DebugReporter
             .append('\n')
 
             .toString();
+    }
+
+    @Override
+    public String toString()
+    {
+        return getDump();
     }
 }

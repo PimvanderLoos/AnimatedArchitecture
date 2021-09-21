@@ -5,7 +5,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.jetbrains.annotations.Nullable;
@@ -104,14 +103,14 @@ public abstract class DoorType
      * @return The {@link DoorSerializer}.
      */
     @SuppressWarnings({"NullableProblems", "ConstantConditions"}) // IntelliJ Struggles with <?> and nullability... :(
-    public DoorSerializer<?> getDoorSerializer(IPLogger logger)
+    public DoorSerializer<?> getDoorSerializer()
     {
         if (doorSerializer != null)
             return doorSerializer;
         synchronized (this)
         {
             if (doorSerializer == null)
-                doorSerializer = new DoorSerializer<>(getDoorClass(), logger);
+                doorSerializer = new DoorSerializer<>(getDoorClass());
             return doorSerializer;
         }
     }

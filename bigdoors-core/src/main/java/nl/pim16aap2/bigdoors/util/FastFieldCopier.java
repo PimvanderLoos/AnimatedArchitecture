@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigdoors.util;
 
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -24,11 +23,18 @@ public abstract class FastFieldCopier<S, T>
     }
 
     private static Field getField(Class<?> clz, String name)
-        throws NoSuchFieldException
+        throws Exception
     {
-        final Field f = clz.getDeclaredField(name);
-        f.setAccessible(true);
-        return f;
+        try
+        {
+            final Field f = clz.getDeclaredField(name);
+            f.setAccessible(true);
+            return f;
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Failed to find field \"" + name + "\" in class: " + clz.getName());
+        }
     }
 
     /**
@@ -58,34 +64,27 @@ public abstract class FastFieldCopier<S, T>
      *     The type of the target class.
      * @return A new {@link FastFieldCopier} for the appropriate type.
      */
-    public static <S, T> FastFieldCopier<S, T> of(IPLogger logger, Unsafe unsafe,
+    public static <S, T> FastFieldCopier<S, T> of(Unsafe unsafe,
                                                   Class<S> sourceClass, String nameSource,
                                                   Class<T> targetClass, String nameTarget)
+        throws Exception
     {
 
         final long offsetSource;
         final long offsetTarget;
         final Class<?> targetType;
-        try
-        {
-            final Field fieldSource = getField(sourceClass, nameSource);
-            final Field fieldTarget = getField(targetClass, nameTarget);
-            if (fieldTarget.getType() != fieldSource.getType())
-                throw new IllegalArgumentException(
-                    String.format("Target type %s does not match source type %s for target class %s",
-                                  fieldTarget.getType().getName(), fieldSource.getType().getName(),
-                                  targetClass.getName()));
+        final Field fieldSource = getField(sourceClass, nameSource);
+        final Field fieldTarget = getField(targetClass, nameTarget);
 
-            offsetSource = unsafe.objectFieldOffset(fieldSource);
-            offsetTarget = unsafe.objectFieldOffset(fieldTarget);
-            targetType = fieldTarget.getType();
-        }
-        catch (Exception t)
-        {
-            final RuntimeException e = new RuntimeException("Failed targetClass construct FastFieldCopier!", t);
-            logger.logThrowableSilently(e);
-            throw e;
-        }
+        if (fieldTarget.getType() != fieldSource.getType())
+            throw new IllegalArgumentException(
+                String.format("Target type %s does not match source type %s for target class %s",
+                              fieldTarget.getType().getName(), fieldSource.getType().getName(),
+                              targetClass.getName()));
+
+        offsetSource = unsafe.objectFieldOffset(fieldSource);
+        offsetTarget = unsafe.objectFieldOffset(fieldTarget);
+        targetType = fieldTarget.getType();
 
         // All these methods suppress NullAway, because it complains about UNSAFE, but it should
         // never even get to this point if UNSAFE is null.
@@ -180,12 +179,11 @@ public abstract class FastFieldCopier<S, T>
     }
 
 
-    public static <S, T> FastFieldCopier<S, T> of(IPLogger logger,
-                                                  Class<S> sourceClass, String nameSource,
+    public static <S, T> FastFieldCopier<S, T> of(Class<S> sourceClass, String nameSource,
                                                   Class<T> targetClass, String nameTarget)
         throws Exception
     {
-        final Unsafe unsafe = UnsafeGetter.getUnsafe();
-        return of(logger, unsafe, sourceClass, nameSource, targetClass, nameTarget);
+        final Unsafe unsafe = UnsafeGetter.getRequiredUnsafe();
+        return of(unsafe, sourceClass, nameSource, targetClass, nameTarget);
     }
 }

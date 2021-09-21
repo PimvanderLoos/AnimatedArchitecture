@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import com.mojang.authlib.GameProfile;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
+import lombok.extern.flogger.Flogger;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * Class used to create a fake-online player who is actually offline.
@@ -23,12 +24,12 @@ import java.util.Optional;
  * @author Pim
  */
 @Singleton
+@Flogger
 class FakePlayerCreator
 {
     static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";
 
     private final JavaPlugin plugin;
-    private final IPLogger logger;
 
     private final String nmsBase;
     private final String craftBase;
@@ -43,11 +44,10 @@ class FakePlayerCreator
     private final Field uuid;
     private final boolean success;
 
-    FakePlayerCreator(JavaPlugin plugin, IPLogger logger)
+    FakePlayerCreator(JavaPlugin plugin)
         throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
-        this.logger = logger;
 
         final String packageName = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
         nmsBase = "net.minecraft.server." + packageName;
@@ -120,7 +120,7 @@ class FakePlayerCreator
         }
         catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
         }
 
         if (player != null)

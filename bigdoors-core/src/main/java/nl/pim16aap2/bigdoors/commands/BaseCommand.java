@@ -1,14 +1,14 @@
 package nl.pim16aap2.bigdoors.commands;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
@@ -26,6 +26,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
+@Flogger
 public abstract class BaseCommand
 {
     /**
@@ -37,17 +38,12 @@ public abstract class BaseCommand
     @Getter
     private final ICommandSender commandSender;
 
-    protected final IPLogger logger;
     protected final ILocalizer localizer;
-    protected final CompletableFutureHandler handler;
 
-    public BaseCommand(ICommandSender commandSender, IPLogger logger, ILocalizer localizer,
-                       CompletableFutureHandler handler)
+    public BaseCommand(ICommandSender commandSender, ILocalizer localizer)
     {
         this.commandSender = commandSender;
-        this.logger = logger;
         this.localizer = localizer;
-        this.handler = handler;
     }
 
     /**
@@ -121,20 +117,20 @@ public abstract class BaseCommand
         log();
         if (!validInput())
         {
-            logger.logMessage(Level.FINE, () -> "Invalid input for command: " + this);
+            log.at(Level.FINE).log("Invalid input for command: %s", this);
             return CompletableFuture.completedFuture(false);
         }
 
         final boolean isPlayer = commandSender instanceof IPPlayer;
         if (isPlayer && !availableForPlayers())
         {
-            logger.logMessage(Level.FINE, () -> "Command not allowed for players: " + this);
+            log.at(Level.FINE).log("Command not allowed for players: %s", this);
             commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return CompletableFuture.completedFuture(true);
         }
         if (!isPlayer && !availableForNonPlayers())
         {
-            logger.logMessage(Level.FINE, () -> "Command not allowed for non-players: " + this);
+            log.at(Level.FINE).log("Command not allowed for non-players: %s", this);
             commandSender.sendMessage(localizer.getMessage("commands.base.error.only_available_for_players"));
             return CompletableFuture.completedFuture(true);
         }
@@ -144,7 +140,7 @@ public abstract class BaseCommand
         return startExecution().exceptionally(
             throwable ->
             {
-                logger.logThrowable(throwable, "Failed to execute command: " + this);
+                log.at(Level.SEVERE).withCause(throwable).log("Failed to execute command: %s", this);
                 if (commandSender.isPlayer())
                     commandSender.sendMessage(localizer.getMessage("commands.base.error.generic"));
                 return true;
@@ -171,8 +167,7 @@ public abstract class BaseCommand
                 commandSender.sendMessage(localizer.getMessage("constants.error.generic"));
                 break;
         }
-        logger.logMessage(Level.FINE,
-                          () -> "Handling database action result: " + result.name() + " for command: " + this);
+        log.at(Level.FINE).log("Handling database action result: %s for command: %s", result.name(), this);
         return true;
     }
 
@@ -193,7 +188,7 @@ public abstract class BaseCommand
     {
         if (!permissionResult.first && !permissionResult.second)
         {
-            logger.logMessage(Level.FINE, () -> "Permission for command: " + this + ": " + permissionResult);
+            log.at(Level.FINE).log("Permission for command: " + this + ": " + permissionResult);
             commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
@@ -223,7 +218,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        logger.dumpStackTrace(Level.FINEST, "Running command " + getCommand().name() + ": " + this);
+        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Running command %s: %s", getCommand().name(), this);
     }
 
     /**
@@ -242,7 +237,7 @@ public abstract class BaseCommand
                             .orElseGet(doorRetriever::getDoor).thenApplyAsync(
                 door ->
                 {
-                    logger.logMessage(Level.FINE, () -> "Retrieved door " + door + " for command: " + this);
+                    log.at(Level.FINE).log("Retrieved door " + door + " for command: %s", this);
                     if (door.isPresent())
                         return door;
                     commandSender.sendMessage(localizer.getMessage("commands.base.error.cannot_find_target_door"));

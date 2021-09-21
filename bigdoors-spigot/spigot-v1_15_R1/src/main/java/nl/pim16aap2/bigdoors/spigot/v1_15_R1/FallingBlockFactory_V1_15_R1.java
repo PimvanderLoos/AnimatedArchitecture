@@ -4,7 +4,6 @@ import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -23,11 +22,8 @@ import javax.inject.Singleton;
 @Singleton
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
-    private final IPLogger logger;
-
-    public FallingBlockFactory_V1_15_R1(IPLogger logger)
+    public FallingBlockFactory_V1_15_R1()
     {
-        this.logger = logger;
     }
 
     @Override
@@ -54,7 +50,6 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
     {
         if (!(loc.getWorld() instanceof PWorldSpigot))
             throw new Exception("Unexpected type of spigot world: " + loc.getWorld().getClass().getName());
-        return new NMSBlock_V1_15_R1(logger, (PWorldSpigot) loc.getWorld(),
-                                     loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        return new NMSBlock_V1_15_R1((PWorldSpigot) loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 }

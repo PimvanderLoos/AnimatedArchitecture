@@ -6,11 +6,9 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.CompletableFutureHandler;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -28,10 +26,10 @@ public class SetName extends BaseCommand
     private final ToolUserManager toolUserManager;
 
     @AssistedInject //
-    SetName(@Assisted ICommandSender commandSender, IPLogger logger, ILocalizer localizer, @Assisted String name,
-            ToolUserManager toolUserManager, CompletableFutureHandler handler)
+    SetName(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted String name,
+            ToolUserManager toolUserManager)
     {
-        super(commandSender, logger, localizer, handler);
+        super(commandSender, localizer);
         this.name = name;
         this.toolUserManager = toolUserManager;
     }

@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 import me.angeschossen.lands.api.integration.LandsIntegration;
 import me.angeschossen.lands.api.land.LandChunk;
 import me.angeschossen.lands.api.role.enums.RoleSetting;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -25,7 +24,7 @@ public class LandsProtectionCompat implements IProtectionCompat
     private final LandsIntegration landsAddon;
 
     @SuppressWarnings("unused")
-    public LandsProtectionCompat(JavaPlugin bigDoors, IPLogger logger)
+    public LandsProtectionCompat(JavaPlugin bigDoors)
     {
         landsAddon = new LandsIntegration(bigDoors, false);
         success = true;

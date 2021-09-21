@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.moveblocks;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
@@ -20,7 +21,6 @@ import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
@@ -41,6 +41,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @ToString
+@Flogger
 public abstract class BlockMover implements IRestartable
 {
     protected final IPWorld world;
@@ -58,9 +59,6 @@ public abstract class BlockMover implements IRestartable
 
     @ToString.Exclude
     protected final IFallingBlockFactory fallingBlockFactory;
-
-    @ToString.Exclude
-    protected final IPLogger logger;
 
     @ToString.Exclude
     protected final DoorActivityManager doorActivityManager;
@@ -143,7 +141,6 @@ public abstract class BlockMover implements IRestartable
                          DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
-        logger = context.getLogger();
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
@@ -231,7 +228,7 @@ public abstract class BlockMover implements IRestartable
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
             return false;
         }
     }
@@ -298,7 +295,7 @@ public abstract class BlockMover implements IRestartable
         }
         catch (Exception e)
         {
-            logger.logThrowable(e);
+            log.at(Level.SEVERE).withCause(e).log();
             doorActivityManager.processFinishedBlockMover(this, false);
             return;
         }
@@ -345,7 +342,7 @@ public abstract class BlockMover implements IRestartable
         executor.runSync(() -> putBlocks(false));
         if (moverTask == null)
         {
-            logger.logMessage(Level.WARNING, "MoverTask unexpectedly null for BlockMover: \n" + this);
+            log.at(Level.WARNING).log("MoverTask unexpectedly null for BlockMover:\n%s", this);
             return;
         }
         executor.cancel(moverTask, moverTaskID);
@@ -544,7 +541,6 @@ public abstract class BlockMover implements IRestartable
     {
         private final DoorActivityManager doorActivityManager;
         private final AutoCloseScheduler autoCloseScheduler;
-        private final IPLogger logger;
         private final IPLocationFactory locationFactory;
         private final IPBlockDataFactory blockDataFactory;
         private final ISoundEngine soundEngine;
@@ -553,16 +549,13 @@ public abstract class BlockMover implements IRestartable
         private final IFallingBlockFactory fallingBlockFactory;
 
         @Inject
-        public Context(DoorActivityManager doorActivityManager,
-                       AutoCloseScheduler autoCloseScheduler, IPLogger logger,
-                       IPLocationFactory locationFactory,
-                       IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
+        public Context(DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
+                       IPLocationFactory locationFactory, IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
                        IPExecutor executor, IBigDoorsPlatform bigDoorsPlatform,
                        IFallingBlockFactory fallingBlockFactory)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
-            this.logger = logger;
             this.locationFactory = locationFactory;
             this.blockDataFactory = blockDataFactory;
             this.soundEngine = soundEngine;
