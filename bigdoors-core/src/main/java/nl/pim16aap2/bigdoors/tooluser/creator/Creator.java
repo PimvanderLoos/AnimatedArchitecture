@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.tooluser.creator;
 
+import lombok.SneakyThrows;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IEconomyManager;
@@ -479,6 +480,7 @@ public abstract class Creator extends ToolUser
      * @param door
      *     The door to send to the {@link DatabaseManager}.
      */
+    @SneakyThrows
     protected void insertDoor(AbstractDoor door)
     {
         databaseManager.addDoor(door, getPlayer()).whenComplete(

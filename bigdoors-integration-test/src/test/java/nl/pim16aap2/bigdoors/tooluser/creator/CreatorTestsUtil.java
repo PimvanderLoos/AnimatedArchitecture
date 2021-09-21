@@ -17,8 +17,6 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -29,6 +27,7 @@ import nl.pim16aap2.bigdoors.tooluser.step.IStep;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import nl.pim16aap2.testing.AssistedFactoryMocker;
 import org.jetbrains.annotations.Nullable;
@@ -62,8 +61,6 @@ public class CreatorTestsUtil
     protected DoorOwner doorOwner;
 
     protected DoorBaseFactory doorBaseFactory;
-
-    protected IPLogger logger;
 
     protected ILocalizer localizer;
 
@@ -128,19 +125,17 @@ public class CreatorTestsUtil
     {
         MockitoAnnotations.openMocks(this);
 
-        logger = new BasicPLogger();
         localizer = UnitTestUtil.initLocalizer();
         limitsManager = new LimitsManager(permissionsManager, configLoader);
 
         final DoorBase.IFactory doorBaseIFactory =
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
-                .setMock(IPLogger.class, logger)
                 .setMock(ILocalizer.class, localizer)
                 .setMock(DoorRegistry.class, DoorRegistry.uncached(Mockito.mock(RestartableHolder.class)))
                 .getFactory();
         doorBaseFactory = new DoorBaseFactory(doorBaseIFactory);
 
-        context = new ToolUser.Context(doorBaseFactory, logger, localizer, toolUserManager, databaseManager,
+        context = new ToolUser.Context(doorBaseFactory, localizer, toolUserManager, databaseManager,
                                        limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil);
 
         initPlayer();
@@ -153,9 +148,11 @@ public class CreatorTestsUtil
         Mockito.when(databaseManager.addDoor(ArgumentMatchers.any())).thenAnswer(
             (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
                 CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
-        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(), Mockito.any())).thenAnswer(
-            (Answer<CompletableFuture<Optional<AbstractDoor>>>) invocation ->
-                CompletableFuture.completedFuture(Optional.of((AbstractDoor) invocation.getArguments()[0])));
+
+        Mockito.when(databaseManager.addDoor(ArgumentMatchers.any(AbstractDoor.class), Mockito.any(IPPlayer.class)))
+               .thenAnswer((Answer<CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>>>) invocation ->
+                   CompletableFuture
+                       .completedFuture(new Pair<>(false, Optional.of(invocation.getArgument(0, AbstractDoor.class)))));
 
         Mockito.when(permissionsManager.hasPermission(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(true);
 
@@ -198,8 +195,8 @@ public class CreatorTestsUtil
     {
         for (int idx = 0; idx < input.length; ++idx)
         {
-            final var obj = input[idx];
-            final @Nullable var stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
+            final Object obj = input[idx];
+            final @Nullable String stepName = creator.getCurrentStep().map(IStep::getName).orElse(null);
             Assertions.assertNotNull(stepName);
 
             Assertions.assertTrue(creator.handleInput(obj),

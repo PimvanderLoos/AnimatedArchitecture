@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * This class tests the general creation flow of the creator process.
@@ -43,7 +42,6 @@ class CreatorFullTest extends CreatorTestsUtil
         setEconomyPrice(12.34);
         setBuyDoor(true);
 
-        logger.setConsoleLogLevel(Level.ALL);
         testCreation(creator, door,
                      doorName,
                      UnitTestUtil.getLocation(min, world),

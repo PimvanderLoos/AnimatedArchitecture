@@ -2,8 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +19,11 @@ import static nl.pim16aap2.bigdoors.localization.LocalizationTestingUtilities.ad
 class LocalizationUtilIntegrationTest
 {
     private FileSystem fs;
-    private IPLogger logger;
 
     @BeforeEach
     void init()
     {
         fs = Jimfs.newFileSystem(Configuration.unix());
-        logger = new BasicPLogger();
     }
 
     @AfterEach
@@ -50,7 +46,7 @@ class LocalizationUtilIntegrationTest
                       base + "_nl.properties",
                       base + "_nl_NL.properties");
 
-        final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base, logger);
+        final List<Locale> locales = LocalizationUtil.getLocalesInZip(zipFile, base);
         Assertions.assertEquals(5, locales.size());
         Assertions.assertTrue(locales.contains(Locale.ROOT));
         Assertions.assertTrue(locales.contains(Locale.US));

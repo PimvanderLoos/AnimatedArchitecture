@@ -2,8 +2,6 @@ package nl.pim16aap2.bigdoors.localization;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,13 +62,11 @@ class LocalizationGeneratorIntegrationTest
 
     private FileSystem fs;
     private Path directoryOutput;
-    private IPLogger logger;
 
     @BeforeEach
     void init()
         throws IOException
     {
-        logger = new BasicPLogger();
         fs = Jimfs.newFileSystem(Configuration.unix());
         directoryOutput = Files.createDirectory(fs.getPath("/output"));
     }
@@ -97,8 +93,7 @@ class LocalizationGeneratorIntegrationTest
         writeToFile(inputPathA1, INPUT_A_1);
         writeToFile(inputPathB0, INPUT_B_0);
 
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME,
-                                                                                      logger);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResources(directoryA, BASE_NAME_A);
         localizationGenerator.addResources(directoryB, BASE_NAME_B);
 
@@ -106,8 +101,8 @@ class LocalizationGeneratorIntegrationTest
         final Path outputFile0 = outputFileSystem.getPath(BASE_NAME + ".properties");
         final Path outputFile1 = outputFileSystem.getPath(BASE_NAME + "_en_US.properties");
 
-        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0), logger));
-        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1), logger));
+        Assertions.assertEquals(OUTPUT_0, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
+        Assertions.assertEquals(OUTPUT_1, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
     }
 
     @Test
@@ -117,8 +112,7 @@ class LocalizationGeneratorIntegrationTest
         final Path jarFile = Files.createFile(Files.createDirectory(fs.getPath("/input")).resolve("test.jar"));
         createJar(jarFile).close();
 
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME,
-                                                                                      logger);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromZip(jarFile, null);
 
         verifyJarOutput();
@@ -136,8 +130,7 @@ class LocalizationGeneratorIntegrationTest
         writeEntry(outputStream, BASE_NAME + "_en_US.properties", INPUT_B_0);
         outputStream.close();
 
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME,
-                                                                                      logger);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
 
         final Set<String> rootKeys = localizationGenerator.getOutputRootKeys();
         Assertions.assertEquals(5, rootKeys.size());
@@ -162,23 +155,21 @@ class LocalizationGeneratorIntegrationTest
         writeEntry(outputStream, BASE_NAME + ".properties", INPUT_A_0);
         outputStream.close();
 
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME,
-                                                                                      logger);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.applyPatches("", patches);
         localizationGenerator.applyPatches("en_US", patches);
 
         final FileSystem fileSystem = createFileSystem(directoryOutput.resolve(BASE_NAME + ".bundle"));
 
         final List<String> linesBase =
-            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + ".properties")), logger);
+            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + ".properties")));
 
         Assertions.assertEquals(List.of("a_key0= ", "a_key1=val1", "a_key2=val2",
                                         "a_key3=val3", "a_key4=val4", "a_key10=a_a_a_a"), linesBase);
 
         // The en_US file did not exist in the output bundle, so it should contain only the patches.
         final List<String> linesEnUS =
-            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + "_en_US.properties")),
-                                      logger);
+            LocalizationUtil.readFile(Files.newInputStream(fileSystem.getPath(BASE_NAME + "_en_US.properties")));
         Assertions.assertEquals(List.of("a_key0= ", "a_key10=a_a_a_a"), linesEnUS);
     }
 
@@ -194,8 +185,7 @@ class LocalizationGeneratorIntegrationTest
 
         final Class<?> dummyClass = Class.forName("org.example.project.LocalizationGeneratorDummyClass", true,
                                                   loadJar(jarFile, getClass().getClassLoader()));
-        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME,
-                                                                                      logger);
+        final LocalizationGenerator localizationGenerator = new LocalizationGenerator(directoryOutput, BASE_NAME);
         localizationGenerator.addResourcesFromClass(dummyClass, null);
 
         verifyJarOutput();
@@ -217,12 +207,12 @@ class LocalizationGeneratorIntegrationTest
         Assertions.assertTrue(Files.exists(outputFile0));
         Assertions.assertTrue(Files.exists(outputFile1));
 
-        Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1), logger));
+        Assertions.assertEquals(INPUT_B_0, LocalizationUtil.readFile(Files.newInputStream(outputFile1)));
 
         final List<String> outputBase = new ArrayList<>(10);
         outputBase.addAll(INPUT_A_0);
         outputBase.addAll(INPUT_A_1);
-        Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0), logger));
+        Assertions.assertEquals(outputBase, LocalizationUtil.readFile(Files.newInputStream(outputFile0)));
     }
 
     /**
