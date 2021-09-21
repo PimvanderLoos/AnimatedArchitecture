@@ -7,8 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,11 +53,9 @@ class PowerBlockRelocatorTest
                                                              Mockito.any(), Mockito.any()))
                .thenReturn(Optional.empty());
 
-        final IPLogger logger = new BasicPLogger();
 
         final ToolUser.Context context = Mockito.mock(ToolUser.Context.class, Answers.RETURNS_MOCKS);
         Mockito.when(context.getProtectionCompatManager()).thenReturn(compatManager);
-        Mockito.when(context.getLogger()).thenReturn(logger);
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         Mockito.when(context.getLocalizer()).thenReturn(localizer);
 

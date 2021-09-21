@@ -4,8 +4,6 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -48,14 +46,12 @@ class InspectPowerBlockTest
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
         final PowerBlockInspector.IFactory inspectPowerBlockFactory = Mockito.mock(PowerBlockInspector.IFactory.class);
 
         Mockito.when(factory.newInspectPowerBlock(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new InspectPowerBlock(invoc.getArgument(0, ICommandSender.class),
-                                                          logger, localizer, toolUserManager,
-                                                          inspectPowerBlockFactory));
+                                                          localizer, toolUserManager, inspectPowerBlockFactory));
     }
 
     @Test

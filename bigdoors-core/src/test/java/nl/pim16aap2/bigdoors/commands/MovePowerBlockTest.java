@@ -5,8 +5,6 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
@@ -58,7 +56,6 @@ class MovePowerBlockTest
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         final PowerBlockRelocator.IFactory powerBlockRelocatorFactory =
@@ -68,7 +65,7 @@ class MovePowerBlockTest
 
         Mockito.when(factory.newMovePowerBlock(Mockito.any(ICommandSender.class),
                                                Mockito.any(DoorRetriever.AbstractRetriever.class)))
-               .thenAnswer(invoc -> new MovePowerBlock(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+               .thenAnswer(invoc -> new MovePowerBlock(invoc.getArgument(0, ICommandSender.class), localizer,
                                                        invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
                                                        toolUserManager, powerBlockRelocatorFactory));
     }

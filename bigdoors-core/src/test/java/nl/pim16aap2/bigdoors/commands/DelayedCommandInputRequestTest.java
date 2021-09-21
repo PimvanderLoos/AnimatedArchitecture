@@ -3,9 +3,9 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
+import nl.pim16aap2.testing.AssertionsUtil;
+import nl.pim16aap2.testing.logging.LogInspector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +15,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 class DelayedCommandInputRequestTest
@@ -26,9 +26,6 @@ class DelayedCommandInputRequestTest
     @Mock
     private ICommandSender commandSender;
 
-    private IPLogger logger;
-
-
     private ILocalizer localizer;
 
     private DelayedCommandInputManager delayedCommandInputManager;
@@ -38,7 +35,7 @@ class DelayedCommandInputRequestTest
     {
         MockitoAnnotations.openMocks(this);
 
-        logger = new BasicPLogger();
+        LogInspector.get().clearHistory();
         localizer = UnitTestUtil.initLocalizer();
         delayedCommandInputManager = new DelayedCommandInputManager();
     }
@@ -51,7 +48,7 @@ class DelayedCommandInputRequestTest
         final DelayedCommandInputRequest<?> inputRequest =
             new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
                                              input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             logger, localizer, delayedCommandInputManager);
+                                             localizer, delayedCommandInputManager);
 
         final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
         final CompletableFuture<Boolean> second = inputRequest.provide(delayedInput);
@@ -68,7 +65,7 @@ class DelayedCommandInputRequestTest
         final DelayedCommandInputRequest<?> inputRequest =
             new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
                                              input -> verifyInput(delayedInput, input), () -> "", DelayedInput.class,
-                                             logger, localizer, delayedCommandInputManager);
+                                             localizer, delayedCommandInputManager);
 
         final CompletableFuture<Boolean> first = inputRequest.getCommandOutput();
         final CompletableFuture<Boolean> second = inputRequest.provide("Invalid!");
@@ -86,12 +83,16 @@ class DelayedCommandInputRequestTest
             new DelayedCommandInputRequest<>(100, commandSender, commandDefinition,
                                              input ->
                                              {
-                                                 throw new RuntimeException(input.toString());
-                                             }, () -> "", DelayedInput.class, logger, localizer,
+                                                 throw new IllegalArgumentException(input.toString());
+                                             }, () -> "", DelayedInput.class, localizer,
                                              delayedCommandInputManager);
-        Assertions.assertThrows(ExecutionException.class,
-                                () -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
-                                                  .get(1, TimeUnit.SECONDS));
+
+        AssertionsUtil.assertThrowablesLogged(() -> inputRequest.provide(new DelayedInput(UUID.randomUUID(), ""))
+                                                                .get(1, TimeUnit.SECONDS),
+                                              // Logged by the inputRequest's exception handler.
+                                              CompletionException.class,
+                                              // Root exception we threw above.
+                                              IllegalArgumentException.class);
     }
 
     private CompletableFuture<Boolean> verifyInput(DelayedInput actualInput, DelayedInput delayedInput)

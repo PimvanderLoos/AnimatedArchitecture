@@ -5,10 +5,9 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
+import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 
 import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSenderPermissions;
@@ -48,13 +47,11 @@ class DoorTargetCommandTest
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(true));
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         UnitTestUtil.setField(DoorTargetCommand.class, doorTargetCommand, "doorRetriever", DoorRetriever.ofDoor(door));
 
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "commandSender", commandSender);
-        UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "logger", logger);
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "localizer", localizer);
     }
 
@@ -96,11 +93,13 @@ class DoorTargetCommandTest
         Mockito.when(doorTargetCommand.performAction(Mockito.any()))
                .thenThrow(new IllegalStateException("Generic Exception!"));
 
-        ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-            doorTargetCommand.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS));
-
-        // "We need to go deeper"
-        Assertions.assertEquals(IllegalStateException.class,
-                                exception.getCause().getCause().getCause().getCause().getClass());
+        AssertionsUtil.assertThrowablesLogged(
+            () -> doorTargetCommand.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS),
+            // Thrown by the doorTargetCommand CompletableFuture's exception handler (via Util).
+            CompletionException.class,
+            // Thrown when the command action failed.
+            RuntimeException.class,
+            // The root exception we threw; the "Generic Exception!".
+            IllegalStateException.class);
     }
 }

@@ -11,8 +11,6 @@ import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
@@ -67,7 +65,6 @@ class ToggleTest
 
         doorRetriever = DoorRetriever.ofDoor(door);
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(doorToggleRequestIFactory.create(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(),
@@ -85,7 +82,7 @@ class ToggleTest
                        final DoorRetriever.AbstractRetriever[] retrievers =
                            UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.AbstractRetriever.class, invoc, 3);
 
-                       return new Toggle(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+                       return new Toggle(invoc.getArgument(0, ICommandSender.class), localizer,
                                          invoc.getArgument(1, DoorActionType.class),
                                          invoc.getArgument(2, Double.class), doorToggleRequestFactory,
                                          messageableServer, retrievers);

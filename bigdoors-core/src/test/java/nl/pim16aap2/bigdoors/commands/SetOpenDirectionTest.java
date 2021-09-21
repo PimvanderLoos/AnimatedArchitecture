@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import org.junit.jupiter.api.Assertions;
@@ -50,13 +48,12 @@ class SetOpenDirectionTest
         initCommandSenderPermissions(commandSender, true, true);
         doorRetriever = DoorRetriever.ofDoor(door);
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetOpenDirection(Mockito.any(ICommandSender.class),
                                                  Mockito.any(DoorRetriever.AbstractRetriever.class),
                                                  Mockito.any(RotateDirection.class)))
-               .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+               .thenAnswer(invoc -> new SetOpenDirection(invoc.getArgument(0, ICommandSender.class), localizer,
                                                          invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
                                                          invoc.getArgument(2, RotateDirection.class)));
     }

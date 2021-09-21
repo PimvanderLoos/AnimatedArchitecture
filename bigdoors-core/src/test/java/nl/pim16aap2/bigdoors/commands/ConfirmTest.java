@@ -4,8 +4,6 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import org.junit.jupiter.api.Assertions;
@@ -49,12 +47,11 @@ class ConfirmTest
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
         Mockito.when(toolUserManager.getToolUser(uuid)).thenReturn(Optional.of(toolUser));
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newConfirm(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Confirm(invoc.getArgument(0, ICommandSender.class),
-                                                logger, localizer, toolUserManager));
+                                                localizer, toolUserManager));
     }
 
     @Test

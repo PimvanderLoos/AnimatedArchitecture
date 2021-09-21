@@ -6,8 +6,6 @@ import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,12 +44,11 @@ class InfoTest
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newInfo(Mockito.any(ICommandSender.class),
                                      Mockito.any(DoorRetriever.AbstractRetriever.class)))
-               .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+               .thenAnswer(invoc -> new Info(invoc.getArgument(0, ICommandSender.class), localizer,
                                              invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
                                              glowingBlockSpawner));
     }

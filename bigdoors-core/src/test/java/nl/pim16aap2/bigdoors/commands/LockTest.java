@@ -8,8 +8,6 @@ import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.logging.BasicPLogger;
-import nl.pim16aap2.bigdoors.logging.IPLogger;
 import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,13 +58,12 @@ class LockTest
         Mockito.when(eventFactory.createDoorPrepareLockChangeEvent(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
                .thenReturn(event);
 
-        final IPLogger logger = new BasicPLogger();
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newLock(Mockito.any(ICommandSender.class),
                                      Mockito.any(DoorRetriever.AbstractRetriever.class),
                                      Mockito.anyBoolean()))
-               .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), logger, localizer,
+               .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
                                              invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
                                              invoc.getArgument(2, Boolean.class), platform, eventFactory));
     }
