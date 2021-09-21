@@ -219,7 +219,7 @@ public abstract class BaseCommand
      */
     private void log()
     {
-        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Running command %s: %s", getCommand().name(), this);
+        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Running command %s: %s", getCommand().getName(), this);
     }
 
     /**

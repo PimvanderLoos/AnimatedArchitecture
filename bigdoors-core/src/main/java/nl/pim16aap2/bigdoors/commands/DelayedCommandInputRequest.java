@@ -157,11 +157,11 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
         delayedCommandInputManager.deregister(commandSender, this);
         if (getStatus() == Status.TIMED_OUT)
             commandSender.sendMessage(localizer.getMessage("commands.base.error.timed_out",
-                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+                                                           commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
 
         if (getStatus() == Status.CANCELLED)
             commandSender.sendMessage(localizer.getMessage("commands.base.error.cancelled",
-                                                           commandDefinition.name().toLowerCase(Locale.ENGLISH)));
+                                                           commandDefinition.getName().toLowerCase(Locale.ENGLISH)));
     }
 
     /**

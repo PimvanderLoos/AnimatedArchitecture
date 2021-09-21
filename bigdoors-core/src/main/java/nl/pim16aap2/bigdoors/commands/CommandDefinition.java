@@ -11,41 +11,90 @@ import java.util.Optional;
  *
  * @author Pim
  */
-// TODO: NOT AN ENUM!
 @ToString
-public enum CommandDefinition
+public final class CommandDefinition
 {
-    ADD_OWNER("bigdoors.user.addowner", "bigdoors.admin.bypass.addowner"),
-    MENU("bigdoors.user.base", "bigdoors.admin.bypass.menu"),
-    CANCEL("bigdoors.user.base", null),
-    CONFIRM("bigdoors.user.base", null),
-    DEBUG(null, "bigdoors.admin.debug"),
-    DELETE("bigdoors.user.delete", "bigdoors.admin.bypass.delete"),
-    INFO("bigdoors.user.info", "bigdoors.admin.bypass.info"),
-    INSPECT_POWERBLOCK("bigdoors.user.inspect", "bigdoors.admin.bypass.inspect"),
-    LIST_DOORS("bigdoors.user.listdoors", "bigdoors.admin.bypass.listdoors"),
-    LOCK("bigdoors.user.lock", "bigdoors.admin.bypass.lock"),
-    MOVE_POWERBLOCK("bigdoors.user.movepowerblock", "bigdoors.admin.bypass.movepowerblock"),
-    NEW_DOOR("bigdoors.user.newdoor", null),
-    REMOVE_OWNER("bigdoors.user.removeowner", "bigdoors.admin.bypass.removeowner"),
-    RESTART(null, "bigdoors.admin.restart"),
-    SET_AUTO_CLOSE_TIME("bigdoors.user.setautoclosetime", "bigdoors.admin.bypass.setautoclosetime"),
-    SET_BLOCKS_TO_MOVE("bigdoors.user.base", "bigdoors.admin.bypass.setblockstomove"),
-    SET_NAME("bigdoors.user.setname", null),
-    SET_OPEN_DIR("bigdoors.user.base", "bigdoors.admin.bypass.setrotation"),
-    SPECIFY("bigdoors.user.base", null),
-    STOP_DOORS(null, "bigdoors.admin.stopdoors"),
-    VERSION(null, "bigdoors.admin.version"),
-    TOGGLE("bigdoors.user.toggle", "bigdoors.admin.bypass.toggle"),
-    ;
+    private static final String USER = "bigdoors.user.";
+    private static final String ADMIN = "bigdoors.admin.";
 
+    public static final CommandDefinition ADD_OWNER = new CommandDefinition("ADD_OWNER",
+                                                                            USER + "addowner",
+                                                                            ADMIN + "bypass.addowner");
+    public static final CommandDefinition MENU = new CommandDefinition("MENU",
+                                                                       USER + "base",
+                                                                       ADMIN + "bypass.menu");
+    public static final CommandDefinition CANCEL = new CommandDefinition("CANCEL",
+                                                                         USER + "base",
+                                                                         null);
+    public static final CommandDefinition CONFIRM = new CommandDefinition("CONFIRM",
+                                                                          USER + "base",
+                                                                          null);
+    public static final CommandDefinition DEBUG = new CommandDefinition("DEBUG",
+                                                                        null,
+                                                                        ADMIN + "debug");
+    public static final CommandDefinition DELETE = new CommandDefinition("DELETE",
+                                                                         USER + "delete",
+                                                                         ADMIN + "bypass.delete");
+    public static final CommandDefinition INFO = new CommandDefinition("INFO",
+                                                                       USER + "info",
+                                                                       ADMIN + "bypass.info");
+    public static final CommandDefinition INSPECT_POWERBLOCK = new CommandDefinition("INSPECT_POWERBLOCK",
+                                                                                     USER + "inspect",
+                                                                                     ADMIN + "bypass.inspect");
+    public static final CommandDefinition LIST_DOORS = new CommandDefinition("LIST_DOORS",
+                                                                             USER + "listdoors",
+                                                                             ADMIN + "bypass.listdoors");
+    public static final CommandDefinition LOCK = new CommandDefinition("LOCK",
+                                                                       USER + "lock",
+                                                                       ADMIN + "bypass.lock");
+    public static final CommandDefinition MOVE_POWERBLOCK = new CommandDefinition("MOVE_POWERBLOCK",
+                                                                                  USER + "movepowerblock",
+                                                                                  ADMIN + "bypass.movepowerblock");
+    public static final CommandDefinition NEW_DOOR = new CommandDefinition("NEW_DOOR",
+                                                                           USER + "newdoor",
+                                                                           null);
+    public static final CommandDefinition REMOVE_OWNER = new CommandDefinition("REMOVE_OWNER",
+                                                                               USER + "removeowner",
+                                                                               ADMIN + "bypass.removeowner");
+    public static final CommandDefinition RESTART = new CommandDefinition("RESTART",
+                                                                          null,
+                                                                          ADMIN + "restart");
+    public static final CommandDefinition SET_AUTO_CLOSE_TIME = new CommandDefinition("SET_AUTO_CLOSE_TIME",
+                                                                                      USER + "setautoclosetime",
+                                                                                      ADMIN +
+                                                                                          "bypass.setautoclosetime");
+    public static final CommandDefinition SET_BLOCKS_TO_MOVE = new CommandDefinition("SET_BLOCKS_TO_MOVE",
+                                                                                     USER + "base",
+                                                                                     ADMIN + "bypass.setblockstomove");
+    public static final CommandDefinition SET_NAME = new CommandDefinition("SET_NAME",
+                                                                           USER + "setname",
+                                                                           null);
+    public static final CommandDefinition SET_OPEN_DIR = new CommandDefinition("SET_OPEN_DIR",
+                                                                               USER + "base",
+                                                                               ADMIN + "bypass.setrotation");
+    public static final CommandDefinition SPECIFY = new CommandDefinition("SPECIFY",
+                                                                          USER + "base",
+                                                                          null);
+    public static final CommandDefinition STOP_DOORS = new CommandDefinition("STOP_DOORS",
+                                                                             null,
+                                                                             ADMIN + "stopdoors");
+    public static final CommandDefinition VERSION = new CommandDefinition("VERSION",
+                                                                          null,
+                                                                          ADMIN + "version");
+    public static final CommandDefinition TOGGLE = new CommandDefinition("TOGGLE",
+                                                                         USER + "toggle",
+                                                                         ADMIN + "bypass.toggle");
+
+    @Getter
+    private final String name;
     @Getter
     private final Optional<String> userPermission;
     @Getter
     private final Optional<String> adminPermission;
 
-    CommandDefinition(@Nullable String userPermission, @Nullable String adminPermission)
+    public CommandDefinition(String name, @Nullable String userPermission, @Nullable String adminPermission)
     {
+        this.name = name;
         this.userPermission = Optional.ofNullable(userPermission);
         this.adminPermission = Optional.ofNullable(adminPermission);
     }
