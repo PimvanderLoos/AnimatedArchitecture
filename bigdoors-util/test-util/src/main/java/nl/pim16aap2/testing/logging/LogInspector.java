@@ -93,7 +93,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      */
     public List<ILoggingEvent> getLogHistory(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
     {
-        return history.getSelection(source, false, Level.ALL, true);
+        return getLogHistory(source, false, Level.ALL, true);
     }
 
     /**
