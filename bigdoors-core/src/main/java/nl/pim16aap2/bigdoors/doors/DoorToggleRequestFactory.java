@@ -9,8 +9,9 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -58,7 +59,7 @@ public class DoorToggleRequestFactory
         private final IMessageable messageableServer;
         private final IPPlayerFactory playerFactory;
 
-        private DoorRetriever.AbstractRetriever doorRetriever;
+        private DoorRetriever doorRetriever;
         private DoorActionCause doorActionCause;
         private DoorActionType doorActionType;
 
@@ -141,7 +142,7 @@ public class DoorToggleRequestFactory
 
         @Override
         @Initializer
-        public IBuilderDoorActionCause door(DoorRetriever.AbstractRetriever doorRetriever)
+        public IBuilderDoorActionCause door(DoorRetriever doorRetriever)
         {
             this.doorRetriever = doorRetriever;
             return this;
@@ -299,7 +300,7 @@ public class DoorToggleRequestFactory
          *     A retriever for the door to toggle.
          * @return The next step of the guided builder process.
          */
-        IBuilderDoorActionCause door(DoorRetriever.AbstractRetriever doorRetriever);
+        IBuilderDoorActionCause door(DoorRetriever doorRetriever);
 
         /**
          * Sets the target door to toggle.
@@ -310,7 +311,7 @@ public class DoorToggleRequestFactory
          */
         default IBuilderDoorActionCause door(AbstractDoor door)
         {
-            return door(DoorRetriever.ofDoor(door));
+            return door(DoorRetrieverFactory.ofDoor(door));
         }
 
         /**
@@ -322,7 +323,7 @@ public class DoorToggleRequestFactory
          */
         default IBuilderDoorActionCause door(CompletableFuture<Optional<AbstractDoor>> door)
         {
-            return door(DoorRetriever.ofDoor(door));
+            return door(DoorRetrieverFactory.ofDoor(door));
         }
     }
 }

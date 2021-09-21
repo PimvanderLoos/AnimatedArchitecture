@@ -11,7 +11,8 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -30,9 +31,8 @@ public class Lock extends DoorTargetCommand
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
     @AssistedInject //
-    Lock(@Assisted ICommandSender commandSender, ILocalizer localizer,
-         @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted boolean lockedStatus,
-         IBigDoorsPlatform bigDoorsPlatform, IBigDoorsEventFactory bigDoorsEventFactory)
+    Lock(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+         @Assisted boolean lockedStatus, IBigDoorsPlatform bigDoorsPlatform, IBigDoorsEventFactory bigDoorsEventFactory)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.LOCK);
         this.lockedStatus = lockedStatus;
@@ -73,11 +73,12 @@ public class Lock extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the locked status of the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the locked status will be modified.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the locked status will be
+         *     modified.
          * @param lock
          *     The new lock status.
          * @return See {@link BaseCommand#run()}.
          */
-        Lock newLock(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever, boolean lock);
+        Lock newLock(ICommandSender commandSender, DoorRetriever doorRetriever, boolean lock);
     }
 }

@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
@@ -49,7 +49,8 @@ class DoorTargetCommandTest
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
-        UnitTestUtil.setField(DoorTargetCommand.class, doorTargetCommand, "doorRetriever", DoorRetriever.ofDoor(door));
+        UnitTestUtil.setField(DoorTargetCommand.class, doorTargetCommand, "doorRetriever",
+                              DoorRetrieverFactory.ofDoor(door));
 
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "commandSender", commandSender);
         UnitTestUtil.setField(BaseCommand.class, doorTargetCommand, "localizer", localizer);

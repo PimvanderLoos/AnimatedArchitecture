@@ -8,26 +8,26 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Represents a command to list a number of doors matching a single {@link DoorRetriever}. This is basically only useful
- * for String-based look-ups (as there aren't duplicate matches otherwise), but I don't judge.
+ * Represents a command to list a number of doors matching a single {@link DoorRetrieverFactory}. This is basically only
+ * useful for String-based look-ups (as there aren't duplicate matches otherwise), but I don't judge.
  *
  * @author Pim
  */
 @ToString
 public class ListDoors extends BaseCommand
 {
-    private final DoorRetriever.AbstractRetriever doorRetriever;
+    private final DoorRetriever doorRetriever;
 
     @AssistedInject //
-    ListDoors(@Assisted ICommandSender commandSender, ILocalizer localizer,
-              @Assisted DoorRetriever.AbstractRetriever doorRetriever)
+    ListDoors(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever)
     {
         super(commandSender, localizer);
         this.doorRetriever = doorRetriever;
@@ -77,9 +77,9 @@ public class ListDoors extends BaseCommand
          *     <p>
          *     This is also the entity that will be informed about the doors that were found.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing any number of {@link DoorBase}s.
+         *     A {@link DoorRetrieverFactory} representing any number of {@link DoorBase}s.
          * @return See {@link BaseCommand#run()}.
          */
-        ListDoors newListDoors(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
+        ListDoors newListDoors(ICommandSender commandSender, DoorRetriever doorRetriever);
     }
 }

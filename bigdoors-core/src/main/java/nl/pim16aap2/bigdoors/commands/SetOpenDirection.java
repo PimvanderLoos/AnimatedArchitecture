@@ -8,8 +8,9 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,8 +28,7 @@ public class SetOpenDirection extends DoorTargetCommand
 
     @AssistedInject //
     SetOpenDirection(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                     @Assisted DoorRetriever.AbstractRetriever doorRetriever,
-                     @Assisted RotateDirection rotateDirection)
+                     @Assisted DoorRetriever doorRetriever, @Assisted RotateDirection rotateDirection)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.OPEN_DIRECTION);
         this.rotateDirection = rotateDirection;
@@ -69,12 +69,12 @@ public class SetOpenDirection extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
 //                                                        ILocalizer localizer,
-//                                                        DoorRetriever.AbstractRetriever doorRetriever)
+//                                                        DoorRetriever doorRetriever)
 //    {
 //        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
 //        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, logger, localizer,
@@ -111,20 +111,20 @@ public class SetOpenDirection extends DoorTargetCommand
 //     * The method that is run once delayed input is received.
 //     * <p>
 //     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)}).
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param openDir
 //     *     The new open direction for the door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
 //                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+//                                                                   DoorRetriever doorRetriever,
 //                                                                   RotateDirection openDir)
 //    {
 //        return new SetOpenDirection(commandSender, logger, localizer, doorRetriever, openDir).run();
@@ -135,7 +135,7 @@ public class SetOpenDirection extends DoorTargetCommand
 //     *
 //     * @return The init message for the delayed input request.
 //     */
-//    private static String inputRequestMessage(DoorRetriever.AbstractRetriever doorRetriever, ILocalizer localizer)
+//    private static String inputRequestMessage(DoorRetriever doorRetriever, ILocalizer localizer)
 //    {
 //        if (!doorRetriever.isAvailable())
 //            return localizer.getMessage("commands.set_open_direction.init");
@@ -169,13 +169,14 @@ public class SetOpenDirection extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing open direction of the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the open direction will be modified.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the open direction will be
+         *     modified.
          * @param rotateDirection
          *     The new open direction.
          * @return See {@link BaseCommand#run()}.
          */
         SetOpenDirection newSetOpenDirection(ICommandSender commandSender,
-                                             DoorRetriever.AbstractRetriever doorRetriever,
+                                             DoorRetriever doorRetriever,
                                              RotateDirection rotateDirection);
     }
 }

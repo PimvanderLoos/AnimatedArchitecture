@@ -12,7 +12,8 @@ import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -28,9 +29,8 @@ public class MovePowerBlock extends DoorTargetCommand
     private final PowerBlockRelocator.IFactory powerBlockRelocatorFactory;
 
     @AssistedInject //
-    MovePowerBlock(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                   @Assisted DoorRetriever.AbstractRetriever doorRetriever, ToolUserManager toolUserManager,
-                   PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
+    MovePowerBlock(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+                   ToolUserManager toolUserManager, PowerBlockRelocator.IFactory powerBlockRelocatorFactory)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.RELOCATE_POWERBLOCK);
         this.toolUserManager = toolUserManager;
@@ -67,9 +67,10 @@ public class MovePowerBlock extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for moving the powerblock for the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the powerblock will be moved.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the powerblock will be moved.
          * @return See {@link BaseCommand#run()}.
          */
-        MovePowerBlock newMovePowerBlock(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
+        MovePowerBlock newMovePowerBlock(ICommandSender commandSender,
+                                         DoorRetriever doorRetriever);
     }
 }

@@ -9,7 +9,8 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,7 +28,7 @@ public class SetBlocksToMove extends DoorTargetCommand
 
     @AssistedInject //
     SetBlocksToMove(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                    @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int blocksToMove)
+                    @Assisted DoorRetriever doorRetriever, @Assisted int blocksToMove)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.BLOCKS_TO_MOVE);
         this.blocksToMove = blocksToMove;
@@ -67,12 +68,12 @@ public class SetBlocksToMove extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
 //                                                        ILocalizer localizer,
-//                                                        DoorRetriever.AbstractRetriever doorRetriever)
+//                                                        DoorRetriever doorRetriever)
 //    {
 //        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
 //        final ILocalizer localizer = logger, localizer.getLocalizer();
@@ -110,20 +111,20 @@ public class SetBlocksToMove extends DoorTargetCommand
 //     * The method that is run once delayed input is received.
 //     * <p>
 //     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)}).
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param blocksToMove
 //     *     The distance the door should move measured in number of blocks.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
 //                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+//                                                                   DoorRetriever doorRetriever,
 //                                                                   int blocksToMove)
 //    {
 //        return new SetBlocksToMove(commandSender, logger, localizer, doorRetriever, blocksToMove).run();
@@ -148,13 +149,14 @@ public class SetBlocksToMove extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the blocks-to-move distance of the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the blocks-to-move distance will be
-         *     modified.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the blocks-to-move distance
+         *     will be modified.
          * @param blocksToMove
          *     The new blocks-to-move distance.
          * @return See {@link BaseCommand#run()}.
          */
-        SetBlocksToMove newSetBlocksToMove(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever,
+        SetBlocksToMove newSetBlocksToMove(ICommandSender commandSender,
+                                           DoorRetriever doorRetriever,
                                            int blocksToMove);
     }
 }

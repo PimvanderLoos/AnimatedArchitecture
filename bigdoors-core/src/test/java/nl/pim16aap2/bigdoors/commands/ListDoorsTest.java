@@ -5,7 +5,8 @@ import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,16 +45,16 @@ class ListDoorsTest
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newListDoors(Mockito.any(ICommandSender.class),
-                                          Mockito.any(DoorRetriever.AbstractRetriever.class)))
+                                          Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new ListDoors(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                  invoc.getArgument(1, DoorRetriever.AbstractRetriever.class)));
+                                                  invoc.getArgument(1, DoorRetriever.class)));
     }
 
     @Test
     @SneakyThrows
     void testBypass()
     {
-        DoorRetriever.AbstractRetriever retriever = DoorRetriever.ofDoors(doors);
+        DoorRetriever retriever = DoorRetrieverFactory.ofDoors(doors);
 
         // No doors will be found, because the command sender is not an owner of any them.
         CommandTestingUtil.initCommandSenderPermissions(playerCommandSender, true, false);

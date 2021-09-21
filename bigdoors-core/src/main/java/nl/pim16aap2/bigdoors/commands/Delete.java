@@ -9,7 +9,8 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -25,7 +26,7 @@ public class Delete extends DoorTargetCommand
 
     @AssistedInject //
     Delete(@Assisted ICommandSender commandSender, ILocalizer localizer,
-           @Assisted DoorRetriever.AbstractRetriever doorRetriever, DatabaseManager databaseManager)
+           @Assisted DoorRetriever doorRetriever, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.DELETE);
         this.databaseManager = databaseManager;
@@ -59,9 +60,9 @@ public class Delete extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for deleting the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} which will be targeted for deletion.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} which will be targeted for deletion.
          * @return See {@link BaseCommand#run()}.
          */
-        Delete newDelete(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
+        Delete newDelete(ICommandSender commandSender, DoorRetriever doorRetriever);
     }
 }

@@ -11,7 +11,8 @@ import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSende
 
 class ToggleTest
 {
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -63,7 +64,7 @@ class ToggleTest
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -79,8 +80,9 @@ class ToggleTest
                .thenAnswer(
                    invoc ->
                    {
-                       final DoorRetriever.AbstractRetriever[] retrievers =
-                           UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.AbstractRetriever.class, invoc, 3);
+                       final DoorRetriever[] retrievers =
+                           UnitTestUtil.arrayFromCapturedVarArgs(DoorRetriever.class, invoc,
+                                                                 3);
 
                        return new Toggle(invoc.getArgument(0, ICommandSender.class), localizer,
                                          invoc.getArgument(1, DoorActionType.class),
@@ -112,22 +114,22 @@ class ToggleTest
     {
         // Ensure that supplying multiple door retrievers properly attempts toggling all of them.
         final int count = 10;
-        final DoorRetriever.AbstractRetriever[] retrievers = new DoorRetriever.AbstractRetriever[count];
+        final DoorRetriever[] retrievers = new DoorRetriever[count];
         for (int idx = 0; idx < count; ++idx)
         {
             final AbstractDoor newDoor = Mockito.mock(AbstractDoor.class);
             Mockito.when(newDoor.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
             Mockito.when(newDoor.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-            retrievers[idx] = DoorRetriever.ofDoor(newDoor);
+            retrievers[idx] = DoorRetrieverFactory.ofDoor(newDoor);
         }
 
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
                                                 Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
         toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
 
-        final Set<DoorRetriever.AbstractRetriever> toggledDoors =
+        final Set<DoorRetriever> toggledDoors =
             Mockito.mockingDetails(doorToggleRequestIFactory).getInvocations().stream()
-                   .<DoorRetriever.AbstractRetriever>map(invocation -> invocation.getArgument(0))
+                   .<DoorRetriever>map(invocation -> invocation.getArgument(0))
                    .collect(Collectors.toSet());
 
         Assertions.assertEquals(count, toggledDoors.size());

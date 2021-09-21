@@ -11,7 +11,8 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -29,9 +30,8 @@ public class RemoveOwner extends DoorTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    RemoveOwner(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-                DatabaseManager databaseManager)
+    RemoveOwner(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+                @Assisted IPPlayer targetPlayer, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.REMOVE_OWNER);
         this.targetPlayer = targetPlayer;
@@ -52,12 +52,12 @@ public class RemoveOwner extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
 //                                                        ILocalizer localizer,
-//                                                        DoorRetriever.AbstractRetriever doorRetriever)
+//                                                        DoorRetriever doorRetriever)
 //    {
 //        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
 //        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, logger, localizer,
@@ -94,20 +94,20 @@ public class RemoveOwner extends DoorTargetCommand
 //     * The method that is run once delayed input is received.
 //     * <p>
 //     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)}).
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param targetPlayer
 //     *     The target player to attempt to remove as co-owner.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
 //                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+//                                                                   DoorRetriever doorRetriever,
 //                                                                   IPPlayer targetPlayer)
 //    {
 //        return new RemoveOwner(commandSender, logger, localizer, doorRetriever, targetPlayer).run();
@@ -183,13 +183,13 @@ public class RemoveOwner extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for removing a co-owner of the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which a co-owner is requested to be
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which a co-owner is requested to be
          *     removed.
          * @param targetPlayer
          *     The co-owner that is requested to be removed.
          * @return See {@link BaseCommand#run()}.
          */
-        RemoveOwner newRemoveOwner(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever,
+        RemoveOwner newRemoveOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
                                    IPPlayer targetPlayer);
     }
 }

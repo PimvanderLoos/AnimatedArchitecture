@@ -10,7 +10,8 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -222,16 +223,16 @@ public abstract class BaseCommand
     }
 
     /**
-     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetriever} and the current {@link
+     * Attempts to get an {@link DoorBase} based on the provided {@link DoorRetrieverFactory} and the current {@link
      * ICommandSender}.
      * <p>
      * If no door is found, the {@link ICommandSender} will be informed.
      *
      * @param doorRetriever
-     *     The {@link DoorRetriever} to use
+     *     The {@link DoorRetrieverFactory} to use
      * @return The {@link DoorBase} if one could be retrieved.
      */
-    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever.AbstractRetriever doorRetriever)
+    protected CompletableFuture<Optional<AbstractDoor>> getDoor(DoorRetriever doorRetriever)
     {
         return commandSender.getPlayer().map(doorRetriever::getDoorInteractive)
                             .orElseGet(doorRetriever::getDoor).thenApplyAsync(

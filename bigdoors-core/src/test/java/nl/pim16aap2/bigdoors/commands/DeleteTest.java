@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class DeleteTest
     @Mock
     private DatabaseManager databaseManager;
 
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -48,7 +49,7 @@ class DeleteTest
 
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         Mockito.when(databaseManager.deleteDoor(Mockito.any(), Mockito.any()))
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
@@ -56,9 +57,9 @@ class DeleteTest
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newDelete(Mockito.any(ICommandSender.class),
-                                       Mockito.any(DoorRetriever.AbstractRetriever.class)))
+                                       Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new Delete(invoc.getArgument(0, ICommandSender.class), localizer,
-                                               invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                               invoc.getArgument(1, DoorRetriever.class),
                                                databaseManager));
     }
 

@@ -10,7 +10,8 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -45,9 +46,8 @@ public class AddOwner extends DoorTargetCommand
     private final DatabaseManager databaseManager;
 
     @AssistedInject //
-    AddOwner(@Assisted ICommandSender commandSender, ILocalizer localizer,
-             @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted IPPlayer targetPlayer,
-             @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
+    AddOwner(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorRetriever doorRetriever,
+             @Assisted IPPlayer targetPlayer, @Assisted int targetPermissionLevel, DatabaseManager databaseManager)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.ADD_OWNER);
         this.targetPlayer = targetPlayer;
@@ -134,7 +134,7 @@ public class AddOwner extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param targetPlayer
 //     *     The target player to add to this door as co-owner.
 //     *     <p>
@@ -145,7 +145,7 @@ public class AddOwner extends DoorTargetCommand
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> run(ICommandSender commandSender,ILocalizer localizer,
-//                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer,
+//                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer,
 //                                                 int targetPermissionLevel)
 //    {
 //        return new AddOwner(commandSender, localizer, doorRetriever,
@@ -153,12 +153,12 @@ public class AddOwner extends DoorTargetCommand
 //    }
 //
 //    /**
-//     * See {@link #run(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever, IPPlayer, int)}.
+//     * See {@link #run(ICommandSender, IPLogger, ILocalizer, DoorRetriever, IPPlayer, int)}.
 //     * <p>
 //     * {@link #DEFAULT_PERMISSION_LEVEL} is used as permission level.
 //     */
 //    public static CompletableFuture<Boolean> run(ICommandSender commandSender,ILocalizer localizer,
-//                                                 DoorRetriever.AbstractRetriever doorRetriever, IPPlayer targetPlayer)
+//                                                 DoorRetriever doorRetriever, IPPlayer targetPlayer)
 //    {
 //        return run(commandSender, localizer, doorRetriever, targetPlayer, DEFAULT_PERMISSION_LEVEL);
 //    }
@@ -176,12 +176,12 @@ public class AddOwner extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
 //                                                        ILocalizer localizer,
-//                                                        DoorRetriever.AbstractRetriever doorRetriever)
+//                                                        DoorRetriever doorRetriever)
 //    {
 //        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
 //        final ILocalizer localizer = logger, localizer.getLocalizer();
@@ -237,20 +237,20 @@ public class AddOwner extends DoorTargetCommand
 //     * The method that is run once delayed input is received.
 //     * <p>
 //     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)}).
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param delayedInput
 //     *     The delayed input that was retrieved.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
 //                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+//                                                                   DoorRetriever doorRetriever,
 //                                                                   DelayedInput delayedInput)
 //    {
 //        return new AddOwner(commandSender, localizer, doorRetriever, delayedInput.targetPlayer(),
@@ -269,8 +269,8 @@ public class AddOwner extends DoorTargetCommand
 //
 //    /**
 //     * Represents the data that can be provided as delayed input for this command. See {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)} and {@link
-//     * #delayedInputExecutor(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever, DelayedInput)}.
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)} and {@link
+//     * #delayedInputExecutor(ICommandSender, IPLogger, ILocalizer, DoorRetriever, DelayedInput)}.
 //     */
 //    private record DelayedInput(IPPlayer targetPlayer, int permission)
 //    {
@@ -286,7 +286,7 @@ public class AddOwner extends DoorTargetCommand
          *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
          *     execution.
          * @param doorRetriever
-         *     A {@link DoorRetriever} that references the target door.
+         *     A {@link DoorRetrieverFactory} that references the target door.
          * @param targetPlayer
          *     The target player to add to this door as co-owner.
          *     <p>
@@ -297,15 +297,15 @@ public class AddOwner extends DoorTargetCommand
          *     The permission level of the new owner's ownership. 1 = admin, 2 = user.
          * @return See {@link BaseCommand#run()}.
          */
-        AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever,
+        AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
                              IPPlayer targetPlayer, int targetPermissionLevel);
 
         /**
-         * See {@link #newAddOwner(ICommandSender, DoorRetriever.AbstractRetriever, IPPlayer, int)}.
+         * See {@link #newAddOwner(ICommandSender, DoorRetriever, IPPlayer, int)}.
          * <p>
          * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
          */
-        default AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever,
+        default AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
                                      IPPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);

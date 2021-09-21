@@ -14,7 +14,7 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import javax.inject.Named;
@@ -35,17 +35,15 @@ public class Toggle extends BaseCommand
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
     private final DoorToggleRequestFactory doorToggleRequestFactory;
-    private final DoorRetriever.AbstractRetriever[] doorRetrievers;
+    private final DoorRetriever[] doorRetrievers;
     private final IMessageable messageableServer;
     private final DoorActionType doorActionType;
     private final double time;
 
     @AssistedInject //
-    Toggle(@Assisted ICommandSender commandSender, ILocalizer localizer,
-           @Assisted DoorActionType doorActionType, @Assisted double time,
-           DoorToggleRequestFactory doorToggleRequestFactory,
-           @Named("MessageableServer") IMessageable messageableServer,
-           @Assisted DoorRetriever.AbstractRetriever... doorRetrievers)
+    Toggle(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorActionType doorActionType,
+           @Assisted double time, DoorToggleRequestFactory doorToggleRequestFactory,
+           @Named("MessageableServer") IMessageable messageableServer, @Assisted DoorRetriever... doorRetrievers)
     {
         super(commandSender, localizer);
         this.doorActionType = doorActionType;
@@ -128,7 +126,7 @@ public class Toggle extends BaseCommand
     }
 
     @SneakyThrows
-    private CompletableFuture<Void> handleDoorRequest(DoorRetriever.AbstractRetriever doorRetriever,
+    private CompletableFuture<Void> handleDoorRequest(DoorRetriever doorRetriever,
                                                       DoorActionCause doorActionCause, boolean hasBypassPermission)
     {
         return getDoor(doorRetriever)
@@ -168,37 +166,37 @@ public class Toggle extends BaseCommand
          * @return See {@link BaseCommand#run()}.
          */
         Toggle newToggle(ICommandSender commandSender, DoorActionType doorActionType, double speedMultiplier,
-                         DoorRetriever.AbstractRetriever... doorRetrievers);
+                         DoorRetriever... doorRetrievers);
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
          * <p>
          * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier.
          */
         default Toggle newToggle(ICommandSender commandSender, DoorActionType doorActionType,
-                                 DoorRetriever.AbstractRetriever... doorRetrievers)
+                                 DoorRetriever... doorRetrievers)
         {
             return newToggle(commandSender, doorActionType, Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetrievers);
         }
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
          * <p>
          * Defaults to {@link Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
          */
         default Toggle newToggle(ICommandSender commandSender, double speedMultiplier,
-                                 DoorRetriever.AbstractRetriever... doorRetrievers)
+                                 DoorRetriever... doorRetrievers)
         {
             return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, speedMultiplier, doorRetrievers);
         }
 
         /**
-         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever.AbstractRetriever...)}.
+         * See {@link #newToggle(ICommandSender, DoorActionType, double, DoorRetriever...)}.
          * <p>
          * Defaults to {@link Toggle#DEFAULT_SPEED_MULTIPLIER} for the speed multiplier and to {@link
          * Toggle#DEFAULT_DOOR_ACTION_TYPE} for the door action type.
          */
-        default Toggle newToggle(ICommandSender commandSender, DoorRetriever.AbstractRetriever... doorRetrievers)
+        default Toggle newToggle(ICommandSender commandSender, DoorRetriever... doorRetrievers)
         {
             return newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE, Toggle.DEFAULT_SPEED_MULTIPLIER,
                              doorRetrievers);

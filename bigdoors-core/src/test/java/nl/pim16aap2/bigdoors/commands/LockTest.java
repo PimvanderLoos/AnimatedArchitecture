@@ -8,7 +8,8 @@ import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.initCommandSende
 
 class LockTest
 {
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -50,7 +51,7 @@ class LockTest
         initCommandSenderPermissions(commandSender, true, true);
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
@@ -61,10 +62,10 @@ class LockTest
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newLock(Mockito.any(ICommandSender.class),
-                                     Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                     Mockito.any(DoorRetriever.class),
                                      Mockito.anyBoolean()))
                .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
-                                             invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                             invoc.getArgument(1, DoorRetriever.class),
                                              invoc.getArgument(2, Boolean.class), platform, eventFactory));
     }
 

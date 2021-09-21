@@ -9,7 +9,8 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,7 +28,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
 
     @AssistedInject //
     SetAutoCloseTime(@Assisted ICommandSender commandSender, ILocalizer localizer,
-                     @Assisted DoorRetriever.AbstractRetriever doorRetriever, @Assisted int autoCloseTime)
+                     @Assisted DoorRetriever doorRetriever, @Assisted int autoCloseTime)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.AUTO_CLOSE_TIMER);
         this.autoCloseTime = autoCloseTime;
@@ -66,12 +67,12 @@ public class SetAutoCloseTime extends DoorTargetCommand
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @return See {@link BaseCommand#run()}.
 //     */
 //    public static CompletableFuture<Boolean> runDelayed(ICommandSender commandSender, IPLogger logger,
 //                                                        ILocalizer localizer,
-//                                                        DoorRetriever.AbstractRetriever doorRetriever)
+//                                                        DoorRetriever doorRetriever)
 //    {
 //        final int commandTimeout = Constants.COMMAND_WAITER_TIMEOUT;
 //        return new DelayedCommandInputRequest<>(commandTimeout, commandSender, COMMAND_DEFINITION, logger, localizer,
@@ -109,13 +110,13 @@ public class SetAutoCloseTime extends DoorTargetCommand
 //     * The method that is run once delayed input is received.
 //     * <p>
 //     * It processes the new input and executes the command using the previously-provided data (see {@link
-//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever.AbstractRetriever)}).
+//     * #runDelayed(ICommandSender, IPLogger, ILocalizer, DoorRetriever)}).
 //     *
 //     * @param commandSender
 //     *     The entity that sent the command and is held responsible (i.e. permissions, communication) for its
 //     *     execution.
 //     * @param doorRetriever
-//     *     A {@link DoorRetriever} that references the target door.
+//     *     A {@link DoorRetrieverFactory} that references the target door.
 //     * @param autoCloseTime
 //     *     The new auto-close timer. This is the amount of time (in seconds) after which a door is opened to
 //     *     automatically close it again.
@@ -123,7 +124,7 @@ public class SetAutoCloseTime extends DoorTargetCommand
 //     */
 //    private static CompletableFuture<Boolean> delayedInputExecutor(ICommandSender commandSender, IPLogger logger,
 //                                                                   ILocalizer localizer,
-//                                                                   DoorRetriever.AbstractRetriever doorRetriever,
+//                                                                   DoorRetriever doorRetriever,
 //                                                                   int autoCloseTime)
 //    {
 //        return new SetAutoCloseTime(commandSender, logger, localizer, doorRetriever, autoCloseTime).run();
@@ -148,13 +149,13 @@ public class SetAutoCloseTime extends DoorTargetCommand
          * @param commandSender
          *     The {@link ICommandSender} responsible for changing the auto-close timer of the door.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the auto-close timer will be
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the auto-close timer will be
          *     modified.
          * @param autoCloseTime
          *     The new auto-close time value.
          * @return See {@link BaseCommand#run()}.
          */
         SetAutoCloseTime newSetAutoCloseTime(ICommandSender commandSender,
-                                             DoorRetriever.AbstractRetriever doorRetriever, int autoCloseTime);
+                                             DoorRetriever doorRetriever, int autoCloseTime);
     }
 }

@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +34,7 @@ class AddOwnerTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private AddOwner.IFactory factory;
 
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -59,17 +60,17 @@ class AddOwnerTest
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(factory.newAddOwner(Mockito.any(ICommandSender.class),
-                                         Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                         Mockito.any(DoorRetriever.class),
                                          Mockito.any(IPPlayer.class),
                                          Mockito.anyInt()))
                .thenAnswer((Answer<AddOwner>) invoc ->
                    new AddOwner(invoc.getArgument(0, ICommandSender.class), localizer,
-                                invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                invoc.getArgument(1, DoorRetriever.class),
                                 invoc.getArgument(2, IPPlayer.class), invoc.getArgument(3, Integer.class),
                                 databaseManager));
 
         initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         addOwner0 = factory.newAddOwner(commandSender, doorRetriever, target, 0);
         addOwner1 = factory.newAddOwner(commandSender, doorRetriever, target, 1);

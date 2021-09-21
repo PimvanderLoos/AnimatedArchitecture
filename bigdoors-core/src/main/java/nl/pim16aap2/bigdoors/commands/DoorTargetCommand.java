@@ -6,8 +6,8 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
@@ -24,12 +24,12 @@ import java.util.logging.Level;
 public abstract class DoorTargetCommand extends BaseCommand
 {
     @Getter
-    protected final DoorRetriever.AbstractRetriever doorRetriever;
+    protected final DoorRetriever doorRetriever;
 
     private final DoorAttribute doorAttribute;
 
     protected DoorTargetCommand(ICommandSender commandSender, ILocalizer localizer,
-                                DoorRetriever.AbstractRetriever doorRetriever, DoorAttribute doorAttribute)
+                                DoorRetriever doorRetriever, DoorAttribute doorAttribute)
     {
         super(commandSender, localizer);
         this.doorRetriever = doorRetriever;

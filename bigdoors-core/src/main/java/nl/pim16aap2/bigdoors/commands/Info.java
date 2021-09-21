@@ -10,7 +10,8 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -26,7 +27,7 @@ public class Info extends DoorTargetCommand
 
     @AssistedInject //
     Info(@Assisted ICommandSender commandSender, ILocalizer localizer,
-         @Assisted DoorRetriever.AbstractRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
+         @Assisted DoorRetriever doorRetriever, IGlowingBlockSpawner glowingBlockSpawner)
     {
         super(commandSender, localizer, doorRetriever, DoorAttribute.INFO);
         this.glowingBlockSpawner = glowingBlockSpawner;
@@ -63,9 +64,10 @@ public class Info extends DoorTargetCommand
          *     The {@link ICommandSender} responsible for retrieving the door info and the receiver of the door's
          *     information.
          * @param doorRetriever
-         *     A {@link DoorRetriever} representing the {@link DoorBase} for which the information will be retrieved.
+         *     A {@link DoorRetrieverFactory} representing the {@link DoorBase} for which the information will be
+         *     retrieved.
          * @return See {@link BaseCommand#run()}.
          */
-        Info newInfo(ICommandSender commandSender, DoorRetriever.AbstractRetriever doorRetriever);
+        Info newInfo(ICommandSender commandSender, DoorRetriever doorRetriever);
     }
 }

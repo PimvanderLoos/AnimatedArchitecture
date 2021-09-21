@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IDiscreteMovement;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ class SetBlocksToMoveTest
 {
     private AbstractDoor door;
 
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -41,15 +42,16 @@ class SetBlocksToMoveTest
         Mockito.when(door.syncData()).thenReturn(CompletableFuture.completedFuture(true));
 
         initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetBlocksToMove(Mockito.any(ICommandSender.class),
-                                                Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                                Mockito.any(DoorRetriever.class),
                                                 Mockito.anyInt()))
                .thenAnswer(invoc -> new SetBlocksToMove(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                        invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                                        invoc.getArgument(1,
+                                                                          DoorRetriever.class),
                                                         invoc.getArgument(2, Integer.class)));
     }
 

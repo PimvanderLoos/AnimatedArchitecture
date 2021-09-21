@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ import static nl.pim16aap2.bigdoors.commands.CommandTestingUtil.*;
 
 class RemoveOwnerTest
 {
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -49,7 +50,7 @@ class RemoveOwnerTest
 
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
@@ -58,10 +59,10 @@ class RemoveOwnerTest
                .thenReturn(CompletableFuture.completedFuture(DatabaseManager.ActionResult.SUCCESS));
 
         Mockito.when(factory.newRemoveOwner(Mockito.any(ICommandSender.class),
-                                            Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                            Mockito.any(DoorRetriever.class),
                                             Mockito.any(IPPlayer.class)))
                .thenAnswer(invoc -> new RemoveOwner(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                    invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                                    invoc.getArgument(1, DoorRetriever.class),
                                                     invoc.getArgument(2, IPPlayer.class), databaseManager));
     }
 

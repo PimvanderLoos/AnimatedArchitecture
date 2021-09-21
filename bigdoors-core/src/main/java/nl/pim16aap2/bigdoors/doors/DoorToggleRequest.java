@@ -16,9 +16,9 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.DoorToggleResult;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -31,7 +31,7 @@ import java.util.logging.Level;
 public class DoorToggleRequest
 {
     @Getter
-    private final DoorRetriever.AbstractRetriever doorRetriever;
+    private final DoorRetriever doorRetriever;
     @Getter
     private final DoorActionCause doorActionCause;
     @Getter
@@ -53,7 +53,7 @@ public class DoorToggleRequest
     private final IPExecutor executor;
 
     @AssistedInject
-    public DoorToggleRequest(@Assisted DoorRetriever.AbstractRetriever doorRetriever,
+    public DoorToggleRequest(@Assisted DoorRetriever doorRetriever,
                              @Assisted DoorActionCause doorActionCause, @Assisted IMessageable messageReceiver,
                              @Assisted @Nullable IPPlayer responsible, @Assisted double time,
                              @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType,
@@ -130,7 +130,7 @@ public class DoorToggleRequest
     @AssistedFactory
     public interface IFactory
     {
-        DoorToggleRequest create(DoorRetriever.AbstractRetriever doorRetriever, DoorActionCause doorActionCause,
+        DoorToggleRequest create(DoorRetriever doorRetriever, DoorActionCause doorActionCause,
                                  IMessageable messageReceiver, @Nullable IPPlayer responsible, double time,
                                  boolean skipAnimation, DoorActionType doorActionType);
     }

@@ -8,7 +8,8 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockRelocator;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class MovePowerBlockTest
     @Mock
     private ToolUserManager toolUserManager;
 
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock
     private AbstractDoor door;
@@ -50,7 +51,7 @@ class MovePowerBlockTest
         MockitoAnnotations.openMocks(this);
 
         initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
         Mockito.when(door.isDoorOwner(uuid)).thenReturn(true);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
         Mockito.when(commandSender.getUUID()).thenReturn(uuid);
@@ -64,9 +65,10 @@ class MovePowerBlockTest
                .thenReturn(Mockito.mock(PowerBlockRelocator.class));
 
         Mockito.when(factory.newMovePowerBlock(Mockito.any(ICommandSender.class),
-                                               Mockito.any(DoorRetriever.AbstractRetriever.class)))
+                                               Mockito.any(DoorRetriever.class)))
                .thenAnswer(invoc -> new MovePowerBlock(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                       invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                                       invoc.getArgument(1,
+                                                                         DoorRetriever.class),
                                                        toolUserManager, powerBlockRelocatorFactory));
     }
 

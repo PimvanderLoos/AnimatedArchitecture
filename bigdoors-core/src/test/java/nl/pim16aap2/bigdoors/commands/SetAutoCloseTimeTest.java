@@ -6,7 +6,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
+import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class SetAutoCloseTimeTest
 {
     private AbstractDoor door;
 
-    private DoorRetriever.AbstractRetriever doorRetriever;
+    private DoorRetriever doorRetriever;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private IPPlayer commandSender;
@@ -45,15 +46,16 @@ class SetAutoCloseTimeTest
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(true);
 
         initCommandSenderPermissions(commandSender, true, true);
-        doorRetriever = DoorRetriever.ofDoor(door);
+        doorRetriever = DoorRetrieverFactory.ofDoor(door);
 
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newSetAutoCloseTime(Mockito.any(ICommandSender.class),
-                                                 Mockito.any(DoorRetriever.AbstractRetriever.class),
+                                                 Mockito.any(DoorRetriever.class),
                                                  Mockito.anyInt()))
                .thenAnswer(invoc -> new SetAutoCloseTime(invoc.getArgument(0, ICommandSender.class), localizer,
-                                                         invoc.getArgument(1, DoorRetriever.AbstractRetriever.class),
+                                                         invoc.getArgument(1,
+                                                                           DoorRetriever.class),
                                                          invoc.getArgument(2, Integer.class)));
     }
 
