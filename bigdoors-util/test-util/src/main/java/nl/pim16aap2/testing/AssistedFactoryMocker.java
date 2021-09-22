@@ -16,7 +16,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.inject.Named;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -149,7 +148,7 @@ public class AssistedFactoryMocker<T, U>
      * @param type
      *     The type of the mocked object to get.
      * @param name
-     *     The name of the mocked object, as specified by {@link Named} in the constructor.
+     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor..
      * @param <V>
      *     The type of the mocked object to get.
      * @return The mocked object of the given type with the given name.
@@ -176,7 +175,7 @@ public class AssistedFactoryMocker<T, U>
      * @param type
      *     The type of the mocked object to get.
      * @param name
-     *     The name of the mocked object, as specified by {@link Named} in the constructor.
+     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor.
      * @return True if a mocked object exists of the given type and name.
      */
     @SuppressWarnings("unused")
@@ -204,7 +203,7 @@ public class AssistedFactoryMocker<T, U>
      * @param type
      *     The type of the mocked object.
      * @param name
-     *     The name of the mocked object, as specified by {@link Named} in the constructor.
+     *     The name of the mocked object, as specified by {@link Assisted#value()} in the constructor.
      * @param mock
      *     The new mocked object to use as constructor parameter.
      * @param <V>
@@ -268,12 +267,11 @@ public class AssistedFactoryMocker<T, U>
     }
 
     /**
-     * Gets the name of a parameter if it is annotated with {@link Named}.
+     * Gets the name of a parameter if it is annotated with {@link Assisted}.
      *
      * @param parameter
      *     The parameter to analyze.
-     * @return The name as provided by {@link Named#value()} if the parameter is annotated with {@link Named} or null if
-     * the parameter does not have that annotation.
+     * @return The name as provided by {@link Assisted#value()} if the parameter has a non-blank name, otherwise null.
      */
     static @Nullable <T extends Annotation> String getAnnotationValue(Class<T> annotationType, Parameter parameter,
                                                                       Function<T, @Nullable String> mapper)
@@ -297,16 +295,13 @@ public class AssistedFactoryMocker<T, U>
      */
     static List<ParameterDescription> getParameterDescriptions(Parameter... parameters)
     {
-        final Function<Named, @Nullable String> namedMapper = Named::value;
         final Function<Assisted, @Nullable String> assistedMapper = Assisted::value;
 
         final ArrayList<ParameterDescription> ret = new ArrayList<>(parameters.length);
         ret.ensureCapacity(parameters.length);
         for (final Parameter parameter : parameters)
         {
-            @Nullable String named = getAnnotationValue(Named.class, parameter, namedMapper);
-            if (named == null)
-                named = getAnnotationValue(Assisted.class, parameter, assistedMapper);
+            @Nullable String named = getAnnotationValue(Assisted.class, parameter, assistedMapper);
 
             final boolean isAssisted = parameter.isAnnotationPresent(Assisted.class);
             ret.add(new ParameterDescription(parameter.getType(), isAssisted, named));
@@ -486,8 +481,7 @@ public class AssistedFactoryMocker<T, U>
         private final Class<?> type;
 
         /**
-         * The name of the parameter, as provided by either the {@link Named#value()} or the {@link Assisted#value()}
-         * annotations (depending on where it's defined).
+         * The name of the parameter, as provided by {@link Assisted#value()}.
          */
         private final @Nullable String named;
 

@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Named;
 import java.lang.reflect.Parameter;
 import java.util.function.Function;
 
@@ -24,34 +23,20 @@ class AssistedFactoryMockerTest
         final Parameter obj = parameters[0]; // @Assisted @Named("myObj") Object obj
         final Parameter idx = parameters[1]; // @Assisted int idx
 
-        final Function<Named, @Nullable String> namedMapper = Named::value;
         final Function<Assisted, @Nullable String> assistedMapper = Assisted::value;
-
-        Assertions.assertNull(AssistedFactoryMocker.getAnnotationValue(Assisted.class, obj, assistedMapper));
-        Assertions.assertEquals("myObj", AssistedFactoryMocker.getAnnotationValue(Named.class, obj, namedMapper));
-
+        Assertions.assertEquals("myObj", AssistedFactoryMocker.getAnnotationValue(Assisted.class, obj, assistedMapper));
         Assertions.assertNull(AssistedFactoryMocker.getAnnotationValue(Assisted.class, idx, assistedMapper));
-        Assertions.assertNull(AssistedFactoryMocker.getAnnotationValue(Named.class, idx, namedMapper));
     }
 
     @Test
     void testFindTargetCtor()
     {
-        Assertions.assertThrows(NoSuchMethodException.class, () -> AssistedFactoryMocker
-            .findTargetCtor(TestClassWithoutAnnotation.class));
-
         Assertions.assertDoesNotThrow(() -> AssistedFactoryMocker.findTargetCtor(TestClassWithAnnotation.class));
     }
 
     @Test
     void testFindCreationMethod()
     {
-        Assertions.assertThrows(NoSuchMethodException.class, () -> AssistedFactoryMocker
-            .findFactoryMethod(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactoryOnlyDefault.class));
-
-        Assertions.assertThrows(NoSuchMethodException.class, () -> AssistedFactoryMocker
-            .findFactoryMethod(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactoryTypeMisMatch.class));
-
         Assertions.assertDoesNotThrow(() -> AssistedFactoryMocker
             .findFactoryMethod(TestClassWithAnnotation.class, TestClassWithAnnotation.IFactory.class));
     }
@@ -81,26 +66,9 @@ class AssistedFactoryMockerTest
     @Test
     public void testInvalidInput()
     {
-        Assertions
-            .assertThrows(IllegalStateException.class,
-                          () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
-                                                            TestClassWithAnnotation.IFactoryParameterMisMatch.class));
-        Assertions
-            .assertThrows(IllegalArgumentException.class,
-                          () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
-                                                            TestClassWithAnnotation.IFactoryWithoutAnnotation.class));
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
                                                                   TestClassWithAnnotation.class));
-        Assertions.assertThrows(NoSuchMethodException.class,
-                                () -> new AssistedFactoryMocker<>(TestClassWithoutAnnotation.class,
-                                                                  TestClassWithoutAnnotation.IFactory.class));
-        Assertions.assertThrows(NoSuchMethodException.class,
-                                () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
-                                                                  TestClassWithAnnotation.IFactoryTypeMisMatch.class));
-        Assertions.assertThrows(NoSuchMethodException.class,
-                                () -> new AssistedFactoryMocker<>(TestClassWithAnnotation.class,
-                                                                  TestClassWithAnnotation.IFactoryOnlyDefault.class));
     }
 
     /**
@@ -122,8 +90,7 @@ class AssistedFactoryMockerTest
             this(obj, DEFAULT_IDX, "NULL");
         }
 
-        TestClassWithAnnotation(@Assisted @Named("myObj") Object obj, @Assisted int idx, String str,
-                                @Nullable Object obj2)
+        TestClassWithAnnotation(Object obj, int idx, String str, @Nullable Object obj2)
         {
             this.obj = obj;
             this.idx = idx;
@@ -132,7 +99,7 @@ class AssistedFactoryMockerTest
         }
 
         @AssistedInject //
-        TestClassWithAnnotation(@Assisted @Named("myObj") Object obj, @Assisted int idx, String str)
+        TestClassWithAnnotation(@Assisted("myObj") Object obj, @Assisted int idx, String str)
         {
             this(obj, idx, str, null);
         }
@@ -149,71 +116,6 @@ class AssistedFactoryMockerTest
             {
                 return create(obj, TestClassWithAnnotation.DEFAULT_IDX);
             }
-        }
-
-        /**
-         * Represents a factory for the {@link TestClassWithAnnotation} class without an annotation
-         */
-        interface IFactoryWithoutAnnotation
-        {
-            TestClassWithAnnotation create(@Assisted("myObj") Object obj, int idx);
-        }
-
-        /**
-         * Represents a factory for {@link TestClassWithAnnotation} that does not have all @Assisted parameters.
-         */
-        @AssistedFactory
-        interface IFactoryParameterMisMatch
-        {
-            TestClassWithAnnotation create(int idx);
-        }
-
-        /**
-         * Represents a factory for {@link TestClassWithAnnotation} that returns the incorrect type from its creator.
-         */
-        @AssistedFactory
-        interface IFactoryTypeMisMatch
-        {
-            String create(@Assisted("myObj") Object obj, int idx);
-        }
-
-        /**
-         * Represents a factory for {@link TestClassWithAnnotation} that only has a default method.
-         */
-        @AssistedFactory
-        interface IFactoryOnlyDefault
-        {
-            default TestClassWithAnnotation create(Object obj, int idx)
-            {
-                return new TestClassWithAnnotation(new Object(), DEFAULT_IDX, "NULL");
-            }
-        }
-    }
-
-    /**
-     * Represents a class with the correct AssistedInject parameter.
-     */
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    static class TestClassWithoutAnnotation
-    {
-        private final Object obj;
-        private final int idx;
-        private final String str;
-
-        TestClassWithoutAnnotation(@Assisted Object obj, @Assisted int idx, String str)
-        {
-            this.obj = obj;
-            this.idx = idx;
-            this.str = str;
-        }
-
-        /**
-         * Represents the correct factory for {@link TestClassWithoutAnnotation}.
-         */
-        @AssistedFactory
-        interface IFactory
-        {
-            TestClassWithAnnotation create(Object obj, int idx);
         }
     }
 }
