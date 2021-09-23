@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  */
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat COMPAT = ProtectionCompat.GRIEFPREVENTION;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.GRIEF_PREVENTION;
     private final GriefPrevention griefPrevention;
     private final boolean success;
 

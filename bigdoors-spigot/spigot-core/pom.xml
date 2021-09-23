@@ -90,31 +90,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- New Towny -->
-        <dependency>
-            <groupId>com.palmergames</groupId>
-            <artifactId>Towny</artifactId>
-            <version>0.95.2.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../../lib/Towny-0.95.2.0.jar</systemPath>
-        </dependency>
-
-        <!-- Old Towny -->
-        <dependency>
-            <groupId>com.palmergames</groupId>
-            <artifactId>Towny</artifactId>
-            <version>0.94.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/../../lib/Towny_0_94_0_0.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>6.2</version>
-            <scope>provided</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-legacy</artifactId>
@@ -135,22 +110,6 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>PlotSquared-Legacy</artifactId>
-            <scope>system</scope>
-            <version>19.09.07</version>
-            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-19.09.07-f27e556-781.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.intellectualsites.plotsquared</groupId>
-            <artifactId>PlotSquared-Breaking</artifactId>
-            <scope>system</scope>
-            <version>4.347</version>
-            <systemPath>${basedir}/../../lib/PlotSquared-Bukkit-4.347.jar</systemPath>
         </dependency>
     </dependencies>
 

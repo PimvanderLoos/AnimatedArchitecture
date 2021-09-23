@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 class WorldGuard7ProtectionCompat implements IProtectionCompat
 {
-    private static final ProtectionCompat COMPAT = ProtectionCompat.WORLDGUARD;
+    private static final ProtectionCompat COMPAT = ProtectionCompat.WORLD_GUARD;
     private final WorldGuard worldGuard;
     private final WorldGuardPlugin worldGuardPlugin;
     private final boolean success;

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,41 +12,19 @@ import java.util.Map;
  */
 public enum ProtectionCompat
 {
-    TOWNY("Towny")
-        {
-            @Override
-            public @Nullable Class<? extends IProtectionCompat> getClass(String version)
-            {
-                final int[] lastOldVersion = {0, 94, 0, 1};
-
-                final int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
-                for (int idx = 0; idx < lastOldVersion.length; ++idx)
-                {
-                    if (currentVersion[idx] == lastOldVersion[idx])
-                        continue;
-
-                    return currentVersion[idx] > lastOldVersion[idx] ?
-                           TownyNewProtectionCompat.class : TownyOldProtectionCompat.class;
-                }
-                return null;
-            }
-        },
-
-    WORLDGUARD("WorldGuard")
+    WORLD_GUARD("WorldGuard")
         {
             @Override
             public @Nullable Class<? extends IProtectionCompat> getClass(String version)
             {
                 if (version.startsWith("7."))
                     return WorldGuard7ProtectionCompat.class;
-                else if (version.startsWith("6."))
-                    return WorldGuard6ProtectionCompat.class;
                 else
                     return null;
             }
         },
 
-    GRIEFPREVENTION("GriefPrevention")
+    GRIEF_PREVENTION("GriefPrevention")
         {
             @Override
             public Class<? extends IProtectionCompat> getClass(String version)
