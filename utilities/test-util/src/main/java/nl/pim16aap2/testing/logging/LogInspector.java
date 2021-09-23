@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Supplier;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Represents an inspector for a LogBack logger.
@@ -27,14 +28,14 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     /**
      * The history of all logged events.
      */
-    @GuardedBy("readWriteLock")
+    @GuardedBy("historyLock")
     private final LogEventHistory history = new LogEventHistory();
 
     // We use a fair lock to ensure the lock requests are processed in a fifo manner, to avoid issues where
     // a reader might acquire a lock before a writer even though the writer requested it first.
     // In the testing setting, the reads will often come immediately after the writes, so in the default setting
     // (non-fair), exceptions might not always be available when trying to verify that they were logged.
-    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
+    private final ReentrantLock historyLock = new ReentrantLock(true);
 
     private LogInspector()
     {
@@ -65,7 +66,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     public List<ILoggingEvent> getLogHistory(@Nullable Class<?> source, boolean onlyThrowing,
                                              Level level, boolean includeHigherLevels)
     {
-        return withReadLock(() -> history.getSelection(source, onlyThrowing, level, includeHigherLevels));
+        return getWithHistoryLock(hist -> hist.getSelection(source, onlyThrowing, level, includeHigherLevels));
     }
 
     /**
@@ -124,7 +125,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      */
     public int getLogCount(@Nullable Class<?> source, boolean onlyThrowing, Level level, boolean includeHigherLevels)
     {
-        return withReadLock(() -> history.getSize(source, onlyThrowing, level, includeHigherLevels));
+        return getWithHistoryLock(hist -> hist.getSize(source, onlyThrowing, level, includeHigherLevels));
     }
 
     /**
@@ -180,7 +181,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      */
     public Optional<Throwable> getLastThrowable(@Nullable Class<?> source, Level level, boolean includeHigherLevels)
     {
-        return withReadLock(() -> history.getLastThrowable(source, level, includeHigherLevels));
+        return getWithHistoryLock(hist -> hist.getLastThrowable(source, level, includeHigherLevels));
     }
 
     /**
@@ -208,7 +209,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     @Override
     protected void append(ILoggingEvent eventObject)
     {
-        withWriteLock(() -> history.add(eventObject));
+        withHistoryLock(hist -> hist.add(eventObject));
     }
 
     /**
@@ -218,34 +219,32 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      */
     public void clearHistory()
     {
-        withWriteLock(history::clear);
+        withHistoryLock(LogEventHistory::clear);
     }
 
-    private <T> T withReadLock(Supplier<T> supplier)
+    private <T> T getWithHistoryLock(Function<LogEventHistory, T> fun)
     {
-        final ReentrantReadWriteLock.ReadLock readLock = readWriteLock.readLock();
-        readLock.lock();
+        historyLock.lock();
         try
         {
-            return supplier.get();
+            return fun.apply(history);
         }
         finally
         {
-            readLock.unlock();
+            historyLock.unlock();
         }
     }
 
-    private <T> void withWriteLock(Runnable runnable)
+    private <T> void withHistoryLock(Consumer<LogEventHistory> consumer)
     {
-        final ReentrantReadWriteLock.WriteLock writeLock = readWriteLock.writeLock();
-        writeLock.lock();
+        historyLock.lock();
         try
         {
-            runnable.run();
+            consumer.accept(history);
         }
         finally
         {
-            writeLock.unlock();
+            historyLock.unlock();
         }
     }
 
