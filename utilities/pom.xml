@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>nl.pim16aap2</groupId>
-    <artifactId>bigdoors-util</artifactId>
+    <artifactId>utilities</artifactId>
     <packaging>pom</packaging>
     <description>General utilities for runtime and testing</description>
     <version>1</version>
