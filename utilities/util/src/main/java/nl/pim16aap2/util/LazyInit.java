@@ -2,7 +2,9 @@ package nl.pim16aap2.util;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -20,7 +22,7 @@ public final class LazyInit<T>
 {
     @ToString.Exclude
     private final Supplier<T> supplier;
-    private volatile T obj;
+    private volatile @Nullable T obj;
 
     /**
      * @param supplier
@@ -39,7 +41,7 @@ public final class LazyInit<T>
      */
     public T get()
     {
-        T tmp = obj;
+        @Nullable T tmp = obj;
         if (tmp != null)
             return tmp;
 
@@ -48,7 +50,7 @@ public final class LazyInit<T>
             tmp = obj;
             if (tmp == null)
                 tmp = obj = supplier.get();
-            return tmp;
+            return Objects.requireNonNull(tmp, "Instance obtained from supplier must not be null!");
         }
     }
 }

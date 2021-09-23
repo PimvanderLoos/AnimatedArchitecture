@@ -78,7 +78,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     private Locale locale = Locale.ROOT;
     private int headCacheTimeout;
     private boolean consoleLogging;
-    private Level logLevel;
+    private Level logLevel = Level.INFO;
     private boolean debug = false;
     private String flagFormula = "";
 

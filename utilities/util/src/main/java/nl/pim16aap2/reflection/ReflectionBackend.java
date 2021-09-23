@@ -78,7 +78,7 @@ final class ReflectionBackend
             throw new IllegalStateException("Failed to find name method for enums!");
 
         final Object[] values = getEnumValues(source);
-        for (Object value : values)
+        for (final Object value : values)
         {
             try
             {
@@ -102,7 +102,7 @@ final class ReflectionBackend
      */
     public static @Nullable Class<?> findFirstClass(int modifiers, String... names)
     {
-        for (String name : names)
+        for (final String name : names)
         {
             try
             {
@@ -139,7 +139,7 @@ final class ReflectionBackend
     public static @Nullable Field getField(Class<?> source, String name, int modifiers,
                                            @Nullable Class<?> type)
     {
-        for (Field field : source.getDeclaredFields())
+        for (final Field field : source.getDeclaredFields())
         {
             if (type != null && !field.getType().equals(type))
                 continue;
@@ -169,7 +169,7 @@ final class ReflectionBackend
      */
     public static @Nullable Field getField(Class<?> source, int modifiers, Class<?> type)
     {
-        for (Field field : source.getDeclaredFields())
+        for (final Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
@@ -198,8 +198,8 @@ final class ReflectionBackend
      */
     public static List<Field> getFields(Class<?> source, int modifiers, Class<?> type)
     {
-        List<Field> ret = new ArrayList<>();
-        for (Field field : source.getDeclaredFields())
+        final List<Field> ret = new ArrayList<>();
+        for (final Field field : source.getDeclaredFields())
         {
             if (modifiers != 0 && field.getModifiers() != modifiers)
                 continue;
@@ -233,7 +233,7 @@ final class ReflectionBackend
     private static @Nullable Method findMethod(Class<?> source, @Nullable String name, int modifiers,
                                                @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
-        for (Method method : source.getDeclaredMethods())
+        for (final Method method : source.getDeclaredMethods())
         {
             if (modifiers != 0 && method.getModifiers() != modifiers)
                 continue;
@@ -289,7 +289,7 @@ final class ReflectionBackend
             if (continueSuperClassChecking)
             {
                 // Recursion base case for superclasses.
-                Class<?> superClass = source.getSuperclass();
+                final Class<?> superClass = source.getSuperclass();
                 if (superClass == null)
                 {
                     continueSuperClassChecking = false;
@@ -311,7 +311,7 @@ final class ReflectionBackend
                     continue;
                 }
 
-                for (Class<?> superInterface : superInterfaces)
+                for (final Class<?> superInterface : superInterfaces)
                 {
                     m = findMethod(false, true, superInterface, name, modifiers, parameters, returnType);
                     if (m != null)
@@ -338,7 +338,7 @@ final class ReflectionBackend
      */
     public static @Nullable Constructor<?> findCTor(Class<?> source, int modifiers, @Nullable ParameterGroup parameters)
     {
-        for (Constructor<?> ctor : source.getDeclaredConstructors())
+        for (final Constructor<?> ctor : source.getDeclaredConstructors())
         {
             if (modifiers != 0 && ctor.getModifiers() != modifiers)
                 continue;
@@ -362,7 +362,7 @@ final class ReflectionBackend
     public static int getModifiers(int... mods)
     {
         int ret = 0;
-        for (int mod : mods)
+        for (final int mod : mods)
             ret |= mod;
         return ret;
     }

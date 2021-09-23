@@ -97,7 +97,7 @@ public class ParameterGroup
      *     The types to compare the parameters against.
      * @return True if the provided types match the defined parameters.
      */
-    public boolean matches(Class<?>[] types)
+    public boolean matches(Class<?>... types)
     {
         if (types.length > parameters.size())
             return false;
@@ -164,7 +164,7 @@ public class ParameterGroup
         @Contract("_ -> this")
         public Builder withRequiredParameters(Class<?>... types)
         {
-            for (Class<?> type : types)
+            for (final Class<?> type : types)
                 parameters.add(new Parameter(type, false));
             requiredCount += types.length;
             return this;
@@ -182,7 +182,7 @@ public class ParameterGroup
         @Contract("_ -> this")
         public Builder withOptionalParameters(Class<?>... types)
         {
-            for (Class<?> type : types)
+            for (final Class<?> type : types)
                 parameters.add(new Parameter(type, true));
             return this;
         }

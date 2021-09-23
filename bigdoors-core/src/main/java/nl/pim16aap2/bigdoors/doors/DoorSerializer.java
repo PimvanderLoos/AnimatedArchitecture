@@ -47,10 +47,10 @@ public class DoorSerializer<T extends AbstractDoor>
      */
     private final @Nullable Constructor<T> ctor;
 
-    private static final @Nullable Unsafe unsafe = UnsafeGetter.getUnsafe();
+    private static final @Nullable Unsafe UNSAFE = UnsafeGetter.getUnsafe();
 
     private final @Nullable FastFieldSetter<AbstractDoor, DoorBase> fieldCopierDoorBase =
-        getFieldCopierDoorBase(unsafe);
+        getFieldCopierDoorBase(UNSAFE);
 
     public DoorSerializer(Class<T> doorClass)
     {
@@ -71,7 +71,7 @@ public class DoorSerializer<T extends AbstractDoor>
                                                  getDoorTypeName());
         }
         ctor = ctorTmp;
-        if (ctor == null && unsafe == null)
+        if (ctor == null && UNSAFE == null)
             throw new RuntimeException("Could not find CTOR for class " + getDoorTypeName() +
                                            " and Unsafe is unavailable! This type cannot be enabled!");
 
@@ -219,11 +219,11 @@ public class DoorSerializer<T extends AbstractDoor>
     private @Nullable T instantiateUnsafe(DoorBase doorBase)
         throws InstantiationException
     {
-        if (unsafe == null || fieldCopierDoorBase == null)
+        if (UNSAFE == null || fieldCopierDoorBase == null)
             return null;
 
         @SuppressWarnings("unchecked") //
-        final T door = (T) unsafe.allocateInstance(doorClass);
+        final T door = (T) UNSAFE.allocateInstance(doorClass);
         fieldCopierDoorBase.copy(door, doorBase);
         return door;
     }

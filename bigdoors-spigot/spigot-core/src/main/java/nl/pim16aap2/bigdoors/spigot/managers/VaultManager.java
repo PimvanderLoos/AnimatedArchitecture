@@ -185,7 +185,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         final boolean defaultValue = true;
         if (economy == null)
         {
-            log.at(Level.WARNING).log("Economy not enabled! Could not subtract %d from the balance of player: %s!",
+            log.at(Level.WARNING).log("Economy not enabled! Could not subtract %f from the balance of player: %s!",
                                       amount, player);
             return defaultValue;
         }
@@ -219,7 +219,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         if (economy == null)
         {
             log.at(Level.WARNING)
-               .log("Economy not enabled! Could not subtract %d from the balance of player: %s in world: %s!",
+               .log("Economy not enabled! Could not subtract %f from the balance of player: %s in world: %s!",
                     amount, player, worldName);
             return defaultValue;
         }
@@ -234,7 +234,7 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
         catch (Exception e)
         {
             log.at(Level.SEVERE).withCause(e)
-               .log("Failed to subtract %d money from player %s! Please contact pim16aap2!", amount, player);
+               .log("Failed to subtract %f money from player %s! Please contact pim16aap2!", amount, player);
         }
         return defaultValue;
     }

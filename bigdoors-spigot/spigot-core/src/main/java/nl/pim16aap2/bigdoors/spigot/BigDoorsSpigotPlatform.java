@@ -269,6 +269,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
     }
 
+    @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces
     private <T> T safeGetter(Function<BigDoorsSpigotComponent, @Nullable T> fun)
         throws InitializationException
     {
@@ -279,7 +280,8 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         }
         catch (Exception e)
         {
-            throw new InitializationException(e.getMessage(), e);
+            throw e.getMessage() == null ?
+                  new InitializationException(e) : new InitializationException(e.getMessage(), e);
         }
         if (ret == null)
             throw new InitializationException(

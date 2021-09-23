@@ -19,6 +19,10 @@ public final class AssertionsUtil
         // Utility class
     }
 
+    // FIXME: Get rid of the suppress warnings for NullAway here.
+    //        The issue is that NullAway does not realise that Class#isInstance(Object)
+    //        returning true means that the object cannot be null.
+    @SuppressWarnings("NullAway")
     @SneakyThrows
     private static Throwable getThrowableLoggedByExecutable(@Nullable Class<?> source, Executable executable,
                                                             Class<?> expectedType, Level level)

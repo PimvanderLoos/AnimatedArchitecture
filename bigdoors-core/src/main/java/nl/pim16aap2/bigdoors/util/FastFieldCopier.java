@@ -33,7 +33,7 @@ public abstract class FastFieldCopier<S, T>
         }
         catch (Exception e)
         {
-            throw new Exception("Failed to find field \"" + name + "\" in class: " + clz.getName());
+            throw new Exception("Failed to find field \"" + name + "\" in class: " + clz.getName(), e);
         }
     }
 

@@ -254,7 +254,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
         final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         setContext(loggerContext);
         start();
-        Logger logbackLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        final Logger logbackLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logbackLogger.detachAndStopAllAppenders();
         logbackLogger.addAppender(this);
         logbackLogger.setLevel(Level.ALL);

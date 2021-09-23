@@ -43,7 +43,7 @@ public class LogBackConfigurator
         LEVEL_MAPPER.put(java.util.logging.Level.ALL, Level.ALL);
     }
 
-    private static final LazyInit<Logger> logger =
+    private static final LazyInit<Logger> LOGGER =
         new LazyInit<>(() -> LoggerFactory.getLogger(LogBackConfigurator.class));
 
     private final List<AppenderSpecification> appenderList = new ArrayList<>();
@@ -148,23 +148,22 @@ public class LogBackConfigurator
 
     private void logConfig(String config)
     {
-        if (logger.get().isTraceEnabled())
-            logger.get().trace("LogBack configuration: \n" + config);
+        if (LOGGER.get().isTraceEnabled())
+            LOGGER.get().trace("LogBack configuration: \n" + config);
     }
 
     private String buildConfig()
     {
         final StringBuilder sb = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<configuration>\n");
-        final boolean fileEnabled = logFile != null && isFileLoggingEnabled();
 
         final StringBuilder appenderRefs = new StringBuilder();
-        for (AppenderSpecification appender : appenderList)
+        for (final AppenderSpecification appender : appenderList)
         {
             sb.append(appender);
             appenderRefs.append(getAppenderRef(appender.name()));
         }
 
-        if (fileEnabled)
+        if (logFile != null && isFileLoggingEnabled())
         {
             sb.append(getLogFileAppenderConfig(logFile));
             appenderRefs.append(getAppenderRef("FileLogger"));

@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -187,20 +188,32 @@ public class FieldFinder
             this.fieldType = Objects.requireNonNull(fieldType, "Field type cannot be null!");
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @return The fields that were requested, if any were found.
+         *
+         * @throws NullPointerException
+         *     If no fields could be found.
+         */
         @Override
         public List<Field> getRequired()
         {
-            //noinspection ConstantConditions
             return Objects.requireNonNull(getResult(true));
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @return The fields that were requested, if any were found, otherwise an empty list.
+         */
         @Override
-        public @Nullable List<Field> get()
+        public List<Field> get()
         {
             return getResult(false);
         }
 
-        private @Nullable List<Field> getResult(boolean nonnull)
+        private List<Field> getResult(boolean nonnull)
         {
             final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType);
             if (expected >= 0 && expected != found.size())
@@ -220,13 +233,16 @@ public class FieldFinder
             return found;
         }
 
+        // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
+        // when nothing is found to keep in line with the rest of the API.
+        @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
         @Contract("true, _, _, _, _, _, _ -> fail")
-        private static @Nullable List<Field> handleInvalid(boolean nonnull, String str, int val, Class<?> fieldType,
-                                                           Class<?> source, int modifiers, int foundSize)
+        private static List<Field> handleInvalid(boolean nonnull, String str, int val, Class<?> fieldType,
+                                                 Class<?> source, int modifiers, int foundSize)
         {
             if (nonnull)
                 throw new NullPointerException(String.format(str, val, fieldType, modifiers, fieldType));
-            return null;
+            return Collections.emptyList();
         }
 
         /**

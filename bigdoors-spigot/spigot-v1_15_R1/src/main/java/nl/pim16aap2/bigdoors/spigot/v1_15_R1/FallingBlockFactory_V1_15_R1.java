@@ -22,10 +22,6 @@ import javax.inject.Singleton;
 @Singleton
 public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
-    public FallingBlockFactory_V1_15_R1()
-    {
-    }
-
     @Override
     public ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception

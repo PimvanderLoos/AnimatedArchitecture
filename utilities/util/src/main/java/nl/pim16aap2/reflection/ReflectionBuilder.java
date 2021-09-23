@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public class ReflectionBuilder
+public final class ReflectionBuilder
 {
     private ReflectionBuilder()
     {

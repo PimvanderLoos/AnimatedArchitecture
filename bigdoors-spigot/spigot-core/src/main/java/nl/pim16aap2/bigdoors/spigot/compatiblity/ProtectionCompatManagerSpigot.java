@@ -302,7 +302,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         catch (NoClassDefFoundError | Exception e)
         {
             log.at(Level.SEVERE).withCause(e)
-               .log("Failed to initialize '%' compatibility hook! Hook not enabled!", compatName);
+               .log("Failed to initialize '%s' compatibility hook! Hook not enabled!", compatName);
         }
     }
 }

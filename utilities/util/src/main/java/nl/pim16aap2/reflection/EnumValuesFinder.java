@@ -156,6 +156,9 @@ public class EnumValuesFinder
          * @throws IllegalStateException
          *     When the source class is not an enum.
          */
+        // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
+        // when nothing is found to keep in line with the rest of the API.
+        @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
         @Override
         public Object getRequired()
         {

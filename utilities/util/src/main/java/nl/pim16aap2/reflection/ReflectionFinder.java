@@ -85,7 +85,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
     @Contract("_ -> this")
     public U addModifiers(int... mods)
     {
-        for (int mod : mods)
+        for (final int mod : mods)
             modifiers |= mod;
         return (U) this;
     }
