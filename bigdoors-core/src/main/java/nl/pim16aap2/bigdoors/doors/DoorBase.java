@@ -117,7 +117,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final LimitsManager limitsManager;
 
     @EqualsAndHashCode.Exclude
-    private final DoorToggleRequestFactory doorToggleRequestFactory;
+    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
 
     @EqualsAndHashCode.Exclude
     private final IPPlayerFactory playerFactory;
@@ -133,7 +133,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
              @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, ILocalizer localizer,
              DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
              LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
-             DoorToggleRequestFactory doorToggleRequestFactory, IPPlayerFactory playerFactory,
+             DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
              IBigDoorsPlatform bigDoorsPlatform, Provider<BlockMover.Context> blockMoverContextProvider)
     {
         this.doorUID = doorUID;
@@ -162,7 +162,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.limitsManager = limitsManager;
         this.autoCloseScheduler = autoCloseScheduler;
         this.doorOpeningHelper = doorOpeningHelper;
-        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.playerFactory = playerFactory;
         this.bigDoorsPlatform = bigDoorsPlatform;
         this.blockMoverContextProvider = blockMoverContextProvider;
@@ -190,7 +190,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         limitsManager = other.limitsManager;
         autoCloseScheduler = other.autoCloseScheduler;
         doorOpeningHelper = other.doorOpeningHelper;
-        doorToggleRequestFactory = other.doorToggleRequestFactory;
+        doorToggleRequestBuilder = other.doorToggleRequestBuilder;
         playerFactory = other.playerFactory;
         bigDoorsPlatform = other.bigDoorsPlatform;
         blockMoverContextProvider = other.blockMoverContextProvider;
@@ -274,7 +274,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             doorActionType = null;
 
         if (doorActionType != null)
-            doorToggleRequestFactory.builder()
+            doorToggleRequestBuilder.builder()
                                     .door(abstractDoor)
                                     .doorActionCause(DoorActionCause.REDSTONE)
                                     .doorActionType(doorActionType)

@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
-import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
@@ -35,17 +35,17 @@ import java.util.logging.Level;
 public class RedstoneListener extends AbstractListener
 {
     private final ConfigLoaderSpigot config;
-    private final DoorToggleRequestFactory doorToggleRequestFactory;
+    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
     private final Set<Material> powerBlockTypes = new HashSet<>();
     private final PowerBlockManager powerBlockManager;
 
     @Inject
     public RedstoneListener(RestartableHolder holder, JavaPlugin plugin, ConfigLoaderSpigot config,
-                            DoorToggleRequestFactory doorToggleRequestFactory, PowerBlockManager powerBlockManager)
+                            DoorToggleRequestBuilder doorToggleRequestBuilder, PowerBlockManager powerBlockManager)
     {
         super(holder, plugin, () -> shouldBeEnabled(config));
         this.config = config;
-        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.powerBlockManager = powerBlockManager;
     }
 
@@ -82,7 +82,7 @@ public class RedstoneListener extends AbstractListener
         powerBlockManager.doorsFromPowerBlockLoc(
             new Vector3Di(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), worldName).whenComplete(
             (doorList, throwable) -> doorList.forEach(
-                door -> doorToggleRequestFactory.builder()
+                door -> doorToggleRequestBuilder.builder()
                                                 .door(door)
                                                 .doorActionCause(DoorActionCause.REDSTONE)
                                                 .doorActionType(DoorActionType.TOGGLE)

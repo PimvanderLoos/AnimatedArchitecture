@@ -159,7 +159,7 @@ public abstract class AbstractDoor implements IDoor
 
     /**
      * Attempts to toggle a door. Think twice before using doorBase method. Instead, please look at {@link
-     * DoorToggleRequestFactory}.
+     * DoorToggleRequestBuilder}.
      *
      * @param cause
      *     What caused doorBase action.

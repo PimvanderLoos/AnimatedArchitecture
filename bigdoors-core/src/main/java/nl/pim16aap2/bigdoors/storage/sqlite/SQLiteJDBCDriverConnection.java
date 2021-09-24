@@ -7,7 +7,7 @@ import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -92,7 +92,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Getter
     private volatile DatabaseState databaseState = DatabaseState.UNINITIALIZED;
 
-    private final DoorBaseFactory doorBaseFactory;
+    private final DoorBaseBuilder doorBaseBuilder;
 
     private final DoorRegistry doorRegistry;
 
@@ -107,12 +107,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *     The file to store the database in.
      */
     @Inject
-    public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseFactory doorBaseFactory,
+    public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder,
                                       DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
                                       IPWorldFactory worldFactory)
     {
         this.dbFile = dbFile;
-        this.doorBaseFactory = doorBaseFactory;
+        this.doorBaseBuilder = doorBaseBuilder;
         this.doorRegistry = doorRegistry;
         this.doorTypeManager = doorTypeManager;
         this.worldFactory = worldFactory;
@@ -355,7 +355,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                    playerData);
 
         final Map<UUID, DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
-        final DoorBase doorData = doorBaseFactory.builder().uid(doorUID).name(name).cuboid(new Cuboid(min, max))
+        final DoorBase doorData = doorBaseBuilder.builder().uid(doorUID).name(name).cuboid(new Cuboid(min, max))
                                                  .engine(engine).powerBlock(powerBlock).world(world).isOpen(isOpen)
                                                  .isLocked(isLocked).openDir(openDirection.get()).primeOwner(primeOwner)
                                                  .doorOwners(doorOwners).build();
@@ -433,7 +433,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             final long doorUID = executeTransaction(conn -> insert(conn, door, typeName, typeData), -1L);
             if (doorUID > 0)
                 return Optional.of(serializer.deserialize(
-                    doorBaseFactory.builder().uid(doorUID).name(door.getName()).cuboid(door.getCuboid())
+                    doorBaseBuilder.builder().uid(doorUID).name(door.getName()).cuboid(door.getCuboid())
                                    .engine(door.getEngine()).powerBlock(door.getPowerBlock()).world(door.getWorld())
                                    .isOpen(door.isOpen()).isLocked(door.isLocked()).openDir(door.getOpenDir())
                                    .primeOwner(door.getPrimeOwner()).build(), typeData));

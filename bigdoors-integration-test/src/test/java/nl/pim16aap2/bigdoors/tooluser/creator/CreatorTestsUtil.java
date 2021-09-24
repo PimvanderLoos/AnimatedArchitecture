@@ -15,7 +15,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -60,7 +60,7 @@ public class CreatorTestsUtil
 
     protected DoorOwner doorOwner;
 
-    protected DoorBaseFactory doorBaseFactory;
+    protected DoorBaseBuilder doorBaseBuilder;
 
     protected ILocalizer localizer;
 
@@ -133,9 +133,9 @@ public class CreatorTestsUtil
                 .setMock(ILocalizer.class, localizer)
                 .setMock(DoorRegistry.class, DoorRegistry.uncached(Mockito.mock(RestartableHolder.class)))
                 .getFactory();
-        doorBaseFactory = new DoorBaseFactory(doorBaseIFactory);
+        doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 
-        context = new ToolUser.Context(doorBaseFactory, localizer, toolUserManager, databaseManager,
+        context = new ToolUser.Context(doorBaseBuilder, localizer, toolUserManager, databaseManager,
                                        limitsManager, economyManager, protectionCompatManager, bigDoorsToolUtil);
 
         initPlayer();
@@ -183,7 +183,7 @@ public class CreatorTestsUtil
 
     protected DoorBase constructDoorBase()
     {
-        return doorBaseFactory.builder()
+        return doorBaseBuilder.builder()
                               .uid(-1).name(doorName).cuboid(new Cuboid(min, max)).engine(engine)
                               .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
                               .openDir(openDirection).primeOwner(doorOwner)

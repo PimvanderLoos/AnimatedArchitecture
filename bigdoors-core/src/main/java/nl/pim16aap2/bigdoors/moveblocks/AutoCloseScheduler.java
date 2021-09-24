@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -35,16 +35,16 @@ public final class AutoCloseScheduler extends Restartable
      */
     private final Map<Long, TimerTask> timers = new HashMap<>();
     private final DoorActivityManager doorActivityManager;
-    private final DoorToggleRequestFactory doorToggleRequestFactory;
+    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
     private final IPExecutor executor;
 
     @Inject
     public AutoCloseScheduler(RestartableHolder holder, DoorActivityManager doorActivityManager,
-                              DoorToggleRequestFactory doorToggleRequestFactory, IPExecutor executor)
+                              DoorToggleRequestBuilder doorToggleRequestBuilder, IPExecutor executor)
     {
         super(holder);
         this.doorActivityManager = doorActivityManager;
-        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.executor = executor;
     }
 
@@ -104,7 +104,7 @@ public final class AutoCloseScheduler extends Restartable
                 if (door.isOpen())
                 {
                     doorActivityManager.setDoorAvailable(door.getDoorUID());
-                    doorToggleRequestFactory.builder()
+                    doorToggleRequestBuilder.builder()
                                             .door(door)
                                             .doorActionCause(DoorActionCause.AUTOCLOSE)
                                             .doorActionType(DoorActionType.CLOSE)

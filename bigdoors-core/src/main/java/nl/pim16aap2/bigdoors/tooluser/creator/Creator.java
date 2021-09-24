@@ -9,7 +9,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -50,7 +50,7 @@ public abstract class Creator extends ToolUser
 {
     protected final LimitsManager limitsManager;
 
-    protected final DoorBaseFactory doorBaseFactory;
+    protected final DoorBaseBuilder doorBaseBuilder;
 
     protected final DatabaseManager databaseManager;
 
@@ -176,7 +176,7 @@ public abstract class Creator extends ToolUser
     {
         super(context, player);
         limitsManager = context.getLimitsManager();
-        doorBaseFactory = context.getDoorBaseFactory();
+        doorBaseBuilder = context.getDoorBaseBuilder();
         databaseManager = context.getDatabaseManager();
         economyManager = context.getEconomyManager();
 
@@ -243,7 +243,7 @@ public abstract class Creator extends ToolUser
         final long doorUID = -1;
         final var owner = new DoorOwner(doorUID, 0, getPlayer().getPPlayerData());
 
-        return doorBaseFactory
+        return doorBaseBuilder
             .builder()
             .uid(doorUID)
             .name(Util.requireNonNull(name, "Name"))

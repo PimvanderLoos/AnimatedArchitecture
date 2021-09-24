@@ -9,7 +9,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
-import nl.pim16aap2.bigdoors.doors.DoorToggleRequestFactory;
+import nl.pim16aap2.bigdoors.doors.DoorToggleRequestBuilder;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -34,7 +34,7 @@ public class Toggle extends BaseCommand
     protected static final double DEFAULT_SPEED_MULTIPLIER = 0D;
     protected static final DoorActionType DEFAULT_DOOR_ACTION_TYPE = DoorActionType.TOGGLE;
 
-    private final DoorToggleRequestFactory doorToggleRequestFactory;
+    private final DoorToggleRequestBuilder doorToggleRequestBuilder;
     private final DoorRetriever[] doorRetrievers;
     private final IMessageable messageableServer;
     private final DoorActionType doorActionType;
@@ -42,13 +42,13 @@ public class Toggle extends BaseCommand
 
     @AssistedInject //
     Toggle(@Assisted ICommandSender commandSender, ILocalizer localizer, @Assisted DoorActionType doorActionType,
-           @Assisted double time, DoorToggleRequestFactory doorToggleRequestFactory,
+           @Assisted double time, DoorToggleRequestBuilder doorToggleRequestBuilder,
            @Named("MessageableServer") IMessageable messageableServer, @Assisted DoorRetriever... doorRetrievers)
     {
         super(commandSender, localizer);
         this.doorActionType = doorActionType;
         this.time = time;
-        this.doorToggleRequestFactory = doorToggleRequestFactory;
+        this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.doorRetrievers = doorRetrievers;
         this.messageableServer = messageableServer;
     }
@@ -115,7 +115,7 @@ public class Toggle extends BaseCommand
         }
 
         final Optional<IPPlayer> playerOptional = getCommandSender().getPlayer();
-        doorToggleRequestFactory.builder()
+        doorToggleRequestBuilder.builder()
                                 .door(door)
                                 .doorActionCause(doorActionCause)
                                 .doorActionType(doorActionType)

@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
 import nl.pim16aap2.bigdoors.doors.bigdoor.BigDoor;
 import nl.pim16aap2.bigdoors.doors.bigdoor.DoorTypeBigDoor;
@@ -96,7 +96,7 @@ public class SQLiteJDBCDriverConnectionTest
 
     private DoorTypeManager doorTypeManager;
 
-    private DoorBaseFactory doorBaseFactory;
+    private DoorBaseBuilder doorBaseBuilder;
 
     private DoorRegistry doorRegistry;
 
@@ -117,7 +117,7 @@ public class SQLiteJDBCDriverConnectionTest
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
                 .setMock(DoorRegistry.class, doorRegistry);
 
-        doorBaseFactory = new DoorBaseFactory(assistedFactoryMocker.getFactory());
+        doorBaseBuilder = new DoorBaseBuilder(assistedFactoryMocker.getFactory());
 
         initDoors();
 
@@ -531,7 +531,7 @@ public class SQLiteJDBCDriverConnectionTest
      */
     private void initStorage()
     {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseFactory, doorRegistry, doorTypeManager, worldFactory);
+        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseBuilder, doorRegistry, doorTypeManager, worldFactory);
 
         // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
         // More info:
@@ -549,7 +549,7 @@ public class SQLiteJDBCDriverConnectionTest
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
         int autoOpen = 0;
         int autoClose = 0;
-        door1 = new BigDoor(doorBaseFactory.builder()
+        door1 = new BigDoor(doorBaseBuilder.builder()
                                            .uid(1).name(DOOR_1_NAME).cuboid(min, max).engine(engine)
                                            .powerBlock(powerBlock)
                                            .world(WORLD).isOpen(false).isLocked(false).openDir(RotateDirection.EAST)
@@ -564,7 +564,7 @@ public class SQLiteJDBCDriverConnectionTest
         autoOpen = 10;
         autoClose = -1;
         boolean modeUp = true;
-        door2 = new Drawbridge(doorBaseFactory.builder()
+        door2 = new Drawbridge(doorBaseBuilder.builder()
                                               .uid(2).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.NONE)
@@ -579,7 +579,7 @@ public class SQLiteJDBCDriverConnectionTest
         autoOpen = 0;
         autoClose = 3;
         int blocksToMove = 8;
-        door3 = new Portcullis(doorBaseFactory.builder()
+        door3 = new Portcullis(doorBaseBuilder.builder()
                                               .uid(3).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.UP)

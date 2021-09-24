@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -68,7 +68,7 @@ class CreatorTest
 
 
         UnitTestUtil.setField(Creator.class, creator, "limitsManager", limitsManager);
-        UnitTestUtil.setField(Creator.class, creator, "doorBaseFactory", Mockito.mock(DoorBaseFactory.class));
+        UnitTestUtil.setField(Creator.class, creator, "doorBaseBuilder", Mockito.mock(DoorBaseBuilder.class));
         UnitTestUtil.setField(Creator.class, creator, "databaseManager", Mockito.mock(DatabaseManager.class));
         UnitTestUtil.setField(Creator.class, creator, "economyManager", economyManager);
 

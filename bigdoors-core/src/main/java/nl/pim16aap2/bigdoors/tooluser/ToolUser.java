@@ -11,7 +11,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
-import nl.pim16aap2.bigdoors.doors.DoorBaseFactory;
+import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.LimitsManager;
@@ -328,7 +328,7 @@ public abstract class ToolUser implements IRestartable
     @Getter
     public static final class Context
     {
-        private final DoorBaseFactory doorBaseFactory;
+        private final DoorBaseBuilder doorBaseBuilder;
         private final ILocalizer localizer;
         private final ToolUserManager toolUserManager;
         private final DatabaseManager databaseManager;
@@ -338,11 +338,11 @@ public abstract class ToolUser implements IRestartable
         private final IBigDoorsToolUtil bigDoorsToolUtil;
 
         @Inject
-        public Context(DoorBaseFactory doorBaseFactory, ILocalizer localizer, ToolUserManager toolUserManager,
+        public Context(DoorBaseBuilder doorBaseBuilder, ILocalizer localizer, ToolUserManager toolUserManager,
                        DatabaseManager databaseManager, LimitsManager limitsManager, IEconomyManager economyManager,
                        IProtectionCompatManager protectionCompatManager, IBigDoorsToolUtil bigDoorsToolUtil)
         {
-            this.doorBaseFactory = doorBaseFactory;
+            this.doorBaseBuilder = doorBaseBuilder;
             this.localizer = localizer;
             this.toolUserManager = toolUserManager;
             this.databaseManager = databaseManager;

@@ -40,7 +40,7 @@ class DoorSerializerTest
         final DoorRegistry doorRegistry = assistedFactoryMocker.getMock(DoorRegistry.class);
         Mockito.when(doorRegistry.registerDoor(Mockito.any())).thenReturn(true);
 
-        final DoorBaseFactory factory = new DoorBaseFactory(assistedFactoryMocker.getFactory());
+        final DoorBaseBuilder factory = new DoorBaseBuilder(assistedFactoryMocker.getFactory());
 
 
         final String doorName = "randomDoorName";

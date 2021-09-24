@@ -21,22 +21,22 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * IFactory for {@link DoorToggleRequest} instances using a guided builder.
+ * Builder for {@link DoorToggleRequest} instances implemented as a guided builder.
  *
  * @author Pim
  */
-public class DoorToggleRequestFactory
+public class DoorToggleRequestBuilder
 {
-    private final DoorToggleRequest.IFactory doorToggleRequestIFactory;
+    private final DoorToggleRequest.IFactory doorToggleRequestFactory;
     private final IMessageable messageableServer;
     private final IPPlayerFactory playerFactory;
 
     @Inject
-    public DoorToggleRequestFactory(DoorToggleRequest.IFactory doorToggleRequestIFactory,
+    public DoorToggleRequestBuilder(DoorToggleRequest.IFactory doorToggleRequestFactory,
                                     @Named("MessageableServer") IMessageable messageableServer,
                                     IPPlayerFactory playerFactory)
     {
-        this.doorToggleRequestIFactory = doorToggleRequestIFactory;
+        this.doorToggleRequestFactory = doorToggleRequestFactory;
         this.messageableServer = messageableServer;
         this.playerFactory = playerFactory;
     }
@@ -48,7 +48,7 @@ public class DoorToggleRequestFactory
      */
     public IBuilderDoor builder()
     {
-        return new Builder(doorToggleRequestIFactory, messageableServer, playerFactory);
+        return new Builder(doorToggleRequestFactory, messageableServer, playerFactory);
     }
 
     @RequiredArgsConstructor

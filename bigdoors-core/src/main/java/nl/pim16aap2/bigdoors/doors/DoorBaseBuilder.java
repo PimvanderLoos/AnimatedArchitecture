@@ -14,18 +14,18 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * IFactory for {@link DoorBase} instances using a guided builder.
+ * Builder for {@link DoorBase} instances implemented as a guided builder.
  *
  * @author Pim
  */
-public final class DoorBaseFactory
+public final class DoorBaseBuilder
 {
-    private final DoorBase.IFactory doorBaseIFactory;
+    private final DoorBase.IFactory doorBaseFactory;
 
     @Inject //
-    public DoorBaseFactory(DoorBase.IFactory doorBaseIFactory)
+    public DoorBaseBuilder(DoorBase.IFactory doorBaseFactory)
     {
-        this.doorBaseIFactory = doorBaseIFactory;
+        this.doorBaseFactory = doorBaseFactory;
     }
 
     /**
@@ -35,7 +35,7 @@ public final class DoorBaseFactory
      */
     public IBuilderUID builder()
     {
-        return new Builder(doorBaseIFactory);
+        return new Builder(doorBaseFactory);
     }
 
     @RequiredArgsConstructor
@@ -190,7 +190,7 @@ public final class DoorBaseFactory
         IBuilderEngine cuboid(Cuboid cuboid);
 
         /**
-         * Sets the min/max coordinate pair of the door.
+         * Sets the min/max coordinate-pair of the door.
          *
          * @param min
          *     The minimum x/y/z coordinates of the door.
