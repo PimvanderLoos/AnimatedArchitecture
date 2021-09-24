@@ -53,12 +53,12 @@ import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
 import nl.pim16aap2.bigdoors.spigot.managers.PlatformManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.managers.PowerBlockRedstoneManagerSpigotModule;
+import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
@@ -115,7 +115,7 @@ interface BigDoorsSpigotComponent
 
     RestartableHolder getRestartableHolder();
 
-    ISubPlatformManagerSpigot getSubPlatformManagerSpigot();
+    SubPlatformManager getSubPlatformManager();
 
     IBigDoorsPlatform getBigDoorsPlatform();
 

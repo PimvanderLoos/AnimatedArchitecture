@@ -4,14 +4,15 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.BigDoorsSpigotSubPlatform_V1_15_R1;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
+@Singleton
+public final class SubPlatformManager
 {
     private final @Nullable IBigDoorsSpigotSubPlatform spigotPlatform;
 
@@ -30,7 +31,7 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
      *     on an unsupported version.
      */
     @Inject
-    public SubPlatformManagerSpigot(BigDoorsPlugin bigDoorsPlugin, IPLocationFactory locationFactory)
+    public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin, IPLocationFactory locationFactory)
     {
         Version versionTmp;
         @Nullable IBigDoorsSpigotSubPlatform spigotPlatformTmp = null;
@@ -55,13 +56,24 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
             spigotPlatform.init(bigDoorsPlugin);
     }
 
-    @Override
+    /**
+     * Checks if a sub-platform was registered successfully.
+     *
+     * @return True if a sub-platform was registered successfully.
+     */
     public boolean isValidPlatform()
     {
         return spigotPlatform != null;
     }
 
-    @Override
+    /**
+     * Gets the currently-registered sub-platform.
+     *
+     * @return The sub-platform that was registered.
+     *
+     * @throws IllegalStateException
+     *     When no platform is registered. See {@link #isValidPlatform()}.
+     */
     public IBigDoorsSpigotSubPlatform getSpigotPlatform()
     {
         if (spigotPlatform == null)
@@ -69,13 +81,21 @@ public final class SubPlatformManagerSpigot implements ISubPlatformManagerSpigot
         return spigotPlatform;
     }
 
-    @Override
+    /**
+     * Gets the version of the registered sub-platform.
+     *
+     * @return The version of the registered sub-platform.
+     */
     public String getSubPlatformVersion()
     {
         return subPlatformVersion.name();
     }
 
-    @Override
+    /**
+     * Gets the server version.
+     *
+     * @return The server version.
+     */
     public String getServerVersion()
     {
         return serverVersion;

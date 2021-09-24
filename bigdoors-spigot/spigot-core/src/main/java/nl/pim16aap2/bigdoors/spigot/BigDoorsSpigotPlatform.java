@@ -48,9 +48,9 @@ import nl.pim16aap2.bigdoors.spigot.listeners.LoginResourcePackListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.RedstoneListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.WorldListener;
 import nl.pim16aap2.bigdoors.spigot.managers.HeadManager;
+import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
-import nl.pim16aap2.bigdoors.spigot.util.api.ISubPlatformManagerSpigot;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
@@ -207,8 +207,8 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         this.plugin = plugin;
         this.mainThreadId = mainThreadId;
 
-        final ISubPlatformManagerSpigot subPlatformManagerSpigot =
-            bigDoorsSpigotComponent.getSubPlatformManagerSpigot();
+        final SubPlatformManager subPlatformManagerSpigot =
+            bigDoorsSpigotComponent.getSubPlatformManager();
 
         if (!subPlatformManagerSpigot.isValidPlatform())
             throw new InitializationException("Failed to initialize BigDoors SubPlatform version " +
