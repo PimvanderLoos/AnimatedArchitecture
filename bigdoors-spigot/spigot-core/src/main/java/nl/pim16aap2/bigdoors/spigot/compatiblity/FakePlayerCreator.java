@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.compatiblity;
 
-import com.mojang.authlib.GameProfile;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -59,7 +59,8 @@ class FakePlayerCreator
         final Class<?> entityPlayer = getNMSClass("EntityPlayer");
         final Class<?> minecraftServer = getNMSClass("MinecraftServer");
         final Class<?> playerInteractManager = getNMSClass("PlayerInteractManager");
-        entityPlayerConstructor = entityPlayer.getConstructor(minecraftServer, worldServer, GameProfile.class,
+        final Class<?> classGameProfile = ReflectionBuilder.findClass("com.mojang.authlib.GameProfile").getRequired();
+        entityPlayerConstructor = entityPlayer.getConstructor(minecraftServer, worldServer, classGameProfile,
                                                               playerInteractManager);
         getBukkitEntity = entityPlayer.getMethod("getBukkitEntity");
         getHandle = craftWorld.getMethod("getHandle");
@@ -106,7 +107,7 @@ class FakePlayerCreator
         try
         {
             final Object coPlayer = craftOfflinePlayer.cast(oPlayer);
-            final GameProfile gProfile = (GameProfile) getProfile.invoke(coPlayer);
+            final Object gProfile = getProfile.invoke(coPlayer);
 
             final Object craftServer = craftWorld.cast(world);
             final Object worldServer = getHandle.invoke(craftServer);
