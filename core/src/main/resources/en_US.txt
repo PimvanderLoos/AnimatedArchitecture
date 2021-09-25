@@ -56,7 +56,6 @@ GUI.NewSlidingDoor=New Sliding Door
 GUI.NewObjectLong=Initiate process to create a
 GUI.DoorHasID=This door has ID 
 GUI.MoreInfoMenu=Expanded menu for door 
-GUI.DoorID=This door has ID 
 GUI.UnlockDoor=Unlock Door
 GUI.LockDoor=Lock Door
 GUI.UseDoor=Open / Close this door
