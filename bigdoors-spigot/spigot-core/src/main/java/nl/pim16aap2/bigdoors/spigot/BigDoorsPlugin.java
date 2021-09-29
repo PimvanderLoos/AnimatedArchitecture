@@ -49,7 +49,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
 
     private @Nullable BigDoorsSpigotPlatform bigDoorsSpigotPlatform;
     // Avoid creating new Optional objects for every invocation; the result is going to be the same anyway.
-    private volatile Optional<IBigDoorsPlatform> optionalBigDoorsSpigotPlatform;
+    private volatile Optional<IBigDoorsPlatform> optionalBigDoorsSpigotPlatform = Optional.empty();
 
     private boolean successfulInit;
     private boolean initialized = false;
@@ -200,7 +200,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
     {
         if (optionalBigDoorsSpigotPlatform.isPresent() || bigDoorsSpigotPlatform == null)
             return optionalBigDoorsSpigotPlatform;
-        return optionalBigDoorsSpigotPlatform = Optional.of(bigDoorsSpigotPlatform);
+        return updatePlatform();
     }
 
     private synchronized Optional<IBigDoorsPlatform> updatePlatform()
