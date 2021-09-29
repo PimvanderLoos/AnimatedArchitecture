@@ -60,7 +60,7 @@ public final class LocalizationUtil
             return file;
 
         final Path parent = file.getParent();
-        if (parent != null)
+        if (parent != null && !Files.isDirectory(parent))
             Files.createDirectories(parent);
         return Files.createFile(file);
     }
@@ -441,7 +441,8 @@ public final class LocalizationUtil
         {
             try
             {
-                Files.createDirectories(parent);
+                if (!Files.isDirectory(parent))
+                    Files.createDirectories(parent);
             }
             catch (IOException e)
             {

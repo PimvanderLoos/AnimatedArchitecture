@@ -189,7 +189,8 @@ public final class UpdateChecker
         try
         {
             final Path updateFolder = Bukkit.getUpdateFolderFile().toPath();
-            Files.createDirectories(updateFolder);
+            if (!Files.isDirectory(updateFolder))
+                Files.createDirectories(updateFolder);
 
             final Path updateFile = updateFolder.resolve(plugin.getName() + ".jar");
 

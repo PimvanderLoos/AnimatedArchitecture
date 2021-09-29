@@ -390,7 +390,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         // Write all the config options to the config.yml.
         try
         {
-            Files.createDirectories(baseDir);
+            if (!Files.isDirectory(baseDir))
+                Files.createDirectories(baseDir);
 
             final Path configFile = baseDir.resolve("config.yml");
 

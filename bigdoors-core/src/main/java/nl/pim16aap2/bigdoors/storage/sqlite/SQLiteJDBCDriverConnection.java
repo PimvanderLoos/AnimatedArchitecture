@@ -245,7 +245,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         {
             if (!Files.isRegularFile(dbFile))
             {
-                Files.createDirectories(dbFile.getParent());
+                if (!Files.isDirectory(dbFile.getParent()))
+                    Files.createDirectories(dbFile.getParent());
                 Files.createFile(dbFile);
                 log.at(Level.INFO).log("New file created at: %s", dbFile);
             }

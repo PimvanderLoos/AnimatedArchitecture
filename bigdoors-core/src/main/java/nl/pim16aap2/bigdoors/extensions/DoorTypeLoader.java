@@ -81,12 +81,13 @@ public final class DoorTypeLoader extends Restartable
     {
         try
         {
-            Files.createDirectories(extensionsDirectory);
+            if (!Files.isDirectory(extensionsDirectory))
+                Files.createDirectories(extensionsDirectory);
             return true;
         }
         catch (IOException e)
         {
-            log.at(Level.SEVERE).withCause(new IOException("Failed to create directory: " + extensionsDirectory)).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to create directory: %s", extensionsDirectory);
         }
         return false;
     }
