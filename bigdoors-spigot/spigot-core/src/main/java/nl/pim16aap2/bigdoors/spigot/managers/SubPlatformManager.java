@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Locale;
 
 @Singleton
 public final class SubPlatformManager
@@ -133,7 +134,7 @@ public final class SubPlatformManager
         {
             try
             {
-                return Version.valueOf(version);
+                return Version.valueOf(version.toUpperCase(Locale.ENGLISH));
             }
             // No enum constant...
             catch (IllegalArgumentException e)
