@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
 import dagger.Lazy;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -10,6 +9,7 @@ import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.ITimerToggleable;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.util.Constants;
 
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ public final class DoorActivityManager extends Restartable
     private final IConfigLoader config;
     private final IPExecutor executor;
     private final IBigDoorsEventFactory eventFactory;
-    private final IBigDoorsPlatform bigDoorsPlatform;
+    private final IDoorEventCaller doorEventCaller;
 
     /**
      * Constructs a new {@link DoorActivityManager}.
@@ -46,14 +46,14 @@ public final class DoorActivityManager extends Restartable
     @Inject
     public DoorActivityManager(RestartableHolder holder, Lazy<AutoCloseScheduler> autoCloseScheduler,
                                IConfigLoader config, IPExecutor executor, IBigDoorsEventFactory eventFactory,
-                               IBigDoorsPlatform bigDoorsPlatform)
+                               IDoorEventCaller doorEventCaller)
     {
         super(holder);
         this.autoCloseScheduler = autoCloseScheduler;
         this.config = config;
         this.executor = executor;
         this.eventFactory = eventFactory;
-        this.bigDoorsPlatform = bigDoorsPlatform;
+        this.doorEventCaller = doorEventCaller;
     }
 
     /**
@@ -123,7 +123,7 @@ public final class DoorActivityManager extends Restartable
         if (!allowReschedule)
             return;
 
-        bigDoorsPlatform.callDoorEvent(
+        doorEventCaller.callDoorEvent(
             eventFactory
                 .createToggleEndEvent(blockMover.getDoor(), blockMover.getCause(), blockMover.getActionType(),
                                       blockMover.getPlayer(), blockMover.getTime(),

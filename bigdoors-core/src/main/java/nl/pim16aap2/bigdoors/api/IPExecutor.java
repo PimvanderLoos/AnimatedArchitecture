@@ -156,4 +156,23 @@ public interface IPExecutor
      *     The ID assigned to the task.
      */
     void cancel(TimerTask timerTask, int taskID);
+
+    /**
+     * Checks if a thread is the main thread.
+     *
+     * @param threadId
+     *     The ID of the thread to compare.
+     * @return True if the thread is the main thread.
+     */
+    boolean isMainThread(long threadId);
+
+    /**
+     * Checks if the current thread is the main thread.
+     *
+     * @return True if the current thread is the main thread.
+     */
+    default boolean isMainThread()
+    {
+        return isMainThread(Thread.currentThread().getId());
+    }
 }

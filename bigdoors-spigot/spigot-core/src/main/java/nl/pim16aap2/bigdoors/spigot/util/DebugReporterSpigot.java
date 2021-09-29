@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
@@ -38,11 +39,11 @@ public class DebugReporterSpigot extends DebugReporter
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
     @Inject
-    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, @Nullable IBigDoorsPlatform platform,
+    public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatformProvider platformProvider,
                                @Nullable DoorTypeManager doorTypeManager, @Nullable IConfigLoader config,
                                @Nullable IBigDoorsSpigotSubPlatform subPlatform)
     {
-        super(platform);
+        super(platformProvider);
         this.bigDoorsPlugin = bigDoorsPlugin;
 
         this.doorTypeManager = doorTypeManager;
@@ -56,8 +57,7 @@ public class DebugReporterSpigot extends DebugReporter
         return new StringBuilder(super.getDump())
             // Try to use the platform's version first because that might contain more information (build id etc.)
             // But if that's not available, use the JavaPlugin's version instead.
-            .append("BigDoors version: ").append(platform == null ?
-                                                 bigDoorsPlugin.getDescription().getVersion() : platform.getVersion())
+            .append("BigDoors version: ").append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion))
             .append('\n')
             .append("Server version: ").append(Bukkit.getServer().getVersion())
             .append('\n')
@@ -66,8 +66,6 @@ public class DebugReporterSpigot extends DebugReporter
             .append('\n')
             .append("Enabled door types:    ")
             .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getEnabledDoorTypes()))
-            .append('\n')
-            .append("SpigotPlatform: ").append(platform == null ? "null" : platform.getClass().getName())
             .append('\n')
             .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')

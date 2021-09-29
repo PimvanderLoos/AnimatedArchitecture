@@ -40,5 +40,4 @@ public class BigDoorsSpigotSubPlatformModule
     {
         return spigotPlatform.getBlockAnalyzer();
     }
-
 }

@@ -25,7 +25,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
@@ -39,7 +38,6 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
@@ -52,20 +50,16 @@ import nl.pim16aap2.bigdoors.spigot.managers.SubPlatformManager;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.storage.IStorage;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Singleton;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 @Flogger
 @Singleton //
 final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
 {
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
-
-    private final long mainThreadId;
 
     private final BigDoorsPlugin plugin;
 
@@ -200,12 +194,11 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final WorldListener worldListener;
 
-    BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin, long mainThreadId)
+    BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
     {
         this.bigDoorsSpigotComponent = bigDoorsSpigotComponent;
         this.plugin = plugin;
-        this.mainThreadId = mainThreadId;
 
         final SubPlatformManager subPlatformManagerSpigot =
             bigDoorsSpigotComponent.getSubPlatformManager();
@@ -299,33 +292,6 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     public void shutDownPlugin()
     {
         restartableHolder.shutdown();
-    }
-
-    @Override
-    public void callDoorEvent(IBigDoorsEvent bigDoorsEvent)
-    {
-        if (!(bigDoorsEvent instanceof BigDoorsSpigotEvent))
-        {
-            log.at(Level.SEVERE).withCause(new IllegalArgumentException(
-                "Event " + bigDoorsEvent.getEventName() +
-                    ", is not a Spigot event, but it was called on the Spigot platform!")).log();
-            return;
-        }
-
-        // Async events can only be called asynchronously and Sync events can only be called from the main thread.
-        final boolean isMainThread = isMainThread(Thread.currentThread().getId());
-        if (isMainThread && bigDoorsEvent.isAsynchronous())
-            pExecutor.runAsync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) bigDoorsEvent));
-        else if ((!isMainThread) && (!bigDoorsEvent.isAsynchronous()))
-            pExecutor.runSync(() -> Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) bigDoorsEvent));
-        else
-            Bukkit.getPluginManager().callEvent((BigDoorsSpigotEvent) bigDoorsEvent);
-    }
-
-    @Override
-    public boolean isMainThread(long threadId)
-    {
-        return threadId == mainThreadId;
     }
 
     @Override

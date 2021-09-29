@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.IPServer;
-import nl.pim16aap2.bigdoors.events.IBigDoorsEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
@@ -37,33 +36,6 @@ public interface IBigDoorsPlatform
      * Shuts the plugin down.
      */
     void shutDownPlugin();
-
-    /**
-     * Calls a {@link IBigDoorsEvent}.
-     *
-     * @param doorActionEvent
-     *     The {@link IBigDoorsEvent} to call.
-     */
-    void callDoorEvent(IBigDoorsEvent doorActionEvent);
-
-    /**
-     * Checks if a thread is the main thread.
-     *
-     * @param threadId
-     *     The ID of the thread to compare.
-     * @return True if the thread is the main thread.
-     */
-    boolean isMainThread(long threadId);
-
-    /**
-     * Checks if the current thread is the main thread.
-     *
-     * @return True if the current thread is the main thread.
-     */
-    default boolean isMainThread()
-    {
-        return isMainThread(Thread.currentThread().getId());
-    }
 
     /**
      * Gets the build id of BigDoors that is currently running.

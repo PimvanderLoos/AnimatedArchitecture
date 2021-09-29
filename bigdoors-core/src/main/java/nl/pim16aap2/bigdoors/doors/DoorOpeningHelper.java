@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -14,6 +13,7 @@ import nl.pim16aap2.bigdoors.api.PColor;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.events.dooraction.IDoorEventTogglePrepare;
@@ -53,14 +53,14 @@ public final class DoorOpeningHelper
     private final IGlowingBlockSpawner glowingBlockSpawner;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
     private final IPExecutor executor;
-    private final IBigDoorsPlatform bigDoorsPlatform;
+    private final IDoorEventCaller doorEventCaller;
 
     @Inject //
     DoorOpeningHelper(ILocalizer localizer, DoorActivityManager doorActivityManager, DoorTypeManager doorTypeManager,
                       IConfigLoader config, IBlockAnalyzer blockAnalyzer, IPLocationFactory locationFactory,
                       IProtectionCompatManager protectionCompatManager, IGlowingBlockSpawner glowingBlockSpawner,
                       IBigDoorsEventFactory bigDoorsEventFactory, IPExecutor executor,
-                      IBigDoorsPlatform bigDoorsPlatform)
+                      IDoorEventCaller doorEventCaller)
     {
         this.localizer = localizer;
         this.doorActivityManager = doorActivityManager;
@@ -72,7 +72,7 @@ public final class DoorOpeningHelper
         this.glowingBlockSpawner = glowingBlockSpawner;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         this.executor = executor;
-        this.bigDoorsPlatform = bigDoorsPlatform;
+        this.doorEventCaller = doorEventCaller;
     }
 
     /**
@@ -142,7 +142,7 @@ public final class DoorOpeningHelper
 
     private void callDoorToggleEvent(IDoorToggleEvent prepareEvent)
     {
-        bigDoorsPlatform.callDoorEvent(prepareEvent);
+        doorEventCaller.callDoorEvent(prepareEvent);
     }
 
     /**
@@ -157,11 +157,11 @@ public final class DoorOpeningHelper
     }
 
     /**
-     * See {@link IBigDoorsPlatform#isMainThread()}.
+     * See {@link IPExecutor#isMainThread()}.
      */
     boolean isMainThread()
     {
-        return bigDoorsPlatform.isMainThread();
+        return executor.isMainThread();
     }
 
 

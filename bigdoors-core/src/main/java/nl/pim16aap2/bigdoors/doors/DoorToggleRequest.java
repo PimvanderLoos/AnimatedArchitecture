@@ -6,7 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -49,7 +48,6 @@ public class DoorToggleRequest
     private final DoorActivityManager doorActivityManager;
     private final AutoCloseScheduler autoCloseScheduler;
     private final IPPlayerFactory playerFactory;
-    private final IBigDoorsPlatform bigDoorsPlatform;
     private final IPExecutor executor;
 
     @AssistedInject
@@ -59,7 +57,7 @@ public class DoorToggleRequest
                              @Assisted boolean skipAnimation, @Assisted DoorActionType doorActionType,
                              ILocalizer localizer, DoorActivityManager doorActivityManager,
                              AutoCloseScheduler autoCloseScheduler, IPPlayerFactory playerFactory,
-                             IBigDoorsPlatform bigDoorsPlatform, IPExecutor executor)
+                             IPExecutor executor)
     {
         this.doorRetriever = doorRetriever;
         this.doorActionCause = doorActionCause;
@@ -72,7 +70,6 @@ public class DoorToggleRequest
         this.doorActivityManager = doorActivityManager;
         this.autoCloseScheduler = autoCloseScheduler;
         this.playerFactory = playerFactory;
-        this.bigDoorsPlatform = bigDoorsPlatform;
         this.executor = executor;
     }
 
@@ -98,14 +95,14 @@ public class DoorToggleRequest
         final AbstractDoor door = doorOpt.get();
         final IPPlayer actualResponsible = getActualResponsible(door);
 
-        if (bigDoorsPlatform.isMainThread())
+        if (executor.isMainThread())
             return CompletableFuture.completedFuture(execute(door, actualResponsible));
         return executor.supplyOnMainThread(() -> execute(door, actualResponsible));
     }
 
     private DoorToggleResult execute(AbstractDoor door, IPPlayer responsible)
     {
-        if (!bigDoorsPlatform.isMainThread())
+        if (!executor.isMainThread())
             throw new IllegalThreadStateException("Doors must be animated from the main thread!");
         return door.toggle(doorActionCause, messageReceiver, responsible, time, skipAnimation, doorActionType);
     }

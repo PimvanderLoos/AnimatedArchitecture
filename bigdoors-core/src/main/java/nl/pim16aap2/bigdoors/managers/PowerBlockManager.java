@@ -223,7 +223,10 @@ public final class PowerBlockManager extends Restartable
          */
         private final TimedCache<Long, PowerBlockChunk> powerBlockChunks =
             TimedCache.<Long, PowerBlockChunk>builder()
-                      .duration(Duration.ofMinutes(config.cacheTimeout())).refresh(true).build();
+                      .duration(Duration.ofMinutes(config.cacheTimeout()))
+                      .cleanup(Duration.ofMinutes(Math.max(1, config.cacheTimeout())))
+                      .softReference(true)
+                      .refresh(true).build();
 
         private PowerBlockWorld(String worldName)
         {

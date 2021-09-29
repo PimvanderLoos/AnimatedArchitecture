@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -19,11 +20,13 @@ import java.util.function.Supplier;
 public final class PExecutorSpigot implements IPExecutor
 {
     private final JavaPlugin plugin;
+    private final long mainThreadId;
 
     @Inject
-    public PExecutorSpigot(JavaPlugin plugin)
+    public PExecutorSpigot(JavaPlugin plugin, @Named("mainThreadId") long mainThreadId)
     {
         this.plugin = plugin;
+        this.mainThreadId = mainThreadId;
     }
 
     @Override
@@ -121,5 +124,11 @@ public final class PExecutorSpigot implements IPExecutor
     {
         timerTask.cancel();
         Bukkit.getScheduler().cancelTask(taskID);
+    }
+
+    @Override
+    public boolean isMainThread(long threadId)
+    {
+        return threadId == mainThreadId;
     }
 }

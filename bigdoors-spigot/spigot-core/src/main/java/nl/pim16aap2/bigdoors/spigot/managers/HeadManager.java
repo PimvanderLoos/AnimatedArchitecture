@@ -36,7 +36,7 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-    private transient TimedCache<UUID, Optional<ItemStack>> headMap;
+    private TimedCache<UUID, Optional<ItemStack>> headMap;
     private final ConfigLoaderSpigot config;
 
     /**
@@ -59,7 +59,9 @@ public final class HeadManager extends Restartable
     private void init()
     {
         headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
-                            .duration(Duration.ofMinutes(config.headCacheTimeout())).build();
+                            .duration(Duration.ofMinutes(config.headCacheTimeout()))
+                            .cleanup(Duration.ofMinutes(Math.max(1, config.headCacheTimeout())))
+                            .softReference(true).build();
     }
 
     /**

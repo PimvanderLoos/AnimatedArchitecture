@@ -8,10 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
@@ -105,7 +106,10 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final AutoCloseScheduler autoCloseScheduler;
 
     @EqualsAndHashCode.Exclude
-    private final IBigDoorsPlatform bigDoorsPlatform;
+    private final IDoorEventCaller doorEventCaller;
+
+    @EqualsAndHashCode.Exclude
+    private final IPExecutor executor;
 
     @EqualsAndHashCode.Exclude
     private final DatabaseManager databaseManager;
@@ -134,7 +138,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
              DatabaseManager databaseManager, DoorRegistry doorRegistry, DoorActivityManager doorActivityManager,
              LimitsManager limitsManager, AutoCloseScheduler autoCloseScheduler, DoorOpeningHelper doorOpeningHelper,
              DoorToggleRequestBuilder doorToggleRequestBuilder, IPPlayerFactory playerFactory,
-             IBigDoorsPlatform bigDoorsPlatform, Provider<BlockMover.Context> blockMoverContextProvider)
+             IDoorEventCaller doorEventCaller, Provider<BlockMover.Context> blockMoverContextProvider,
+             IPExecutor executor)
     {
         this.doorUID = doorUID;
         this.name = name;
@@ -164,8 +169,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorOpeningHelper = doorOpeningHelper;
         this.doorToggleRequestBuilder = doorToggleRequestBuilder;
         this.playerFactory = playerFactory;
-        this.bigDoorsPlatform = bigDoorsPlatform;
+        this.doorEventCaller = doorEventCaller;
         this.blockMoverContextProvider = blockMoverContextProvider;
+        this.executor = executor;
     }
 
     // Copy constructor
@@ -192,8 +198,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         doorOpeningHelper = other.doorOpeningHelper;
         doorToggleRequestBuilder = other.doorToggleRequestBuilder;
         playerFactory = other.playerFactory;
-        bigDoorsPlatform = other.bigDoorsPlatform;
+        doorEventCaller = other.doorEventCaller;
         blockMoverContextProvider = other.blockMoverContextProvider;
+        executor = other.executor;
     }
 
     /**
@@ -417,7 +424,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
                                             boolean skipAnimation, Cuboid newCuboid, IPPlayer responsible,
                                             DoorActionType actionType)
     {
-        if (!bigDoorsPlatform.isMainThread(Thread.currentThread().getId()))
+        if (!executor.isMainThread(Thread.currentThread().getId()))
         {
             doorActivityManager.setDoorAvailable(getDoorUID());
             log.at(Level.SEVERE).withCause(

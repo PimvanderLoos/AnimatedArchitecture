@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot;
 
 import dagger.BindsInstance;
 import dagger.Component;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.IChunkManager;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -20,6 +19,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
@@ -38,7 +38,7 @@ import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerModule;
 import nl.pim16aap2.bigdoors.spigot.compatiblity.ProtectionCompatManagerSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigotModule;
-import nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory.BigDoorsEventFactorySpigotModule;
+import nl.pim16aap2.bigdoors.spigot.factories.bigdoorseventfactory.BigDoorsEventsSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.plocationfactory.PLocationFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.pplayerfactory.PPlayerFactorySpigotModule;
 import nl.pim16aap2.bigdoors.spigot.factories.pworldfactory.PWorldFactorySpigotModule;
@@ -75,7 +75,6 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {
     BigDoorsPluginModule.class,
-    BigDoorsSpigotPlatformModule.class,
     PlatformManagerSpigotModule.class,
     ProtectionCompatManagerModule.class,
     ConfigLoaderSpigotModule.class,
@@ -85,7 +84,7 @@ import javax.inject.Singleton;
     PServerModule.class,
     PWorldFactorySpigotModule.class,
     PLocationFactorySpigotModule.class,
-    BigDoorsEventFactorySpigotModule.class,
+    BigDoorsEventsSpigotModule.class,
     PPlayerFactorySpigotModule.class,
     ChunkManagerSpigotModule.class,
     MessagingInterfaceSpigotModule.class,
@@ -117,7 +116,10 @@ interface BigDoorsSpigotComponent
 
     SubPlatformManager getSubPlatformManager();
 
-    IBigDoorsPlatform getBigDoorsPlatform();
+    IDoorEventCaller getDoorEventCaller();
+
+    @Named("mainThreadId")
+    long getMainThreadId();
 
     IBigDoorsSpigotSubPlatform getSpigotSubPlatform();
 

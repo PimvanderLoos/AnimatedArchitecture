@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
@@ -149,7 +148,7 @@ public abstract class BlockMover implements IRestartable
         fallingBlockFactory = context.getFallingBlockFactory();
         soundEngine = context.getSoundEngine();
 
-        if (!context.getBigDoorsPlatform().isMainThread(Thread.currentThread().getId()))
+        if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
 
         autoCloseScheduler.unscheduleAutoClose(door.getDoorUID());
@@ -545,14 +544,12 @@ public abstract class BlockMover implements IRestartable
         private final IPBlockDataFactory blockDataFactory;
         private final ISoundEngine soundEngine;
         private final IPExecutor executor;
-        private final IBigDoorsPlatform bigDoorsPlatform;
         private final IFallingBlockFactory fallingBlockFactory;
 
         @Inject
         public Context(DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
                        IPLocationFactory locationFactory, IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
-                       IPExecutor executor, IBigDoorsPlatform bigDoorsPlatform,
-                       IFallingBlockFactory fallingBlockFactory)
+                       IPExecutor executor, IFallingBlockFactory fallingBlockFactory)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
@@ -560,7 +557,6 @@ public abstract class BlockMover implements IRestartable
             this.blockDataFactory = blockDataFactory;
             this.soundEngine = soundEngine;
             this.executor = executor;
-            this.bigDoorsPlatform = bigDoorsPlatform;
             this.fallingBlockFactory = fallingBlockFactory;
         }
     }

@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.inject.Named;
@@ -15,6 +16,10 @@ public abstract class BigDoorsPluginModule
     @Binds
     @Singleton
     abstract JavaPlugin getPlugin(BigDoorsPlugin bigDoorsPlugin);
+
+    @Binds
+    @Singleton
+    abstract IBigDoorsPlatformProvider getBigDoorsPlatformProvider(BigDoorsPlugin bigDoorsPlugin);
 
     @Provides
     @Singleton
@@ -54,5 +59,13 @@ public abstract class BigDoorsPluginModule
     static String provideLocalizationBaseName()
     {
         return "translations";
+    }
+
+    @Provides
+    @Singleton
+    @Named("mainThreadId")
+    static long getMainThreadId(BigDoorsPlugin bigDoorsPlugin)
+    {
+        return bigDoorsPlugin.getMainThreadId();
     }
 }

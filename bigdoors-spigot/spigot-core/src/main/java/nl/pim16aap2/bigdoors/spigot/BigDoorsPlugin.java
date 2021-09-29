@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -18,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -30,7 +33,7 @@ import java.util.logging.Level;
  */
 @Singleton
 @Flogger
-public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
+public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IBigDoorsPlatformProvider
 {
     private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
         new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
@@ -40,9 +43,13 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
     private final RestartableHolder restartableHolder;
+
+    @Getter(AccessLevel.PACKAGE)
     private final long mainThreadId;
 
     private @Nullable BigDoorsSpigotPlatform bigDoorsSpigotPlatform;
+    // Avoid creating new Optional objects for every invocation; the result is going to be the same anyway.
+    private volatile Optional<IBigDoorsPlatform> optionalBigDoorsSpigotPlatform;
 
     private boolean successfulInit;
     private boolean initialized = false;
@@ -98,15 +105,10 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
      * @return The {@link BigDoorsSpigotPlatform} if it was initialized properly.
      */
     @SuppressWarnings("unused")
-    public @Nullable BigDoorsSpigotPlatform getBigDoorsSpigotPlatform(JavaPlugin javaPlugin)
+    public Optional<BigDoorsSpigotPlatform> getBigDoorsSpigotPlatform(JavaPlugin javaPlugin)
     {
         registeredPlugins.add(javaPlugin);
-        return bigDoorsSpigotPlatform;
-    }
-
-    @Nullable BigDoorsSpigotPlatform getBigDoorsSpigotPlatform()
-    {
-        return bigDoorsSpigotPlatform;
+        return Optional.ofNullable(bigDoorsSpigotPlatform);
     }
 
     /**
@@ -145,12 +147,13 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
         shutdown();
     }
 
-    private @Nullable BigDoorsSpigotPlatform initPlatform()
+    // Synchronized to ensure visibility of the platform.
+    private synchronized @Nullable BigDoorsSpigotPlatform initPlatform()
     {
         try
         {
             final BigDoorsSpigotPlatform platform =
-                new BigDoorsSpigotPlatform(bigDoorsSpigotComponent, this, mainThreadId);
+                new BigDoorsSpigotPlatform(bigDoorsSpigotComponent, this);
             successfulInit = true;
             log.at(Level.INFO).log("Successfully enabled BigDoors %s", getDescription().getVersion());
             return platform;
@@ -169,7 +172,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
         shutdown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, null, null, null, null));
+        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null, null, null));
         successfulInit = false;
     }
 
@@ -190,6 +193,21 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable
             updateManager = null;
         }
         new LoginMessageListener(this, updateManager);
+    }
+
+    @Override
+    public Optional<IBigDoorsPlatform> getPlatform()
+    {
+        if (optionalBigDoorsSpigotPlatform.isPresent() || bigDoorsSpigotPlatform == null)
+            return optionalBigDoorsSpigotPlatform;
+        return optionalBigDoorsSpigotPlatform = Optional.of(bigDoorsSpigotPlatform);
+    }
+
+    private synchronized Optional<IBigDoorsPlatform> updatePlatform()
+    {
+        if (optionalBigDoorsSpigotPlatform.isPresent())
+            return optionalBigDoorsSpigotPlatform;
+        return optionalBigDoorsSpigotPlatform = Optional.ofNullable(bigDoorsSpigotPlatform);
     }
 
     @Override

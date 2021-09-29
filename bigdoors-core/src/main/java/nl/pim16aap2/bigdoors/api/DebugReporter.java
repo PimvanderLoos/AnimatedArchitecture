@@ -1,12 +1,11 @@
 package nl.pim16aap2.bigdoors.api;
 
 import lombok.AllArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 
 @AllArgsConstructor
 public class DebugReporter
 {
-    protected final @Nullable IBigDoorsPlatform platform;
+    protected final IBigDoorsPlatformProvider platformProvider;
 
     /**
      * Gets the data-dump containing useful information for debugging issues.
@@ -42,10 +41,13 @@ public class DebugReporter
             .append('\n')
             .append("TMP SQLite: ").append(System.getProperty("org.sqlite.tmpdir"))
             .append('\n')
-            .append("Registered Platform: ").append(platform == null ? "null" : platform.getClass().getName())
+            .append("Registered Platform: ")
+            .append(platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))
             .append('\n')
 
             .toString();
+
+
     }
 
     @Override

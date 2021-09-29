@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.managers;
 
 import dagger.Lazy;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
@@ -12,6 +11,7 @@ import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.events.ICancellableBigDoorsEvent;
 import nl.pim16aap2.bigdoors.events.IDoorCreatedEvent;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareCreateEvent;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
@@ -57,8 +57,8 @@ public final class DatabaseManager extends Restartable
 
     private final IStorage db;
 
+    private final IDoorEventCaller doorEventCaller;
     private final DoorRegistry doorRegistry;
-    private final IBigDoorsPlatform bigDoorsPlatform;
     private final Lazy<PowerBlockManager> powerBlockManager;
     private final IBigDoorsEventFactory bigDoorsEventFactory;
 
@@ -72,13 +72,13 @@ public final class DatabaseManager extends Restartable
      */
     @Inject
     public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
-                           IBigDoorsPlatform bigDoorsPlatform, Lazy<PowerBlockManager> powerBlockManager,
-                           IBigDoorsEventFactory bigDoorsEventFactory)
+                           Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
+                           IDoorEventCaller doorEventCaller)
     {
         super(restartableHolder);
         db = storage;
+        this.doorEventCaller = doorEventCaller;
         this.doorRegistry = doorRegistry;
-        this.bigDoorsPlatform = bigDoorsPlatform;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
 
@@ -181,7 +181,8 @@ public final class DatabaseManager extends Restartable
 
                 final IDoorCreatedEvent doorCreatedEvent =
                     bigDoorsEventFactory.createDoorCreatedEvent(result.second.get(), responsible);
-                bigDoorsPlatform.callDoorEvent(doorCreatedEvent);
+
+                doorEventCaller.callDoorEvent(doorCreatedEvent);
             });
     }
 
@@ -529,7 +530,7 @@ public final class DatabaseManager extends Restartable
             () ->
             {
                 final var event = factoryMethod.apply(bigDoorsEventFactory);
-                bigDoorsPlatform.callDoorEvent(event);
+                doorEventCaller.callDoorEvent(event);
                 return event.isCancelled();
             });
     }
