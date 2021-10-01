@@ -375,9 +375,9 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public long getSimplePowerBlockChunkHash()
+    public long getChunkId()
     {
-        return doorBase.getSimplePowerBlockChunkHash();
+        return doorBase.getChunkId();
     }
 
     @Override

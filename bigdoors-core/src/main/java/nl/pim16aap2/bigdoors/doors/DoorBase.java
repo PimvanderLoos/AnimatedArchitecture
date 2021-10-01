@@ -391,9 +391,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public synchronized long getSimplePowerBlockChunkHash()
+    public synchronized long getChunkId()
     {
-        return Util.simpleChunkHashFromLocation(powerBlock.x(), powerBlock.z());
+        return Util.getChunkId(powerBlock);
     }
 
     /**
@@ -456,7 +456,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
             + formatLine("Cuboid", getCuboid())
             + formatLine("Engine", getEngine())
             + formatLine("PowerBlock position: ", getPowerBlock())
-            + formatLine("PowerBlock Hash: ", getSimplePowerBlockChunkHash())
+            + formatLine("PowerBlock Hash: ", getChunkId())
             + formatLine("World", getWorld())
             + "This door is " + (isLocked ? "" : "NOT ") + "locked.\n"
             + "This door is " + (isOpen ? "open.\n" : "closed.\n")

@@ -259,7 +259,7 @@ public interface IDoor
     /**
      * @return The simple hash of the chunk in which the power block resides.
      */
-    long getSimplePowerBlockChunkHash();
+    long getChunkId();
 
     @Override
     boolean equals(Object o);

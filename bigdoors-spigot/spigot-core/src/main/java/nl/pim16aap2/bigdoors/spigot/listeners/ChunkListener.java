@@ -84,9 +84,8 @@ public class ChunkListener extends AbstractListener
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void onChunkLoad(ChunkLoadEvent event)
     {
-        final long chunkHash = Util.simpleChunkHashFromChunkCoordinates(event.getChunk().getX(),
-                                                                        event.getChunk().getZ());
-        databaseManager.getDoorsInChunk(chunkHash).whenComplete(
+        final long chunkId = Util.getChunkId(event.getChunk().getX(), event.getChunk().getZ());
+        databaseManager.getDoorsInChunk(chunkId).whenComplete(
             (doors, throwable) ->
                 doors.forEach(doorUID -> databaseManager.getDoor(doorUID).whenComplete(
                     (optionalDoor, throwable2) ->

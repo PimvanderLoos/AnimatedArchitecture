@@ -2,10 +2,10 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
+import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
 import nl.pim16aap2.bigdoors.events.IDoorPrepareLockChangeEvent;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
@@ -40,9 +40,6 @@ class LockTest
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Lock.IFactory factory;
 
-    @Mock
-    private IBigDoorsPlatform platform;
-
     @BeforeEach
     void init()
     {
@@ -66,7 +63,8 @@ class LockTest
                                      Mockito.anyBoolean()))
                .thenAnswer(invoc -> new Lock(invoc.getArgument(0, ICommandSender.class), localizer,
                                              invoc.getArgument(1, DoorRetriever.class),
-                                             invoc.getArgument(2, Boolean.class), platform, eventFactory));
+                                             invoc.getArgument(2, Boolean.class), Mockito.mock(IDoorEventCaller.class),
+                                             eventFactory));
     }
 
     @Test

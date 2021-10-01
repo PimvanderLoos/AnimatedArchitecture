@@ -384,9 +384,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         insertOrIgnorePlayer(conn, playerData);
 
         final String worldName = door.getWorld().worldName();
-        final long engineHash = Util.simpleChunkHashFromLocation(door.getEngine().x(), door.getEngine().z());
-        final long powerBlockHash = Util
-            .simpleChunkHashFromLocation(door.getPowerBlock().x(), door.getPowerBlock().z());
         executeUpdate(conn, SQLStatement.INSERT_DOOR_BASE.constructPPreparedStatement()
                                                          .setNextString(door.getName())
                                                          .setNextString(worldName)
@@ -399,11 +396,11 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                                          .setNextInt(door.getEngine().x())
                                                          .setNextInt(door.getEngine().y())
                                                          .setNextInt(door.getEngine().z())
-                                                         .setNextLong(engineHash)
+                                                         .setNextLong(Util.getChunkId(door.getEngine()))
                                                          .setNextInt(door.getPowerBlock().x())
                                                          .setNextInt(door.getPowerBlock().y())
                                                          .setNextInt(door.getPowerBlock().z())
-                                                         .setNextLong(powerBlockHash)
+                                                         .setNextLong(Util.getChunkId(door.getPowerBlock()))
                                                          .setNextInt(RotateDirection.getValue(door.getOpenDir()))
                                                          .setNextLong(getFlag(door))
                                                          .setNextString(doorType)
@@ -465,14 +462,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                  .setNextInt(doorBase.getEngine().x())
                                  .setNextInt(doorBase.getEngine().y())
                                  .setNextInt(doorBase.getEngine().z())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(doorBase.getEngine().x(),
-                                                                               doorBase.getEngine().z()))
+                                 .setNextLong(Util.getChunkId(doorBase.getEngine()))
 
                                  .setNextInt(doorBase.getPowerBlock().x())
                                  .setNextInt(doorBase.getPowerBlock().y())
                                  .setNextInt(doorBase.getPowerBlock().z())
-                                 .setNextLong(Util.simpleChunkHashFromLocation(doorBase.getPowerBlock().x(),
-                                                                               doorBase.getPowerBlock().z()))
+                                 .setNextLong(Util.getChunkId(doorBase.getPowerBlock()))
 
                                  .setNextInt(RotateDirection.getValue(doorBase.getOpenDir()))
                                  .setNextLong(getFlag(doorBase.isOpen(), doorBase.isLocked()))
@@ -713,10 +708,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkHash)
+    public ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId)
     {
         return executeQuery(SQLStatement.GET_POWER_BLOCK_DATA_IN_CHUNK.constructPPreparedStatement()
-                                                                      .setLong(1, chunkHash),
+                                                                      .setLong(1, chunkId),
                             resultSet ->
                             {
                                 final ConcurrentHashMap<Integer, List<Long>> doors = new ConcurrentHashMap<>();
@@ -735,10 +730,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     }
 
     @Override
-    public List<Long> getDoorsInChunk(long chunkHash)
+    public List<Long> getDoorsInChunk(long chunkId)
     {
         return executeQuery(SQLStatement.GET_DOOR_IDS_IN_CHUNK.constructPPreparedStatement()
-                                                              .setLong(1, chunkHash),
+                                                              .setLong(1, chunkId),
                             resultSet ->
                             {
                                 final List<Long> doors = new ArrayList<>();
@@ -889,7 +884,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
 
             if (dbVersion < 11)
-                upgradeToV11(conn);
+                throw new IllegalStateException("Database version " + dbVersion + " is not supported!");
 
             // Do this at the very end, so the db version isn't altered if anything fails.
             updateDBVersion(conn);
@@ -936,40 +931,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         try (Statement statement = conn.createStatement())
         {
             statement.execute("PRAGMA user_version = " + DATABASE_VERSION + ";");
-        }
-        catch (SQLException | NullPointerException e)
-        {
-            log.at(Level.SEVERE).withCause(e).log();
-        }
-    }
-
-    /**
-     * Upgrades the database to V11.
-     *
-     * @param conn
-     *     Opened database connection.
-     */
-    /*
-     * Changes in V11:
-     * - Updating chunkHash of all doors because the algorithm was changed.
-     */
-    private void upgradeToV11(Connection conn)
-    {
-        try (PreparedStatement ps1 = conn.prepareStatement("SELECT * FROM doors;");
-             ResultSet rs1 = ps1.executeQuery())
-        {
-            log.at(Level.WARNING).log("Upgrading database to V11!");
-
-            while (rs1.next())
-            {
-                final long UID = rs1.getLong("id");
-                final int x = rs1.getInt("powerBlockX");
-                final int z = rs1.getInt("powerBlockZ");
-
-                executeUpdate(conn, new PPreparedStatement(2, "UPDATE doors SET chunkHash=? WHERE id=?;")
-                    .setLong(1, Util.simpleChunkHashFromLocation(x, z))
-                    .setLong(2, UID));
-            }
         }
         catch (SQLException | NullPointerException e)
         {

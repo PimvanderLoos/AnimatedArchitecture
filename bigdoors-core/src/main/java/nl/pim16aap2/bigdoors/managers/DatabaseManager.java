@@ -234,13 +234,13 @@ public final class DatabaseManager extends Restartable
     /**
      * Gets a list of door UIDs that have their engine in a given chunk.
      *
-     * @param chunkHash
-     *     The hash of the chunk the doors are in.
+     * @param chunkId
+     *     The id of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
-    public CompletableFuture<List<Long>> getDoorsInChunk(long chunkHash)
+    public CompletableFuture<List<Long>> getDoorsInChunk(long chunkId)
     {
-        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkHash), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getDoorsInChunk(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
     }
 
@@ -662,13 +662,13 @@ public final class DatabaseManager extends Restartable
      * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
      * occupies that location.
      *
-     * @param chunkHash
-     *     The hash of the chunk the doors are in.
+     * @param chunkId
+     *     The id of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkHash)
+    CompletableFuture<ConcurrentHashMap<Integer, List<Long>>> getPowerBlockData(long chunkId)
     {
-        return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkHash), threadPool)
+        return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
     }
 

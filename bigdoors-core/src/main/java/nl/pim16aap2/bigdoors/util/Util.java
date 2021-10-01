@@ -480,13 +480,80 @@ public final class Util
      */
     public static int getRandomNumber(int min, int max)
     {
-
         if (min >= max)
         {
             throw new IllegalArgumentException("max must be greater than min");
         }
 
         return RANDOM.nextInt((max - min) + 1) + min;
+    }
+
+    /**
+     * Gets the ID of the chunk associated with a position.
+     *
+     * @param position
+     *     The position from which to retrieve the chunk.
+     * @return The ID of the chunk.
+     */
+    public static long getChunkId(Vector3Di position)
+    {
+        return getChunkId(position.x() << 4, position.z() << 4);
+    }
+
+    /**
+     * Gets the ID of the chunk associated with a position.
+     *
+     * @param x
+     *     The x-coordinate of the position.
+     * @param y
+     *     The y-coordinate of the position.
+     * @param z
+     *     The z-coordinate of the position.
+     * @return The ID of the chunk.
+     */
+    public static long getChunkId(int x, int y, int z)
+    {
+        return getChunkId(x << 4, z << 4);
+    }
+
+    /**
+     * Gets the ID of the chunk from its coordinates.
+     *
+     * @param chunkCoords
+     *     The coordinates of the chunk.
+     * @return The ID of the chunk.
+     */
+    public static long getChunkId(Vector2Di chunkCoords)
+    {
+        return getChunkId(chunkCoords.x(), chunkCoords.y());
+    }
+
+    /**
+     * Gets the ID of the chunk from its coordinates.
+     *
+     * @param chunkX
+     *     The x-coordinate of the chunk.
+     * @param chunkZ
+     *     The z-coordinate of the chunk.
+     * @return The ID of the chunk.
+     */
+    public static long getChunkId(int chunkX, int chunkZ)
+    {
+        return (((long) chunkX) << 32) | (chunkZ & 0xffffffffL);
+    }
+
+    /**
+     * Retrieves the chunk coordinates from the chunk's ID. See {@link #getChunkId(Vector2Di)}.
+     *
+     * @param chunkId
+     *     The ID of the chunk.
+     * @return The x/z coordinates of the chunk.
+     */
+    public static Vector2Di getChunkFromId(long chunkId)
+    {
+        final int chunkX = (int) (chunkId >> 32);
+        final int chunkZ = (int) chunkId;
+        return new Vector2Di(chunkX, chunkZ);
     }
 
     /**
@@ -502,41 +569,7 @@ public final class Util
     }
 
     /**
-     * Gets the 'simple' hash of the chunk given its coordinates. 'simple' here refers to the fact that the world of
-     * this chunk will not be taken into account.
-     *
-     * @param chunkX
-     *     The x-coordinate of the chunk.
-     * @param chunkZ
-     *     The z-coordinate of the chunk.
-     * @return The simple hash of the chunk.
-     */
-    public static long simpleChunkHashFromChunkCoordinates(int chunkX, int chunkZ)
-    {
-        long hash = 3;
-        hash = 19 * hash + (int) (Double.doubleToLongBits(chunkX) ^ (Double.doubleToLongBits(chunkX) >>> 32));
-        hash = 19 * hash + (int) (Double.doubleToLongBits(chunkZ) ^ (Double.doubleToLongBits(chunkZ) >>> 32));
-        return hash;
-    }
-
-    /**
-     * Gets the 'simple' hash of the chunk that encompasses the given coordinates. 'simple' here refers to the fact that
-     * the world of this chunk will not be taken into account.
-     *
-     * @param posX
-     *     The x-coordinate of the location.
-     * @param posZ
-     *     The z-coordinate of the location.
-     * @return The simple hash of the chunk.
-     */
-    public static long simpleChunkHashFromLocation(int posX, int posZ)
-    {
-        return simpleChunkHashFromChunkCoordinates(posX >> 4, posZ >> 4);
-    }
-
-    /**
-     * Gets the 'simple' hash of a location. 'simple' here refers to the fact that the world of this location will not
-     * be taken into account.
+     * Gets the hash of a location.
      *
      * @param x
      *     The x-coordinate of the location.
@@ -546,7 +579,7 @@ public final class Util
      *     The z-coordinate of the location.
      * @return The simple hash of the location.
      */
-    public static long simpleLocationhash(int x, int y, int z)
+    public static long getLocationHash(int x, int y, int z)
     {
         int hash = 3;
         hash = 19 * hash + (int) (Double.doubleToLongBits(x) ^ Double.doubleToLongBits(x) >>> 32);
@@ -556,11 +589,11 @@ public final class Util
     }
 
     /**
-     * Converts worldspace coordinates to chunkspace coordinates.
+     * Converts world-space coordinates to chunk-space coordinates.
      *
      * @param position
      *     The position in world space coordinates.
-     * @return The coordinates in chunkspace coordinates.
+     * @return The coordinates in chunk-space coordinates.
      */
     public static Vector3Di getChunkSpacePosition(Vector3Di position)
     {
@@ -576,7 +609,7 @@ public final class Util
      *     The y coordinate in world space.
      * @param z
      *     The z coordinate in world space.
-     * @return The coordinates in chunkspace coordinates.
+     * @return The coordinates in chunk-space coordinates.
      */
     public static Vector3Di getChunkSpacePosition(int x, int y, int z)
     {

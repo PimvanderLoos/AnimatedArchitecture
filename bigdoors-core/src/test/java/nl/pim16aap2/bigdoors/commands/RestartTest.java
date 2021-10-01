@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.commands;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 
@@ -21,7 +23,10 @@ class RestartTest
     private IPServer commandSender;
 
     @Mock
-    private IBigDoorsPlatform bigDoorsPlatform;
+    private IBigDoorsPlatformProvider platformProvider;
+
+    @Mock
+    private IBigDoorsPlatform platform;
 
     @Mock(answer = Answers.CALLS_REAL_METHODS)
     private Restart.IFactory factory;
@@ -31,11 +36,13 @@ class RestartTest
     {
         MockitoAnnotations.openMocks(this);
 
+        Mockito.when(platformProvider.getPlatform()).thenReturn(Optional.of(platform));
+
         final ILocalizer localizer = UnitTestUtil.initLocalizer();
 
         Mockito.when(factory.newRestart(Mockito.any(ICommandSender.class)))
                .thenAnswer(invoc -> new Restart(invoc.getArgument(0, ICommandSender.class),
-                                                localizer, bigDoorsPlatform));
+                                                localizer, platformProvider));
     }
 
     @Test
@@ -43,6 +50,6 @@ class RestartTest
     void test()
     {
         Assertions.assertTrue(factory.newRestart(commandSender).run().get(1, TimeUnit.SECONDS));
-        Mockito.verify(bigDoorsPlatform).restartPlugin();
+        Mockito.verify(platform).restartPlugin();
     }
 }

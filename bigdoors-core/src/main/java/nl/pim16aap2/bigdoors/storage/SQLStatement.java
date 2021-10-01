@@ -24,11 +24,11 @@ public enum SQLStatement
         engineX        = ?,
         engineY        = ?,
         engineZ        = ?,
-        engineHash     = ?,
+        engineChunkId     = ?,
         powerBlockX    = ?,
         powerBlockY    = ?,
         powerBlockZ    = ?,
-        powerBlockHash = ?,
+        powerBlockChunkId = ?,
         openDirection  = ?,
         bitflag        = ?,
         typeData       = ?
@@ -79,14 +79,14 @@ public enum SQLStatement
     ),
 
     GET_POWER_BLOCK_DATA_IN_CHUNK(
-        "SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockHash FROM DoorBase WHERE powerBlockHash = ?;"
+        "SELECT id, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId FROM DoorBase WHERE powerBlockChunkId = ?;"
     ),
 
     /**
      * Gets all the doors that have their <b>engine</b> in the chunk with the given chunk hash.
      */
     GET_DOORS_IN_CHUNK(
-        "SELECT * FROM DoorBase WHERE engineHash = ?;"
+        "SELECT * FROM DoorBase WHERE engineChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA(
@@ -176,7 +176,7 @@ public enum SQLStatement
         """
         SELECT DoorBase.id
         FROM DoorBase
-        WHERE DoorBase.engineHash = ?;
+        WHERE DoorBase.engineChunkId = ?;
         """
     ),
 
@@ -231,8 +231,8 @@ public enum SQLStatement
     INSERT_DOOR_BASE(
         """
         INSERT INTO DoorBase
-        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineHash,
-        powerBlockX, powerBlockY, powerBlockZ, powerBlockHash, openDirection, bitflag, doorType, typeData)
+        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineChunkId,
+        powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection, bitflag, doorType, typeData)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
     ),
@@ -307,27 +307,27 @@ public enum SQLStatement
     CREATE_TABLE_DOORBASE(
         """
         CREATE TABLE IF NOT EXISTS DoorBase
-        (id            INTEGER    PRIMARY KEY AUTOINCREMENT,
-        name           TEXT       NOT NULL,
-        world          TEXT       NOT NULL,
-        xMin           INTEGER    NOT NULL,
-        yMin           INTEGER    NOT NULL,
-        zMin           INTEGER    NOT NULL,
-        xMax           INTEGER    NOT NULL,
-        yMax           INTEGER    NOT NULL,
-        zMax           INTEGER    NOT NULL,
-        engineX        INTEGER    NOT NULL,
-        engineY        INTEGER    NOT NULL,
-        engineZ        INTEGER    NOT NULL,
-        engineHash     INTEGER    NOT NULL,
-        powerBlockX    INTEGER    NOT NULL,
-        powerBlockY    INTEGER    NOT NULL,
-        powerBlockZ    INTEGER    NOT NULL,
-        powerBlockHash INTEGER    NOT NULL,
-        openDirection  INTEGER    NOT NULL,
-        doorType       TEXT       NOT NULL,
-        typeData       BLOB       NOT NULL,
-        bitflag        INTEGER    NOT NULL);
+        (id               INTEGER    PRIMARY KEY AUTOINCREMENT,
+        name              TEXT       NOT NULL,
+        world             TEXT       NOT NULL,
+        xMin              INTEGER    NOT NULL,
+        yMin              INTEGER    NOT NULL,
+        zMin              INTEGER    NOT NULL,
+        xMax              INTEGER    NOT NULL,
+        yMax              INTEGER    NOT NULL,
+        zMax              INTEGER    NOT NULL,
+        engineX           INTEGER    NOT NULL,
+        engineY           INTEGER    NOT NULL,
+        engineZ           INTEGER    NOT NULL,
+        engineChunkId     INTEGER    NOT NULL,
+        powerBlockX       INTEGER    NOT NULL,
+        powerBlockY       INTEGER    NOT NULL,
+        powerBlockZ       INTEGER    NOT NULL,
+        powerBlockChunkId INTEGER    NOT NULL,
+        openDirection     INTEGER    NOT NULL,
+        doorType          TEXT       NOT NULL,
+        typeData          BLOB       NOT NULL,
+        bitflag           INTEGER    NOT NULL);
         """
     ),
 

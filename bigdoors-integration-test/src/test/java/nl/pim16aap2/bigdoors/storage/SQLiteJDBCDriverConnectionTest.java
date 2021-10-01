@@ -256,9 +256,8 @@ public class SQLiteJDBCDriverConnectionTest
 
         Assertions.assertEquals(1, storage.getOwnerCountOfDoor(1L));
 
-        long chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().x(),
-                                                          door1.getPowerBlock().z());
-        Assertions.assertEquals(3, storage.getDoorsInChunk(chunkHash).size());
+        long chunkId = Util.getChunkId(door1.getPowerBlock());
+        Assertions.assertEquals(3, storage.getDoorsInChunk(chunkId).size());
 
         // Check if adding owners works correctly.
         UnitTestUtil.optionalEquals(1, storage.getDoor(1L), (door) -> door.getDoorOwners().size());
@@ -382,9 +381,8 @@ public class SQLiteJDBCDriverConnectionTest
         // Revert name change of player 2.
         Assertions.assertTrue(storage.updatePlayerData(PLAYER_DATA_2));
 
-        chunkHash = Util.simpleChunkHashFromLocation(door1.getPowerBlock().x(),
-                                                     door1.getPowerBlock().z());
-        final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkHash);
+        chunkId = Util.getChunkId(door1.getPowerBlock());
+        final ConcurrentHashMap<Integer, List<Long>> powerBlockData = storage.getPowerBlockData(chunkId);
         Assertions.assertNotNull(powerBlockData);
         Assertions.assertEquals(3, powerBlockData.elements().nextElement().size());
     }

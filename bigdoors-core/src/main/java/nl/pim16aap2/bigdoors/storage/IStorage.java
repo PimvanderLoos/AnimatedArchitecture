@@ -218,20 +218,20 @@ public interface IStorage
      * The key is the hashed location in chunk space, the value is the list of UIDs of the doors whose powerblocks
      * occupies that location.
      *
-     * @param chunkHash
-     *     The hash of the chunk the doors are in.
+     * @param chunkId
+     *     The id of the chunk the doors are in.
      * @return A map of location hashes and their connected powerblocks for all doors in a chunk.
      */
-    ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkHash);
+    ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId);
 
     /**
      * Gets a list of door UIDs that have their engine in a given chunk.
      *
-     * @param chunkHash
-     *     The hash of the chunk the doors are in.
+     * @param chunkId
+     *     The id of the chunk the doors are in.
      * @return A list of door UIDs that have their engine in a given chunk.
      */
-    List<Long> getDoorsInChunk(long chunkHash);
+    List<Long> getDoorsInChunk(long chunkId);
 
     /**
      * Inserts a new door in the database. If the insertion was successful, a new {@link AbstractDoor} will be created

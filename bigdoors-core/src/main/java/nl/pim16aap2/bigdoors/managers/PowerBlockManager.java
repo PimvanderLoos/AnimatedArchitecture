@@ -217,7 +217,7 @@ public final class PowerBlockManager extends Restartable
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
          * <p>
-         * Key: Simple chunk hash, {@link Util#simpleChunkHashFromLocation(int, int)}.
+         * Key: chunkId: {@link Util#getChunkId(Vector3Di)} (int, int)}.
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */
@@ -256,14 +256,14 @@ public final class PowerBlockManager extends Restartable
             if (!isBigDoorsWorld())
                 return CompletableFuture.completedFuture(Collections.emptyList());
 
-            final long chunkHash = Util.simpleChunkHashFromLocation(loc.x(), loc.z());
+            final long chunkId = Util.getChunkId(loc);
 
-            if (!powerBlockChunks.containsKey(chunkHash))
+            if (!powerBlockChunks.containsKey(chunkId))
             {
                 final PowerBlockChunk powerBlockChunk =
-                    powerBlockChunks.put(chunkHash, new PowerBlockChunk());
+                    powerBlockChunks.put(chunkId, new PowerBlockChunk());
 
-                return databaseManager.getPowerBlockData(chunkHash).handle(
+                return databaseManager.getPowerBlockData(chunkId).handle(
                     (map, exception) ->
                     {
                         powerBlockChunk.setPowerBlocks(map);
@@ -274,7 +274,7 @@ public final class PowerBlockManager extends Restartable
                     }).exceptionally(ex -> Util.exceptionally(ex, Collections.emptyList()));
             }
 
-            return CompletableFuture.completedFuture(powerBlockChunks.get(chunkHash)
+            return CompletableFuture.completedFuture(powerBlockChunks.get(chunkId)
                                                                      .map((entry) -> entry.getPowerBlocks(loc))
                                                                      .orElseGet(Collections::emptyList));
         }
@@ -287,7 +287,7 @@ public final class PowerBlockManager extends Restartable
          */
         private void invalidatePosition(Vector3Di pos)
         {
-            powerBlockChunks.remove(Util.simpleChunkHashFromLocation(pos.x(), pos.z()));
+            powerBlockChunks.remove(Util.getChunkId(pos));
         }
 
         /**
