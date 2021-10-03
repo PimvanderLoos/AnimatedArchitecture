@@ -64,12 +64,12 @@ public abstract class DebugReporter
             .append('\n');
 
         for (final IDebuggable debuggable : debuggables)
-            sb.append(debuggableToString(debuggable)).append('\n');
+            appendDebuggable(sb, debuggable);
 
         return sb.toString();
     }
 
-    private static String debuggableToString(IDebuggable debuggable)
+    private static void appendDebuggable(StringBuilder sb, IDebuggable debuggable)
     {
         final String debuggableName = debuggable.getClass().getName();
         @Nullable String msg;
@@ -86,7 +86,7 @@ public abstract class DebugReporter
             msg = "ERROR";
         }
 
-        return debuggableName + ":\n" + msg;
+        sb.append(debuggableName).append(":\n").append(msg).append('\n');
     }
 
     private static String getPlatformName(@Nullable IBigDoorsPlatformProvider platformProvider)
@@ -95,7 +95,8 @@ public abstract class DebugReporter
         {
             if (platformProvider == null)
                 return "ERROR: No platform provider!";
-            return platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL");
+            return platformProvider.getPlatform().map(platform -> platform.getClass().getName())
+                                   .orElse("NULL");
         }
         catch (Exception e)
         {

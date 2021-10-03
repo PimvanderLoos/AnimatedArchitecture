@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.testing.AssertionsUtil;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Answers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.UUID;
@@ -37,7 +39,7 @@ class DelayedCommandInputRequestTest
 
         LogInspector.get().clearHistory();
         localizer = UnitTestUtil.initLocalizer();
-        delayedCommandInputManager = new DelayedCommandInputManager();
+        delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebugReporter.class));
     }
 
     @Test

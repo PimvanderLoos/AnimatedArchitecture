@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
 import org.junit.jupiter.api.Assertions;
@@ -16,6 +17,9 @@ class DelayedCommandInputManagerTest
     @Mock
     ICommandSender commandSender;
 
+    @Mock
+    DebugReporter debugReporter;
+
     @BeforeEach
     void init()
     {
@@ -25,7 +29,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testRegistration()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
         final DelayedCommandInputRequest<?> request = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, request);
@@ -39,7 +43,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testCommandSenders()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
         final DelayedCommandInputRequest<?> request = Mockito.mock(DelayedCommandInputRequest.class);
         final ICommandSender altSender = Mockito.mock(ICommandSender.class);
 
@@ -52,7 +56,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregistration()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
         final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
         final DelayedCommandInputRequest<?> second = Mockito.mock(DelayedCommandInputRequest.class);
         final ICommandSender altSender = Mockito.mock(ICommandSender.class);
@@ -75,7 +79,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testCancelAll()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
         final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
 
         manager.register(commandSender, first);
@@ -87,7 +91,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testDeregisterAll()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
 
         final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
 
@@ -100,7 +104,7 @@ class DelayedCommandInputManagerTest
     @Test
     void testOverride()
     {
-        final DelayedCommandInputManager manager = new DelayedCommandInputManager();
+        final DelayedCommandInputManager manager = new DelayedCommandInputManager(debugReporter);
         final DelayedCommandInputRequest<?> first = Mockito.mock(DelayedCommandInputRequest.class);
         final DelayedCommandInputRequest<?> second = Mockito.mock(DelayedCommandInputRequest.class);
 

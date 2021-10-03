@@ -48,8 +48,12 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      */
     private final CommandDefinition commandDefinition;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final ILocalizer localizer;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final DelayedCommandInputManager delayedCommandInputManager;
 
     /**
@@ -59,6 +63,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * If the resulting message is blank, nothing will be sent to the user.
      */
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private final Supplier<String> initMessageSupplier;
 
     /**
@@ -70,6 +75,7 @@ public final class DelayedCommandInputRequest<T> extends DelayedInputRequest<T>
      * The output of the command. See {@link BaseCommand#run()}.
      */
     @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @Getter(AccessLevel.PROTECTED)
     private final CompletableFuture<Boolean> commandOutput;
 
