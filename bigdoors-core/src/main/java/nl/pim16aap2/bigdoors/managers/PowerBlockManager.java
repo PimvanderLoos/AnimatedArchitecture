@@ -217,7 +217,7 @@ public final class PowerBlockManager extends Restartable
         /**
          * TimedCache of all {@link PowerBlockChunk}s in this world.
          * <p>
-         * Key: chunkId: {@link Util#getChunkId(Vector3Di)} (int, int)}.
+         * Key: chunkId: {@link Util#getChunkId(Vector3Di)}.
          * <p>
          * Value: The {@link PowerBlockChunk}s.
          */

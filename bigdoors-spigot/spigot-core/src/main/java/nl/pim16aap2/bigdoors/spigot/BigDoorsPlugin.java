@@ -156,6 +156,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
                 new BigDoorsSpigotPlatform(bigDoorsSpigotComponent, this);
             successfulInit = true;
             log.at(Level.INFO).log("Successfully enabled BigDoors %s", getDescription().getVersion());
+            optionalBigDoorsSpigotPlatform = Optional.of(platform);
             return platform;
         }
         catch (Exception e)
@@ -174,6 +175,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         registerFailureLoginListener();
         log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null, null, null));
         successfulInit = false;
+        restartableHolder.shutdown();
     }
 
     /**
@@ -198,16 +200,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
     @Override
     public Optional<IBigDoorsPlatform> getPlatform()
     {
-        if (optionalBigDoorsSpigotPlatform.isPresent() || bigDoorsSpigotPlatform == null)
-            return optionalBigDoorsSpigotPlatform;
-        return updatePlatform();
-    }
-
-    private synchronized Optional<IBigDoorsPlatform> updatePlatform()
-    {
-        if (optionalBigDoorsSpigotPlatform.isPresent())
-            return optionalBigDoorsSpigotPlatform;
-        return optionalBigDoorsSpigotPlatform = Optional.ofNullable(bigDoorsSpigotPlatform);
+        return optionalBigDoorsSpigotPlatform;
     }
 
     @Override
@@ -218,6 +211,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
 
         if (bigDoorsSpigotPlatform != null)
             bigDoorsSpigotPlatform.getBigDoorsConfig().restart();
+
         restartableHolder.restart();
     }
 
