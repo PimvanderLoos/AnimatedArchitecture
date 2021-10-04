@@ -138,6 +138,13 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         if (bigDoorsSpigotPlatform != null)
             LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
 
+        final DebugReporterSpigot drs;
+        if (bigDoorsSpigotPlatform == null)
+            drs = new DebugReporterSpigot(this, this, null, null, null);
+        else
+            drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
+        System.out.println(drs.getDebugReport());
+
         initialized = true;
     }
 

@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
 import nl.pim16aap2.bigdoors.commands.ICommandSender;
@@ -17,13 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Pim
  */
 @Singleton
-public class DelayedCommandInputManager
+public class DelayedCommandInputManager implements IDebuggable
 {
     private final Map<ICommandSender, DelayedCommandInputRequest<?>> requests = new ConcurrentHashMap<>();
 
     @Inject
-    public DelayedCommandInputManager()
+    public DelayedCommandInputManager(DebugReporter debugReporter)
     {
+        debugReporter.registerDebuggable(this);
     }
 
     /**
@@ -98,5 +101,18 @@ public class DelayedCommandInputManager
     public Optional<DelayedCommandInputRequest<?>> getInputRequest(ICommandSender commandSender)
     {
         return Optional.ofNullable(requests.get(commandSender));
+    }
+
+    @Override
+    public @Nullable String getDebugInformation()
+    {
+        final StringBuilder sb = new StringBuilder(
+            String.format("  There are currently %d delayed command input requests active:", requests.size()))
+            .append('\n');
+
+        for (DelayedCommandInputRequest<?> inputRequest : requests.values())
+            sb.append("    - ").append(inputRequest).append('\n');
+
+        return sb.toString();
     }
 }

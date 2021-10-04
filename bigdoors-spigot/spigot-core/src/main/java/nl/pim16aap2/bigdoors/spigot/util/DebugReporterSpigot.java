@@ -1,10 +1,10 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.DebugReporter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
@@ -70,7 +70,7 @@ public class DebugReporterSpigot extends DebugReporter
             .append('\n')
             .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
-            .append("Registered plugins: ").append(bigDoorsPlugin.getRegisteredPlugins())
+            .append("Registered addons: ").append(bigDoorsPlugin.getRegisteredPlugins())
             .append('\n')
 
 //            // TODO: Implement this:

@@ -1,23 +1,34 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.api.debugging;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 
 @Flogger
 @AllArgsConstructor
 public abstract class DebugReporter
 {
+    private final List<IDebuggable> debuggables = new ArrayList<>();
+
     protected final IBigDoorsPlatformProvider platformProvider;
+
+    public final void registerDebuggable(IDebuggable debuggable)
+    {
+        debuggables.add(Objects.requireNonNull(debuggable, "Cannot register null debuggable!"));
+    }
 
     /**
      * Gets the data-dump containing useful information for debugging issues.
      */
     public final String getDebugReport()
     {
-        return new StringBuilder("BigDoors debug dump:\n")
+        final StringBuilder sb = new StringBuilder("BigDoors debug dump:\n")
             .append("Java home: ").append(System.getProperty("java.home"))
             .append('\n')
             .append("Java compiler: ").append(System.getProperty("java.compiler"))
@@ -50,9 +61,32 @@ public abstract class DebugReporter
             .append('\n')
 
             .append(getAdditionalDebugReport0())
-            .append('\n')
+            .append('\n');
 
-            .toString();
+        for (final IDebuggable debuggable : debuggables)
+            sb.append(debuggableToString(debuggable)).append('\n');
+
+        return sb.toString();
+    }
+
+    private static String debuggableToString(IDebuggable debuggable)
+    {
+        final String debuggableName = debuggable.getClass().getName();
+        @Nullable String msg;
+
+        try
+        {
+            msg = debuggable.getDebugInformation();
+            if (msg == null || msg.isBlank())
+                msg = "Nothing to log!";
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to get debug information for class: %s", debuggableName);
+            msg = "ERROR";
+        }
+
+        return debuggableName + ":\n" + msg;
     }
 
     private static String getPlatformName(@Nullable IBigDoorsPlatformProvider platformProvider)

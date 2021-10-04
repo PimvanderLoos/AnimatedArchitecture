@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
@@ -120,6 +121,8 @@ interface BigDoorsSpigotComponent
 
     @Named("mainThreadId")
     long getMainThreadId();
+
+    DebugReporter getDebugReporter();
 
     IBigDoorsSpigotSubPlatform getSpigotSubPlatform();
 
