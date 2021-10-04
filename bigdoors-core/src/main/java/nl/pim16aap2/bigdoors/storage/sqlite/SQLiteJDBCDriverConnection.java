@@ -58,7 +58,7 @@ import java.util.logging.Level;
 public final class SQLiteJDBCDriverConnection implements IStorage
 {
     private static final String DRIVER = "org.sqlite.JDBC";
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
     private static final int MIN_DATABASE_VERSION = 10;
 
     @Getter
