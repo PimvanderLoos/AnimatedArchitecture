@@ -52,9 +52,9 @@ public class DebugReporterSpigot extends DebugReporter
     }
 
     @Override
-    public String getDump()
+    protected String getAdditionalDebugReport()
     {
-        return new StringBuilder(super.getDump())
+        return new StringBuilder()
             // Try to use the platform's version first because that might contain more information (build id etc.)
             // But if that's not available, use the JavaPlugin's version instead.
             .append("BigDoors version: ").append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion))
@@ -64,8 +64,9 @@ public class DebugReporterSpigot extends DebugReporter
             .append("Registered door types: ")
             .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
             .append('\n')
-            .append("Enabled door types:    ")
-            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getEnabledDoorTypes()))
+            .append("Disabled door types:   ")
+            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
+
             .append('\n')
             .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
@@ -125,11 +126,5 @@ public class DebugReporterSpigot extends DebugReporter
     {
         return String.format("{%s: %s (%s)}",
                              listener.getPlugin(), listener.getListener(), listener.getPriority());
-    }
-
-    @Override
-    public String toString()
-    {
-        return getDump();
     }
 }

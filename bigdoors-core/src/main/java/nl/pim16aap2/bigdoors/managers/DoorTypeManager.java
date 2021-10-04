@@ -68,6 +68,15 @@ public final class DoorTypeManager extends Restartable
         return Collections.unmodifiableSet(doorTypeStatus.keySet());
     }
 
+    private List<DoorType> getDoorTypesWithStatus(boolean status)
+    {
+        final List<DoorType> enabledDoorTypes = new ArrayList<>();
+        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
+            if (doorType.getValue().status == status)
+                enabledDoorTypes.add(doorType.getKey());
+        return enabledDoorTypes;
+    }
+
     /**
      * Gets all {@link DoorType}s that are currently enabled.
      *
@@ -75,11 +84,17 @@ public final class DoorTypeManager extends Restartable
      */
     public List<DoorType> getEnabledDoorTypes()
     {
-        final List<DoorType> enabledDoorTypes = new ArrayList<>();
-        for (final Map.Entry<DoorType, DoorRegistrationStatus> doorType : doorTypeStatus.entrySet())
-            if (doorType.getValue().status)
-                enabledDoorTypes.add(doorType.getKey());
-        return enabledDoorTypes;
+        return getDoorTypesWithStatus(true);
+    }
+
+    /**
+     * Gets all {@link DoorType}s that are currently disabled.
+     *
+     * @return All {@link DoorType}s that are currently disabled.
+     */
+    public List<DoorType> getDisabledDoorTypes()
+    {
+        return getDoorTypesWithStatus(false);
     }
 
     /**

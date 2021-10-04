@@ -126,10 +126,12 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         url = "jdbc:sqlite:" + dbFile;
         if (!loadDriver())
         {
+            log.at(Level.WARNING).log("Failed to load database driver!");
             databaseState = DatabaseState.NO_DRIVER;
             return;
         }
         init();
+        log.at(Level.FINE).log("Database initialized! Current state: %s", databaseState);
         if (databaseState == DatabaseState.OUT_OF_DATE)
             upgrade();
     }
@@ -862,6 +864,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void upgrade()
     {
+        if (databaseState != DatabaseState.OUT_OF_DATE)
+            return;
+
         @Nullable Connection conn;
         try
         {
@@ -870,11 +875,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
 
             final int dbVersion = verifyDatabaseVersion(conn);
-            if (databaseState != DatabaseState.OUT_OF_DATE)
-            {
-                conn.close();
-                return;
-            }
+            log.at(Level.FINE).log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
 
             conn.close();
             if (!makeBackup())

@@ -47,7 +47,7 @@ public class Debug extends BaseCommand
 
     private void postDebugMessage()
     {
-        messagingInterface.writeToConsole(Level.INFO, debugReporter.getDump());
+        messagingInterface.writeToConsole(Level.INFO, debugReporter.getDebugReport());
     }
 
     @AssistedFactory
