@@ -1,14 +1,21 @@
 package nl.pim16aap2.bigdoors.api.restartable;
 
 
+import lombok.extern.flogger.Flogger;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
  * Represents an object that can issue a restart or shutdown to {@link IRestartable} objects.
  *
  * @author Pim
  */
+@Flogger
 public final class RestartableHolder
 {
     private final Set<IRestartable> restartables = new LinkedHashSet<>();
@@ -18,10 +25,12 @@ public final class RestartableHolder
      *
      * @param restartable
      *     A {@link IRestartable} object that can be restarted by this object.
+     * @throws NullPointerException
+     *     If the provided restartable is null.
      */
     public void registerRestartable(IRestartable restartable)
     {
-        restartables.add(restartable);
+        restartables.add(Objects.requireNonNull(restartable, "Cannot register null restartable!"));
     }
 
     /**
@@ -32,8 +41,10 @@ public final class RestartableHolder
      * @return True if the {@link IRestartable} has been registered with this object.
      */
     @SuppressWarnings("unused")
-    public boolean isRestartableRegistered(IRestartable restartable)
+    public boolean isRestartableRegistered(@Nullable IRestartable restartable)
     {
+        if (restartable == null)
+            return false;
         return restartables.contains(restartable);
     }
 
@@ -42,10 +53,12 @@ public final class RestartableHolder
      *
      * @param restartable
      *     The {@link IRestartable} to deregister.
+     * @throws NullPointerException
+     *     If the provided restartable is null.
      */
     public void deregisterRestartable(IRestartable restartable)
     {
-        restartables.remove(restartable);
+        restartables.remove(Objects.requireNonNull(restartable, "Cannot deregister null restartable!"));
     }
 
     /**
@@ -53,14 +66,27 @@ public final class RestartableHolder
      */
     public void restart()
     {
-        restartables.forEach(IRestartable::restart);
+        restartables.forEach(restartable -> runForRestartable("restart", IRestartable::restart, restartable));
     }
 
     /**
-     * Calls {@link IRestartable#shutdown()} ()} for all registered {@link IRestartable}s.
+     * Calls {@link IRestartable#shutdown()} for all registered {@link IRestartable}s.
      */
     public void shutdown()
     {
-        restartables.forEach(IRestartable::shutdown);
+        restartables.forEach(restartable -> runForRestartable("shutdown", IRestartable::shutdown, restartable));
+    }
+
+    private static void runForRestartable(String actionName, Consumer<IRestartable> action, IRestartable restartable)
+    {
+        try
+        {
+            action.accept(restartable);
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to apply %s for restartable %s!",
+                                                  actionName, restartable.getClass().getName());
+        }
     }
 }
