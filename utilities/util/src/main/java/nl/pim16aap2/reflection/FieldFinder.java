@@ -105,7 +105,7 @@ public class FieldFinder
         }
 
         @Override
-        public Field getRequired()
+        public Field get()
         {
             //noinspection ConstantConditions
             return Objects.requireNonNull(ReflectionBackend.getField(source, name, modifiers, fieldType),
@@ -117,7 +117,7 @@ public class FieldFinder
         }
 
         @Override
-        public @Nullable Field get()
+        public @Nullable Field getNullable()
         {
             return ReflectionBackend.getField(source, name, modifiers, fieldType);
         }
@@ -155,16 +155,16 @@ public class FieldFinder
         }
 
         @Override
-        public Field getRequired()
+        public Field get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(get(), String.format("Failed to find field: [%s %s %s.[*]].",
-                                                               optionalModifiersToString(modifiers),
-                                                               fieldType.getName(), source.getName()));
+            return Objects.requireNonNull(getNullable(), String.format("Failed to find field: [%s %s %s.[*]].",
+                                                                       optionalModifiersToString(modifiers),
+                                                                       fieldType.getName(), source.getName()));
         }
 
         @Override
-        public @Nullable Field get()
+        public @Nullable Field getNullable()
         {
             return ReflectionBackend.getField(source, modifiers, fieldType);
         }
@@ -197,7 +197,7 @@ public class FieldFinder
          *     If no fields could be found.
          */
         @Override
-        public List<Field> getRequired()
+        public List<Field> get()
         {
             return Objects.requireNonNull(getResult(true));
         }
@@ -208,7 +208,7 @@ public class FieldFinder
          * @return The fields that were requested, if any were found, otherwise an empty list.
          */
         @Override
-        public List<Field> get()
+        public List<Field> getNullable()
         {
             return getResult(false);
         }
@@ -249,8 +249,8 @@ public class FieldFinder
          * Configures the lower bound number of fields that have to be found.
          * <p>
          * For example, when this is set to 2 and only 1 field could be found with the current configuration, {@link
-         * #get()} will either return null (when null values are allowed) or throw a {@link IllegalStateException}
-         * (default).
+         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
+         * IllegalStateException} (default).
          *
          * @param val
          *     The minimum number of fields that have to be found for this finder to be able to complete successfully.
@@ -266,8 +266,9 @@ public class FieldFinder
         /**
          * Configures the upper bound number of fields that have to be found.
          * <p>
-         * For example, when this is set to 2 and 3 fields could be found with the current configuration, {@link #get()}
-         * will either return null (when null values are allowed) or throw a {@link IllegalStateException} (default).
+         * For example, when this is set to 2 and 3 fields could be found with the current configuration, {@link
+         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
+         * IllegalStateException} (default).
          *
          * @param val
          *     The maximum number of fields that can be found for this finder to be able to complete successfully.
@@ -284,8 +285,8 @@ public class FieldFinder
          * Configures the exact number of fields that have to be found.
          * <p>
          * For example, when this is set to 2 and 1 or 3 fields could be found with the current configuration, {@link
-         * #get()} will either return null (when null values are allowed) or throw a {@link IllegalStateException}
-         * (default).
+         * #getNullable()} will either return null (when null values are allowed) or throw a {@link
+         * IllegalStateException} (default).
          *
          * @param val
          *     The exact number of fields that must be found for this finder to be able to complete successfully.

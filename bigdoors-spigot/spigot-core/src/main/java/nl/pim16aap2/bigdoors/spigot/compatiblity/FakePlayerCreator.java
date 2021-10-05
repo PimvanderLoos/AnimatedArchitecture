@@ -8,15 +8,18 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import javax.inject.Singleton;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
+
+import static nl.pim16aap2.reflection.ReflectionBuilder.*;
 
 /**
  * Class used to create a fake-online player who is actually offline.
@@ -25,67 +28,73 @@ import java.util.logging.Level;
  */
 @Singleton
 @Flogger
-class FakePlayerCreator
+public class FakePlayerCreator
 {
-    static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";
+    public static final String FAKE_PLAYER_METADATA = "isBigDoorsFakePlayer";
 
     private final JavaPlugin plugin;
 
-    private final String nmsBase;
-    private final String craftBase;
-    private final Class<?> craftOfflinePlayer;
-    private final Class<?> craftWorld;
-    private final Method getProfile;
-    private final Method getHandle;
-    private final Method getServer;
-    private final Method getBukkitEntity;
-    private final Constructor<?> entityPlayerConstructor;
-    private final Constructor<?> playerInteractManagerConstructor;
-    private final Field uuid;
-    private final boolean success;
+    private final Class<?> classCraftOfflinePlayer;
+    private final Class<?> classCraftWorld;
+
+    private final Method methodGetProfile;
+    private final Method methodGetHandle;
+    private final Method methodGetServer;
+    private final Method methodGetBukkitEntity;
+
+    private final Constructor<?> cTorEntityPlayerConstructor;
+    private final @Nullable Constructor<?> cTorPlayerInteractManager;
+
+    private final Field fieldUuid;
+    private final Field fieldPlayerNameVar;
 
     FakePlayerCreator(JavaPlugin plugin)
-        throws NoSuchMethodException, ClassNotFoundException, NoSuchFieldException
     {
         this.plugin = plugin;
 
-        final String packageName = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + ".";
-        nmsBase = "net.minecraft.server." + packageName;
-        craftBase = "org.bukkit.craftbukkit." + packageName;
+        final String packageVersion = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        final String nmsBase = "net.minecraft.server." + packageVersion + ".";
+        final String craftBase = "org.bukkit.craftbukkit." + packageVersion + ".";
 
-        craftOfflinePlayer = getCraftClass("CraftOfflinePlayer");
-        craftWorld = getCraftClass("CraftWorld");
-        final Class<?> worldServer = getNMSClass("WorldServer");
-        final Class<?> entityPlayer = getNMSClass("EntityPlayer");
-        final Class<?> minecraftServer = getNMSClass("MinecraftServer");
-        final Class<?> playerInteractManager = getNMSClass("PlayerInteractManager");
-        final Class<?> classGameProfile = ReflectionBuilder.findClass("com.mojang.authlib.GameProfile").getRequired();
-        entityPlayerConstructor = entityPlayer.getConstructor(minecraftServer, worldServer, classGameProfile,
-                                                              playerInteractManager);
-        getBukkitEntity = entityPlayer.getMethod("getBukkitEntity");
-        getHandle = craftWorld.getMethod("getHandle");
-        getProfile = craftOfflinePlayer.getMethod("getProfile");
-        getServer = minecraftServer.getMethod("getServer");
-        uuid = getNMSClass("Entity").getDeclaredField("uniqueID");
-        uuid.setAccessible(true);
+        classCraftOfflinePlayer = ReflectionBuilder.findClass(craftBase + "CraftOfflinePlayer").get();
+        classCraftWorld = findClass(craftBase + "CraftWorld").get();
 
-        final Class<?> world = getNMSClass("World");
-        // TODO: wtf is this???
-//        PlayerInteractManagerConstructor = playerInteractManager.getConstructor(worldServer);
-        playerInteractManagerConstructor = playerInteractManager.getConstructor(world);
-        success = true;
-    }
+        final Class<?> classWorldServer =
+            findClass(nmsBase + "WorldServer", "net.minecraft.server.level.WorldServer").get();
+        final Class<?> classEntityPlayer =
+            findClass(nmsBase + "EntityPlayer", "net.minecraft.server.level.EntityPlayer").get();
+        final Class<?> classMinecraftServer =
+            findClass(nmsBase + "MinecraftServer", "net.minecraft.server.MinecraftServer").get();
+        final Class<?> classPlayerInteractManager =
+            findClass(nmsBase + "PlayerInteractManager", "net.minecraft.server.level.PlayerInteractManager").get();
+        final Class<?> classNMSEntity =
+            findClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity").get();
+        final Class<?> classGameProfile =
+            findClass("com.mojang.authlib.GameProfile").get();
 
-    private Class<?> getNMSClass(String name)
-        throws LinkageError, ClassNotFoundException
-    {
-        return Class.forName(nmsBase + name);
-    }
+        cTorEntityPlayerConstructor = findConstructor()
+            .inClass(classEntityPlayer)
+            .withParameters(parameterBuilder()
+                                .withRequiredParameters(classMinecraftServer, classWorldServer, classGameProfile)
+                                .withOptionalParameters(classPlayerInteractManager)).get();
 
-    private Class<?> getCraftClass(String name)
-        throws LinkageError, ClassNotFoundException
-    {
-        return Class.forName(craftBase + name);
+        methodGetBukkitEntity = findMethod().inClass(classEntityPlayer).withName("getBukkitEntity").get();
+        methodGetHandle = findMethod().inClass(classCraftWorld).withName("getHandle").get();
+        methodGetProfile = findMethod().inClass(classCraftOfflinePlayer).withName("getProfile").get();
+        methodGetServer = findMethod().inClass(classMinecraftServer).withName("getServer").get();
+
+        fieldUuid = findField().inClass(classNMSEntity).ofType(UUID.class).withModifiers(Modifier.PROTECTED).get();
+        fieldUuid.setAccessible(true);
+
+        fieldPlayerNameVar = findField().inClass(classGameProfile).withName("name").get();
+        fieldPlayerNameVar.setAccessible(true);
+
+        final Class<?> classNMSWorld = findClass(nmsBase + "World", "net.minecraft.world.level.World").get();
+        cTorPlayerInteractManager = findConstructor().inClass(classPlayerInteractManager)
+                                                     .withParameters(parameterBuilder()
+                                                                         .withOptionalParameters(classWorldServer)
+                                                                         .withOptionalParameters(classNMSWorld))
+                                                     .getNullable();
     }
 
     /**
@@ -97,31 +106,36 @@ class FakePlayerCreator
      *     The world the fake {@link Player} is supposedly in.
      * @return The fake-online {@link Player}
      */
-    Optional<Player> getFakePlayer(OfflinePlayer oPlayer, World world)
+    public Optional<Player> getFakePlayer(OfflinePlayer oPlayer, String playerName, World world)
     {
-        if (!success)
-            return Optional.empty();
-
         @Nullable Player player = null;
 
         try
         {
-            final Object coPlayer = craftOfflinePlayer.cast(oPlayer);
-            final Object gProfile = getProfile.invoke(coPlayer);
+            final Object coPlayer = classCraftOfflinePlayer.cast(oPlayer);
+            final Object gProfile = methodGetProfile.invoke(coPlayer);
+            fieldPlayerNameVar.set(gProfile, playerName);
 
-            final Object craftServer = craftWorld.cast(world);
-            final Object worldServer = getHandle.invoke(craftServer);
-            final Object minecraftServer = getServer.invoke(worldServer);
-            final Object playerInteractManager = playerInteractManagerConstructor.newInstance(worldServer);
+            final Object craftServer = classCraftWorld.cast(world);
+            final Object worldServer = methodGetHandle.invoke(craftServer);
+            final Object minecraftServer = methodGetServer.invoke(worldServer);
 
-            final Object ePlayer = entityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
-                                                                       playerInteractManager);
-            uuid.set(ePlayer, oPlayer.getUniqueId());
-            player = (Player) getBukkitEntity.invoke(ePlayer);
+            final Object ePlayer;
+            if (cTorPlayerInteractManager == null)
+                ePlayer = cTorEntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile);
+            else
+            {
+                final Object playerInteractManager = cTorPlayerInteractManager.newInstance(worldServer);
+                ePlayer = cTorEntityPlayerConstructor.newInstance(minecraftServer, worldServer, gProfile,
+                                                                  playerInteractManager);
+            }
+
+            fieldUuid.set(ePlayer, oPlayer.getUniqueId());
+            player = (Player) methodGetBukkitEntity.invoke(ePlayer);
         }
-        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e)
+        catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to create fake player!");
         }
 
         if (player != null)

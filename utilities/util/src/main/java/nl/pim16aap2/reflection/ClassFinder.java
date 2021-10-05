@@ -35,15 +35,16 @@ public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
     }
 
     @Override
-    public Class<?> getRequired()
+    public Class<?> get()
     {
-        return Objects.requireNonNull(get(), String.format("Failed to find %s %s.",
-                                                           names.length > 1 ? "any of the classes:" : "the class:",
-                                                           Arrays.toString(names)));
+        return Objects.requireNonNull(getNullable(),
+                                      String.format("Failed to find %s %s.",
+                                                    (names.length > 1 ? "any of the classes:" : "the class:"),
+                                                    Arrays.toString(names)));
     }
 
     @Override
-    public @Nullable Class<?> get()
+    public @Nullable Class<?> getNullable()
     {
         return ReflectionBackend.findFirstClass(modifiers, names);
     }

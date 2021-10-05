@@ -41,16 +41,18 @@ public class ConstructorFinder
         }
 
         @Override
-        public Constructor<?> getRequired()
+        public Constructor<?> get()
         {
-            return Objects.requireNonNull(get(), String.format("Failed to find constructor [%s %s(%s)].",
-                                                               ReflectionBackend.optionalModifiersToString(modifiers),
-                                                               source.getName(),
-                                                               ReflectionBackend.formatOptionalValue(parameters)));
+            return Objects.requireNonNull(getNullable(), String.format("Failed to find constructor [%s %s(%s)].",
+                                                                       ReflectionBackend.optionalModifiersToString(
+                                                                           modifiers),
+                                                                       source.getName(),
+                                                                       ReflectionBackend.formatOptionalValue(
+                                                                           parameters)));
         }
 
         @Override
-        public @Nullable Constructor<?> get()
+        public @Nullable Constructor<?> getNullable()
         {
             return ReflectionBackend.findCTor(source, modifiers, parameters);
         }

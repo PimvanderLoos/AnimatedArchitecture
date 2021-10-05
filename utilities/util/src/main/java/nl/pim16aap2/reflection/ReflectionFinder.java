@@ -41,7 +41,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      * @throws NullPointerException
      *     If the target reflection object(s) could not be found.
      */
-    public abstract T getRequired();
+    public abstract T get();
 
     /**
      * Retrieves the target reflection object(s) using the current configuration.
@@ -53,7 +53,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
     // Suppress nullable problems, because we do _NOT_ want to annotate all
     // overriding methods with @NotNull, thank you very much, IntelliJ...
     @SuppressWarnings("NullableProblems")
-    public abstract @Nullable T get();
+    public abstract @Nullable T getNullable();
 
     /**
      * See {@link #addModifiers(int...)}.

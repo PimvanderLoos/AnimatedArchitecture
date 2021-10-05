@@ -49,9 +49,9 @@ public class EnumValuesFinder
          *     When the source class is not an enum.
          */
         @Override
-        public Object[] getRequired()
+        public Object[] get()
         {
-            return Objects.requireNonNull(get());
+            return Objects.requireNonNull(getNullable());
         }
 
         /**
@@ -61,7 +61,7 @@ public class EnumValuesFinder
          *     When the source class is not an enum.
          */
         @Override
-        public Object[] get()
+        public Object[] getNullable()
         {
             return ReflectionBackend.getEnumValues(source);
         }
@@ -115,7 +115,7 @@ public class EnumValuesFinder
          *     When the source class is not an enum.
          */
         @Override
-        public Object getRequired()
+        public Object get()
         {
             //noinspection ConstantConditions
             return Objects.requireNonNull(ReflectionBackend.getNamedEnumConstant(source, name),
@@ -130,7 +130,7 @@ public class EnumValuesFinder
          *     When the source class is not an enum.
          */
         @Override
-        public @Nullable Object get()
+        public @Nullable Object getNullable()
         {
             return ReflectionBackend.getNamedEnumConstant(source, name);
         }
@@ -160,7 +160,7 @@ public class EnumValuesFinder
         // when nothing is found to keep in line with the rest of the API.
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
         @Override
-        public Object getRequired()
+        public Object get()
         {
             final Object[] values = ReflectionBackend.getEnumValues(source);
             if (index >= values.length)
@@ -179,7 +179,7 @@ public class EnumValuesFinder
          *     When the source class is not an enum.
          */
         @Override
-        public @Nullable Object get()
+        public @Nullable Object getNullable()
         {
             final Object[] values = ReflectionBackend.getEnumValues(source);
             return index < values.length ? values[index] : null;

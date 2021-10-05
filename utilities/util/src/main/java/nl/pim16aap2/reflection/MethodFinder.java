@@ -177,14 +177,14 @@ public final class MethodFinder
         }
 
         @Override
-        public Method getRequired()
+        public Method get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(get(), getNullErrorMessage(name, null));
+            return Objects.requireNonNull(getNullable(), getNullErrorMessage(name, null));
         }
 
         @Override
-        public @Nullable Method get()
+        public @Nullable Method getNullable()
         {
             return ReflectionBackend.findMethod(checkSuperClasses, checkInterfaces,
                                                 source, name, modifiers, parameters, null);
@@ -205,14 +205,14 @@ public final class MethodFinder
         }
 
         @Override
-        public Method getRequired()
+        public Method get()
         {
             //noinspection ConstantConditions
-            return Objects.requireNonNull(get(), getNullErrorMessage(null, returnType));
+            return Objects.requireNonNull(getNullable(), getNullErrorMessage(null, returnType));
         }
 
         @Override
-        public @Nullable Method get()
+        public @Nullable Method getNullable()
         {
             return ReflectionBackend.findMethod(checkSuperClasses, checkInterfaces,
                                                 source, null, modifiers, parameters, returnType);

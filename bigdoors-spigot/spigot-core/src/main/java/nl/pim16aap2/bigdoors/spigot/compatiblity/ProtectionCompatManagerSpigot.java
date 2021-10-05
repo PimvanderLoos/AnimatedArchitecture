@@ -65,18 +65,7 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         this.vaultManager = vaultManager;
         this.config = config;
         this.locationFactory = locationFactory;
-
-        @Nullable FakePlayerCreator fakePlayerCreatorTmp = null;
-        try
-        {
-            fakePlayerCreatorTmp = new FakePlayerCreator(plugin);
-        }
-        catch (NoSuchMethodException | ClassNotFoundException | NoSuchFieldException e)
-        {
-            log.at(Level.SEVERE).withCause(new IllegalStateException("Failed to construct FakePlayerCreator!", e))
-               .log();
-        }
-        fakePlayerCreator = fakePlayerCreatorTmp;
+        fakePlayerCreator = newFakePlayerCreator(plugin);
         protectionCompats = new ArrayList<>();
         restart();
     }
@@ -136,8 +125,9 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
     {
         @Nullable Player bukkitPlayer = Bukkit.getPlayer(player.getUUID());
         if (bukkitPlayer == null && fakePlayerCreator != null)
-            bukkitPlayer = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(player.getUUID()), world)
-                                            .orElse(null);
+            // TODO: Bukkit#getOfflinePlayer should be handled async.
+            bukkitPlayer = fakePlayerCreator.getFakePlayer(Bukkit.getOfflinePlayer(player.getUUID()),
+                                                           player.getName(), world).orElse(null);
         return Optional.ofNullable(bukkitPlayer);
     }
 
@@ -303,6 +293,19 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         {
             log.at(Level.SEVERE).withCause(e)
                .log("Failed to initialize '%s' compatibility hook! Hook not enabled!", compatName);
+        }
+    }
+
+    private static @Nullable FakePlayerCreator newFakePlayerCreator(JavaPlugin plugin)
+    {
+        try
+        {
+            return new FakePlayerCreator(plugin);
+        }
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to construct FakePlayerCreator!");
+            return null;
         }
     }
 }
