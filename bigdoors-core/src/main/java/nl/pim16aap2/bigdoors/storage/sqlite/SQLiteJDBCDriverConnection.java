@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.storage.sqlite;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -174,9 +175,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     {
         if (!databaseState.equals(state))
         {
-            log.at(Level.SEVERE).withCause(new IllegalStateException(
-                "The database is in an incorrect state: " + databaseState.name() +
-                    ". All database operations are disabled!")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("Database connection could not be created! " +
+                        "Requested database for state '%s' while it is actually in state '%s'!",
+                    state.name(), databaseState.name());
             return null;
         }
 
@@ -864,9 +866,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void upgrade()
     {
-        if (databaseState != DatabaseState.OUT_OF_DATE)
-            return;
-
         @Nullable Connection conn;
         try
         {
@@ -875,6 +874,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 return;
 
             final int dbVersion = verifyDatabaseVersion(conn);
+            if (databaseState != DatabaseState.OUT_OF_DATE)
+                return;
+
             log.at(Level.FINE).log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
 
             conn.close();
