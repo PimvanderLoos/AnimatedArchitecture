@@ -151,7 +151,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (ClassNotFoundException e)
         {
-            e.printStackTrace();
+            log.at(Level.SEVERE).withCause(e).log("Failed to load database driver: %s!", DRIVER);
         }
         return false;
     }

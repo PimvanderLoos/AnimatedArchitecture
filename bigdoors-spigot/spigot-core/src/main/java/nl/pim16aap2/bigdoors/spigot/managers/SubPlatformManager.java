@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
@@ -11,8 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Locale;
+import java.util.logging.Level;
 
 @Singleton
+@Flogger
 public final class SubPlatformManager
 {
     private final @Nullable IBigDoorsSpigotSubPlatform spigotPlatform;
@@ -34,22 +37,23 @@ public final class SubPlatformManager
     @Inject
     public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin, IPLocationFactory locationFactory)
     {
+        serverVersion = Bukkit.getServer().getClass().getPackage().getName();
+
         Version versionTmp;
         @Nullable IBigDoorsSpigotSubPlatform spigotPlatformTmp = null;
         try
         {
-            final String versionStringTmp =
-                Bukkit.getServer().getClass().getPackage().getName().replace(".", ",").split(",")[3];
+            final String versionStringTmp = serverVersion.split("\\.")[3];
             versionTmp = Version.parseVersion(versionStringTmp);
             if (versionTmp != Version.UNSUPPORTED_VERSION)
                 spigotPlatformTmp = versionTmp.getPlatform(locationFactory);
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
-            e.printStackTrace();
+            log.at(Level.SEVERE).withCause(e)
+               .log("Failed to determine platform version for server version: '%s'", serverVersion);
             versionTmp = Version.UNSUPPORTED_VERSION;
         }
-        serverVersion = Bukkit.getServer().getClass().getPackage().getName();
         subPlatformVersion = versionTmp;
         spigotPlatform = spigotPlatformTmp;
 

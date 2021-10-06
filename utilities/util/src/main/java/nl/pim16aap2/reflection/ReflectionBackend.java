@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import lombok.extern.flogger.Flogger;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
@@ -10,13 +11,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 /**
  * Represents the reflection backend for the {@link ReflectionFinder} classes.
  *
  * @author Pim
  */
-final class ReflectionBackend
+@Flogger final class ReflectionBackend
 {
     private static final @Nullable Method ENUM_VALUE_NAME;
 
@@ -29,7 +31,7 @@ final class ReflectionBackend
         }
         catch (NoSuchMethodException e)
         {
-            e.printStackTrace();
+            log.at(Level.SEVERE).withCause(e).log("Failed to get Enum#name()!");
         }
         ENUM_VALUE_NAME = m;
     }
