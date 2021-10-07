@@ -85,8 +85,8 @@ public final class RestartableHolder
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to apply %s for restartable %s!",
-                                                  actionName, restartable.getClass().getName());
+            log.at(Level.SEVERE).withCause(e).log("Failed to %s restartable of type %s:\n%s",
+                                                  actionName, restartable.getClass().getName(), restartable);
         }
     }
 }
