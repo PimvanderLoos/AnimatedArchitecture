@@ -53,6 +53,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -109,7 +110,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private FailureCommandHandler failureCommandHandler;
     private SlidingDoorOpener slidingDoorOpener;
     private PortcullisOpener portcullisOpener;
-    private RedstoneHandler redstoneHandler;
+    private @Nullable RedstoneHandler redstoneHandler;
     private boolean validVersion;
     private HashMap<UUID, ToolUser> toolUsers;
     private HashMap<UUID, GUI> playerGUIs;
@@ -117,7 +118,7 @@ public class BigDoors extends JavaPlugin implements Listener
     private FakePlayerCreator fakePlayerCreator;
     private AutoCloseScheduler autoCloseScheduler;
     private ProtectionCompatManager protCompatMan;
-    private LoginResourcePackHandler rPackHandler;
+    private @Nullable LoginResourcePackHandler rPackHandler;
     private TimedCache<Long /* Chunk */, HashMap<Long /* Loc */, Long /* doorUID */>> pbCache = null;
     private VaultManager vaultManager;
     private UpdateManager updateManager;
@@ -424,10 +425,16 @@ public class BigDoors extends JavaPlugin implements Listener
         playerGUIs.forEach((key, value) -> value.close());
         playerGUIs.clear();
 
-        HandlerList.unregisterAll(redstoneHandler);
-        redstoneHandler = null;
-        HandlerList.unregisterAll(rPackHandler);
-        rPackHandler = null;
+        if (redstoneHandler != null)
+        {
+            HandlerList.unregisterAll(redstoneHandler);
+            redstoneHandler = null;
+        }
+        if (rPackHandler != null)
+        {
+            HandlerList.unregisterAll(rPackHandler);
+            rPackHandler = null;
+        }
 
         init();
 
