@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>hook-towny-new</artifactId>
+
+    <parent>
+        <groupId>nl.pim16aap2.BigDoors</groupId>
+        <artifactId>hooks</artifactId>
+        <version>0.1.8.33-ALPHA</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>articdive-repo</id>
+            <url>https://nexus.articdive.de/repository/maven-releases</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
+            <artifactId>hooks-api</artifactId>
+            <version>0.1.8.33-ALPHA</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.palmergames</groupId>
+            <artifactId>Towny</artifactId>
+            <version>0.94.0.5</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

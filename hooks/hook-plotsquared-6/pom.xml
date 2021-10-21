@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>hook-plotsquared-6</artifactId>
+
+    <parent>
+        <groupId>nl.pim16aap2.BigDoors</groupId>
+        <artifactId>hooks</artifactId>
+        <version>0.1.8.33-ALPHA</version>
+    </parent>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
+            <artifactId>hooks-api</artifactId>
+            <version>0.1.8.33-ALPHA</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>7.2.6-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.papermc</groupId>
+            <artifactId>paperlib</artifactId>
+            <version>1.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>core</artifactId>
+            <version>6.1.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-6.1.2-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.plotsquared</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>6.1.2</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-6.1.2-SNAPSHOT.jar</systemPath>
+        </dependency>
+    </dependencies>
+</project>

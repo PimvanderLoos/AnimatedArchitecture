@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>hooks</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+        <artifactId>BigDoors-parent</artifactId>
+        <groupId>nl.pim16aap2.BigDoors</groupId>
+        <version>0.1.8.33-ALPHA</version>
+    </parent>
+
+    <modules>
+        <module>hooks-api</module>
+
+        <module>hook-plotsquared-3</module>
+        <module>hook-plotsquared-4</module>
+        <module>hook-plotsquared-5</module>
+        <module>hook-plotsquared-6</module>
+
+        <module>hook-griefprevention</module>
+
+        <module>hook-griefdefender</module>
+
+        <module>hook-redprotect</module>
+
+        <module>hook-lands</module>
+
+        <module>hook-towny-old</module>
+        <module>hook-towny-new</module>
+
+        <module>hook-world-guard-7</module>
+        <module>hook-world-guard-6</module>
+
+        <module>hooks-bundle</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
