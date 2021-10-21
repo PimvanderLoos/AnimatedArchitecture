@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Compatibility hook for Lands:
@@ -18,15 +17,14 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class RedProtectProtectionCompat implements IProtectionCompat
 {
-    private boolean success = false;
+    private final boolean success;
     private final RedProtect redProtect;
-    private final IProtectionCompatDefinition compatDefinition;
+    private final HookContext hookContext;
 
-    public RedProtectProtectionCompat(IProtectionCompatDefinition compatDefinition,
-                                      @SuppressWarnings("unused") JavaPlugin plugin)
+    public RedProtectProtectionCompat(HookContext hookContext)
     {
-        this.compatDefinition = compatDefinition;
-        Plugin pRP = Bukkit.getPluginManager().getPlugin("RedProtect");
+        this.hookContext = hookContext;
+        Plugin pRP = Bukkit.getPluginManager().getPlugin(hookContext.getProtectionCompatDefinition().getName());
         if (pRP != null && pRP.isEnabled())
             redProtect = RedProtect.get();
         else
@@ -77,6 +75,6 @@ public class RedProtectProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return compatDefinition.getName();
+        return hookContext.getProtectionCompatDefinition().getName();
     }
 }

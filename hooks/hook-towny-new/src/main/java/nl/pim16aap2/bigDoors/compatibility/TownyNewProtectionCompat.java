@@ -5,7 +5,6 @@ import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Compatibility hook for the new version of PlotSquared.
@@ -15,15 +14,13 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class TownyNewProtectionCompat implements IProtectionCompat
 {
-    private boolean success;
-    private final IProtectionCompatDefinition compatDefinition;
-    private final TownyAPI townyAPI;
+    private final boolean success;
+    private final HookContext hookContext;
 
-    public TownyNewProtectionCompat(IProtectionCompatDefinition compatDefinition,
-                                    @SuppressWarnings("unused") JavaPlugin plugin)
+    public TownyNewProtectionCompat(HookContext hookContext)
     {
-        this.compatDefinition = compatDefinition;
-        townyAPI = TownyAPI.getInstance();
+        this.hookContext = hookContext;
+        TownyAPI townyAPI = TownyAPI.getInstance();
         success = townyAPI != null;
     }
 
@@ -62,7 +59,7 @@ public class TownyNewProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return compatDefinition.getName();
+        return hookContext.getProtectionCompatDefinition().getName();
     }
 }
 

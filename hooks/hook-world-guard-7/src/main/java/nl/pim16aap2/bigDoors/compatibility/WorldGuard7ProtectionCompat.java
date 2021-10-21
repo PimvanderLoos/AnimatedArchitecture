@@ -4,13 +4,14 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import javax.annotation.Nullable;
 
 /**
  * Compatibility hook for version 7 of WorldGuard.
@@ -24,23 +25,15 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     private final WorldGuardPlugin worldGuardPlugin;
 
     private boolean success = false;
-    private static final StateFlag BUILD_FLAG = getBuildFlag();
 
-    public WorldGuard7ProtectionCompat(IProtectionCompatDefinition compatDefinition, JavaPlugin plugin)
+    public WorldGuard7ProtectionCompat(HookContext hookContext)
     {
-        if (BUILD_FLAG == null)
-        {
-            worldGuard = null;
-            worldGuardPlugin = null;
-            return;
-        }
-
         worldGuard = WorldGuard.getInstance();
 
-        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(compatDefinition.getName());
+        final @Nullable Plugin wgPlugin =
+            Bukkit.getServer().getPluginManager().getPlugin(hookContext.getProtectionCompatDefinition().getName());
 
-        // WorldGuard may not be loaded
-        if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
+        if (!(wgPlugin instanceof WorldGuardPlugin))
         {
             worldGuardPlugin = null;
             return;
@@ -55,7 +48,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
                 .getPlatform()
                 .getRegionContainer()
                 .createQuery()
-                .testState(BukkitAdapter.adapt(loc), player, BUILD_FLAG);
+                .testState(BukkitAdapter.adapt(loc), player, Flags.BLOCK_BREAK);
     }
 
     private LocalPlayer getLocalPlayer(Player player)
@@ -88,7 +81,7 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
                 for (int zPos = z1; zPos <= z2; ++zPos)
                 {
                     com.sk89q.worldedit.util.Location wgLoc = new com.sk89q.worldedit.util.Location(wgWorld, xPos, yPos, zPos);
-                    if (!query.testState(wgLoc, lPlayer, BUILD_FLAG))
+                    if (!query.testState(wgLoc, lPlayer, Flags.BLOCK_BREAK))
                         return false;
                 }
         return true;
@@ -104,21 +97,5 @@ class WorldGuard7ProtectionCompat implements IProtectionCompat
     public String getName()
     {
         return worldGuardPlugin.getName();
-    }
-
-
-    private static StateFlag getBuildFlag()
-    {
-        try
-        {
-            // The Flags class exists in both
-            //noinspection JavaReflectionMemberAccess
-            return (StateFlag) com.sk89q.worldguard.protection.flags.Flags.class.getField("BUILD").get(null);
-        }
-        catch (NoSuchFieldException | IllegalAccessException | ClassCastException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

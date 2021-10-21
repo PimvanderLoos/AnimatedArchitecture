@@ -5,8 +5,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -22,12 +22,12 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
     private boolean success = false;
     private Method m;
 
-    public WorldGuard6ProtectionCompat(IProtectionCompatDefinition compatDefinition, JavaPlugin plugin)
+    public WorldGuard6ProtectionCompat(HookContext hookContext)
     {
-        Plugin wgPlugin = Bukkit.getServer().getPluginManager().getPlugin(compatDefinition.getName());
+        final @Nullable Plugin wgPlugin =
+            Bukkit.getServer().getPluginManager().getPlugin(hookContext.getProtectionCompatDefinition().getName());
 
-        // WorldGuard may not be loaded
-        if (plugin == null || !(wgPlugin instanceof WorldGuardPlugin))
+        if (!(wgPlugin instanceof WorldGuardPlugin))
         {
             worldGuard = null;
             return;

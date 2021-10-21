@@ -17,14 +17,10 @@ import org.bukkit.plugin.Plugin;
 class GriefPreventionProtectionCompat implements IProtectionCompat
 {
     private final GriefPrevention griefPrevention;
-    private final HookContext hookContext;
-
     private boolean success = false;
 
     public GriefPreventionProtectionCompat(HookContext hookContext)
     {
-        this.hookContext = hookContext;
-
         final Plugin griefPreventionPlugin =
             Bukkit.getServer().getPluginManager().getPlugin(hookContext.getProtectionCompatDefinition().getName());
 

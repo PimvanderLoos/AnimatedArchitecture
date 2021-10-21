@@ -6,7 +6,6 @@ import me.angeschossen.lands.api.land.Area;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
@@ -21,13 +20,12 @@ import java.util.UUID;
 public class LandsProtectionCompat implements IProtectionCompat
 {
     private final LandsIntegration landsAddon;
-    private final IProtectionCompatDefinition compatDefinition;
+    private final HookContext hookContext;
 
-    public LandsProtectionCompat(IProtectionCompatDefinition compatDefinition,
-                                 @SuppressWarnings("unused") JavaPlugin plugin)
+    public LandsProtectionCompat(HookContext hookContext)
     {
-        this.compatDefinition = compatDefinition;
-        landsAddon = new LandsIntegration(plugin);
+        this.hookContext = hookContext;
+        landsAddon = new LandsIntegration(hookContext.getPlugin());
     }
 
     @Override
@@ -76,6 +74,6 @@ public class LandsProtectionCompat implements IProtectionCompat
     @Override
     public String getName()
     {
-        return compatDefinition.getName();
+        return hookContext.getProtectionCompatDefinition().getName();
     }
 }

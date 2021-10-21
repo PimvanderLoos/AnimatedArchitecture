@@ -274,7 +274,9 @@ public class ProtectionCompatManager implements Listener
             if (protectionAlreadyLoaded(compatClass))
                 return;
 
-            addProtectionCompat(compatClass.getConstructor(BigDoors.class).newInstance(plugin));
+            final HookContext hookContext = new HookContext(plugin, compatDefinition, plugin.getVaultManager());
+
+            addProtectionCompat(compatClass.getConstructor(HookContext.class).newInstance(hookContext));
         }
         catch (NoClassDefFoundError e)
         {
