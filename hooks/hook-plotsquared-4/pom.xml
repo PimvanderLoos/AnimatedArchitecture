@@ -39,7 +39,7 @@
             <artifactId>plotsquared</artifactId>
             <version>4.4.495</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/PlotSquared-Bukkit-4.4.495.jar</systemPath>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.4.495.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

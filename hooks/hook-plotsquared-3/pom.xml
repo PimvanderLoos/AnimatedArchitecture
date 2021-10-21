@@ -45,7 +45,7 @@
             <artifactId>plot</artifactId>
             <version>19.05.28-e4fbc23-769</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/PlotSquared-Bukkit-19.05.28-e4fbc23-769.jar</systemPath>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.05.28-e4fbc23-769.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

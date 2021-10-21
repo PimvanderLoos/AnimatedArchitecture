@@ -39,14 +39,14 @@
             <artifactId>core</artifactId>
             <version>5.13.13</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.plotsquared</groupId>
             <artifactId>bukkit</artifactId>
             <version>5.13.13</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
+            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
         </dependency>
     </dependencies>
 </project>
