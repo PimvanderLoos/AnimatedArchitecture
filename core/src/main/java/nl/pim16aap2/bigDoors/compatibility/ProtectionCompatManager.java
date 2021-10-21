@@ -289,7 +289,7 @@ public class ProtectionCompatManager implements Listener
         catch (NullPointerException e)
         {
             plugin.getMyLogger().logMessageToConsoleOnly("Could not find \"" + compatName + "\"! Hook not enabled!");
-            plugin.getMyLogger().logMessage(Util.exceptionToString(e), true, true);
+            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
         }
         catch (Exception e)
         {
