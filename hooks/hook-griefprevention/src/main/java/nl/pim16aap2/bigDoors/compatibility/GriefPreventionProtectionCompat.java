@@ -1,8 +1,6 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
-import nl.pim16aap2.bigDoors.compatibility.HookContext;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;

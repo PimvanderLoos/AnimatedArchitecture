@@ -12,6 +12,13 @@
         <version>0.1.8.33-ALPHA</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.BigDoors</groupId>

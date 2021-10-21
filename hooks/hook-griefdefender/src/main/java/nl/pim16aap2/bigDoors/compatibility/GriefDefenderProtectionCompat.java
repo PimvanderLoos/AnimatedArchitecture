@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.griefdefender.GriefDefenderPlugin;
@@ -8,8 +8,6 @@ import com.griefdefender.api.permission.flag.Flags;
 import com.griefdefender.claim.GDClaim;
 import com.griefdefender.permission.GDPermissionManager;
 import com.griefdefender.permission.flag.GDFlags;
-import nl.pim16aap2.bigDoors.compatibility.HookContext;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

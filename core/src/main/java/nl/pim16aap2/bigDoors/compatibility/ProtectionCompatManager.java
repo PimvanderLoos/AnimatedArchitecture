@@ -1,8 +1,6 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
 import nl.pim16aap2.bigDoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

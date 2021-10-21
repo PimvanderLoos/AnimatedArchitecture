@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import org.bukkit.OfflinePlayer;

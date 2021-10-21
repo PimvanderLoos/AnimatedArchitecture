@@ -1,10 +1,8 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import br.net.fabiozumbi12.RedProtect.Bukkit.API.RedProtectAPI;
 import br.net.fabiozumbi12.RedProtect.Bukkit.RedProtect;
 import br.net.fabiozumbi12.RedProtect.Bukkit.Region;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import com.intellectualcrafters.plot.api.PlotAPI;
 import com.intellectualcrafters.plot.config.C;
@@ -8,8 +8,6 @@ import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotArea;
 import com.plotsquared.bukkit.BukkitMain;
 import com.plotsquared.bukkit.util.BukkitUtil;
-import nl.pim16aap2.bigDoors.compatibility.HookContext;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;

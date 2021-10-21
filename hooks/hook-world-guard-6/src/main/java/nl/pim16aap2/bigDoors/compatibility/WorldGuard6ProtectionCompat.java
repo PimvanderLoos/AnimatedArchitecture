@@ -1,8 +1,6 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

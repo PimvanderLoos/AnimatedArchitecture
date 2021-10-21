@@ -3,7 +3,7 @@ package nl.pim16aap2.bigDoors.util;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
-import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatDefinition;
+import nl.pim16aap2.bigDoors.compatibility.ProtectionCompatDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -1,8 +1,6 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import com.sun.tools.javac.util.List;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
 
 import java.util.Arrays;
 
@@ -50,6 +48,8 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
                 return PlotSquared4ProtectionCompat.class;
             case "5.":
                 return PlotSquared5ProtectionCompat.class;
+            case "6.":
+                return PlotSquared6ProtectionCompat.class;
             default:
                 return null;
             }

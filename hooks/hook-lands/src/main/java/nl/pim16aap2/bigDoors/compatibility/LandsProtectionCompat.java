@@ -1,10 +1,8 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import me.angeschossen.lands.api.flags.Flags;
 import me.angeschossen.lands.api.integration.LandsIntegration;
 import me.angeschossen.lands.api.land.Area;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;

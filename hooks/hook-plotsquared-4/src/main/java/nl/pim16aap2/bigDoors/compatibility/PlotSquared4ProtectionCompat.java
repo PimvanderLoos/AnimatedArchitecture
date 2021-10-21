@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
 import com.github.intellectualsites.plotsquared.bukkit.BukkitMain;
 import com.github.intellectualsites.plotsquared.bukkit.util.BukkitUtil;
@@ -9,8 +9,6 @@ import com.github.intellectualsites.plotsquared.plot.object.Plot;
 import com.github.intellectualsites.plotsquared.plot.object.PlotArea;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
-import nl.pim16aap2.bigDoors.compatibility.HookContext;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;

@@ -1,8 +1,9 @@
-package nl.pim16aap2.bigDoors.compatiblity;
+package nl.pim16aap2.bigDoors.compatibility;
 
+import com.plotsquared.bukkit.BukkitPlatform;
 import com.plotsquared.bukkit.util.BukkitUtil;
-import com.plotsquared.core.configuration.Captions;
 import com.plotsquared.core.configuration.Settings;
+import com.plotsquared.core.permissions.Permission;
 import com.plotsquared.core.plot.Plot;
 import com.plotsquared.core.plot.PlotArea;
 import com.plotsquared.core.plot.flag.implementations.BreakFlag;
@@ -10,8 +11,6 @@ import com.plotsquared.core.plot.flag.implementations.DoneFlag;
 import com.plotsquared.core.plot.flag.types.BlockTypeWrapper;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.block.BlockType;
-import nl.pim16aap2.bigDoors.compatibility.HookContext;
-import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,23 +21,23 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Pim
  * @see IProtectionCompat
  */
-public class PlotSquared5ProtectionCompat implements IProtectionCompat
+public class PlotSquared6ProtectionCompat implements IProtectionCompat
 {
     private final JavaPlugin plotSquaredPlugin;
     private final HookContext hookContext;
     private final boolean success;
 
-    public PlotSquared5ProtectionCompat(HookContext hookContext)
+    public PlotSquared6ProtectionCompat(HookContext hookContext)
     {
         this.hookContext = hookContext;
-        plotSquaredPlugin = JavaPlugin.getPlugin(com.plotsquared.bukkit.BukkitMain.class);
+        plotSquaredPlugin = JavaPlugin.getPlugin(BukkitPlatform.class);
         success = plotSquaredPlugin != null;
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        final com.plotsquared.core.location.Location psLocation = BukkitUtil.getLocation(loc);
+        final com.plotsquared.core.location.Location psLocation = BukkitUtil.adapt(loc);
         final PlotArea area = psLocation.getPlotArea();
 
         if (area == null)
@@ -52,17 +51,17 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
         if (height == 0)
         {
             return hookContext.getPermissionsManager()
-                              .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.getTranslated());
+                              .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_GROUNDLEVEL.toString());
         }
         else return (height <= area.getMaxBuildHeight() && height >= area.getMinBuildHeight()) ||
             hookContext.getPermissionsManager()
-                       .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.getTranslated());
+                       .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_HEIGHT_LIMIT.toString());
     }
 
     private boolean canBreakRoads(Player player)
     {
         return hookContext.getPermissionsManager()
-                          .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_ROAD.getTranslated());
+                          .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_ROAD.toString());
     }
 
     // Check if a given player is allowed to build in a given plot.
@@ -77,7 +76,7 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
 
             if (!plot.hasOwner())
                 return hookContext.getPermissionsManager()
-                                  .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_UNOWNED.getTranslated());
+                                  .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_UNOWNED.toString());
 
             if (!plot.isAdded(player.getUniqueId()))
             {
@@ -88,14 +87,12 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
                         return true;
 
                 return hookContext.getPermissionsManager()
-                                  .hasPermission(player, Captions.PERMISSION_ADMIN_DESTROY_OTHER
-                                      .getTranslated());
+                                  .hasPermission(player, Permission.PERMISSION_ADMIN_DESTROY_OTHER.toString());
             }
             else if (Settings.Done.RESTRICT_BUILDING && DoneFlag.isDone(plot))
             {
                 return hookContext.getPermissionsManager()
-                                  .hasPermission(player, Captions.PERMISSION_ADMIN_BUILD_OTHER
-                                      .getTranslated());
+                                  .hasPermission(player, Permission.PERMISSION_ADMIN_BUILD_OTHER.toString());
             }
             return true;
         }
@@ -120,7 +117,7 @@ public class PlotSquared5ProtectionCompat implements IProtectionCompat
             for (int zPos = z1; zPos <= z2; ++zPos)
             {
                 final Location loc = new Location(loc1.getWorld(), xPos, y1, zPos);
-                psLocation = BukkitUtil.getLocation(loc);
+                psLocation = BukkitUtil.adapt(loc);
                 final PlotArea area = psLocation.getPlotArea();
                 if (area == null)
                     continue;
