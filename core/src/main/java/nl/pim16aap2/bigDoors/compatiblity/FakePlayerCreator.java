@@ -5,6 +5,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -44,11 +45,11 @@ public class FakePlayerCreator
     private Field fieldUuid;
     private Field fieldPlayerNameVar;
 
-    private final BigDoors plugin;
+    private final JavaPlugin plugin;
 
     private boolean success = false;
 
-    public FakePlayerCreator(final BigDoors plugin)
+    public FakePlayerCreator(final JavaPlugin plugin)
     {
         this.plugin = plugin;
 

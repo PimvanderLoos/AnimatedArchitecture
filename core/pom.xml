@@ -20,18 +20,12 @@
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
-        <dependency.version.bytebuddy>1.11.8</dependency.version.bytebuddy>
-        <dependency.version.mockito>3.10.0</dependency.version.mockito>
-        <dependency.version.junit>5.8.0-M1</dependency.version.junit>
+        <dependency.version.bytebuddy>1.11.21</dependency.version.bytebuddy>
+        <dependency.version.mockito>4.0.0</dependency.version.mockito>
+        <dependency.version.junit>5.8.1</dependency.version.junit>
     </properties>
 
     <repositories>
-        <!-- RedProtect -->
-        <repository>
-            <id>redprotect-repo</id>
-            <url>https://raw.githubusercontent.com/FabioZumbi12/RedProtect/mvn-repo/</url>
-        </repository>
-
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
@@ -46,15 +40,23 @@
             <id>Massive</id>
             <url>https://repo.dustplanet.de/artifactory/ext-release-local/</url>
         </repository>
-
-        <!-- Towny -->
-        <repository>
-            <id>articdive-repo</id>
-            <url>https://nexus.articdive.de/repository/maven-releases</url>
-        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.11.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
+            <artifactId>hooks-bundle</artifactId>
+            <version>0.1.8.33-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>nms-api</artifactId>
@@ -139,11 +141,9 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.github.cryptomorin/XSeries -->
         <dependency>
             <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
-            <version>8.4.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -182,44 +182,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Towny -->
-        <dependency>
-            <groupId>com.palmergames</groupId>
-            <artifactId>Towny</artifactId>
-            <version>0.94.0.5</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldGuard 6 -->
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-legacy</artifactId>
-            <version>6.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldGuard 7 -->
-        <dependency>
-            <groupId>com.sk89q.worldguard</groupId>
-            <artifactId>worldguard-bukkit</artifactId>
-            <version>7.0.5</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- WorldEdit -->
-        <dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-bukkit</artifactId>
-            <version>7.3.0-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- Vault -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
@@ -228,146 +190,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- GriefPrevention -->
-        <dependency>
-            <groupId>com.github.TechFortress</groupId>
-            <artifactId>GriefPrevention</artifactId>
-            <version>16.7.1</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- JCalculator -->
         <dependency>
             <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>JCalculator</artifactId>
             <version>${dependency.version.jcalculator}</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- Lands -->
-        <dependency>
-            <groupId>com.github.Angeschossen</groupId>
-            <artifactId>LandsAPI</artifactId>
-            <version>5.12.2</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- RedProtect -->
-        <dependency>
-            <groupId>br.net.fabiozumbi12.RedProtect</groupId>
-            <artifactId>RedProtect-Spigot-1.13</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>ActionBarAPI-1.5.4.jar</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>BossBarAPI_v2.4.1</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>dynmap-2.5</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>Factions</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>GriefPrevention</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>InfernalMobs</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>MassiveCore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>mcMMO</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>MyChunk</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>mypet</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>PvPManager</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>SimpleClans</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>SkillAPI</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- PlotSquared 3 -->
-        <dependency>
-            <groupId>com.intellectualcrafters</groupId>
-            <artifactId>plot</artifactId>
-            <version>19.05.28-e4fbc23-769</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-19.05.28-e4fbc23-769.jar</systemPath>
-        </dependency>
-
-        <!-- PlotSquared 4 -->
-        <dependency>
-            <groupId>com.github.intellectualsites</groupId>
-            <artifactId>plotsquared</artifactId>
-            <version>4.4.495</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-4.4.495.jar</systemPath>
-        </dependency>
-
-        <!-- PlotSquared 5 -->
-        <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>core</artifactId>
-            <version>5.13.13</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.plotsquared</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>5.13.13</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/PlotSquared-Bukkit-5.13.13.jar</systemPath>
-        </dependency>
-
-        <!-- GriefDefender -->
-        <dependency>
-            <groupId>com.griefdefender</groupId>
-            <artifactId>griefdefender</artifactId>
-            <version>1.5.9</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/griefdefender-bukkit-1.5.9.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.griefdefender</groupId>
-            <artifactId>griefdefenderapi</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/griefdefenderapi-2.0.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>

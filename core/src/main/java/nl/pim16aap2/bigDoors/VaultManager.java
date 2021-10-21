@@ -1,20 +1,20 @@
 package nl.pim16aap2.bigDoors;
 
-import java.util.HashMap;
-
+import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
+import net.milkbowl.vault.permission.Permission;
+import nl.pim16aap2.bigDoors.compatibility.IPermissionsManager;
+import nl.pim16aap2.bigDoors.util.DoorType;
+import nl.pim16aap2.bigDoors.util.Util;
+import nl.pim16aap2.jcalculator.JCalculator;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
-import net.milkbowl.vault.permission.Permission;
-import nl.pim16aap2.bigDoors.util.DoorType;
-import nl.pim16aap2.bigDoors.util.Util;
-import nl.pim16aap2.jcalculator.JCalculator;
+import java.util.HashMap;
 
-public final class VaultManager
+public final class VaultManager implements IPermissionsManager
 {
     // Try to store the price of the doors as integers, because that's faster than
     // evaluating the formula.

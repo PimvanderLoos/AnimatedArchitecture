@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.compatibility.IProtectionCompat;
+import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
+import nl.pim16aap2.bigDoors.util.Util;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -15,11 +14,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.util.Util;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
- * Class that manages all objects of {@link ProtectionCompat}.
+ * Class that manages all objects of {@link IProtectionCompat}.
  *
  * @author Pim
  */
@@ -27,6 +31,7 @@ public class ProtectionCompatManager implements Listener
 {
     private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
 
+    private final Map<String, IProtectionCompatDefinition> registeredDefinitions;
     private final ArrayList<IProtectionCompat> protectionCompats;
     private final FakePlayerCreator fakePlayerCreator;
     private final BigDoors plugin;
@@ -39,6 +44,7 @@ public class ProtectionCompatManager implements Listener
     public ProtectionCompatManager(final BigDoors plugin)
     {
         this.plugin = plugin;
+        registeredDefinitions = registerDefaultProtectionCompatDefinitions();
         fakePlayerCreator = plugin.getFakePlayerCreator();
         protectionCompats = new ArrayList<>();
         restart();
@@ -245,22 +251,23 @@ public class ProtectionCompatManager implements Listener
      */
     private void loadFromPluginName(final String compatName)
     {
-        ProtectionCompat compat = ProtectionCompat.getFromName(compatName);
-        if (compat == null)
+        final @Nullable IProtectionCompatDefinition compatDefinition = registeredDefinitions.get(compatName);
+        if (compatDefinition == null)
             return;
 
-        if (!plugin.getConfigLoader().isHookEnabled(compat))
+        if (!plugin.getConfigLoader().isHookEnabled(compatDefinition))
             return;
 
         try
         {
-            Class<? extends IProtectionCompat> compatClass = compat.getClass(plugin.getServer().getPluginManager()
-                .getPlugin(ProtectionCompat.getName(compat)).getDescription().getVersion());
+            final @Nullable Class<? extends IProtectionCompat> compatClass =
+                compatDefinition.getClass(plugin.getServer().getPluginManager()
+                .getPlugin(compatDefinition.getName()).getDescription().getVersion());
 
             if (compatClass == null)
             {
                 plugin.getMyLogger()
-                    .logMessage("Could not find compatibility class for: \"" + ProtectionCompat.getName(compat) + "\". "
+                    .logMessage("Could not find compatibility class for: \"" + compatDefinition.getName() + "\". "
                         + "This most likely means that this version is not supported!", true, false);
                 return;
             }
@@ -291,5 +298,19 @@ public class ProtectionCompatManager implements Listener
                 + "\" Compatibility Hook disabled!");
             plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
         }
+    }
+
+    private Map<String, IProtectionCompatDefinition> registerDefaultProtectionCompatDefinitions()
+    {
+        final Map<String, IProtectionCompatDefinition> ret =
+            new HashMap<>(ProtectionCompatDefinition.DEFAULT_COMPAT_DEFINITIONS.size());
+        for (IProtectionCompatDefinition compatDefinition : ProtectionCompatDefinition.DEFAULT_COMPAT_DEFINITIONS)
+            ret.put(compatDefinition.getName(), compatDefinition);
+        return ret;
+    }
+
+    public void registerProtectionCompatDefinition(IProtectionCompatDefinition compatDefinition)
+    {
+        registeredDefinitions.put(compatDefinition.getName(), compatDefinition);
     }
 }

@@ -2,7 +2,8 @@ package nl.pim16aap2.bigDoors.util;
 
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
-import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompat;
+import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
+import nl.pim16aap2.bigDoors.compatiblity.ProtectionCompatDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -15,9 +16,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -59,7 +62,7 @@ public class ConfigLoader
     private boolean forceCodeGeneration;
 
     private HashSet<Material> powerBlockTypesMap;
-    private Map<ProtectionCompat, Boolean> hooksMap;
+    private Map<IProtectionCompatDefinition, Boolean> hooksMap;
     private Set<Material> blacklist;
     private Set<Material> whitelist;
 
@@ -96,7 +99,7 @@ public class ConfigLoader
         resourcePack = RESOURCEPACKS.get(BigDoors.getMCVersion());
         configOptionsList = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
-        hooksMap = new EnumMap<>(ProtectionCompat.class);
+        hooksMap = new HashMap<>(ProtectionCompatDefinition.DEFAULT_COMPAT_DEFINITIONS.size());
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
         makeConfig();
     }
@@ -247,9 +250,9 @@ public class ConfigLoader
         configOptionsList.add(new ConfigOption("allowStats", allowStats, allowStatsComment));
 
         int idx = 0;
-        for (ProtectionCompat compat : ProtectionCompat.values())
+        for (IProtectionCompatDefinition compat : ProtectionCompatDefinition.DEFAULT_COMPAT_DEFINITIONS)
         {
-            final String name = ProtectionCompat.getName(compat).toLowerCase();
+            final String name = compat.getName().toLowerCase(Locale.US);
             final boolean isEnabled = config.getBoolean(name, true);
             configOptionsList.add(new ConfigOption(name, isEnabled, ((idx++ == 0) ? compatibilityHooks : null)));
             hooksMap.put(compat, isEnabled);
@@ -382,9 +385,8 @@ public class ConfigLoader
         if (powerBlockTypesMap.size() == 0)
         {
             StringBuilder sb = new StringBuilder();
-            DEFAULTPOWERBLOCK.forEach(K -> sb.append(K + " "));
-            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb.toString(),
-                                            true, false);
+            DEFAULTPOWERBLOCK.forEach(K -> sb.append(K).append(" "));
+            plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb, true, false);
             DEFAULTPOWERBLOCK.forEach(K ->
             {
                 powerBlockTypesMap.add(Material.valueOf(K));
@@ -447,7 +449,7 @@ public class ConfigLoader
         else
         {
             plugin.getMyLogger().logMessageToConsoleOnly(reportName + " materials:");
-            materialNames.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K.toString()));
+            materialNames.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K));
         }
         configOptionsList.add(new ConfigOption(optionName, materialNames, comment));
         return new HashSet<>(Collections.unmodifiableList(materials));
@@ -624,7 +626,7 @@ public class ConfigLoader
         return powerBlockTypesMap;
     }
 
-    public boolean isHookEnabled(final ProtectionCompat hook)
+    public boolean isHookEnabled(final IProtectionCompatDefinition hook)
     {
         return hooksMap.get(hook);
     }
