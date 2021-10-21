@@ -1,6 +1,5 @@
 package nl.pim16aap2.bigDoors.compatiblity;
 
-import com.mojang.authlib.GameProfile;
 import nl.pim16aap2.bigDoors.BigDoors;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -32,6 +31,7 @@ public class FakePlayerCreator
     private Class<?> classEntityPlayer;
     private Class<?> classMinecraftServer;
     private Class<?> classPlayerInteractManager;
+    private Class<?> classGameProfile;
 
     private Method methodGetProfile;
     private Method methodGetHandle;
@@ -62,10 +62,12 @@ public class FakePlayerCreator
         classMinecraftServer = findClass(nmsBase + "MinecraftServer", "net.minecraft.server.MinecraftServer").get();
         classPlayerInteractManager = findClass(nmsBase + "PlayerInteractManager",
                                                "net.minecraft.server.level.PlayerInteractManager").get();
+        classGameProfile = findClass("com.mojang.authlib.GameProfile").get();
+
         cTorEntityPlayerConstructor = findConstructor()
             .inClass(classEntityPlayer)
             .withParameters(parameterBuilder()
-                                .withRequiredParameters(classMinecraftServer, classWorldServer, GameProfile.class)
+                                .withRequiredParameters(classMinecraftServer, classWorldServer, classGameProfile)
                                 .withOptionalParameters(classPlayerInteractManager)).get();
 
         methodGetBukkitEntity = findMethod().inClass(classEntityPlayer).withName("getBukkitEntity").get();
@@ -78,7 +80,7 @@ public class FakePlayerCreator
         fieldUuid = findField().inClass(classNMSEntity).ofType(UUID.class).withModifiers(Modifier.PROTECTED).get();
         fieldUuid.setAccessible(true);
 
-        fieldPlayerNameVar = findField().inClass(GameProfile.class).withName("name").get();
+        fieldPlayerNameVar = findField().inClass(classGameProfile).withName("name").get();
         fieldPlayerNameVar.setAccessible(true);
 
         final Class<?> classNMSWorld = findClass(nmsBase + "World", "net.minecraft.world.level.World").get();
@@ -100,7 +102,7 @@ public class FakePlayerCreator
         try
         {
             Object coPlayer = classCraftOfflinePlayer.cast(oPlayer);
-            GameProfile gProfile = (GameProfile) methodGetProfile.invoke(coPlayer);
+            Object gProfile = methodGetProfile.invoke(coPlayer);
             fieldPlayerNameVar.set(gProfile, playerName);
 
             Object craftServer = classCraftWorld.cast(world);

@@ -1,7 +1,5 @@
 package nl.pim16aap2.bigDoors.util;
 
-import net.minecraft.server.v1_11_R1.Vec3D;
-
 public final class WorldHeightLimits
 {
     private final int lowerLimit;

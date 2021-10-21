@@ -13,7 +13,9 @@
     </modules>
 
     <properties>
-        <dependency.version.annotations>21.0.1</dependency.version.annotations>
+        <dependency.version.annotations>22.0.0</dependency.version.annotations>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <repositories>
