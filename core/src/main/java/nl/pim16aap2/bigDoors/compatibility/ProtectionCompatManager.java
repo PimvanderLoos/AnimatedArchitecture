@@ -282,19 +282,19 @@ public class ProtectionCompatManager implements Listener
                 + "\" compatibility hook!");
             plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
                 + "\" Compatibility Hook disabled!");
-            plugin.getMyLogger().logMessageToLogFile(Util.errorToString(e));
+            plugin.getMyLogger().logMessage(Util.errorToString(e), true, true);
         }
         catch (NullPointerException e)
         {
             plugin.getMyLogger().logMessageToConsoleOnly("Could not find \"" + compatName + "\"! Hook not enabled!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessage(Util.exceptionToString(e), true, true);
         }
         catch (Exception e)
         {
             plugin.getMyLogger().logMessageToConsole("Failed to initialize \"" + compatName + "\" compatibility hook!");
             plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
                 + "\" Compatibility Hook disabled!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessage(Util.exceptionToString(e), true, true);
         }
     }
 

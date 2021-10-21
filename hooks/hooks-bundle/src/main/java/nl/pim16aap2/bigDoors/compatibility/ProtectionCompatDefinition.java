@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
-import com.sun.tools.javac.util.List;
-
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a definition of a protection compat.
@@ -109,8 +109,8 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
         }
     };
 
-    public static final List<IProtectionCompatDefinition> DEFAULT_COMPAT_DEFINITIONS =
-        List.of(TOWNY, PLOTSQUARED, WORLDGUARD, GRIEFPREVENTION, LANDS, REDPROTECT, GRIEF_DEFENDER);
+    public static final List<IProtectionCompatDefinition> DEFAULT_COMPAT_DEFINITIONS = Collections.unmodifiableList(
+        Arrays.asList(TOWNY, PLOTSQUARED, WORLDGUARD, GRIEFPREVENTION, LANDS, REDPROTECT, GRIEF_DEFENDER));
 
     private final String name;
 
