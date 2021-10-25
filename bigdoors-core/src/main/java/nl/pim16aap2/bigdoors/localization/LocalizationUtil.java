@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
@@ -212,7 +213,8 @@ public final class LocalizationUtil
      */
     static void readFile(InputStream inputStream, Consumer<String> fun)
     {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream)))
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream,
+                                                                                      StandardCharsets.UTF_8)))
         {
             for (String line; (line = bufferedReader.readLine()) != null; )
             {
