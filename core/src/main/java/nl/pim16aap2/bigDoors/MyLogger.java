@@ -1,5 +1,12 @@
 package nl.pim16aap2.bigDoors;
 
+import nl.pim16aap2.bigDoors.util.ConfigLoader;
+import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -7,14 +14,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
-
-import nl.pim16aap2.bigDoors.util.ConfigLoader;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import nl.pim16aap2.bigDoors.util.Util;
 
 public class MyLogger
 {
@@ -58,6 +57,11 @@ public class MyLogger
             Util.messagePlayer((Player) sender, color + str);
         else
             myLogger(level, ChatColor.stripColor(str));
+    }
+
+    public void logMessage(Level level, String msg)
+    {
+        logMessage(msg, true, false, level);
     }
 
     // Log a message to the log file. Can print to console and/or

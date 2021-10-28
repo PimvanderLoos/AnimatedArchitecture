@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 
 /**
  * Class that manages all objects of {@link IProtectionCompat}.
@@ -27,7 +28,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class ProtectionCompatManager implements Listener
 {
-    private static final String BYPASSPERMISSION = "bigdoors.admin.bypasscompat";
+    private static final String BYPASS_PERMISSION = "bigdoors.admin.bypasscompat";
 
     private final Map<String, IProtectionCompatDefinition> registeredDefinitions;
     private final ArrayList<IProtectionCompat> protectionCompats;
@@ -63,7 +64,7 @@ public class ProtectionCompatManager implements Listener
     /**
      * Check if a player is allowed to bypass the compatibility checks. Players can
      * bypass the check if they are OP or if they have the
-     * {@link ProtectionCompatManager#BYPASSPERMISSION} permission node.
+     * {@link ProtectionCompatManager#BYPASS_PERMISSION} permission node.
      *
      * @param player The {@link Player} to check the permissions for.
      * @return True if the player can bypass the checks.
@@ -75,7 +76,7 @@ public class ProtectionCompatManager implements Listener
 
         // offline players don't have permissions, so use Vault if that's the case.
         if (!player.hasMetadata(FakePlayerCreator.FAKE_PLAYER_METADATA))
-            return player.hasPermission(BYPASSPERMISSION);
+            return player.hasPermission(BYPASS_PERMISSION);
         return offlinePlayerHasPermission(player, player.getWorld().getName());
     }
 
@@ -92,7 +93,7 @@ public class ProtectionCompatManager implements Listener
         try
         {
             CompletableFuture<Boolean> future = CompletableFuture
-                .supplyAsync(() -> plugin.getVaultManager().hasPermission(oPlayer, BYPASSPERMISSION, world));
+                .supplyAsync(() -> plugin.getVaultManager().hasPermission(oPlayer, BYPASS_PERMISSION, world));
 
             return future.get();
         }
@@ -225,10 +226,10 @@ public class ProtectionCompatManager implements Listener
         if (hook.success())
         {
             protectionCompats.add(hook);
-            plugin.getMyLogger().info("Successfully hooked into \"" + hook.getName() + "\"!");
+            plugin.getMyLogger().logMessage(Level.INFO, "Successfully hooked into \"" + hook.getName() + "\"!");
         }
         else
-            plugin.getMyLogger().info("Failed to hook into \"" + hook.getName() + "\"!");
+            plugin.getMyLogger().logMessage(Level.INFO, "Failed to hook into \"" + hook.getName() + "\"!");
     }
 
     /**
@@ -265,8 +266,9 @@ public class ProtectionCompatManager implements Listener
             if (compatClass == null)
             {
                 plugin.getMyLogger()
-                    .logMessage("Could not find compatibility class for: \"" + compatDefinition.getName() + "\". "
-                        + "This most likely means that this version is not supported!", true, false);
+                    .logMessage(Level.WARNING,
+                                "Could not find compatibility class for: \"" + compatDefinition.getName() + "\". "
+                                    + "This most likely means that this version is not supported!");
                 return;
             }
 
