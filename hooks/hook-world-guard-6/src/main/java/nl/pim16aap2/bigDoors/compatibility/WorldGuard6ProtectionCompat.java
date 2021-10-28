@@ -7,8 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * Compatibility hook for version 6 of WorldGuard.
@@ -20,7 +18,6 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
 {
     private final WorldGuardPlugin worldGuard;
     private boolean success = false;
-    private Method m;
 
     public WorldGuard6ProtectionCompat(HookContext hookContext)
     {
@@ -34,30 +31,13 @@ class WorldGuard6ProtectionCompat implements IProtectionCompat
         }
 
         worldGuard = (WorldGuardPlugin) wgPlugin;
-
-        try
-        {
-            m = worldGuard.getClass().getMethod("canBuild", Player.class, Location.class);
-            success = true;
-        }
-        catch (NoSuchMethodException | SecurityException e)
-        {
-            e.printStackTrace();
-        }
+        success = true;
     }
 
     @Override
     public boolean canBreakBlock(Player player, Location loc)
     {
-        try
-        {
-            return (boolean) (m.invoke(worldGuard, player, loc));
-        }
-        catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
-        {
-            e.printStackTrace();
-        }
-        return false;
+        return worldGuard.canBuild(player, loc);
     }
 
     @Override
