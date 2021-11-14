@@ -314,8 +314,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
         // SonarLint assumes that doorType could be empty (S3655) (appears to miss the mapping operation above),
         // while this actually won't happen.
-        // IntelliJ Struggles with <?> and nullability... :(
-        @SuppressWarnings({"squid:S3655", "NullableProblems"}) //
+        @SuppressWarnings("squid:S3655") //
         final DoorSerializer<?> serializer = doorType.get().getDoorSerializer();
 
         final Optional<AbstractDoor> registeredDoor = doorRegistry.getRegisteredDoor(doorUID);
@@ -424,7 +423,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Override
     public Optional<AbstractDoor> insert(AbstractDoor door)
     {
-        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         final DoorSerializer<?> serializer = door.getDoorType().getDoorSerializer();
 
         final String typeName = door.getDoorType().getFullName();

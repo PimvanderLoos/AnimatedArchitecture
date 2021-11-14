@@ -26,7 +26,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
     }
 
     // Copy constructor
-    protected ReflectionFinder(@SuppressWarnings("NullableProblems") ReflectionFinder<?, ?> other)
+    protected ReflectionFinder(ReflectionFinder<?, ?> other)
     {
         modifiers = (Objects.requireNonNull(other, "Copy constructor cannot copy from null object!")).modifiers;
     }
@@ -110,8 +110,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
         }
 
         // Copy constructor
-        protected ReflectionFinderWithParameters(
-            @SuppressWarnings("NullableProblems") ReflectionFinderWithParameters<?, ?> other)
+        protected ReflectionFinderWithParameters(ReflectionFinderWithParameters<?, ?> other)
         {
             super(other);
             parameters = other.parameters == null ? null : new ParameterGroup(other.parameters);

@@ -392,7 +392,6 @@ public class SQLiteJDBCDriverConnectionTest
      */
     public void modifyDoors()
     {
-        @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
         DoorSerializer<?> serializer =
             Assertions.assertDoesNotThrow(() -> new DoorSerializer<>(door3.getDoorType().getDoorClass()));
         Assertions.assertNotNull(serializer);

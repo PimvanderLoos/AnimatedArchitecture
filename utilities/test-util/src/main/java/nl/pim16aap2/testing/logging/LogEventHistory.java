@@ -7,8 +7,8 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import lombok.Getter;
 import lombok.ToString;
 import org.checkerframework.dataflow.qual.Pure;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.Collections;

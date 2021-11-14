@@ -69,7 +69,6 @@ public abstract class DoorType
     @Getter
     private final List<RotateDirection> validOpenDirections;
 
-    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     private volatile @Nullable DoorSerializer<?> doorSerializer;
 
     /**
@@ -102,7 +101,7 @@ public abstract class DoorType
      *
      * @return The {@link DoorSerializer}.
      */
-    @SuppressWarnings({"NullableProblems", "ConstantConditions"}) // IntelliJ Struggles with <?> and nullability... :(
+    @SuppressWarnings("ConstantConditions")
     public DoorSerializer<?> getDoorSerializer()
     {
         if (doorSerializer != null)

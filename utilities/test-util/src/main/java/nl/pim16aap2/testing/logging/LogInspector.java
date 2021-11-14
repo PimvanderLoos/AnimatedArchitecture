@@ -6,9 +6,9 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -72,7 +72,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
     /**
      * Gets all logging events that contained a throwable and were logged with any log level.
      */
-    public List<ILoggingEvent> getThrowingHistory(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
+    public List<ILoggingEvent> getThrowingHistory(@Nullable Class<?> source)
     {
         return getLogHistory(source, true, Level.ALL, true);
     }
@@ -92,7 +92,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      *     The class the logging events were logged from.
      * @return The list of all recorded logging events.
      */
-    public List<ILoggingEvent> getLogHistory(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
+    public List<ILoggingEvent> getLogHistory(@Nullable Class<?> source)
     {
         return getLogHistory(source, false, Level.ALL, true);
     }
@@ -134,7 +134,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      * @param source
      *     The class the logging events were logged from.
      */
-    public int getLogCount(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
+    public int getLogCount(@Nullable Class<?> source)
     {
         return getLogCount(source, false, Level.ALL, true);
     }
@@ -143,7 +143,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      * Gets the number of logging events that contained a throwable and were logged with at least {@link Level#ERROR}
      * level.
      */
-    public int getThrowingCount(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
+    public int getThrowingCount(@Nullable Class<?> source)
     {
         return getLogCount(source, true, Level.ERROR, true);
     }
@@ -192,7 +192,7 @@ public final class LogInspector extends AppenderBase<ILoggingEvent>
      *     The class the logging events were logged from. This may be null to process all logging events regardless of
      *     their originating class.
      */
-    public Optional<Throwable> getLastThrowable(@SuppressWarnings("NullableProblems") @Nullable Class<?> source)
+    public Optional<Throwable> getLastThrowable(@Nullable Class<?> source)
     {
         return getLastThrowable(source, Level.ERROR, true);
     }

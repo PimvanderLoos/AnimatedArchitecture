@@ -38,7 +38,6 @@ import java.util.logging.Level;
 @Flogger
 public abstract class AbstractDoor implements IDoor
 {
-    @SuppressWarnings("NullableProblems") // IntelliJ Struggles with <?> and nullability... :(
     @EqualsAndHashCode.Exclude
     private final DoorSerializer<?> serializer;
     private final DoorRegistry doorRegistry;
