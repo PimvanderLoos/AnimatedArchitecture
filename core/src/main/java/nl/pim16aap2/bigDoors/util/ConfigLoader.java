@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,6 +66,7 @@ public class ConfigLoader
     private Map<IProtectionCompatDefinition, Boolean> hooksMap;
     private Set<Material> blacklist;
     private Set<Material> whitelist;
+    private Set<Material> destroyList;
 
     private String doorPrice, drawbridgePrice, portcullisPrice, slidingDoorPrice;
 
@@ -119,6 +121,10 @@ public class ConfigLoader
                                       "(either in the blacklist setting or hardcoded in the plugin).",
                                       "Use the same list of materials as for the power blocks. For example, you would whitelist a bell like so:",
                                       "  - BELL" };
+        String[] destroyListComment = { "List of materials that can be destroyed by opening a door.",
+                                        "Normally, when a door encounters another block in the way, it will not toggle to avoid destroying that block",
+                                        "However, when the material of that block is on this list, BigDoors will ignore the block and just overwrite it.",
+                                        "This is mostly intended to avoid issues with toggling doors in snowy areas." };
         String[] maxDoorCountComment = { "Maximum number of doors a player can own. -1 = infinite." };
         String[] languageFileComment = { "Specify a language file to be used. Note that en_US.txt will get regenerated!" };
         String[] dbFileComment = { "Pick the name (and location if you want) of the database." };
@@ -223,6 +229,7 @@ public class ConfigLoader
 
         blacklist = readMaterialConfig(config, blacklistComment, "materialBlacklist", "Blacklisted");
         whitelist = readMaterialConfig(config, whitelistComment, "materialWhitelist", "Whitelisted");
+        destroyList = readMaterialConfig(config, destroyListComment, "materialDestroyList", "DestroyListed");
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
@@ -452,7 +459,7 @@ public class ConfigLoader
             materialNames.forEach(K -> plugin.getMyLogger().logMessageToConsoleOnly(" - " + K));
         }
         configOptionsList.add(new ConfigOption(optionName, materialNames, comment));
-        return new HashSet<>(Collections.unmodifiableList(materials));
+        return materials.isEmpty() ? Collections.emptySet() : EnumSet.copyOf(materials);
     }
 
     // Write new config file.
@@ -714,6 +721,11 @@ public class ConfigLoader
     public Set<Material> getWhitelist()
     {
         return whitelist;
+    }
+
+    public Set<Material> getDestroyList()
+    {
+        return destroyList;
     }
 
     public boolean resourcePackEnabled()
