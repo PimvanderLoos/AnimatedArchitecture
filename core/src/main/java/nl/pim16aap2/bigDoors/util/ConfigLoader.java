@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.util;
 
+import com.cryptomorin.xseries.XMaterial;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.BigDoors.MCVersion;
 import nl.pim16aap2.bigDoors.compatibility.IProtectionCompatDefinition;
@@ -8,12 +9,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -28,8 +29,10 @@ import java.util.logging.Level;
 
 public class ConfigLoader
 {
-    private static final List<Material> DEFAULT_DESTROY_LIST =
-        Collections.unmodifiableList(Arrays.asList(Material.LAVA, Material.WATER, Material.SNOW));
+    private static final List<Material> DEFAULT_DESTROY_LIST = createDefaultDestroyList(
+        XMaterial.LAVA, XMaterial.WATER, XMaterial.SNOW, XMaterial.FERN, XMaterial.GRASS,
+        XMaterial.TALL_GRASS, XMaterial.SEAGRASS, XMaterial.TALL_SEAGRASS
+    );
 
     private static final List<String> DEFAULT_POWER_BLOCK =
         Collections.unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
@@ -523,6 +526,19 @@ public class ConfigLoader
                      "Could not save config.yml! Please contact pim16aap2 and show him the following code:");
             e.printStackTrace();
         }
+    }
+
+    private static List<Material> createDefaultDestroyList(XMaterial... materials)
+    {
+        final ArrayList<Material> ret = new ArrayList<>(materials.length);
+        for (XMaterial xMat : materials)
+        {
+            final @Nullable Material mat = xMat.parseMaterial();
+            if (mat != null)
+                ret.add(mat);
+        }
+        ret.trimToSize();
+        return Collections.unmodifiableList(ret);
     }
 
     public String dbFile()
