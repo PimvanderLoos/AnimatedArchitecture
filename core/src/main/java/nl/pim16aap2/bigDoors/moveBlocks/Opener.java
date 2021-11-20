@@ -292,7 +292,7 @@ public interface Opener
 
         protectionBlocker = BigDoors.get().canBreakBlocksBetweenLocs(door.getPlayerUUID(), door.getPlayerName(),
                                                                      door.getWorld(), door.getMinimum(),
-                                                                     door.getMinimum());
+                                                                     door.getMaximum());
         if (protectionBlocker != null)
         {
             BigDoors.get().getMyLogger().logMessageToLogFile(
