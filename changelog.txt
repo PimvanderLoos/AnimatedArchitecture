@@ -3,10 +3,10 @@ Alpha 0.1.8.33
 - Removed a bunch of unused code to make updates a bit easier going forward.
 - Fix the /namedoor command giving you more sticks when running the command multiple times. Thanks, MiniMoro, for the bug report!
 - Add /newslidingdoor command as a shortcut command for creating new sliding doors. Thanks, Vexius, for the suggestion!
-- Update Lands integration for version 5 series. Thanks, Nimāri, for the bug report!
+- Update Lands integration for version 5 series. Thanks, Nimari, for the bug report!
 - Fixed issue with restart command where certain configurations may cause issues with other plugins. Thanks, Nimari, for the bug report!
 - Added support for PlotSquared v6. Thanks, Leahcim_krob, for the suggestion!
-- Fixed incorrect bounds checking for protection hooks. Thanks, Nimāri, for the bug report!
+- Fixed incorrect bounds checking for protection hooks. Thanks, Nimari, for the bug report!
 - Added destroyList config option to determine which types of blocks can be destroyed by a door toggle. Defaults to WATER, LAVA, FERN, (TALL) (SEA)GASS, and SNOW. Before, this was hardcoded to just WATER and LAVA. Thanks, Henriko Magnifico and Tanguygab, for the suggestions!
 
 Alpha 0.1.8.32
