@@ -340,7 +340,7 @@ public class SlidingDoorOpener implements Opener
             {
                 for (xAxis = startX; xAxis != endX + 1; ++xAxis)
                     for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                        if (!Util.canOverwriteMaterial(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
                             return moveBlocks;
                 moveBlocks += step;
             }
@@ -349,7 +349,7 @@ public class SlidingDoorOpener implements Opener
             {
                 for (zAxis = startZ; zAxis != endZ + 1; ++zAxis)
                     for (yAxis = startY; yAxis != endY + 1; ++yAxis)
-                        if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                        if (!Util.canOverwriteMaterial(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
                             return moveBlocks;
                 moveBlocks += step;
             }

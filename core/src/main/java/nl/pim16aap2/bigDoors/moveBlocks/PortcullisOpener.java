@@ -196,7 +196,7 @@ public class PortcullisOpener implements Opener
         {
             for (xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (zAxis = zMin; zAxis <= zMax; ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                    if (!Util.canOverwriteMaterial(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
                         return blocksUp;
             yAxis += delta;
             blocksUp += delta;

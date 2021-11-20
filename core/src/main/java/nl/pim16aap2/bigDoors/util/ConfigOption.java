@@ -84,6 +84,9 @@ public class ConfigOption
 
     public String stringListToString()
     {
+        if (listVal.isEmpty())
+            return "  - NONE";
+
         String string = "";
         for (String s : listVal)
             string += "  - " + s + "\n";

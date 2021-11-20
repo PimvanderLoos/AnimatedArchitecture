@@ -1,19 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.material.MaterialData;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
@@ -25,6 +11,19 @@ import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SlidingMover implements BlockMover
 {
@@ -112,14 +111,14 @@ public class SlidingMover implements BlockMover
                         newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
                     Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat = vBlock.getType();
-                    if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
+                    if (Util.isAllowedBlock(mat))
                     {
                         byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
                         NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
-                        if (!plugin.isOnFlattenedVersion())
+                        if (!BigDoors.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -154,7 +153,7 @@ public class SlidingMover implements BlockMover
         else
             putBlocks(false);
     }
-    
+
     @Override
     public synchronized void cancel(boolean onDisable)
     {
@@ -170,8 +169,8 @@ public class SlidingMover implements BlockMover
     public synchronized void putBlocks(boolean onDisable)
     {
         if (blocksPlaced.getAndSet(true))
-            return;        
-        
+            return;
+
         int index = 0;
         double yAxis = yMin;
         do
@@ -255,7 +254,7 @@ public class SlidingMover implements BlockMover
     private void rotateEntities()
     {
         endCount = (int) (20.0f / tickRate * time);
-        
+
         animationRunnable = new BukkitRunnable()
         {
             double counter = 0;

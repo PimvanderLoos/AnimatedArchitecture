@@ -1,19 +1,5 @@
 package nl.pim16aap2.bigDoors.moveBlocks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.material.MaterialData;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
@@ -30,6 +16,19 @@ import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BridgeMover implements BlockMover
 {
@@ -227,7 +226,7 @@ public class BridgeMover implements BlockMover
 
                     Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat = vBlock.getType();
-                    if (!Util.isAirOrWater(mat) && Util.isAllowedBlock(mat))
+                    if (Util.isAllowedBlock(mat))
                     {
                         byte matData = vBlock.getData();
                         BlockState bs = vBlock.getState();
@@ -325,7 +324,7 @@ public class BridgeMover implements BlockMover
         else
             putBlocks(false);
     }
-    
+
     @Override
     public synchronized void cancel(boolean onDisable)
     {
@@ -341,7 +340,7 @@ public class BridgeMover implements BlockMover
     public synchronized void putBlocks(boolean onDisable)
     {
         if (blocksPlaced.getAndSet(true))
-            return;        
+            return;
 
         int index = 0;
         double xAxis = turningPoint.getX();
@@ -430,7 +429,7 @@ public class BridgeMover implements BlockMover
     private void rotateEntities()
     {
         endCount = (int) (20.0f / tickRate * time);
-        
+
         animationRunnable = new BukkitRunnable()
         {
             final Location center = new Location(world, turningPoint.getBlockX() + 0.5, yMin, turningPoint.getBlockZ() + 0.5);

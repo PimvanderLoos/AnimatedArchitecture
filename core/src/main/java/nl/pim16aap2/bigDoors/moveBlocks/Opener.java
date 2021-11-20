@@ -252,7 +252,7 @@ public interface Opener
         for (int xAxis = min.getBlockX(); xAxis <= max.getBlockX(); ++xAxis)
             for (int yAxis = min.getBlockY(); yAxis <= max.getBlockY(); ++yAxis)
                 for (int zAxis = min.getBlockZ(); zAxis <= max.getBlockZ(); ++zAxis)
-                    if (!Util.isAirOrWater(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                    if (!Util.canOverwriteMaterial(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
                         return false;
         return true;
     }

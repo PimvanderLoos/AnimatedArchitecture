@@ -28,6 +28,12 @@ import java.util.logging.Level;
 
 public class ConfigLoader
 {
+    private static final List<Material> DEFAULT_DESTROY_LIST =
+        Collections.unmodifiableList(Arrays.asList(Material.LAVA, Material.WATER, Material.SNOW));
+
+    private static final List<String> DEFAULT_POWER_BLOCK =
+        Collections.unmodifiableList(new ArrayList<>(Collections.singletonList("GOLD_BLOCK")));
+
     private String dbFile;
     private final String header;
     private int coolDown;
@@ -62,8 +68,8 @@ public class ConfigLoader
     private boolean allowCodeGeneration;
     private boolean forceCodeGeneration;
 
-    private HashSet<Material> powerBlockTypesMap;
     private Map<IProtectionCompatDefinition, Boolean> hooksMap;
+    private Set<Material> powerBlockTypesMap;
     private Set<Material> blacklist;
     private Set<Material> whitelist;
     private Set<Material> destroyList;
@@ -73,8 +79,6 @@ public class ConfigLoader
     private final ArrayList<ConfigOption> configOptionsList;
     public static boolean DEBUG = false;
     private final BigDoors plugin;
-
-    private static final List<String> DEFAULTPOWERBLOCK = new ArrayList<>(Arrays.asList("GOLD_BLOCK"));
 
     private static final EnumMap<MCVersion, String> RESOURCEPACKS = new EnumMap<>(MCVersion.class);
     static
@@ -116,7 +120,8 @@ public class ConfigLoader
                                            "This is the block that will open the door attached to it when it receives a redstone signal." };
         String[] blacklistComment = { "List of blacklisted materials. Materials on this list can not be animated.",
                                       "Use the same list of materials as for the power blocks. For example, you would blacklist bedrock like so:",
-                                      "  - BEDROCK" };
+                                      "  - BEDROCK" ,
+                                      "If you don't want to blacklist any materials, use \"  - NONE\" instead."};
         String[] whitelistComment = { "List of whitelisted materials. Materials on this list can be animated even if they're blacklisted ",
                                       "(either in the blacklist setting or hardcoded in the plugin).",
                                       "Use the same list of materials as for the power blocks. For example, you would whitelist a bell like so:",
@@ -227,9 +232,12 @@ public class ConfigLoader
 
         readPowerBlockConfig(config, powerBlockTypeComment);
 
-        blacklist = readMaterialConfig(config, blacklistComment, "materialBlacklist", "Blacklisted");
-        whitelist = readMaterialConfig(config, whitelistComment, "materialWhitelist", "Whitelisted");
-        destroyList = readMaterialConfig(config, destroyListComment, "materialDestroyList", "DestroyListed");
+        blacklist = readMaterialConfig(config, blacklistComment, "materialBlacklist", "Blacklisted",
+                                       Collections.emptyList());
+        whitelist = readMaterialConfig(config, whitelistComment, "materialWhitelist", "Whitelisted",
+                                       Collections.emptyList());
+        destroyList = readMaterialConfig(config, destroyListComment, "materialDestroyList", "DestroyListed",
+                                         DEFAULT_DESTROY_LIST);
 
         maxDoorCount = config.getInt("maxDoorCount", -1);
         configOptionsList.add(new ConfigOption("maxDoorCount", maxDoorCount, maxDoorCountComment));
@@ -355,16 +363,9 @@ public class ConfigLoader
 
     private void readPowerBlockConfig(FileConfiguration config, String[] powerBlockTypeComment)
     {
-        List<String> materials;
-
-        {
-            List<?> materialsTmp = config.getList("powerBlockTypes", DEFAULTPOWERBLOCK);
-            // If the user is illiterate and failed to read the part saying it should be an
-            // enum string and used
-            // non-String values, put those in a new String list.
-            materials = new ArrayList<>();
-            materialsTmp.forEach(K -> materials.add(K.toString()));
-        }
+        final List<?> materialsTmp = config.getList("powerBlockTypes", DEFAULT_POWER_BLOCK);
+        final List<String> materials = new ArrayList<>();
+        materialsTmp.forEach(K -> materials.add(K.toString()));
 
         // Try to put all the found materials into a String map.
         // Only valid and solid material Strings are allowed.
@@ -373,6 +374,8 @@ public class ConfigLoader
         while (it.hasNext())
         {
             String str = it.next();
+            if (str.equals("NONE"))
+                continue;
             try
             {
                 Material mat = Material.valueOf(str);
@@ -392,9 +395,9 @@ public class ConfigLoader
         if (powerBlockTypesMap.size() == 0)
         {
             StringBuilder sb = new StringBuilder();
-            DEFAULTPOWERBLOCK.forEach(K -> sb.append(K).append(" "));
+            DEFAULT_POWER_BLOCK.forEach(K -> sb.append(K).append(" "));
             plugin.getMyLogger().logMessage("No materials found for powerBlockType! Defaulting to:" + sb, true, false);
-            DEFAULTPOWERBLOCK.forEach(K ->
+            DEFAULT_POWER_BLOCK.forEach(K ->
             {
                 powerBlockTypesMap.add(Material.valueOf(K));
                 materials.add(K);
@@ -412,24 +415,19 @@ public class ConfigLoader
      * @param comment    The comment of the config option.
      * @param optionName The name of the option
      * @param reportName The name to use for reporting. E.g.: "blacklisted" +
-     *                   "materials:" (when "blacklisted" is the reportName.
+     *                   "materials:" (when "blacklisted" is the reportName).
+     * @param defaults   The default values to use.
      * @return The set of materials. Only solid materials are added.
      */
     private Set<Material> readMaterialConfig(final FileConfiguration config, final String[] comment,
-                                             final String optionName, final String reportName)
+                                             final String optionName, final String reportName, List<Material> defaults)
     {
-        List<String> materialNames;
+        final List<?> materialsTmp = config.getList(optionName, defaults);
+        final List<String> materialNames = new ArrayList<>();
+        materialsTmp.forEach(K -> materialNames.add(K.toString()));
 
-        {
-            List<?> materialsTmp = config.getList(optionName, new ArrayList<Material>());
-            // If the user is illiterate and failed to read the part saying it should be an
-            // enum string and used
-            // non-String values, put those in a new String list.
-            materialNames = new ArrayList<>();
-            materialsTmp.forEach(K -> materialNames.add(K.toString()));
-        }
+        final List<Material> materials = new ArrayList<>(materialNames.size());
 
-        List<Material> materials = new ArrayList<>(materialNames.size());
         // Try to put all the found materials into a String map.
         // Only valid and solid material Strings are allowed.
         // Everything else is thrown out.
@@ -437,6 +435,8 @@ public class ConfigLoader
         while (it.hasNext())
         {
             String str = it.next();
+            if (str.equals("NONE"))
+                continue;
             try
             {
                 Material mat = Material.valueOf(str);
@@ -628,7 +628,7 @@ public class ConfigLoader
         return enableRedstone;
     }
 
-    public HashSet<Material> getPowerBlockTypes()
+    public Set<Material> getPowerBlockTypes()
     {
         return powerBlockTypesMap;
     }

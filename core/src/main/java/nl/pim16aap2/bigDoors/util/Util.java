@@ -37,6 +37,7 @@ public final class Util
 {
     private static final Set<Material> WHITELIST = EnumSet.noneOf(Material.class);
     private static final Set<Material> BLACKLIST = EnumSet.noneOf(Material.class);
+    private static final Set<Material> DESTROYLIST = EnumSet.noneOf(Material.class);
     private static final Map<DoorDirection, RotateDirection> doorDirectionMapper = new EnumMap<>(DoorDirection.class);
     private static final Map<RotateDirection, DoorDirection> rotateDirectionMapper = new EnumMap<>(RotateDirection.class);
     static
@@ -62,9 +63,11 @@ public final class Util
     {
         WHITELIST.clear();
         BLACKLIST.clear();
+        DESTROYLIST.clear();
 
         WHITELIST.addAll(configLoader.getWhitelist());
         BLACKLIST.addAll(configLoader.getBlacklist());
+        DESTROYLIST.addAll(configLoader.getDestroyList());
 
         for (Material mat : Material.values())
         {
@@ -73,6 +76,11 @@ public final class Util
             if (!Util.isAllowedBlockBackDoor(mat))
                 BLACKLIST.add(mat);
         }
+
+        DESTROYLIST.add(Material.AIR);
+        final @Nullable Material caveAir = XMaterial.CAVE_AIR.parseMaterial();
+        if (caveAir != null)
+            DESTROYLIST.add(caveAir);
     }
 
     public static @Nullable <T> T firstNonNull(Supplier<T>... suppliers)
@@ -492,10 +500,21 @@ public final class Util
 
     public static boolean isAirOrWater(Material mat)
     {
-        return XMaterial
-            .matchXMaterial(mat.toString()).map(xmat -> xmat.equals(XMaterial.AIR) || xmat.equals(XMaterial.CAVE_AIR) ||
-                                                        xmat.equals(XMaterial.WATER) || xmat.equals(XMaterial.LAVA))
-            .orElse(false);
+        final XMaterial xMat = XMaterial.matchXMaterial(mat);
+        return xMat == XMaterial.AIR || xMat == XMaterial.CAVE_AIR || xMat == XMaterial.WATER || xMat == XMaterial.LAVA;
+    }
+
+    /**
+     * Checks if a given material can be overwritten by a door toggle.
+     *
+     * For example, air and water can be overwritten, but stuff like snow might be as well.
+     *
+     * @param mat The material to check.
+     * @return True if the material can be overwritten by a door toggle.
+     */
+    public static boolean canOverwriteMaterial(Material mat)
+    {
+        return DESTROYLIST.contains(mat);
     }
 
     // Logs, stairs and glass panes can rotate, but they don't rotate in exactly the
@@ -539,8 +558,16 @@ public final class Util
         return 0;
     }
 
+    /**
+     * Checks if a block can be animated or not.
+     *
+     * @param mat The material of the block to analyze.
+     * @return True if the material can be animated.
+     */
     public static boolean isAllowedBlock(Material mat)
     {
+        if (isAirOrWater(mat))
+            return false;
         return WHITELIST.contains(mat) || !BLACKLIST.contains(mat);
     }
 
