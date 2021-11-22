@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.Array;
@@ -61,6 +60,7 @@ final class ReflectionRepository
     public static final Constructor<?> ctorLocation;
 
     public static final Method methodTick;
+    public static final Method methodDie;
     public static final Method methodGetNMSWorld;
     public static final Method methodSetPosition;
     public static final Method methodSetNoGravity;
@@ -173,17 +173,9 @@ final class ReflectionRepository
         ctorLocation = findConstructor().inClass(Location.class)
                                         .withParameters(World.class, double.class, double.class, double.class)
                                         .get();
-
-
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle").get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                  .withModifiers(Modifier.PUBLIC).withoutParameters().get();
-
-        methodSetPosition = ReflectionASMAnalyzers.getSetPosition(classNMSEntity);
-        methodSetNoGravity = ReflectionASMAnalyzers.getSetNoGravity(classCraftEntity, classNMSEntity);
-        methodSetMotVec = ReflectionASMAnalyzers.getSetMotVecMethod(classCraftEntity, classNMSEntity, classVec3D);
-        methodGetMot = ReflectionASMAnalyzers.getGetMotMethod(classCraftEntity, classNMSEntity, classVec3D);
-
         methodHurtEntities = findMethod().inClass(classEntityFallingBlock).withReturnType(boolean.class)
                                          .withParameters(parameterBuilder()
                                                              .withRequiredParameters(float.class, float.class)
@@ -194,16 +186,6 @@ final class ReflectionRepository
                                      .withoutParameters().get();
         methodSetStartPos = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                         .withModifiers(Modifier.PUBLIC).withParameters(classBlockPosition).get();
-
-        final Method[] locationMethods = ReflectionASMAnalyzers.getEntityLocationMethods(classCraftEntity,
-                                                                                         classNMSEntity);
-        methodLocX = locationMethods[0];
-        methodLocY = locationMethods[1];
-        methodLocZ = locationMethods[2];
-
-        methodNMSAddEntity = findMethod().inClass(classNMSWorldServer).withName("addEntity")
-                                         .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class)
-                                         .get();
         methodAppendEntityCrashReport = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                                     .withModifiers(Modifier.PUBLIC)
                                                     .withParameters(classCrashReportSystemDetails).get();
@@ -211,8 +193,6 @@ final class ReflectionRepository
                                                 .withReturnType(classCrashReportSystemDetails)
                                                 .withModifiers(Modifier.PUBLIC)
                                                 .withParameters(String.class, Object.class).get();
-        methodIsAir = ReflectionASMAnalyzers.getIsAirMethod(methodTick, classIBlockData, classBlockData);
-
         methodNBTTagCompoundSet = findMethod().inClass(classNBTTagCompound).withReturnType(classNBTBase)
                                               .withParameters(String.class, classNBTBase).get();
         methodNBTTagCompoundSetInt = findMethod().inClass(classNBTTagCompound).withReturnType(void.class)
@@ -235,12 +215,6 @@ final class ReflectionRepository
                                                    .withReturnType(classIBlockData)
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classNBTTagCompound).get();
-
-        final Method[] methodsSaveLoadData = ReflectionASMAnalyzers.getSaveLoadDataMethods(
-            classEntityFallingBlock, classNBTTagCompound, methodNBTTagCompoundSetInt);
-        methodSaveData = methodsSaveLoadData[0];
-        methodLoadData = methodsSaveLoadData[1];
-
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
@@ -274,6 +248,25 @@ final class ReflectionRepository
         methodEnumOrdinal = findMethod().inClass(Enum.class).withName("ordinal").get();
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();
+
+
+        methodNMSAddEntity = ReflectionASMAnalyzers.getNMSAddEntityMethod(classNMSWorldServer, classNMSEntity);
+        methodIsAir = ReflectionASMAnalyzers.getIsAirMethod(methodTick, classIBlockData, classBlockData);
+        methodDie = ReflectionASMAnalyzers.getCraftEntityDelegationMethod(classCraftEntity, classNMSEntity);
+        methodSetPosition = ReflectionASMAnalyzers.getSetPosition(classNMSEntity);
+        methodSetNoGravity = ReflectionASMAnalyzers.getSetNoGravity(classCraftEntity, classNMSEntity);
+        methodSetMotVec = ReflectionASMAnalyzers.getSetMotVecMethod(classCraftEntity, classNMSEntity, classVec3D);
+        methodGetMot = ReflectionASMAnalyzers.getGetMotMethod(classCraftEntity, classNMSEntity, classVec3D);
+        final Method[] methodsSaveLoadData = ReflectionASMAnalyzers.getSaveLoadDataMethods(
+            classEntityFallingBlock, classNBTTagCompound, methodNBTTagCompoundSetInt);
+        methodSaveData = methodsSaveLoadData[0];
+        methodLoadData = methodsSaveLoadData[1];
+        final Method[] locationMethods =
+            ReflectionASMAnalyzers.getEntityLocationMethods(classCraftEntity, classNMSEntity);
+        methodLocX = locationMethods[0];
+        methodLocY = locationMethods[1];
+        methodLocZ = locationMethods[2];
+
 
         fieldTileEntityData = findField().inClass(classEntityFallingBlock).ofType(classNBTTagCompound)
                                          .withModifiers(Modifier.PUBLIC).get();

@@ -1,8 +1,10 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import nl.pim16aap2.bigDoors.reflection.asm.ASMUtil;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,9 +55,12 @@ final class ReflectionASMAnalyzers
     /**
      * Gets the saveData and loadData methods.
      *
-     * @param classEntityFallingBlock    The nms.EntityFallingBlock class.
-     * @param classNBTTagCompound        The nms.NBTTagCompound class.
-     * @param methodNBTTagCompoundSetInt The setInt method of the nms.NBTTagCompound class.
+     * @param classEntityFallingBlock
+     *     The nms.EntityFallingBlock class.
+     * @param classNBTTagCompound
+     *     The nms.NBTTagCompound class.
+     * @param methodNBTTagCompoundSetInt
+     *     The setInt method of the nms.NBTTagCompound class.
      * @return An array containing the non-null saveData and loadData methods respectively.
      */
     public static Method[] getSaveLoadDataMethods(Class<?> classEntityFallingBlock,
@@ -82,7 +87,7 @@ final class ReflectionASMAnalyzers
     {
         final Method sourceMethod = findMethod().inClass(classCraftEntity).withName("setVelocity").get();
         final String methodName = ASMUtil.getMethodNameFromMethodCall(sourceMethod, classNMSEntity,
-                                                                       void.class, classVec3D);
+                                                                      void.class, classVec3D);
         return findMethod().inClass(classNMSEntity).withName(methodName).withParameters(classVec3D).get();
     }
 
@@ -97,5 +102,27 @@ final class ReflectionASMAnalyzers
     {
         final String methodName = ASMUtil.getMethodNameFromMethodCall(methodTick, classIBlockData, boolean.class);
         return findMethod().inClass(classBlockData).withName(methodName).withoutParameters().get();
+    }
+
+    public static Method getCraftEntityDelegationMethod(Class<?> classCraftEntity, Class<?> classNMSEntity)
+    {
+        final Method sourceMethod = findMethod().inClass(classCraftEntity).withName("remove").withoutParameters().get();
+        final String methodName = ASMUtil.getMethodNameFromMethodCall(sourceMethod, classNMSEntity, void.class);
+        return findMethod().inClass(classNMSEntity).withName(methodName).withoutParameters().get();
+    }
+
+    public static Method getNMSAddEntityMethod(Class<?> classNMSWorldServer, Class<?> classNMSEntity)
+    {
+        final List<Method> candidates = findMethod().inClass(classNMSWorldServer).withReturnType(boolean.class)
+                                                    .withParameters(classNMSEntity,
+                                                                    CreatureSpawnEvent.SpawnReason.class).getAll();
+        final Method privateMethod = findMethod().inClass(classNMSWorldServer).withReturnType(boolean.class)
+                                                 .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class)
+                                                 .withModifiers(Modifier.PRIVATE).get();
+        for (Method method : candidates)
+            if (ASMUtil.executableContainsMethodCall(method, privateMethod))
+                return method;
+        throw new IllegalStateException("Could not find method with call to " + privateMethod.toGenericString()
+                                            + " among candidates: " + candidates);
     }
 }

@@ -112,13 +112,14 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                 FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
                 invoke(methodSetNoGravity).with(true)).andThen(
                 invoke(methodSetMotVec)
-                    .withMethodCall(construct(cTorVec3D).with(0.0d, 0.0d, 0.0d)).andThen(
+                    .withMethodCall(construct(cTorVec3D)
+                                        .with(0d, 0d, 0d))).andThen(
                 invoke(methodSetStartPos)
                     .withMethodCall(construct(cTorBlockPosition)
                                         .withMethodCall(invoke(methodLocX))
                                         .withMethodCall(invoke(methodLocY))
                                         .withMethodCall(invoke(methodLocZ)))).andThen(
-                invoke(named("spawn"))))
+                invoke(named("spawn")))
             );
     }
 
@@ -290,7 +291,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
             }, IMultiplyVec3D.class));
 
 
-        builder = builder.method(named("generated$die")).intercept(invoke(named("die")).onSuper());
+        builder = builder.method(named("generated$die")).intercept(invoke(methodDie).onSuper());
         builder = builder.method(named("generated$isAir")).intercept(invoke(methodIsAir).onField("block"));
         builder = builder
             .method(named("generated$move").and(ElementMatchers.takesArguments(Collections.emptyList())))
