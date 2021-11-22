@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import com.cryptomorin.xseries.XMaterial;
+import net.minecraft.world.level.block.state.IBlockDataHolder;
+import net.minecraft.world.level.block.state.properties.IBlockState;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
@@ -88,6 +90,8 @@ final class ReflectionRepository
     public static final Method methodIBlockDataSerializer;
     public static final Method methodIBlockDataDeserializer;
     public static final Method methodFromData;
+    public static final Method methodSetIBlockDataHolderState;
+    public static final Method methodGetIBlockDataHolderState;
     public static final Method methodIsAir;
     public static final Method methodCraftMagicNumbersGetMaterial;
     public static final Method methodGetItemType;
@@ -97,6 +101,7 @@ final class ReflectionRepository
     public static final Method methodGetBlockAtLoc;
     public static final Method methodGetBlockFromBlockData;
     public static final Method methodRotateBlockData;
+    public static final Method methodSetTypeAndData;
     public static final Method methodBlockInfoFromBlockBase;
     public static final Method methodGetTypeFromBlockPosition;
     public static final Method methodGetBukkitServer;
@@ -161,8 +166,7 @@ final class ReflectionRepository
 
         cTorNMSFallingBlockEntity = findConstructor().inClass(classEntityFallingBlock)
                                                      .withParameters(classNMSWorld, double.class,
-                                                                     double.class, double.class, classIBlockData)
-                                                     .get();
+                                                                     double.class, double.class, classIBlockData).get();
         cTorBlockPosition = findConstructor().inClass(classBlockPosition)
                                              .withParameters(double.class, double.class, double.class).get();
         cTorVec3D = findConstructor().inClass(classVec3D)
@@ -219,6 +223,12 @@ final class ReflectionRepository
                                                    .withParameters(classNBTTagCompound).get();
         methodFromData = findMethod().inClass(classCraftBlockData).withName("fromData")
                                      .withParameters(classIBlockData).get();
+        methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(IBlockDataHolder.class)
+                                                          .withReturnType(Object.class)
+                                                          .withParameters(IBlockState.class, Comparable.class).get();
+        methodGetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(IBlockDataHolder.class)
+                                                          .withReturnType(Object.class)
+                                                          .withParameters(IBlockState.class).get();
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
@@ -235,6 +245,8 @@ final class ReflectionRepository
         methodRotateBlockData = findMethod().inClass(classBlockData).withReturnType(classIBlockData)
                                             .withModifiers(Modifier.PUBLIC).withParameters(classEnumBlockRotation)
                                             .get();
+        methodSetTypeAndData = findMethod().inClass(classNMSWorld).withReturnType(boolean.class)
+                                           .withParameters(classBlockPosition, classIBlockData, int.class).get();
         methodBlockInfoFromBlockBase = findMethod().inClass(classBlockBaseInfo).withReturnType(classBlockBaseInfo)
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classBlockBase).get();

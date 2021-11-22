@@ -62,13 +62,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
         return "NMSBlock";
     }
 
-    public interface IGeneratedNMSBlock
-    {
-        Object generated$retrieveBlockData(Block otherBlock);
-
-        void generated$updateBlockData(Block otherBlock, Object newData);
-    }
-
     @Override
     protected void generateImpl()
         throws Exception
@@ -126,12 +119,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
             .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE);
     }
 
-    public interface IRotateBlock
-    {
-        @RuntimeType
-        Object intercept(RotateDirection rotateDirection, Object[] values);
-    }
-
     private DynamicType.Builder<?> addRotateBlockBaseMethod(DynamicType.Builder<?> builder, MethodDelegation delegation,
                                                             String baseName, String delegationName)
     {
@@ -186,12 +173,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
         return addRotateBlockBaseMethod(builder, findBlockRotation, "rotateCylindrical", rotateMethod);
     }
 
-    public interface IRotateBlockUpDown
-    {
-        @RuntimeType
-        Object intercept(boolean northSouthAligned, int currentAxes, Object[] values);
-    }
-
     private DynamicType.Builder<?> addRotateBlockUpDownMethod(DynamicType.Builder<?> builder)
         throws IllegalAccessException
     {
@@ -199,8 +180,10 @@ final class NMSBlockClassGenerator extends ClassGenerator
         final Object blockRotatableAxis = fieldBlockRotatableAxis.get(null);
 
         final MethodCall getCurrentAxis = (MethodCall) invoke(methodEnumOrdinal)
-            .onMethodCall((MethodCall) invoke(named("get")).onField("blockData").with(blockRotatableAxis)
-                                                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC))
+            .onMethodCall((MethodCall) invoke(methodGetIBlockDataHolderState).onField("blockData")
+                                                                             .with(blockRotatableAxis)
+                                                                             .withAssigner(Assigner.DEFAULT,
+                                                                                           Assigner.Typing.DYNAMIC))
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         final MethodCall getNewAxis = (MethodCall) invoke(named(privateMethodName))
@@ -208,8 +191,9 @@ final class NMSBlockClassGenerator extends ClassGenerator
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         final MethodCall setNewAxis = (MethodCall)
-            invoke(named("set")).onField("blockData").with(blockRotatableAxis).withMethodCall(getNewAxis)
-                                .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
+            invoke(methodSetIBlockDataHolderState).onField("blockData").with(blockRotatableAxis)
+                                                  .withMethodCall(getNewAxis)
+                                                  .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
             .defineMethod("rotateBlockUpDown", void.class).withParameters(boolean.class)
@@ -238,12 +222,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
                 return values[newIdx];
             }, IRotateBlockUpDown.class));
         return builder;
-    }
-
-    public interface ICheckWaterLogged
-    {
-        @RuntimeType
-        void intercept(BlockData blockData);
     }
 
     private DynamicType.Builder<?> addBasicMethods(DynamicType.Builder<?> builder)
@@ -302,7 +280,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                 invoke(named("updateCraftBlockDataMultipleFacing"))
                     .withThis().withField("craftBlockData").withField("loc").withField("xMat")).andThen(
 
-                invoke(named("setTypeAndData"))
+                invoke(methodSetTypeAndData)
                     .onMethodCall(worldCast)
                     .withMethodCall(construct(cTorBlockPosition)
                                         .withMethodCall(invoke(named("getBlockX")).onField("loc"))
@@ -310,13 +288,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                         .withMethodCall(invoke(named("getBlockZ")).onField("loc")))
                     .withField("blockData")
                     .with(1)));
-    }
-
-    public interface IUpdateMultipleFacing
-    {
-        @RuntimeType
-        void intercept(IGeneratedNMSBlock origin, Object craftBlockData,
-                       @FieldValue("loc") Location loc, @FieldValue("xMat") XMaterial xMat);
     }
 
     private DynamicType.Builder<?> addUpdateMultipleFacingMethod(DynamicType.Builder<?> builder)
@@ -362,5 +333,37 @@ final class NMSBlockClassGenerator extends ClassGenerator
                             ((MultipleFacing) craftBlockData).setFace(blockFace, false);
                     });
             }, IUpdateMultipleFacing.class).andThen(invoke(named("constructBlockDataFromBukkit"))));
+    }
+
+    public interface IGeneratedNMSBlock
+    {
+        Object generated$retrieveBlockData(Block otherBlock);
+
+        void generated$updateBlockData(Block otherBlock, Object newData);
+    }
+
+    public interface IRotateBlock
+    {
+        @RuntimeType
+        Object intercept(RotateDirection rotateDirection, Object[] values);
+    }
+
+    public interface IRotateBlockUpDown
+    {
+        @RuntimeType
+        Object intercept(boolean northSouthAligned, int currentAxes, Object[] values);
+    }
+
+    public interface ICheckWaterLogged
+    {
+        @RuntimeType
+        void intercept(BlockData blockData);
+    }
+
+    public interface IUpdateMultipleFacing
+    {
+        @RuntimeType
+        void intercept(IGeneratedNMSBlock origin, Object craftBlockData,
+                       @FieldValue("loc") Location loc, @FieldValue("xMat") XMaterial xMat);
     }
 }
