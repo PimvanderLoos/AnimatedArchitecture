@@ -7,9 +7,6 @@ loadbefore: [ PlotSquared ]
 softdepend: [ WorldGuard, Vault, GriefPrevention, Towny, Lands, RedProtect, Geyser-Spigot, ViaRewind, GriefDefender ]
 libraries:
   - net.bytebuddy:byte-buddy:1.12.1
-  - org.ow2.asm:asm:9.2
-  - org.ow2.asm:asm-commons:9.2
-  - org.ow2.asm:asm-util:9.2
 commands:
   bigdoors:
     description: Base command

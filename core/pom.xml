@@ -28,6 +28,13 @@
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.18-pre5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.11.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
@@ -141,19 +148,19 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
             <version>9.2</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
             <version>9.2</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-util</artifactId>
             <version>9.2</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
 
@@ -255,8 +262,12 @@
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.github.PimvanderLoos</pattern>
+                            <pattern>com.cryptomorin.xseries</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.xseries</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.objectweb.asm</pattern>
+                            <shadedPattern>nl.pim16aap2.bigDoors.lib.asm</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
