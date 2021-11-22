@@ -24,6 +24,7 @@ import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.*;
 final class ReflectionRepository
 {
     public static final Class<?> classEntityFallingBlock;
+    public static final Class<?> classBlock;
     public static final Class<?> classIBlockData;
     public static final Class<?> classBlockData;
     public static final Class<?> classNMSWorld;
@@ -126,6 +127,7 @@ final class ReflectionRepository
         classBlockBase = findClass(nmsBase + "BlockBase", "net.minecraft.world.level.block.state.BlockBase").get();
         classBlockBaseInfo = findClass(classBlockBase.getName() + "$Info").get();
         classBlockData = findClass(classBlockBase.getName() + "$BlockData").get();
+        classBlock = findClass(nmsBase + "Block", "net.minecraft.world.level.block.Block").get();
         classIBlockData = findClass(nmsBase + "IBlockData", "net.minecraft.world.level.block.state.IBlockData").get();
         classCraftWorld = findClass(craftBase + "CraftWorld").get();
         classEnumMoveType = findClass(nmsBase + "EnumMoveType", "net.minecraft.world.entity.EnumMoveType").get();
@@ -174,29 +176,41 @@ final class ReflectionRepository
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle").get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                  .withModifiers(Modifier.PUBLIC).withoutParameters().get();
+        // FIXME: Broken on 1.18 pre5
         methodSetPosition = findMethod().inClass(classNMSEntity).withName("setPosition")
                                         .withParameters(double.class, double.class, double.class).get();
+        // FIXME: Broken on 1.18 pre5
         methodSetNoGravity = findMethod().inClass(classNMSEntity).withName("setNoGravity")
                                          .withParameters(boolean.class).get();
+        // FIXME: Broken on 1.18 pre5
         methodSetMot = findMethod().inClass(classNMSEntity).withName("setMot")
                                    .withParameters(double.class, double.class, double.class).get();
+        // FIXME: Broken on 1.18 pre5
         methodSetMotVec = findMethod().inClass(classNMSEntity).withName("setMot").withParameters(classVec3D).get();
+        // FIXME: Broken on 1.18 pre5
         methodGetMot = findMethod().inClass(classNMSEntity).withName("getMot").get();
         methodHurtEntities = findMethod().inClass(classEntityFallingBlock).withReturnType(boolean.class)
                                          .withParameters(parameterBuilder()
                                                              .withRequiredParameters(float.class, float.class)
                                                              .withOptionalParameters(classNMSDamageSource)).get();
-        methodMove = findMethod().inClass(classNMSEntity).withName("move")
+        methodMove = findMethod().inClass(classNMSEntity).withReturnType(void.class)
                                  .withParameters(classEnumMoveType, classVec3D).get();
+        // FIXME: Broken on 1.18 pre5
         methodSaveData = findMethod().inClass(classEntityFallingBlock).withName("saveData")
                                      .withParameters(classNBTTagCompound).get();
+        // FIXME: Broken on 1.18 pre5
         methodLoadData = findMethod().inClass(classEntityFallingBlock).withName("loadData")
                                      .withParameters(classNBTTagCompound).get();
-        methodGetBlock = findMethod().inClass(classEntityFallingBlock).withName("getBlock").get();
+        // FIXME: Broken on 1.18 pre5
+        methodGetBlock = findMethod().inClass(classEntityFallingBlock).withReturnType(classIBlockData)
+                                     .withoutParameters().get();
         methodSetStartPos = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                         .withModifiers(Modifier.PUBLIC).withParameters(classBlockPosition).get();
+        // FIXME: Broken on 1.18 pre5
         methodLocX = findMethod().inClass(classNMSEntity).withName("locX").get();
+        // FIXME: Broken on 1.18 pre5
         methodLocY = findMethod().inClass(classNMSEntity).withName("locY").get();
+        // FIXME: Broken on 1.18 pre5
         methodLocZ = findMethod().inClass(classNMSEntity).withName("locZ").get();
         methodNMSAddEntity = findMethod().inClass(classNMSWorldServer).withName("addEntity")
                                          .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class).get();
@@ -207,20 +221,21 @@ final class ReflectionRepository
                                                 .withReturnType(classCrashReportSystemDetails)
                                                 .withModifiers(Modifier.PUBLIC)
                                                 .withParameters(String.class, Object.class).get();
+        // FIXME: Broken on 1.18 pre5
         methodIsAir = findMethod().inClass(classIBlockData).withName("isAir").checkSuperClasses().get();
-        methodNBTTagCompoundSet = findMethod().inClass(classNBTTagCompound).withName("set")
+        methodNBTTagCompoundSet = findMethod().inClass(classNBTTagCompound).withReturnType(classNBTBase)
                                               .withParameters(String.class, classNBTBase).get();
-        methodNBTTagCompoundSetInt = findMethod().inClass(classNBTTagCompound).withName("setInt")
+        methodNBTTagCompoundSetInt = findMethod().inClass(classNBTTagCompound).withReturnType(void.class)
                                                  .withParameters(String.class, int.class).get();
-        methodNBTTagCompoundSetBoolean = findMethod().inClass(classNBTTagCompound).withName("setBoolean")
+        methodNBTTagCompoundSetBoolean = findMethod().inClass(classNBTTagCompound).withReturnType(void.class)
                                                      .withParameters(String.class, boolean.class).get();
-        methodNBTTagCompoundSetFloat = findMethod().inClass(classNBTTagCompound).withName("setFloat")
+        methodNBTTagCompoundSetFloat = findMethod().inClass(classNBTTagCompound).withReturnType(void.class)
                                                    .withParameters(String.class, float.class).get();
-        methodNBTTagCompoundGetCompound = findMethod().inClass(classNBTTagCompound).withName("getCompound")
+        methodNBTTagCompoundGetCompound = findMethod().inClass(classNBTTagCompound).withReturnType(classNBTTagCompound)
                                                       .withParameters(String.class).get();
-        methodNBTTagCompoundGetInt = findMethod().inClass(classNBTTagCompound).withName("getInt")
+        methodNBTTagCompoundGetInt = findMethod().inClass(classNBTTagCompound).withReturnType(int.class)
                                                  .withParameters(String.class).get();
-        methodNBTTagCompoundHasKeyOfType = findMethod().inClass(classNBTTagCompound).withName("hasKeyOfType")
+        methodNBTTagCompoundHasKeyOfType = findMethod().inClass(classNBTTagCompound).withReturnType(boolean.class)
                                                        .withParameters(String.class, int.class).get();
         methodIBlockDataSerializer = findMethod().inClass(classGameProfileSerializer)
                                                  .withReturnType(classNBTTagCompound)
@@ -241,14 +256,15 @@ final class ReflectionRepository
                                              .withParameters(int.class, int.class, int.class).get();
         methodGetBlockAtLoc = findMethod().inClass(World.class).withName("getBlockAt").withParameters(Location.class)
                                           .get();
-        methodGetBlockFromBlockData = findMethod().inClass(classBlockData).withName("getBlock").get();
+        methodGetBlockFromBlockData = findMethod().inClass(classBlockData).withReturnType(classBlock)
+                                                  .withoutParameters().get();
         methodRotateBlockData = findMethod().inClass(classBlockData).withReturnType(classIBlockData)
                                             .withModifiers(Modifier.PUBLIC).withParameters(classEnumBlockRotation)
                                             .get();
         methodBlockInfoFromBlockBase = findMethod().inClass(classBlockBaseInfo).withReturnType(classBlockBaseInfo)
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classBlockBase).get();
-        methodGetTypeFromBlockPosition = findMethod().inClass(classNMSWorld).withName("getType")
+        methodGetTypeFromBlockPosition = findMethod().inClass(classNMSWorld).withReturnType(classIBlockData)
                                                      .withParameters(classBlockPosition).get();
         methodGetBukkitServer = findMethod().inClass(Bukkit.class).withName("getServer").get();
         methodSetCraftEntityCustomName = findMethod().inClass(classCraftEntity).withName("setCustomName")
@@ -261,7 +277,6 @@ final class ReflectionRepository
         methodEnumOrdinal = findMethod().inClass(Enum.class).withName("ordinal").get();
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();
-
 
         fieldTileEntityData = findField().inClass(classEntityFallingBlock).ofType(classNBTTagCompound)
                                          .withModifiers(Modifier.PUBLIC).get();
