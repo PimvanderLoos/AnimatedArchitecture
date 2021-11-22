@@ -298,13 +298,11 @@ final class ReflectionBackend
             // Superclasses take precedence, so evaluate them first.
             if (continueSuperClassChecking)
             {
-                // Recursion base case for superclasses.
+                continueSuperClassChecking = false;
+
                 Class<?> superClass = source.getSuperclass();
                 if (superClass == null)
-                {
-                    continueSuperClassChecking = false;
                     continue;
-                }
 
                 m = findMethod(false, true, continueInterfaceChecking, superClass,
                                name, modifiers, parameters, returnType);
@@ -314,13 +312,11 @@ final class ReflectionBackend
 
             if (continueInterfaceChecking)
             {
+                continueInterfaceChecking = false;
+
                 final Class<?>[] superInterfaces = source.getInterfaces();
-                // Recursion base case for interfaces.
                 if (superInterfaces.length == 0)
-                {
-                    continueInterfaceChecking = false;
                     continue;
-                }
 
                 for (Class<?> superInterface : superInterfaces)
                 {
