@@ -73,6 +73,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         builder = addCTor(builder);
         builder = addSpawnMethod(builder);
         builder = addHurtEntitiesMethod(builder);
+        builder = addLocYMethod(builder);
         builder = addGetBlockMethod(builder);
         builder = addLoadDataMethod(builder);
         builder = addSaveDataMethod(builder);
@@ -141,6 +142,13 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
             .defineMethod(methodHurtEntities.getName(), boolean.class, Visibility.PUBLIC)
             .withParameters(methodHurtEntities.getParameterTypes())
             .intercept(value(false));
+    }
+
+    private DynamicType.Builder<?> addLocYMethod(DynamicType.Builder<?> builder)
+    {
+        return builder
+            .defineMethod("locY", double.class, Visibility.PUBLIC)
+            .intercept(invoke(methodLocY));
     }
 
     private DynamicType.Builder<?> addCrashReportMethod(DynamicType.Builder<?> builder)
