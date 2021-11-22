@@ -111,13 +111,14 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                 FieldAccessor.of(fieldHurtEntities).setsValue(false)).andThen(
                 FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
                 invoke(methodSetNoGravity).with(true)).andThen(
-                invoke(methodSetMot).with(0, 0, 0)).andThen(
+                invoke(methodSetMotVec)
+                    .withMethodCall(construct(cTorVec3D).with(0.0d, 0.0d, 0.0d)).andThen(
                 invoke(methodSetStartPos)
                     .withMethodCall(construct(cTorBlockPosition)
                                         .withMethodCall(invoke(methodLocX))
                                         .withMethodCall(invoke(methodLocY))
                                         .withMethodCall(invoke(methodLocZ)))).andThen(
-                invoke(named("spawn")))
+                invoke(named("spawn"))))
             );
     }
 

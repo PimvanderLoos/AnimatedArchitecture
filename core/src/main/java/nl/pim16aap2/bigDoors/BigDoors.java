@@ -191,7 +191,7 @@ public class BigDoors extends JavaPlugin implements Listener
                                                .split(",")[3])
                                       + "\"). This plugin will NOT be enabled!", true, true);
                 logger.logMessage("If no update is available for this version, you could try to enable " +
-                                      "code generation in the config.", true, true);
+                                      "__CODE GENERATION__ in the config.", true, true);
                 logger.logMessage("Code generation may add support for this version, but be sure to read the " +
                                       "warning in the config before using it!", true, true);
                 setDisabled("This version of Minecraft is not supported. Is the plugin up-to-date? " +
@@ -242,8 +242,7 @@ public class BigDoors extends JavaPlugin implements Listener
      * Checks if the current environment is invalid. This plugin should not attempt initialization in an invalid
      * environment.
      * <p>
-     * Note that it doesn't check if the version is valid. That is done somewhere else and I couldn't be bothered to
-     * rewrite it.
+     * Note that it doesn't check if the version is valid.
      *
      * @return The name of the invalid environment, if one could be found.
      */

@@ -188,7 +188,6 @@ public class ParameterGroup
          *
          * @return The newly created {@link ParameterGroup}.
          */
-        @Contract("_ -> new")
         public ParameterGroup construct()
         {
             return new ParameterGroup(parameters, requiredCount);
