@@ -125,7 +125,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.cryptomorin</groupId>
+            <groupId>com.github.PimvanderLoos</groupId>
             <artifactId>XSeries</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -255,13 +255,13 @@
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.jcalculator</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.cryptomorin.xseries</pattern>
+                            <pattern>com.github.PimvanderLoos</pattern>
                             <shadedPattern>nl.pim16aap2.bigDoors.lib.xseries</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
                         <filter>
-                            <artifact>com.github.cryptomorin:XSeries</artifact>
+                            <artifact>com.github.PimvanderLoos:XSeries</artifact>
                             <includes>
                                 <include>com/cryptomorin/xseries/XMaterial*</include>
                             </includes>
