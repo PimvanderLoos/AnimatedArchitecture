@@ -58,7 +58,7 @@ abstract class ClassGenerator
         final long startTime = System.nanoTime();
         generateImpl();
         final long duration = System.nanoTime() - startTime;
-        BigDoors.get().getMyLogger().info(String.format("Generated Class %s in %dms",
+        BigDoors.get().getMyLogger().info(String.format("Generated Class %s in %dms.",
                                                         getGeneratedClass().getName(), duration / 1000000));
     }
 

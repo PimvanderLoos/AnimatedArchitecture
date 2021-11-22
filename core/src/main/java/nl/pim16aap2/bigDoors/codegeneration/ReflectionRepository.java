@@ -173,7 +173,8 @@ final class ReflectionRepository
         ctorLocation = findConstructor().inClass(Location.class)
                                         .withParameters(World.class, double.class, double.class, double.class)
                                         .get();
-        methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle").get();
+        methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle")
+                                        .withoutParameters().withModifiers(Modifier.PUBLIC).get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                  .withModifiers(Modifier.PUBLIC).withoutParameters().get();
         methodHurtEntities = findMethod().inClass(classEntityFallingBlock).withReturnType(boolean.class)
