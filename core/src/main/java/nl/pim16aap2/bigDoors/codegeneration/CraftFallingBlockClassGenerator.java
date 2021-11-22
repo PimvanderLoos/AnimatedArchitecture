@@ -2,12 +2,10 @@ package nl.pim16aap2.bigDoors.codegeneration;
 
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.implementation.ExceptionMethod;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.StubMethod;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
-import org.bukkit.Material;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.EulerAngle;
@@ -92,7 +90,9 @@ final class CraftFallingBlockClassGenerator extends ClassGenerator
         builder = builder.defineMethod("getHandle", classGeneratedEntityFallingBlock)
                          .intercept(ofField("entity").withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         builder = builder.defineMethod("getBlockData", BlockData.class)
-                         .intercept(ExceptionMethod.throwing(UnsupportedOperationException.class));
+                         .intercept(invoke(methodFromData)
+                                        .withMethodCall(invoke(methodGetBlock)
+                                                            .onMethodCall(invoke(named("getHandle")))));
 
         // Setters
         builder = builder.defineMethod("setDropItem", void.class).withParameters(boolean.class)
@@ -109,13 +109,6 @@ final class CraftFallingBlockClassGenerator extends ClassGenerator
             .define(methodCraftEntitySetTicksLived)
             .intercept(invoke(methodCraftEntitySetTicksLived).onSuper().withArgument(0).andThen(
                 invoke(named("generated$setTicksLived")).onMethodCall(invoke(named("getHandle"))).withArgument(0)));
-
-        builder = builder
-            .defineMethod("getMaterial", Material.class)
-            .intercept(invoke(methodGetItemType)
-                           .onMethodCall(invoke(methodCraftMagicNumbersGetMaterial)
-                                             .withMethodCall(invoke(named("getBlock"))
-                                                                 .onMethodCall(invoke(named("getHandle"))))));
         return builder;
     }
 }

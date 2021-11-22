@@ -87,6 +87,7 @@ final class ReflectionRepository
     public static final Method methodNBTTagCompoundGetInt;
     public static final Method methodIBlockDataSerializer;
     public static final Method methodIBlockDataDeserializer;
+    public static final Method methodFromData;
     public static final Method methodIsAir;
     public static final Method methodCraftMagicNumbersGetMaterial;
     public static final Method methodGetItemType;
@@ -216,6 +217,8 @@ final class ReflectionRepository
                                                    .withReturnType(classIBlockData)
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classNBTTagCompound).get();
+        methodFromData = findMethod().inClass(classCraftBlockData).withName("fromData")
+                                     .withParameters(classIBlockData).get();
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
