@@ -218,7 +218,7 @@ public class ConfigLoader
         String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
                                                 "This may be useful in case the mappings change within a single version.",
                                                 "In general, however, you will not need this and you're better off not using it!",
-                                                "When this option is enabled, it overrides the \"" + allowCodeGeneration + "\" option."};
+                                                "When this option is enabled, it overrides the \"allowCodeGeneration\" option."};
 
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };

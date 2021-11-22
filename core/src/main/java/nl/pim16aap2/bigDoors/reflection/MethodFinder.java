@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -148,6 +149,22 @@ public final class MethodFinder
             this.checkInterfaces = false;
             return this;
         }
+
+        /**
+         * Gets all methods that fit the provided signature.
+         *
+         * @param expected The exact number of methods that should be found.
+         * @return The methods that were found.
+         * @throws IllegalStateException when the number of found methods does not match the expected number of methods.
+         */
+        public abstract List<Method> get(int expected);
+
+        /**
+         * Retrieves all methods that fit the provided signature.
+         *
+         * @return A list with all methods that fit the provided signature.
+         */
+        public abstract List<Method> getAll();
     }
 
     /**
@@ -169,6 +186,20 @@ public final class MethodFinder
             return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
                                                 source, name, modifiers, parameters, null);
         }
+
+        public List<Method> get(int expected)
+        {
+            final List<Method> ret = getAll();
+            if (ret.size() != expected)
+                throw new IllegalStateException("Expected " + expected + " methods, but found " + ret.size());
+            return ret;
+        }
+
+        public List<Method> getAll()
+        {
+            return ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source,
+                                                 name, modifiers, parameters, null, Integer.MAX_VALUE);
+        }
     }
 
     /**
@@ -189,6 +220,20 @@ public final class MethodFinder
         {
             return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
                                                 source, null, modifiers, parameters, returnType);
+        }
+
+        public List<Method> get(int expected)
+        {
+            final List<Method> ret = getAll();
+            if (ret.size() != expected)
+                throw new IllegalStateException("Expected " + expected + " methods, but found " + ret.size());
+            return ret;
+        }
+
+        public List<Method> getAll()
+        {
+            return ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source, null,
+                                                 modifiers, parameters, returnType, Integer.MAX_VALUE);
         }
     }
 }

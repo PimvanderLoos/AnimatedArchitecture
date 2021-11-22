@@ -225,7 +225,6 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (Exception exception)
         {
-            exception.printStackTrace();
             logger.logMessage(Util.exceptionToString(exception), true, true);
             setDisabled(
                 "This plugin is disabled because an unknown error occurred during startup, please check the logs!");
