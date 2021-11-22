@@ -711,7 +711,7 @@ public class ConfigLoader
 
     public boolean allowCodeGeneration()
     {
-        return allowNotifications;
+        return allowCodeGeneration;
     }
 
     public boolean forceCodeGeneration()
