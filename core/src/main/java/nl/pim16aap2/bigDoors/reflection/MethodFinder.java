@@ -2,6 +2,7 @@ package nl.pim16aap2.bigDoors.reflection;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -20,7 +21,8 @@ public final class MethodFinder
     /**
      * Sets the class this method finder will search in for methods.
      *
-     * @param source The class to analyze.
+     * @param source
+     *     The class to analyze.
      * @return The next step in the method finding process.
      */
     @Contract("_ -> new")
@@ -32,7 +34,7 @@ public final class MethodFinder
     /**
      * Represents the second step of the method finder, after the source class has been specified.
      */
-    public static final class MethodFinderInSource
+    public final class MethodFinderInSource
     {
         private final @NotNull Class<?> source;
 
@@ -42,35 +44,48 @@ public final class MethodFinder
         }
 
         /**
-         * Creates a new {@link MethodFinderBase} to retrieve the method by its name.
+         * Creates a new {@link NamedMethodFinder} to retrieve the method by its name.
          *
-         * @param name The name of the method to look for.
-         * @return The new {@link MethodFinderBase}.
+         * @param name
+         *     The name of the method to look for.
+         * @return The new {@link NamedMethodFinder}.
          */
         @Contract("_ -> new")
-        public MethodFinderBase withName(@NotNull String name)
+        public NamedMethodFinder withName(@NotNull String name)
         {
             return new NamedMethodFinder(source, name);
         }
 
         /**
-         * Creates a new {@link MethodFinderBase} to retrieve the method by its type.
+         * Creates a new {@link TypedMethodFinder} to retrieve the method by its type.
          *
-         * @param returnType The return type of the method to look for.
-         * @return The new {@link MethodFinderBase}.
+         * @param returnType
+         *     The return type of the method to look for.
+         * @return The new {@link TypedMethodFinder}.
          */
         @Contract("_ -> new")
-        public MethodFinderBase withReturnType(@NotNull Class<?> returnType)
+        public TypedMethodFinder withReturnType(@NotNull Class<?> returnType)
         {
             return new TypedMethodFinder(source, returnType);
+        }
+
+        /**
+         * Creates a new {@link MultipleMethodsFinder} to retrieve multiple methods that match the given input.
+         *
+         * @return The new {@link MultipleMethodsFinder}.
+         */
+        public MultipleMethodsFinder findMultiple()
+        {
+            return new MultipleMethodsFinder(source);
         }
     }
 
     /**
      * Represents an implementation of {@link ReflectionFinderWithParameters} that can be used to find a method.
      */
-    public abstract static class MethodFinderBase
-        extends ReflectionFinder.ReflectionFinderWithParameters<Method, MethodFinderBase>
+    @SuppressWarnings("unchecked")
+    public abstract static class MethodFinderBase<T, U extends MethodFinderBase<T, U>>
+        extends ReflectionFinder.ReflectionFinderWithParameters<T, U>
     {
         protected final @NotNull Class<?> source;
         protected boolean checkSuperClasses = false;
@@ -82,7 +97,7 @@ public final class MethodFinder
         }
 
         // Copy constructor
-        private MethodFinderBase(@NotNull MethodFinderBase other)
+        private MethodFinderBase(@NotNull MethodFinderBase<T, U> other)
         {
             super(other);
             this.source = other.source;
@@ -101,10 +116,10 @@ public final class MethodFinder
          * @return The current method finder instance.
          */
         @Contract("-> this")
-        public MethodFinderBase checkSuperClasses()
+        public U checkSuperClasses()
         {
             this.checkSuperClasses = true;
-            return this;
+            return (U) this;
         }
 
         /**
@@ -114,10 +129,10 @@ public final class MethodFinder
          * @return The current method finder instance.
          */
         @Contract("-> this")
-        public MethodFinderBase ignoreSuperClasses()
+        public U ignoreSuperClasses()
         {
             this.checkSuperClasses = false;
-            return this;
+            return (U) this;
         }
 
         /**
@@ -131,10 +146,10 @@ public final class MethodFinder
          * @return The current method finder instance.
          */
         @Contract("-> this")
-        public MethodFinderBase checkInterfaces()
+        public U checkInterfaces()
         {
             this.checkInterfaces = true;
-            return this;
+            return (U) this;
         }
 
         /**
@@ -144,33 +159,17 @@ public final class MethodFinder
          * @return The current method finder instance.
          */
         @Contract("-> this")
-        public MethodFinderBase ignoreInterfaces()
+        public U ignoreInterfaces()
         {
             this.checkInterfaces = false;
-            return this;
+            return (U) this;
         }
-
-        /**
-         * Gets all methods that fit the provided signature.
-         *
-         * @param expected The exact number of methods that should be found.
-         * @return The methods that were found.
-         * @throws IllegalStateException when the number of found methods does not match the expected number of methods.
-         */
-        public abstract List<Method> get(int expected);
-
-        /**
-         * Retrieves all methods that fit the provided signature.
-         *
-         * @return A list with all methods that fit the provided signature.
-         */
-        public abstract List<Method> getAll();
     }
 
     /**
      * Represents an implementation of {@link MethodFinderBase} to retrieve a method by its name.
      */
-    private static final class NamedMethodFinder extends MethodFinderBase
+    public static final class NamedMethodFinder extends MethodFinderBase<Method, NamedMethodFinder>
     {
         private final @NotNull String name;
 
@@ -186,26 +185,12 @@ public final class MethodFinder
             return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
                                                 source, name, modifiers, parameters, null);
         }
-
-        public List<Method> get(int expected)
-        {
-            final List<Method> ret = getAll();
-            if (ret.size() != expected)
-                throw new IllegalStateException("Expected " + expected + " methods, but found " + ret.size());
-            return ret;
-        }
-
-        public List<Method> getAll()
-        {
-            return ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source,
-                                                 name, modifiers, parameters, null, Integer.MAX_VALUE);
-        }
     }
 
     /**
      * Represents an implementation of {@link MethodFinderBase} to retrieve a method by its return type.
      */
-    private static final class TypedMethodFinder extends MethodFinderBase
+    public static final class TypedMethodFinder extends MethodFinderBase<Method, TypedMethodFinder>
     {
         private final @NotNull Class<?> returnType;
 
@@ -221,19 +206,113 @@ public final class MethodFinder
             return ReflectionBackend.findMethod(nonnull, checkSuperClasses, checkInterfaces,
                                                 source, null, modifiers, parameters, returnType);
         }
+    }
 
-        public List<Method> get(int expected)
+    /**
+     * Represents an implementation of {@link ReflectionFinder} that is used to find multiple methods that all fit the
+     * provided details.
+     */
+    public final class MultipleMethodsFinder extends MethodFinderBase<List<Method>, MultipleMethodsFinder>
+        implements IBoundedRetriever<List<Method>, MultipleMethodsFinder>
+    {
+        private @Nullable String name;
+        private @Nullable Class<?> returnType;
+        private int expected = -1;
+        private int atMost = -1;
+        private int atLeast = -1;
+
+        private MultipleMethodsFinder(Class<?> source)
         {
-            final List<Method> ret = getAll();
-            if (ret.size() != expected)
-                throw new IllegalStateException("Expected " + expected + " methods, but found " + ret.size());
-            return ret;
+            super(source);
         }
 
-        public List<Method> getAll()
+        private MultipleMethodsFinder(MultipleMethodsFinder other)
         {
-            return ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source, null,
-                                                 modifiers, parameters, returnType, Integer.MAX_VALUE);
+            super(other);
+            this.name = other.name;
+            this.returnType = other.returnType;
+            this.expected = other.expected;
+            this.atMost = other.atMost;
+            this.atLeast = other.atLeast;
+        }
+
+        /**
+         * Specifies the name of the methods to look for.
+         *
+         * @param name
+         *     The name of the methods to look for.
+         * @return The current {@link MultipleMethodsFinder}.
+         */
+        @Contract("_ -> this")
+        public MultipleMethodsFinder withName(@NotNull String name)
+        {
+            this.name = name;
+            return this;
+        }
+
+        /**
+         * Specifies the return type of the methods to look for.
+         *
+         * @param returnType
+         *     The return type of the methods to look for.
+         * @return The current {@link MultipleMethodsFinder}.
+         */
+        @Contract("_ -> this")
+        public MultipleMethodsFinder withReturnType(@NotNull Class<?> returnType)
+        {
+            this.returnType = returnType;
+            return this;
+        }
+
+        @Override
+        public List<Method> get()
+        {
+            final List<Method> found =
+                ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source, name,
+                                              modifiers, parameters, returnType, -1);
+
+            if (expected >= 0 && expected != found.size())
+                return handleInvalid(
+                    String.format("Expected %d methods but found %d for input: ", expected, found.size()));
+
+            if (atMost >= 0 && found.size() > atMost)
+                return handleInvalid(
+                    String.format("Expected at most %d methods, but found %d for input: ", atMost, found.size()));
+
+            if (atLeast >= 0 && found.size() < atLeast)
+                return handleInvalid(
+                    String.format("Expected at least %d methods, but found %d for input: ", atLeast, found.size()));
+            return found;
+        }
+
+        private List<Method> handleInvalid(@NotNull String str)
+        {
+            if (nonnull)
+                throw new IllegalStateException(str + ReflectionBackend
+                    .methodSearchRequestToString(checkSuperClasses, checkInterfaces, source, name,
+                                                 modifiers, parameters, returnType));
+            return null;
+        }
+
+        @Override
+        public MultipleMethodsFinder atLeast(int val)
+        {
+            this.atLeast = val;
+            return this;
+        }
+
+        @Override
+        public MultipleMethodsFinder atMost(int val)
+        {
+            this.atMost = val;
+            return this;
+        }
+
+        @Override
+        public MultipleMethodsFinder exactCount(int val)
+        {
+            this.expected = val;
+            return this;
         }
     }
 }

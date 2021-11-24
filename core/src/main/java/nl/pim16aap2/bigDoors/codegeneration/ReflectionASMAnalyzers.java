@@ -70,9 +70,9 @@ final class ReflectionASMAnalyzers
         // The saveData and loadData methods have the same signature.
         // The difference is that one (saveData) has a bunch of nbtTagCompound.set___(data), while loadData
         // only uses nbtTagCompound's data.
-        final List<Method> methodsSaveLoadData = findMethod().inClass(classEntityFallingBlock)
-                                                             .withReturnType(void.class)
-                                                             .withParameters(classNBTTagCompound).get(2);
+        final List<Method> methodsSaveLoadData = findMethod()
+            .inClass(classEntityFallingBlock).findMultiple().withReturnType(void.class)
+            .withParameters(classNBTTagCompound).exactCount(2).get();
         final Method method0 = Objects.requireNonNull(methodsSaveLoadData.get(0), "Save/load object 0 cannot be null");
         final Method method1 = Objects.requireNonNull(methodsSaveLoadData.get(1), "Save/load object 1 cannot be null");
 
@@ -113,9 +113,9 @@ final class ReflectionASMAnalyzers
 
     public static Method getNMSAddEntityMethod(Class<?> classNMSWorldServer, Class<?> classNMSEntity)
     {
-        final List<Method> candidates = findMethod().inClass(classNMSWorldServer).withReturnType(boolean.class)
-                                                    .withParameters(classNMSEntity,
-                                                                    CreatureSpawnEvent.SpawnReason.class).getAll();
+        final List<Method> candidates = findMethod()
+            .inClass(classNMSWorldServer).findMultiple().withReturnType(boolean.class)
+            .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class).get();
         final Method privateMethod = findMethod().inClass(classNMSWorldServer).withReturnType(boolean.class)
                                                  .withParameters(classNMSEntity, CreatureSpawnEvent.SpawnReason.class)
                                                  .withModifiers(Modifier.PRIVATE).get();

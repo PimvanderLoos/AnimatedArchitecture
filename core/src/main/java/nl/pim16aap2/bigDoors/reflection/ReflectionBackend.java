@@ -248,7 +248,7 @@ final class ReflectionBackend
         final List<Method> ret = new ArrayList<>();
         for (Method method : source.getDeclaredMethods())
         {
-            if (ret.size() >= limit)
+            if (limit > 0 && ret.size() >= limit)
                 break;
             if (modifiers != 0 && method.getModifiers() != modifiers)
                 continue;
@@ -297,16 +297,24 @@ final class ReflectionBackend
         if (ret.isEmpty())
         {
             if (nonNull)
-                throw new NullPointerException(
-                    String.format("Failed to find method: [%s %s %s#%s(%s)]. Super classes were %s.",
-                                  optionalModifiersToString(modifiers), formatOptionalValue(returnType, Class::getName),
-                                  source.getName(), formatOptionalValue(name), formatOptionalValue(parameters),
-                                  checkSuperClasses ? "included" : "excluded"));
+                throw new NullPointerException(methodSearchRequestToString(checkSuperClasses, checkInterfaces, source,
+                                                                           name, modifiers, parameters, returnType));
             else
                 return null;
         }
 
         return ret.get(0);
+    }
+
+    public static String methodSearchRequestToString(final boolean checkSuperClasses, final boolean checkInterfaces,
+                                                     @NotNull Class<?> source, @Nullable String name, int modifiers,
+                                                     @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
+    {
+        return String.format("[%s %s %s#%s(%s)]. %s superclasses, %s interfaces", optionalModifiersToString(modifiers),
+                             formatOptionalValue(returnType, Class::getName), source.getName(),
+                             formatOptionalValue(name), formatOptionalValue(parameters),
+                             checkSuperClasses ? "including" : "excluding",
+                             checkInterfaces ? "including" : "excluding");
     }
 
     /**
@@ -341,18 +349,18 @@ final class ReflectionBackend
         return ret;
     }
 
-    public static void findMethods(List<Method> list, final boolean checkSuperClasses, final boolean checkInterfaces,
-                                   @NotNull Class<?> source, @Nullable String name, int modifiers,
-                                   @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, int limit)
+    private static void findMethods(List<Method> list, final boolean checkSuperClasses, final boolean checkInterfaces,
+                                    @NotNull Class<?> source, @Nullable String name, int modifiers,
+                                    @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, int limit)
     {
-        if (list.size() >= limit)
+        if (limit > 0 && list.size() >= limit)
             return;
 
         final List<Method> methods = findMethods(source, name, modifiers, parameters, returnType, limit);
         if (!methods.isEmpty())
         {
             list.addAll(methods);
-            if (list.size() >= limit)
+            if (limit > 0 && list.size() >= limit)
                 return;
         }
 
@@ -360,7 +368,7 @@ final class ReflectionBackend
         boolean continueInterfaceChecking = checkInterfaces;
         while (continueSuperClassChecking || continueInterfaceChecking)
         {
-            if (list.size() >= limit)
+            if (limit > 0 && list.size() >= limit)
                 return;
 
             // Superclasses take precedence, so evaluate them first.
@@ -386,7 +394,7 @@ final class ReflectionBackend
 
                 for (Class<?> superInterface : superInterfaces)
                 {
-                    if (list.size() >= limit)
+                    if (limit > 0 && list.size() >= limit)
                         return;
 
                     findMethods(list, false, true, superInterface, name, modifiers, parameters, returnType, limit);
@@ -454,7 +462,7 @@ final class ReflectionBackend
      * @param modifiers The modifiers.
      * @return A String
      */
-    private static @NotNull String optionalModifiersToString(int modifiers)
+    public static @NotNull String optionalModifiersToString(int modifiers)
     {
         return modifiers == 0 ? "[*]" : Modifier.toString(modifiers);
     }
@@ -470,7 +478,7 @@ final class ReflectionBackend
      * @param <T>    The type of the object.
      * @return The String representation of the object.
      */
-    private static <T> @NotNull String formatOptionalValue(@Nullable T obj, @NotNull Function<T, String> mapper)
+    public static <T> @NotNull String formatOptionalValue(@Nullable T obj, @NotNull Function<T, String> mapper)
     {
         return obj == null ? "[*]" : mapper.apply(obj);
     }
@@ -478,7 +486,7 @@ final class ReflectionBackend
     /**
      * See {@link #formatOptionalValue(Object, Function)} using {@link Object#toString()} as mapping function.
      */
-    private static <T> @NotNull String formatOptionalValue(@Nullable T obj)
+    public static <T> @NotNull String formatOptionalValue(@Nullable T obj)
     {
         return formatOptionalValue(obj, Object::toString);
     }

@@ -147,6 +147,7 @@ public class FieldFinder
      */
     public static final class TypedMultipleFieldsFinder
         extends ReflectionFinder<List<Field>, TypedMultipleFieldsFinder>
+        implements IBoundedRetriever<List<Field>, TypedMultipleFieldsFinder>
     {
         private final @NotNull Class<?> source;
         private final @NotNull Class<?> fieldType;
@@ -188,54 +189,22 @@ public class FieldFinder
             return null;
         }
 
-        /**
-         * Configures the lower bound number of fields that have to be found.
-         * <p>
-         * For example, when this is set to 2 and only 1 field could be found with the current configuration, {@link
-         * #get()} will either return null (when {@link #setNullable()} was used) or throw a {@link
-         * IllegalStateException} (default).
-         *
-         * @param val The minimum number of fields that have to be found for this finder to be able to complete
-         *            successfully.
-         * @return The instance of the current finder.
-         */
-        @Contract("_ -> this")
+
+        @Override
         public TypedMultipleFieldsFinder atLeast(int val)
         {
             this.atLeast = val;
             return this;
         }
 
-        /**
-         * Configures the upper bound number of fields that have to be found.
-         * <p>
-         * For example, when this is set to 2 and 3 fields could be found with the current configuration, {@link #get()}
-         * will either return null (when {@link #setNullable()} was used) or throw a {@link IllegalStateException}
-         * (default).
-         *
-         * @param val The maximum number of fields that can be found for this finder to be able to complete
-         *            successfully.
-         * @return The instance of the current finder.
-         */
-        @Contract("_ -> this")
+        @Override
         public TypedMultipleFieldsFinder atMost(int val)
         {
             this.atMost = val;
             return this;
         }
 
-        /**
-         * Configures the exact number of fields that have to be found.
-         * <p>
-         * For example, when this is set to 2 and 1 or 3 fields could be found with the current configuration, {@link
-         * #get()} will either return null (when {@link #setNullable()} was used) or throw a {@link
-         * IllegalStateException} (default).
-         *
-         * @param val The exact number of fields that must be found for this finder to be able to complete
-         *            successfully.
-         * @return The instance of the current finder.
-         */
-        @Contract("_ -> this")
+        @Override
         public TypedMultipleFieldsFinder exactCount(int val)
         {
             this.expected = val;
