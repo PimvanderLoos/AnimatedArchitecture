@@ -11,6 +11,8 @@ import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.NMSUtil;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -60,8 +62,14 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
     public static final Method METHOD_TO_STRING =
         findMethod().inClass(Object.class).withName("toString").get();
-    public static final Method METHOD_ROTATION_UP_DOWN_NORTH_SOUTH =
+    public static final Method METHOD_ROTATE_UP_DOWN_NS =
         findMethod().inClass(NMSBlock.class).withName("rotateBlockUpDown").withParameters(boolean.class).get();
+    public static final Method METHOD_ROTATE_VERTICALLY_IN_DIRECTION =
+        findMethod().inClass(NMSBlock.class).withName("rotateVerticallyInDirection")
+                    .withParameters(DoorDirection.class).get();
+    public static final Method METHOD_UTIL_ROTATE_VERTICALLY_IN_DIRECTION =
+        findMethod().inClass(NMSUtil.class).withName("rotateVerticallyInDirection").withParameters(DoorDirection.class,
+                                                                                                   Object.class).get();
     public static final Method METHOD_CAN_ROTATE =
         findMethod().inClass(NMSBlock.class).withName("canRotate").get();
     public static final Method METHOD_DELETE_ORIGINAL_BLOCK =
@@ -73,7 +81,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final String METHOD_CHECK_WATERLOGGED = "generated$checkWaterLogged";
     public static final String METHOD_GET_MY_BLOCK_DATA = "generated$getMyBlockData";
     public static final String METHOD_UPDATE_MULTIPLE_FACING = "generated$updateCraftBlockDataMultipleFacing";
-    public static final String METHOD_ROTATE_UP_DOWN = "generated$rotateBlockUpDown";
+    public static final String METHOD_ROTATE_UP_DOWN_NS_IMPL = "generated$rotateBlockUpDown";
     public static final String METHOD_ROTATE = "generated$rotateBlockMethod";
     public static final String METHOD_ROTATE_CYLINDRICAL = "generated$rotateBlockCylindrical";
 
@@ -108,7 +116,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
         builder = addBasicMethods(builder);
         builder = addPutBlockMethod(builder);
         builder = addRotateBlockMethod(builder);
-        builder = addRotateBlockUpDownMethod(builder);
+        builder = addRotateBlockUpDownMethodNorthSouth(builder);
+        builder = addRotateBlockUpDownMethodDirection(builder);
         builder = addUpdateMultipleFacingMethod(builder);
         builder = addRotateCylindricalMethod(builder);
 
@@ -206,7 +215,16 @@ final class NMSBlockClassGenerator extends ClassGenerator
         return addRotateBlockBaseMethod(builder, findBlockRotation, "rotateCylindrical", METHOD_ROTATE_CYLINDRICAL);
     }
 
-    private DynamicType.Builder<?> addRotateBlockUpDownMethod(DynamicType.Builder<?> builder)
+    private DynamicType.Builder<?> addRotateBlockUpDownMethodDirection(DynamicType.Builder<?> builder)
+    {
+        return builder
+            .define(METHOD_ROTATE_VERTICALLY_IN_DIRECTION)
+            .intercept(invoke(METHOD_UTIL_ROTATE_VERTICALLY_IN_DIRECTION)
+                           .withArgument(0).withField(FIELD_CRAFT_BLOCK_DATA)
+                           .andThen(invoke(named(METHOD_BLOCK_DATA_FROM_BUKKIT))));
+    }
+
+    private DynamicType.Builder<?> addRotateBlockUpDownMethodNorthSouth(DynamicType.Builder<?> builder)
         throws IllegalAccessException
     {
         final Object blockRotatableAxis = fieldBlockRotatableAxis.get(null);
@@ -218,7 +236,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                                                                            Assigner.Typing.DYNAMIC))
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
-        final MethodCall getNewAxis = (MethodCall) invoke(named(METHOD_ROTATE_UP_DOWN))
+        final MethodCall getNewAxis = (MethodCall) invoke(named(METHOD_ROTATE_UP_DOWN_NS_IMPL))
             .withArgument(0).withMethodCall(getCurrentAxis).withField(FIELD_AXES_VALUES)
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
@@ -228,13 +246,13 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                                   .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .define(METHOD_ROTATION_UP_DOWN_NORTH_SOUTH)
+            .define(METHOD_ROTATE_UP_DOWN_NS)
             .intercept(setNewAxis.setsField(named(FIELD_BLOCK_DATA)));
 
         builder = builder
-            .defineMethod(METHOD_ROTATE_UP_DOWN, classEnumDirectionAxis, Visibility.PRIVATE)
+            .defineMethod(METHOD_ROTATE_UP_DOWN_NS_IMPL, classEnumDirectionAxis, Visibility.PRIVATE)
             .withParameters(boolean.class, int.class, asArrayType(classEnumDirectionAxis))
-            .intercept(MethodDelegation.to((IRotateBlockUpDown) (northSouthAligned, currentAxes, values) ->
+            .intercept(MethodDelegation.to((IRotateBlockUpDownNS) (northSouthAligned, currentAxes, values) ->
             {
                 int newIdx;
                 switch (currentAxes)
@@ -252,7 +270,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                         throw new RuntimeException("Received unexpected direction " + currentAxes);
                 }
                 return values[newIdx];
-            }, IRotateBlockUpDown.class));
+            }, IRotateBlockUpDownNS.class));
         return builder;
     }
 
@@ -381,10 +399,16 @@ final class NMSBlockClassGenerator extends ClassGenerator
         Object intercept(RotateDirection rotateDirection, Object[] values);
     }
 
-    public interface IRotateBlockUpDown
+    public interface IRotateBlockUpDownNS
     {
         @RuntimeType
         Object intercept(boolean northSouthAligned, int currentAxes, Object[] values);
+    }
+
+    public interface IRotateBlockUpDownDirection
+    {
+        @RuntimeType
+        Object intercept(RotateDirection upDown, DoorDirection openDirection, Object craftBlockData);
     }
 
     public interface ICheckWaterLogged

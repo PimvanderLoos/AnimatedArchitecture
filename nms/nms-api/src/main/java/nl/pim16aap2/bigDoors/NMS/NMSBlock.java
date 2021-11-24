@@ -10,7 +10,7 @@ public interface NMSBlock
     void putBlock(Location loc);
     void rotateBlockUpDown(boolean ns);
 
-    default void rotateBlockUpDown(RotateDirection upDown, DoorDirection openDirection)
+    default void rotateVerticallyInDirection(DoorDirection openDirection)
     {
     }
 

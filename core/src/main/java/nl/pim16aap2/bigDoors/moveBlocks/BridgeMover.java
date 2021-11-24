@@ -260,7 +260,7 @@ public class BridgeMover implements BlockMover
                                 else if (canRotate == 8)
                                 {
                                     block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
-                                    block2.rotateBlockUpDown(upDown, openDirection);
+                                    block2.rotateVerticallyInDirection(openDirection);
                                 }
                                 else
                                 {

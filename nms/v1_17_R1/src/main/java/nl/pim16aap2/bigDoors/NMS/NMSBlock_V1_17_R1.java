@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.NMS;
 
+import com.cryptomorin.xseries.XMaterial;
 import net.minecraft.core.BlockPosition;
 import net.minecraft.core.EnumDirection;
 import net.minecraft.world.item.Item;
@@ -9,21 +10,18 @@ import net.minecraft.world.level.block.EnumBlockRotation;
 import net.minecraft.world.level.block.state.BlockBase;
 import net.minecraft.world.level.block.state.IBlockData;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.NMSUtil;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.Set;
 
 public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
@@ -120,32 +118,9 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
     }
 
     @Override
-    public void rotateBlockUpDown(RotateDirection upDown, DoorDirection openDirection)
+    public void rotateVerticallyInDirection(DoorDirection openDirection)
     {
-        if (!(craftBlockData instanceof Directional))
-            return; // Nothing we can do
-
-        final Directional directional = (Directional) craftBlockData;
-        final BlockFace currentBlockFace = directional.getFacing();
-        final @Nullable BlockFace newBlockFace;
-
-        final BlockFace openingDirFace = openDirection.getBlockFace();
-        final BlockFace oppositeDirFace =
-            Objects.requireNonNull(DoorDirection.getOpposite(openDirection)).getBlockFace();
-
-        if (currentBlockFace == openingDirFace)
-            newBlockFace = BlockFace.DOWN;
-        else if (currentBlockFace == oppositeDirFace)
-            newBlockFace = BlockFace.UP;
-        else if (currentBlockFace == BlockFace.UP)
-            newBlockFace = openingDirFace;
-        else if (currentBlockFace == BlockFace.DOWN)
-            newBlockFace = oppositeDirFace;
-        else
-            return; // Nothing to do
-
-        if (directional.getFaces().contains(newBlockFace))
-            directional.setFacing(newBlockFace);
+        NMSUtil.rotateVerticallyInDirection(openDirection, craftBlockData);
         this.constructBlockDataFromBukkit();
     }
 
