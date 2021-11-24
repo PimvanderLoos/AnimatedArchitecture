@@ -1,8 +1,6 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import com.cryptomorin.xseries.XMaterial;
-import net.minecraft.world.level.block.state.IBlockDataHolder;
-import net.minecraft.world.level.block.state.properties.IBlockState;
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Bukkit;
@@ -27,6 +25,8 @@ final class ReflectionRepository
     public static final Class<?> classEntityFallingBlock;
     public static final Class<?> classBlock;
     public static final Class<?> classIBlockData;
+    public static final Class<?> classIBlockState;
+    public static final Class<?> classIBlockDataHolder;
     public static final Class<?> classBlockData;
     public static final Class<?> classNMSWorld;
     public static final Class<?> classNMSWorldServer;
@@ -133,8 +133,12 @@ final class ReflectionRepository
         classBlockBaseInfo = findClass(classBlockBase.getName() + "$Info").get();
         classBlockData = findClass(classBlockBase.getName() + "$BlockData").get();
         classBlock = findClass(nmsBase + "Block", "net.minecraft.world.level.block.Block").get();
+        classIBlockState = findClass(nmsBase + "IBlockState",
+                                     "net.minecraft.world.level.block.state.properties.IBlockState").get();
         classIBlockData = findClass(nmsBase + "IBlockData",
                                     "net.minecraft.world.level.block.state.IBlockData").get();
+        classIBlockDataHolder = findClass(nmsBase + "IBlockDataHolder",
+                                    "net.minecraft.world.level.block.state.IBlockDataHolder").get();
         classCraftWorld = findClass(craftBase + "CraftWorld").get();
         classEnumMoveType = findClass(nmsBase + "EnumMoveType", "net.minecraft.world.entity.EnumMoveType").get();
         classVec3D = findClass(nmsBase + "Vec3D", "net.minecraft.world.phys.Vec3D").get();
@@ -178,6 +182,8 @@ final class ReflectionRepository
         ctorLocation = findConstructor().inClass(Location.class)
                                         .withParameters(World.class, double.class, double.class, double.class)
                                         .get();
+
+
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle")
                                         .withoutParameters().withModifiers(Modifier.PUBLIC).get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
@@ -223,12 +229,12 @@ final class ReflectionRepository
                                                    .withParameters(classNBTTagCompound).get();
         methodFromData = findMethod().inClass(classCraftBlockData).withName("fromData")
                                      .withParameters(classIBlockData).get();
-        methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(IBlockDataHolder.class)
+        methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
                                                           .withReturnType(Object.class)
-                                                          .withParameters(IBlockState.class, Comparable.class).get();
-        methodGetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(IBlockDataHolder.class)
+                                                          .withParameters(classIBlockState, Comparable.class).get();
+        methodGetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
                                                           .withReturnType(Object.class)
-                                                          .withParameters(IBlockState.class).get();
+                                                          .withParameters(classIBlockState).get();
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
