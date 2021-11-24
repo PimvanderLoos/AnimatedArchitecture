@@ -284,25 +284,25 @@ public final class MethodFinder
                                               name, modifiers, parameters, returnType);
 
             if (expected >= 0 && expected != found.size())
-                return handleInvalid(
+                return handleInvalid(found,
                     String.format("Expected %d methods but found %d for input: ", expected, found.size()));
 
             if (atMost >= 0 && found.size() > atMost)
-                return handleInvalid(
+                return handleInvalid(found,
                     String.format("Expected at most %d methods, but found %d for input: ", atMost, found.size()));
 
             if (atLeast >= 0 && found.size() < atLeast)
-                return handleInvalid(
+                return handleInvalid(found,
                     String.format("Expected at least %d methods, but found %d for input: ", atLeast, found.size()));
             return found;
         }
 
-        private List<Method> handleInvalid(@NotNull String str)
+        private List<Method> handleInvalid(List<Method> found, @NotNull String str)
         {
             if (nonnull)
                 throw new IllegalStateException(str + ReflectionBackend
                     .methodSearchRequestToString(checkSuperClasses, checkInterfaces, source, name,
-                                                 modifiers, parameters, returnType));
+                                                 modifiers, parameters, returnType) + "\nFound methods: " + found);
             return null;
         }
 

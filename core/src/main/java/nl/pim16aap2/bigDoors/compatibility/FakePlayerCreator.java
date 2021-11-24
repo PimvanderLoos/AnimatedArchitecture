@@ -71,8 +71,12 @@ public class FakePlayerCreator
                                 .withRequiredParameters(classMinecraftServer, classWorldServer, classGameProfile)
                                 .withOptionalParameters(classPlayerInteractManager)).get();
 
-        methodGetBukkitEntity = findMethod().inClass(classEntityPlayer).withName("getBukkitEntity").get();
-        methodGetHandle = findMethod().inClass(classCraftWorld).withName("getHandle").get();
+        // "getBukkitEntity" will return several matches all dumped into the EntityPlayer class by the compiler.
+        // We can just get the first method and everything will be fine.
+        methodGetBukkitEntity = findMethod().inClass(classEntityPlayer).findMultiple()
+                                            .withName("getBukkitEntity").atLeast(1).get().get(0);
+        methodGetHandle = findMethod().inClass(classCraftWorld).withName("getHandle")
+                                      .withModifiers(Modifier.PUBLIC).get();
         methodGetProfile = findMethod().inClass(classCraftOfflinePlayer).withName("getProfile").get();
         methodGetServer = findMethod().inClass(classMinecraftServer).withName("getServer").get();
 

@@ -296,7 +296,7 @@ final class ReflectionBackend
             if (nonNull)
                 throw new NullPointerException("Expected 1 method, but got " + ret.size() + " for input: " +
                     methodSearchRequestToString(checkSuperClasses, checkInterfaces, source,
-                                                name, modifiers, parameters, returnType));
+                                                name, modifiers, parameters, returnType) + "\nFound methods: " + ret);
             else
                 return null;
         }
