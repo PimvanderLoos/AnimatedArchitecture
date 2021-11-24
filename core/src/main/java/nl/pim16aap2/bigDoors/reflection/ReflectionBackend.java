@@ -242,14 +242,11 @@ final class ReflectionBackend
      * @return The method matching the specified description.
      */
     private static List<Method> findMethods(@NotNull Class<?> source, @Nullable String name, int modifiers,
-                                            @Nullable ParameterGroup parameters, @Nullable Class<?> returnType,
-                                            int limit)
+                                            @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
         final List<Method> ret = new ArrayList<>();
         for (Method method : source.getDeclaredMethods())
         {
-            if (limit > 0 && ret.size() >= limit)
-                break;
             if (modifiers != 0 && method.getModifiers() != modifiers)
                 continue;
             if (returnType != null && !method.getReturnType().equals(returnType))
@@ -291,14 +288,15 @@ final class ReflectionBackend
                                     @NotNull Class<?> source, @Nullable String name, int modifiers,
                                     @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
-        final List<Method> ret = new ArrayList<>(1);
-        findMethods(ret, checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, returnType, 1);
+        final List<Method> ret = new ArrayList<>();
+        findMethods(ret, checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, returnType);
 
-        if (ret.isEmpty())
+        if (ret.size() != 1)
         {
             if (nonNull)
-                throw new NullPointerException(methodSearchRequestToString(checkSuperClasses, checkInterfaces, source,
-                                                                           name, modifiers, parameters, returnType));
+                throw new NullPointerException("Expected 1 method, but got " + ret.size() + " for input: " +
+                    methodSearchRequestToString(checkSuperClasses, checkInterfaces, source,
+                                                name, modifiers, parameters, returnType));
             else
                 return null;
         }
@@ -335,42 +333,30 @@ final class ReflectionBackend
      * @param parameters        The parameters of the method. When this is null, the method's parameters are ignored.
      * @param returnType        The return type the method should have. When this is null, the return type will be
      *                          ignored.
-     * @param limit             The maximum number of methods to retrieve.
      * @return The method matching the specified description.
      */
-    @Contract("true, _, _, _, _, _, _, _ -> !null")
+    @Contract("true, _, _, _, _, _, _ -> !null")
     public static List<Method> findMethods(final boolean checkSuperClasses, final boolean checkInterfaces,
                                            @NotNull Class<?> source, @Nullable String name, int modifiers,
-                                           @Nullable ParameterGroup parameters, @Nullable Class<?> returnType,
-                                           int limit)
+                                           @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
         final List<Method> ret = new ArrayList<>();
-        findMethods(ret, checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, returnType, limit);
+        findMethods(ret, checkSuperClasses, checkInterfaces, source, name, modifiers, parameters, returnType);
         return ret;
     }
 
     private static void findMethods(List<Method> list, final boolean checkSuperClasses, final boolean checkInterfaces,
                                     @NotNull Class<?> source, @Nullable String name, int modifiers,
-                                    @Nullable ParameterGroup parameters, @Nullable Class<?> returnType, int limit)
+                                    @Nullable ParameterGroup parameters, @Nullable Class<?> returnType)
     {
-        if (limit > 0 && list.size() >= limit)
-            return;
-
-        final List<Method> methods = findMethods(source, name, modifiers, parameters, returnType, limit);
+        final List<Method> methods = findMethods(source, name, modifiers, parameters, returnType);
         if (!methods.isEmpty())
-        {
             list.addAll(methods);
-            if (limit > 0 && list.size() >= limit)
-                return;
-        }
 
         boolean continueSuperClassChecking = checkSuperClasses;
         boolean continueInterfaceChecking = checkInterfaces;
         while (continueSuperClassChecking || continueInterfaceChecking)
         {
-            if (limit > 0 && list.size() >= limit)
-                return;
-
             // Superclasses take precedence, so evaluate them first.
             if (continueSuperClassChecking)
             {
@@ -380,8 +366,7 @@ final class ReflectionBackend
                 if (superClass == null)
                     continue;
 
-                findMethods(list, true, continueInterfaceChecking, superClass, name,
-                            modifiers, parameters, returnType, limit);
+                findMethods(list, true, continueInterfaceChecking, superClass, name, modifiers, parameters, returnType);
             }
 
             if (continueInterfaceChecking)
@@ -393,12 +378,7 @@ final class ReflectionBackend
                     continue;
 
                 for (Class<?> superInterface : superInterfaces)
-                {
-                    if (limit > 0 && list.size() >= limit)
-                        return;
-
-                    findMethods(list, false, true, superInterface, name, modifiers, parameters, returnType, limit);
-                }
+                    findMethods(list, false, true, superInterface, name, modifiers, parameters, returnType);
             }
         }
     }

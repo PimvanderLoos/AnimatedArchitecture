@@ -179,6 +179,12 @@ public final class MethodFinder
             this.name = Objects.requireNonNull(name, "Name of named method cannot be null!");
         }
 
+        /**
+         * Returns the selected if exactly 1 could be found. If zero or >1 methods were found matching the input,
+         * either null is returned or a {@link NullPointerException} is thrown.
+         *
+         * @inheritDoc
+         */
         @Override
         public Method get()
         {
@@ -200,6 +206,12 @@ public final class MethodFinder
             this.returnType = Objects.requireNonNull(returnType, "Return type of typed method cannot be null!");
         }
 
+        /**
+         * Returns the selected if exactly 1 could be found. If zero or >1 methods were found matching the input,
+         * either null is returned or a {@link NullPointerException} is thrown.
+         *
+         * @inheritDoc
+         */
         @Override
         public Method get()
         {
@@ -268,8 +280,8 @@ public final class MethodFinder
         public List<Method> get()
         {
             final List<Method> found =
-                ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source, name,
-                                              modifiers, parameters, returnType, -1);
+                ReflectionBackend.findMethods(checkSuperClasses, checkInterfaces, source,
+                                              name, modifiers, parameters, returnType);
 
             if (expected >= 0 && expected != found.size())
                 return handleInvalid(
