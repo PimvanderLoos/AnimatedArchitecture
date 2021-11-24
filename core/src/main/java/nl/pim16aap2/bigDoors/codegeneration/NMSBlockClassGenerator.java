@@ -40,6 +40,10 @@ import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
  */
 final class NMSBlockClassGenerator extends ClassGenerator
 {
+    private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
+        new Class<?>[]{World.class, int.class, int.class, int.class, classBlockBaseInfo,
+                       asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation)};
+
     public static final String FIELD_AXES_VALUES = "generated$axesValues";
     public static final String FIELD_ROTATION_VALUES = "generated$blockRotationValues";
     public static final String FIELD_CRAFT_BLOCK_DATA = "generated$craftBlockData";
@@ -49,29 +53,36 @@ final class NMSBlockClassGenerator extends ClassGenerator
      * See {@link IUpdateMultipleFacing#intercept(IGeneratedNMSBlock, Object, Location, XMaterial)}
      */
     public static final String FIELD_LOCATION = "generated$loc";
+
     /**
      * See {@link IUpdateMultipleFacing#intercept(IGeneratedNMSBlock, Object, Location, XMaterial)}
      */
     public static final String FIELD_XMATERIAL = "generated$xMaterial";
+
     // Overrides
     public static final String METHOD_TO_STRING = "toString";
     public static final String METHOD_GET_ITEM = "getItem";
+
     /**
      * See {@link NMSBlock#rotateBlockUpDown(RotateDirection, DoorDirection)}
      */
     public static final String METHOD_ROTATION_UP_DOWN = "rotateBlockUpDown";
+
     /**
      * See {@link NMSBlock#canRotate()}
      */
     public static final String METHOD_CAN_ROTATE = "canRotate";
+
     /**
      * See {@link NMSBlock#deleteOriginalBlock()}
      */
     public static final String METHOD_DELETE_ORIGINAL_BLOCK = "deleteOriginalBlock";
+
     /**
      * See {@link NMSBlock#putBlock(Location)}
      */
     public static final String METHOD_PUT_BLOCK = "putBlock";
+
     public static final String METHOD_BLOCK_DATA_FROM_BUKKIT = "generated$constructBlockDataFromBukkit";
     public static final String METHOD_CHECK_WATERLOGGED = "generated$checkWaterLogged";
     public static final String METHOD_GET_MY_BLOCK_DATA = "generated$getMyBlockData";
@@ -79,9 +90,6 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final String METHOD_ROTATE_UP_DOWN = "generated$rotateBlockUpDown";
     public static final String METHOD_ROTATE = "generated$rotateBlockMethod";
     public static final String METHOD_ROTATE_CYLINDRICAL = "generated$rotateBlockCylindrical";
-    private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES =
-        new Class<?>[]{World.class, int.class, int.class, int.class, classBlockBaseInfo,
-                       asArrayType(classEnumDirectionAxis), asArrayType(classEnumBlockRotation)};
 
     public NMSBlockClassGenerator(@NotNull String mappingsVersion)
         throws Exception
@@ -136,7 +144,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
                 FieldAccessor.ofField(FIELD_ROTATION_VALUES).setsArgumentAt(6)).andThen(
 
-                invoke(named("getBlockData"))
+                invoke(methodGetBlockData)
                     .onMethodCall(getBlockAtLoc)
                     .setsField(named(FIELD_CRAFT_BLOCK_DATA))
                     .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC)).andThen(
@@ -145,7 +153,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
                 invoke(named(METHOD_BLOCK_DATA_FROM_BUKKIT))).andThen(
 
-                invoke(methodMatchXMaterial).withMethodCall(invoke(named("getType")).onMethodCall(getBlockAtLoc))
+                invoke(methodMatchXMaterial).withMethodCall(invoke(methodGetBlockMaterial).onMethodCall(getBlockAtLoc))
                                             .setsField(named(FIELD_XMATERIAL))));
     }
 
@@ -266,12 +274,13 @@ final class NMSBlockClassGenerator extends ClassGenerator
     {
         builder = builder
             .defineMethod(METHOD_BLOCK_DATA_FROM_BUKKIT, void.class, Visibility.PRIVATE)
-            .intercept(invoke(named("getState")).onField(FIELD_CRAFT_BLOCK_DATA).setsField(named(FIELD_BLOCK_DATA)));
+            .intercept(invoke(methodGetCraftBlockDataState).onField(FIELD_CRAFT_BLOCK_DATA)
+                                                           .setsField(named(FIELD_BLOCK_DATA)));
 
         builder = builder
             .defineMethod(METHOD_CAN_ROTATE, boolean.class)
             .intercept(invoke(methodIsAssignableFrom).on(MultipleFacing.class)
-                                                     .withMethodCall(invoke(named("getClass"))
+                                                     .withMethodCall(invoke(methodGetClass)
                                                                          .onField(FIELD_CRAFT_BLOCK_DATA)));
 
         builder = builder
@@ -298,7 +307,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
         builder = builder
             .defineMethod(METHOD_DELETE_ORIGINAL_BLOCK, void.class)
             .intercept(invoke(methodSetBlockType)
-                           .onMethodCall(invoke(named("getBlock")).onField(FIELD_LOCATION))
+                           .onMethodCall(invoke(methodLocationGetBlock).onField(FIELD_LOCATION))
                            .with(Material.AIR));
 
         return builder;
@@ -307,7 +316,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addPutBlockMethod(DynamicType.Builder<?> builder)
     {
         final MethodCall worldCast = (MethodCall) invoke(methodGetNMSWorld)
-            .onMethodCall(invoke(named("getWorld")).onField(FIELD_LOCATION))
+            .onMethodCall(invoke(methodLocationGetWorld).onField(FIELD_LOCATION))
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         return builder
@@ -322,9 +331,9 @@ final class NMSBlockClassGenerator extends ClassGenerator
                 invoke(methodSetTypeAndData)
                     .onMethodCall(worldCast)
                     .withMethodCall(construct(cTorBlockPosition)
-                                        .withMethodCall(invoke(named("getBlockX")).onField(FIELD_LOCATION))
-                                        .withMethodCall(invoke(named("getBlockY")).onField(FIELD_LOCATION))
-                                        .withMethodCall(invoke(named("getBlockZ")).onField(FIELD_LOCATION)))
+                                        .withMethodCall(invoke(methodLocationGetX).onField(FIELD_LOCATION))
+                                        .withMethodCall(invoke(methodLocationGetY).onField(FIELD_LOCATION))
+                                        .withMethodCall(invoke(methodLocationGetZ).onField(FIELD_LOCATION)))
                     .withField(FIELD_BLOCK_DATA)
                     .with(1)));
     }

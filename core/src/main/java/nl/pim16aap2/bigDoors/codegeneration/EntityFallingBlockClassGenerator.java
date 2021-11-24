@@ -40,11 +40,11 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     public static final String FIELD_BUKKIT_WORLD = "generated$bukkitWorld";
     public static final String FIELD_MOVE_TYPE_VALUES = "generated$enumMoveTypeValues";
 
-    // If possible, we don't want to generate an additional locY method.
-    // On some versions it might already exist, so we use the real name.
     /**
      * See {@link IGeneratedFallingBlockEntity#locY}
      */
+    // If possible, we don't want to generate an additional locY method.
+    // On some versions it might already exist, so we use the real name.
     public static final String METHOD_LOC_Y = "locY";
 
     /**
@@ -56,8 +56,9 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
      * See {@link IGeneratedFallingBlockEntity#generated$saveTileEntityData(Object)}
      */
     public static final String METHOD_SAVE_DATA = "generated$saveTileEntityData";
-
     public static final String METHOD_MULTIPLY_VEC = "generated$multiplyVec";
+    public static final String METHOD_NAME_LOAD_DATA_CONDITIONAL = methodLoadData.getName() + "$conditional";
+    public static final String METHOD_NAME_SAVE_DATA_CONDITIONAL = methodSaveData.getName() + "$conditional";
 
     /**
      * See {@link IGeneratedFallingBlockEntity#generated$die()}
@@ -88,10 +89,8 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
      * See {@link IGeneratedFallingBlockEntity#generated$updateMot()}
      */
     public static final String METHOD_UPDATE_MOT = "generated$updateMot";
-
     public static final String METHOD_TICK = "generated$tick";
     public static final String METHOD_SPAWN = "generated$spawn";
-
 
     private final Field fieldNoClip;
     private final Field fieldHurtEntities;
@@ -169,14 +168,11 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                 FieldAccessor.of(fieldHurtEntities).setsValue(false)).andThen(
                 FieldAccessor.of(fieldNoClip).setsValue(true)).andThen(
                 invoke(methodSetNoGravity).with(true)).andThen(
-                invoke(methodSetMotVec)
-                    .withMethodCall(construct(cTorVec3D)
-                                        .with(0d, 0d, 0d))).andThen(
-                invoke(methodSetStartPos)
-                    .withMethodCall(construct(cTorBlockPosition)
-                                        .withMethodCall(invoke(methodLocX))
-                                        .withMethodCall(invoke(methodLocY))
-                                        .withMethodCall(invoke(methodLocZ)))).andThen(
+                invoke(methodSetMotVec).withMethodCall(construct(cTorVec3D).with(0d, 0d, 0d))).andThen(
+                invoke(methodSetStartPos).withMethodCall(construct(cTorBlockPosition)
+                                                             .withMethodCall(invoke(methodLocX))
+                                                             .withMethodCall(invoke(methodLocY))
+                                                             .withMethodCall(invoke(methodLocZ)))).andThen(
                 invoke(named(METHOD_SPAWN)))
             );
     }
@@ -225,20 +221,12 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addGetBlockMethod(DynamicType.Builder<?> builder)
     {
         return builder
-            .defineMethod(methodGetBlock.getName(), classIBlockData, Visibility.PUBLIC)
+            .defineMethod(methodEntityFallingBlockGetBlock.getName(), classIBlockData, Visibility.PUBLIC)
             .intercept(FieldAccessor.ofField(FIELD_BLOCK));
-    }
-
-    public interface ILoadDataDelegation
-    {
-        @RuntimeType
-        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound, boolean hasKey);
     }
 
     private DynamicType.Builder<?> addLoadDataMethod(DynamicType.Builder<?> builder)
     {
-        final String tileEntityConditionalName = methodLoadData.getName() + "$conditional";
-
         builder = builder
             .method(named(METHOD_LOAD_DATA))
             .intercept(invoke(methodNBTTagCompoundGetCompound)
@@ -246,7 +234,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
         builder = builder
-            .defineMethod(tileEntityConditionalName, void.class, Visibility.PRIVATE)
+            .defineMethod(METHOD_NAME_LOAD_DATA_CONDITIONAL, void.class, Visibility.PRIVATE)
             .withParameters(IGeneratedFallingBlockEntity.class, classNBTTagCompound, boolean.class)
             .intercept(MethodDelegation.to((ILoadDataDelegation) (baseObject, compound, hasKey) ->
             {
@@ -262,7 +250,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                            .setsField(named(FIELD_BLOCK)).andThen(
                     invoke(methodNBTTagCompoundGetInt)
                         .onArgument(0).with("Time").setsField(fieldTicksLived)).andThen(
-                    invoke(named(tileEntityConditionalName))
+                    invoke(named(METHOD_NAME_LOAD_DATA_CONDITIONAL))
                         .withThis().withArgument(0)
                         .withMethodCall(invoke(methodNBTTagCompoundHasKeyOfType)
                                             .onArgument(0).with("TileEntityData", 10))));
@@ -270,17 +258,8 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         return builder;
     }
 
-    public interface ISaveDataDelegation
-    {
-        @RuntimeType
-        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound,
-                       @RuntimeType Object block);
-    }
-
     private DynamicType.Builder<?> addSaveDataMethod(DynamicType.Builder<?> builder)
     {
-        final String tileEntityConditionalName = methodSaveData.getName() + "$conditional";
-
         builder = builder
             .method(named(METHOD_SAVE_DATA))
             .intercept(invoke(methodNBTTagCompoundSet)
@@ -288,7 +267,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
         builder = builder
-            .defineMethod(tileEntityConditionalName, void.class, Visibility.PRIVATE)
+            .defineMethod(METHOD_NAME_SAVE_DATA_CONDITIONAL, void.class, Visibility.PRIVATE)
             .withParameters(IGeneratedFallingBlockEntity.class, classNBTTagCompound, classNBTTagCompound)
             .intercept(MethodDelegation.to((ISaveDataDelegation) (baseObject, compound, block) ->
             {
@@ -308,9 +287,95 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                         .onArgument(0).with("HurtEntities").withField(fieldHurtEntities.getName())).andThen(
                     invoke(methodNBTTagCompoundSetFloat).onArgument(0).with("FallHurtAmount", 0.0f)).andThen(
                     invoke(methodNBTTagCompoundSetInt).onArgument(0).with("FallHurtMax", 0)).andThen(
-                    invoke(named(tileEntityConditionalName)).withThis().withArgument(0)
-                                                            .withField(fieldTileEntityData.getName())).andThen(
+                    invoke(named(METHOD_NAME_SAVE_DATA_CONDITIONAL)).withThis().withArgument(0)
+                                                                    .withField(fieldTileEntityData.getName())).andThen(
                     FixedValue.argument(0)));
+    }
+
+    private DynamicType.Builder<?> addAuxiliaryMethods(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .defineMethod(METHOD_MULTIPLY_VEC, classVec3D, Visibility.PRIVATE)
+            .withParameters(classVec3D, double.class, double.class, double.class)
+            .intercept(MethodDelegation.to((IMultiplyVec3D) (vec, x, y, z) ->
+            {
+                try
+                {
+                    return cTorVec3D.newInstance((double) fieldsVec3D.get(0).get(vec) * x,
+                                                 (double) fieldsVec3D.get(1).get(vec) * y,
+                                                 (double) fieldsVec3D.get(2).get(vec) * z);
+                }
+                catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
+                {
+                    e.printStackTrace();
+                    return vec;
+                }
+            }, IMultiplyVec3D.class));
+
+
+        builder = builder.method(named(METHOD_DIE)).intercept(invoke(methodDie).onSuper());
+        builder = builder.method(named(METHOD_IS_AIR)).intercept(invoke(methodIsAir).onField(FIELD_BLOCK));
+        builder = builder
+            .method(named(METHOD_MOVE).and(ElementMatchers.takesArguments(Collections.emptyList())))
+            .intercept(invoke(methodMove)
+                           .withMethodCall(invoke(methodArrayGetIdx).withField(FIELD_MOVE_TYPE_VALUES).with(0))
+                           .withMethodCall(invoke(methodGetMot))
+                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+        builder = builder.method(named(METHOD_GET_TICKS_LIVED))
+                         .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
+        builder = builder.method(named(METHOD_SET_TICKS_LIVED))
+                         .intercept(FieldAccessor.of(fieldTicksLived).setsArgumentAt(0));
+        builder = builder
+            .method(named(METHOD_UPDATE_MOT))
+            .intercept(invoke(methodSetMotVec)
+                           .withMethodCall(invoke(named(METHOD_MULTIPLY_VEC))
+                                               .withMethodCall(invoke(methodGetMot))
+                                               .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
+        return builder;
+    }
+
+    private DynamicType.Builder<?> addTickMethod(DynamicType.Builder<?> builder)
+    {
+        builder = builder
+            .defineMethod(METHOD_TICK, void.class, Visibility.PRIVATE)
+            .withParameters(IGeneratedFallingBlockEntity.class)
+            .intercept(MethodDelegation.to((ITickMethodDelegate) entity ->
+            {
+                if (entity.generated$isAir())
+                {
+                    entity.generated$die();
+                    return;
+                }
+
+                entity.generated$move();
+
+                double locY = entity.locY();
+                int ticks = entity.generated$getTicksLived() + 1;
+                entity.generated$setTicksLived(ticks);
+
+                if (++ticks > 100 && (locY < 1 || locY > 256) || ticks > 12000)
+                    entity.generated$die();
+
+                entity.generated$updateMot();
+            }, ITickMethodDelegate.class));
+
+        builder = builder
+            .define(methodTick).intercept(invoke(named(METHOD_TICK))
+                                              .withThis().withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+        return builder;
+    }
+
+    public interface ILoadDataDelegation
+    {
+        @RuntimeType
+        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound, boolean hasKey);
+    }
+
+    public interface ISaveDataDelegation
+    {
+        @RuntimeType
+        void intercept(@This IGeneratedFallingBlockEntity baseObject, @RuntimeType Object compound,
+                       @RuntimeType Object block);
     }
 
     public interface IGeneratedFallingBlockEntity
@@ -367,82 +432,9 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         Object intercept(@RuntimeType Object vec3d, double x, double y, double z);
     }
 
-    private DynamicType.Builder<?> addAuxiliaryMethods(DynamicType.Builder<?> builder)
-    {
-        builder = builder
-            .defineMethod(METHOD_MULTIPLY_VEC, classVec3D, Visibility.PRIVATE)
-            .withParameters(classVec3D, double.class, double.class, double.class)
-            .intercept(MethodDelegation.to((IMultiplyVec3D) (vec, x, y, z) ->
-            {
-                try
-                {
-                    return cTorVec3D.newInstance((double) fieldsVec3D.get(0).get(vec) * x,
-                                                 (double) fieldsVec3D.get(1).get(vec) * y,
-                                                 (double) fieldsVec3D.get(2).get(vec) * z);
-                }
-                catch (InstantiationException | IllegalAccessException | InvocationTargetException e)
-                {
-                    e.printStackTrace();
-                    return vec;
-                }
-            }, IMultiplyVec3D.class));
-
-
-        builder = builder.method(named(METHOD_DIE)).intercept(invoke(methodDie).onSuper());
-        builder = builder.method(named(METHOD_IS_AIR)).intercept(invoke(methodIsAir).onField(FIELD_BLOCK));
-        builder = builder
-            .method(named(METHOD_MOVE).and(ElementMatchers.takesArguments(Collections.emptyList())))
-            .intercept(invoke(methodMove)
-                           .withMethodCall(invoke(methodArrayGetIdx).withField(FIELD_MOVE_TYPE_VALUES).with(0))
-                           .withMethodCall(invoke(methodGetMot))
-                           .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
-        builder = builder.method(named(METHOD_GET_TICKS_LIVED))
-                         .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
-        builder = builder.method(named(METHOD_SET_TICKS_LIVED))
-                         .intercept(FieldAccessor.of(fieldTicksLived).setsArgumentAt(0));
-        builder = builder
-            .method(named(METHOD_UPDATE_MOT))
-            .intercept(invoke(methodSetMotVec)
-                           .withMethodCall(invoke(named(METHOD_MULTIPLY_VEC))
-                                               .withMethodCall(invoke(methodGetMot))
-                                               .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
-        return builder;
-    }
-
     public interface ITickMethodDelegate
     {
         @SuppressWarnings("unused") //
         void intercept(IGeneratedFallingBlockEntity entity);
-    }
-
-    private DynamicType.Builder<?> addTickMethod(DynamicType.Builder<?> builder)
-    {
-        builder = builder
-            .defineMethod(METHOD_TICK, void.class, Visibility.PRIVATE)
-            .withParameters(IGeneratedFallingBlockEntity.class)
-            .intercept(MethodDelegation.to((ITickMethodDelegate) entity ->
-            {
-                if (entity.generated$isAir())
-                {
-                    entity.generated$die();
-                    return;
-                }
-
-                entity.generated$move();
-
-                double locY = entity.locY();
-                int ticks = entity.generated$getTicksLived() + 1;
-                entity.generated$setTicksLived(ticks);
-
-                if (++ticks > 100 && (locY < 1 || locY > 256) || ticks > 12000)
-                    entity.generated$die();
-
-                entity.generated$updateMot();
-            }, ITickMethodDelegate.class));
-
-        builder = builder
-            .define(methodTick).intercept(invoke(named(METHOD_TICK))
-                                              .withThis().withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
-        return builder;
     }
 }

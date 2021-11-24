@@ -61,6 +61,14 @@ final class ReflectionRepository
     public static final Constructor<?> ctorBlockBase;
     public static final Constructor<?> ctorLocation;
 
+    public static final Method methodGetBlockData;
+    public static final Method methodGetBlockMaterial;
+    public static final Method methodGetCraftBlockDataState;
+    public static final Method methodLocationGetBlock;
+    public static final Method methodLocationGetWorld;
+    public static final Method methodLocationGetX;
+    public static final Method methodLocationGetY;
+    public static final Method methodLocationGetZ;
     public static final Method methodTick;
     public static final Method methodDie;
     public static final Method methodGetNMSWorld;
@@ -72,7 +80,7 @@ final class ReflectionRepository
     public static final Method methodMove;
     public static final Method methodSaveData;
     public static final Method methodLoadData;
-    public static final Method methodGetBlock;
+    public static final Method methodEntityFallingBlockGetBlock;
     public static final Method methodSetStartPos;
     public static final Method methodLocX;
     public static final Method methodLocY;
@@ -111,6 +119,7 @@ final class ReflectionRepository
     public static final Method methodSetBlockType;
     public static final Method methodEnumOrdinal;
     public static final Method methodArrayGetIdx;
+    public static final Method methodGetClass;
 
     public static final Field fieldTileEntityData;
     public static final Field fieldTicksLived;
@@ -184,6 +193,15 @@ final class ReflectionRepository
                                         .get();
 
 
+        methodGetBlockData = findMethod().inClass(Block.class).withName("getBlockData").withoutParameters().get();
+        methodGetBlockMaterial = findMethod().inClass(Block.class).withName("getType").withoutParameters().get();
+        methodGetCraftBlockDataState = findMethod().inClass(classCraftBlockData).withName("getState")
+                                                   .withoutParameters().get();
+        methodLocationGetBlock = findMethod().inClass(Location.class).withName("getBlock").withoutParameters().get();
+        methodLocationGetWorld = findMethod().inClass(Location.class).withName("getWorld").withoutParameters().get();
+        methodLocationGetX = findMethod().inClass(Location.class).withName("getX").withoutParameters().get();
+        methodLocationGetY = findMethod().inClass(Location.class).withName("getY").withoutParameters().get();
+        methodLocationGetZ = findMethod().inClass(Location.class).withName("getZ").withoutParameters().get();
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle")
                                         .withoutParameters().withModifiers(Modifier.PUBLIC).get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
@@ -194,8 +212,8 @@ final class ReflectionRepository
                                                              .withOptionalParameters(classNMSDamageSource)).get();
         methodMove = findMethod().inClass(classNMSEntity).withReturnType(void.class)
                                  .withParameters(classEnumMoveType, classVec3D).get();
-        methodGetBlock = findMethod().inClass(classEntityFallingBlock).withReturnType(classIBlockData)
-                                     .withoutParameters().get();
+        methodEntityFallingBlockGetBlock = findMethod().inClass(classEntityFallingBlock).withReturnType(classIBlockData)
+                                                       .withoutParameters().get();
         methodSetStartPos = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                         .withModifiers(Modifier.PUBLIC).withParameters(classBlockPosition).get();
         methodAppendEntityCrashReport = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
@@ -270,8 +288,7 @@ final class ReflectionRepository
         methodEnumOrdinal = findMethod().inClass(Enum.class).withName("ordinal").get();
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();
-
-
+        methodGetClass = findMethod().inClass(Object.class).withName("getClass").get();
         methodNMSAddEntity = ReflectionASMAnalyzers.getNMSAddEntityMethod(classNMSWorldServer, classNMSEntity);
         methodIsAir = ReflectionASMAnalyzers.getIsAirMethod(methodTick, classIBlockData, classBlockData);
         methodDie = ReflectionASMAnalyzers.getCraftEntityDelegationMethod(classCraftEntity, classNMSEntity);
