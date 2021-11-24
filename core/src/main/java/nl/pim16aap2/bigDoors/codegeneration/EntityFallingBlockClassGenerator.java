@@ -17,13 +17,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 
 import static net.bytebuddy.implementation.FixedValue.value;
 import static net.bytebuddy.implementation.MethodCall.construct;
 import static net.bytebuddy.implementation.MethodCall.invoke;
+import static net.bytebuddy.matcher.ElementMatchers.is;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
 
 /**
  * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link CustomEntityFallingBlock}.
@@ -40,57 +43,33 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     public static final String FIELD_BUKKIT_WORLD = "generated$bukkitWorld";
     public static final String FIELD_MOVE_TYPE_VALUES = "generated$enumMoveTypeValues";
 
-    /**
-     * See {@link IGeneratedFallingBlockEntity#locY}
-     */
-    // If possible, we don't want to generate an additional locY method.
-    // On some versions it might already exist, so we use the real name.
-    public static final String METHOD_LOC_Y = "locY";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$loadTileEntityData(Object)}
-     */
-    public static final String METHOD_LOAD_DATA = "generated$loadTileEntityData";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$saveTileEntityData(Object)}
-     */
-    public static final String METHOD_SAVE_DATA = "generated$saveTileEntityData";
     public static final String METHOD_MULTIPLY_VEC = "generated$multiplyVec";
     public static final String METHOD_NAME_LOAD_DATA_CONDITIONAL = methodLoadData.getName() + "$conditional";
     public static final String METHOD_NAME_SAVE_DATA_CONDITIONAL = methodSaveData.getName() + "$conditional";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$die()}
-     */
-    public static final String METHOD_DIE = "generated$die";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$isAir()}
-     */
-    public static final String METHOD_IS_AIR = "generated$isAir";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$move()}
-     */
-    public static final String METHOD_MOVE = "generated$move";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$getTicksLived()}
-     */
-    public static final String METHOD_GET_TICKS_LIVED = "generated$getTicksLived";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$setTicksLived(int)}
-     */
-    public static final String METHOD_SET_TICKS_LIVED = "generated$setTicksLived";
-
-    /**
-     * See {@link IGeneratedFallingBlockEntity#generated$updateMot()}
-     */
-    public static final String METHOD_UPDATE_MOT = "generated$updateMot";
     public static final String METHOD_TICK = "generated$tick";
     public static final String METHOD_SPAWN = "generated$spawn";
+
+
+    // If possible, we don't want to generate an additional locY method.
+    // On some versions it might already exist, so we use the real name.
+    public static final Method METHOD_LOC_Y =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("locY").get();
+    public static final Method METHOD_LOAD_DATA =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$loadTileEntityData").get();
+    public static final Method METHOD_SAVE_DATA =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$saveTileEntityData").get();
+    public static final Method METHOD_DIE =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$die").get();
+    public static final Method METHOD_IS_AIR =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$isAir").get();
+    public static final Method METHOD_MOVE =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$move").get();
+    public static final Method METHOD_GET_TICKS_LIVED =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$getTicksLived").get();
+    public static final Method METHOD_SET_TICKS_LIVED =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$setTicksLived").get();
+    public static final Method METHOD_UPDATE_MOT =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$updateMot").get();
 
     private final Field fieldNoClip;
     private final Field fieldHurtEntities;
@@ -201,10 +180,10 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     {
         // The locY method is final, so we cannot override it.
         // As such, we only want to add it when it's got its non-default name.
-        if (methodLocY.getName().equals(METHOD_LOC_Y))
+        if (methodLocY.getName().equals(METHOD_LOC_Y.getName()))
             return builder;
         return builder
-            .defineMethod(METHOD_LOC_Y, double.class, Visibility.PUBLIC)
+            .defineMethod(METHOD_LOC_Y.getName(), double.class, Visibility.PUBLIC)
             .intercept(invoke(methodLocY));
     }
 
@@ -228,7 +207,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addLoadDataMethod(DynamicType.Builder<?> builder)
     {
         builder = builder
-            .method(named(METHOD_LOAD_DATA))
+            .define(METHOD_LOAD_DATA)
             .intercept(invoke(methodNBTTagCompoundGetCompound)
                            .onArgument(0).with("TileEntityData").setsField(fieldTileEntityData)
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
@@ -261,7 +240,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addSaveDataMethod(DynamicType.Builder<?> builder)
     {
         builder = builder
-            .method(named(METHOD_SAVE_DATA))
+            .define(METHOD_SAVE_DATA)
             .intercept(invoke(methodNBTTagCompoundSet)
                            .onArgument(0).with("TileEntityData").withField(fieldTileEntityData.getName())
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
@@ -312,21 +291,20 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                 }
             }, IMultiplyVec3D.class));
 
-
-        builder = builder.method(named(METHOD_DIE)).intercept(invoke(methodDie).onSuper());
-        builder = builder.method(named(METHOD_IS_AIR)).intercept(invoke(methodIsAir).onField(FIELD_BLOCK));
+        builder = builder.method(is(METHOD_DIE)).intercept(invoke(methodDie).onSuper());
+        builder = builder.method(is(METHOD_IS_AIR)).intercept(invoke(methodIsAir).onField(FIELD_BLOCK));
         builder = builder
-            .method(named(METHOD_MOVE).and(ElementMatchers.takesArguments(Collections.emptyList())))
+            .method(is(METHOD_MOVE).and(ElementMatchers.takesArguments(Collections.emptyList())))
             .intercept(invoke(methodMove)
                            .withMethodCall(invoke(methodArrayGetIdx).withField(FIELD_MOVE_TYPE_VALUES).with(0))
                            .withMethodCall(invoke(methodGetMot))
                            .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
-        builder = builder.method(named(METHOD_GET_TICKS_LIVED))
+        builder = builder.method(is(METHOD_GET_TICKS_LIVED))
                          .intercept(FieldAccessor.ofField(fieldTicksLived.getName()));
-        builder = builder.method(named(METHOD_SET_TICKS_LIVED))
+        builder = builder.method(is(METHOD_SET_TICKS_LIVED))
                          .intercept(FieldAccessor.of(fieldTicksLived).setsArgumentAt(0));
         builder = builder
-            .method(named(METHOD_UPDATE_MOT))
+            .method(is(METHOD_UPDATE_MOT))
             .intercept(invoke(methodSetMotVec)
                            .withMethodCall(invoke(named(METHOD_MULTIPLY_VEC))
                                                .withMethodCall(invoke(methodGetMot))
@@ -380,49 +358,14 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
 
     public interface IGeneratedFallingBlockEntity
     {
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_DIE}
-         */
         void generated$die();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_IS_AIR}
-         */
         boolean generated$isAir();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_MOVE}
-         */
         void generated$move();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_GET_TICKS_LIVED}
-         */
         int generated$getTicksLived();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_SET_TICKS_LIVED}
-         */
         void generated$setTicksLived(int val);
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_UPDATE_MOT}
-         */
         void generated$updateMot();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_LOC_Y}
-         */
         double locY();
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_SAVE_DATA}
-         */
         void generated$saveTileEntityData(Object target);
-
-        /**
-         * See {@link EntityFallingBlockClassGenerator#METHOD_LOAD_DATA}
-         */
         void generated$loadTileEntityData(Object target);
     }
 

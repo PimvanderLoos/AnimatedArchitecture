@@ -72,6 +72,7 @@ final class ReflectionRepository
     public static final Method methodTick;
     public static final Method methodDie;
     public static final Method methodGetNMSWorld;
+    public static final Method methodGetEntityHandle;
     public static final Method methodSetPosition;
     public static final Method methodSetNoGravity;
     public static final Method methodGetMot;
@@ -98,6 +99,7 @@ final class ReflectionRepository
     public static final Method methodIBlockDataSerializer;
     public static final Method methodIBlockDataDeserializer;
     public static final Method methodFromData;
+    public static final Method methodBlockBaseGetItem;
     public static final Method methodSetIBlockDataHolderState;
     public static final Method methodGetIBlockDataHolderState;
     public static final Method methodIsAir;
@@ -204,6 +206,8 @@ final class ReflectionRepository
         methodLocationGetZ = findMethod().inClass(Location.class).withName("getZ").withoutParameters().get();
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle")
                                         .withoutParameters().withModifiers(Modifier.PUBLIC).get();
+        methodGetEntityHandle = findMethod().inClass(classCraftEntity).withName("getHandle")
+                                            .withoutParameters().withModifiers(Modifier.PUBLIC).get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)
                                  .withModifiers(Modifier.PUBLIC).withoutParameters().get();
         methodHurtEntities = findMethod().inClass(classEntityFallingBlock).withReturnType(boolean.class)
@@ -247,6 +251,9 @@ final class ReflectionRepository
                                                    .withParameters(classNBTTagCompound).get();
         methodFromData = findMethod().inClass(classCraftBlockData).withName("fromData")
                                      .withParameters(classIBlockData).get();
+        methodBlockBaseGetItem = findMethod().inClass(classBlockBase).withReturnType(classNMSItem)
+                                             .withoutParameters()
+                                             .withModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).get();
         methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
                                                           .withReturnType(Object.class)
                                                           .withParameters(classIBlockState, Comparable.class).get();

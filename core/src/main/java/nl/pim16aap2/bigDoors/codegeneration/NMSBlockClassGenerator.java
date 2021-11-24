@@ -11,8 +11,6 @@ import net.bytebuddy.implementation.bind.annotation.FieldValue;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
-import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,6 +30,7 @@ import static net.bytebuddy.implementation.MethodCall.construct;
 import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
 
 /**
  * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link NMSBlock}.
@@ -59,29 +58,16 @@ final class NMSBlockClassGenerator extends ClassGenerator
      */
     public static final String FIELD_XMATERIAL = "generated$xMaterial";
 
-    // Overrides
-    public static final String METHOD_TO_STRING = "toString";
-    public static final String METHOD_GET_ITEM = "getItem";
-
-    /**
-     * See {@link NMSBlock#rotateBlockUpDown(RotateDirection, DoorDirection)}
-     */
-    public static final String METHOD_ROTATION_UP_DOWN = "rotateBlockUpDown";
-
-    /**
-     * See {@link NMSBlock#canRotate()}
-     */
-    public static final String METHOD_CAN_ROTATE = "canRotate";
-
-    /**
-     * See {@link NMSBlock#deleteOriginalBlock()}
-     */
-    public static final String METHOD_DELETE_ORIGINAL_BLOCK = "deleteOriginalBlock";
-
-    /**
-     * See {@link NMSBlock#putBlock(Location)}
-     */
-    public static final String METHOD_PUT_BLOCK = "putBlock";
+    public static final Method METHOD_TO_STRING =
+        findMethod().inClass(Object.class).withName("toString").get();
+    public static final Method METHOD_ROTATION_UP_DOWN_NORTH_SOUTH =
+        findMethod().inClass(NMSBlock.class).withName("rotateBlockUpDown").withParameters(boolean.class).get();
+    public static final Method METHOD_CAN_ROTATE =
+        findMethod().inClass(NMSBlock.class).withName("canRotate").get();
+    public static final Method METHOD_DELETE_ORIGINAL_BLOCK =
+        findMethod().inClass(NMSBlock.class).withName("deleteOriginalBlock").get();
+    public static final Method METHOD_PUT_BLOCK =
+        findMethod().inClass(NMSBlock.class).withName("putBlock").get();
 
     public static final String METHOD_BLOCK_DATA_FROM_BUKKIT = "generated$constructBlockDataFromBukkit";
     public static final String METHOD_CHECK_WATERLOGGED = "generated$checkWaterLogged";
@@ -242,7 +228,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                                   .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .defineMethod(METHOD_ROTATION_UP_DOWN, void.class).withParameters(boolean.class)
+            .define(METHOD_ROTATION_UP_DOWN_NORTH_SOUTH)
             .intercept(setNewAxis.setsField(named(FIELD_BLOCK_DATA)));
 
         builder = builder
@@ -278,7 +264,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                                            .setsField(named(FIELD_BLOCK_DATA)));
 
         builder = builder
-            .defineMethod(METHOD_CAN_ROTATE, boolean.class)
+            .define(METHOD_CAN_ROTATE)
             .intercept(invoke(methodIsAssignableFrom).on(MultipleFacing.class)
                                                      .withMethodCall(invoke(methodGetClass)
                                                                          .onField(FIELD_CRAFT_BLOCK_DATA)));
@@ -295,17 +281,17 @@ final class NMSBlockClassGenerator extends ClassGenerator
         builder = builder.defineMethod(METHOD_GET_MY_BLOCK_DATA, classIBlockData)
                          .intercept(FieldAccessor.ofField(FIELD_BLOCK_DATA));
 
-        builder = builder.defineMethod(METHOD_TO_STRING, String.class)
-                         .intercept(invoke(named(METHOD_TO_STRING)).onField(FIELD_BLOCK_DATA));
+        builder = builder.define(METHOD_TO_STRING)
+                         .intercept(invoke(named(METHOD_TO_STRING.getName())).onField(FIELD_BLOCK_DATA));
 
-        builder = builder.defineMethod(METHOD_GET_ITEM, classNMSItem).intercept(StubMethod.INSTANCE);
+        builder = builder.define(methodBlockBaseGetItem).intercept(StubMethod.INSTANCE);
 
-        final Method getBlock = ReflectionBuilder.findMethod().inClass(classBlockBase).withReturnType(classNMSBlock)
+        final Method getBlock = findMethod().inClass(classBlockBase).withReturnType(classNMSBlock)
                                                  .withoutParameters().get();
         builder = builder.define(getBlock).intercept(StubMethod.INSTANCE);
 
         builder = builder
-            .defineMethod(METHOD_DELETE_ORIGINAL_BLOCK, void.class)
+            .define(METHOD_DELETE_ORIGINAL_BLOCK)
             .intercept(invoke(methodSetBlockType)
                            .onMethodCall(invoke(methodLocationGetBlock).onField(FIELD_LOCATION))
                            .with(Material.AIR));
@@ -320,8 +306,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
             .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         return builder
-            .defineMethod(METHOD_PUT_BLOCK, void.class)
-            .withParameters(Location.class)
+            .define(METHOD_PUT_BLOCK)
             .intercept(FieldAccessor.ofField(FIELD_LOCATION).setsArgumentAt(0).andThen(
 
                 invoke(named(METHOD_UPDATE_MULTIPLE_FACING))

@@ -7,13 +7,8 @@ import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.implementation.bytecode.assign.Assigner;
-import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
-import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -23,6 +18,7 @@ import static net.bytebuddy.implementation.MethodCall.invoke;
 import static net.bytebuddy.matcher.ElementMatchers.named;
 import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.*;
 import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findEnumValues;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
 
 /**
  * Represents an implementation of a {@link ClassGenerator} to generate a subclass of {@link FallingBlockFactory}.
@@ -39,15 +35,10 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
 
     public static final String METHOD_POST_PROCESS = "generated$postProcessEntity";
 
-    /**
-     * See {@link FallingBlockFactory#fallingBlockFactory(Location, NMSBlock, byte, Material)}
-     */
-    public static final String METHOD_FBLOCK_FACTORY = "fallingBlockFactory";
-
-    /**
-     * See {@link FallingBlockFactory#nmsBlockFactory(World, int, int, int)}
-     */
-    public static final String METHOD_NMS_BLOCK_FACTORY = "nmsBlockFactory";
+    public static final Method METHOD_FBLOCK_FACTORY =
+        findMethod().inClass(FallingBlockFactory.class).withName("fallingBlockFactory").get();
+    public static final Method METHOD_NMS_BLOCK_FACTORY =
+        findMethod().inClass(FallingBlockFactory.class).withName("nmsBlockFactory").get();
 
 
     private final @NotNull ClassGenerator nmsBlockClassGenerator;
@@ -132,8 +123,7 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
                                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .defineMethod(METHOD_NMS_BLOCK_FACTORY, NMSBlock.class)
-            .withParameters(org.bukkit.World.class, int.class, int.class, int.class)
+            .define(METHOD_NMS_BLOCK_FACTORY)
             .intercept(construct(nmsBlockClassGenerator.getGeneratedConstructor())
                            .withArgument(0, 1, 2, 3).withMethodCall(createBlockInfo)
                            .withField(FIELD_AXES_VALUES, FIELD_ROTATION_VALUES));
@@ -172,8 +162,7 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .defineMethod(METHOD_FBLOCK_FACTORY, CustomCraftFallingBlock.class)
-            .withParameters(Location.class, NMSBlock.class, byte.class, Material.class)
+            .define(METHOD_FBLOCK_FACTORY)
             .intercept(invoke(named(METHOD_POST_PROCESS)).withMethodCall(createCraftFallingBlock)
                                                          .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
