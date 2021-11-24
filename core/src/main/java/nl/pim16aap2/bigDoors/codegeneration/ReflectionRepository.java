@@ -48,6 +48,7 @@ final class ReflectionRepository
     public static final Class<?> classCraftServer;
     public static final Class<?> classCraftMagicNumbers;
     public static final Class<?> classCraftBlockData;
+    public static final Class<?> classBlockStateEnum;
 
     public static final Class<?> classEnumBlockState;
     public static final Class<?> classEnumMoveType;
@@ -165,6 +166,8 @@ final class ReflectionRepository
         classCraftServer = findClass(craftBase + "CraftServer").get();
         classCraftMagicNumbers = findClass(craftBase + "util.CraftMagicNumbers").get();
         classCraftBlockData = findClass(craftBase + "block.data.CraftBlockData").get();
+        classBlockStateEnum = findClass(nmsBase + "BlockStateEnum",
+                                        "net.minecraft.world.level.block.state.properties.BlockStateEnum").get();
         classNMSBlock = findClass(nmsBase + "Block", "net.minecraft.world.level.block.Block").get();
         classNMSItem = findClass(nmsBase + "Item", "net.minecraft.world.item.Item").get();
         classNMSDamageSource = findClass(nmsBase + "DamageSource",
@@ -257,9 +260,6 @@ final class ReflectionRepository
         methodSetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
                                                           .withReturnType(Object.class)
                                                           .withParameters(classIBlockState, Comparable.class).get();
-        methodGetIBlockDataHolderState = ReflectionBuilder.findMethod().inClass(classIBlockDataHolder)
-                                                          .withReturnType(Object.class)
-                                                          .withParameters(classIBlockState).get();
         methodCraftMagicNumbersGetMaterial = findMethod()
             .inClass(classCraftMagicNumbers).withName("getMaterial").withParameters(classIBlockData).get();
         methodGetItemType = findMethod().inClass(MaterialData.class).withName("getItemType").get();
@@ -296,6 +296,9 @@ final class ReflectionRepository
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();
         methodGetClass = findMethod().inClass(Object.class).withName("getClass").get();
+        methodGetIBlockDataHolderState = ReflectionASMAnalyzers
+            .getGetIBlockDataHolderStateMethod(classCraftBlockData, classBlockStateEnum, classIBlockData,
+                                               classIBlockState, classIBlockDataHolder);
         methodNMSAddEntity = ReflectionASMAnalyzers.getNMSAddEntityMethod(classNMSWorldServer, classNMSEntity);
         methodIsAir = ReflectionASMAnalyzers.getIsAirMethod(methodTick, classIBlockData, classBlockData);
         methodDie = ReflectionASMAnalyzers.getCraftEntityDelegationMethod(classCraftEntity, classNMSEntity);

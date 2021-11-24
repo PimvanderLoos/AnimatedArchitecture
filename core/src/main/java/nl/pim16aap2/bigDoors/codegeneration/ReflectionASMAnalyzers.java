@@ -125,4 +125,15 @@ final class ReflectionASMAnalyzers
         throw new IllegalStateException("Could not find method with call to " + privateMethod.toGenericString()
                                             + " among candidates: " + candidates);
     }
+
+    public static Method getGetIBlockDataHolderStateMethod(Class<?> classCraftBlockData, Class<?> classBlockStateEnum,
+                                                           Class<?> classIBlockData, Class<?> classIBlockState,
+                                                           Class<?> classIBlockDataHolder)
+    {
+        final Method sourceMethod = findMethod().inClass(classCraftBlockData).withName("get")
+                                                .withParameters(classBlockStateEnum, Class.class).get();
+        final String methodName = ASMUtil.getMethodNameFromMethodCall(sourceMethod, classIBlockData,
+                                                                      Comparable.class, classIBlockState);
+        return findMethod().inClass(classIBlockDataHolder).withName(methodName).withParameters(classIBlockState).get();
+    }
 }
