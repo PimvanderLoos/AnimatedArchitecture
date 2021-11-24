@@ -13,6 +13,7 @@ import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -31,6 +32,23 @@ import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findEnumValues;
 public class FallingBlockFactoryClassGenerator extends ClassGenerator
 {
     private static final @NotNull Class<?>[] CONSTRUCTOR_PARAMETER_TYPES = new Class<?>[0];
+
+    public static final String FIELD_AXES_VALUES = "generated$axesValues";
+    public static final String FIELD_ROTATION_VALUES = "generated$blockRotationValues";
+    public static final String FIELD_MOVE_TYPE_VALUES = "generated$enumMoveTypeValues";
+
+    public static final String METHOD_POST_PROCESS = "generated$postProcessEntity";
+
+    /**
+     * See {@link FallingBlockFactory#fallingBlockFactory(Location, NMSBlock, byte, Material)}
+     */
+    public static final String METHOD_FBLOCK_FACTORY = "fallingBlockFactory";
+
+    /**
+     * See {@link FallingBlockFactory#nmsBlockFactory(World, int, int, int)}
+     */
+    public static final String METHOD_NMS_BLOCK_FACTORY = "nmsBlockFactory";
+
 
     private final @NotNull ClassGenerator nmsBlockClassGenerator;
     private final @NotNull ClassGenerator craftFallingBlockClassGenerator;
@@ -78,9 +96,9 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addFields(DynamicType.Builder<?> builder)
     {
         return builder
-            .defineField("axesValues", asArrayType(classEnumDirectionAxis), Visibility.PRIVATE)
-            .defineField("blockRotationValues", asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
-            .defineField("enumMoveTypeValues", asArrayType(classEnumMoveType), Visibility.PRIVATE);
+            .defineField(FIELD_AXES_VALUES, asArrayType(classEnumDirectionAxis), Visibility.PRIVATE)
+            .defineField(FIELD_ROTATION_VALUES, asArrayType(classEnumBlockRotation), Visibility.PRIVATE)
+            .defineField(FIELD_MOVE_TYPE_VALUES, asArrayType(classEnumMoveType), Visibility.PRIVATE);
     }
 
     private DynamicType.Builder<?> addCTor(DynamicType.Builder<?> builder)
@@ -92,9 +110,9 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .intercept(SuperMethodCall.INSTANCE.andThen(
-                FieldAccessor.ofField("axesValues").setsValue(axesValues)).andThen(
-                FieldAccessor.ofField("blockRotationValues").setsValue(blockRotationValues)).andThen(
-                FieldAccessor.ofField("enumMoveTypeValues").setsValue(enumMoveTypeValues)));
+                FieldAccessor.ofField(FIELD_AXES_VALUES).setsValue(axesValues)).andThen(
+                FieldAccessor.ofField(FIELD_ROTATION_VALUES).setsValue(blockRotationValues)).andThen(
+                FieldAccessor.ofField(FIELD_MOVE_TYPE_VALUES).setsValue(enumMoveTypeValues)));
     }
 
     private DynamicType.Builder<?> addNMSBlockFactoryMethod(DynamicType.Builder<?> builder)
@@ -114,21 +132,19 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
                                                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .defineMethod("nmsBlockFactory", NMSBlock.class)
+            .defineMethod(METHOD_NMS_BLOCK_FACTORY, NMSBlock.class)
             .withParameters(org.bukkit.World.class, int.class, int.class, int.class)
             .intercept(construct(nmsBlockClassGenerator.getGeneratedConstructor())
                            .withArgument(0, 1, 2, 3).withMethodCall(createBlockInfo)
-                           .withField("axesValues", "blockRotationValues"));
+                           .withField(FIELD_AXES_VALUES, FIELD_ROTATION_VALUES));
 
         return builder;
     }
 
     private DynamicType.Builder<?> addFallingBlockFactoryMethod(DynamicType.Builder<?> builder)
     {
-        final String postProcessName = "generated$postProcessEntity";
-
         builder = builder
-            .defineMethod(postProcessName, craftFallingBlockClassGenerator.getGeneratedClass(), Visibility.PRIVATE)
+            .defineMethod(METHOD_POST_PROCESS, craftFallingBlockClassGenerator.getGeneratedClass(), Visibility.PRIVATE)
             .withParameters(craftFallingBlockClassGenerator.getGeneratedClass())
             .intercept(invoke(methodSetCraftEntityCustomName).onArgument(0).with("BigDoorsEntity").andThen(
                 invoke(methodSetCraftEntityCustomNameVisible).onArgument(0).with(false)).andThen(
@@ -136,7 +152,7 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
 
         final Method methodGetMyBlockData =
             ReflectionBuilder.findMethod().inClass(nmsBlockClassGenerator.getGeneratedClass())
-                             .withName("getMyBlockData").withoutParameters().get();
+                             .withName(NMSBlockClassGenerator.METHOD_GET_MY_BLOCK_DATA).withoutParameters().get();
 
         final MethodCall createBlockData = (MethodCall)
             invoke(methodGetMyBlockData).onArgument(1).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
@@ -147,7 +163,7 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
             .withMethodCall(invoke(named("getY")).onArgument(0))
             .withMethodCall(invoke(named("getZ")).onArgument(0))
             .withMethodCall(createBlockData)
-            .withField("enumMoveTypeValues");
+            .withField(FIELD_MOVE_TYPE_VALUES);
 
         final MethodCall createCraftFallingBlock = (MethodCall)
             construct(craftFallingBlockClassGenerator.getGeneratedConstructor())
@@ -156,10 +172,10 @@ public class FallingBlockFactoryClassGenerator extends ClassGenerator
                 .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
         builder = builder
-            .defineMethod("fallingBlockFactory", CustomCraftFallingBlock.class)
+            .defineMethod(METHOD_FBLOCK_FACTORY, CustomCraftFallingBlock.class)
             .withParameters(Location.class, NMSBlock.class, byte.class, Material.class)
-            .intercept(invoke(named(postProcessName)).withMethodCall(createCraftFallingBlock)
-                                                     .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+            .intercept(invoke(named(METHOD_POST_PROCESS)).withMethodCall(createCraftFallingBlock)
+                                                         .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
 
         return builder;
     }

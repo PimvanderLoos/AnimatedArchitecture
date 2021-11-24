@@ -6,18 +6,18 @@ import org.bukkit.Location;
 
 public interface NMSBlock
 {
-    public void rotateBlock(RotateDirection rotDir);
-    public void putBlock(Location loc);
-    public void rotateBlockUpDown(boolean ns);
+    void rotateBlock(RotateDirection rotDir);
+    void putBlock(Location loc);
+    void rotateBlockUpDown(boolean ns);
 
     default void rotateBlockUpDown(RotateDirection upDown, DoorDirection openDirection)
     {
     }
 
-    public void rotateCylindrical(RotateDirection rotDir);
-    public boolean canRotate();
+    void rotateCylindrical(RotateDirection rotDir);
+    boolean canRotate();
 
-    public void deleteOriginalBlock();
+    void deleteOriginalBlock();
     @Override
-    public String toString();
+    String toString();
 }
