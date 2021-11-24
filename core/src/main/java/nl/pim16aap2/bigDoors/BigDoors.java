@@ -169,8 +169,9 @@ public class BigDoors extends JavaPlugin implements Listener
                 setDisabled(error);
                 return;
             }
-            loginMessages.add("You are trying to load this plugin in an unsupported environment: \""
-                                  + disableReason.get() + "\"!!!");
+            else if (config.unsafeModeNotification())
+                loginMessages.add("You are trying to load this plugin in an unsupported environment: \""
+                                      + disableReason.get() + "\"!!!");
         }
 
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
