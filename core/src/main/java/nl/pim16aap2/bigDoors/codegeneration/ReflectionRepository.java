@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.material.MaterialData;
 
 import java.lang.reflect.Array;
@@ -63,6 +64,7 @@ final class ReflectionRepository
     public static final Constructor<?> ctorLocation;
 
     public static final Method methodGetBlockData;
+    public static final Method methodSetBlockData;
     public static final Method methodGetBlockMaterial;
     public static final Method methodGetCraftBlockDataState;
     public static final Method methodLocationGetBlock;
@@ -99,7 +101,7 @@ final class ReflectionRepository
     public static final Method methodNBTTagCompoundGetInt;
     public static final Method methodIBlockDataSerializer;
     public static final Method methodIBlockDataDeserializer;
-    public static final Method methodFromData;
+    public static final Method methodCraftBockDataFromNMSBlockData;
     public static final Method methodBlockBaseGetItem;
     public static final Method methodSetIBlockDataHolderState;
     public static final Method methodGetIBlockDataHolderState;
@@ -199,6 +201,8 @@ final class ReflectionRepository
 
 
         methodGetBlockData = findMethod().inClass(Block.class).withName("getBlockData").withoutParameters().get();
+        methodSetBlockData = findMethod().inClass(Block.class).withName("setBlockData")
+                                         .withParameters(BlockData.class).get();
         methodGetBlockMaterial = findMethod().inClass(Block.class).withName("getType").withoutParameters().get();
         methodGetCraftBlockDataState = findMethod().inClass(classCraftBlockData).withName("getState")
                                                    .withoutParameters().get();
@@ -252,8 +256,8 @@ final class ReflectionRepository
                                                    .withReturnType(classIBlockData)
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classNBTTagCompound).get();
-        methodFromData = findMethod().inClass(classCraftBlockData).withName("fromData")
-                                     .withParameters(classIBlockData).get();
+        methodCraftBockDataFromNMSBlockData = findMethod().inClass(classCraftBlockData).withName("fromData")
+                                                          .withParameters(classIBlockData).get();
         methodBlockBaseGetItem = findMethod().inClass(classBlockBase).withReturnType(classNMSItem)
                                              .withoutParameters()
                                              .withModifiers(Modifier.ABSTRACT, Modifier.PUBLIC).get();

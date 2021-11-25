@@ -117,7 +117,7 @@ final class CraftFallingBlockClassGenerator extends ClassGenerator
                          .intercept(ofField(FIELD_ENTITY.getName())
                                         .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
         builder = builder.define(METHOD_GET_BLOCK_DATA)
-                         .intercept(invoke(methodFromData)
+                         .intercept(invoke(methodCraftBockDataFromNMSBlockData)
                                         .withMethodCall(invoke(methodEntityFallingBlockGetBlock)
                                                             .onMethodCall(invoke(named(methodGetEntityHandle
                                                                                            .getName())))));

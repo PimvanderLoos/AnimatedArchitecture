@@ -60,6 +60,10 @@ final class NMSBlockClassGenerator extends ClassGenerator
      */
     public static final String FIELD_XMATERIAL = "generated$xMaterial";
 
+    public static final Method METHOD_RETRIEVE_BLOCK_DATA =
+        findMethod().inClass(IGeneratedNMSBlock.class).withName("generated$retrieveBlockData").get();
+    public static final Method METHOD_SET_BLOCK_DATA =
+        findMethod().inClass(IGeneratedNMSBlock.class).withName("generated$setBlockData").get();
     public static final Method METHOD_TO_STRING =
         findMethod().inClass(Object.class).withName("toString").get();
     public static final Method METHOD_ROTATE_UP_DOWN_NS =
@@ -77,7 +81,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final Method METHOD_PUT_BLOCK =
         findMethod().inClass(NMSBlock.class).withName("putBlock").get();
 
-    public static final String METHOD_BLOCK_DATA_FROM_BUKKIT = "generated$constructBlockDataFromBukkit";
+    public static final String METHOD_UPDATE_CRAFT_BLOCK_DATA = "generated$updateCraftBlockData";
+    public static final String METHOD_UPDATE_BLOCK_DATA = "generated$updateBlockData";
     public static final String METHOD_CHECK_WATERLOGGED = "generated$checkWaterLogged";
     public static final String METHOD_GET_MY_BLOCK_DATA = "generated$getMyBlockData";
     public static final String METHOD_UPDATE_MULTIPLE_FACING = "generated$updateCraftBlockDataMultipleFacing";
@@ -146,7 +151,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
                 invoke(named(METHOD_CHECK_WATERLOGGED)).withField(FIELD_CRAFT_BLOCK_DATA)).andThen(
 
-                invoke(named(METHOD_BLOCK_DATA_FROM_BUKKIT))).andThen(
+                invoke(named(METHOD_UPDATE_BLOCK_DATA))).andThen(
 
                 invoke(methodMatchXMaterial).withMethodCall(invoke(methodGetBlockMaterial).onMethodCall(getBlockAtLoc))
                                             .setsField(named(FIELD_XMATERIAL))));
@@ -178,7 +183,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
                            .onField(FIELD_BLOCK_DATA)
                            .withMethodCall(invoke(named(delegationName))
                                                .withArgument(0).withField(FIELD_ROTATION_VALUES))
-                           .setsField(named(FIELD_BLOCK_DATA)));
+                           .setsField(named(FIELD_BLOCK_DATA))
+                           .andThen(invoke(named(METHOD_UPDATE_CRAFT_BLOCK_DATA))));
         return builder;
     }
 
@@ -221,7 +227,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
             .define(METHOD_ROTATE_VERTICALLY_IN_DIRECTION)
             .intercept(invoke(METHOD_UTIL_ROTATE_VERTICALLY_IN_DIRECTION)
                            .withArgument(0).withField(FIELD_CRAFT_BLOCK_DATA)
-                           .andThen(invoke(named(METHOD_BLOCK_DATA_FROM_BUKKIT))));
+                           .andThen(invoke(named(METHOD_UPDATE_BLOCK_DATA))));
     }
 
     private DynamicType.Builder<?> addRotateBlockUpDownMethodNorthSouth(DynamicType.Builder<?> builder)
@@ -247,7 +253,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
         builder = builder
             .define(METHOD_ROTATE_UP_DOWN_NS)
-            .intercept(setNewAxis.setsField(named(FIELD_BLOCK_DATA)));
+            .intercept(setNewAxis.setsField(named(FIELD_BLOCK_DATA))
+                                 .andThen(invoke(named(METHOD_UPDATE_CRAFT_BLOCK_DATA))));
 
         builder = builder
             .defineMethod(METHOD_ROTATE_UP_DOWN_NS_IMPL, classEnumDirectionAxis, Visibility.PRIVATE)
@@ -277,9 +284,13 @@ final class NMSBlockClassGenerator extends ClassGenerator
     private DynamicType.Builder<?> addBasicMethods(DynamicType.Builder<?> builder)
     {
         builder = builder
-            .defineMethod(METHOD_BLOCK_DATA_FROM_BUKKIT, void.class, Visibility.PRIVATE)
+            .defineMethod(METHOD_UPDATE_BLOCK_DATA, void.class, Visibility.PRIVATE)
             .intercept(invoke(methodGetCraftBlockDataState).onField(FIELD_CRAFT_BLOCK_DATA)
                                                            .setsField(named(FIELD_BLOCK_DATA)));
+        builder = builder
+            .defineMethod(METHOD_UPDATE_CRAFT_BLOCK_DATA, void.class, Visibility.PRIVATE)
+            .intercept(invoke(methodCraftBockDataFromNMSBlockData).withField(FIELD_BLOCK_DATA)
+                                                                  .setsField(named(FIELD_CRAFT_BLOCK_DATA)));
 
         builder = builder
             .define(METHOD_CAN_ROTATE)
@@ -305,9 +316,16 @@ final class NMSBlockClassGenerator extends ClassGenerator
         builder = builder.define(methodBlockBaseGetItem).intercept(StubMethod.INSTANCE);
 
         final Method getBlock = findMethod().inClass(classBlockBase).withReturnType(classNMSBlock)
-                                                 .withoutParameters().get();
+                                            .withoutParameters().get();
         builder = builder.define(getBlock).intercept(StubMethod.INSTANCE);
 
+        builder = builder.defineMethod(METHOD_RETRIEVE_BLOCK_DATA.getName(), org.bukkit.block.data.BlockData.class,
+                                       Visibility.PUBLIC)
+                         .withParameters(org.bukkit.block.Block.class)
+                         .intercept(invoke(methodGetBlockData).onArgument(0)
+                                                              .withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC));
+        builder = builder.define(METHOD_SET_BLOCK_DATA)
+                         .intercept(invoke(methodSetBlockData).onArgument(0).withArgument(1));
         builder = builder
             .define(METHOD_DELETE_ORIGINAL_BLOCK)
             .intercept(invoke(methodSetBlockType)
@@ -355,15 +373,14 @@ final class NMSBlockClassGenerator extends ClassGenerator
                 allowedFaces.forEach(
                     (blockFace) ->
                     {
-                        Block otherBlock =
+                        final Block otherBlock =
                             loc.clone().add(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()).getBlock();
+                        final BlockData otherData = origin.generated$retrieveBlockData(otherBlock);
 
                         if (blockFace.equals(BlockFace.UP))
                             ((MultipleFacing) craftBlockData).setFace(blockFace, true);
                         else if (otherBlock.getType().isSolid())
                         {
-                            final Object otherData = origin.generated$retrieveBlockData(otherBlock);
-
                             ((MultipleFacing) craftBlockData).setFace(blockFace, true);
 
                             final boolean isOtherMultipleFacing = otherData instanceof MultipleFacing;
@@ -376,21 +393,21 @@ final class NMSBlockClassGenerator extends ClassGenerator
                                 if (otherAllowedFaces.contains(blockFace.getOppositeFace()))
                                 {
                                     ((MultipleFacing) otherData).setFace(blockFace.getOppositeFace(), true);
-                                    origin.generated$updateBlockData(otherBlock, otherData);
+                                    origin.generated$setBlockData(otherBlock, otherData);
                                 }
                             }
                         }
                         else
                             ((MultipleFacing) craftBlockData).setFace(blockFace, false);
                     });
-            }, IUpdateMultipleFacing.class).andThen(invoke(named(METHOD_BLOCK_DATA_FROM_BUKKIT))));
+            }, IUpdateMultipleFacing.class).andThen(invoke(named(METHOD_UPDATE_BLOCK_DATA))));
     }
 
     public interface IGeneratedNMSBlock
     {
-        Object generated$retrieveBlockData(Block otherBlock);
+        org.bukkit.block.data.BlockData generated$retrieveBlockData(Block otherBlock);
 
-        void generated$updateBlockData(Block otherBlock, Object newData);
+        void generated$setBlockData(Block otherBlock, BlockData newData);
     }
 
     public interface IRotateBlock

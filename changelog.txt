@@ -8,7 +8,7 @@ Alpha 0.1.8.33
 - Added support for PlotSquared v6. Thanks, Leahcim_krob, for the suggestion!
 - Fixed incorrect bounds checking for protection hooks. Thanks, Nimari, for the bug report!
 - Added destroyList config option to determine which types of blocks can be destroyed by a door toggle. Defaults to WATER, LAVA, FERN, (TALL) (SEA)GASS, and SNOW. Before, this was hardcoded to just WATER and LAVA. Thanks, Henriko Magnifico and Tanguygab, for the suggestions!
-- Update Code generation to add support for MC 1.18 pre-5 (and hopefully future versions too).
+- Add support for 1.18 pre-releases via code generation. This must be manually enabled in the config.
 
 Alpha 0.1.8.32
 - Fixed end rods not rotating in the Big Door type. Thanks, Achaius, for the bug report!

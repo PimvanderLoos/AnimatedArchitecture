@@ -99,9 +99,9 @@ public class BigDoors extends JavaPlugin implements Listener
     private FallingBlockFactory fabf;
     private ConfigLoader config;
     private String locale;
-    private MyLogger logger;
+    private final MyLogger logger;
+    private final File logFile;
     private Metrics metrics;
-    private File logFile;
     private Messages messages;
     private Commander commander = null;
     private DoorOpener doorOpener;
@@ -131,13 +131,13 @@ public class BigDoors extends JavaPlugin implements Listener
     public BigDoors()
     {
         instance = this;
+        logFile = new File(getDataFolder(), "log.txt");
+        logger = new MyLogger(this, logFile);
     }
 
     @Override
     public void onEnable()
     {
-        logFile = new File(getDataFolder(), "log.txt");
-        logger = new MyLogger(this, logFile);
         updateManager = new UpdateManager(this);
 
         buildNumber = readBuildNumber();

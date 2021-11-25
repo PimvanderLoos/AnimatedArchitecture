@@ -18,8 +18,8 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.block.data.Waterlogged;
+import org.bukkit.block.data.type.Fence;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_17_R1.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 
 import java.util.Set;
@@ -27,7 +27,7 @@ import java.util.Set;
 public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
 {
     private IBlockData blockData;
-    private final CraftBlockData craftBlockData;
+    private CraftBlockData craftBlockData;
     private final XMaterial xmat;
     private Location loc;
 
@@ -42,7 +42,7 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
         if (craftBlockData instanceof Waterlogged)
             ((Waterlogged) craftBlockData).setWaterlogged(false);
 
-        constructBlockDataFromBukkit();
+        updateBlockData();
 
         xmat = XMaterial.matchXMaterial(world.getBlockAt(x, y, z).getType().toString()).orElse(XMaterial.BEDROCK);
     }
@@ -69,11 +69,17 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
             rot = EnumBlockRotation.a;
         }
         blockData = blockData.a(rot);
+        updateCraftBlockData();
     }
 
-    private void constructBlockDataFromBukkit()
+    private void updateBlockData()
     {
         blockData = craftBlockData.getState();
+    }
+
+    private void updateCraftBlockData()
+    {
+        this.craftBlockData = CraftBlockData.fromData(blockData);
     }
 
     @Override
@@ -90,38 +96,46 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
 
     private void updateCraftBlockDataMultipleFacing()
     {
-        Set<BlockFace> allowedFaces = ((MultipleFacing) craftBlockData).getAllowedFaces();
-        allowedFaces.forEach((K) ->
-        {
-            org.bukkit.block.Block otherBlock = loc.clone().add(K.getModX(), K.getModY(), K.getModZ()).getBlock();
-            CraftBlockData otherData = (CraftBlockData) ((CraftBlock) otherBlock).getBlockData();
-
-            if (K.equals(BlockFace.UP))
-                ((MultipleFacing) craftBlockData).setFace(K, true);
-            else if (otherBlock.getType().isSolid())
+        final Set<BlockFace> allowedFaces = ((MultipleFacing) craftBlockData).getAllowedFaces();
+        allowedFaces.forEach(
+            (blockFace) ->
             {
-                ((MultipleFacing) craftBlockData).setFace(K, true);
-                if (otherData instanceof MultipleFacing &&
-                    (otherBlock.getType().equals(xmat.parseMaterial()) ||
-                     (craftBlockData instanceof org.bukkit.block.data.type.Fence &&
-                      otherData instanceof org.bukkit.block.data.type.Fence)))
-                    if (((MultipleFacing) otherData).getAllowedFaces().contains(K.getOppositeFace()))
+                final org.bukkit.block.Block otherBlock =
+                    loc.clone().add(blockFace.getModX(), blockFace.getModY(), blockFace.getModZ()).getBlock();
+                final org.bukkit.block.data.BlockData otherData = otherBlock.getBlockData();
+
+                if (blockFace.equals(BlockFace.UP))
+                    ((MultipleFacing) craftBlockData).setFace(blockFace, true);
+                else if (otherBlock.getType().isSolid())
+                {
+
+                    ((MultipleFacing) craftBlockData).setFace(blockFace, true);
+
+                    final boolean isOtherMultipleFacing = otherData instanceof MultipleFacing;
+                    final boolean materialMatch = otherBlock.getType().equals(xmat.parseMaterial());
+                    final boolean areBothFence = craftBlockData instanceof Fence && otherData instanceof Fence;
+
+                    if (isOtherMultipleFacing && (materialMatch || areBothFence))
                     {
-                        ((MultipleFacing) otherData).setFace(K.getOppositeFace(), true);
-                        ((CraftBlock) otherBlock).setBlockData(otherData);
+                        final Set<BlockFace> otherAllowedFaces = ((MultipleFacing) otherData).getAllowedFaces();
+                        if (otherAllowedFaces.contains(blockFace.getOppositeFace()))
+                        {
+                            ((MultipleFacing) otherData).setFace(blockFace.getOppositeFace(), true);
+                            otherBlock.setBlockData(otherData);
+                        }
                     }
-            }
-            else
-                ((MultipleFacing) craftBlockData).setFace(K, false);
-        });
-        constructBlockDataFromBukkit();
+                }
+                else
+                    ((MultipleFacing) craftBlockData).setFace(blockFace, false);
+            });
+        this.updateBlockData();
     }
 
     @Override
     public void rotateVerticallyInDirection(DoorDirection openDirection)
     {
         NMSUtil.rotateVerticallyInDirection(openDirection, craftBlockData);
-        this.constructBlockDataFromBukkit();
+        this.updateBlockData();
     }
 
     @Override
@@ -142,6 +156,7 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
             break;
         }
         blockData = blockData.set(BlockRotatable.g, newAxis);
+        this.updateCraftBlockData();
     }
 
     @Override
@@ -151,6 +166,7 @@ public class NMSBlock_V1_17_R1 extends BlockBase implements NMSBlock
             blockData = blockData.a(EnumBlockRotation.b);
         else
             blockData = blockData.a(EnumBlockRotation.d);
+        this.updateCraftBlockData();
     }
 
     /**

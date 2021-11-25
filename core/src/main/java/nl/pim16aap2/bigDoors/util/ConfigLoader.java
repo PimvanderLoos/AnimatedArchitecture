@@ -216,7 +216,7 @@ public class ConfigLoader
                                                 "In other words: No, this cannot be used to support 1.8! It. Will. Not. Work.",
                                                 "There are many other reasons than the code to be generated why it will not work.",
                                                 "The code being generated is the code used to create/move/etc animated blocks.",
-                                                "So when testing this on your TEST SERVER and AFTER MAKING A BACKUP, be sure to check that that still works."};
+                                                "So when testing this on your TEST SERVER, be sure to check that that still works."};
 
         String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
                                                 "This may be useful in case the mappings change within a single version.",
