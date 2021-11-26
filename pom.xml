@@ -37,7 +37,7 @@
             <dependency>
                 <groupId>com.github.PimvanderLoos</groupId>
                 <artifactId>XSeries</artifactId>
-                <version>063bd5664f</version>
+                <version>948326a951</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
