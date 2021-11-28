@@ -20,26 +20,36 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+/**
+ * Represents some utility methods for ASM stuff.
+ *
+ * @author Pim
+ */
 public final class ASMUtil
 {
     private ASMUtil()
     {
+        // Utility class
     }
 
+    /**
+     * Gets the name of a class formatted such that it can be used for ASM-related lookups.
+     *
+     * @param clz The class whose name to retrieve.
+     * @return The name of the class in the correct format.
+     */
     public static String getClassName(Class<?> clz)
     {
         return clz.getName().replace('.', '/');
     }
 
-    public static ClassReader getClassReader(Class<?> clz)
-        throws IOException
-    {
-        final String classAsPath = getClassName(clz) + ".class";
-        final InputStream inputStream = Objects.requireNonNull(clz.getClassLoader().getResourceAsStream(classAsPath),
-                                                               "Failed to get " + clz + " class resources.");
-        return new ClassReader(inputStream);
-    }
-
+    /**
+     * Checks if a specific method is called inside another method or constructor.
+     *
+     * @param executable The executable ({@link Method} or {@link Constructor}) to analyze.
+     * @param method     The method that should be called from within the provided executable.
+     * @return True if the executable calls the provided method, otherwise false.
+     */
     public static boolean executableContainsMethodCall(Executable executable, Method method)
     {
         try
@@ -55,12 +65,48 @@ public final class ASMUtil
         }
     }
 
+    /**
+     * See {@link #getMethodNamesFromMethodCall(Executable, int, Class, Class, Class[])} for a limit of 1.
+     *
+     * @return The name of the target method. If more than 1 method matches the provided settings, only the first one is returned.
+     */
     public static String getMethodNameFromMethodCall(Executable executable, @Nullable Class<?> ownerClass,
                                                      Class<?> returnType, Class<?>... parameters)
     {
         return getMethodNamesFromMethodCall(executable, 1, ownerClass, returnType, parameters)[0];
     }
 
+    /**
+     * Gets the name of a method with a specified signature called from inside another method.
+     *
+     * For example, given the following code:
+     * <pre>{@code
+     * private com.example.Entity entity;
+     *
+     * public void moveMethod() {
+     *     entity.move(0d, 0d, 0d);
+     *     final com.example.Vec3d vec = getVec();
+     *     entity.move(vec);
+     *     entity.kill();
+     * }
+     * }</pre>
+     *
+     * To retrieve the name of the {@code com.example.Entity#move(com.example.Vec3d)} method ("move", in this case),
+     * this method would take the {@link Method} object for the method named "moveMethod". The owner class in this case
+     * would be {@code com.example.Entity}, as this is the class in which the "move" method that is to be retrieved
+     * exists. Assuming that the target move method has a void return type, then the return type would just be
+     * {@code void.class} and the parameter would be {@code com.example.Vec3d}.
+     *
+     *
+     * @param executable The executable ({@link Method} or {@link Constructor}) to analyze.
+     * @param limit      The number of method names to retrieve. This value cannot be less than 1.
+     * @param ownerClass The class in which the target method name to be retrieved is declared. This may be null to
+     *                   ignore the declaring class of the target method to retrieve.
+     * @param returnType The return type of the target method.
+     * @param parameters The parameters of the target method.
+     * @return The names of the methods that fit the desired signature. If more than 'limit' methods match the desired
+     * signature, only the first 'limit' names are returned.
+     */
     public static String[] getMethodNamesFromMethodCall(Executable executable, int limit, @Nullable Class<?> ownerClass,
                                                         Class<?> returnType, Class<?>... parameters)
     {
@@ -85,12 +131,9 @@ public final class ASMUtil
     /**
      * Processes an executable.
      *
-     * @param executable
-     *     The executable (method or constructor) to process.
-     * @param methodVisitorAppender
-     *     The method visitor to append to the existing one for the target executable.
-     * @param methodVisitorReplacer
-     *     The method visitor to replace the existing one of the target executable with.
+     * @param executable The executable (method or constructor) to process.
+     * @param methodVisitorAppender The method visitor to append to the existing one for the target executable.
+     * @param methodVisitorReplacer The method visitor to replace the existing one of the target executable with.
      * @return The created instance of the method visitor replacer, if it exists.
      *
      * @throws IOException
@@ -107,6 +150,15 @@ public final class ASMUtil
         cr.accept(cv, 0);
 
         return cv.replacementVisitor;
+    }
+
+    private static ClassReader getClassReader(Class<?> clz)
+        throws IOException
+    {
+        final String classAsPath = getClassName(clz) + ".class";
+        final InputStream inputStream = Objects.requireNonNull(clz.getClassLoader().getResourceAsStream(classAsPath),
+                                                               "Failed to get " + clz + " class resources.");
+        return new ClassReader(inputStream);
     }
 
     @FunctionalInterface
@@ -187,7 +239,7 @@ public final class ASMUtil
     }
 
     /**
-     * Represents a {@link ClassVisitor} that is used to find fields in methods.
+     * Represents a {@link ClassVisitor} that is used for general purpose class analysis.
      */
     private static final class MyClassVisitor<T extends MethodVisitor> extends ClassVisitor
     {
