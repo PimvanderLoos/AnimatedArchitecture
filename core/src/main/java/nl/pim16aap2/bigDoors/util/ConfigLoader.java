@@ -70,6 +70,7 @@ public class ConfigLoader
     private boolean skipUnloadedAutoCloseToggle;
     private boolean allowNotifications;
     private boolean allowCodeGeneration;
+    private boolean codeGenerationNotification;
     private boolean forceCodeGeneration;
 
     private Map<IProtectionCompatDefinition, Boolean> hooksMap;
@@ -196,19 +197,16 @@ public class ConfigLoader
         String[] soundRangeComment = { "The range of the sounds the doors make, counted in number of blocks. Note that using too high ranges may cause lag.",
                                        "The sound is only played at the engine of a door.",
                                        "Use a value of 0 or less to completely disable all sounds."};
-
         String[] unsafeModeComment = { "Only load this plugin in supported environments.",
                                        "Enabling this is NOT SUPPORTED and you WILL run into issues. ",
                                        "By enabling this option you agree that you will not complain if any issues arise and that it is completely",
                                        "your own responsibility.",
                                        "If you need to enable this option you are doing it wrong and you should rethink your life choices." };
-
         String[] unsafeModeNotificationComment = { "Whether to show the notification about unsafe mode to admins."};
-
         String[] allowNotificationsComment = { "Whether or not to allow toggle notifications. ",
                                                "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
                                                "This is on a per-door basis."};
-
+        String[] codeGenerationNotificationComment = { "Whether to show the code generation notification about unsafe mode to admins."};
         String[] allowCodeGenerationComment = { "On unsupported versions of Minecraft, BigDoors can try to generate the required code itself.",
                                                 "This means that the plugin may work even on unsupported versions, ",
                                                 "but also that unexpected issues might pop up! Be sure to test everything when using this!",
@@ -217,12 +215,10 @@ public class ConfigLoader
                                                 "There are many other reasons than the code to be generated why it will not work.",
                                                 "The code being generated is the code used to create/move/etc animated blocks.",
                                                 "So when testing this on your TEST SERVER, be sure to check that that still works."};
-
         String[] forceCodeGenerationComment = { "Forces BigDoors to use generated code even on supported versions.",
                                                 "This may be useful in case the mappings change within a single version.",
                                                 "In general, however, you will not need this and you're better off not using it!",
                                                 "When this option is enabled, it overrides the \"allowCodeGeneration\" option."};
-
         String[] debugComment = { "Don't use this. Just leave it on false." };
         String[] enableFileLoggingComment = { "Whether to write stuff to BigDoor's own log file. Please keep this enabled if you want to receive support." };
         String[] backupComment = { "Make a backup of the database before upgrading it. I'd recommend leaving this on true. ",
@@ -348,8 +344,11 @@ public class ConfigLoader
         allowNotifications = config.getBoolean("allowNotifications", true);
         configOptionsList.add(new ConfigOption("allowNotifications", allowNotifications, allowNotificationsComment));
 
-        allowCodeGeneration = config.getBoolean("allowCodeGeneration", false);
+        allowCodeGeneration = config.getBoolean("allowCodeGeneration", true);
         configOptionsList.add(new ConfigOption("allowCodeGeneration", allowCodeGeneration, allowCodeGenerationComment));
+
+        codeGenerationNotification = config.getBoolean("codeGenerationNotification", true);
+        configOptionsList.add(new ConfigOption("codeGenerationNotification", codeGenerationNotification, codeGenerationNotificationComment));
 
         forceCodeGeneration = config.getBoolean("forceCodeGeneration", false);
         configOptionsList.add(new ConfigOption("forceCodeGeneration", forceCodeGeneration, forceCodeGenerationComment));
@@ -721,6 +720,11 @@ public class ConfigLoader
     public boolean allowCodeGeneration()
     {
         return allowCodeGeneration;
+    }
+
+    public boolean codeGenerationNotification()
+    {
+        return codeGenerationNotification;
     }
 
     public boolean forceCodeGeneration()

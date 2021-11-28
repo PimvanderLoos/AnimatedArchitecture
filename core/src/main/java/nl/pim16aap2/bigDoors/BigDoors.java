@@ -741,6 +741,10 @@ public class BigDoors extends JavaPlugin implements Listener
         logger.warn("║     THIS MAY CAUSE ISSUES! PLEASE TEST CAREFULLY!     ║");
         logger.warn("║                                                       ║");
         logger.warn("╚═══════════════════════════════════════════════════════╝");
+
+        if (config.codeGenerationNotification())
+            loginMessages.add("Enabled code generation! Please note that this is somewhat experimental!");
+
         return FallbackGeneratorManager.getInstance().getFallingBlockFactory();
     }
 
