@@ -43,24 +43,29 @@ public class LandsProtectionCompat implements IProtectionCompat
         final UUID playerUUID = player.getUniqueId();
         final World world = loc1.getWorld();
 
-        int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX()) >> 4;
-        int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
-        int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX()) >> 4;
-        int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
+        final int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX()) >> 4;
+        final int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
+        final int z1 = Math.min(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
+        final int x2 = Math.max(loc1.getBlockX(), loc2.getBlockX()) >> 4;
+        final int y2 = Math.max(loc1.getBlockY(), loc2.getBlockY());
+        final int z2 = Math.max(loc1.getBlockZ(), loc2.getBlockZ()) >> 4;
 
-        final Location loc = new Location(world, 0, 128, 0);
+        final Location loc = new Location(world, 0, 0, 0);
 
         for (int chunkX = x1; chunkX <= x2; ++chunkX)
             for (int chunkZ = z1; chunkZ <= z2; ++chunkZ)
             {
                 loc.setX(x1 >> 4);
                 loc.setZ(z1 >> 4);
-
-                final @Nullable Area area = landsAddon.getAreaByLoc(loc);
-                if (area == null)
-                    continue;
-                if(!area.hasFlag(playerUUID, Flags.BLOCK_BREAK))
-                    return false;
+                for (int y = y1; y <= y2; ++y)
+                {
+                    loc.setY(y);
+                    final @Nullable Area area = landsAddon.getAreaByLoc(loc);
+                    if (area == null)
+                        continue;
+                    if (!area.hasFlag(playerUUID, Flags.BLOCK_BREAK))
+                        return false;
+                }
             }
         return true;
     }
