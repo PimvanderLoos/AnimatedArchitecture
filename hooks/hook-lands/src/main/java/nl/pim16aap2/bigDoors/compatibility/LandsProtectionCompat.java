@@ -3,6 +3,7 @@ package nl.pim16aap2.bigDoors.compatibility;
 import me.angeschossen.lands.api.flags.Flags;
 import me.angeschossen.lands.api.integration.LandsIntegration;
 import me.angeschossen.lands.api.land.Area;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -53,10 +54,11 @@ public class LandsProtectionCompat implements IProtectionCompat
         final Location loc = new Location(world, 0, 0, 0);
 
         for (int chunkX = x1; chunkX <= x2; ++chunkX)
+        {
+            loc.setX(chunkX << 4);
             for (int chunkZ = z1; chunkZ <= z2; ++chunkZ)
             {
-                loc.setX(x1 >> 4);
-                loc.setZ(z1 >> 4);
+                loc.setZ(chunkZ << 4);
                 for (int y = y1; y <= y2; ++y)
                 {
                     loc.setY(y);
@@ -67,6 +69,7 @@ public class LandsProtectionCompat implements IProtectionCompat
                         return false;
                 }
             }
+        }
         return true;
     }
 
