@@ -3,7 +3,7 @@ Alpha 0.1.8.33
 - Removed a bunch of unused code to make updates a bit easier going forward.
 - Fix the /namedoor command giving you more sticks when running the command multiple times. Thanks, MiniMoro, for the bug report!
 - Add /newslidingdoor command as a shortcut command for creating new sliding doors. Thanks, Vexius, for the suggestion!
-- Update Lands integration for version 5 series. Thanks, Nimari, for the bug report!
+- Update Lands integration for version 5 series. Thanks, Nimari, for the bug report and helping out resolving some issues!
 - Fixed issue with restart command where certain configurations may cause issues with other plugins. Thanks, Nimari, for the bug report!
 - Added support for PlotSquared v6. Thanks, Leahcim_krob, for the suggestion!
 - Fixed incorrect bounds checking for protection hooks. Thanks, Nimari, for the bug report!

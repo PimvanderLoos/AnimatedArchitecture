@@ -62,7 +62,17 @@ public class SlidingDoorCreator extends ToolUser
     public void selector(Location loc)
     {
         if (name == null)
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.GiveNameInstruc"));
             return;
+        }
+        final String canBreakBlock = plugin.canBreakBlock(player.getUniqueId(), player.getName(), loc);
+        if (canBreakBlock != null)
+        {
+            Util.messagePlayer(player, messages.getString("CREATOR.GENERAL.NoPermissionHere") + " " + canBreakBlock);
+            return;
+        }
+
         if (!isPositionValid(loc))
             return;
         if (one == null)
