@@ -286,6 +286,7 @@ final class ReflectionRepository
                                                    .withModifiers(Modifier.PUBLIC, Modifier.STATIC)
                                                    .withParameters(classBlockBase).get();
         methodGetTypeFromBlockPosition = findMethod().inClass(classNMSWorld).withReturnType(classIBlockData)
+                                                     .withModifiers(Modifier.PUBLIC)
                                                      .withParameters(classBlockPosition).get();
         methodGetBukkitServer = findMethod().inClass(Bukkit.class).withName("getServer").get();
         methodSetCraftEntityCustomName = findMethod().inClass(classCraftEntity).withName("setCustomName")
