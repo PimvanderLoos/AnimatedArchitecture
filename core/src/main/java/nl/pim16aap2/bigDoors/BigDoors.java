@@ -13,6 +13,7 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R1;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R2;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_16_R3;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_17_R1;
+import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory_V1_18_R1;
 import nl.pim16aap2.bigDoors.codegeneration.FallbackGeneratorManager;
 import nl.pim16aap2.bigDoors.compatibility.FakePlayerCreator;
 import nl.pim16aap2.bigDoors.compatibility.ProtectionCompatManager;
@@ -158,7 +159,7 @@ public class BigDoors extends JavaPlugin implements Listener
 
         messages = new Messages(this);
 
-        Optional<String> disableReason = isCurrentEnvironmentInvalid();
+        final Optional<String> disableReason = isCurrentEnvironmentInvalid();
         if (disableReason.isPresent())
         {
             if (!getConfigLoader().unsafeMode())
@@ -820,6 +821,9 @@ public class BigDoors extends JavaPlugin implements Listener
                 break;
             case "v1_17_R1":
                 fabf = new FallingBlockFactory_V1_17_R1();
+                break;
+            case "v1_18_R1":
+                fabf = new FallingBlockFactory_V1_18_R1();
                 break;
             default:
                 if (config.allowCodeGeneration())

@@ -35,9 +35,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.github.PimvanderLoos</groupId>
+                <groupId>com.github.cryptomorin</groupId>
                 <artifactId>XSeries</artifactId>
-                <version>948326a951</version>
+                <version>8.4.0</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>

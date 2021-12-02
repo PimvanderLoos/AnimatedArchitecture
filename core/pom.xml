@@ -20,7 +20,7 @@
         <dependency.version.maven-compiler>3.8.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.2.4</dependency.version.maven-shade>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
-        <dependency.version.bytebuddy>1.11.21</dependency.version.bytebuddy>
+        <dependency.version.bytebuddy>1.12.1</dependency.version.bytebuddy>
         <dependency.version.mockito>4.0.0</dependency.version.mockito>
         <dependency.version.junit>5.8.1</dependency.version.junit>
     </properties>
@@ -125,7 +125,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.PimvanderLoos</groupId>
+            <groupId>nl.pim16aap2.BigDoors</groupId>
+            <artifactId>v1_18_R1</artifactId>
+            <version>0.1.8.33-ALPHA</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.cryptomorin</groupId>
             <artifactId>XSeries</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -265,7 +272,7 @@
                     </relocations>
                     <filters>
                         <filter>
-                            <artifact>com.github.PimvanderLoos:XSeries</artifact>
+                            <artifact>com.github.cryptomorin:XSeries</artifact>
                             <includes>
                                 <include>com/cryptomorin/xseries/XMaterial*</include>
                             </includes>
