@@ -1,3 +1,6 @@
+Alpha 0.1.8.34
+-
+
 Alpha 0.1.8.33
 - Add full support for Minecraft 1.18.
 - Added code generation to generate the required code for unsupported versions. This is disabled by default, but can be enabled in the config via the "allowCodeGeneration" and the "forceCodeGeneration" options. This can only be used to generate code for versions after 1.17.
