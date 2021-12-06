@@ -38,6 +38,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
                                  .setLevel(Level.FINEST)
                                  .apply();
+    @SuppressWarnings("PMD.FieldNamingConventions")
     private static final FluentLogger log;
 
     static

@@ -282,8 +282,6 @@
     <rule ref="category/java/performance.xml/BigIntegerInstantiation"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#consecutiveappendsshouldreuse -->
     <rule ref="category/java/performance.xml/ConsecutiveAppendsShouldReuse"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#consecutiveliteralappends -->
-    <rule ref="category/java/performance.xml/ConsecutiveLiteralAppends"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#inefficientemptystringcheck -->
     <rule ref="category/java/performance.xml/InefficientEmptyStringCheck"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_performance.html#inefficientstringbuffering -->

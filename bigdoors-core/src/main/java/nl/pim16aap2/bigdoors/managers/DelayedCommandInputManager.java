@@ -110,7 +110,7 @@ public class DelayedCommandInputManager implements IDebuggable
             String.format("  There are currently %d delayed command input requests active:", requests.size()))
             .append('\n');
 
-        for (DelayedCommandInputRequest<?> inputRequest : requests.values())
+        for (final DelayedCommandInputRequest<?> inputRequest : requests.values())
             sb.append("    - ").append(inputRequest).append('\n');
 
         return sb.toString();

@@ -7,6 +7,7 @@ import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import javax.inject.Singleton;
 
 @Module
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class PlatformManagerSpigotModule
 {
     @Provides
