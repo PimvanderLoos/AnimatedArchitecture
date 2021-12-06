@@ -344,6 +344,19 @@
                                 <pattern>ch.qos.logback</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.logback</shadedPattern>
                             </relocation>
+
+                            <relocation>
+                                <pattern>nl.pim16aap2.logging</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.logging</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>nl.pim16aap2.reflection</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.reflection</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>nl.pim16aap2.util</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.util</shadedPattern>
+                            </relocation>
                         </relocations>
                     </configuration>
                     <executions>
