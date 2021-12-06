@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.spigot;
 
+import com.google.common.flogger.FluentLogger;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
@@ -32,13 +32,23 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
-@Flogger
 public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IBigDoorsPlatformProvider
 {
     private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
         new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
                                  .setLevel(Level.FINEST)
                                  .apply();
+    private static final FluentLogger log;
+
+    static
+    {
+        final String propName = "flogger.backend_factory";
+        final @Nullable String oldProp = System.getProperty(propName);
+        System.setProperty(propName, "com.google.common.flogger.backend.slf4j.Slf4jBackendFactory#getInstance");
+        log = FluentLogger.forEnclosingClass();
+        if (oldProp != null)
+            System.setProperty(propName, oldProp);
+    }
 
     private final Set<JavaPlugin> registeredPlugins = Collections.synchronizedSet(new LinkedHashSet<>());
     private final BigDoorsSpigotComponent bigDoorsSpigotComponent;
