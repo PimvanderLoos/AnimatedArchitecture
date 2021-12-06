@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.storage;
 
+import com.google.common.flogger.LogSiteStackTrace;
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
@@ -516,7 +517,7 @@ public class SQLiteJDBCDriverConnectionTest
         databaseLock.set(storage, IStorage.DatabaseState.ERROR);
 
         AssertionsUtil.assertThrowablesLogged(() -> storage.getDoor(PLAYER_DATA_1.getUUID(), 1L),
-                                              IllegalStateException.class);
+                                              LogSiteStackTrace.class);
 
         // Set the database state to enabled again and verify that it's now possible to retrieve doors again.
         databaseLock.set(storage, IStorage.DatabaseState.OK);
