@@ -12,7 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
 /**
@@ -24,9 +23,6 @@ import java.util.logging.Level;
 @Flogger
 public class DelayedInputRequest<T>
 {
-    private final AtomicBoolean timedOut = new AtomicBoolean(false);
-    private final AtomicBoolean exceptionally = new AtomicBoolean(false);
-
     /**
      * The result of this input request.
      */
@@ -37,6 +33,16 @@ public class DelayedInputRequest<T>
      * The completable future that waits for the delayed input.
      */
     private final CompletableFuture<@Nullable T> input = new CompletableFuture<>();
+
+    /**
+     * Keeps track of whether the request timed out.
+     */
+    private volatile boolean timedOut = false;
+
+    /**
+     * Keeps track of whether the request completed with an exception.
+     */
+    private volatile boolean exceptionally = false;
 
     /**
      * Instantiates a new {@link DelayedInputRequest}.
@@ -96,7 +102,7 @@ public class DelayedInputRequest<T>
                     }
                     catch (TimeoutException e)
                     {
-                        timedOut.set(true);
+                        timedOut = true;
                         return Optional.<T>empty();
                     }
                     catch (CancellationException e)
@@ -105,7 +111,7 @@ public class DelayedInputRequest<T>
                     }
                     catch (Exception e)
                     {
-                        exceptionally.set(true);
+                        exceptionally = true;
                         throw new RuntimeException(e);
                     }
                 })
@@ -119,7 +125,7 @@ public class DelayedInputRequest<T>
                 ex ->
                 {
                     log.at(Level.SEVERE).withCause(ex).log();
-                    exceptionally.set(true);
+                    exceptionally = true;
                     return Optional.empty();
                 });
     }
@@ -188,7 +194,7 @@ public class DelayedInputRequest<T>
      */
     public boolean timedOut()
     {
-        return timedOut.get();
+        return timedOut;
     }
 
     /**
@@ -198,7 +204,7 @@ public class DelayedInputRequest<T>
      */
     public boolean exceptionally()
     {
-        return exceptionally.get();
+        return exceptionally;
     }
 
     /**
