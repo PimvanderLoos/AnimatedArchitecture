@@ -85,6 +85,7 @@ public class ConfigLoader
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
+    private static final MCVersion LATEST_RESOURCE_PACK_VERSION = MCVersion.v1_17;
     private static final EnumMap<MCVersion, String> RESOURCEPACKS = new EnumMap<>(MCVersion.class);
     static
     {
@@ -102,12 +103,15 @@ public class ConfigLoader
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-1_15.zip?dl=1");
         RESOURCEPACKS.put(MCVersion.v1_17,
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
+        RESOURCEPACKS.put(MCVersion.v1_18,
+                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
     }
 
     public ConfigLoader(BigDoors plugin)
     {
         this.plugin = plugin;
-        resourcePack = RESOURCEPACKS.get(BigDoors.getMCVersion());
+        resourcePack = RESOURCEPACKS.getOrDefault(BigDoors.getMCVersion(),
+                                                  RESOURCEPACKS.get(LATEST_RESOURCE_PACK_VERSION));
         configOptionsList = new ArrayList<>();
         powerBlockTypesMap = new HashSet<>();
         hooksMap = new HashMap<>(ProtectionCompatDefinition.DEFAULT_COMPAT_DEFINITIONS.size());
