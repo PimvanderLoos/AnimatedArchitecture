@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public final class MethodFinder
      *     The class to analyze.
      * @return The next step in the method finding process.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public MethodFinderInSource inClass(Class<?> source)
     {
         return new MethodFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
@@ -48,7 +49,7 @@ public final class MethodFinder
          *     The name of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public MethodFinderBase withName(String name)
         {
             return new NamedMethodFinder(source, name);
@@ -61,7 +62,7 @@ public final class MethodFinder
          *     The return type of the method to look for.
          * @return The new {@link MethodFinderBase}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public MethodFinderBase withReturnType(Class<?> returnType)
         {
             return new TypedMethodFinder(source, returnType);
@@ -102,7 +103,6 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        @Contract("-> this")
         public MethodFinderBase checkSuperClasses()
         {
             checkSuperClasses = true;
@@ -115,7 +115,6 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        @Contract("-> this")
         public MethodFinderBase ignoreSuperClasses()
         {
             checkSuperClasses = false;
@@ -132,7 +131,6 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        @Contract("-> this")
         public MethodFinderBase checkInterfaces()
         {
             checkInterfaces = true;
@@ -145,7 +143,6 @@ public final class MethodFinder
          *
          * @return The current method finder instance.
          */
-        @Contract("-> this")
         public MethodFinderBase ignoreInterfaces()
         {
             checkInterfaces = false;

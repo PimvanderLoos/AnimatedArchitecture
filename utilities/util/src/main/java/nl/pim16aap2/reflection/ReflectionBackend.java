@@ -18,7 +18,8 @@ import java.util.logging.Level;
  *
  * @author Pim
  */
-@Flogger final class ReflectionBackend
+@Flogger //
+final class ReflectionBackend
 {
     private static final @Nullable Method ENUM_VALUE_NAME;
 

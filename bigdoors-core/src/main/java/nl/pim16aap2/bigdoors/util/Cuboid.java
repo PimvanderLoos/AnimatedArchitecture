@@ -63,8 +63,7 @@ public class Cuboid
      *     The position to check.
      * @return True if the position lies inside this cuboid (including the edges).
      */
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public boolean isPosInsideCuboid(Vector3Di pos)
     {
         return pos.x() >= min.x() && pos.x() <= max.x() &&
@@ -88,8 +87,7 @@ public class Cuboid
      * @return The distance between the test value and the provided range, or 0 if the test value lies on the provided
      * range.
      */
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     private static int getOuterDistance(int test, int min, int max)
     {
         if (Util.between(test, min, max))
@@ -118,8 +116,7 @@ public class Cuboid
      *     #isPosInsideCuboid(Vector3Di)}.
      * @return True if the provided position lies within the range of this cuboid.
      */
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public boolean isInRange(int x, int y, int z, int range)
     {
         if (range < 0)
@@ -133,8 +130,7 @@ public class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public boolean isInRange(Vector3Di pos, int range)
     {
         return isInRange(pos.x(), pos.y(), pos.z(), range);
@@ -143,8 +139,7 @@ public class Cuboid
     /**
      * See {@link #isInRange(int, int, int, int)}
      */
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public boolean isInRange(IPLocation loc, int range)
     {
         return isInRange(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), range);
@@ -155,8 +150,7 @@ public class Cuboid
      *
      * @return The center point of the cuboid.
      */
-    @CheckReturnValue
-    @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Vector3Dd getCenter()
     {
         final double cX = max.x() - ((max.x() - min.x()) / 2.0f);
@@ -170,8 +164,7 @@ public class Cuboid
      *
      * @return The center block of the cuboid.
      */
-    @CheckReturnValue
-    @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Vector3Di getCenterBlock()
     {
         final int cX = (int) (max.x() - ((max.x() - min.x()) / 2.0f));
@@ -187,8 +180,7 @@ public class Cuboid
      *     The update function used to update both {@link Vector3Di}s.
      * @return A new {@link Cuboid}.
      */
-    @CheckReturnValue
-    @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Cuboid updatePositions(UnaryOperator<Vector3Di> updateFunction)
     {
         final Vector3Di newMin = updateFunction.apply(min);
@@ -207,8 +199,7 @@ public class Cuboid
      *     The number of blocks to move in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    @CheckReturnValue
-    @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Cuboid move(int x, int y, int z)
     {
         return new Cuboid(min.add(x, y, z), max.add(x, y, z));
@@ -226,15 +217,13 @@ public class Cuboid
      *     The number of blocks to change in the z-axis.
      * @return A new {@link Cuboid}.
      */
-    @CheckReturnValue
-    @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Cuboid grow(int x, int y, int z)
     {
         return new Cuboid(min.subtract(x, y, z), max.add(x, y, z));
     }
 
-    @CheckReturnValue
-    @Contract(value = "_, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     private static Vector3Di[] getSortedCoordinates(Vector3Di a, Vector3Di b)
     {
         final int minX = Math.min(a.x(), b.x());
@@ -250,8 +239,7 @@ public class Cuboid
         return new Vector3Di[]{min, max};
     }
 
-    @CheckReturnValue
-    @Contract(pure = true)
+    @CheckReturnValue @Contract(pure = true)
     private int calculateVolume()
     {
         final int x = max.x() - min.x() + 1;
@@ -260,8 +248,7 @@ public class Cuboid
         return x * y * z;
     }
 
-    @CheckReturnValue
-    @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     private Vector3Di calculateDimensions()
     {
         final int x = max.x() - min.x() + 1;

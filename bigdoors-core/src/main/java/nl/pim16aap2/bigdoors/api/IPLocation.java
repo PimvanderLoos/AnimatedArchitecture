@@ -22,7 +22,7 @@ public interface IPLocation
      *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation setX(double newVal);
 
     /**
@@ -32,7 +32,7 @@ public interface IPLocation
      *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation setY(double newVal);
 
     /**
@@ -42,7 +42,7 @@ public interface IPLocation
      *     The new coordinate.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation setZ(double newVal);
 
     /**
@@ -56,7 +56,7 @@ public interface IPLocation
      *     The value to add to the z coordinate.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation add(double x, double y, double z);
 
     /**
@@ -66,7 +66,7 @@ public interface IPLocation
      *     The vector to add to the coordinates.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation add(Vector3Di vector);
 
     /**
@@ -76,7 +76,7 @@ public interface IPLocation
      *     The vector to add to the coordinates.
      * @return A new {@link IPLocation}.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPLocation add(Vector3Dd vector);
 
     /**
@@ -84,7 +84,7 @@ public interface IPLocation
      *
      * @return The world of this location.
      */
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     IPWorld getWorld();
 
     /**
@@ -92,7 +92,7 @@ public interface IPLocation
      *
      * @return The chunk coordinates of this location.
      */
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     Vector2Di getChunk();
 
     /**
@@ -143,7 +143,7 @@ public interface IPLocation
     @CheckReturnValue @Contract(pure = true)
     double getZ();
 
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     default Vector3Di getPosition()
     {
         return new Vector3Di(getBlockX(), getBlockY(), getBlockZ());
@@ -154,7 +154,7 @@ public interface IPLocation
      *
      * @return The position in integers as a String.
      */
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     default String toIntPositionString()
     {
         return String.format("(%d;%d;%d)", getBlockX(), getBlockY(), getBlockZ());
@@ -165,7 +165,7 @@ public interface IPLocation
      *
      * @return The position in double as a String.
      */
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     default String toDoublePositionString()
     {
         return String.format("(%.2f;%.2f;%.2f)", getX(), getY(), getZ());

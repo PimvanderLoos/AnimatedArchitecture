@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.Constructor;
@@ -61,7 +62,7 @@ public class ParameterGroup
     /**
      * Finds the number of steps to the next parameter in {@link #parameters} of a given type.
      * <p>
-     * Only optional parameters (See {@link Parameter#isOptional()}) can be skipped. If a required parameter is
+     * Only optional parameters (See {@link Parameter#optional()}) can be skipped. If a required parameter is
      * encountered before a parameter of the desired type is found, -1 is returned.
      *
      * @param target
@@ -78,10 +79,10 @@ public class ParameterGroup
         {
             final Parameter parameter = parameters.get(idx);
             // If it's a match, return the number of skipped parameters.
-            if (target.equals(parameter.getType()))
+            if (target.equals(parameter.type))
                 return skipped;
             // If it's not a match and the current one is required, return -1 (i.e. invalid).
-            if (parameter.isRequired())
+            if (parameter.required())
                 return -1;
             skipped += 1;
         }
@@ -97,6 +98,7 @@ public class ParameterGroup
      *     The types to compare the parameters against.
      * @return True if the provided types match the defined parameters.
      */
+    @CheckReturnValue @Contract(pure = true)
     public boolean matches(Class<?>... types)
     {
         if (types.length > parameters.size())
@@ -117,7 +119,7 @@ public class ParameterGroup
 
         // Ensure there are no trailing required parameters
         for (int idx = types.length + skipped; idx < parameters.size(); ++idx)
-            if (parameters.get(idx).isRequired())
+            if (parameters.get(idx).required())
                 return false;
         return true;
     }
@@ -161,7 +163,6 @@ public class ParameterGroup
          *     The types to add as required parameters.
          * @return The instance of the current parameter group.
          */
-        @Contract("_ -> this")
         public Builder withRequiredParameters(Class<?>... types)
         {
             for (final Class<?> type : types)
@@ -179,7 +180,6 @@ public class ParameterGroup
          *     The types to add as optional parameters.
          * @return The instance of the current parameter group.
          */
-        @Contract("_ -> this")
         public Builder withOptionalParameters(Class<?>... types)
         {
             for (final Class<?> type : types)
@@ -192,44 +192,23 @@ public class ParameterGroup
          *
          * @return The newly created {@link ParameterGroup}.
          */
-        @Contract(" -> new")
         public ParameterGroup construct()
         {
             return new ParameterGroup(parameters, requiredCount);
         }
     }
 
-    private static final class Parameter
+    private record Parameter(Class<?> type, boolean optional)
     {
-        private final Class<?> type;
-        private final boolean optional;
-
-        private Parameter(Class<?> type, boolean optional)
-        {
-            this.type = type;
-            this.optional = optional;
-        }
-
         // Copy constructor
         private Parameter(Parameter other)
         {
-            type = Objects.requireNonNull(other, "Copy constructor cannot copy from null!").type;
-            optional = other.optional;
+            this(other.type, other.optional);
         }
 
-        private Class<?> getType()
-        {
-            return type;
-        }
-
-        private boolean isRequired()
+        private boolean required()
         {
             return !optional;
-        }
-
-        private boolean isOptional()
-        {
-            return optional;
         }
 
         @Override

@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +31,7 @@ public class FieldFinder
      *     The class to analyze.
      * @return The next step in the field finding process.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public FieldFinderInSource inClass(Class<?> source)
     {
         return new FieldFinderInSource(source);
@@ -55,7 +56,7 @@ public class FieldFinder
          *     The name of the field to look for.
          * @return The new {@link NamedFieldFinder}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public NamedFieldFinder withName(String name)
         {
             return new NamedFieldFinder(name, source);
@@ -68,7 +69,7 @@ public class FieldFinder
          *     The type of the field to look for.
          * @return The new {@link TypedFieldFinder}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public TypedFieldFinder ofType(Class<?> type)
         {
             return new TypedFieldFinder(source, type);
@@ -81,7 +82,7 @@ public class FieldFinder
          *     The type of the fields to look for.
          * @return The new {@link TypedMultipleFieldsFinder}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public TypedMultipleFieldsFinder allOfType(Class<?> type)
         {
             return new TypedMultipleFieldsFinder(source, type);
@@ -131,7 +132,6 @@ public class FieldFinder
          *     The type the field should have.
          * @return The current finder instance.
          */
-        @Contract("_ -> this")
         public NamedFieldFinder ofType(@Nullable Class<?> fieldType)
         {
             this.fieldType = fieldType;
@@ -213,6 +213,7 @@ public class FieldFinder
             return getResult(false);
         }
 
+        @CheckReturnValue @Contract(pure = true)
         private List<Field> getResult(boolean nonnull)
         {
             final List<Field> found = ReflectionBackend.getFields(source, modifiers, fieldType);
@@ -236,7 +237,7 @@ public class FieldFinder
         // Suppress AvoidThrowingNullPointerException because we want to throw an NPE manually
         // when nothing is found to keep in line with the rest of the API.
         @SuppressWarnings("PMD.AvoidThrowingNullPointerException")
-        @Contract("true, _, _, _, _, _, _ -> fail")
+        @Contract(value = "true, _, _, _, _, _, _ -> fail", pure = true)
         private static List<Field> handleInvalid(boolean nonnull, String str, int val, Class<?> fieldType,
                                                  Class<?> source, int modifiers, int foundSize)
         {
@@ -256,7 +257,6 @@ public class FieldFinder
          *     The minimum number of fields that have to be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        @Contract("_ -> this")
         public TypedMultipleFieldsFinder atLeast(int val)
         {
             atLeast = val;
@@ -274,7 +274,6 @@ public class FieldFinder
          *     The maximum number of fields that can be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        @Contract("_ -> this")
         public TypedMultipleFieldsFinder atMost(int val)
         {
             atMost = val;
@@ -292,7 +291,6 @@ public class FieldFinder
          *     The exact number of fields that must be found for this finder to be able to complete successfully.
          * @return The instance of the current finder.
          */
-        @Contract("_ -> this")
         public TypedMultipleFieldsFinder exactCount(int val)
         {
             expected = val;

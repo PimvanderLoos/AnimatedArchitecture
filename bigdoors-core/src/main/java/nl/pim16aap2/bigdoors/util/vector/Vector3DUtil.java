@@ -30,7 +30,7 @@ class Vector3DUtil
         return getDistance(from.xD(), from.yD(), from.zD(), to.xD(), to.yD(), to.zD());
     }
 
-    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     static Vector3Dd rotateAroundXAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
@@ -48,7 +48,7 @@ class Vector3DUtil
         return new Vector3Dd(basePoint.xD(), newY, newZ);
     }
 
-    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     static Vector3Dd rotateAroundYAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
@@ -65,7 +65,7 @@ class Vector3DUtil
         return new Vector3Dd(newX, basePoint.yD(), newZ);
     }
 
-    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     static Vector3Dd rotateAroundZAxis(IVector3D basePoint, IVector3D pivotPoint, double radians)
     {
         final double cos = Math.cos(radians);
@@ -133,8 +133,7 @@ class Vector3DUtil
          *     The world in which the {@link IPLocation} will exist.
          * @return A new {@link IPLocation}.
          */
-        @CheckReturnValue
-        @Contract(value = "_, _ -> new", pure = true)
+        @CheckReturnValue @Contract(pure = true)
         default IPLocation toLocation(IPLocationFactory locationFactory, IPWorld world)
         {
             return locationFactory.create(world, xD(), yD(), zD());

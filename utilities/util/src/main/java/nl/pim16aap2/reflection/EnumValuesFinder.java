@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +25,7 @@ public class EnumValuesFinder
      *     The class to analyze.
      * @return The next step in the enum values finding process.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public EnumValuesFinderInSource inClass(Class<?> source)
     {
         return new EnumValuesFinderInSource(source);
@@ -73,7 +74,7 @@ public class EnumValuesFinder
          *     The name of the enum value to look for.
          * @return The new {@link NamedEnumValueFinder}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public NamedEnumValueFinder withName(String name)
         {
             return new NamedEnumValueFinder(source, Objects
@@ -87,7 +88,7 @@ public class EnumValuesFinder
          *     The index of the enum value to look for.
          * @return The new {@link IndexedEnumValueFinder}.
          */
-        @Contract("_ -> new")
+        @CheckReturnValue @Contract(pure = true)
         public IndexedEnumValueFinder atIndex(int index)
         {
             return new IndexedEnumValueFinder(source, index);

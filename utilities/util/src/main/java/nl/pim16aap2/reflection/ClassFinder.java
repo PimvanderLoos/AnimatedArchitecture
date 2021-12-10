@@ -1,6 +1,5 @@
 package nl.pim16aap2.reflection;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -25,7 +24,6 @@ public class ClassFinder extends ReflectionFinder<Class<?>, ClassFinder>
      *     The list of names the class might have.
      * @return The current {@link ClassFinder} instance.
      */
-    @Contract("_ -> this")
     public ClassFinder withNames(String... names)
     {
         this.names = Objects.requireNonNull(names, "List of lookup names cannot be null!");

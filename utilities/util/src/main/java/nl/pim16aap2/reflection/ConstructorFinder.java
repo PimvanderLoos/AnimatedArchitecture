@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,7 @@ public class ConstructorFinder
      *     The class to analyze.
      * @return The next step in the constructor finding process.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public ConstructorFinderInSource inClass(Class<?> source)
     {
         return new ConstructorFinderInSource(Objects.requireNonNull(source, "Source class cannot be null!"));
@@ -43,12 +44,11 @@ public class ConstructorFinder
         @Override
         public Constructor<?> get()
         {
-            return Objects.requireNonNull(getNullable(), String.format("Failed to find constructor [%s %s(%s)].",
-                                                                       ReflectionBackend.optionalModifiersToString(
-                                                                           modifiers),
-                                                                       source.getName(),
-                                                                       ReflectionBackend.formatOptionalValue(
-                                                                           parameters)));
+            return Objects.requireNonNull(getNullable(), String.format(
+                "Failed to find constructor [%s %s(%s)].",
+                ReflectionBackend.optionalModifiersToString(modifiers),
+                source.getName(),
+                ReflectionBackend.formatOptionalValue(parameters)));
         }
 
         @Override

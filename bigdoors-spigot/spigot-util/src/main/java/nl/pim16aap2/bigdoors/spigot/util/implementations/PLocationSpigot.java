@@ -54,7 +54,7 @@ public final class PLocationSpigot implements IPLocation
      *     The {@link IPWorld}.
      * @return The Bukkit world, if it could be found.
      */
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     private static @Nullable World retrieveBukkitWorld(IPWorld ipWorld)
     {
         if (ipWorld instanceof PWorldSpigot ipWorldSpigot)
@@ -63,7 +63,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public Vector2Di getChunk()
     {
         return new Vector2Di(location.getBlockX() << 4, location.getBlockZ() << 4);
@@ -112,42 +112,42 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation setX(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), newVal, getY(), getZ());
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation setY(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), getX(), newVal, getZ());
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation setZ(double newVal)
     {
         return new PLocationSpigot(world, location.getWorld(), getX(), getY(), newVal);
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_, _, _ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation add(double x, double y, double z)
     {
         return new PLocationSpigot(world, location.getWorld(), getX() + x, getY() + y, getZ() + z);
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation add(Vector3Di vector)
     {
         return add(vector.x(), vector.y(), vector.z());
     }
 
     @Override
-    @CheckReturnValue @Contract(value = "_ -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public IPLocation add(Vector3Dd vector)
     {
         return add(vector.x(), vector.y(), vector.z());
@@ -165,7 +165,7 @@ public final class PLocationSpigot implements IPLocation
     }
 
     @Override
-    @CheckReturnValue @Contract(value = " -> new", pure = true)
+    @CheckReturnValue @Contract(pure = true)
     public String toString()
     {
         return getWorld() + ": " + getX() + ":" + getY() + ":" + getZ();

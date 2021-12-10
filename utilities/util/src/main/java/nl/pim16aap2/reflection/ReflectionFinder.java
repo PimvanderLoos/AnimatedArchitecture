@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,6 +42,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      * @throws NullPointerException
      *     If the target reflection object(s) could not be found.
      */
+    @CheckReturnValue @Contract(pure = true)
     public abstract T get();
 
     /**
@@ -53,6 +55,7 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
     // Suppress nullable problems, because we do _NOT_ want to annotate all
     // overriding methods with @NotNull, thank you very much, IntelliJ...
     @SuppressWarnings("NullableProblems")
+    @CheckReturnValue @Contract(pure = true)
     public abstract @Nullable T getNullable();
 
     /**
@@ -64,7 +67,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      *     The set of modifiers to use as search constraint.
      * @return The current finder instance.
      */
-    @Contract("_ -> this")
     public U withModifiers(int... mods)
     {
         modifiers = ReflectionBackend.getModifiers(mods);
@@ -82,7 +84,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
      *     The set of modifiers to use add to the current set of modifiers.
      * @return The current finder instance.
      */
-    @Contract("_ -> this")
     public U addModifiers(int... mods)
     {
         for (final int mod : mods)
@@ -123,7 +124,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          *
          * @return The current finder instance.
          */
-        @Contract(" -> this")
         public U withoutParameters()
         {
             parameters = new ParameterGroup.Builder().construct();
@@ -136,7 +136,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          *
          * @return The current finder instance.
          */
-        @Contract(" -> this")
         public U ignoreParameters()
         {
             parameters = null;
@@ -153,7 +152,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          *     The required parameters of the target object.
          * @return The current finder instance.
          */
-        @Contract("_ -> this")
         public U withParameters(Class<?>... parameters)
         {
             this.parameters = new ParameterGroup.Builder().withRequiredParameters(parameters).construct();
@@ -168,7 +166,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          *     The parameters of the target object.
          * @return The current finder instance.
          */
-        @Contract("_ -> this")
         public U withParameters(ParameterGroup parameters)
         {
             this.parameters = parameters;
@@ -183,7 +180,6 @@ public abstract class ReflectionFinder<T, U extends ReflectionFinder<T, U>>
          *     The parameters of the target object.
          * @return The current finder instance.
          */
-        @Contract("_ -> this")
         public U withParameters(ParameterGroup.Builder parameters)
         {
             this.parameters = parameters.construct();

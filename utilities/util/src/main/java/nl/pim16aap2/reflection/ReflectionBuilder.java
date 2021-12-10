@@ -1,5 +1,6 @@
 package nl.pim16aap2.reflection;
 
+import com.google.errorprone.annotations.CheckReturnValue;
 import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.Constructor;
@@ -24,7 +25,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link ClassFinder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static ClassFinder findClass()
     {
         return new ClassFinder();
@@ -37,7 +38,7 @@ public final class ReflectionBuilder
      *     A list of class names to search for. There should be at least one.
      * @return A new {@link ClassFinder}.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static ClassFinder findClass(String... names)
     {
         return new ClassFinder().withNames(names);
@@ -48,7 +49,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link ConstructorFinder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static ConstructorFinder findConstructor()
     {
         return new ConstructorFinder();
@@ -61,7 +62,7 @@ public final class ReflectionBuilder
      *     The class in which the finder will look for the {@link Constructor}.
      * @return A new {@link ConstructorFinder}.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static ConstructorFinder.ConstructorFinderInSource findConstructor(Class<?> source)
     {
         return new ConstructorFinder().inClass(source);
@@ -72,7 +73,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link FieldFinder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static FieldFinder findField()
     {
         return new FieldFinder();
@@ -86,7 +87,7 @@ public final class ReflectionBuilder
      *     The class in which the finder will look for the {@link Field}.
      * @return A new {@link FieldFinder.FieldFinderInSource}.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static FieldFinder.FieldFinderInSource findField(Class<?> source)
     {
         return new FieldFinder().inClass(source);
@@ -97,7 +98,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link MethodFinder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static MethodFinder findMethod()
     {
         return new MethodFinder();
@@ -111,7 +112,7 @@ public final class ReflectionBuilder
      *     The class in which the finder will look for the {@link Method}.
      * @return A new {@link MethodFinder.MethodFinderInSource}.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static MethodFinder.MethodFinderInSource findMethod(Class<?> source)
     {
         return new MethodFinder().inClass(source);
@@ -122,7 +123,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link EnumValuesFinder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static EnumValuesFinder findEnumValues()
     {
         return new EnumValuesFinder();
@@ -135,7 +136,7 @@ public final class ReflectionBuilder
      *     The class in which the finder will look for the enum values.
      * @return A new {@link EnumValuesFinder.EnumValuesFinderInSource}.
      */
-    @Contract("_ -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static EnumValuesFinder.EnumValuesFinderInSource findEnumValues(Class<?> source)
     {
         return new EnumValuesFinder().inClass(source);
@@ -146,7 +147,7 @@ public final class ReflectionBuilder
      *
      * @return A new {@link ParameterGroup.Builder}.
      */
-    @Contract(" -> new")
+    @CheckReturnValue @Contract(pure = true)
     public static ParameterGroup.Builder parameterBuilder()
     {
         return new ParameterGroup.Builder();
