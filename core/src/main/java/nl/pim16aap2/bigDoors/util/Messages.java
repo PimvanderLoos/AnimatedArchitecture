@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigDoors.util;
 
+import nl.pim16aap2.bigDoors.BigDoors;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,8 +10,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-
-import nl.pim16aap2.bigDoors.BigDoors;
 
 public class Messages
 {
@@ -36,7 +36,7 @@ public class Messages
     private void writeDefaultFile()
     {
         File defaultFile = new File(plugin.getDataFolder(), "en_US.txt");
-        if (!defaultFile.setWritable(true))
+        if (defaultFile.exists() && !defaultFile.setWritable(true))
             plugin.getMyLogger().myLogger(Level.SEVERE, "Failed to make file \"" + defaultFile + "\" writable!");
 
         // Load the default en_US from the resources folder.
