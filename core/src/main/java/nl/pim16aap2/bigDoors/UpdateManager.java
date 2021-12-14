@@ -3,13 +3,12 @@
  */
 package nl.pim16aap2.bigDoors;
 
-import java.io.IOException;
-
+import nl.pim16aap2.bigDoors.UpdateChecker.UpdateReason;
+import nl.pim16aap2.bigDoors.util.Util;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import nl.pim16aap2.bigDoors.UpdateChecker.UpdateReason;
-import nl.pim16aap2.bigDoors.util.Util;
+import java.io.IOException;
 
 /**
  *
@@ -92,7 +91,7 @@ public final class UpdateManager
                 catch (IOException e)
                 {
                     updateDownloaded = false;
-                    plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                    plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
                 }
                 if (updateDownloaded)
                     plugin.getMyLogger()

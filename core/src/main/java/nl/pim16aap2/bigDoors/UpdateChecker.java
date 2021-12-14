@@ -1,5 +1,15 @@
 package nl.pim16aap2.bigDoors;
 
+import com.google.common.base.Preconditions;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import nl.pim16aap2.bigDoors.util.Util;
+import org.apache.commons.lang.math.NumberUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,18 +26,6 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.math.NumberUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import com.google.common.base.Preconditions;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-
-import nl.pim16aap2.bigDoors.util.Util;
 
 /**
  * A utility class to assist in checking for updates for plugins uploaded to
@@ -231,7 +229,7 @@ public final class UpdateChecker
         }
         catch (IOException e)
         {
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             return false;
         }
 

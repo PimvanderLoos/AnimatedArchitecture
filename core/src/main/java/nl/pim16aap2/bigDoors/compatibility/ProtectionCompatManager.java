@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -153,7 +154,7 @@ public class ProtectionCompatManager implements Listener
                 plugin.getMyLogger()
                     .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(compat.getName() + "\n" + Util.exceptionToString(e));
+                plugin.getMyLogger().logMessageToLogFile(compat.getName() + "\n" + Util.throwableToString(e));
             }
         return null;
     }
@@ -196,7 +197,7 @@ public class ProtectionCompatManager implements Listener
                 plugin.getMyLogger()
                     .warn("Failed to use \"" + compat.getName() + "\"! Please send this error to pim16aap2:");
                 e.printStackTrace();
-                plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             }
         return null;
     }
@@ -257,20 +258,14 @@ public class ProtectionCompatManager implements Listener
         if (!plugin.getConfigLoader().isHookEnabled(compatDefinition))
             return;
 
+        @Nullable String version = null;
         try
         {
-            final @Nullable Class<? extends IProtectionCompat> compatClass =
-                compatDefinition.getClass(plugin.getServer().getPluginManager()
-                .getPlugin(compatDefinition.getName()).getDescription().getVersion());
+            version = plugin.getServer().getPluginManager()
+                            .getPlugin(compatDefinition.getName()).getDescription().getVersion();
 
-            if (compatClass == null)
-            {
-                plugin.getMyLogger()
-                    .logMessage(Level.WARNING,
-                                "Could not find compatibility class for: \"" + compatDefinition.getName() + "\". "
-                                    + "This most likely means that this version is not supported!");
-                return;
-            }
+            final Class<? extends IProtectionCompat> compatClass =
+                Objects.requireNonNull(compatDefinition.getClass(version), "Compat class cannot be null!");
 
             // No need to load compats twice.
             if (protectionAlreadyLoaded(compatClass))
@@ -280,25 +275,13 @@ public class ProtectionCompatManager implements Listener
 
             addProtectionCompat(compatClass.getConstructor(HookContext.class).newInstance(hookContext));
         }
-        catch (NoClassDefFoundError e)
+        catch (NoClassDefFoundError | Exception e)
         {
-            plugin.getMyLogger().logMessageToConsole("NoClassDefFoundError: " + "Failed to initialize \"" + compatName
-                + "\" compatibility hook!");
-            plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
-                + "\" Compatibility Hook disabled!");
-            plugin.getMyLogger().logMessage(Util.errorToString(e), true, true);
-        }
-        catch (NullPointerException e)
-        {
-            plugin.getMyLogger().logMessageToConsoleOnly("Could not find \"" + compatName + "\"! Hook not enabled!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
-        }
-        catch (Exception e)
-        {
-            plugin.getMyLogger().logMessageToConsole("Failed to initialize \"" + compatName + "\" compatibility hook!");
-            plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with \"" + compatName
-                + "\" Compatibility Hook disabled!");
-            plugin.getMyLogger().logMessage(Util.exceptionToString(e), true, true);
+            plugin.getMyLogger().logMessageToConsole("Failed to initialize the \"" + compatName + "\"" +
+                                                         " (version \"" + version + "\") compatibility hook!");
+            plugin.getMyLogger().logMessageToConsole("Now resuming normal startup with the \"" + compatName + "\"" +
+                                                         " Compatibility Hook disabled!");
+            plugin.getMyLogger().logMessage(Util.throwableToString(e), true, true);
         }
     }
 
@@ -311,6 +294,7 @@ public class ProtectionCompatManager implements Listener
         return ret;
     }
 
+    @SuppressWarnings("unused")
     public void registerProtectionCompatDefinition(IProtectionCompatDefinition compatDefinition)
     {
         registeredDefinitions.put(compatDefinition.getName(), compatDefinition);

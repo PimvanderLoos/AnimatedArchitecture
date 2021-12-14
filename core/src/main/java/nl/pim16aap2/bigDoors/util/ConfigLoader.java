@@ -524,7 +524,7 @@ public class ConfigLoader
                     plugin.getMyLogger().warn("Failed to write config option \"" + configOptionsList.get(idx).getName()
                         + "\"! " + "Please contact pim16aap2 and attach the error below:");
                     e.printStackTrace();
-                    plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+                    plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
                 }
             }
 

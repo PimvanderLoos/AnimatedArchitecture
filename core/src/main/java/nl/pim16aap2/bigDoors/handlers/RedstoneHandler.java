@@ -1,16 +1,15 @@
 package nl.pim16aap2.bigDoors.handlers;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockRedstoneEvent;
-
 import nl.pim16aap2.bigDoors.BigDoors;
 import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.util.ConfigLoader;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockRedstoneEvent;
 
 public class RedstoneHandler implements Listener
 {
@@ -70,7 +69,7 @@ public class RedstoneHandler implements Listener
         catch (Exception e)
         {
             plugin.getMyLogger().logMessage("Exception thrown while handling redstone event!", true, false);
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             BigDoors.get().getConfigLoader();
             if (ConfigLoader.DEBUG)
                 e.printStackTrace();

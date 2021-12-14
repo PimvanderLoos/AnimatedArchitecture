@@ -179,7 +179,7 @@ public final class VaultManager implements IPermissionsManager
         catch(Exception e)
         {
             plugin.getMyLogger().warn("Failed to check balance of player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
         }
         return true;
     }
@@ -197,7 +197,7 @@ public final class VaultManager implements IPermissionsManager
         catch(Exception e)
         {
             plugin.getMyLogger().warn("Failed to subtract money from player \"" + player.getName() + "\" (" + player.getUniqueId() + ")! Please contact pim16aap2!");
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
         }
         return true;
     }
@@ -222,7 +222,7 @@ public final class VaultManager implements IPermissionsManager
         catch (Exception e)
         {
             plugin.getMyLogger().logMessage("Exception encountered while initiating Vault dependency! It will be disabled! Please contact pim16aap2!", true, false);
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             return false;
         }
     }
@@ -238,7 +238,7 @@ public final class VaultManager implements IPermissionsManager
         catch (Exception e)
         {
             plugin.getMyLogger().logMessage("Exception encountered while initiating Vault dependency! It will be disabled! Please contact pim16aap2!", true, false);
-            plugin.getMyLogger().logMessageToLogFile(Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(Util.throwableToString(e));
             return false;
         }
     }

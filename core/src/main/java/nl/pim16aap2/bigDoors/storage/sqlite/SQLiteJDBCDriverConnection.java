@@ -1,5 +1,19 @@
 package nl.pim16aap2.bigDoors.storage.sqlite;
 
+import com.google.common.io.Files;
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.Door;
+import nl.pim16aap2.bigDoors.moveBlocks.Opener;
+import nl.pim16aap2.bigDoors.util.DoorDirection;
+import nl.pim16aap2.bigDoors.util.DoorOwner;
+import nl.pim16aap2.bigDoors.util.DoorType;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
+import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,23 +34,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.Nullable;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-
-import com.google.common.io.Files;
-
-import nl.pim16aap2.bigDoors.BigDoors;
-import nl.pim16aap2.bigDoors.Door;
-import nl.pim16aap2.bigDoors.moveBlocks.Opener;
-import nl.pim16aap2.bigDoors.util.DoorDirection;
-import nl.pim16aap2.bigDoors.util.DoorOwner;
-import nl.pim16aap2.bigDoors.util.DoorType;
-import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.Util;
 
 @SuppressWarnings("null") // Eclipse likes to complain about connections potentially being null,
                           // but it's not a problem.
@@ -188,27 +185,27 @@ public class SQLiteJDBCDriverConnection
             {
                 Statement stmt1 = conn.createStatement();
                 String sql1 = "CREATE TABLE IF NOT EXISTS doors "
-                    + "(id            INTEGER    PRIMARY KEY autoincrement, " 
+                    + "(id            INTEGER    PRIMARY KEY autoincrement, "
                     + " name          TEXT       NOT NULL, "
-                    + " world         TEXT       NOT NULL, " 
+                    + " world         TEXT       NOT NULL, "
                     + " isOpen        INTEGER    NOT NULL, "
-                    + " xMin          INTEGER    NOT NULL, " 
+                    + " xMin          INTEGER    NOT NULL, "
                     + " yMin          INTEGER    NOT NULL, "
-                    + " zMin          INTEGER    NOT NULL, " 
+                    + " zMin          INTEGER    NOT NULL, "
                     + " xMax          INTEGER    NOT NULL, "
-                    + " yMax          INTEGER    NOT NULL, " 
+                    + " yMax          INTEGER    NOT NULL, "
                     + " zMax          INTEGER    NOT NULL, "
-                    + " engineX       INTEGER    NOT NULL, " 
+                    + " engineX       INTEGER    NOT NULL, "
                     + " engineY       INTEGER    NOT NULL, "
-                    + " engineZ       INTEGER    NOT NULL, " 
+                    + " engineZ       INTEGER    NOT NULL, "
                     + " isLocked      INTEGER    NOT NULL, "
-                    + " type          INTEGER    NOT NULL, " 
+                    + " type          INTEGER    NOT NULL, "
                     + " engineSide    INTEGER    NOT NULL, "
-                    + " powerBlockX   INTEGER    NOT NULL, " 
+                    + " powerBlockX   INTEGER    NOT NULL, "
                     + " powerBlockY   INTEGER    NOT NULL, "
-                    + " powerBlockZ   INTEGER    NOT NULL, " 
+                    + " powerBlockZ   INTEGER    NOT NULL, "
                     + " openDirection INTEGER    NOT NULL, "
-                    + " autoClose     INTEGER    NOT NULL, " 
+                    + " autoClose     INTEGER    NOT NULL, "
                     + " chunkHash     INTEGER    NOT NULL, "
                     + " blocksToMove  INTEGER    NOT NULL, "
                     + " notify        INTEGER    NOT NULL) ";
@@ -247,7 +244,7 @@ public class SQLiteJDBCDriverConnection
     {
         if (true) // Bypass the unreachable code check
             throw new UnsupportedOperationException();
-        
+
         // All code below is outdated and probably mostly useless.
         // I can't be bothered to check it now, though, and I've
         // given up on cleanliness ages ago, so... yeah...
@@ -397,19 +394,19 @@ public class SQLiteJDBCDriverConnection
             conn.createStatement().execute("ALTER TABLE doors RENAME TO doors_old;");
 
             String newDoors = "CREATE TABLE IF NOT EXISTS doors\n"
-                + "(id            INTEGER    PRIMARY KEY autoincrement,\n" 
+                + "(id            INTEGER    PRIMARY KEY autoincrement,\n"
                 + " name          TEXT       NOT NULL,\n"
-                + " world         TEXT       NOT NULL,\n" 
+                + " world         TEXT       NOT NULL,\n"
                 + " xMin          INTEGER    NOT NULL,\n"
-                + " yMin          INTEGER    NOT NULL,\n" 
+                + " yMin          INTEGER    NOT NULL,\n"
                 + " zMin          INTEGER    NOT NULL,\n"
-                + " xMax          INTEGER    NOT NULL,\n" 
+                + " xMax          INTEGER    NOT NULL,\n"
                 + " yMax          INTEGER    NOT NULL,\n"
-                + " zMax          INTEGER    NOT NULL,\n" 
+                + " zMax          INTEGER    NOT NULL,\n"
                 + " engineX       INTEGER    NOT NULL,\n"
-                + " engineY       INTEGER    NOT NULL,\n" 
+                + " engineY       INTEGER    NOT NULL,\n"
                 + " engineZ       INTEGER    NOT NULL,\n"
-                + " bitflag       INTEGER    NOT NULL DEFAULT 0,\n" 
+                + " bitflag       INTEGER    NOT NULL DEFAULT 0,\n"
                 + " type          INTEGER    NOT NULL DEFAULT 0,\n"
                 + " powerBlockX   INTEGER    NOT NULL DEFAULT -1,\n"
                 + " powerBlockY   INTEGER    NOT NULL DEFAULT -1,\n"
@@ -814,7 +811,7 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException | NullPointerException e)
         {
-            plugin.getMyLogger().logMessageToLogFile("271: " + Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile("271: " + Util.throwableToString(e));
         }
         finally
         {
@@ -860,7 +857,7 @@ public class SQLiteJDBCDriverConnection
         }
         catch (SQLException | NullPointerException e)
         {
-            plugin.getMyLogger().logMessageToLogFile("271: " + Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile("271: " + Util.throwableToString(e));
         }
         finally
         {
@@ -1605,7 +1602,7 @@ public class SQLiteJDBCDriverConnection
             }
         }
     }
-    
+
     public void updateNotify(final long doorUID, final boolean notify)
     {
         try(Connection conn = getConnection();)
@@ -2093,7 +2090,7 @@ public class SQLiteJDBCDriverConnection
                 upgradeToV6();
                 conn = getConnectionUnsafe();
             }
-            
+
             if (dbVersion < 7)
                 upgradeToV7(conn);
 
@@ -2163,7 +2160,7 @@ public class SQLiteJDBCDriverConnection
         catch (IOException e)
         {
             plugin.getMyLogger().logMessage("Failed to create backup of the database! "
-                + "Database upgrade aborted and access is disabled!" + Util.exceptionToString(e), true, true);
+                + "Database upgrade aborted and access is disabled!" + Util.throwableToString(e), true, true);
             e.printStackTrace();
             enabled = false;
             return false;
@@ -2655,7 +2652,7 @@ public class SQLiteJDBCDriverConnection
     private void logMessage(String str, Exception e)
     {
         if (!locked.get())
-            plugin.getMyLogger().logMessageToLogFile(str + " " + Util.exceptionToString(e));
+            plugin.getMyLogger().logMessageToLogFile(str + " " + Util.throwableToString(e));
         else if (!validVersion)
             plugin.getMyLogger()
                 .logMessageToLogFile("This version of the database is not supported by this version of the plugin!");

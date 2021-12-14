@@ -152,7 +152,7 @@ public class BigDoors extends JavaPlugin implements Listener
         {
             logger.logMessageToConsoleOnly("Failed to read config file. Plugin disabled!");
             setDisabled("This plugin is disabled because it failed to read config file!");
-            getMyLogger().logMessage(Level.SEVERE, Util.exceptionToString(e));
+            getMyLogger().logMessage(Level.SEVERE, Util.throwableToString(e));
             return;
         }
         updateManager.setEnabled(getConfigLoader().autoDLUpdate(), getConfigLoader().announceUpdateCheck());
@@ -227,7 +227,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (Exception exception)
         {
-            logger.logMessage(Util.exceptionToString(exception), true, true);
+            logger.logMessage(Util.throwableToString(exception), true, true);
             setDisabled(
                 "This plugin is disabled because an unknown error occurred during startup, please check the logs!");
         }
@@ -861,7 +861,7 @@ public class BigDoors extends JavaPlugin implements Listener
         }
         catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e)
         {
-            getMyLogger().logMessage(Util.exceptionToString(e), true, false);
+            getMyLogger().logMessage(Util.throwableToString(e), true, false);
         }
     }
 
