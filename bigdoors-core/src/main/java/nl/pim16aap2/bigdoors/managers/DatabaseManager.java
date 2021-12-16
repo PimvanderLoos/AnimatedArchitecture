@@ -49,7 +49,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     /**
      * The thread pool to use for storage access.
      */
-    private final ExecutorService threadPool;
+    private volatile ExecutorService threadPool;
 
     /**
      * The number of threads to use for storage access.
@@ -82,7 +82,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         this.doorRegistry = doorRegistry;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
-        threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
+        initThreadPool();
         debugReporter.registerDebuggable(this);
     }
 
@@ -99,15 +99,19 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     @Override
     public void restart()
     {
-        // TODO: Implement this
-        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
+        shutdown();
+        initThreadPool();
     }
 
     @Override
     public void shutdown()
     {
-        // TODO: Implement this
-        throw new UnsupportedOperationException("NOT IMPLEMENTED!");
+        threadPool.shutdownNow();
+    }
+
+    private void initThreadPool()
+    {
+        this.threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
     /**
