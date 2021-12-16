@@ -658,6 +658,8 @@ public final class Util
      */
     public static String toString(Object... entries)
     {
+        if (entries.length == 1 && entries[0] instanceof Collection<?>)
+            return toString((Collection<?>) entries[0]);
         return toString(Arrays.asList(entries));
     }
 

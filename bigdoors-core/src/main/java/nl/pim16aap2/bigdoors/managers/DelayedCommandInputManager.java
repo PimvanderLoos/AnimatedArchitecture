@@ -107,7 +107,7 @@ public class DelayedCommandInputManager implements IDebuggable
     public @Nullable String getDebugInformation()
     {
         final StringBuilder sb = new StringBuilder(
-            String.format("  There are currently %d delayed command input requests active:", requests.size()))
+            String.format("There are currently %d delayed command input requests active:", requests.size()))
             .append('\n');
 
         for (final DelayedCommandInputRequest<?> inputRequest : requests.values())

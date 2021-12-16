@@ -57,14 +57,15 @@ public class DebugReporterSpigot extends DebugReporter
         return new StringBuilder()
             // Try to use the platform's version first because that might contain more information (build id etc.)
             // But if that's not available, use the JavaPlugin's version instead.
-            .append("BigDoors version: ").append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion))
+            .append("BigDoors version: ").append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion)
+                                                                 .orElse("NULL"))
             .append('\n')
             .append("Server version: ").append(Bukkit.getServer().getVersion())
             .append('\n')
             .append("Registered door types: ")
             .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
             .append('\n')
-            .append("Disabled door types:   ")
+            .append("Disabled door types: ")
             .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
 
             .append('\n')
