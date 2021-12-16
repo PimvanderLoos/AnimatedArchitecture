@@ -4,6 +4,8 @@ import dagger.Lazy;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -42,7 +44,7 @@ import java.util.logging.Level;
  */
 @Singleton
 @Flogger
-public final class DatabaseManager extends Restartable
+public final class DatabaseManager extends Restartable implements IDebuggable
 {
     /**
      * The thread pool to use for storage access.
@@ -72,7 +74,7 @@ public final class DatabaseManager extends Restartable
     @Inject
     public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
                            Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
-                           IDoorEventCaller doorEventCaller)
+                           IDoorEventCaller doorEventCaller, DebugReporter debugReporter)
     {
         super(restartableHolder);
         db = storage;
@@ -81,6 +83,7 @@ public final class DatabaseManager extends Restartable
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
+        debugReporter.registerDebuggable(this);
     }
 
     /**
@@ -665,6 +668,12 @@ public final class DatabaseManager extends Restartable
     {
         return CompletableFuture.supplyAsync(() -> db.getPowerBlockData(chunkId), threadPool)
                                 .exceptionally(ex -> Util.exceptionally(ex, new ConcurrentHashMap<>(0)));
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Database status: " + threadPool;
     }
 
     /**
