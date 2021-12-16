@@ -42,6 +42,7 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
             final String majorVersion = version.substring(0, 2);
             switch (majorVersion)
             {
+            case "20": // Version 3 can sometimes be reported as "20.03.28", apparently?
             case "3.":
                 return PlotSquared3ProtectionCompat.class;
             case "4.":
