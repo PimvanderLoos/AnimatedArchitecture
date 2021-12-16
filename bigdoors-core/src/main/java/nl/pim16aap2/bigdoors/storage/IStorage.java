@@ -35,13 +35,6 @@ public interface IStorage
     }
 
     /**
-     * Checks if this storage type only allows single threaded access or not.
-     *
-     * @return True if only single threaded access is allowed.
-     */
-    boolean isSingleThreaded();
-
-    /**
      * Delete the door with the given doorUID from the database.
      *
      * @param doorUID

@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -36,8 +37,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.sqlite.SQLiteConfig;
 
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -529,14 +530,8 @@ public class SQLiteJDBCDriverConnectionTest
      */
     private void initStorage()
     {
-        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseBuilder, doorRegistry, doorTypeManager, worldFactory);
-
-        // Set SQLiteConfig.SynchronousMode to OFF to increase speed.
-        // More info:
-        // https://www.javadoc.io/static/org.xerial/sqlite-jdbc/3.15.1/org/sqlite/SQLiteConfig.html#enableShortColumnNames-boolean-
-        // https://www.sqlite.org/pragma.html#pragma_synchronous
-        storage.getConfigRW().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
-        storage.getConfigRO().setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+        storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseBuilder, doorRegistry, doorTypeManager, worldFactory,
+                                                 Mockito.mock(DebugReporter.class));
     }
 
     private void initDoors()

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
@@ -56,16 +58,11 @@ import java.util.logging.Level;
  */
 @Singleton
 @Flogger
-public final class SQLiteJDBCDriverConnection implements IStorage
+public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 {
     private static final String DRIVER = "org.sqlite.JDBC";
     private static final int DATABASE_VERSION = 12;
     private static final int MIN_DATABASE_VERSION = 10;
-
-    @Getter
-    private final SQLiteConfig configRW;
-    @Getter
-    private final SQLiteConfig configRO;
 
     /**
      * A fake UUID that cannot exist normally. To be used for storing transient data across server restarts.
@@ -77,11 +74,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      * The database file.
      */
     private final Path dbFile;
-
-    /**
-     * The URL of the database.
-     */
-    private final String url;
 
     /**
      * The {@link DatabaseState} the database is in.
@@ -101,6 +93,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage
 
     private final IPWorldFactory worldFactory;
 
+    private @Nullable Connection connection;
+
     /**
      * Constructor of the SQLite driver connection.
      *
@@ -110,7 +104,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @Inject
     public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder,
                                       DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
-                                      IPWorldFactory worldFactory)
+                                      IPWorldFactory worldFactory, DebugReporter debugReporter)
     {
         this.dbFile = dbFile;
         this.doorBaseBuilder = doorBaseBuilder;
@@ -118,23 +112,25 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         this.doorTypeManager = doorTypeManager;
         this.worldFactory = worldFactory;
 
-        configRW = new SQLiteConfig();
-        configRW.enforceForeignKeys(true);
-
-        configRO = new SQLiteConfig(configRW.toProperties());
-        configRO.setReadOnly(true);
-
-        url = "jdbc:sqlite:" + dbFile;
-        if (!loadDriver())
+        try
         {
-            log.at(Level.WARNING).log("Failed to load database driver!");
-            databaseState = DatabaseState.NO_DRIVER;
-            return;
+            if (!loadDriver())
+            {
+                log.at(Level.WARNING).log("Failed to load database driver!");
+                databaseState = DatabaseState.NO_DRIVER;
+                return;
+            }
+            init();
+            log.at(Level.FINE).log("Database initialized! Current state: %s", databaseState);
+            if (databaseState == DatabaseState.OUT_OF_DATE)
+                upgrade();
         }
-        init();
-        log.at(Level.FINE).log("Database initialized! Current state: %s", databaseState);
-        if (databaseState == DatabaseState.OUT_OF_DATE)
-            upgrade();
+        catch (Exception e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to initialize database!");
+            databaseState = DatabaseState.ERROR;
+        }
+        debugReporter.registerDebuggable(this);
     }
 
     /**
@@ -156,22 +152,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         return false;
     }
 
-    @Override
-    public boolean isSingleThreaded()
-    {
-        return true;
-    }
-
     /**
      * Establishes a connection with the database.
      *
      * @param state
      *     The state from which the connection was requested.
-     * @param readMode
-     *     The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
-    private @Nullable Connection getConnection(DatabaseState state, ReadMode readMode)
+    private @Nullable Connection getConnection(DatabaseState state)
     {
         if (!databaseState.equals(state))
         {
@@ -182,31 +170,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return null;
         }
 
-        @Nullable Connection conn = null;
-        try
-        {
-            final SQLiteConfig config = readMode == ReadMode.READ_ONLY ? configRO : configRW;
-            conn = config.createConnection(url);
-        }
-        catch (SQLException e)
-        {
-            log.at(Level.SEVERE).withCause(e).log("Failed to open connection!");
-        }
-        if (conn == null)
-            log.at(Level.SEVERE).withCause(new NullPointerException("Could not open connection!")).log();
-        return conn;
+        return connection;
     }
 
     /**
      * Establishes a connection with the database, assuming a database state of {@link DatabaseState#OK}.
      *
-     * @param readMode
-     *     The {@link ReadMode} to use for the database.
      * @return A database connection.
      */
-    private @Nullable Connection getConnection(ReadMode readMode)
+    private @Nullable Connection getConnection()
     {
-        return getConnection(DatabaseState.OK, readMode);
+        return getConnection(DatabaseState.OK);
     }
 
     /**
@@ -240,10 +214,20 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         SQLStatement.LEGACY_ALTER_TABLE_OFF.constructPPreparedStatement().construct(conn).execute();
     }
 
+    private @Nullable Connection openConnection()
+        throws SQLException
+    {
+        final SQLiteConfig configRW = new SQLiteConfig();
+        configRW.enforceForeignKeys(true);
+
+        final String url = "jdbc:sqlite:" + dbFile;
+        return configRW.createConnection(url);
+    }
+
     /**
      * Initializes the database. I.e. create all the required files/tables.
      */
-    private void init()
+    private synchronized void init()
     {
         try
         {
@@ -262,19 +246,33 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return;
         }
 
-        // Table creation
-        try (@Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED, ReadMode.READ_WRITE))
+        try
         {
+            this.connection = openConnection();
+        }
+        catch (SQLException e)
+        {
+            log.at(Level.SEVERE).withCause(e).log("Failed to open SQLite connections!");
+            return;
+        }
+
+        // Table creation
+        try
+        {
+            final @Nullable Connection conn = getConnection(DatabaseState.UNINITIALIZED);
             if (conn == null)
             {
                 databaseState = DatabaseState.ERROR;
                 return;
             }
 
-            // Check if the doors table already exists. If it does, assume the rest exists
+            // Check if the "doors" table already exists. If it does, assume the rest exists
             // as well and don't set it up.
             if (conn.getMetaData().getTables(null, null, "DoorBase", new String[]{"TABLE"}).next())
-                databaseState = DatabaseState.OUT_OF_DATE; // Assume it's outdated if it isn't newly created.
+            {
+                databaseState = DatabaseState.OUT_OF_DATE;
+                verifyDatabaseVersion(conn);
+            }
             else
             {
                 executeUpdate(conn, SQLStatement.CREATE_TABLE_PLAYER.constructPPreparedStatement());
@@ -289,7 +287,6 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 updateDBVersion(conn);
                 databaseState = DatabaseState.OK;
             }
-
         }
         catch (SQLException | NullPointerException e)
         {
@@ -836,25 +833,27 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             return dbVersion;
         }
 
-        if (dbVersion == DATABASE_VERSION)
-        {
-            databaseState = DatabaseState.OK;
-        }
-
-        if (dbVersion < MIN_DATABASE_VERSION)
-        {
-            log.at(Level.SEVERE)
-               .log("Trying to load database version %s while the minimum allowed version is %s",
-                    dbVersion, MIN_DATABASE_VERSION);
-            databaseState = DatabaseState.TOO_OLD;
-        }
-
         if (dbVersion > DATABASE_VERSION)
         {
             log.at(Level.SEVERE)
                .log("Trying to load database version %s while the maximum allowed version is %s",
                     dbVersion, DATABASE_VERSION);
             databaseState = DatabaseState.TOO_NEW;
+        }
+        else if (dbVersion < MIN_DATABASE_VERSION)
+        {
+            log.at(Level.SEVERE)
+               .log("Trying to load database version %s while the minimum allowed version is %s",
+                    dbVersion, MIN_DATABASE_VERSION);
+            databaseState = DatabaseState.TOO_OLD;
+        }
+        else if (dbVersion < DATABASE_VERSION)
+        {
+            databaseState = DatabaseState.OUT_OF_DATE;
+        }
+        else
+        {
+            databaseState = DatabaseState.OK;
         }
         return dbVersion;
     }
@@ -864,36 +863,32 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private void upgrade()
     {
-        @Nullable Connection conn;
         try
         {
-            conn = getConnection(DatabaseState.OUT_OF_DATE, ReadMode.READ_WRITE);
+            final @Nullable Connection conn = getConnection(DatabaseState.OUT_OF_DATE);
             if (conn == null)
+            {
+                log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+                   .log("Failed to upgrade database: Connection unavailable!");
+                databaseState = DatabaseState.ERROR;
                 return;
+            }
 
             final int dbVersion = verifyDatabaseVersion(conn);
-            if (databaseState != DatabaseState.OUT_OF_DATE)
-                return;
-
             log.at(Level.FINE).log("Upgrading database from version %d to version %d.", dbVersion, DATABASE_VERSION);
 
-            conn.close();
             if (!makeBackup())
-                return;
-            conn = getConnection(DatabaseState.OUT_OF_DATE, ReadMode.READ_WRITE);
-            if (conn == null)
                 return;
 
             if (dbVersion < 11)
                 throw new IllegalStateException("Database version " + dbVersion + " is not supported!");
 
-            // Do this at the very end, so the db version isn't altered if anything fails.
             updateDBVersion(conn);
             databaseState = DatabaseState.OK;
         }
-        catch (SQLException | NullPointerException e)
+        catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to upgrade database!");
             databaseState = DatabaseState.ERROR;
         }
     }
@@ -948,8 +943,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      */
     private int executeUpdate(PPreparedStatement pPreparedStatement)
     {
-        try (@Nullable Connection conn = getConnection(ReadMode.READ_WRITE))
+        try
         {
+            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
                 logStatement(pPreparedStatement);
@@ -957,9 +953,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             return executeUpdate(conn, pPreparedStatement);
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -982,7 +978,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (SQLException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -998,8 +994,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     @SuppressWarnings("unused")
     private int executeUpdateReturnGeneratedKeys(PPreparedStatement pPreparedStatement)
     {
-        try (@Nullable Connection conn = getConnection(ReadMode.READ_WRITE))
+        try
         {
+            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
                 logStatement(pPreparedStatement);
@@ -1007,9 +1004,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             return executeUpdateReturnGeneratedKeys(conn, pPreparedStatement);
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1036,12 +1033,13 @@ public final class SQLiteJDBCDriverConnection implements IStorage
             }
             catch (SQLException ex)
             {
-                log.at(Level.SEVERE).withCause(ex).log();
+                log.at(Level.SEVERE).withCause(ex)
+                   .log("Failed to get generated key for statement: %s", pPreparedStatement);
             }
         }
         catch (SQLException e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute update: %s", pPreparedStatement);
         }
         return -1;
     }
@@ -1064,8 +1062,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                                          CheckedFunction<ResultSet, T, Exception> fun,
                                          @Nullable T fallback)
     {
-        try (@Nullable Connection conn = getConnection(ReadMode.READ_ONLY))
+        try
         {
+            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
                 logStatement(pPreparedStatement);
@@ -1075,7 +1074,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1089,19 +1088,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *     The function to apply to the {@link ResultSet}.
      * @param fallback
      *     The value to return in case the result is null or if an error occurred.
-     * @param readMode
-     *     The {@link ReadMode} to use for the database.
      * @param <T>
      *     The type of the result to return.
      * @return The {@link ResultSet} of the query, or null in case an error occurred.
      */
-    @SuppressWarnings("unused") @Contract(" _, _, !null ,_ -> !null;")
+    @SuppressWarnings("unused") @Contract(" _, _, !null -> !null;")
     private @Nullable <T> T executeBatchQuery(PPreparedStatement pPreparedStatement,
-                                              CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback,
-                                              ReadMode readMode)
+                                              CheckedFunction<ResultSet, T, Exception> fun, @Nullable T fallback)
     {
-        try (@Nullable Connection conn = getConnection(readMode))
+        try
         {
+            final @Nullable Connection conn = getConnection();
             if (conn == null)
             {
                 logStatement(pPreparedStatement);
@@ -1115,7 +1112,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute batch query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1147,7 +1144,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
         }
         catch (Exception e)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(e).log("Failed to execute query: %s", pPreparedStatement);
         }
         return fallback;
     }
@@ -1159,17 +1156,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *     The function to execute.
      * @param fallback
      *     The fallback value to return in case of failure.
-     * @param readMode
-     *     The {@link ReadMode} to use for the database.
      * @param <T>
      *     The type of the result to return.
      * @return The result of the Function.
      */
-    @SuppressWarnings("unused") @Contract(" _, !null, _  -> !null")
-    private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
-                                    ReadMode readMode)
+    @SuppressWarnings("unused") @Contract(" _, !null  -> !null")
+    private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback)
     {
-        return execute(fun, fallback, FailureAction.IGNORE, readMode);
+        return execute(fun, fallback, FailureAction.IGNORE);
     }
 
     /**
@@ -1181,18 +1175,17 @@ public final class SQLiteJDBCDriverConnection implements IStorage
      *     The fallback value to return in case of failure.
      * @param failureAction
      *     The action to take when an exception is caught.
-     * @param readMode
-     *     The {@link ReadMode} to use for the database.
      * @param <T>
      *     The type of the result to return.
      * @return The result of the Function.
      */
-    @Contract(" _, !null, _, _ -> !null")
+    @Contract(" _, !null, _ -> !null")
     private @Nullable <T> T execute(CheckedFunction<Connection, T, Exception> fun, @Nullable T fallback,
-                                    FailureAction failureAction, ReadMode readMode)
+                                    FailureAction failureAction)
     {
-        try (@Nullable Connection conn = getConnection(readMode))
+        try
         {
+            final @Nullable Connection conn = getConnection();
             try
             {
                 if (conn == null)
@@ -1235,7 +1228,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage
                 final T result = fun.apply(conn);
                 conn.commit();
                 return result;
-            }, fallback, FailureAction.ROLLBACK, ReadMode.READ_WRITE);
+            }, fallback, FailureAction.ROLLBACK);
     }
 
     /**
@@ -1247,6 +1240,14 @@ public final class SQLiteJDBCDriverConnection implements IStorage
     private void logStatement(PPreparedStatement pPreparedStatement)
     {
         log.at(Level.FINEST).log("Executed statement: %s", pPreparedStatement);
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Database state: " + databaseState.name() +
+            "\nDatabase version: " + DATABASE_VERSION +
+            "\nDatabase file: " + dbFile;
     }
 
     /**
@@ -1263,24 +1264,5 @@ public final class SQLiteJDBCDriverConnection implements IStorage
          * Attempt to roll back the database when an exception is caught.
          */
         ROLLBACK,
-    }
-
-    /**
-     * Represents a reading mode for the database file.
-     * <p>
-     * Restricting the read mode to read only may result in better performance at the cost of the ability to write to
-     * the database.
-     */
-    private enum ReadMode
-    {
-        /**
-         * Allows writing to the database, at a performance cost.
-         */
-        READ_WRITE,
-
-        /**
-         * Does not allow writing to the database (surprise!), but may result in better performance.
-         */
-        READ_ONLY,
     }
 }

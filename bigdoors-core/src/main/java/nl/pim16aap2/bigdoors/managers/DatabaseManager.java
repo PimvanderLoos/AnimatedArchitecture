@@ -50,10 +50,9 @@ public final class DatabaseManager extends Restartable
     private final ExecutorService threadPool;
 
     /**
-     * The number of threads to use for storage access if the storage allows multithreaded access as determined by
-     * {@link IStorage#isSingleThreaded()}.
+     * The number of threads to use for storage access.
      */
-    private static final int THREAD_COUNT = 10;
+    private static final int THREAD_COUNT = 16;
 
     private final IStorage db;
 
@@ -81,11 +80,7 @@ public final class DatabaseManager extends Restartable
         this.doorRegistry = doorRegistry;
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
-
-        if (db.isSingleThreaded())
-            threadPool = Executors.newSingleThreadExecutor();
-        else
-            threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
+        threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
     }
 
     /**
