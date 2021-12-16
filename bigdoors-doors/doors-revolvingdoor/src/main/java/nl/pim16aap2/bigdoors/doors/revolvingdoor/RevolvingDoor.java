@@ -73,7 +73,7 @@ public class RevolvingDoor extends AbstractDoor
             return Optional.empty();
         }
 
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
+        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
     }
 
     @Override

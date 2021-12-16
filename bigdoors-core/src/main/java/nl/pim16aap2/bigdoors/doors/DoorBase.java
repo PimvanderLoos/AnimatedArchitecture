@@ -57,7 +57,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     private final IPWorld world;
 
     @Getter
-    private Vector3Di engine;
+    private Vector3Di rotationPoint;
 
     @Getter
     private Vector3Di powerBlock;
@@ -131,7 +131,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
 
     @AssistedInject //
     DoorBase(@Assisted long doorUID, @Assisted String name, @Assisted Cuboid cuboid,
-             @Assisted("engine") Vector3Di engine, @Assisted("powerBlock") Vector3Di powerBlock,
+             @Assisted("rotationPoint") Vector3Di rotationPoint, @Assisted("powerBlock") Vector3Di powerBlock,
              @Assisted IPWorld world, @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
              @Assisted RotateDirection openDir, @Assisted DoorOwner primeOwner,
              @Assisted @Nullable Map<UUID, DoorOwner> doorOwners, ILocalizer localizer,
@@ -144,7 +144,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         this.doorUID = doorUID;
         this.name = name;
         this.cuboid = cuboid;
-        this.engine = engine;
+        this.rotationPoint = rotationPoint;
         this.powerBlock = powerBlock;
         this.world = world;
         this.isOpen = isOpen;
@@ -180,7 +180,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
         doorUID = other.doorUID;
         name = other.name;
         cuboid = other.cuboid;
-        engine = other.engine;
+        rotationPoint = other.rotationPoint;
         powerBlock = other.powerBlock;
         world = other.world;
         isOpen = other.isOpen;
@@ -373,9 +373,9 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     }
 
     @Override
-    public synchronized void setEngine(Vector3Di pos)
+    public synchronized void setRotationPoint(Vector3Di pos)
     {
-        engine = pos;
+        rotationPoint = pos;
     }
 
     @Override
@@ -454,8 +454,8 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     {
         return doorUID + ": " + name + "\n"
             + formatLine("Cuboid", getCuboid())
-            + formatLine("Engine", getEngine())
-            + formatLine("PowerBlock position: ", getPowerBlock())
+            + formatLine("Rotation Point", this.getRotationPoint())
+            + formatLine("PowerBlock Position: ", getPowerBlock())
             + formatLine("PowerBlock Hash: ", getChunkId())
             + formatLine("World", getWorld())
             + "This door is " + (isLocked ? "" : "NOT ") + "locked.\n"
@@ -472,7 +472,7 @@ public final class DoorBase extends DatabaseManager.FriendDoorAccessor implement
     @AssistedFactory
     public interface IFactory
     {
-        DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("engine") Vector3Di engine,
+        DoorBase create(long doorUID, String name, Cuboid cuboid, @Assisted("rotationPoint") Vector3Di rotationPoint,
                         @Assisted("powerBlock") Vector3Di powerBlock, @Assisted IPWorld world,
                         @Assisted("isOpen") boolean isOpen, @Assisted("isLocked") boolean isLocked,
                         RotateDirection openDir, DoorOwner primeOwner, @Nullable Map<UUID, DoorOwner> doorOwners);

@@ -37,7 +37,7 @@ public class CreatorFlag extends Creator
         return Arrays.asList(factorySetName.construct(),
                              factorySetFirstPos.messageKey("creator.flag.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.flag.step_2").construct(),
-                             factorySetEnginePos.messageKey("creator.flag.step_3").construct(),
+                             factorySetRotationPointPos.messageKey("creator.flag.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
                              factoryConfirmPrice.construct(),
                              factoryCompleteProcess.messageKey("creator.flag.success").construct());
@@ -71,14 +71,14 @@ public class CreatorFlag extends Creator
     }
 
     @Override
-    protected boolean completeSetEngineStep(IPLocation loc)
+    protected boolean completeSetRotationPointStep(IPLocation loc)
     {
         Util.requireNonNull(cuboid, "cuboid");
         // For flags, the rotation point has to be a corner of the total area.
         // It doesn't make sense to have it in the middle or something; that's now how flags work.
         if ((loc.getBlockX() == cuboid.getMin().x() || loc.getBlockX() == cuboid.getMax().x()) &&
             (loc.getBlockZ() == cuboid.getMin().z() || loc.getBlockZ() == cuboid.getMax().z()))
-            return super.completeSetEngineStep(loc);
+            return super.completeSetRotationPointStep(loc);
 
         getPlayer().sendMessage(localizer.getMessage("creator.base.position_not_in_corner"));
         return false;
@@ -88,11 +88,11 @@ public class CreatorFlag extends Creator
     protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
-        Util.requireNonNull(engine, "engine");
+        Util.requireNonNull(rotationPoint, "rotationPoint");
         if (northSouthAligned)
-            openDir = engine.z() == cuboid.getMin().z() ? RotateDirection.SOUTH : RotateDirection.NORTH;
+            openDir = rotationPoint.z() == cuboid.getMin().z() ? RotateDirection.SOUTH : RotateDirection.NORTH;
         else
-            openDir = engine.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
+            openDir = rotationPoint.x() == cuboid.getMin().x() ? RotateDirection.EAST : RotateDirection.WEST;
 
         return new Flag(constructDoorData(), northSouthAligned);
     }

@@ -218,11 +218,11 @@ public interface IStorage
     ConcurrentHashMap<Integer, List<Long>> getPowerBlockData(long chunkId);
 
     /**
-     * Gets a list of door UIDs that have their engine in a given chunk.
+     * Gets a list of door UIDs that have their rotation point in a given chunk.
      *
      * @param chunkId
      *     The id of the chunk the doors are in.
-     * @return A list of door UIDs that have their engine in a given chunk.
+     * @return A list of door UIDs that have their rotation point in a given chunk.
      */
     List<Long> getDoorsInChunk(long chunkId);
 

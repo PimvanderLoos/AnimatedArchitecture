@@ -166,8 +166,8 @@ public interface IGlowingBlockSpawner
 
         spawnGlowingBlock(player, world, 15, abstractDoor.getPowerBlock().x(), abstractDoor.getPowerBlock().y(),
                           abstractDoor.getPowerBlock().z(), PColor.GOLD);
-        spawnGlowingBlock(player, world, 15, abstractDoor.getEngine().x(), abstractDoor.getEngine().y(),
-                          abstractDoor.getEngine().z(), PColor.DARK_PURPLE);
+        spawnGlowingBlock(player, world, 15, abstractDoor.getRotationPoint().x(), abstractDoor.getRotationPoint().y(),
+                          abstractDoor.getRotationPoint().z(), PColor.DARK_PURPLE);
         spawnGlowingBlock(player, world, 15, abstractDoor.getMinimum().x(), abstractDoor.getMinimum().y(),
                           abstractDoor.getMinimum().z(), PColor.BLUE);
         spawnGlowingBlock(player, world, 15, abstractDoor.getMaximum().x(), abstractDoor.getMaximum().y(),

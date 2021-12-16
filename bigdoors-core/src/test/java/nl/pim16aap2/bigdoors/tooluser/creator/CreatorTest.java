@@ -302,7 +302,7 @@ class CreatorTest
     }
 
     @Test
-    void testCompleteSetEngineStep()
+    void testCompleteSetRotationPointStep()
     {
         final IPWorld world = getWorld();
 
@@ -315,18 +315,18 @@ class CreatorTest
 
 
         // World mismatch, so not allowed
-        Assertions.assertFalse(creator.completeSetEngineStep(getLocation(1, 1, 1)));
+        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1)));
 
         Mockito.doReturn(false).when(creator).playerHasAccessToLocation(Mockito.any());
         // Location not allowed
-        Assertions.assertFalse(creator.completeSetEngineStep(getLocation(1, 1, 1, world)));
+        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1, world)));
 
         Mockito.doReturn(true).when(creator).playerHasAccessToLocation(Mockito.any());
         // Point too far away
-        Assertions.assertFalse(creator.completeSetEngineStep(getLocation(1, 1, 1, world)));
+        Assertions.assertFalse(creator.completeSetRotationPointStep(getLocation(1, 1, 1, world)));
         Mockito.verify(player).sendMessage("creator.base.error.invalid_rotation_point");
 
-        Assertions.assertTrue(creator.completeSetEngineStep(getLocation(11, 21, 31, world)));
+        Assertions.assertTrue(creator.completeSetRotationPointStep(getLocation(11, 21, 31, world)));
     }
 
     @SneakyThrows

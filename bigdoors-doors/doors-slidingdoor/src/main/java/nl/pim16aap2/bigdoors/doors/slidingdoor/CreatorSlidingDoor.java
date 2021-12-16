@@ -78,7 +78,7 @@ public class CreatorSlidingDoor extends Creator
     protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
-        engine = cuboid.getCenterBlock();
+        rotationPoint = cuboid.getCenterBlock();
         return new SlidingDoor(constructDoorData(), blocksToMove);
     }
 

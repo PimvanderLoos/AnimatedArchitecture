@@ -330,9 +330,9 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
         final Vector3Di max = new Vector3Di(doorBaseRS.getInt("xMax"),
                                             doorBaseRS.getInt("yMax"),
                                             doorBaseRS.getInt("zMax"));
-        final Vector3Di engine = new Vector3Di(doorBaseRS.getInt("engineX"),
-                                               doorBaseRS.getInt("engineY"),
-                                               doorBaseRS.getInt("engineZ"));
+        final Vector3Di rotationPoint = new Vector3Di(doorBaseRS.getInt("rotationPointX"),
+                                                      doorBaseRS.getInt("rotationPointY"),
+                                                      doorBaseRS.getInt("rotationPointZ"));
         final Vector3Di powerBlock = new Vector3Di(doorBaseRS.getInt("powerBlockX"),
                                                    doorBaseRS.getInt("powerBlockY"),
                                                    doorBaseRS.getInt("powerBlockZ"));
@@ -357,7 +357,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
 
         final Map<UUID, DoorOwner> doorOwners = getOwnersOfDoor(doorUID);
         final DoorBase doorData = doorBaseBuilder.builder().uid(doorUID).name(name).cuboid(new Cuboid(min, max))
-                                                 .engine(engine).powerBlock(powerBlock).world(world).isOpen(isOpen)
+                                                 .rotationPoint(rotationPoint).powerBlock(powerBlock).world(world)
+                                                 .isOpen(isOpen)
                                                  .isLocked(isLocked).openDir(openDirection.get()).primeOwner(primeOwner)
                                                  .doorOwners(doorOwners).build();
 
@@ -393,10 +394,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                                          .setNextInt(door.getMaximum().x())
                                                          .setNextInt(door.getMaximum().y())
                                                          .setNextInt(door.getMaximum().z())
-                                                         .setNextInt(door.getEngine().x())
-                                                         .setNextInt(door.getEngine().y())
-                                                         .setNextInt(door.getEngine().z())
-                                                         .setNextLong(Util.getChunkId(door.getEngine()))
+                                                         .setNextInt(door.getRotationPoint().x())
+                                                         .setNextInt(door.getRotationPoint().y())
+                                                         .setNextInt(door.getRotationPoint().z())
+                                                         .setNextLong(Util.getChunkId(door.getRotationPoint()))
                                                          .setNextInt(door.getPowerBlock().x())
                                                          .setNextInt(door.getPowerBlock().y())
                                                          .setNextInt(door.getPowerBlock().z())
@@ -431,7 +432,8 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             if (doorUID > 0)
                 return Optional.of(serializer.deserialize(
                     doorBaseBuilder.builder().uid(doorUID).name(door.getName()).cuboid(door.getCuboid())
-                                   .engine(door.getEngine()).powerBlock(door.getPowerBlock()).world(door.getWorld())
+                                   .rotationPoint(door.getRotationPoint()).powerBlock(door.getPowerBlock())
+                                   .world(door.getWorld())
                                    .isOpen(door.isOpen()).isLocked(door.isLocked()).openDir(door.getOpenDir())
                                    .primeOwner(door.getPrimeOwner()).build(), typeData));
         }
@@ -458,10 +460,10 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
                                  .setNextInt(doorBase.getCuboid().getMax().y())
                                  .setNextInt(doorBase.getCuboid().getMax().z())
 
-                                 .setNextInt(doorBase.getEngine().x())
-                                 .setNextInt(doorBase.getEngine().y())
-                                 .setNextInt(doorBase.getEngine().z())
-                                 .setNextLong(Util.getChunkId(doorBase.getEngine()))
+                                 .setNextInt(doorBase.getRotationPoint().x())
+                                 .setNextInt(doorBase.getRotationPoint().y())
+                                 .setNextInt(doorBase.getRotationPoint().z())
+                                 .setNextLong(Util.getChunkId(doorBase.getRotationPoint()))
 
                                  .setNextInt(doorBase.getPowerBlock().x())
                                  .setNextInt(doorBase.getPowerBlock().y())

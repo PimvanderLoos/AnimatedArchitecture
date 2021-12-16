@@ -356,9 +356,9 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public void setEngine(Vector3Di pos)
+    public void setRotationPoint(Vector3Di pos)
     {
-        doorBase.setEngine(pos);
+        doorBase.setRotationPoint(pos);
     }
 
     @Override
@@ -416,9 +416,9 @@ public abstract class AbstractDoor implements IDoor
     }
 
     @Override
-    public Vector3Di getEngine()
+    public Vector3Di getRotationPoint()
     {
-        return doorBase.getEngine();
+        return doorBase.getRotationPoint();
     }
 
     @Override

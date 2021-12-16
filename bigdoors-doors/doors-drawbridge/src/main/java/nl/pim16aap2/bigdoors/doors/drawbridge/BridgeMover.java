@@ -56,7 +56,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
 
         northSouth = door.isNorthSouthAligned();
-        rotationCenter = door.getEngine().toDouble().add(0.5, 0, 0.5);
+        rotationCenter = door.getRotationPoint().toDouble().add(0.5, 0, 0.5);
 
         final int xLen = Math.abs(door.getMaximum().x() - door.getMinimum().x());
         final int yLen = Math.abs(door.getMaximum().y() - door.getMinimum().y());
@@ -140,9 +140,10 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
-        // When the engine is positioned along the NS axis, the Z values does not change.
-        final double deltaA = (double) door.getEngine().y() - yAxis;
-        final double deltaB = northSouth ? (door.getEngine().x() - xAxis) : (door.getEngine().z() - zAxis);
+        // When the rotation point is positioned along the NS axis, the Z values does not change.
+        final double deltaA = (double) door.getRotationPoint().y() - yAxis;
+        final double deltaB =
+            northSouth ? (door.getRotationPoint().x() - xAxis) : (door.getRotationPoint().z() - zAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -156,9 +157,9 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
-        // When the engine is positioned along the NS axis, the Z values does not change.
-        final double deltaA = northSouth ? door.getEngine().x() - xAxis : door.getEngine().z() - zAxis;
-        final double deltaB = (double) door.getEngine().y() - yAxis;
+        // When the rotation point is positioned along the NS axis, the Z values does not change.
+        final double deltaA = northSouth ? door.getRotationPoint().x() - xAxis : door.getRotationPoint().z() - zAxis;
+        final double deltaB = (double) door.getRotationPoint().y() - yAxis;
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }
 }

@@ -62,9 +62,10 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     protected float getRadius(int xAxis, int yAxis, int zAxis)
     {
         // Get the current radius of a block between used axis (either x and y, or z and y).
-        // When the engine is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = (double) door.getEngine().y() - yAxis;
-        final double deltaB = northSouth ? (door.getEngine().z() - zAxis) : (door.getEngine().x() - xAxis);
+        // When the rotation point is positioned along the NS axis, the X values does not change for this type.
+        final double deltaA = (double) door.getRotationPoint().y() - yAxis;
+        final double deltaB =
+            northSouth ? (door.getRotationPoint().z() - zAxis) : (door.getRotationPoint().x() - xAxis);
         return (float) Math.sqrt(Math.pow(deltaA, 2) + Math.pow(deltaB, 2));
     }
 
@@ -72,9 +73,9 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     protected float getStartAngle(int xAxis, int yAxis, int zAxis)
     {
         // Get the angle between the used axes (either x and y, or z and y).
-        // When the engine is positioned along the NS axis, the X values does not change for this type.
-        final double deltaA = northSouth ? door.getEngine().z() - zAxis : door.getEngine().x() - xAxis;
-        final double deltaB = (double) door.getEngine().y() - yAxis;
+        // When the rotation point is positioned along the NS axis, the X values does not change for this type.
+        final double deltaA = northSouth ? door.getRotationPoint().z() - zAxis : door.getRotationPoint().x() - xAxis;
+        final double deltaB = (double) door.getRotationPoint().y() - yAxis;
 
         return (float) Util.clampAngleRad(Math.atan2(deltaA, deltaB));
     }

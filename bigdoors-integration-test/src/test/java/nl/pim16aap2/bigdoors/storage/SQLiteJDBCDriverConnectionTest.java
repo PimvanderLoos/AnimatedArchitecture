@@ -538,12 +538,12 @@ public class SQLiteJDBCDriverConnectionTest
     {
         Vector3Di min = new Vector3Di(144, 75, 153);
         Vector3Di max = new Vector3Di(144, 131, 167);
-        Vector3Di engine = new Vector3Di(144, 75, 153);
         Vector3Di powerBlock = new Vector3Di(144, 75, 153);
+        Vector3Di rotationPoint = new Vector3Di(144, 75, 153);
         int autoOpen = 0;
         int autoClose = 0;
         door1 = new BigDoor(doorBaseBuilder.builder()
-                                           .uid(1).name(DOOR_1_NAME).cuboid(min, max).engine(engine)
+                                           .uid(1).name(DOOR_1_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                            .powerBlock(powerBlock)
                                            .world(WORLD).isOpen(false).isLocked(false).openDir(RotateDirection.EAST)
                                            .primeOwner(new DoorOwner(1, 0, PLAYER_DATA_1)).build(),
@@ -552,13 +552,13 @@ public class SQLiteJDBCDriverConnectionTest
 
         min = new Vector3Di(144, 75, 168);
         max = new Vector3Di(144, 131, 182);
-        engine = new Vector3Di(144, 75, 153);
+        rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         autoOpen = 10;
         autoClose = -1;
         boolean modeUp = true;
         door2 = new Drawbridge(doorBaseBuilder.builder()
-                                              .uid(2).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
+                                              .uid(2).name(DOORS_2_3_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.NONE)
                                               .primeOwner(new DoorOwner(2, 0, PLAYER_DATA_1)).build(),
@@ -567,13 +567,13 @@ public class SQLiteJDBCDriverConnectionTest
 
         min = new Vector3Di(144, 70, 168);
         max = new Vector3Di(144, 151, 112);
-        engine = new Vector3Di(144, 75, 153);
+        rotationPoint = new Vector3Di(144, 75, 153);
         powerBlock = new Vector3Di(144, 75, 153);
         autoOpen = 0;
         autoClose = 3;
         int blocksToMove = 8;
         door3 = new Portcullis(doorBaseBuilder.builder()
-                                              .uid(3).name(DOORS_2_3_NAME).cuboid(min, max).engine(engine)
+                                              .uid(3).name(DOORS_2_3_NAME).cuboid(min, max).rotationPoint(rotationPoint)
                                               .powerBlock(powerBlock).world(WORLD).isOpen(false)
                                               .isLocked(false).openDir(RotateDirection.UP)
                                               .primeOwner(new DoorOwner(3, 0, PLAYER_DATA_2)).build(),

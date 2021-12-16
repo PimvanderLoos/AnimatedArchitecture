@@ -76,9 +76,9 @@ public abstract class Creator extends ToolUser
     protected @Nullable Vector3Di firstPos;
 
     /**
-     * The engine position selected by the user.
+     * The position of the rotation point selected by the user.
      */
-    protected @Nullable Vector3Di engine;
+    protected @Nullable Vector3Di rotationPoint;
 
     /**
      * The powerblock selected by the user.
@@ -131,12 +131,12 @@ public abstract class Creator extends ToolUser
     protected Step.Factory factorySetSecondPos;
 
     /**
-     * IFactory for the {@link IStep} that sets the position of the door's engine.
+     * IFactory for the {@link IStep} that sets the position of the door's rotation point.
      * <p>
      * Don't forget to set the message before using it!
      */
     @ToString.Exclude
-    protected Step.Factory factorySetEnginePos;
+    protected Step.Factory factorySetRotationPointPos;
 
     /**
      * IFactory for the {@link IStep} that sets the position of the door's power block.
@@ -204,9 +204,9 @@ public abstract class Creator extends ToolUser
             new Step.Factory(localizer, "SET_SECOND_POS")
                 .stepExecutor(new StepExecutorPLocation(this::setSecondPos));
 
-        factorySetEnginePos =
-            new Step.Factory(localizer, "SET_ENGINE_POS")
-                .stepExecutor(new StepExecutorPLocation(this::completeSetEngineStep));
+        factorySetRotationPointPos =
+            new Step.Factory(localizer, "SET_ROTATION_POINT")
+                .stepExecutor(new StepExecutorPLocation(this::completeSetRotationPointStep));
 
         factorySetPowerBlockPos =
             new Step.Factory(localizer, "SET_POWER_BLOCK_POS")
@@ -248,7 +248,7 @@ public abstract class Creator extends ToolUser
             .uid(doorUID)
             .name(Util.requireNonNull(name, "Name"))
             .cuboid(Util.requireNonNull(cuboid, "cuboid"))
-            .engine(Util.requireNonNull(engine, "engine"))
+            .rotationPoint(Util.requireNonNull(rotationPoint, "rotationPoint"))
             .powerBlock(Util.requireNonNull(powerblock, "powerblock"))
             .world(Util.requireNonNull(world, "world"))
             .isOpen(isOpen)
@@ -581,7 +581,7 @@ public abstract class Creator extends ToolUser
      * that is being created.
      *
      * @param loc
-     *     The selected location of the engine.
+     *     The selected location of the rotation point.
      * @return True if the location of the area was set successfully.
      */
     protected boolean completeSetPowerBlockStep(IPLocation loc)
@@ -618,14 +618,14 @@ public abstract class Creator extends ToolUser
     }
 
     /**
-     * Attempts to complete the step in the {@link Procedure} that sets the location of the engine for the {@link
-     * AbstractDoor} that is being created.
+     * Attempts to complete the step in the {@link Procedure} that sets the location of the rotation point for the
+     * {@link AbstractDoor} that is being created.
      *
      * @param loc
-     *     The selected location of the engine.
-     * @return True if the location of the engine was set successfully.
+     *     The selected location of the rotation point.
+     * @return True if the location of the rotation point was set successfully.
      */
-    protected boolean completeSetEngineStep(IPLocation loc)
+    protected boolean completeSetRotationPointStep(IPLocation loc)
     {
         if (!verifyWorldMatch(loc.getWorld()))
             return false;
@@ -640,7 +640,7 @@ public abstract class Creator extends ToolUser
             return false;
         }
 
-        engine = loc.getPosition();
+        rotationPoint = loc.getPosition();
         return true;
     }
 

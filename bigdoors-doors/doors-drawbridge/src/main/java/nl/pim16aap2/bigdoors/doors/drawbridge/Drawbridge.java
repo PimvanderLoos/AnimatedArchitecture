@@ -43,8 +43,8 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
     protected int autoOpenTime;
 
     /**
-     * Describes if this drawbridge's vertical position points (when taking the engine Y value as center) up <b>(=
-     * TRUE)</b> or down <b>(= FALSE)</b>
+     * Describes if this drawbridge's vertical position points (when taking the rotation point Y value as center) up
+     * <b>(= TRUE)</b> or down <b>(= FALSE)</b>
      *
      * @return True if this {@link Drawbridge}'s vertical stance points up.
      */
@@ -101,9 +101,9 @@ public class Drawbridge extends AbstractDoor implements IHorizontalAxisAligned, 
 
         final Cuboid cuboid = getCuboid();
         if (rotateDirection == RotateDirection.NORTH || rotateDirection == RotateDirection.SOUTH)
-            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getEngine(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundXAxis(getRotationPoint(), angle)));
         else
-            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(getEngine(), angle)));
+            return Optional.of(cuboid.updatePositions(vec -> vec.rotateAroundZAxis(getRotationPoint(), angle)));
     }
 
     @Override

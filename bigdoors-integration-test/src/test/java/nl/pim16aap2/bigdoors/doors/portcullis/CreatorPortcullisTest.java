@@ -23,7 +23,7 @@ class CreatorPortcullisTest extends CreatorTestsUtil
     @Test
     void createPortcullis()
     {
-        engine = new Cuboid(min, max).getCenterBlock();
+        rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 

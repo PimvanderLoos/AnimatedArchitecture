@@ -192,19 +192,19 @@ public interface IDoor
     void setPowerBlockPosition(Vector3Di pos);
 
     /**
-     * Gets the position of the engine of this door.
+     * Gets the position of the rotation point of this door.
      *
-     * @return The position of the engine block of this door.
+     * @return The position of the rotation point block of this door.
      */
-    Vector3Di getEngine();
+    Vector3Di getRotationPoint();
 
     /**
-     * Updates the position of the engine.
+     * Updates the position of the rotation point.
      *
      * @param pos
      *     The new position.
      */
-    void setEngine(Vector3Di pos);
+    void setRotationPoint(Vector3Di pos);
 
     /**
      * Gets the minimum position of this door.

@@ -26,7 +26,7 @@ class CreatorFullTest extends CreatorTestsUtil
     @Test
     void runThroughProcess()
     {
-        engine = new Cuboid(min, max).getCenterBlock();
+        rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
 
         doorType = Mockito.mock(DoorType.class);
@@ -46,7 +46,7 @@ class CreatorFullTest extends CreatorTestsUtil
                      doorName,
                      UnitTestUtil.getLocation(min, world),
                      UnitTestUtil.getLocation(max, world),
-                     UnitTestUtil.getLocation(engine, world),
+                     UnitTestUtil.getLocation(rotationPoint, world),
                      UnitTestUtil.getLocation(powerblock, world),
                      "0",
                      true);
@@ -69,7 +69,7 @@ class CreatorFullTest extends CreatorTestsUtil
             return Arrays.asList(factorySetName.messageKey("CREATOR_BASE_GIVE_NAME").construct(),
                                  factorySetFirstPos.messageKey("CREATOR_BIG_DOOR_STEP1").construct(),
                                  factorySetSecondPos.messageKey("CREATOR_BIG_DOOR_STEP2").construct(),
-                                 factorySetEnginePos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
+                                 factorySetRotationPointPos.messageKey("CREATOR_BIG_DOOR_STEP3").construct(),
                                  factorySetPowerBlockPos.messageKey("CREATOR_BASE_SET_POWER_BLOCK").construct(),
                                  factorySetOpenDir.messageKey("CREATOR_BASE_SET_OPEN_DIR").construct(),
                                  factoryConfirmPrice.messageKey("CREATOR_BASE_CONFIRM_PRICE").construct(),

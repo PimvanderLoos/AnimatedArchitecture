@@ -31,7 +31,7 @@ public class CreatorWindMill extends Creator
         return Arrays.asList(factorySetName.construct(),
                              factorySetFirstPos.messageKey("creator.windmill.step_1").construct(),
                              factorySetSecondPos.messageKey("creator.windmill.step_2").construct(),
-                             factorySetEnginePos.messageKey("creator.windmill.step_3").construct(),
+                             factorySetRotationPointPos.messageKey("creator.windmill.step_3").construct(),
                              factorySetPowerBlockPos.construct(),
                              factorySetOpenDir.construct(),
                              factoryConfirmPrice.construct(),

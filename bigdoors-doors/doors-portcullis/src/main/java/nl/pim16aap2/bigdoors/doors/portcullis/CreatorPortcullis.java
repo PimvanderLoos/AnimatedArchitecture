@@ -78,7 +78,7 @@ public class CreatorPortcullis extends Creator
     protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
-        engine = cuboid.getCenterBlock();
+        rotationPoint = cuboid.getCenterBlock();
         return new Portcullis(constructDoorData(), blocksToMove);
     }
 

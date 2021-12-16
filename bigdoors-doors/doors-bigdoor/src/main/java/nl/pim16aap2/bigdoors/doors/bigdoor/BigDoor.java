@@ -93,7 +93,7 @@ public class BigDoor extends AbstractDoor implements ITimerToggleable
             return Optional.empty();
         }
 
-        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getEngine(), angle)));
+        return Optional.of(getCuboid().updatePositions(vec -> vec.rotateAroundYAxis(getRotationPoint(), angle)));
     }
 
     @Override

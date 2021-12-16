@@ -27,7 +27,7 @@ class CreatorBigDoorTest extends CreatorTestsUtil
                      doorName,
                      min.toLocation(locationFactory, world),
                      max.toLocation(locationFactory, world),
-                     engine.toLocation(locationFactory, world),
+                     rotationPoint.toLocation(locationFactory, world),
                      powerblock.toLocation(locationFactory, world),
                      openDirectionName);
     }

@@ -110,29 +110,29 @@ public class CreatorGarageDoor extends Creator
     }
 
     /**
-     * Calculates the position of the engine. This should be called at the end of the process, as not all variables may
-     * be set at an earlier stage.
+     * Calculates the position of the rotation point. This should be called at the end of the process, as not all
+     * variables may be set at an earlier stage.
      */
-    protected void setEngine()
+    protected void setRotationPoint()
     {
         if (cuboid == null)
             return;
 
         if (!isOpen)
         {
-            engine = cuboid.getMin();
+            rotationPoint = cuboid.getMin();
             return;
         }
 
-        // The engine should be located at the bottom of the garage door.
+        // The rotation point should be located at the bottom of the garage door.
         // An additional 1 is subtracted because garage doors in the 'up' position
         // are 1 block above the highest point.
         final int moveDistance = northSouthAligned ? cuboid.getDimensions().x() : cuboid.getDimensions().z();
-        final int engineY = cuboid.getMin().y() - moveDistance - 1;
-        final Vector3Di engineTmp = cuboid.getCenterBlock();
+        final int rotationPointY = cuboid.getMin().y() - moveDistance - 1;
+        final Vector3Di rotationPointTmp = cuboid.getCenterBlock();
 
-        int newX = engineTmp.x();
-        int newZ = engineTmp.z();
+        int newX = rotationPointTmp.x();
+        int newZ = rotationPointTmp.z();
 
         if (openDir == RotateDirection.NORTH)
             newZ = cuboid.getMax().z() + 1;
@@ -143,13 +143,13 @@ public class CreatorGarageDoor extends Creator
         else if (openDir == RotateDirection.WEST)
             newX = cuboid.getMax().x() + 1;
 
-        engine = new Vector3Di(newX, engineY, newZ);
+        rotationPoint = new Vector3Di(newX, rotationPointY, newZ);
     }
 
     @Override
     protected AbstractDoor constructDoor()
     {
-        setEngine();
+        setRotationPoint();
         return new GarageDoor(constructDoorData(), northSouthAligned);
     }
 

@@ -172,14 +172,14 @@ public abstract class BlockMover implements IRestartable
     }
 
     /**
-     * Plays a sound at the engine of a door.
+     * Plays a sound at the rotation point of a door.
      *
      * @param soundDescription
      *     The {@link PSoundDescription} containing all the properties of the sound to play.
      */
     protected void playSound(PSoundDescription soundDescription)
     {
-        soundEngine.playSound(door.getEngine(), door.getWorld(), soundDescription.sound(),
+        soundEngine.playSound(door.getRotationPoint(), door.getWorld(), soundDescription.sound(),
                               soundDescription.volume(), soundDescription.pitch());
     }
 

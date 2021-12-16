@@ -57,7 +57,7 @@ public class CreatorElevator extends CreatorPortcullis
     protected AbstractDoor constructDoor()
     {
         Util.requireNonNull(cuboid, "cuboid");
-        engine = cuboid.getCenterBlock();
+        rotationPoint = cuboid.getCenterBlock();
         return new Elevator(constructDoorData(), blocksToMove);
     }
 

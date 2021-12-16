@@ -21,10 +21,10 @@ public enum SQLStatement
         xMax           = ?,
         yMax           = ?,
         zMax           = ?,
-        engineX        = ?,
-        engineY        = ?,
-        engineZ        = ?,
-        engineChunkId     = ?,
+        rotationPointX = ?,
+        rotationPointY = ?,
+        rotationPointZ = ?,
+        rotationPointChunkId = ?,
         powerBlockX    = ?,
         powerBlockY    = ?,
         powerBlockZ    = ?,
@@ -32,7 +32,7 @@ public enum SQLStatement
         openDirection  = ?,
         bitflag        = ?,
         typeData       = ?
-        WHERE id = ?;
+        WHERE id       = ?;
         """
     ),
 
@@ -83,10 +83,10 @@ public enum SQLStatement
     ),
 
     /**
-     * Gets all the doors that have their <b>engine</b> in the chunk with the given chunk hash.
+     * Gets all the doors that have their <b>rotationPoint</b> in the chunk with the given chunk hash.
      */
     GET_DOORS_IN_CHUNK(
-        "SELECT * FROM DoorBase WHERE engineChunkId = ?;"
+        "SELECT * FROM DoorBase WHERE rotationPointChunkId = ?;"
     ),
 
     INSERT_OR_IGNORE_PLAYER_DATA(
@@ -170,13 +170,13 @@ public enum SQLStatement
     ),
 
     /**
-     * Obtains the IDs of all doors whose engine's chunk hash value has a certain value.
+     * Obtains the IDs of all doors whose rotationPoint's chunk hash value has a certain value.
      */
     GET_DOOR_IDS_IN_CHUNK(
         """
         SELECT DoorBase.id
         FROM DoorBase
-        WHERE DoorBase.engineChunkId = ?;
+        WHERE DoorBase.rotationPointChunkId = ?;
         """
     ),
 
@@ -231,8 +231,9 @@ public enum SQLStatement
     INSERT_DOOR_BASE(
         """
         INSERT INTO DoorBase
-        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, engineX, engineY, engineZ, engineChunkId,
-        powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection, bitflag, doorType, typeData)
+        (name, world, xMin, yMin, zMin, xMax, yMax, zMax, rotationPointX, rotationPointY, rotationPointZ,
+         rotationPointChunkId, powerBlockX, powerBlockY, powerBlockZ, powerBlockChunkId, openDirection,
+         bitflag, doorType, typeData)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
         """
     ),
@@ -316,10 +317,10 @@ public enum SQLStatement
         xMax              INTEGER    NOT NULL,
         yMax              INTEGER    NOT NULL,
         zMax              INTEGER    NOT NULL,
-        engineX           INTEGER    NOT NULL,
-        engineY           INTEGER    NOT NULL,
-        engineZ           INTEGER    NOT NULL,
-        engineChunkId     INTEGER    NOT NULL,
+        rotationPointX           INTEGER    NOT NULL,
+        rotationPointY           INTEGER    NOT NULL,
+        rotationPointZ           INTEGER    NOT NULL,
+        rotationPointChunkId     INTEGER    NOT NULL,
         powerBlockX       INTEGER    NOT NULL,
         powerBlockY       INTEGER    NOT NULL,
         powerBlockZ       INTEGER    NOT NULL,

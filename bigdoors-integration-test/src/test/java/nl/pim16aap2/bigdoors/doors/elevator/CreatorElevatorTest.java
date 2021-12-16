@@ -19,7 +19,7 @@ class CreatorElevatorTest extends CreatorTestsUtil
     @Test
     void createElevator()
     {
-        engine = new Cuboid(min, max).getCenterBlock();
+        rotationPoint = new Cuboid(min, max).getCenterBlock();
         openDirection = RotateDirection.UP;
         String openDirectionName = "0";
 

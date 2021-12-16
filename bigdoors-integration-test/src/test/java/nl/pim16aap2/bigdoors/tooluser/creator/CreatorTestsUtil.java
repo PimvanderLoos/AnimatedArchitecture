@@ -55,7 +55,7 @@ public class CreatorTestsUtil
     protected final Vector3Di powerblock = new Vector3Di(40, 40, 40);
     protected final String doorName = "testDoor123";
     protected final IPWorld world = getWorld();
-    protected Vector3Di engine = new Vector3Di(20, 15, 25);
+    protected Vector3Di rotationPoint = new Vector3Di(20, 15, 25);
     protected RotateDirection openDirection = RotateDirection.COUNTERCLOCKWISE;
 
     protected DoorOwner doorOwner;
@@ -184,7 +184,7 @@ public class CreatorTestsUtil
     protected DoorBase constructDoorBase()
     {
         return doorBaseBuilder.builder()
-                              .uid(-1).name(doorName).cuboid(new Cuboid(min, max)).engine(engine)
+                              .uid(-1).name(doorName).cuboid(new Cuboid(min, max)).rotationPoint(rotationPoint)
                               .powerBlock(powerblock).world(world).isOpen(false).isLocked(false)
                               .openDir(openDirection).primeOwner(doorOwner)
                               .build();

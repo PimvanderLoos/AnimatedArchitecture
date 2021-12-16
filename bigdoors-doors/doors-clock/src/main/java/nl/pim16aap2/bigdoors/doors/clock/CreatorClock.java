@@ -162,14 +162,14 @@ public class CreatorClock extends Creator
     }
 
     /**
-     * Calculates the position of the engine. This should be called at the end of the process, as not all variables may
-     * be set at an earlier stage.
+     * Calculates the position of the rotation point. This should be called at the end of the process, as not all
+     * variables may be set at an earlier stage.
      */
-    protected void setEngine()
+    protected void setRotationPoint()
     {
         if (cuboid == null)
             return;
-        engine = cuboid.getCenterBlock();
+        rotationPoint = cuboid.getCenterBlock();
     }
 
     /**
@@ -186,7 +186,7 @@ public class CreatorClock extends Creator
     @Override
     protected AbstractDoor constructDoor()
     {
-        setEngine();
+        setRotationPoint();
         setOpenDirection();
         Util.requireNonNull(hourArmSide, "hourArmSide");
         return new Clock(constructDoorData(), northSouthAligned, hourArmSide);

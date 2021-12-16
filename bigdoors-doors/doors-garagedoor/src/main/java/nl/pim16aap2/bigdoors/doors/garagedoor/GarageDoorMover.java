@@ -123,7 +123,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownNorth(PBlockData block, double stepSum)
     {
-        final double goalZ = door.getEngine().z();
+        final double goalZ = door.getRotationPoint().z();
         final double pivotZ = goalZ + 1.5;
         final double currentZ = Math.max(goalZ, block.getStartZ() - stepSum);
 
@@ -142,7 +142,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownSouth(PBlockData block, double stepSum)
     {
-        final double goalZ = door.getEngine().z();
+        final double goalZ = door.getRotationPoint().z();
         final double pivotZ = goalZ - 1.5;
         final double currentZ = Math.min(goalZ, block.getStartZ() + stepSum);
 
@@ -160,7 +160,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownEast(PBlockData block, double stepSum)
     {
-        final double goalX = door.getEngine().x();
+        final double goalX = door.getRotationPoint().x();
         final double pivotX = goalX - 1.5;
         final double currentX = Math.min(goalX, block.getStartX() + stepSum);
 
@@ -178,7 +178,7 @@ public class GarageDoorMover extends BlockMover
 
     private Vector3Dd getVectorDownWest(PBlockData block, double stepSum)
     {
-        final double goalX = door.getEngine().x();
+        final double goalX = door.getRotationPoint().x();
         final double pivotX = goalX + 1.5;
         final double currentX = Math.max(goalX, block.getStartX() - stepSum);
 
@@ -214,11 +214,11 @@ public class GarageDoorMover extends BlockMover
             {
                 newX = xAxis;
                 newY = door.getMaximum().y() - (zLen - radius);
-                newZ = door.getEngine().z();
+                newZ = door.getRotationPoint().z();
             }
             else
             {
-                newX = door.getEngine().x();
+                newX = door.getRotationPoint().x();
                 newY = door.getMaximum().y() - (xLen - radius);
                 newZ = zAxis;
             }
@@ -260,8 +260,8 @@ public class GarageDoorMover extends BlockMover
             return height - yAxis;
         }
 
-        final int dX = Math.abs(xAxis - door.getEngine().x());
-        final int dZ = Math.abs(zAxis - door.getEngine().z());
+        final int dX = Math.abs(xAxis - door.getRotationPoint().x());
+        final int dZ = Math.abs(zAxis - door.getRotationPoint().z());
         return Math.abs(dX * directionVec.x() + dZ * directionVec.z());
     }
 }

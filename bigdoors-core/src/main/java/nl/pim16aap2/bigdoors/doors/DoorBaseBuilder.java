@@ -40,7 +40,7 @@ public final class DoorBaseBuilder
 
     @RequiredArgsConstructor
     private static final class Builder
-        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderEngine, IBuilderPowerBlock, IBuilderWorld,
+        implements IBuilderUID, IBuilderName, IBuilderCuboid, IBuilderRotationPoint, IBuilderPowerBlock, IBuilderWorld,
         IBuilderIsOpen, IBuilderIsLocked, IBuilderOpenDir, IBuilderPrimeOwner, IBuilderDoorOwners, IBuilder
     {
         private final DoorBase.IFactory doorBaseFactory;
@@ -48,7 +48,7 @@ public final class DoorBaseBuilder
         private long doorUID;
         private String name;
         private Cuboid cuboid;
-        private Vector3Di engine;
+        private Vector3Di rotationPoint;
         private Vector3Di powerBlock;
         private IPWorld world;
         private boolean isOpen;
@@ -75,7 +75,7 @@ public final class DoorBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderEngine cuboid(Cuboid cuboid)
+        public IBuilderRotationPoint cuboid(Cuboid cuboid)
         {
             this.cuboid = cuboid;
             return this;
@@ -83,9 +83,9 @@ public final class DoorBaseBuilder
 
         @Override
         @Initializer
-        public IBuilderPowerBlock engine(Vector3Di engine)
+        public IBuilderPowerBlock rotationPoint(Vector3Di rotationPoint)
         {
-            this.engine = engine;
+            this.rotationPoint = rotationPoint;
             return this;
         }
 
@@ -147,7 +147,7 @@ public final class DoorBaseBuilder
         @Override
         public DoorBase build()
         {
-            return doorBaseFactory.create(doorUID, name, cuboid, engine, powerBlock, world, isOpen,
+            return doorBaseFactory.create(doorUID, name, cuboid, rotationPoint, powerBlock, world, isOpen,
                                           isLocked, openDir, primeOwner, doorOwners);
         }
     }
@@ -187,7 +187,7 @@ public final class DoorBaseBuilder
          *     The cuboid.
          * @return The next step of the guided builder process.
          */
-        IBuilderEngine cuboid(Cuboid cuboid);
+        IBuilderRotationPoint cuboid(Cuboid cuboid);
 
         /**
          * Sets the min/max coordinate-pair of the door.
@@ -198,22 +198,22 @@ public final class DoorBaseBuilder
          *     The maximum x/y/z coordinates of the door.
          * @return The next step of the guided builder process.
          */
-        default IBuilderEngine cuboid(Vector3Di min, Vector3Di max)
+        default IBuilderRotationPoint cuboid(Vector3Di min, Vector3Di max)
         {
             return cuboid(new Cuboid(min, max));
         }
     }
 
-    public interface IBuilderEngine
+    public interface IBuilderRotationPoint
     {
         /**
          * Sets the point around which the door will rotate.
          *
-         * @param engine
+         * @param rotationPoint
          *     The x/y/z coordinates of the rotation point of the door.
          * @return The next step of the guided builder process.
          */
-        IBuilderPowerBlock engine(Vector3Di engine);
+        IBuilderPowerBlock rotationPoint(Vector3Di rotationPoint);
     }
 
     public interface IBuilderPowerBlock
