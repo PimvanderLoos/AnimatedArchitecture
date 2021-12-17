@@ -9,7 +9,7 @@
     <parent>
         <artifactId>BigDoors-parent</artifactId>
         <groupId>nl.pim16aap2.BigDoors</groupId>
-        <version>0.1.8.34-ALPHA</version>
+        <version>0.1.8.35-ALPHA</version>
     </parent>
 
     <modules>

@@ -9,7 +9,7 @@
     <parent>
         <groupId>nl.pim16aap2.BigDoors</groupId>
         <artifactId>nms</artifactId>
-        <version>0.1.8.34-ALPHA</version>
+        <version>0.1.8.35-ALPHA</version>
     </parent>
 
     <properties>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>nms-api</artifactId>
-            <version>0.1.8.34-ALPHA</version>
+            <version>0.1.8.35-ALPHA</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
