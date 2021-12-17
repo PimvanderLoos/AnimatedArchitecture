@@ -1,5 +1,5 @@
 Alpha 0.1.8.34
-- Fixed missing entry for the resource pack for 1.18. Thanks, N1ghthauq, for the bug report!
+- Fixed missing entry for the resource pack for 1.18. Thanks, N1ghthauq and ToBugs, for the bug reports!
 
 Alpha 0.1.8.33
 - Add full support for Minecraft 1.18.

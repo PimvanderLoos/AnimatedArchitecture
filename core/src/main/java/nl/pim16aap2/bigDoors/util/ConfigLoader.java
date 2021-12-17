@@ -85,7 +85,7 @@ public class ConfigLoader
     public static boolean DEBUG = false;
     private final BigDoors plugin;
 
-    private static final MCVersion LATEST_RESOURCE_PACK_VERSION = MCVersion.v1_17;
+    private static final MCVersion LATEST_RESOURCE_PACK_VERSION = MCVersion.v1_18;
     private static final EnumMap<MCVersion, String> RESOURCEPACKS = new EnumMap<>(MCVersion.class);
     static
     {
@@ -104,7 +104,7 @@ public class ConfigLoader
         RESOURCEPACKS.put(MCVersion.v1_17,
                           "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
         RESOURCEPACKS.put(MCVersion.v1_18,
-                          "https://www.dropbox.com/s/frkik8qpv3jep9v/BigDoorsResourcePack-Format7.zip?dl=1");
+                          "https://www.dropbox.com/s/4pkvrpb9kmrq590/BigDoorsResourcePack-Format8.zip?dl=1");
     }
 
     public ConfigLoader(BigDoors plugin)
@@ -170,6 +170,8 @@ public class ConfigLoader
                                              + RESOURCEPACKS.get(MCVersion.v1_15) + "'",
                                          "The resource pack for 1.17.x is: '"
                                              + RESOURCEPACKS.get(MCVersion.v1_17) + "'",
+                                         "The resource pack for 1.18.x is: '"
+                                             + RESOURCEPACKS.get(MCVersion.v1_18) + "'",
                                              };
         String[] multiplierComment = { "These multipliers affect the opening/closing speed of their respective door types.",
                                        "Note that the maximum speed is limited, so beyond a certain point rasising these values won't have any effect.",
