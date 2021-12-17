@@ -60,7 +60,7 @@ public final class UpdateChecker
     private static final URL UPDATE_URL;
     static
     {
-        final String urlStr = "https://api.github.com/repos/PimvanderLoos/BigDoors_Releases/releases/latest";
+        final String urlStr = "https://api.github.com/repos/PimvanderLoos/BigDoors/releases/latest";
         URL url = null;
         try
         {
@@ -145,6 +145,11 @@ public final class UpdateChecker
 
                 final String current = Util.getCleanedVersionString();
                 final String available = Util.getCleanedVersionString(latestRelease.get("name").getAsString());
+
+                // Don't get confused when v2 is released at some point
+                if (!available.startsWith("0.1"))
+                    return new UpdateResult(UpdateReason.UP_TO_DATE);
+
                 final String highest = versionScheme.compareVersions(current, available);
 
                 if (highest == null)
