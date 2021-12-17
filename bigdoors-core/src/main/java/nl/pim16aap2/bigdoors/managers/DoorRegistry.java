@@ -1,6 +1,8 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -20,7 +22,7 @@ import java.util.Optional;
  * @see <a href="https://en.wikipedia.org/wiki/Multiton_pattern">Wikipedia: Multiton</a>
  */
 @Singleton
-public final class DoorRegistry extends Restartable
+public final class DoorRegistry extends Restartable implements IDebuggable
 {
     public static final int CONCURRENCY_LEVEL = 4;
     public static final int INITIAL_CAPACITY = 100;
@@ -38,6 +40,11 @@ public final class DoorRegistry extends Restartable
      */
     private volatile boolean acceptNewEntries = true;
 
+    // TODO: Implement the use of these parameters. Once implemented, this should be public.
+    private final int concurrencyLevel;
+    private final int initialCapacity;
+    private final Duration cacheExpiry;
+
     /**
      * Constructs a new {@link #DoorRegistry}.
      *
@@ -49,11 +56,15 @@ public final class DoorRegistry extends Restartable
      *     How long to keep stuff in the cache.
      */
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(RestartableHolder restartableHolder, int concurrencyLevel,
-                         int initialCapacity, Duration cacheExpiry)
+    private DoorRegistry(RestartableHolder restartableHolder, DebugReporter debugReporter,
+                         int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         super(restartableHolder);
-        init(concurrencyLevel, initialCapacity, cacheExpiry);
+        this.concurrencyLevel = concurrencyLevel;
+        this.initialCapacity = initialCapacity;
+        this.cacheExpiry = cacheExpiry;
+        init();
+        debugReporter.registerDebuggable(this);
     }
 
     /**
@@ -62,9 +73,9 @@ public final class DoorRegistry extends Restartable
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
     @Inject
-    public DoorRegistry(RestartableHolder restartableHolder)
+    public DoorRegistry(RestartableHolder restartableHolder, DebugReporter debugReporter)
     {
-        this(restartableHolder, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, debugReporter, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     /**
@@ -72,9 +83,10 @@ public final class DoorRegistry extends Restartable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static DoorRegistry uncached(RestartableHolder restartableHolder)
+    public static DoorRegistry unCached(RestartableHolder restartableHolder, DebugReporter debugReporter)
     {
-        final DoorRegistry doorRegistry = new DoorRegistry(restartableHolder, -1, -1, Duration.ofMillis(-1));
+        final DoorRegistry doorRegistry =
+            new DoorRegistry(restartableHolder, debugReporter, -1, -1, Duration.ofMillis(-1));
         doorRegistry.acceptNewEntries = false;
         return doorRegistry;
     }
@@ -158,36 +170,10 @@ public final class DoorRegistry extends Restartable
     /**
      * (Re)initializes the {@link #doorCache}.
      *
-     * @param concurrencyLevel
-     *     The concurrency level (see Guava docs) of the cache.
-     * @param initialCapacity
-     *     The initial size of the cache to reserve.
-     * @param cacheExpiry
-     *     How long to keep the doors in the cache.
      * @return This {@link DoorRegistry}.
      */
-    // TODO: Implement these parameters. Once implemented, this should be public.
     @Initializer
-    private DoorRegistry init(int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
-    {
-        return init(concurrencyLevel, initialCapacity, cacheExpiry, true);
-    }
-
-    /**
-     * (Re)initializes the {@link #doorCache}.
-     *
-     * @param concurrencyLevel
-     *     The concurrency level (see Guava docs) of the cache.
-     * @param initialCapacity
-     *     The initial size of the cache to reserve.
-     * @param cacheExpiry
-     *     How long to keep the doors in the cache.
-     * @return This {@link DoorRegistry}.
-     */
-    // TODO: Implement these parameters. Once implemented, this should be public.
-    @SuppressWarnings({"unused", "SameParameterValue"})
-    @Initializer
-    private DoorRegistry init(int concurrencyLevel, int initialCapacity, Duration cacheExpiry, boolean removalListener)
+    private void init()
     {
         doorCache = TimedCache.<Long, AbstractDoor>builder()
                               .cleanup(Duration.ofMinutes(5))
@@ -195,6 +181,15 @@ public final class DoorRegistry extends Restartable
                               .keepAfterTimeOut(true)
                               .duration(cacheExpiry)
                               .build();
-        return this;
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Accepting new entries: " + acceptNewEntries +
+            "\nconcurrencyLevel: " + concurrencyLevel +
+            "\ninitialCapacity: " + initialCapacity +
+            "\ncacheExpiry: " + cacheExpiry +
+            "\ncacheSize: " + doorCache.getSize();
     }
 }

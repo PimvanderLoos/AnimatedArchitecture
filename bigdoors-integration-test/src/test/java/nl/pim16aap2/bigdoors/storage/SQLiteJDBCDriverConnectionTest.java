@@ -105,6 +105,9 @@ public class SQLiteJDBCDriverConnectionTest
     @Mock
     private RestartableHolder restartableHolder;
 
+    @Mock
+    private DebugReporter debugReporter;
+
     @BeforeEach
     void beforeEach()
         throws NoSuchMethodException
@@ -112,7 +115,7 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestPWorldFactory();
-        doorRegistry = DoorRegistry.uncached(restartableHolder);
+        doorRegistry = DoorRegistry.unCached(restartableHolder, debugReporter);
         doorTypeManager = new DoorTypeManager(restartableHolder);
 
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
