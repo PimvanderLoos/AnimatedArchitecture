@@ -4,6 +4,8 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
@@ -45,7 +47,7 @@ import java.util.logging.Level;
 @ToString
 @Singleton
 @Flogger
-public final class ConfigLoaderSpigot implements IConfigLoader
+public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 {
     private final JavaPlugin plugin;
     private final DoorTypeManager doorTypeManager;
@@ -90,7 +92,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader
      */
     @Inject
     public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager,
-                              @Named("pluginBaseDirectory") Path baseDir)
+                              @Named("pluginBaseDirectory") Path baseDir, DebugReporter debugReporter)
     {
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
@@ -99,6 +101,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader
         doorMultipliers = new HashMap<>();
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
+
+        debugReporter.registerDebuggable(this);
     }
 
     @Override
@@ -580,6 +584,12 @@ public final class ConfigLoaderSpigot implements IConfigLoader
     public boolean consoleLogging()
     {
         return consoleLogging;
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Config: " + this;
     }
 
     /**

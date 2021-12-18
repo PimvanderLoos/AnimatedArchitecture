@@ -116,7 +116,7 @@ public class SQLiteJDBCDriverConnectionTest
 
         worldFactory = new TestPWorldFactory();
         doorRegistry = DoorRegistry.unCached(restartableHolder, debugReporter);
-        doorTypeManager = new DoorTypeManager(restartableHolder);
+        doorTypeManager = new DoorTypeManager(restartableHolder, debugReporter);
 
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)

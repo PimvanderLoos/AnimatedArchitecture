@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
+import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,16 +34,17 @@ import java.util.logging.Level;
  */
 @Singleton
 @Flogger
-public final class DoorTypeManager extends Restartable
+public final class DoorTypeManager extends Restartable implements IDebuggable
 {
     private final Map<DoorType, DoorRegistrationStatus> doorTypeStatus = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromName = new ConcurrentHashMap<>();
     private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
     @Inject
-    public DoorTypeManager(RestartableHolder holder)
+    public DoorTypeManager(RestartableHolder holder, DebugReporter debugReporter)
     {
         super(holder);
+        debugReporter.registerDebuggable(this);
     }
 
     /**
@@ -248,6 +252,23 @@ public final class DoorTypeManager extends Restartable
         sortedDoorTypes.clear();
         doorTypeFromName.clear();
         doorTypeFromFullName.clear();
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        final SafeStringBuilder sb = new SafeStringBuilder("Registered door types:\n");
+        for (final Map.Entry<DoorType, DoorRegistrationStatus> entry : doorTypeStatus.entrySet())
+        {
+            final DoorType doorType = entry.getKey();
+            sb.append("- ").append(doorType::toString).append(": ");
+            if (!entry.getValue().status)
+                sb.append("DISABLED");
+            else
+                sb.append("\n").appendIndented(2, doorType::getDoorSerializer);
+            sb.append('\n');
+        }
+        return sb.toString();
     }
 
     /**

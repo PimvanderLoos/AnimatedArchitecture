@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
-import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +19,6 @@ public abstract class DebugReporter
     private final List<IDebuggable> debuggables = new ArrayList<>();
 
     protected final IBigDoorsPlatformProvider platformProvider;
-    private final @Nullable DoorTypeManager doorTypeManager;
 
     public final void registerDebuggable(IDebuggable debuggable)
     {
@@ -46,13 +43,6 @@ public abstract class DebugReporter
           .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))
           .append('\n')
 
-          .append("Registered door types: ")
-          .append(() -> Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
-          .append('\n')
-          .append("Disabled door types: ")
-          .append(() -> Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
-          .append('\n')
-
           .append(this::getAdditionalDebugReport0)
           .append('\n');
 
@@ -73,14 +63,14 @@ public abstract class DebugReporter
             if (msg == null || msg.isBlank())
                 msg = "Nothing to log!";
         }
-        catch (Exception e)
+        catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to get debug information for class: %s", debuggableName);
+            log.at(Level.SEVERE).withCause(t).log("Failed to get debug information for class: %s", debuggableName);
             msg = "ERROR";
         }
 
         sb.append(debuggableName).append(":\n");
-        msg.lines().forEach(line -> sb.append("  ").append(line).append('\n'));
+        sb.appendIndented(2, msg);
     }
 
     private String getAdditionalDebugReport0()

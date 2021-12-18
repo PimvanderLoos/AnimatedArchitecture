@@ -135,8 +135,6 @@
 
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcallingfinalize -->
     <rule ref="category/java/errorprone.xml/AvoidCallingFinalize"/>
-    <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidcatchingthrowable -->
-    <rule ref="category/java/errorprone.xml/AvoidCatchingThrowable"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoiddecimalliteralsinbigdecimalconstructor -->
     <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor"/>
     <!-- https://pmd.github.io/pmd-6.37.0/pmd_rules_java_errorprone.html#avoidfieldnamematchingtypename -->

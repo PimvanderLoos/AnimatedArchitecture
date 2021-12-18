@@ -4,6 +4,7 @@ import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.PersistentVariable;
 import nl.pim16aap2.bigdoors.util.FastFieldSetter;
 import nl.pim16aap2.bigdoors.util.UnsafeGetter;
+import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
@@ -269,14 +270,24 @@ public class DoorSerializer<T extends AbstractDoor>
         return sb.toString();
     }
 
+    private String getConstructionModeName()
+    {
+        if (this.ctor == null && UNSAFE == null)
+            return "No method available!";
+        return this.ctor == null ? "Unsafe" : "Constructor";
+    }
+
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("DoorSerializer for type: ").append(getDoorTypeName()).append('\n');
+        final SafeStringBuilder sb = new SafeStringBuilder("DoorSerializer: ")
+            .append(getDoorTypeName()).append(", Construction Mode: ").append(getConstructionModeName())
+            .append(", fields:\n");
+
         for (final Field field : fields)
-            sb.append("Type: ").append(field.getType().getName())
-              .append(", name: ").append(field.getName())
-              .append('\n');
+            sb.append("* Type: ").append(field.getType().getName())
+              .append(", name: \"").append(field.getName())
+              .append("\"\n");
         return sb.toString();
     }
 

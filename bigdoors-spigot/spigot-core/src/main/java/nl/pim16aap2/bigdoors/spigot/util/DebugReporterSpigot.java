@@ -2,9 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
-import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
-import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
@@ -33,17 +31,14 @@ import java.util.logging.Level;
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsPlugin bigDoorsPlugin;
-    private final @Nullable IConfigLoader config;
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
     @Inject
     public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatformProvider platformProvider,
-                               @Nullable DoorTypeManager doorTypeManager, @Nullable IConfigLoader config,
                                @Nullable IBigDoorsSpigotSubPlatform subPlatform)
     {
-        super(platformProvider, doorTypeManager);
+        super(platformProvider);
         this.bigDoorsPlugin = bigDoorsPlugin;
-        this.config = config;
         this.subPlatform = subPlatform;
     }
 
@@ -71,7 +66,6 @@ public class DebugReporterSpigot extends DebugReporter
                                                              DoorEventToggleEnd.class,
                                                              DoorEventTogglePrepare.class,
                                                              DoorEventToggleStart.class))
-            .append("Config: ").append(() -> config)
             .append('\n')
             .toString();
     }
@@ -92,8 +86,8 @@ public class DebugReporterSpigot extends DebugReporter
                 handlerListMethod.setAccessible(true);
                 final var handlers = (HandlerList) handlerListMethod.get(null);
                 sb.append("    ").append(clz::getSimpleName).append(": ")
-                  .append(Util.toString(handlers.getRegisteredListeners(),
-                                        DebugReporterSpigot::formatRegisteredListener))
+                  .append(() -> Util.toString(handlers.getRegisteredListeners(),
+                                              DebugReporterSpigot::formatRegisteredListener))
                   .append('\n');
             }
             catch (Exception e)
@@ -108,7 +102,6 @@ public class DebugReporterSpigot extends DebugReporter
 
     private static String formatRegisteredListener(RegisteredListener listener)
     {
-        return String.format("{%s: %s (%s)}",
-                             listener.getPlugin(), listener.getListener(), listener.getPriority());
+        return String.format("{%s: %s (%s)}", listener.getPlugin(), listener.getListener(), listener.getPriority());
     }
 }

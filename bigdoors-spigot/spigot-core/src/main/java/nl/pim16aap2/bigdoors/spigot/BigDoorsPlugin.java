@@ -151,7 +151,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
 
         final DebugReporterSpigot drs;
         if (bigDoorsSpigotPlatform == null)
-            drs = new DebugReporterSpigot(this, this, null, null, null);
+            drs = new DebugReporterSpigot(this, this, null);
         else
             drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
         System.out.println(drs.getDebugReport());
@@ -191,7 +191,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         shutdown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null, null, null));
+        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null));
         successfulInit = false;
         restartableHolder.shutdown();
     }

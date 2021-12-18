@@ -9,6 +9,8 @@ import java.util.logging.Level;
 
 /**
  * A kind of {@link StringBuilder} with some added methods to append objects using suppliers in try/catch blocks.
+ * <p>
+ * Note that these catch all throwables, so carefully consider if you really need this class before using it!
  *
  * @author Pim
  */
@@ -44,6 +46,8 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
         return this;
     }
 
+    // NullAway doesn't like nullable return types in functional interfaces
+    @SuppressWarnings("NullAway")
     public SafeStringBuilder append(Supplier<@Nullable Object> fun)
     {
         try
@@ -51,9 +55,9 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
             sb.append(fun.get());
             return this;
         }
-        catch (Exception e)
+        catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(t).log();
             sb.append("ERROR!");
             return this;
         }
@@ -73,9 +77,9 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
             sb.append(fun.get(), start, end);
             return this;
         }
-        catch (Exception e)
+        catch (Throwable t)
         {
-            log.at(Level.SEVERE).withCause(e).log();
+            log.at(Level.SEVERE).withCause(t).log();
             sb.append("ERROR!");
             return this;
         }
@@ -91,6 +95,40 @@ public final class SafeStringBuilder implements CharSequence, Appendable, Serial
     public SafeStringBuilder append(@Nullable Object o)
     {
         sb.append(o);
+        return this;
+    }
+
+    // NullAway doesn't like nullable return types in functional interfaces
+    @SuppressWarnings("NullAway")
+    public SafeStringBuilder appendIndented(int indent, Supplier<@Nullable Object> fun)
+    {
+        @Nullable Object obj;
+        try
+        {
+            obj = fun.get();
+        }
+        catch (Throwable t)
+        {
+            log.at(Level.SEVERE).withCause(t).log();
+            obj = "ERROR";
+        }
+        return appendIndented(indent, obj);
+    }
+
+    public SafeStringBuilder appendIndented(int indent, @Nullable Object obj)
+    {
+        if (obj == null)
+            return this;
+        try
+        {
+            final String prefix = " ".repeat(indent);
+            final String str = obj.toString();
+            str.lines().forEach(line -> sb.append(prefix).append(line).append('\n'));
+        }
+        catch (Throwable t)
+        {
+            log.at(Level.SEVERE).withCause(t).log();
+        }
         return this;
     }
 
