@@ -2,7 +2,10 @@ package nl.pim16aap2.bigdoors.api.debugging;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
+import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
+import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +20,7 @@ public abstract class DebugReporter
     private final List<IDebuggable> debuggables = new ArrayList<>();
 
     protected final IBigDoorsPlatformProvider platformProvider;
+    private final @Nullable DoorTypeManager doorTypeManager;
 
     public final void registerDebuggable(IDebuggable debuggable)
     {
@@ -33,8 +37,22 @@ public abstract class DebugReporter
         System.getProperties()
               .forEach((key, val) -> sb.append(String.format("%-30s", key)).append(": ").append(val).append('\n'));
 
-        sb.append("\nRegistered Platform: ").append(getPlatformName(platformProvider)).append('\n')
-          .append(getAdditionalDebugReport0()).append('\n');
+        sb.append("\n")
+          .append("BigDoors version: ")
+          .append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("NULL"))
+          .append('\n')
+          .append("Registered Platform: ").append(getPlatformName(platformProvider))
+          .append('\n')
+          .append(getAdditionalDebugReport0())
+          .append('\n')
+
+          .append("Registered door types: ")
+          .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
+          .append('\n')
+
+          .append("Disabled door types: ")
+          .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
+          .append('\n');
 
         for (final IDebuggable debuggable : debuggables)
             appendDebuggable(sb, debuggable);

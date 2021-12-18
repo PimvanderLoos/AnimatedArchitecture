@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
@@ -33,8 +32,6 @@ import java.util.logging.Level;
 public class DebugReporterSpigot extends DebugReporter
 {
     private final BigDoorsPlugin bigDoorsPlugin;
-
-    private final @Nullable DoorTypeManager doorTypeManager;
     private final @Nullable IConfigLoader config;
     private final @Nullable IBigDoorsSpigotSubPlatform subPlatform;
 
@@ -43,10 +40,8 @@ public class DebugReporterSpigot extends DebugReporter
                                @Nullable DoorTypeManager doorTypeManager, @Nullable IConfigLoader config,
                                @Nullable IBigDoorsSpigotSubPlatform subPlatform)
     {
-        super(platformProvider);
+        super(platformProvider, doorTypeManager);
         this.bigDoorsPlugin = bigDoorsPlugin;
-
-        this.doorTypeManager = doorTypeManager;
         this.config = config;
         this.subPlatform = subPlatform;
     }
@@ -55,19 +50,7 @@ public class DebugReporterSpigot extends DebugReporter
     protected String getAdditionalDebugReport()
     {
         return new StringBuilder()
-            // Try to use the platform's version first because that might contain more information (build id etc.)
-            // But if that's not available, use the JavaPlugin's version instead.
-            .append("BigDoors version: ").append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion)
-                                                                 .orElse("NULL"))
-            .append('\n')
             .append("Server version: ").append(Bukkit.getServer().getVersion())
-            .append('\n')
-            .append("Registered door types: ")
-            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
-            .append('\n')
-            .append("Disabled door types: ")
-            .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
-
             .append('\n')
             .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
