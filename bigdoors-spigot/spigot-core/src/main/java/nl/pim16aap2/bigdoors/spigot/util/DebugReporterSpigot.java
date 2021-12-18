@@ -18,6 +18,7 @@ import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventTogglePrepare;
 import nl.pim16aap2.bigdoors.spigot.events.dooraction.DoorEventToggleStart;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.util.SafeStringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;
@@ -49,12 +50,12 @@ public class DebugReporterSpigot extends DebugReporter
     @Override
     protected String getAdditionalDebugReport()
     {
-        return new StringBuilder()
-            .append("Server version: ").append(Bukkit.getServer().getVersion())
+        return new SafeStringBuilder()
+            .append("Server version: ").append(() -> Bukkit.getServer().getVersion())
             .append('\n')
-            .append("SpigotSubPlatform: ").append(subPlatform == null ? "null" : subPlatform.getClass().getName())
+            .append("SpigotSubPlatform: ").append(() -> subPlatform == null ? "null" : subPlatform.getClass().getName())
             .append('\n')
-            .append("Registered addons: ").append(bigDoorsPlugin.getRegisteredPlugins())
+            .append("Registered addons: ").append(bigDoorsPlugin::getRegisteredPlugins)
             .append('\n')
 
 //            // TODO: Implement this:
@@ -70,19 +71,19 @@ public class DebugReporterSpigot extends DebugReporter
                                                              DoorEventToggleEnd.class,
                                                              DoorEventTogglePrepare.class,
                                                              DoorEventToggleStart.class))
-            .append("Config: ").append(config)
+            .append("Config: ").append(() -> config)
             .append('\n')
             .toString();
     }
 
     private String getListeners(Class<?>... classes)
     {
-        final StringBuilder sb = new StringBuilder();
+        final SafeStringBuilder sb = new SafeStringBuilder();
         for (final Class<?> clz : classes)
         {
             if (!(BigDoorsSpigotEvent.class.isAssignableFrom(clz)))
             {
-                sb.append("ERROR: ").append(clz.getName()).append('\n');
+                sb.append("ERROR: ").append(clz::getName).append('\n');
                 continue;
             }
             try
@@ -90,16 +91,15 @@ public class DebugReporterSpigot extends DebugReporter
                 final var handlerListMethod = clz.getDeclaredField("HANDLERS_LIST");
                 handlerListMethod.setAccessible(true);
                 final var handlers = (HandlerList) handlerListMethod.get(null);
-                sb.append("    ").append(clz.getSimpleName()).append(": ")
+                sb.append("    ").append(clz::getSimpleName).append(": ")
                   .append(Util.toString(handlers.getRegisteredListeners(),
                                         DebugReporterSpigot::formatRegisteredListener))
                   .append('\n');
             }
             catch (Exception e)
             {
-                log.at(Level.SEVERE).withCause(new RuntimeException("Failed to find MethodHandle for handlers!", e))
-                   .log();
-                sb.append("ERROR: ").append(clz.getName()).append('\n');
+                log.at(Level.SEVERE).withCause(e).log("Failed to find MethodHandle for handlers!");
+                sb.append("ERROR: ").append(clz::getName).append('\n');
             }
         }
 

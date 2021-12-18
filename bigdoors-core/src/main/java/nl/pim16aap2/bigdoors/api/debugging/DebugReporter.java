@@ -6,6 +6,7 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.managers.DoorTypeManager;
 import nl.pim16aap2.bigdoors.util.Util;
+import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -32,26 +33,27 @@ public abstract class DebugReporter
      */
     public final String getDebugReport()
     {
-        final StringBuilder sb = new StringBuilder("BigDoors debug dump:\n");
+        final SafeStringBuilder sb = new SafeStringBuilder("BigDoors debug dump:\n");
 
         System.getProperties()
               .forEach((key, val) -> sb.append(String.format("%-30s", key)).append(": ").append(val).append('\n'));
 
         sb.append("\n")
           .append("BigDoors version: ")
-          .append(platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("NULL"))
+          .append(() -> platformProvider.getPlatform().map(IBigDoorsPlatform::getVersion).orElse("NULL"))
           .append('\n')
-          .append("Registered Platform: ").append(getPlatformName(platformProvider))
-          .append('\n')
-          .append(getAdditionalDebugReport0())
+          .append("Registered Platform: ")
+          .append(() -> platformProvider.getPlatform().map(platform -> platform.getClass().getName()).orElse("NULL"))
           .append('\n')
 
           .append("Registered door types: ")
-          .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
+          .append(() -> Util.toString(doorTypeManager == null ? "" : doorTypeManager.getRegisteredDoorTypes()))
+          .append('\n')
+          .append("Disabled door types: ")
+          .append(() -> Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
           .append('\n')
 
-          .append("Disabled door types: ")
-          .append(Util.toString(doorTypeManager == null ? "" : doorTypeManager.getDisabledDoorTypes()))
+          .append(this::getAdditionalDebugReport0)
           .append('\n');
 
         for (final IDebuggable debuggable : debuggables)
@@ -60,7 +62,7 @@ public abstract class DebugReporter
         return sb.toString();
     }
 
-    private static void appendDebuggable(StringBuilder sb, IDebuggable debuggable)
+    private static void appendDebuggable(SafeStringBuilder sb, IDebuggable debuggable)
     {
         final String debuggableName = debuggable.getClass().getName();
         @Nullable String msg;
@@ -79,22 +81,6 @@ public abstract class DebugReporter
 
         sb.append(debuggableName).append(":\n");
         msg.lines().forEach(line -> sb.append("  ").append(line).append('\n'));
-    }
-
-    private static String getPlatformName(@Nullable IBigDoorsPlatformProvider platformProvider)
-    {
-        try
-        {
-            if (platformProvider == null)
-                return "ERROR: No platform provider!";
-            return platformProvider.getPlatform().map(platform -> platform.getClass().getName())
-                                   .orElse("NULL");
-        }
-        catch (Exception e)
-        {
-            log.at(Level.SEVERE).withCause(e).log();
-            return "ERROR";
-        }
     }
 
     private String getAdditionalDebugReport0()
