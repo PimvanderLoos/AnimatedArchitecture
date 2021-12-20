@@ -6,32 +6,11 @@
     <echo>The version is ${pom.project.version}. The build is ${build.number}.</echo>
 
     <property name="topDir" location="${basedir}/.."/>
-    <property name="serverDir" location="${topDir}/Servers"/>
     <property name="jarDir" location="${topDir}/core/target/"/>
 
-    <target name="init">
-        <delete file="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
-        <delete file="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
-        <delete file="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
-        <delete file="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
-<!--        <delete file="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>-->
-        <delete file="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
-        <delete file="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
-    </target>
-
-    <target name="CreateJar" description="Create Jar file" depends="init">
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.11/plugins/BigDoors.jar"/>
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.12/plugins/BigDoors.jar"/>
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.13/plugins/BigDoors.jar"/>
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.14/plugins/BigDoors.jar"/>
-<!--        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.15/plugins/BigDoors.jar"/>-->
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.16/plugins/BigDoors.jar"/>
-        <symlink resource="${jarDir}/BigDoors.jar" link="${serverDir}/SpigotServer_1.17/plugins/BigDoors.jar"/>
-    </target>
-
-    <target name="checksum" depends="CreateJar">
+    <target name="checksum">
     	<checksum file="${jarDir}/BigDoors.jar" algorithm="SHA-256" forceOverwrite="yes"/>
     </target>
 
-    <target name="all" depends="CreateJar, checksum"/>
+    <target name="all" depends="checksum"/>
 </project>
