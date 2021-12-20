@@ -28,8 +28,7 @@
 
         <module>hook-lands</module>
 
-        <module>hook-towny-old</module>
-        <module>hook-towny-new</module>
+        <module>hook-towny</module>
 
         <module>hook-world-guard-7</module>
         <module>hook-world-guard-6</module>

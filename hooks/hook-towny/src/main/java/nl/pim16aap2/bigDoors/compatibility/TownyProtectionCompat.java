@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors.compatibility;
 
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.TownyPermission.ActionType;
 import com.palmergames.bukkit.towny.utils.PlayerCacheUtil;
 import org.bukkit.Location;
@@ -11,17 +12,20 @@ import org.bukkit.entity.Player;
  * @see IProtectionCompat
  * @author Pim
  */
-public class TownyOldProtectionCompat implements IProtectionCompat
+public class TownyProtectionCompat implements IProtectionCompat
 {
+    private final boolean success;
     private final HookContext hookContext;
 
-    public TownyOldProtectionCompat(HookContext hookContext)
+    public TownyProtectionCompat(HookContext hookContext)
     {
         this.hookContext = hookContext;
+        TownyAPI townyAPI = TownyAPI.getInstance();
+        success = townyAPI != null;
     }
 
     @Override
-    public boolean canBreakBlock(Player player, Location loc)
+    public boolean canBreakBlock(final Player player, final Location loc)
     {
         return PlayerCacheUtil.getCachePermission(player, loc,
                                                   loc.getBlock().getType(),
@@ -29,7 +33,7 @@ public class TownyOldProtectionCompat implements IProtectionCompat
     }
 
     @Override
-    public boolean canBreakBlocksBetweenLocs(Player player, Location loc1, Location loc2)
+    public boolean canBreakBlocksBetweenLocs(final Player player, final Location loc1, final Location loc2)
     {
         int x1 = Math.min(loc1.getBlockX(), loc2.getBlockX());
         int y1 = Math.min(loc1.getBlockY(), loc2.getBlockY());
@@ -41,15 +45,15 @@ public class TownyOldProtectionCompat implements IProtectionCompat
         for (int xPos = x1; xPos <= x2; ++xPos)
             for (int yPos = y1; yPos <= y2; ++yPos)
                 for (int zPos = z1; zPos <= z2; ++zPos)
-                     if (!canBreakBlock(player, new Location(loc1.getWorld(), xPos, yPos, zPos)))
-                         return false;
+                    if (!canBreakBlock(player, new Location(loc1.getWorld(), xPos, yPos, zPos)))
+                        return false;
         return true;
     }
 
     @Override
     public boolean success()
     {
-        return true;
+        return success;
     }
 
     @Override

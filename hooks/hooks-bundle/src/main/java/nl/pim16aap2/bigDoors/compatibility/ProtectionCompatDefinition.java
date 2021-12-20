@@ -16,18 +16,7 @@ public abstract class ProtectionCompatDefinition implements IProtectionCompatDef
         @Override
         public Class<? extends IProtectionCompat> getClass(final String version)
         {
-            int[] lastOldVersion = { 0, 94, 0, 1 };
-
-            int[] currentVersion = Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
-            for (int idx = 0; idx < lastOldVersion.length; ++idx)
-            {
-                if (currentVersion[idx] == lastOldVersion[idx])
-                    continue;
-
-                return currentVersion[idx] > lastOldVersion[idx] ? TownyNewProtectionCompat.class :
-                    TownyOldProtectionCompat.class;
-            }
-            return null;
+            return TownyProtectionCompat.class;
         }
     };
 
