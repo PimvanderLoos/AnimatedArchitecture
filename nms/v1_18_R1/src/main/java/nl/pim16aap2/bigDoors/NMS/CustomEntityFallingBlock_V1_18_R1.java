@@ -50,8 +50,8 @@ public class CustomEntityFallingBlock_V1_18_R1 extends EntityFallingBlock implem
         else
         {
             a(EnumMoveType.a, da());
-            double locY = de();
-            if (++b > 100 && (locY < 1 || locY > 256) || b > 12000)
+            final double locY = de();
+            if (++b > 100 && (locY <= this.t.u_() || locY > this.t.ag()) || b > 12000)
                 ah();
 
             g(da().d(0.9800000190734863D, 1.0D, 0.9800000190734863D));
