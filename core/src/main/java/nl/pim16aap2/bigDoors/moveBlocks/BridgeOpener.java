@@ -291,7 +291,7 @@ public class BridgeOpener implements Opener
         for (DoorDirection fallbackDirection : directions)
         {
             final Pair<Location, Location> newCoordinates = getNewCoordinates(door, upDown, fallbackDirection);
-            if (isPosFree(door.getWorld(), newCoordinates))
+            if (isPosFree(door.getDoorUID(), door.getWorld(), newCoordinates))
                 return new OpeningSpecification(fallbackDirection, newCoordinates);
         }
         return null;
@@ -305,7 +305,7 @@ public class BridgeOpener implements Opener
         if (isValidOpenDirection(Util.getRotateDirection(openDirection)))
         {
             final Pair<Location, Location> newCoordinates = getNewCoordinates(door, upDown, openDirection);
-            return isPosFree(door.getWorld(), newCoordinates) ?
+            return isPosFree(door.getDoorUID(), door.getWorld(), newCoordinates) ?
                    new OpeningSpecification(openDirection, newCoordinates) : null;
         }
 

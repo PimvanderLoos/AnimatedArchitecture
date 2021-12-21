@@ -18,6 +18,7 @@ import nl.pim16aap2.bigDoors.util.Vector2D;
 import nl.pim16aap2.bigDoors.util.WorldHeightLimits;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -236,35 +237,49 @@ public interface Opener
     /**
      * Checks if there aren't any obstructions between two positions.
      *
-     * @param world The world to check in.
-     * @param min   The minimum coordinates.
-     * @param max   The maximum coordinates.
+     * @param doorUID The UID of the door.
+     * @param world   The world to check in.
+     * @param min     The minimum coordinates.
+     * @param max     The maximum coordinates.
      * @return True if all blocks in the region defined by the min/max coordinates do not obstruct doors (e.g. water or
      * air). If any blocks are in the way or if the locations are out of range of the
      * {@link WorldHeightManager#getWorldHeightLimits(World)}, this method will return false.
      */
-    default boolean isPosFree(@Nonnull World world, @Nonnull Location min, @Nonnull Location max)
+    default boolean isPosFree(long doorUID, @Nonnull World world, @Nonnull Location min, @Nonnull Location max)
     {
         final WorldHeightLimits worldLimits = BigDoors.get().getWorldHeightManager().getWorldHeightLimits(world);
         if (min.getBlockY() < worldLimits.getLowerLimit() || max.getBlockY() > worldLimits.getUpperLimit())
+        {
+            BigDoors.get().getMyLogger()
+                    .info(String.format("Door %d with y bounds [%d, %d] exceeds world limits: [%d, %d]",
+                                        doorUID, min.getBlockY(), max.getBlockY(),
+                                        worldLimits.getLowerLimit(), worldLimits.getUpperLimit()));
             return false;
+        }
 
         for (int xAxis = min.getBlockX(); xAxis <= max.getBlockX(); ++xAxis)
             for (int yAxis = min.getBlockY(); yAxis <= max.getBlockY(); ++yAxis)
                 for (int zAxis = min.getBlockZ(); zAxis <= max.getBlockZ(); ++zAxis)
-                    if (!Util.canOverwriteMaterial(world.getBlockAt(xAxis, yAxis, zAxis).getType()))
+                {
+                    final Material mat = world.getBlockAt(xAxis, yAxis, zAxis).getType();
+                    if (!Util.canOverwriteMaterial(mat))
+                    {
+                        BigDoors.get().getMyLogger().info("Found a block of material " + mat.name() +
+                                                              " in the way when toggling door " + doorUID);
                         return false;
+                    }
+                }
         return true;
     }
 
     /**
-     * See {@link #isPosFree(World, Location, Location)}.
+     * See {@link #isPosFree(long, World, Location, Location)}.
      *
      * @param locations The min and max locations respectively.
      */
-    default boolean isPosFree(@Nonnull World world, @Nonnull Pair<Location, Location> locations)
+    default boolean isPosFree(long doorUID, @Nonnull World world, @Nonnull Pair<Location, Location> locations)
     {
-        return isPosFree(world, locations.first, locations.second);
+        return isPosFree(doorUID, world, locations.first, locations.second);
     }
 
     /**

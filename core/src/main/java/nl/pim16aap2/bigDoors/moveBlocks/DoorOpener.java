@@ -9,7 +9,6 @@ import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorOpenResult;
 import nl.pim16aap2.bigDoors.util.Pair;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
-import nl.pim16aap2.bigDoors.util.Util;
 import nl.pim16aap2.bigDoors.util.Vector2D;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -100,9 +99,9 @@ public class DoorOpener implements Opener
     }
 
     private @Nonnull DoorDirection getNewDirection(@Nonnull DoorDirection currentDirection,
-                                                   @Nonnull RotateDirection rotateDirection)
+                                                   @Nullable RotateDirection rotateDirection)
     {
-        return rotateDirection.equals(RotateDirection.CLOCKWISE) ?
+        return RotateDirection.CLOCKWISE.equals(rotateDirection) ?
                DoorDirection.cycleCardinalDirection(currentDirection) :
                DoorDirection.cycleCardinalDirectionReverse(currentDirection);
     }
@@ -148,7 +147,8 @@ public class DoorOpener implements Opener
     /**
      * Finds the rotation direction and the new coordinates for a door.
      * <p>
-     * If the found location(s) are obstructed (see {@link #isPosFree(World, Location, Location)}), null is returned.
+     * If the found location(s) are obstructed (see {@link #isPosFree(long, World, Location, Location)}), null is
+     * returned.
      * <p>
      * If the provided rotateDirection is not valid for this type, all rotation directions listed in {@link
      * #getValidRotateDirections()} either until a valid, unobstructed position is found or until we run out of
@@ -172,7 +172,7 @@ public class DoorOpener implements Opener
         {
             final DoorDirection newDirection = getNewDirection(currentDirection, rotateDirection);
             final Pair<Location, Location> newCoordinates = getNewCoordinates(door, newDirection);
-            return isPosFree(door.getWorld(), newCoordinates) ?
+            return isPosFree(door.getDoorUID(), door.getWorld(), newCoordinates) ?
                    new OpeningSpecification(rotateDirection, newCoordinates) : null;
         }
 
@@ -183,7 +183,7 @@ public class DoorOpener implements Opener
         {
             final DoorDirection newDirection = getNewDirection(currentDirection, fallbackDirection);
             final Pair<Location, Location> newCoordinates = getNewCoordinates(door, newDirection);
-            if (isPosFree(door.getWorld(), newCoordinates))
+            if (isPosFree(door.getDoorUID(), door.getWorld(), newCoordinates))
                 return new OpeningSpecification(fallbackDirection, newCoordinates);
         }
 
