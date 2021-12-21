@@ -45,7 +45,7 @@
         <dependency.version.maven-jxr>3.1.1</dependency.version.maven-jxr>
         <dependency.version.maven-project-reports>3.1.2</dependency.version.maven-project-reports>
         <dependency.version.maven-checkstyle>3.1.2</dependency.version.maven-checkstyle>
-        <dependency.version.jdbc-sqlite>3.36.0.1</dependency.version.jdbc-sqlite>
+        <dependency.version.jdbc-sqlite>3.36.0.3</dependency.version.jdbc-sqlite>
         <dependency.version.jimfs>1.2</dependency.version.jimfs>
     </properties>
 
