@@ -60,6 +60,10 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$saveTileEntityData").get();
     public static final Method METHOD_DIE =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$die").get();
+    public static final Method METHOD_WORLD_MIN_Y =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$worldMinY").get();
+    public static final Method METHOD_WORLD_MAX_Y =
+        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$worldMaxY").get();
     public static final Method METHOD_IS_AIR =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$isAir").get();
     public static final Method METHOD_MOVE =
@@ -309,6 +313,12 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                            .withMethodCall(invoke(named(METHOD_MULTIPLY_VEC))
                                                .withMethodCall(invoke(methodGetMot))
                                                .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
+        builder = builder
+            .method(is(METHOD_WORLD_MIN_Y))
+            .intercept(invoke(methodWorldMinHeight).onField(FIELD_BUKKIT_WORLD));
+        builder = builder
+            .method(is(METHOD_WORLD_MAX_Y))
+            .intercept(invoke(methodWorldMaxHeight).onField(FIELD_BUKKIT_WORLD));
         return builder;
     }
 
@@ -327,11 +337,12 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
 
                 entity.generated$move();
 
-                double locY = entity.locY();
-                int ticks = entity.generated$getTicksLived() + 1;
+                final double locY = entity.locY();
+                final int ticks = entity.generated$getTicksLived() + 1;
                 entity.generated$setTicksLived(ticks);
 
-                if (++ticks > 100 && (locY < 1 || locY > 256) || ticks > 12000)
+                if (ticks > 100 &&
+                    (locY < entity.generated$worldMinY() || locY > entity.generated$worldMaxY()) || ticks > 12000)
                     entity.generated$die();
 
                 entity.generated$updateMot();
@@ -365,6 +376,8 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         void generated$setTicksLived(int val);
         void generated$updateMot();
         double locY();
+        int generated$worldMinY();
+        int generated$worldMaxY();
         void generated$saveTileEntityData(Object target);
         void generated$loadTileEntityData(Object target);
     }
