@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigDoors;
 
+import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import nl.pim16aap2.bigDoors.util.WorldHeightLimits;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -35,16 +36,21 @@ public class WorldHeightManager
 
     private static MinWorldHeightFinder getMinWorldHeightFinder()
     {
+        if (!BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18))
+            return legacy -> 0;
+
         try
         {
-            // World#getMinHeight() doesn't exist in 1.11 (our base version), but it does exist in later versions.
-            //noinspection JavaReflectionMemberAccess
-            Method methodMinWorldHeight = World.class.getDeclaredMethod("getMinHeight");
+            final Method methodMinWorldHeight = ReflectionBuilder
+                .findMethod().inClass(World.class).withName("getMinHeight").checkSuperClasses().checkInterfaces().get();
             return world -> WorldHeightManager.getMinWorldHeight(methodMinWorldHeight, world);
         }
-        catch (NoSuchMethodException e)
+        catch (NullPointerException e)
         {
-            return ignored -> 0;
+            e.printStackTrace();
+            Bukkit.getLogger().severe("Failed to find getMinHeight method! " +
+                                          "All worlds are considered to have a min height of 0!");
+            return fallback -> 0;
         }
     }
 

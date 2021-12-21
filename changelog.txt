@@ -1,5 +1,6 @@
 Alpha 0.1.8.35
 - Log more information when a door cannot be toggled because there's no available space.
+- Fixed incorrect minimum world height reporting. Thanks, EditChris, for the bug report!
 
 Alpha 0.1.8.34
 - Fixed missing entry for the resource pack for 1.18. Thanks, N1ghthauq and ToBugs, for the bug reports!
