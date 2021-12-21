@@ -342,7 +342,7 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                 entity.generated$setTicksLived(ticks);
 
                 if (ticks > 100 &&
-                    (locY < entity.generated$worldMinY() || locY > entity.generated$worldMaxY()) || ticks > 12000)
+                    (locY <= entity.generated$worldMinY() || locY > entity.generated$worldMaxY()) || ticks > 12000)
                     entity.generated$die();
 
                 entity.generated$updateMot();
