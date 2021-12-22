@@ -1,8 +1,5 @@
 package nl.pim16aap2.bigDoors.NMS;
 
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-
 import net.minecraft.server.v1_16_R3.BlockPosition;
 import net.minecraft.server.v1_16_R3.Blocks;
 import net.minecraft.server.v1_16_R3.CrashReportSystemDetails;
@@ -17,6 +14,8 @@ import net.minecraft.server.v1_16_R3.GameProfileSerializer;
 import net.minecraft.server.v1_16_R3.IBlockData;
 import net.minecraft.server.v1_16_R3.NBTTagCompound;
 import net.minecraft.server.v1_16_R3.TagsBlock;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 /**
  * v1_16_R3 implementation of {@link CustomEntityFallingBlock}.
@@ -96,12 +95,11 @@ public class CustomEntityFallingBlock_V1_16_R3 extends EntityFallingBlock implem
         else
         {
             move(EnumMoveType.SELF, getMot());
-            double locY = locY();
-            if (++ticksLived > 100 && (locY < 1 || locY > 256) || ticksLived > 12000)
+            if (++ticksLived > 12000)
                 die();
 
             double motX = getMot().x * 0.9800000190734863D;
-            double motY = getMot().y * 1.0D;
+            double motY = getMot().y;
             double motZ = getMot().z * 0.9800000190734863D;
             setMot(motX, motY, motZ);
         }
