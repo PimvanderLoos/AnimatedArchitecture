@@ -75,8 +75,6 @@ final class ReflectionRepository
     public static final Method methodTick;
     public static final Method methodDie;
     public static final Method methodGetNMSWorld;
-    public static final Method methodWorldMinHeight;
-    public static final Method methodWorldMaxHeight;
     public static final Method methodGetEntityHandle;
     public static final Method methodSetPosition;
     public static final Method methodSetNoGravity;
@@ -215,10 +213,6 @@ final class ReflectionRepository
         methodLocationGetZ = findMethod().inClass(Location.class).withName("getZ").withoutParameters().get();
         methodGetNMSWorld = findMethod().inClass(classCraftWorld).withName("getHandle")
                                         .withoutParameters().withModifiers(Modifier.PUBLIC).get();
-        methodWorldMinHeight = findMethod().inClass(World.class).withName("getMinHeight")
-                                           .withoutParameters().checkInterfaces().get();
-        methodWorldMaxHeight = findMethod().inClass(World.class).withName("getMaxHeight")
-                                           .withoutParameters().checkInterfaces().get();
         methodGetEntityHandle = findMethod().inClass(classCraftEntity).withName("getHandle")
                                             .withoutParameters().withModifiers(Modifier.PUBLIC).get();
         methodTick = findMethod().inClass(classEntityFallingBlock).withReturnType(void.class)

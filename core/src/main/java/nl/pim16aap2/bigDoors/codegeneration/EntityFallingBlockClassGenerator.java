@@ -50,20 +50,12 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
     public static final String METHOD_SPAWN = "generated$spawn";
 
 
-    // If possible, we don't want to generate an additional locY method.
-    // On some versions it might already exist, so we use the real name.
-    public static final Method METHOD_LOC_Y =
-        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("locY").get();
     public static final Method METHOD_LOAD_DATA =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$loadTileEntityData").get();
     public static final Method METHOD_SAVE_DATA =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$saveTileEntityData").get();
     public static final Method METHOD_DIE =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$die").get();
-    public static final Method METHOD_WORLD_MIN_Y =
-        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$worldMinY").get();
-    public static final Method METHOD_WORLD_MAX_Y =
-        findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$worldMaxY").get();
     public static final Method METHOD_IS_AIR =
         findMethod().inClass(IGeneratedFallingBlockEntity.class).withName("generated$isAir").get();
     public static final Method METHOD_MOVE =
@@ -112,7 +104,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         builder = addCTor(builder);
         builder = addSpawnMethod(builder);
         builder = addHurtEntitiesMethod(builder);
-        builder = addLocYMethod(builder);
         builder = addGetBlockMethod(builder);
         builder = addLoadDataMethod(builder);
         builder = addSaveDataMethod(builder);
@@ -178,17 +169,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
             .defineMethod(methodHurtEntities.getName(), boolean.class, Visibility.PUBLIC)
             .withParameters(methodHurtEntities.getParameterTypes())
             .intercept(value(false));
-    }
-
-    private DynamicType.Builder<?> addLocYMethod(DynamicType.Builder<?> builder)
-    {
-        // The locY method is final, so we cannot override it.
-        // As such, we only want to add it when it's got its non-default name.
-        if (methodLocY.getName().equals(METHOD_LOC_Y.getName()))
-            return builder;
-        return builder
-            .defineMethod(METHOD_LOC_Y.getName(), double.class, Visibility.PUBLIC)
-            .intercept(invoke(methodLocY));
     }
 
     private DynamicType.Builder<?> addCrashReportMethod(DynamicType.Builder<?> builder)
@@ -313,12 +293,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
                            .withMethodCall(invoke(named(METHOD_MULTIPLY_VEC))
                                                .withMethodCall(invoke(methodGetMot))
                                                .with(0.9800000190734863D, 1.0D, 0.9800000190734863D)));
-        builder = builder
-            .method(is(METHOD_WORLD_MIN_Y))
-            .intercept(invoke(methodWorldMinHeight).onField(FIELD_BUKKIT_WORLD));
-        builder = builder
-            .method(is(METHOD_WORLD_MAX_Y))
-            .intercept(invoke(methodWorldMaxHeight).onField(FIELD_BUKKIT_WORLD));
         return builder;
     }
 
@@ -337,12 +311,10 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
 
                 entity.generated$move();
 
-                final double locY = entity.locY();
                 final int ticks = entity.generated$getTicksLived() + 1;
                 entity.generated$setTicksLived(ticks);
 
-                if (ticks > 100 &&
-                    (locY <= entity.generated$worldMinY() || locY > entity.generated$worldMaxY()) || ticks > 12000)
+                if (ticks > 12000)
                     entity.generated$die();
 
                 entity.generated$updateMot();
@@ -375,9 +347,6 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         int generated$getTicksLived();
         void generated$setTicksLived(int val);
         void generated$updateMot();
-        double locY();
-        int generated$worldMinY();
-        int generated$worldMaxY();
         void generated$saveTileEntityData(Object target);
         void generated$loadTileEntityData(Object target);
     }
