@@ -1,3 +1,6 @@
+Alpha 0.1.8.36
+-
+
 Alpha 0.1.8.35
 - Log more information when a door cannot be toggled because there's no available space.
 - Fixed incorrect minimum world height reporting. Thanks, EditChris, for the bug report!

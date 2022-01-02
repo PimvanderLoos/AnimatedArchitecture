@@ -8,14 +8,14 @@
     <parent>
         <groupId>nl.pim16aap2.BigDoors</groupId>
         <artifactId>hooks</artifactId>
-        <version>0.1.8.35-ALPHA</version>
+        <version>0.1.8.36-ALPHA</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.BigDoors</groupId>
             <artifactId>hooks-api</artifactId>
-            <version>0.1.8.35-ALPHA</version>
+            <version>0.1.8.36-ALPHA</version>
             <scope>provided</scope>
         </dependency>
 
