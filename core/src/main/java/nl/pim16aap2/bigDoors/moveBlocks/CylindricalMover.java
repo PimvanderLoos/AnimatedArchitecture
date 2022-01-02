@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class CylindricalMover implements BlockMover
+public class CylindricalMover extends BlockMover
 {
     private GetNewLocation gnl;
     private final FallingBlockFactory fabf;
@@ -59,7 +59,7 @@ public class CylindricalMover implements BlockMover
     public CylindricalMover(BigDoors plugin, World world, int qCircleLimit, RotateDirection rotDirection, double time,
         Location pointOpposite, DoorDirection currentDirection, Door door, boolean instantOpen, double multiplier)
     {
-        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
+        super(plugin, door);
         this.rotDirection = rotDirection;
         this.currentDirection = currentDirection;
         this.plugin = plugin;

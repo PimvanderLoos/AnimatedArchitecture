@@ -83,6 +83,13 @@ public final class Util
             DESTROYLIST.add(caveAir);
     }
 
+    public static boolean isPosInCuboid(Location pos, Location min, Location max)
+    {
+        return pos.getBlockX() >= min.getBlockX() && pos.getBlockX() <= max.getBlockX() &&
+            pos.getBlockY() >= min.getBlockY() && pos.getBlockY() <= max.getBlockY() &&
+            pos.getBlockZ() >= min.getBlockZ() && pos.getBlockZ() <= max.getBlockZ();
+    }
+
     public static @Nullable <T> T firstNonNull(Supplier<T>... suppliers)
     {
         for (Supplier<T> supplier : suppliers)

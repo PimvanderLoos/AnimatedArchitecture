@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class BridgeMover implements BlockMover
+public class BridgeMover extends BlockMover
 {
     private final World world;
     private final BigDoors plugin;
@@ -62,7 +62,7 @@ public class BridgeMover implements BlockMover
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
         DoorDirection openDirection, boolean instantOpen, double multiplier)
     {
-        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
+        super(plugin, door);
         fabf = plugin.getFABF();
         engineSide = door.getEngSide();
         NS = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
@@ -193,7 +193,11 @@ public class BridgeMover implements BlockMover
 
         endStepSum = upDown.equals(RotateDirection.UP) ? 0 : Math.PI / 2 * stepMultiplier;
         startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : startStepSum;
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+    }
 
+    private void createAnimatedBlock()
+    {
         int index = 0;
         double xAxis = turningPoint.getX();
         do

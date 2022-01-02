@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SlidingMover implements BlockMover
+public class SlidingMover extends BlockMover
 {
     private FallingBlockFactory fabf;
     private Door door;
@@ -49,7 +49,7 @@ public class SlidingMover implements BlockMover
     public SlidingMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
         RotateDirection openDirection, double multiplier)
     {
-        plugin.getAutoCloseScheduler().cancelTimer(door.getDoorUID());
+        super(plugin, door);
         this.plugin = plugin;
         this.world = world;
         this.door = door;

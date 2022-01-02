@@ -1,18 +1,21 @@
 package nl.pim16aap2.bigDoors.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.block.BlockFace;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public enum MyBlockFace
 {
-    NORTH (0, new Vector3D( 0,  0, -1), BlockFace.NORTH),
-    EAST  (1, new Vector3D( 1,  0,  0), BlockFace.EAST ),
-    SOUTH (2, new Vector3D( 0,  0,  1), BlockFace.SOUTH),
-    WEST  (3, new Vector3D(-1,  0,  0), BlockFace.WEST ),
-    UP    (4, new Vector3D( 0,  1,  0), BlockFace.UP   ),
-    DOWN  (5, new Vector3D( 0, -1,  0), BlockFace.DOWN );
+    NORTH(0, new Vector3D(0, 0, -1), BlockFace.NORTH),
+    EAST(1, new Vector3D(1, 0, 0), BlockFace.EAST),
+    SOUTH(2, new Vector3D(0, 0, 1), BlockFace.SOUTH),
+    WEST(3, new Vector3D(-1, 0, 0), BlockFace.WEST),
+    UP(4, new Vector3D(0, 1, 0), BlockFace.UP),
+    DOWN(5, new Vector3D(0, -1, 0), BlockFace.DOWN);
 
     private final BlockFace bukkitFace;
     private final Vector3D dir;
@@ -20,8 +23,9 @@ public enum MyBlockFace
     private static Map<BlockFace, MyBlockFace> map = new HashMap<>();
     private static Map<Vector3D, MyBlockFace> dirs = new HashMap<>();
     private static Map<Integer, MyBlockFace> vals = new HashMap<>();
+    private static final List<MyBlockFace> VALUES = Collections.unmodifiableList(Arrays.asList(MyBlockFace.values()));
 
-    private MyBlockFace(final int val, final Vector3D dir, final BlockFace bukkitFace)
+    MyBlockFace(final int val, final Vector3D dir, final BlockFace bukkitFace)
     {
         this.val = val;
         this.bukkitFace = bukkitFace;
@@ -200,5 +204,10 @@ public enum MyBlockFace
             dirs.put(face.dir, face);
             vals.put(face.val, face);
         }
+    }
+
+    public static List<MyBlockFace> getValues()
+    {
+        return VALUES;
     }
 }
