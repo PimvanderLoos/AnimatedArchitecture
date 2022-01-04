@@ -41,6 +41,8 @@ public class Menu extends BaseCommand
     }
 
     @Override
+    // NullAway doesn't like a Nullable value ('target') as equals parameter.
+    @SuppressWarnings("NullAway")
     protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
