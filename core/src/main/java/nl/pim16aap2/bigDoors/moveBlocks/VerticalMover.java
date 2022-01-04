@@ -82,7 +82,11 @@ public class VerticalMover extends BlockMover
         }
 
         tickRate = Util.tickRateFromSpeed(speed);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+    }
 
+    private void createAnimatedBlock()
+    {
         int index = 0;
         int yAxis = yMin;
         do

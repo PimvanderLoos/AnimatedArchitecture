@@ -45,6 +45,7 @@ public class CylindricalMover extends BlockMover
     private final boolean instantOpen;
     private double startStepSum;
     private final RotateDirection rotDirection;
+    private final Location pointOpposite;
     private final int stepMultiplier;
     private final int xMin, xMax, yMin;
     private final int yMax, zMin, zMax;
@@ -65,6 +66,7 @@ public class CylindricalMover extends BlockMover
         this.plugin = plugin;
         this.world = world;
         this.door = door;
+        this.pointOpposite = pointOpposite;
         turningPoint = door.getEngine();
         fabf = plugin.getFABF();
         this.instantOpen = instantOpen;
@@ -87,7 +89,11 @@ public class CylindricalMover extends BlockMover
 
         dx = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
         dz = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+    }
 
+    private void createAnimatedBlock()
+    {
         double xAxis = turningPoint.getX();
         do
         {
