@@ -1,6 +1,9 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import dagger.Lazy;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
@@ -19,7 +22,6 @@ import nl.pim16aap2.bigdoors.events.IDoorPrepareDeleteEvent;
 import nl.pim16aap2.bigdoors.storage.IStorage;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.pair.Pair;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Nullable;
 
@@ -122,7 +124,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The new {@link AbstractDoor}.
      * @return The future result of the operation. If the operation was successful this will be true.
      */
-    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor)
+    public CompletableFuture<DoorInsertResult> addDoor(AbstractDoor newDoor)
     {
         return addDoor(newDoor, null);
     }
@@ -135,20 +137,16 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      * @param responsible
      *     The {@link IPPlayer} responsible for creating the door. This is used for the {@link IDoorPrepareCreateEvent}
      *     and the {@link IDoorCreatedEvent}. This may be null.
-     * @return The future result of the operation. The result contains a pair of a boolean and an optional door. The
-     * boolean flag indicates if the addition was cancelled by {@link IDoorPrepareCreateEvent} (true) or not (false).
-     * The optional {@link AbstractDoor} contains the door that was added to the database if the addition was
-     * successful.
+     * @return The future result of the operation.
      */
-    public CompletableFuture<Pair<Boolean, Optional<AbstractDoor>>> addDoor(AbstractDoor newDoor,
-                                                                            @Nullable IPPlayer responsible)
+    public CompletableFuture<DoorInsertResult> addDoor(AbstractDoor newDoor, @Nullable IPPlayer responsible)
     {
         final var ret = callCancellableEvent(
             fact -> fact.createPrepareDoorCreateEvent(newDoor, responsible)).thenApplyAsync(
             cancelled ->
             {
                 if (cancelled)
-                    return new Pair<>(true, Optional.<AbstractDoor>empty());
+                    return new DoorInsertResult(Optional.empty(), true);
 
                 final Optional<AbstractDoor> result = db.insert(newDoor);
                 result.ifPresent(
@@ -156,8 +154,8 @@ public final class DatabaseManager extends Restartable implements IDebuggable
                                                                         new Vector3Di(door.getPowerBlock().x(),
                                                                                       door.getPowerBlock().y(),
                                                                                       door.getPowerBlock().z())));
-                return new Pair<>(false, result);
-            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new Pair<>(false, Optional.empty())));
+                return new DoorInsertResult(result, false);
+            }, threadPool).exceptionally(ex -> Util.exceptionally(ex, new DoorInsertResult(Optional.empty(), false)));
 
         ret.thenAccept(result -> callDoorCreatedEvent(result, responsible));
 
@@ -173,16 +171,16 @@ public final class DatabaseManager extends Restartable implements IDebuggable
      *     The {@link IPPlayer} responsible for creating it, if an {@link IPPlayer} was responsible for it. If not, this
      *     is null.
      */
-    private void callDoorCreatedEvent(Pair<Boolean, Optional<AbstractDoor>> result, @Nullable IPPlayer responsible)
+    private void callDoorCreatedEvent(DoorInsertResult result, @Nullable IPPlayer responsible)
     {
         CompletableFuture.runAsync(
             () ->
             {
-                if (result.first || result.second.isEmpty())
+                if (result.cancelled() || result.door().isEmpty())
                     return;
 
                 final IDoorCreatedEvent doorCreatedEvent =
-                    bigDoorsEventFactory.createDoorCreatedEvent(result.second.get(), responsible);
+                    bigDoorsEventFactory.createDoorCreatedEvent(result.door().get(), responsible);
 
                 doorEventCaller.callDoorEvent(doorCreatedEvent);
             });
@@ -734,5 +732,38 @@ public final class DatabaseManager extends Restartable implements IDebuggable
          * {@link UUID}.
          */
         protected abstract boolean removeOwner(UUID uuid);
+    }
+
+    /**
+     * Contains the result of an attempt to insert a door into the database.
+     */
+    @AllArgsConstructor @EqualsAndHashCode @ToString
+    public static final class DoorInsertResult
+    {
+        /**
+         * The door as it was inserted into the database. This will be empty when inserted failed.
+         */
+        private final Optional<AbstractDoor> door;
+        /**
+         * Whether the insertion was cancelled. An insertion may be cancelled if some listener cancels the {@link
+         * IDoorPrepareCreateEvent} event.
+         */
+        private final boolean cancelled;
+
+        /**
+         * See {@link #door}.
+         */
+        public Optional<AbstractDoor> door()
+        {
+            return door;
+        }
+
+        /**
+         * See {@link #cancelled}.
+         */
+        public boolean cancelled()
+        {
+            return cancelled;
+        }
     }
 }

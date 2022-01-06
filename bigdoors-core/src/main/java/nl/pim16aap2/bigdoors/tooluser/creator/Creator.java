@@ -486,13 +486,13 @@ public abstract class Creator extends ToolUser
         databaseManager.addDoor(door, getPlayer()).whenComplete(
             (result, throwable) ->
             {
-                if (!result.first)
+                if (!result.cancelled())
                 {
                     getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
                     return;
                 }
 
-                if (result.second.isEmpty())
+                if (result.door().isEmpty())
                 {
                     getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
                     log.at(Level.SEVERE).log("Failed to insert door after creation!");

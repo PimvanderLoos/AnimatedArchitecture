@@ -1,5 +1,10 @@
 package nl.pim16aap2.bigdoors.managers;
 
+import com.google.common.flogger.StackSize;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
@@ -7,7 +12,6 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
-import nl.pim16aap2.bigdoors.util.pair.PairNullable;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -24,7 +28,7 @@ import java.util.logging.Level;
 @Flogger
 public final class ToolUserManager extends Restartable
 {
-    private final Map<UUID, PairNullable<ToolUser, TimerTask>> toolUsers = new ConcurrentHashMap<>();
+    private final Map<UUID, ToolUserEntry> toolUsers = new ConcurrentHashMap<>();
     private final ILocalizer localizer;
     private final IPExecutor executor;
 
@@ -38,8 +42,8 @@ public final class ToolUserManager extends Restartable
 
     public void registerToolUser(ToolUser toolUser)
     {
-        final @Nullable PairNullable<ToolUser, TimerTask> result =
-            toolUsers.put(toolUser.getPlayer().getUUID(), new PairNullable<>(toolUser, null));
+        final @Nullable ToolUserEntry result =
+            toolUsers.put(toolUser.getPlayer().getUUID(), new ToolUserEntry(toolUser, null));
 
         if (result != null)
         {
@@ -68,17 +72,17 @@ public final class ToolUserManager extends Restartable
 
     public Optional<ToolUser> getToolUser(UUID uuid)
     {
-        return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.first);
+        return Optional.ofNullable(toolUsers.get(uuid)).map(pair -> pair.toolUser);
     }
 
     @Override
     public void restart()
     {
-        final Iterator<Map.Entry<UUID, PairNullable<ToolUser, TimerTask>>> it = toolUsers.entrySet().iterator();
+        final Iterator<Map.Entry<UUID, ToolUserEntry>> it = toolUsers.entrySet().iterator();
         //noinspection WhileLoopReplaceableByForEach
         while (it.hasNext())
         {
-            final Map.Entry<UUID, PairNullable<ToolUser, TimerTask>> entry = it.next();
+            final Map.Entry<UUID, ToolUserEntry> entry = it.next();
             abortPair(entry.getKey(), entry.getValue());
         }
 
@@ -120,20 +124,18 @@ public final class ToolUserManager extends Restartable
      */
     public void startToolUser(ToolUser toolUser, int time)
     {
-        final @Nullable PairNullable<ToolUser, TimerTask> pair = toolUsers.get(toolUser.getPlayer().getUUID());
+        final @Nullable ToolUserEntry pair = toolUsers.get(toolUser.getPlayer().getUUID());
         if (pair == null)
         {
-            log.at(Level.SEVERE).withCause(
-                   new IllegalStateException("Trying to start a tool user even though it wasn't registered, somehow!"))
-               .log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("Trying to start a tool user even though it wasn't registered, somehow!");
             return;
         }
 
-        if (pair.second != null)
+        if (pair.timerTask != null)
         {
-            log.at(Level.SEVERE).withCause(
-                new IllegalStateException(
-                    "Trying to create a timer for a tool user even though it already has one! Aborting...")).log();
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
+               .log("Trying to create a timer for a tool user even though it already has one! Aborting...");
             abortToolUser(toolUser.getPlayer().getUUID());
             return;
         }
@@ -149,7 +151,7 @@ public final class ToolUserManager extends Restartable
             }
         };
 
-        pair.second = timerTask;
+        pair.timerTask = timerTask;
         executor.runSyncLater(timerTask, time);
     }
 
@@ -180,21 +182,29 @@ public final class ToolUserManager extends Restartable
         abortPair(playerUUID, toolUsers.get(playerUUID));
     }
 
-    private void abortPair(UUID uuid, @Nullable PairNullable<ToolUser, TimerTask> pair)
+    private void abortPair(UUID uuid, @Nullable ToolUserEntry pair)
     {
         toolUsers.remove(uuid);
 
         if (pair == null)
             return;
 
-        if (pair.first != null)
-        {
-            if (pair.first.isActive())
-                pair.first.getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
-            pair.first.shutdown();
-        }
+        if (pair.toolUser.isActive())
+            pair.toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
+        pair.toolUser.shutdown();
 
-        if (pair.second != null)
-            pair.second.cancel();
+        if (pair.timerTask != null)
+            pair.timerTask.cancel();
+    }
+
+    @ToString
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    private static final class ToolUserEntry
+    {
+        @Getter
+        private ToolUser toolUser;
+        @Getter
+        private @Nullable TimerTask timerTask;
     }
 }
