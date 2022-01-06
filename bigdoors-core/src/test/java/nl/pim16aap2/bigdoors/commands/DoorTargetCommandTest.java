@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import nl.pim16aap2.testing.AssertionsUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +59,7 @@ class DoorTargetCommandTest
     @SneakyThrows
     void testExecutionSuccess()
     {
-        Assertions.assertTrue(doorTargetCommand.executeCommand(new BooleanPair(true, true))
+        Assertions.assertTrue(doorTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorTargetCommand).performAction(Mockito.any());
     }
@@ -72,7 +71,7 @@ class DoorTargetCommandTest
         Mockito.when(door.isDoorOwner(Mockito.any(UUID.class))).thenReturn(false);
         Mockito.when(door.isDoorOwner(Mockito.any(IPPlayer.class))).thenReturn(false);
 
-        Assertions.assertFalse(doorTargetCommand.executeCommand(new BooleanPair(true, true))
+        Assertions.assertFalse(doorTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                 .get(1, TimeUnit.SECONDS));
     }
 
@@ -82,7 +81,7 @@ class DoorTargetCommandTest
     {
         Mockito.doReturn(false).when(doorTargetCommand).isAllowed(Mockito.any(), Mockito.anyBoolean());
 
-        Assertions.assertTrue(doorTargetCommand.executeCommand(new BooleanPair(true, true))
+        Assertions.assertTrue(doorTargetCommand.executeCommand(new PermissionsStatus(true, true))
                                                .get(1, TimeUnit.SECONDS));
         Mockito.verify(doorTargetCommand, Mockito.never()).performAction(Mockito.any());
     }
@@ -95,7 +94,7 @@ class DoorTargetCommandTest
                .thenThrow(new IllegalStateException("Generic Exception!"));
 
         AssertionsUtil.assertThrowablesLogged(
-            () -> doorTargetCommand.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS),
+            () -> doorTargetCommand.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS),
             // Thrown by the doorTargetCommand CompletableFuture's exception handler (via Util).
             CompletionException.class,
             // Thrown when the command action failed.

@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Provider;
@@ -54,7 +53,7 @@ public class NewDoor extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         toolUserManager.startToolUser(doorType.getCreator(creatorContextProvider.get(),
                                                           (IPPlayer) getCommandSender(), doorName),

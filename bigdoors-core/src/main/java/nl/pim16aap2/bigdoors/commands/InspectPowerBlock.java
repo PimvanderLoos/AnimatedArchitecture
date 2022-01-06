@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.PowerBlockInspector;
 import nl.pim16aap2.bigdoors.util.Constants;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -47,10 +46,10 @@ public class InspectPowerBlock extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         toolUserManager.startToolUser(inspectPowerBlockFactory.create((IPPlayer) getCommandSender(),
-                                                                      permissions.second),
+                                                                      permissions.hasAdminPermission()),
                                       Constants.DOOR_CREATOR_TIME_LIMIT);
         return CompletableFuture.completedFuture(true);
     }

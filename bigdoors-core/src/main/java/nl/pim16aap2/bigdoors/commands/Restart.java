@@ -7,7 +7,6 @@ import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -35,7 +34,7 @@ public class Restart extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         platformProvider.getPlatform().ifPresent(IBigDoorsPlatform::restartPlugin);
         return CompletableFuture.completedFuture(true);

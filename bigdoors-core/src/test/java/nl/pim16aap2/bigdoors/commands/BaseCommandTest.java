@@ -6,7 +6,6 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,7 +100,7 @@ class BaseCommandTest
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class)))
-               .thenReturn(CompletableFuture.completedFuture(new BooleanPair(false, false)));
+               .thenReturn(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
 
         final CompletableFuture<Boolean> result = baseCommand.run();
         Assertions.assertTrue(result.get(1, TimeUnit.SECONDS));
@@ -112,7 +111,7 @@ class BaseCommandTest
     {
         Mockito.when(baseCommand.executeCommand(Mockito.any())).thenReturn(CompletableFuture.completedFuture(true));
 
-        final CompletableFuture<BooleanPair> exceptional = new CompletableFuture<>();
+        final CompletableFuture<PermissionsStatus> exceptional = new CompletableFuture<>();
         exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
 
         Mockito.when(commandSender.hasPermission(Mockito.any(CommandDefinition.class))).thenReturn(exceptional);
@@ -130,7 +129,7 @@ class BaseCommandTest
         final CompletableFuture<Boolean> exceptional = new CompletableFuture<>();
         exceptional.completeExceptionally(new IllegalStateException("Testing exception!"));
 
-        Mockito.when(baseCommand.executeCommand(Mockito.any(BooleanPair.class))).thenReturn(exceptional);
+        Mockito.when(baseCommand.executeCommand(Mockito.any(PermissionsStatus.class))).thenReturn(exceptional);
 
         ExecutionException exception =
             Assertions.assertThrows(ExecutionException.class,

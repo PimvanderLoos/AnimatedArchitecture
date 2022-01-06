@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.spigot.util.implementations;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandDefinition;
+import nl.pim16aap2.bigdoors.commands.PermissionsStatus;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,9 +52,9 @@ public final class PPlayerSpigot implements IPPlayer
     }
 
     @Override
-    public CompletableFuture<BooleanPair> hasPermission(CommandDefinition command)
+    public CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command)
     {
-        return CompletableFuture.completedFuture(new BooleanPair(
+        return CompletableFuture.completedFuture(new PermissionsStatus(
             command.getUserPermission().map(spigotPlayer::hasPermission).orElse(false),
             command.getAdminPermission().map(spigotPlayer::hasPermission).orElse(false)));
     }

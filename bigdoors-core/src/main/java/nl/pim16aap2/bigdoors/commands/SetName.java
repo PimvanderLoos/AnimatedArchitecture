@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.tooluser.ToolUser;
 import nl.pim16aap2.bigdoors.tooluser.creator.Creator;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -47,7 +46,7 @@ public class SetName extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         final IPPlayer player = (IPPlayer) getCommandSender();
         final Optional<ToolUser> tu = toolUserManager.getToolUser(player.getUUID());

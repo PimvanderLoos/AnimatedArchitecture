@@ -15,7 +15,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import javax.inject.Named;
 import java.util.Optional;
@@ -134,13 +133,13 @@ public class Toggle extends BaseCommand
     }
 
     @Override
-    protected final CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected final CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         final DoorActionCause actionCause = getCommandSender().isPlayer() ?
                                             DoorActionCause.PLAYER : DoorActionCause.SERVER;
         final CompletableFuture<?>[] actions = new CompletableFuture[doorRetrievers.length];
         for (int idx = 0; idx < actions.length; ++idx)
-            actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.second);
+            actions[idx] = handleDoorRequest(doorRetrievers[idx], actionCause, permissions.hasAdminPermission());
         return CompletableFuture.allOf(actions).thenApply(ignored -> true);
     }
 

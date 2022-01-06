@@ -6,7 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +33,7 @@ public class StopDoors extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         doorActivityManager.stopDoors();
         return CompletableFuture.completedFuture(true);

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -41,16 +40,16 @@ public interface ICommandSender extends IMessageable
      * Checks if this sender has a given command.
      * <p>
      * Both the user permission (See {@link CommandDefinition#getUserPermission()}) and the admin permission (See {@link
-     * CommandDefinition#getAdminPermission()} are checked.
+     * CommandDefinition#getAdminPermission()}) are checked.
      *
      * @param command
      *     The {@link CommandDefinition} of a command to check.
-     * @return A {@link BooleanPair} that is true if the player has access to the provided permissions, otherwise false
-     * for the user and the admin permission nodes respectively.
+     * @return A {@link PermissionsStatus} that is true if the player has access to the provided permissions, otherwise
+     * false for the user and the admin permission nodes respectively.
      */
-    default CompletableFuture<BooleanPair> hasPermission(CommandDefinition command)
+    default CompletableFuture<PermissionsStatus> hasPermission(CommandDefinition command)
     {
         return getPlayer().map(player -> player.hasPermission(command))
-                          .orElse(CompletableFuture.completedFuture(new BooleanPair(false, false)));
+                          .orElse(CompletableFuture.completedFuture(new PermissionsStatus(false, false)));
     }
 }

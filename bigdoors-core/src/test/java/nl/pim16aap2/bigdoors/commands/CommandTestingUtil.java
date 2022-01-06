@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.commands;
 
 import nl.pim16aap2.bigdoors.api.PPlayerData;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CompletableFuture;
@@ -30,7 +29,7 @@ class CommandTestingUtil
         Mockito.doReturn(CompletableFuture.completedFuture(userPerm))
                .when(commandSender).hasPermission(Mockito.anyString());
 
-        Mockito.doReturn(CompletableFuture.completedFuture(new BooleanPair(userPerm, adminPerm)))
+        Mockito.doReturn(CompletableFuture.completedFuture(new PermissionsStatus(userPerm, adminPerm)))
                .when(commandSender).hasPermission(Mockito.any(CommandDefinition.class));
     }
 }

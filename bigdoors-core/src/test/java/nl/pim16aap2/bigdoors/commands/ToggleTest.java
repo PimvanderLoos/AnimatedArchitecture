@@ -13,7 +13,6 @@ import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,12 +96,12 @@ class ToggleTest
     {
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
                                                 Toggle.DEFAULT_SPEED_MULTIPLIER, doorRetriever);
-        toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
+        toggle.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
         Mockito.verify(doorToggleRequestFactory).create(doorRetriever, DoorActionCause.PLAYER, commandSender,
                                                         commandSender, 0.0D, false, DoorActionType.TOGGLE);
 
         Mockito.when(door.getDoorOwner(commandSender)).thenReturn(Optional.of(CommandTestingUtil.doorOwner0));
-        toggle.executeCommand(new BooleanPair(true, false)).get(1, TimeUnit.SECONDS);
+        toggle.executeCommand(new PermissionsStatus(true, false)).get(1, TimeUnit.SECONDS);
         Mockito.verify(doorToggleRequestFactory, Mockito.times(2)).create(doorRetriever, DoorActionCause.PLAYER,
                                                                           commandSender, commandSender,
                                                                           0.0D, false, DoorActionType.TOGGLE);
@@ -125,7 +124,7 @@ class ToggleTest
 
         final Toggle toggle = factory.newToggle(commandSender, Toggle.DEFAULT_DOOR_ACTION_TYPE,
                                                 Toggle.DEFAULT_SPEED_MULTIPLIER, retrievers);
-        toggle.executeCommand(new BooleanPair(true, true)).get(1, TimeUnit.SECONDS);
+        toggle.executeCommand(new PermissionsStatus(true, true)).get(1, TimeUnit.SECONDS);
 
         final Set<DoorRetriever> toggledDoors =
             Mockito.mockingDetails(doorToggleRequestFactory).getInvocations().stream()

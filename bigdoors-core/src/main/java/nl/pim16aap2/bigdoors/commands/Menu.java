@@ -6,7 +6,6 @@ import dagger.assisted.AssistedInject;
 import lombok.ToString;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
@@ -43,10 +42,10 @@ public class Menu extends BaseCommand
     @Override
     // NullAway doesn't like a Nullable value ('target') as equals parameter.
     @SuppressWarnings("NullAway")
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         // You need the bypass permission to open menus that aren't your own.
-        if (!permissions.second && !getCommandSender().equals(target))
+        if (!permissions.hasAdminPermission() && !getCommandSender().equals(target))
             return CompletableFuture.completedFuture(false);
 
         throw new UnsupportedOperationException("This command has not yet been implemented!");

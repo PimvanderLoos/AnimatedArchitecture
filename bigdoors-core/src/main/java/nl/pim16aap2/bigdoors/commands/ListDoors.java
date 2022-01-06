@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -40,10 +39,10 @@ public class ListDoors extends BaseCommand
     }
 
     @Override
-    protected CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         final CompletableFuture<List<AbstractDoor>> doors;
-        if (permissions.second || !(getCommandSender() instanceof IPPlayer))
+        if (permissions.hasAdminPermission() || !getCommandSender().isPlayer())
             doors = doorRetriever.getDoors();
         else
             doors = doorRetriever.getDoors((IPPlayer) getCommandSender());

@@ -12,7 +12,6 @@ import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -174,8 +173,8 @@ public abstract class BaseCommand
 
     /**
      * Starts the execution of this command. It performs the permission check (See {@link #hasPermission()}) and runs
-     * {@link #executeCommand(BooleanPair)} if the {@link ICommandSender} has access to either the user or the admin
-     * permission.
+     * {@link #executeCommand(PermissionsStatus)} if the {@link ICommandSender} has access to either the user or the
+     * admin permission.
      *
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.
@@ -185,9 +184,9 @@ public abstract class BaseCommand
         return hasPermission().thenApplyAsync(this::handlePermissionResult);
     }
 
-    private boolean handlePermissionResult(BooleanPair permissionResult)
+    private boolean handlePermissionResult(PermissionsStatus permissionResult)
     {
-        if (!permissionResult.first && !permissionResult.second)
+        if (!permissionResult.hasAnyPermission())
         {
             log.at(Level.FINE).log("Permission for command: " + this + ": " + permissionResult);
             commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
@@ -209,10 +208,10 @@ public abstract class BaseCommand
      * Note that this method is called asynchronously.
      *
      * @param permissions
-     *     Whether the {@link ICommandSender} has user and/or admin permissions respectively.
+     *     Whether the {@link ICommandSender} has user and/or admin permissions.
      * @return True if the method execution was successful.
      */
-    protected abstract CompletableFuture<Boolean> executeCommand(BooleanPair permissions);
+    protected abstract CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions);
 
     /**
      * Ensures the command is logged.
@@ -253,7 +252,7 @@ public abstract class BaseCommand
      * @return A pair of booleans that indicates whether the user has access to the user and admin permission nodes
      * respectively. For both, true indicates that they do have access to the node and false that they do not.
      */
-    protected CompletableFuture<BooleanPair> hasPermission()
+    protected CompletableFuture<PermissionsStatus> hasPermission()
     {
         return commandSender.hasPermission(getCommand());
     }

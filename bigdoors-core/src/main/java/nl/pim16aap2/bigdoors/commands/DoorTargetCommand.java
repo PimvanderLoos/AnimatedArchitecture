@@ -8,7 +8,6 @@ import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
-import nl.pim16aap2.bigdoors.util.pair.BooleanPair;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,7 +36,7 @@ public abstract class DoorTargetCommand extends BaseCommand
     }
 
     @Override
-    protected final CompletableFuture<Boolean> executeCommand(BooleanPair permissions)
+    protected final CompletableFuture<Boolean> executeCommand(PermissionsStatus permissions)
     {
         return getDoor(getDoorRetriever())
             .thenApplyAsync(door -> processDoorResult(door, permissions))
@@ -50,10 +49,10 @@ public abstract class DoorTargetCommand extends BaseCommand
      * @param door
      *     The result of trying to retrieve the door.
      * @param permissions
-     *     Whether the ICommandSender has user and/or admin permissions respectively.
+     *     Whether the ICommandSender has user and/or admin permissions.
      * @return The result of running the command, see {@link BaseCommand#run()}.
      */
-    private boolean processDoorResult(Optional<AbstractDoor> door, BooleanPair permissions)
+    private boolean processDoorResult(Optional<AbstractDoor> door, PermissionsStatus permissions)
     {
         if (door.isEmpty())
         {
@@ -64,7 +63,7 @@ public abstract class DoorTargetCommand extends BaseCommand
             return false;
         }
 
-        if (!isAllowed(door.get(), permissions.second))
+        if (!isAllowed(door.get(), permissions.hasAdminPermission()))
         {
             log.at(Level.FINE).log("%s does not have access to door %s for command %s", getCommandSender(), door, this);
 
