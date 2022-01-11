@@ -18,7 +18,7 @@
         <src.dir>${basedir}/src/main/java</src.dir>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
-        <dependency.version.flogger>0.7.1</dependency.version.flogger>
+        <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.32</dependency.version.slf4j>
         <dependency.version.logback>1.2.10</dependency.version.logback>
         <dependency.version.annotations>23.0.0</dependency.version.annotations>
