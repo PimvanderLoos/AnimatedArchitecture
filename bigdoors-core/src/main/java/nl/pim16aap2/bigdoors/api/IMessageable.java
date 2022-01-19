@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.api;
 
+import lombok.extern.flogger.Flogger;
+
 import java.util.logging.Level;
 
 /**
@@ -9,6 +11,11 @@ import java.util.logging.Level;
  */
 public interface IMessageable
 {
+    /**
+     * Instance of {@link BlackHoleMessageable} that can be used in case messages should not be sent anywhere.
+     */
+    IMessageable NULL = new BlackHoleMessageable();
+
     /**
      * Sends a message to this object.
      *
@@ -28,5 +35,22 @@ public interface IMessageable
     default void sendMessage(String message)
     {
         sendMessage(Level.INFO, message);
+    }
+
+    /**
+     * Implementation of {@link IMessageable} that does not send messages anywhere.
+     */
+    @Flogger
+    class BlackHoleMessageable implements IMessageable
+    {
+        private BlackHoleMessageable()
+        {
+        }
+
+        @Override
+        public void sendMessage(Level level, String message)
+        {
+            log.at(Level.FINEST).log("Sent to black hole: %s", message);
+        }
     }
 }
