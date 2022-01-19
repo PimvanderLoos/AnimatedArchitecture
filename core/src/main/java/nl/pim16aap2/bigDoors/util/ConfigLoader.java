@@ -29,9 +29,13 @@ import java.util.logging.Level;
 
 public class ConfigLoader
 {
-    private static final List<Material> DEFAULT_DESTROY_LIST = createDefaultDestroyList(
+    private static final List<Material> DEFAULT_DESTROY_LIST = createParsedMaterialsList(
         XMaterial.LAVA, XMaterial.WATER, XMaterial.SNOW, XMaterial.FERN, XMaterial.GRASS,
         XMaterial.TALL_GRASS, XMaterial.SEAGRASS, XMaterial.TALL_SEAGRASS
+    );
+
+    private static final List<Material> DEFAULT_BLACK_LIST = createParsedMaterialsList(
+        XMaterial.BEDROCK
     );
 
     private static final List<String> DEFAULT_POWER_BLOCK =
@@ -241,7 +245,7 @@ public class ConfigLoader
         readPowerBlockConfig(config, powerBlockTypeComment);
 
         blacklist = readMaterialConfig(config, blacklistComment, "materialBlacklist", "Blacklisted",
-                                       Collections.emptyList());
+                                       DEFAULT_BLACK_LIST);
         whitelist = readMaterialConfig(config, whitelistComment, "materialWhitelist", "Whitelisted",
                                        Collections.emptyList());
         destroyList = readMaterialConfig(config, destroyListComment, "materialDestroyList", "DestroyListed",
@@ -542,7 +546,7 @@ public class ConfigLoader
         }
     }
 
-    private static List<Material> createDefaultDestroyList(XMaterial... materials)
+    private static List<Material> createParsedMaterialsList(XMaterial... materials)
     {
         final ArrayList<Material> ret = new ArrayList<>(materials.length);
         for (XMaterial xMat : materials)
