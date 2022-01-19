@@ -1,6 +1,6 @@
 Alpha 0.1.8.36
 - Fix issue with buttons etc when placed on/next to powerblocks if the powerblocks are too close/inside the door. Thanks, Lilith88, for the bug report!
-- Add bedrock to the default materials blacklist. Thanks, Henriko Magnifico, for the bug report!
+- Add bedrock and portal stuff to the default materials blacklist. Thanks, Henriko Magnifico, for the bug report!
 
 Alpha 0.1.8.35
 - Log more information when a door cannot be toggled because there's no available space.

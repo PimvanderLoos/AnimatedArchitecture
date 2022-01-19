@@ -35,7 +35,7 @@ public class ConfigLoader
     );
 
     private static final List<Material> DEFAULT_BLACK_LIST = createParsedMaterialsList(
-        XMaterial.BEDROCK
+        XMaterial.BEDROCK, XMaterial.END_PORTAL, XMaterial.END_PORTAL_FRAME, XMaterial.NETHER_PORTAL
     );
 
     private static final List<String> DEFAULT_POWER_BLOCK =
