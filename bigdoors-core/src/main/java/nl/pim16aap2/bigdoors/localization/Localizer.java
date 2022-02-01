@@ -91,7 +91,7 @@ final class Localizer implements ILocalizer
     {
         if (classLoader == null)
         {
-            log.at(Level.WARNING).log("Failed to find localization key \"" + key + "\"! Reason: ClassLoader is null!");
+            log.at(Level.WARNING).log("Failed to find localization key '%s'! Reason: ClassLoader is null!", key);
             return KEY_NOT_FOUND_MESSAGE + key;
         }
 
@@ -102,7 +102,7 @@ final class Localizer implements ILocalizer
         }
         catch (MissingResourceException e)
         {
-            log.at(Level.WARNING).log("Failed to find localization key \"" + key + "\"! Reason: Key does not exist!");
+            log.at(Level.WARNING).log("Failed to find localization key '%s'! Reason: Key does not exist!", key);
             return KEY_NOT_FOUND_MESSAGE + key;
         }
     }

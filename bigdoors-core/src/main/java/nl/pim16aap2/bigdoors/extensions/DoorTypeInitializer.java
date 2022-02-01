@@ -89,7 +89,7 @@ final class DoorTypeInitializer
                 final LoadResult loadResult = processDependencies(pair.typeInfo);
                 if (loadResult.loadResultType != LoadResultType.DEPENDENCIES_AVAILABLE &&
                     (!loadResult.message.isEmpty()))
-                    log.at(Level.WARNING).log(loadResult.message);
+                    log.at(Level.WARNING).log("%s", loadResult.message);
             });
 
         sorted = getSortedDoorTypeInfo();

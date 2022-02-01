@@ -35,7 +35,7 @@ public final class BackupCommandListener implements CommandExecutor
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
-        log.at(Level.WARNING).log(errorMessage);
+        log.at(Level.WARNING).log("%s", errorMessage);
 
         if (sender instanceof Player player)
             player.sendMessage(ChatColor.YELLOW + getReturnMessage(player));

@@ -188,7 +188,7 @@ public abstract class BaseCommand
     {
         if (!permissionResult.hasAnyPermission())
         {
-            log.at(Level.FINE).log("Permission for command: " + this + ": " + permissionResult);
+            log.at(Level.FINE).log("Permission for command: %s: %s", this, permissionResult);
             commandSender.sendMessage(localizer.getMessage("commands.base.error.no_permission_for_command"));
             return true;
         }
