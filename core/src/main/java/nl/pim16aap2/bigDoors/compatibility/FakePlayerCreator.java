@@ -34,7 +34,6 @@ public class FakePlayerCreator
     private Class<?> classPlayerInteractManager;
     private Class<?> classGameProfile;
 
-    private Method methodGetProfile;
     private Method methodGetHandle;
     private Method methodGetServer;
     private Method methodGetBukkitEntity;
@@ -43,6 +42,7 @@ public class FakePlayerCreator
     private @Nullable Constructor<?> cTorPlayerInteractManager;
 
     private Field fieldUuid;
+    private Field fieldProfile;
     private Field fieldPlayerNameVar;
 
     private final JavaPlugin plugin;
@@ -77,14 +77,16 @@ public class FakePlayerCreator
                                             .withName("getBukkitEntity").atLeast(1).get().get(0);
         methodGetHandle = findMethod().inClass(classCraftWorld).withName("getHandle")
                                       .withModifiers(Modifier.PUBLIC).get();
-        methodGetProfile = findMethod().inClass(classCraftOfflinePlayer).withName("getProfile").get();
+
+
         methodGetServer = findMethod().inClass(classMinecraftServer).withName("getServer").get();
 
         Class<?> classNMSEntity = findClass(nmsBase + "Entity", "net.minecraft.world.entity.Entity").get();
 
         fieldUuid = findField().inClass(classNMSEntity).ofType(UUID.class).withModifiers(Modifier.PROTECTED).get();
         fieldUuid.setAccessible(true);
-
+        fieldProfile = findField().inClass(classCraftOfflinePlayer).ofType(classGameProfile).get();
+        fieldProfile.setAccessible(true);
         fieldPlayerNameVar = findField().inClass(classGameProfile).withName("name").get();
         fieldPlayerNameVar.setAccessible(true);
 
@@ -107,7 +109,7 @@ public class FakePlayerCreator
         try
         {
             Object coPlayer = classCraftOfflinePlayer.cast(oPlayer);
-            Object gProfile = methodGetProfile.invoke(coPlayer);
+            Object gProfile = fieldProfile.get(coPlayer);
             fieldPlayerNameVar.set(gProfile, playerName);
 
             Object craftServer = classCraftWorld.cast(world);
