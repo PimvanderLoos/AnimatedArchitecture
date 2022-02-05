@@ -177,9 +177,6 @@ public class BigDoors extends JavaPlugin implements Listener
 
         logger.logMessageToLogFile("Starting BigDoors version: " + getDescription().getVersion());
 
-        if (DEVBUILD)
-            logger.logMessageToConsoleOnly("WARNING! You are running a dev-build (build: " + buildNumber + ")!");
-
         try
         {
             Bukkit.getPluginManager().registerEvents(new LoginMessageHandler(this), this);
