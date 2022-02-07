@@ -110,9 +110,9 @@ class CuboidTest
     void getCenterBlock()
     {
         final Vector3Di val1 = new Vector3Di(0, 11, 30);
-        final Vector3Di val2 = new Vector3Di(10, 0, 30);
+        final Vector3Di val2 = new Vector3Di(10, -2, 30);
 
-        final Vector3Di center = new Vector3Di(5, 5, 30);
+        final Vector3Di center = new Vector3Di(5, 4, 30);
 
         final Cuboid cuboid = new Cuboid(val1, val2);
         Assertions.assertEquals(center, cuboid.getCenterBlock());
@@ -131,10 +131,10 @@ class CuboidTest
     @Test
     void getCenter()
     {
-        final Vector3Di val1 = new Vector3Di(0, 11, 30);
-        final Vector3Di val2 = new Vector3Di(10, 0, 30);
+        final Vector3Di val1 = new Vector3Di(1, 11, 30);
+        final Vector3Di val2 = new Vector3Di(10, -2, 30);
 
-        final Vector3Dd center = new Vector3Dd(5, 5.5d, 30);
+        final Vector3Dd center = new Vector3Dd(5.5d, 4.5d, 30);
 
         final Vector3Dd foundCenter = new Cuboid(val1, val2).getCenter();
         Assertions.assertTrue(Math.abs(center.x() - foundCenter.x()) < EPSILON);

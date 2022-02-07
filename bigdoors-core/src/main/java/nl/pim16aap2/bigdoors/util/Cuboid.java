@@ -153,9 +153,9 @@ public class Cuboid
     @CheckReturnValue @Contract(pure = true)
     public Vector3Dd getCenter()
     {
-        final double cX = max.x() - ((max.x() - min.x()) / 2.0f);
-        final double cY = max.y() - ((max.y() - min.y()) / 2.0f);
-        final double cZ = max.z() - ((max.z() - min.z()) / 2.0f);
+        final double cX = (max.x() + min.x()) / 2.0f;
+        final double cY = (max.y() + min.y()) / 2.0f;
+        final double cZ = (max.z() + min.z()) / 2.0f;
         return new Vector3Dd(cX, cY, cZ);
     }
 
@@ -167,9 +167,9 @@ public class Cuboid
     @CheckReturnValue @Contract(pure = true)
     public Vector3Di getCenterBlock()
     {
-        final int cX = (int) (max.x() - ((max.x() - min.x()) / 2.0f));
-        final int cY = (int) (max.y() - ((max.y() - min.y()) / 2.0f));
-        final int cZ = (int) (max.z() - ((max.z() - min.z()) / 2.0f));
+        final int cX = (int) ((max.x() + min.x()) / 2.0f);
+        final int cY = (int) ((max.y() + min.y()) / 2.0f);
+        final int cZ = (int) ((max.z() + min.z()) / 2.0f);
         return new Vector3Di(cX, cY, cZ);
     }
 
