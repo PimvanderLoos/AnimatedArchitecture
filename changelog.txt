@@ -1,5 +1,5 @@
 Alpha 0.1.8.37
--
+- Remove duplicated messages in item names/lores in the GUI. Thanks, DjeyMute, for the suggestion!
 
 Alpha 0.1.8.36
 - Fix issue with buttons etc when placed on/next to powerblocks if the powerblocks are too close/inside the door. Thanks, Lilith88, for the bug report!

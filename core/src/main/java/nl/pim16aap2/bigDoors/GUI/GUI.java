@@ -493,13 +493,11 @@ public class GUI
 
         case TOGGLE:
             desc = messages.getString("GUI.ToggleDoor");
-            addLore(lore, desc);
             ret = new GUIItem(TOGGLEDOORMAT, desc, lore, 1);
             break;
 
         case INFO:
             desc = messages.getString("GUI.GetInfo");
-            addLore(lore, desc);
             ret = new GUIItem(INFOMAT, desc, lore, 1);
             break;
 
@@ -561,13 +559,11 @@ public class GUI
 
         case ADDOWNER:
             desc = messages.getString("GUI.ADDOWNER");
-            addLore(lore, desc);
             ret = new GUIItem(ADDOWNERMAT, desc, lore, 1, PLAYERHEADDATA);
             break;
 
         case REMOVEOWNER:
             desc = messages.getString("GUI.REMOVEOWNER");
-            addLore(lore, desc);
             ret = new GUIItem(REMOVEOWNERMAT, desc, lore, 1, SKULLDATA);
             break;
             
