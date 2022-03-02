@@ -71,10 +71,15 @@ public final class RestartableHolder
 
     /**
      * Calls {@link IRestartable#shutdown()} for all registered {@link IRestartable}s.
+     * <p>
+     * The {@link #restartables} are shut down in reverse order to ensure that dependents are processed before their
+     * dependencies are.
      */
     public void shutdown()
     {
-        restartables.forEach(restartable -> runForRestartable("shutdown", IRestartable::shutdown, restartable));
+        final IRestartable[] arr = restartables.toArray(new IRestartable[0]);
+        for (int idx = arr.length - 1; idx >= 0; --idx)
+            runForRestartable("shut down", IRestartable::shutdown, arr[idx]);
     }
 
     private static void runForRestartable(String actionName, Consumer<IRestartable> action, IRestartable restartable)
