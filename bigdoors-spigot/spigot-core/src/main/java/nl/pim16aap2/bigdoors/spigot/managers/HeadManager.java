@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.managers;
 
-import nl.pim16aap2.bigdoors.annotations.Initializer;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.config.ConfigLoaderSpigot;
@@ -20,13 +20,14 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 /**
  * Represents a manager of player heads with the texture of a certain player.
  *
  * @author Pim
  */
-@Singleton
+@Singleton @Flogger
 public final class HeadManager extends Restartable
 {
     /**
@@ -36,7 +37,7 @@ public final class HeadManager extends Restartable
      * <p>
      * Value: The player's head as item.
      */
-    private TimedCache<UUID, Optional<ItemStack>> headMap;
+    private @Nullable TimedCache<UUID, Optional<ItemStack>> headMap;
     private final ConfigLoaderSpigot config;
 
     /**
@@ -52,16 +53,6 @@ public final class HeadManager extends Restartable
     {
         super(holder);
         this.config = config;
-        init();
-    }
-
-    @Initializer
-    private void init()
-    {
-        headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
-                            .duration(Duration.ofMinutes(config.headCacheTimeout()))
-                            .cleanup(Duration.ofMinutes(Math.max(1, config.headCacheTimeout())))
-                            .softReference(true).build();
     }
 
     /**
@@ -77,38 +68,48 @@ public final class HeadManager extends Restartable
     @SuppressWarnings("unused")
     public CompletableFuture<Optional<ItemStack>> getPlayerHead(UUID playerUUID, String displayName)
     {
-        return CompletableFuture.supplyAsync(
-                                    () -> headMap.computeIfAbsent(playerUUID,
-                                                                  (p) -> createItemStack(playerUUID, displayName))
-                                                 .flatMap(Function.identity()))
-                                .exceptionally(Util::exceptionallyOptional);
+        if (headMap == null)
+        {
+            log.at(Level.SEVERE).log("Trying to retrieve player head while head map is not initialized!");
+            return CompletableFuture.completedFuture(Optional.empty());
+        }
+        // Satisfy NullAway that headMap won't be null.
+        final var headMapNN = headMap;
+
+        return CompletableFuture
+            .supplyAsync(() -> headMapNN.computeIfAbsent(playerUUID,
+                                                         (p) -> createItemStack(playerUUID, displayName))
+                                        .flatMap(Function.identity()))
+            .exceptionally(Util::exceptionallyOptional);
     }
 
     private Optional<ItemStack> createItemStack(UUID playerUUID, String displayName)
     {
         final OfflinePlayer oPlayer = Bukkit.getOfflinePlayer(playerUUID);
         final ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-        final @Nullable SkullMeta smeta = (SkullMeta) skull.getItemMeta();
-        if (smeta == null)
+        final @Nullable SkullMeta sMeta = (SkullMeta) skull.getItemMeta();
+        if (sMeta == null)
             return Optional.empty();
-        smeta.setOwningPlayer(oPlayer);
-        smeta.setDisplayName(displayName);
-        skull.setItemMeta(smeta);
+        sMeta.setOwningPlayer(oPlayer);
+        sMeta.setDisplayName(displayName);
+        skull.setItemMeta(sMeta);
         return Optional.of(skull);
     }
 
-
     @Override
-    public void restart()
+    public void initialize()
     {
-        final TimedCache<UUID, Optional<ItemStack>> oldHeadMap = headMap;
-        init();
-        oldHeadMap.clear();
+        headMap = TimedCache.<UUID, Optional<ItemStack>>builder()
+                            .duration(Duration.ofMinutes(config.headCacheTimeout()))
+                            .cleanup(Duration.ofMinutes(Math.max(1, config.headCacheTimeout())))
+                            .softReference(true).build();
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
-        headMap.clear();
+        if (headMap != null)
+            headMap.shutDown();
+        headMap = null;
     }
 }

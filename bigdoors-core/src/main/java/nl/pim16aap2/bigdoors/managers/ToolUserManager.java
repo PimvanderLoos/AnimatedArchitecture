@@ -76,7 +76,7 @@ public final class ToolUserManager extends Restartable
     }
 
     @Override
-    public void restart()
+    public void shutDown()
     {
         final Iterator<Map.Entry<UUID, ToolUserEntry>> it = toolUsers.entrySet().iterator();
         //noinspection WhileLoopReplaceableByForEach
@@ -93,12 +93,6 @@ public final class ToolUserManager extends Restartable
                                                  .log("Failed to abort ToolUer for user: %s", uuid.toString()));
             toolUsers.clear();
         }
-    }
-
-    @Override
-    public void shutdown()
-    {
-        restart();
     }
 
     /**
@@ -147,7 +141,7 @@ public final class ToolUserManager extends Restartable
             {
                 if (toolUser.isActive())
                     toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.timed_out"));
-                toolUser.shutdown();
+                toolUser.abort();
             }
         };
 
@@ -191,7 +185,7 @@ public final class ToolUserManager extends Restartable
 
         if (pair.toolUser.isActive())
             pair.toolUser.getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
-        pair.toolUser.shutdown();
+        pair.toolUser.abort();
 
         if (pair.timerTask != null)
             pair.timerTask.cancel();

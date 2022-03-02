@@ -36,8 +36,8 @@ class DoorTypeLoaderTest
                          .replace("bigdoors-integration-test", "bigdoors-doors" + File.separator + "DoorTypes");
         final int inputCount = Objects.requireNonNull(new File(extensionsPath).list()).length;
 
-        Assertions.assertEquals(inputCount,
-                                new DoorTypeLoader(restartableHolder, doorTypeManager, Path.of(""))
-                                    .loadDoorTypesFromDirectory(Path.of(extensionsPath)).size());
+        final var doorTypeLoader = new DoorTypeLoader(restartableHolder, doorTypeManager, Path.of(""));
+        doorTypeLoader.initialize();
+        Assertions.assertEquals(inputCount, doorTypeLoader.loadDoorTypesFromDirectory(Path.of(extensionsPath)).size());
     }
 }

@@ -63,7 +63,7 @@ class CancelTest
     {
         Assertions.assertTrue(factory.newCancel(commandSender).run().get(1, TimeUnit.SECONDS));
 
-        Mockito.verify(toolUser).shutdown();
+        Mockito.verify(toolUser).abort();
         Mockito.verify(doorSpecificationManager).cancelRequest(commandSender);
     }
 }

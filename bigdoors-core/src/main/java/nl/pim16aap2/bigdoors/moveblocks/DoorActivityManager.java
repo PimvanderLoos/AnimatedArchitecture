@@ -187,16 +187,8 @@ public final class DoorActivityManager extends Restartable
     }
 
     @Override
-    public void restart()
+    public void shutDown()
     {
-        busyDoors.forEach((key, value) -> value.ifPresent(BlockMover::restart));
-        busyDoors.clear();
-    }
-
-    @Override
-    public void shutdown()
-    {
-        busyDoors.forEach((key, value) -> value.ifPresent(BlockMover::shutdown));
-        busyDoors.clear();
+        stopDoors();
     }
 }

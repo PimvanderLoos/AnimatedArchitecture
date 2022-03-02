@@ -156,13 +156,7 @@ public final class DoorRegistry extends Restartable implements IDebuggable
     }
 
     @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
+    public void shutDown()
     {
         doorCache.clear();
     }

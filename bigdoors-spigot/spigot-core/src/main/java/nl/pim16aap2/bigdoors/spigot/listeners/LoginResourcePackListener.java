@@ -66,9 +66,9 @@ public class LoginResourcePackListener extends AbstractListener
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        super.restart();
+        super.initialize();
         resourcePackURL = config.resourcePack();
     }
 }

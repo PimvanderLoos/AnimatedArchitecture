@@ -30,7 +30,6 @@ public abstract class AbstractListener implements Listener, IRestartable
             holder.registerRestartable(this);
         this.plugin = plugin;
         this.enabler = enabler;
-        init();
     }
 
     /**
@@ -59,12 +58,6 @@ public abstract class AbstractListener implements Listener, IRestartable
     protected AbstractListener(JavaPlugin plugin)
     {
         this(plugin, null, null);
-    }
-
-    private void init()
-    {
-        if (enabler == null || enabler.get())
-            register();
     }
 
     /**
@@ -96,16 +89,14 @@ public abstract class AbstractListener implements Listener, IRestartable
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        shutdown();
-
         if (enabler == null || enabler.get())
             register();
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         unregister();
     }

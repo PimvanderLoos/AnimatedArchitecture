@@ -62,17 +62,17 @@ public class RedstoneListener extends AbstractListener
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        super.restart();
+        super.initialize();
         if (super.isRegistered)
             powerBlockTypes.addAll(config.powerBlockTypes());
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
-        super.shutdown();
+        super.shutDown();
         powerBlockTypes.clear();
     }
 

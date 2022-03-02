@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.DoorBaseBuilder;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
@@ -28,7 +27,7 @@ import java.util.logging.Level;
 
 @ToString
 @Flogger
-public abstract class ToolUser implements IRestartable
+public abstract class ToolUser
 {
     @Getter
     private final IPPlayer player;
@@ -119,14 +118,7 @@ public abstract class ToolUser implements IRestartable
         toolUserManager.abortToolUser(this);
     }
 
-    @Override
-    public void restart()
-    {
-        cleanUpProcess();
-    }
-
-    @Override
-    public void shutdown()
+    public void abort()
     {
         cleanUpProcess();
     }
@@ -214,7 +206,7 @@ public abstract class ToolUser implements IRestartable
         {
             log.at(Level.SEVERE).withCause(e).log("Failed to apply input %s to ToolUser %s", obj, this);
             getPlayer().sendMessage(localizer.getMessage("constants.error.generic"));
-            shutdown();
+            abort();
             return false;
         }
     }

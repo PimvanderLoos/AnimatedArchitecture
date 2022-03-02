@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import net.minecraft.server.v1_15_R1.EntityMagmaCube;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
@@ -11,12 +12,8 @@ import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntityTeleport;
 import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntityLiving;
 import net.minecraft.server.v1_15_R1.PlayerConnection;
-import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
-import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawner;
 import nl.pim16aap2.bigdoors.util.IGlowingBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.World;
@@ -27,9 +24,7 @@ import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.TimerTask;
 import java.util.logging.Level;
 
 /**
@@ -41,27 +36,24 @@ import java.util.logging.Level;
 @Flogger
 public class GlowingBlock_V1_15_R1 implements IGlowingBlock
 {
-    private final World world;
-
-    private @Nullable TimerTask killTask;
-
-    private @Nullable Integer entityID = null;
+    private final EntityMagmaCube glowingBlockEntity;
+    @Getter
+    private final int entityId;
 
     private boolean alive = false;
 
     private final Map<PColor, Team> teams;
     private final Player player;
-    private final RestartableHolder restartableHolder;
-    private final IPExecutor executor;
 
-    public GlowingBlock_V1_15_R1(Player player, World world, Map<PColor, Team> teams,
-                                 RestartableHolder restartableHolder, IPExecutor executor)
+    public GlowingBlock_V1_15_R1(Player player, World world, PColor pColor,
+                                 double x, double y, double z, Map<PColor, Team> teams)
     {
         this.player = player;
-        this.world = world;
         this.teams = teams;
-        this.restartableHolder = restartableHolder;
-        this.executor = executor;
+
+        glowingBlockEntity = new EntityMagmaCube(EntityTypes.MAGMA_CUBE, ((CraftWorld) world).getHandle());
+        entityId = glowingBlockEntity.getId();
+        spawn(pColor, x, y, z);
     }
 
     private Optional<PlayerConnection> getConnection()
@@ -80,12 +72,10 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     @Override
     public void kill()
     {
-        killTask = null;
-        restartableHolder.deregisterRestartable(this);
         if (!alive)
             return;
 
-        getConnection().ifPresent(connection -> connection.sendPacket(new PacketPlayOutEntityDestroy(entityID)));
+        getConnection().ifPresent(connection -> connection.sendPacket(new PacketPlayOutEntityDestroy(entityId)));
         alive = false;
     }
 
@@ -98,8 +88,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
             .sendPacket(new PacketPlayOutGlowingBlockTeleport(position.x(), position.y(), position.z())));
     }
 
-    @Override
-    public void spawn(PColor pColor, double x, double y, double z, long ticks)
+    private void spawn(PColor pColor, double x, double y, double z)
     {
         final @Nullable Team team = teams.get(pColor);
         if (team == null)
@@ -113,13 +102,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         if (playerConnectionOpt.isEmpty())
             return;
 
-        if (killTask != null)
-            killTask.cancel();
-
         final PlayerConnection playerConnection = playerConnectionOpt.get();
-        final EntityMagmaCube glowingBlockEntity =
-            new EntityMagmaCube(EntityTypes.MAGMA_CUBE, ((CraftWorld) world).getHandle());
-        entityID = entityID == null ? glowingBlockEntity.getId() : entityID;
 
         glowingBlockEntity.setLocation(x + 0.5, y, z + 0.5, 0, 0);
         glowingBlockEntity.setHeadRotation(0);
@@ -141,31 +124,6 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
                                             glowingBlockEntity.getDataWatcher(), false);
         playerConnection.sendPacket(entityMetadata);
         alive = true;
-        restartableHolder.registerRestartable(this);
-
-        killTask = new TimerTask()
-        {
-            @Override
-            public void run()
-            {
-                kill();
-            }
-        };
-        executor.runSyncLater(killTask, ticks);
-    }
-
-    @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
-    {
-        if (killTask == null)
-            return;
-        killTask.run();
     }
 
     @AllArgsConstructor
@@ -178,7 +136,7 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
         @Override
         public void b(PacketDataSerializer var0)
         {
-            var0.d(Objects.requireNonNull(entityID, "EntityID is not set yet!"));
+            var0.d(entityId);
             var0.writeDouble(x);
             var0.writeDouble(y);
             var0.writeDouble(z);
@@ -191,16 +149,32 @@ public class GlowingBlock_V1_15_R1 implements IGlowingBlock
     public static class Factory implements IGlowingBlockFactory
     {
         @Override
-        public Optional<IGlowingBlock> createGlowingBlock(Player player, World world,
-                                                          RestartableHolder restartableHolder,
-                                                          IGlowingBlockSpawner glowingBlockSpawner, IPExecutor executor)
+        public Optional<IGlowingBlock> createGlowingBlock(Player player, World world, PColor pColor,
+                                                          double x, double y, double z, Map<PColor, Team> teams)
         {
-            if (!(glowingBlockSpawner instanceof GlowingBlockSpawner))
+            try
+            {
+                final GlowingBlock_V1_15_R1 block = new GlowingBlock_V1_15_R1(player, world, pColor, x, y, z, teams);
+                return block.alive ? Optional.of(block) : Optional.empty();
+            }
+            catch (Exception | ExceptionInInitializerError e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to spawn glowing block for player %s in world %s.", player, world);
                 return Optional.empty();
-
-            return Optional.of(
-                new GlowingBlock_V1_15_R1(player, world, ((GlowingBlockSpawner) glowingBlockSpawner).getTeams(),
-                                          restartableHolder, executor));
+            }
         }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return entityId;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return obj instanceof GlowingBlock_V1_15_R1 other && this.entityId == other.entityId;
     }
 }

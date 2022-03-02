@@ -169,7 +169,7 @@ class CreatorTest
     @Test
     void testConfirmPrice()
     {
-        Mockito.doNothing().when(creator).shutdown();
+        Mockito.doNothing().when(creator).abort();
 
         final Procedure procedure = Mockito.mock(Procedure.class);
         Mockito.doReturn(procedure).when(creator).getProcedure();
@@ -266,7 +266,7 @@ class CreatorTest
     @Test
     void testCompleteSetPowerBlockStep()
     {
-        Mockito.doNothing().when(creator).shutdown();
+        Mockito.doNothing().when(creator).abort();
 
         final IPWorld world = getWorld();
 

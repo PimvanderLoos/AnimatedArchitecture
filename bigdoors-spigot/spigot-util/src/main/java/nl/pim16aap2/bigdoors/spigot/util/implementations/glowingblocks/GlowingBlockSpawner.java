@@ -7,7 +7,6 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PColor;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -19,6 +18,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
@@ -29,7 +29,6 @@ import javax.inject.Singleton;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -40,7 +39,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
 {
     @Getter
     private final Map<PColor, Team> teams = new EnumMap<>(PColor.class);
-    private final Set<IRestartable> restartables = new ConcurrentHashMap<IRestartable, Boolean>().keySet();
+
+    private final Map<IGlowingBlock, BukkitRunnable> spawnedBlocks = new ConcurrentHashMap<>(128);
 
     private final IGlowingBlockFactory glowingBlockFactory;
 
@@ -51,7 +51,6 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
      */
     private volatile boolean isInitialized = false;
     private final IPExecutor executor;
-    private final RestartableHolder restartableHolder = new RestartableHolder();
 
     @Inject
     public GlowingBlockSpawner(RestartableHolder holder, IGlowingBlockFactory glowingBlockFactory, IPExecutor executor)
@@ -80,7 +79,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         }
 
         final long ticks = TimeUnit.MILLISECONDS.convert(time, timeUnit) / 50;
-        if (ticks == 0)
+        if (ticks < 5)
         {
             log.at(Level.SEVERE).withCause(new IllegalArgumentException("Invalid duration of " + time + " " +
                                                                             timeUnit.name() + " provided! ")).log();
@@ -104,9 +103,24 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         }
 
         final Optional<IGlowingBlock> blockOpt =
-            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, restartableHolder, this, executor);
-        blockOpt.ifPresent(block -> block.spawn(pColor, x, y, z, ticks));
+            glowingBlockFactory.createGlowingBlock(spigotPlayer, spigotWorld, pColor, x, y, z, teams);
+        blockOpt.ifPresent(block -> onBlockSpawn(block, ticks));
         return blockOpt;
+    }
+
+    private void onBlockSpawn(IGlowingBlock block, long ticks)
+    {
+        final BukkitRunnable killTask = new BukkitRunnable()
+        {
+            @Override
+            public void run()
+            {
+                block.kill();
+                spawnedBlocks.remove(block);
+            }
+        };
+        spawnedBlocks.put(block, killTask);
+        executor.runAsyncLater(killTask, ticks);
     }
 
     /**
@@ -170,19 +184,27 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        teams.forEach((color, team) -> team.unregister());
-        teams.clear();
         registerTeams(Util.requireNonNull(scoreboard, "Scoreboard"));
-        restartables.forEach(IRestartable::restart);
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         teams.forEach((color, team) -> team.unregister());
         teams.clear();
-        restartables.forEach(IRestartable::shutdown);
+
+        killAllSpawnedBlocks();
+    }
+
+    private void killAllSpawnedBlocks()
+    {
+        for (final var entry : spawnedBlocks.entrySet())
+        {
+            entry.getValue().cancel();
+            entry.getKey().kill();
+        }
+        spawnedBlocks.clear();
     }
 }

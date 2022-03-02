@@ -99,14 +99,13 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        shutdown();
         initThreadPool();
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         threadPool.shutdownNow();
     }

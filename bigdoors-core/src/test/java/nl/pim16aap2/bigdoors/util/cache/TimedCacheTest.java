@@ -39,14 +39,13 @@ import java.util.function.Function;
 
 class TimedCacheTest
 {
-    private final MockClock clock = new MockClock(0);
-
     /**
      * Make sure that expired values cannot be retrieved.
      */
     @Test
     void testExpiry()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
         timedCache.put("key", "value");
@@ -69,12 +68,23 @@ class TimedCacheTest
         Assertions.assertEquals(0, timedCache.getSize());
     }
 
+    @Test
+    void testShutDown()
+    {
+        final MockClock clock = new MockClock(0);
+        final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
+                                                                       null, false, false, false);
+        timedCache.shutDown();
+        Assertions.assertThrows(IllegalStateException.class, () -> timedCache.put("a", "b"));
+    }
+
     /**
      * Test whether the keepAfterTimeOut option keeps the values around after the timeOut when possible.
      */
     @Test
     void testKeepAfterTimeOut()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, true, false, true);
         // Set a hard reference, so the value cannot be garbage collected.
@@ -133,6 +143,7 @@ class TimedCacheTest
     @Test
     void testSoftReference()
     {
+        final MockClock clock = new MockClock(0);
         final Duration longDuration = Duration.ofHours(100);
         Assertions.assertThrows(IllegalArgumentException.class,
                                 () -> new TimedCache<>(clock, Duration.ZERO, longDuration, false, false, false));
@@ -170,6 +181,7 @@ class TimedCacheTest
     @Test
     void testRefresh()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, true, false);
         timedCache.put("key", "value");
@@ -206,6 +218,7 @@ class TimedCacheTest
     @Test
     void computeIfAbsent()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
 
@@ -231,6 +244,7 @@ class TimedCacheTest
     @Test
     void computeIfPresent()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
         timedCache.put("key", "value");
@@ -247,6 +261,7 @@ class TimedCacheTest
     @Test
     void compute()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
         String returned = timedCache.compute("key", (k, v) -> v == null ? "value" : (v + v));
@@ -266,6 +281,7 @@ class TimedCacheTest
     @Test
     void putIfAbsent()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
 
@@ -282,6 +298,7 @@ class TimedCacheTest
     @Test
     void putIfPresent()
     {
+        final MockClock clock = new MockClock(0);
         TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                  null, false, false, false);
 
@@ -302,6 +319,7 @@ class TimedCacheTest
     @Test
     void remove()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        null, false, false, false);
         timedCache.put("key", "value");
@@ -327,6 +345,7 @@ class TimedCacheTest
     @Test
     void cleanupTask()
     {
+        final MockClock clock = new MockClock(0);
         final TimedCache<String, String> timedCache = new TimedCache<>(clock, Duration.ofMillis(100),
                                                                        Duration.ofMillis(1), false, false,
                                                                        false);

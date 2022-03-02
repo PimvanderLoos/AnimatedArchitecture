@@ -46,7 +46,7 @@ public class Cancel extends BaseCommand
 
     private void cancelPlayer(IPPlayer player)
     {
-        toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::shutdown);
+        toolUserManager.getToolUser(player.getUUID()).ifPresent(ToolUser::abort);
         doorSpecificationManager.cancelRequest(player);
     }
 

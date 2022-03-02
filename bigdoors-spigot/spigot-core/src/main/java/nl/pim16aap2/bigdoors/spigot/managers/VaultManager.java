@@ -113,15 +113,6 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     /**
-     * Initializes the {@link VaultManager}.
-     */
-    private void init()
-    {
-        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
-            getFlatPrice(type);
-    }
-
-    /**
      * Checks if a player has a specific permission node.
      *
      * @param player
@@ -324,14 +315,14 @@ public final class VaultManager implements IRestartable, IEconomyManager, IPermi
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        shutdown();
-        init();
+        for (final DoorType type : doorTypeManager.getEnabledDoorTypes())
+            getFlatPrice(type);
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         flatPrices.clear();
     }

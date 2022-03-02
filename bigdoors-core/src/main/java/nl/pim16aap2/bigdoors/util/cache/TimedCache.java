@@ -24,7 +24,9 @@
 
 package nl.pim16aap2.bigdoors.util.cache;
 
+import com.google.common.flogger.StackSize;
 import lombok.Builder;
+import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.util.Util;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 /**
  * Represents a timed cached map backed by a {@link ConcurrentHashMap}. Entries will expire after a configurable amount
@@ -53,6 +56,7 @@ import java.util.function.Function;
  *     Type of the value of the map.
  * @author Pim
  */
+@Flogger
 public class TimedCache<K, V>
 {
     /**
@@ -68,6 +72,8 @@ public class TimedCache<K, V>
      * < 0 values mean nothing ever gets added in the first place.
      */
     private final long timeOut;
+
+    private final Timer taskTimer = new Timer(true);
 
     /**
      * Function that creates the specific type of {@link AbstractTimedValue} that is required according to the
@@ -97,6 +103,13 @@ public class TimedCache<K, V>
      */
     private final Clock clock;
 
+    /**
+     * The flag that keeps track of whether this cache is alive. This will be false after using {@link #shutDown()}.
+     * <p>
+     * When the cache is not alive, you cannot interact with it anymore.
+     */
+    private volatile boolean alive = true;
+
     TimedCache(Clock clock, Duration duration, @Nullable Duration cleanup, boolean softReference,
                boolean refresh, boolean keepAfterTimeOut)
     {
@@ -113,6 +126,18 @@ public class TimedCache<K, V>
 
         timedValueCreator = softReference ? this::createTimedSoftValue : this::createTimedValue;
         setupCleanupTask(cleanupMillis);
+    }
+
+    /**
+     * Ensures that this cache is still {@link #alive}.
+     *
+     * @throws IllegalStateException
+     *     When this cache is not alive.
+     */
+    private void validateState()
+    {
+        if (!alive)
+            throw new IllegalStateException("Trying to interact with TimedCache object that has been shut down!");
     }
 
     /**
@@ -165,6 +190,7 @@ public class TimedCache<K, V>
      */
     public V put(K key, V value)
     {
+        validateState();
         cache.put(key, timedValueCreator.apply(value));
         return value;
     }
@@ -180,6 +206,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> putIfPresent(K key, V value)
     {
+        validateState();
         return Optional.ofNullable(cache.compute(key, (k, tValue) ->
         {
             if (tValue == null || tValue.timedOut())
@@ -197,6 +224,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> putIfAbsent(K key, V value)
     {
+        validateState();
         final AtomicReference<@Nullable V> returnValue = new AtomicReference<>();
         cache.compute(key, (k, tValue) ->
         {
@@ -219,6 +247,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> computeIfAbsent(K key, Function<K, V> mappingFunction)
     {
+        validateState();
         final AtomicReference<@Nullable V> returnValue = new AtomicReference<>();
         Util.requireNonNull(cache.compute(key, (k, tValue) ->
         {
@@ -236,6 +265,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> computeIfPresent(K key, BiFunction<K, @Nullable V, V> remappingFunction)
     {
+        validateState();
         return Optional.ofNullable(cache.compute(key, (k, timedValue) ->
         {
             if (timedValue == null || timedValue.timedOut())
@@ -256,6 +286,7 @@ public class TimedCache<K, V>
      */
     public V compute(K key, BiFunction<K, @Nullable V, V> mappingFunction)
     {
+        validateState();
         return Util.requireNonNull(cache.compute(key, (k, timedValue)
             ->
         {
@@ -273,6 +304,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> remove(K key)
     {
+        validateState();
         return getValue(cache.remove(key));
     }
 
@@ -288,6 +320,7 @@ public class TimedCache<K, V>
      */
     public Optional<V> get(K key)
     {
+        validateState();
         final @Nullable AbstractTimedValue<V> entry = cache.get(key);
         if (entry == null)
             return Optional.empty();
@@ -312,6 +345,7 @@ public class TimedCache<K, V>
      */
     public boolean containsKey(K key)
     {
+        validateState();
         return get(key).isPresent();
     }
 
@@ -339,6 +373,7 @@ public class TimedCache<K, V>
      */
     public int getSize()
     {
+        validateState();
         return cache.size();
     }
 
@@ -347,6 +382,7 @@ public class TimedCache<K, V>
      */
     public void clear()
     {
+        validateState();
         cache.clear();
     }
 
@@ -416,7 +452,6 @@ public class TimedCache<K, V>
         if (period < 1)
             return;
 
-        final var taskTimer = new Timer(true);
         final var verifyTask = new TimerTask()
         {
             @Override
@@ -426,5 +461,21 @@ public class TimedCache<K, V>
             }
         };
         taskTimer.scheduleAtFixedRate(verifyTask, period, period);
+    }
+
+    /**
+     * Shuts this cache down.
+     * <p>
+     * The cache will be cleared and any running processes will be stopped.
+     * <p>
+     * After shutting the cache down, it is not possible to interact with it anymore. Trying to do so will result in
+     * exceptions.
+     */
+    public void shutDown()
+    {
+        this.alive = false;
+        log.at(Level.FINEST).withStackTrace(StackSize.FULL).log("Shutting down TimedCache normally!");
+        cache.clear();
+        taskTimer.cancel();
     }
 }

@@ -53,15 +53,6 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         this.doorTypeManager = doorTypeManager;
     }
 
-    private void init()
-    {
-        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
-                                                    .map(DoorType::getDoorClass)
-                                                    .collect(Collectors.toList());
-        addResourcesFromClass(types);
-        addResourcesFromClass(List.of(LocalizationManager.class));
-    }
-
     /**
      * Runs a method for the currently installed generators while taking care of restarting the {@link #localizer} when
      * needed.
@@ -152,18 +143,26 @@ public final class LocalizationManager extends Restartable implements ILocalizat
         runForGenerators(generator -> generator.addResourcesFromClass(classes));
     }
 
-    @Override
-    public synchronized void restart()
+    private void initializeResources()
     {
-        shutdown();
+        final List<Class<?>> types = doorTypeManager.getEnabledDoorTypes().stream()
+                                                    .map(DoorType::getDoorClass)
+                                                    .collect(Collectors.toList());
+        addResourcesFromClass(types);
+        addResourcesFromClass(List.of(LocalizationManager.class));
+    }
+
+    @Override
+    public synchronized void initialize()
+    {
         localizer.setDefaultLocale(configLoader.locale());
-        init();
+        initializeResources();
         applyPatches();
         localizer.reInit();
     }
 
     @Override
-    public synchronized void shutdown()
+    public synchronized void shutDown()
     {
         localizer.shutdown();
     }

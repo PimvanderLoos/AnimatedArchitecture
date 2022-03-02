@@ -14,7 +14,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.logging.Level;
 
@@ -39,13 +38,12 @@ public final class UpdateManager extends Restartable
 
     @Inject
     public UpdateManager(RestartableHolder restartableHolder, BigDoorsPlugin plugin,
-                         @Named("pluginSpigotID") int pluginID, IConfigLoader config)
+                         IConfigLoader config, UpdateChecker updater)
     {
         super(restartableHolder);
         this.plugin = plugin;
         this.config = config;
-        updater = new UpdateChecker(plugin, pluginID);
-        init();
+        this.updater = updater;
     }
 
     /**
@@ -118,10 +116,8 @@ public final class UpdateManager extends Restartable
             }).exceptionally(Util::exceptionally);
     }
 
-    /**
-     * (Re)Initializes the updater.
-     */
-    private void init()
+    @Override
+    public void initialize()
     {
         checkForUpdates = config.checkForUpdates();
         downloadUpdates = config.autoDLUpdate();
@@ -142,18 +138,11 @@ public final class UpdateManager extends Restartable
             }
         }
         else
-            shutdown();
+            shutDown();
     }
 
     @Override
-    public void restart()
-    {
-        shutdown();
-        init();
-    }
-
-    @Override
-    public void shutdown()
+    public void shutDown()
     {
         if (updateRunner != null)
         {

@@ -106,15 +106,14 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        shutdown();
         plugin.reloadConfig();
         makeConfig();
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         configEntries.clear();
         powerBlockTypes.clear();
@@ -506,8 +505,8 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
     /**
      * Gets the amount time (in seconds) to wait before downloading an update. If set to 24 hours (86400 seconds), and
-     * an update was released on Monday, June 1 at 12PM, it will not download this update before Tuesday June 2 at 12PM.
-     * When running a dev-build, however, this value is overridden to 0.
+     * an update was released on Wednesday, June 1, 2022, at 12PM, it will not download this update before Thursday,
+     * June 2, 2022, at 12PM. When running a dev-build, however, this value is overridden to 0.
      *
      * @return The amount time (in seconds) to wait before downloading an update.
      */

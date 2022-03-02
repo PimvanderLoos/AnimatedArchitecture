@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.extensions;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
@@ -19,6 +18,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 public final class DoorTypeLoader extends Restartable
 {
     private final ClassLoader classLoader = getClass().getClassLoader();
-    private DoorTypeClassLoader doorTypeClassLoader;
+    private @Nullable DoorTypeClassLoader doorTypeClassLoader;
 
     private final DoorTypeManager doorTypeManager;
     private final Path extensionsDirectory;
@@ -46,21 +46,13 @@ public final class DoorTypeLoader extends Restartable
         super(holder);
         this.doorTypeManager = doorTypeManager;
         extensionsDirectory = dataDirectory.resolve(Constants.BIGDOORS_EXTENSIONS_FOLDER_NAME);
-        successfulInit = ensureDirectoryExists();
-        if (!successfulInit)
-            return;
-        init();
-        loadDoorTypesFromDirectory();
-    }
-
-    @Initializer
-    private void init()
-    {
-        doorTypeClassLoader = new DoorTypeClassLoader(classLoader);
     }
 
     private void unloadDoorTypes()
     {
+        if (doorTypeClassLoader == null)
+            return;
+
         try
         {
             doorTypeClassLoader.close();
@@ -174,6 +166,14 @@ public final class DoorTypeLoader extends Restartable
      */
     public List<DoorType> loadDoorTypesFromDirectory(Path directory)
     {
+        if (doorTypeClassLoader == null)
+        {
+            log.at(Level.SEVERE)
+               .log("Trying to load door types from directory %s, but the door type classloader does not exist!",
+                    directory);
+            return Collections.emptyList();
+        }
+
         final List<DoorTypeInitializer.TypeInfo> typeInfoList = new ArrayList<>();
 
         try (Stream<Path> walk = Files.walk(directory, 1, FileVisitOption.FOLLOW_LINKS))
@@ -193,21 +193,17 @@ public final class DoorTypeLoader extends Restartable
     }
 
     @Override
-    public void restart()
+    public void initialize()
     {
-        if (!successfulInit &&
-            !(successfulInit = ensureDirectoryExists()))
+        if (!successfulInit && !(successfulInit = ensureDirectoryExists()))
             return;
-
-        shutdown();
-        init();
+        doorTypeClassLoader = new DoorTypeClassLoader(classLoader);
         loadDoorTypesFromDirectory();
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         unloadDoorTypes();
     }
 }
-

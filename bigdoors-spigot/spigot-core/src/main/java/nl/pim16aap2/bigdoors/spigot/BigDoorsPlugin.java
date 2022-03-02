@@ -6,7 +6,6 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
@@ -32,7 +31,7 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Singleton
-public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IBigDoorsPlatformProvider
+public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatformProvider
 {
     private static final LogBackConfigurator LOG_BACK_CONFIGURATOR =
         new LogBackConfigurator().addAppender("SpigotConsoleRedirect", ConsoleAppender.class.getName())
@@ -92,16 +91,19 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
      */
     private void updateLogger()
     {
-        Level level;
         try
         {
-            level = bigDoorsSpigotComponent.getConfig().logLevel();
+            setLogLevel(bigDoorsSpigotComponent.getConfig().logLevel());
         }
         catch (Exception e)
         {
+            setLogLevel(Level.ALL);
             log.at(Level.SEVERE).withCause(e).log("Failed to read config! Defaulting to logging everything!");
-            level = Level.ALL;
         }
+    }
+
+    private void setLogLevel(Level level)
+    {
         LOG_BACK_CONFIGURATOR
             .setLogFile(getDataFolder().toPath().resolve("log.txt"))
             .setLevel(level)
@@ -141,28 +143,25 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         // initialized properly.
         if (!initialized)
             bigDoorsSpigotPlatform = initPlatform();
-        else if (bigDoorsSpigotPlatform != null)
-            restart();
-        else
-            log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
-
-        if (bigDoorsSpigotPlatform != null)
-            LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
-
-        final DebugReporterSpigot drs;
-        if (bigDoorsSpigotPlatform == null)
-            drs = new DebugReporterSpigot(this, this, null);
-        else
-            drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
-        System.out.println(drs.getDebugReport());
-
         initialized = true;
+
+        // TODO: Remove this before any release.
+        printDebug();
+
+        if (bigDoorsSpigotPlatform == null)
+        {
+            log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
+            return;
+        }
+
+        LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
+        restartableHolder.initialize();
     }
 
     @Override
     public void onDisable()
     {
-        shutdown();
+        restartableHolder.shutDown();
     }
 
     // Synchronized to ensure visibility of the platform.
@@ -188,12 +187,12 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
 
     private void onInitFailure()
     {
-        shutdown();
+        restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
         log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null));
         successfulInit = false;
-        restartableHolder.shutdown();
+        restartableHolder.shutDown();
     }
 
     /**
@@ -221,21 +220,27 @@ public final class BigDoorsPlugin extends JavaPlugin implements IRestartable, IB
         return optionalBigDoorsSpigotPlatform;
     }
 
-    @Override
+    @SuppressWarnings("unused")
     public void restart()
     {
         if (!successfulInit)
             return;
-
-        if (bigDoorsSpigotPlatform != null)
-            bigDoorsSpigotPlatform.getBigDoorsConfig().restart();
-
         restartableHolder.restart();
     }
 
-    @Override
-    public void shutdown()
+    /**
+     * Prints debug information to stdout.
+     * <p>
+     * Should be removed before any release.
+     */
+    // TODO: Remove this before any release.
+    private void printDebug()
     {
-        restartableHolder.shutdown();
+        final DebugReporterSpigot drs;
+        if (bigDoorsSpigotPlatform == null)
+            drs = new DebugReporterSpigot(this, this, null);
+        else
+            drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
+        System.out.println(drs.getDebugReport());
     }
 }

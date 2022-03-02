@@ -240,13 +240,7 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
     }
 
     @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
+    public void shutDown()
     {
         doorTypeStatus.clear();
         sortedDoorTypes.clear();

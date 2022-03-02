@@ -67,7 +67,6 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
         this.locationFactory = locationFactory;
         fakePlayerCreator = newFakePlayerCreator(plugin);
         protectionCompats = new ArrayList<>();
-        restart();
     }
 
     /**
@@ -76,16 +75,14 @@ public final class ProtectionCompatManagerSpigot extends Restartable implements 
      * Reinitialize all protection compats.
      */
     @Override
-    public void restart()
+    public void initialize()
     {
-        shutdown();
-
         for (final Plugin p : plugin.getServer().getPluginManager().getPlugins())
             loadFromPluginName(p.getName());
     }
 
     @Override
-    public void shutdown()
+    public void shutDown()
     {
         protectionCompats.clear();
     }

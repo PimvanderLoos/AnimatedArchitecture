@@ -59,7 +59,8 @@ class LocalizationManagerIntegrationTest
             new LocalizationManager(Mockito.mock(RestartableHolder.class), directoryOutput,
                                     baseName, configLoader, Mockito.mock(DoorTypeManager.class));
 
-        localizationManager.restart();
+        localizationManager.shutDown();
+        localizationManager.initialize();
 
         // There aren't any patch files, so the patch generator should not be created
         // either on startup or during a restart.
@@ -96,7 +97,8 @@ class LocalizationManagerIntegrationTest
         writeToFile(directoryOutput.resolve(baseName + ".properties"), patchItems);
 
         // Restarting the manager will apply all patches.
-        localizationManager.restart();
+        localizationManager.shutDown();
+        localizationManager.initialize();
 
         Assertions.assertEquals("value0", localizationManager.getLocalizer().getMessage("key0"));
         Assertions.assertEquals("remapped", localizationManager.getLocalizer().getMessage("key3"));

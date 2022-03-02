@@ -372,7 +372,7 @@ public abstract class Creator extends ToolUser
         if (!confirm)
         {
             getPlayer().sendMessage(localizer.getMessage("creator.base.error.creation_cancelled"));
-            shutdown();
+            abort();
             return true;
         }
         if (!buyDoor())
@@ -380,7 +380,7 @@ public abstract class Creator extends ToolUser
 
             getPlayer().sendMessage(localizer.getMessage("creator.base.error.insufficient_funds",
                                                          DECIMAL_FORMAT.format(getPrice().orElse(0))));
-            shutdown();
+            abort();
             return true;
         }
 

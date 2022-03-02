@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.api.restartable;
 
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.LinkedHashSet;
@@ -16,9 +17,11 @@ import java.util.logging.Level;
  * @author Pim
  */
 @Flogger
-public final class RestartableHolder
+public final class RestartableHolder implements IDebuggable
 {
     private final Set<IRestartable> restartables = new LinkedHashSet<>();
+    private int shutdownCount = 0;
+    private int initCount = 0;
 
     /**
      * Register a {@link IRestartable} object with this object, so this object can restart the provided object.
@@ -62,24 +65,37 @@ public final class RestartableHolder
     }
 
     /**
-     * Calls {@link IRestartable#restart()} for all registered {@link IRestartable}s.
+     * Restarts all {@link #restartables}.
+     * <p>
+     * This is the same as manually calling {@link #shutDown()} and then {@link #initialize()}.
      */
     public void restart()
     {
-        restartables.forEach(restartable -> runForRestartable("restart", IRestartable::restart, restartable));
+        shutDown();
+        initialize();
     }
 
     /**
-     * Calls {@link IRestartable#shutdown()} for all registered {@link IRestartable}s.
+     * Calls {@link IRestartable#initialize()} for all registered {@link IRestartable}s.
+     */
+    public void initialize()
+    {
+        this.initCount += 1;
+        restartables.forEach(restartable -> runForRestartable("initialize", IRestartable::initialize, restartable));
+    }
+
+    /**
+     * Calls {@link IRestartable#shutDown()} for all registered {@link IRestartable}s.
      * <p>
      * The {@link #restartables} are shut down in reverse order to ensure that dependents are processed before their
      * dependencies are.
      */
-    public void shutdown()
+    public void shutDown()
     {
+        this.shutdownCount += 1;
         final IRestartable[] arr = restartables.toArray(new IRestartable[0]);
         for (int idx = arr.length - 1; idx >= 0; --idx)
-            runForRestartable("shut down", IRestartable::shutdown, arr[idx]);
+            runForRestartable("shut down", IRestartable::shutDown, arr[idx]);
     }
 
     private static void runForRestartable(String actionName, Consumer<IRestartable> action, IRestartable restartable)
@@ -93,5 +109,12 @@ public final class RestartableHolder
             log.at(Level.SEVERE).withCause(e).log("Failed to %s restartable of type %s:\n%s",
                                                   actionName, restartable.getClass().getName(), restartable);
         }
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        return "Registered Restartables: " + restartables.size() + "\n" +
+            "ShutDownCount: " + shutdownCount + ", InitCount: " + initCount;
     }
 }

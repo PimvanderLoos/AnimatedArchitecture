@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -193,15 +192,9 @@ public final class PowerBlockManager extends Restartable
     }
 
     @Override
-    public void restart()
+    public void shutDown()
     {
-        powerBlockWorlds.values().forEach(PowerBlockWorld::restart);
-    }
-
-    @Override
-    public void shutdown()
-    {
-        powerBlockWorlds.values().forEach(PowerBlockWorld::shutdown);
+        powerBlockWorlds.values().forEach(PowerBlockWorld::clear);
     }
 
     /**
@@ -209,7 +202,7 @@ public final class PowerBlockManager extends Restartable
      *
      * @author Pim
      */
-    private final class PowerBlockWorld implements IRestartable
+    private final class PowerBlockWorld
     {
         private final String worldName;
         private volatile boolean isBigDoorsWorld = false;
@@ -301,14 +294,7 @@ public final class PowerBlockManager extends Restartable
                            .exceptionally(Util::exceptionally);
         }
 
-        @Override
-        public void restart()
-        {
-            powerBlockChunks.clear();
-        }
-
-        @Override
-        public void shutdown()
+        void clear()
         {
             powerBlockChunks.clear();
         }

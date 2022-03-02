@@ -16,7 +16,6 @@ import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.api.restartable.IRestartable;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -41,7 +40,7 @@ import java.util.logging.Level;
  */
 @ToString
 @Flogger
-public abstract class BlockMover implements IRestartable
+public abstract class BlockMover
 {
     protected final IPWorld world;
 
@@ -181,18 +180,6 @@ public abstract class BlockMover implements IRestartable
     {
         soundEngine.playSound(door.getRotationPoint(), door.getWorld(), soundDescription.sound(),
                               soundDescription.volume(), soundDescription.pitch());
-    }
-
-    @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
-    {
-        abort();
     }
 
     public void abort()

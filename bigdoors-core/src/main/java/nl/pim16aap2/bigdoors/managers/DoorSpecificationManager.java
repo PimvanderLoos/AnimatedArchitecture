@@ -95,13 +95,7 @@ public final class DoorSpecificationManager extends Restartable
     }
 
     @Override
-    public void restart()
-    {
-        shutdown();
-    }
-
-    @Override
-    public void shutdown()
+    public void shutDown()
     {
         requests.values().forEach(DelayedInputRequest::cancel);
         requests.clear();

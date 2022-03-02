@@ -122,13 +122,12 @@ public final class AutoCloseScheduler extends Restartable
     }
 
     @Override
-    public synchronized void restart()
+    public synchronized void initialize()
     {
-        shutdown();
     }
 
     @Override
-    public synchronized void shutdown()
+    public synchronized void shutDown()
     {
         timers.forEach((key, val) -> val.cancel());
         timers.clear();
