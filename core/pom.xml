@@ -318,9 +318,9 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
-                                    <tasks>
+                                    <target>
                                         <ant antfile="${basedir}/build.xml"/>
-                                    </tasks>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
