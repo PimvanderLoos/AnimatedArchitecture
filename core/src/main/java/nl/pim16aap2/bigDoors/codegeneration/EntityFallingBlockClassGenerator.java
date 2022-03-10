@@ -1,7 +1,9 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
 import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.dynamic.scaffold.FieldLocator;
 import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.FixedValue;
 import net.bytebuddy.implementation.MethodCall;
@@ -131,11 +133,19 @@ final class EntityFallingBlockClassGenerator extends ClassGenerator
         final MethodCall worldCast = (MethodCall) invoke(methodGetNMSWorld)
             .onArgument(0).withAssigner(Assigner.DEFAULT, Assigner.Typing.DYNAMIC);
 
+        final FieldLocator.Factory entityTypeLocatorFactory =
+            new FieldLocator.ForExactType.Factory(new TypeDescription.ForLoadedType(classEntityTypes));
+
+
         return builder
             .defineConstructor(Visibility.PUBLIC)
             .withParameters(getConstructorArgumentTypes())
-            .intercept(invoke(cTorNMSFallingBlockEntity).withMethodCall(worldCast).withArgument(1, 2, 3, 4).andThen(
+            .intercept(invoke(cTorPublicNMSFallingBlockEntity)
+                           .withField(entityTypeLocatorFactory,fieldEntityTypeFallingBlock.getName())
+                           .withMethodCall(worldCast).andThen(
+
                 FieldAccessor.ofField(FIELD_BLOCK).setsArgumentAt(4)).andThen(
+                invoke(methodSetPosition).withArgument(1, 2, 3)).andThen(
                 FieldAccessor.ofField(FIELD_BUKKIT_WORLD).setsArgumentAt(0)).andThen(
                 FieldAccessor.ofField(FIELD_MOVE_TYPE_VALUES).setsArgumentAt(5)).andThen(
                 FieldAccessor.of(fieldTicksLived).setsValue(0)).andThen(

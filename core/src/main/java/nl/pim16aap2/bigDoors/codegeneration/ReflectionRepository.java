@@ -19,7 +19,11 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
 
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.*;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findClass;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findConstructor;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findField;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.parameterBuilder;
 
 final class ReflectionRepository
 {
@@ -50,13 +54,15 @@ final class ReflectionRepository
     public static final Class<?> classCraftMagicNumbers;
     public static final Class<?> classCraftBlockData;
     public static final Class<?> classBlockStateEnum;
+    public static final Class<?> classEntityTypes;
 
     public static final Class<?> classEnumBlockState;
     public static final Class<?> classEnumMoveType;
     public static final Class<?> classEnumDirectionAxis;
     public static final Class<?> classEnumBlockRotation;
 
-    public static final Constructor<?> cTorNMSFallingBlockEntity;
+    public static final Constructor<?> cTorPublicNMSFallingBlockEntity;
+    public static final Constructor<?> cTorPrivateNMSFallingBlockEntity;
     public static final Constructor<?> cTorBlockPosition;
     public static final Constructor<?> cTorVec3D;
     public static final Constructor<?> ctorCraftEntity;
@@ -130,6 +136,7 @@ final class ReflectionRepository
     public static final Field fieldTicksLived;
     public static final Field fieldNMSWorld;
     public static final Field fieldBlockRotatableAxis;
+    public static final Field fieldEntityTypeFallingBlock;
 
     public static final List<Field> fieldsVec3D;
 
@@ -182,11 +189,16 @@ final class ReflectionRepository
                                         "net.minecraft.world.level.block.BlockRotatable").get();
         classEnumBlockState = findClass(nmsBase + "BlockStateEnum",
                                         "net.minecraft.world.level.block.state.properties.BlockStateEnum").get();
+        classEntityTypes = findClass("net.minecraft.world.entity.EntityTypes").get();
 
 
-        cTorNMSFallingBlockEntity = findConstructor().inClass(classEntityFallingBlock)
-                                                     .withParameters(classNMSWorld, double.class,
-                                                                     double.class, double.class, classIBlockData).get();
+        cTorPrivateNMSFallingBlockEntity =
+            findConstructor().inClass(classEntityFallingBlock)
+                             .withParameters(classNMSWorld, double.class, double.class, double.class, classIBlockData)
+                             .get();
+        cTorPublicNMSFallingBlockEntity =
+            findConstructor().inClass(classEntityFallingBlock)
+                             .withParameters(classEntityTypes, classNMSWorld).get();
         cTorBlockPosition = findConstructor().inClass(classBlockPosition)
                                              .withParameters(double.class, double.class, double.class).get();
         cTorVec3D = findConstructor().inClass(classVec3D)
@@ -320,6 +332,9 @@ final class ReflectionRepository
         methodLocX = locationMethods[0];
         methodLocY = locationMethods[1];
         methodLocZ = locationMethods[2];
+
+        fieldEntityTypeFallingBlock = ReflectionASMAnalyzers.getEntityTypeFallingBlock(classEntityTypes,
+                                                                                       cTorPrivateNMSFallingBlockEntity);
 
 
         fieldTileEntityData = findField().inClass(classEntityFallingBlock).ofType(classNBTTagCompound)

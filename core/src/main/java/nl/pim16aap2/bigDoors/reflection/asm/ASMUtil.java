@@ -9,6 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -66,6 +67,37 @@ public final class ASMUtil
     }
 
     /**
+     * Retrieves the name of a member field that is accessed statically.
+     *
+     * @param fieldType  The type of the field.
+     * @param executable The executable in which to search for the retrieval of an enum.
+     * @return The name of the enum value that is retrieved first in the provided method.
+     */
+    public static String getStaticFieldAccess(Class<?> fieldType, Executable executable)
+    {
+        final Type type;
+        if (executable instanceof Method)
+            type = Type.getType((Method) executable);
+        else if (executable instanceof Constructor)
+            type = Type.getType((Constructor<?>) executable);
+        else
+            throw new IllegalArgumentException(
+                "Input executable type '" + executable.toGenericString() + "' is not supported!");
+
+        try
+        {
+            return Objects.requireNonNull(
+                ASMUtil.processMethod(executable, null, (a, n, d, s, e) ->
+                    StaticFieldFinder.create(a, n, d, s, e, fieldType, 1))
+            ).fields[0];
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException("Failed to find method call in method of type: " + type, e);
+        }
+    }
+
+    /**
      * See {@link #getMethodNamesFromMethodCall(Executable, int, Class, Class, Class[])} for a limit of 1.
      *
      * @return The name of the target method. If more than 1 method matches the provided settings, only the first one is returned.
@@ -78,7 +110,7 @@ public final class ASMUtil
 
     /**
      * Gets the name of a method with a specified signature called from inside another method.
-     *
+     * <p>
      * For example, given the following code:
      * <pre>{@code
      * private com.example.Entity entity;
@@ -90,13 +122,12 @@ public final class ASMUtil
      *     entity.kill();
      * }
      * }</pre>
-     *
+     * <p>
      * To retrieve the name of the {@code com.example.Entity#move(com.example.Vec3d)} method ("move", in this case),
      * this method would take the {@link Method} object for the method named "moveMethod". The owner class in this case
      * would be {@code com.example.Entity}, as this is the class in which the "move" method that is to be retrieved
      * exists. Assuming that the target move method has a void return type, then the return type would just be
      * {@code void.class} and the parameter would be {@code com.example.Vec3d}.
-     *
      *
      * @param executable The executable ({@link Method} or {@link Constructor}) to analyze.
      * @param limit      The number of method names to retrieve. This value cannot be less than 1.
@@ -177,6 +208,60 @@ public final class ASMUtil
          */
         T create(int access, @NotNull String name, @NotNull String desc,
                  @Nullable String signature, @Nullable String[] exceptions);
+    }
+
+    /**
+     * Represents a {@link MethodNode} that is used to retrieve the names of methods called in a method that match a
+     * specific signature.
+     *
+     * @author Pim
+     */
+    private static final class StaticFieldFinder extends MethodNode
+    {
+        private final @Nullable String fieldClassType;
+        private final int limit;
+        private final String[] fields;
+
+        public StaticFieldFinder(int access, @NotNull String name, @NotNull String desc,
+                                 @Nullable String signature, @Nullable String[] exceptions,
+                                 Class<?> fieldClassType, int limit)
+        {
+            super(Constants.ASM_API_VER, access, name, desc, signature, exceptions);
+            this.limit = limit;
+            this.fieldClassType = fieldClassType == null ? null : ASMUtil.getClassName(fieldClassType);
+            fields = new String[limit];
+        }
+
+        public static StaticFieldFinder create(int access, @NotNull String name, @NotNull String desc,
+                                               @Nullable String signature, @Nullable String[] exceptions,
+                                               Class<?> fieldClassType, int limit)
+        {
+            return new StaticFieldFinder(access, name, desc, signature, exceptions, fieldClassType, limit);
+        }
+
+        @Override
+        public void visitEnd()
+        {
+            int idx = 0;
+            for (AbstractInsnNode node : instructions)
+            {
+                if (idx >= limit)
+                    break;
+
+                if (!(node instanceof FieldInsnNode))
+                    continue;
+
+                if (node.getOpcode() != Opcodes.GETSTATIC)
+                    continue;
+
+                final FieldInsnNode fieldInvoke = (FieldInsnNode) node;
+
+                if (!fieldInvoke.owner.equals(fieldClassType))
+                    continue;
+
+                this.fields[idx++] = fieldInvoke.name;
+            }
+        }
     }
 
     /**

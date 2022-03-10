@@ -3,12 +3,15 @@ package nl.pim16aap2.bigDoors.codegeneration;
 import nl.pim16aap2.bigDoors.reflection.asm.ASMUtil;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Objects;
 
 import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findConstructor;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findField;
 import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
 
 @SuppressWarnings("SameParameterValue") //
@@ -135,5 +138,12 @@ final class ReflectionASMAnalyzers
         final String methodName = ASMUtil.getMethodNameFromMethodCall(sourceMethod, classIBlockData,
                                                                       Comparable.class, classIBlockState);
         return findMethod().inClass(classIBlockDataHolder).withName(methodName).withParameters(classIBlockState).get();
+    }
+
+    public static Field getEntityTypeFallingBlock(Class<?> classEntityTypes,
+                                                  Constructor<?> cTorPrivateNMSFallingBlockEntity)
+    {
+        final String fieldName = ASMUtil.getStaticFieldAccess(classEntityTypes, cTorPrivateNMSFallingBlockEntity);
+        return findField().inClass(classEntityTypes).withName(fieldName).get();
     }
 }

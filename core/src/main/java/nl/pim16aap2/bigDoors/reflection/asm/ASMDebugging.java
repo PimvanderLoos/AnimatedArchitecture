@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Executable;
 
-public final class Debugging
+public final class ASMDebugging
 {
-    private Debugging()
+    private ASMDebugging()
     {
     }
 
