@@ -74,7 +74,6 @@ public class ConfigLoader
     private boolean skipUnloadedAutoCloseToggle;
     private boolean allowNotifications;
     private boolean allowCodeGeneration;
-    private boolean codeGenerationNotification;
     private boolean forceCodeGeneration;
 
     private Map<IProtectionCompatDefinition, Boolean> hooksMap;
@@ -216,7 +215,6 @@ public class ConfigLoader
         String[] allowNotificationsComment = { "Whether or not to allow toggle notifications. ",
                                                "When enabled, door creators can opt-in to receive notifications whenever a door is toggled.",
                                                "This is on a per-door basis."};
-        String[] codeGenerationNotificationComment = { "Whether to show the code generation notification about unsafe mode to admins."};
         String[] allowCodeGenerationComment = { "On unsupported versions of Minecraft, BigDoors can try to generate the required code itself.",
                                                 "This means that the plugin may work even on unsupported versions, ",
                                                 "but also that unexpected issues might pop up! Be sure to test everything when using this!",
@@ -356,9 +354,6 @@ public class ConfigLoader
 
         allowCodeGeneration = config.getBoolean("allowCodeGeneration", true);
         configOptionsList.add(new ConfigOption("allowCodeGeneration", allowCodeGeneration, allowCodeGenerationComment));
-
-        codeGenerationNotification = config.getBoolean("codeGenerationNotification", true);
-        configOptionsList.add(new ConfigOption("codeGenerationNotification", codeGenerationNotification, codeGenerationNotificationComment));
 
         forceCodeGeneration = config.getBoolean("forceCodeGeneration", false);
         configOptionsList.add(new ConfigOption("forceCodeGeneration", forceCodeGeneration, forceCodeGenerationComment));
@@ -730,11 +725,6 @@ public class ConfigLoader
     public boolean allowCodeGeneration()
     {
         return allowCodeGeneration;
-    }
-
-    public boolean codeGenerationNotification()
-    {
-        return codeGenerationNotification;
     }
 
     public boolean forceCodeGeneration()

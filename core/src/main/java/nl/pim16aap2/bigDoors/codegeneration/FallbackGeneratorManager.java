@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigDoors.codegeneration;
 
+import nl.pim16aap2.bigDoors.BigDoors;
+import nl.pim16aap2.bigDoors.MyLogger;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.CustomEntityFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
@@ -35,6 +37,18 @@ public final class FallbackGeneratorManager
     private FallbackGeneratorManager()
         throws Exception
     {
+        fallingBlockFactory = generateFallingBlockFactory();
+    }
+
+    private FallingBlockFactory generateFallingBlockFactory()
+        throws Exception
+    {
+        final MyLogger logger = BigDoors.get().getMyLogger();
+        logger.warn("╔═══════════════════════════════════════════════════════╗");
+        logger.warn("║                    !!  WARNING  !!                    ║");
+        logger.warn("║               CODE GENERATION IS ENABLED              ║");
+        logger.warn("╚═══════════════════════════════════════════════════════╝");
+
         try
         {
             final String mappingsVersion = getMappingsVersion();
@@ -53,8 +67,7 @@ public final class FallbackGeneratorManager
                                                       craftFallingBlockClassGenerator,
                                                       entityFallingBlockClassGenerator);
 
-            fallingBlockFactory = (FallingBlockFactory) fallingBlockFactoryClassGenerator.getGeneratedConstructor()
-                                                                                         .newInstance();
+            return (FallingBlockFactory) fallingBlockFactoryClassGenerator.getGeneratedConstructor().newInstance();
         }
         catch (Exception | ExceptionInInitializerError e)
         {

@@ -730,20 +730,6 @@ public class BigDoors extends JavaPlugin implements Listener
     private FallingBlockFactory generateFallBackFallingBlockFactory()
         throws Exception
     {
-        logger.warn("╔═══════════════════════════════════════════════════════╗");
-        logger.warn("║                                                       ║");
-        logger.warn("║                    !!  WARNING  !!                    ║");
-        logger.warn("║                                                       ║");
-        logger.warn("║                                                       ║");
-        logger.warn("║           YOU HAVE ENABLED CODE GENERATION!           ║");
-        logger.warn("║                                                       ║");
-        logger.warn("║     THIS MAY CAUSE ISSUES! PLEASE TEST CAREFULLY!     ║");
-        logger.warn("║                                                       ║");
-        logger.warn("╚═══════════════════════════════════════════════════════╝");
-
-        if (config.codeGenerationNotification())
-            loginMessages.add("Enabled code generation! Please note that this is somewhat experimental!");
-
         return FallbackGeneratorManager.getInstance().getFallingBlockFactory();
     }
 
