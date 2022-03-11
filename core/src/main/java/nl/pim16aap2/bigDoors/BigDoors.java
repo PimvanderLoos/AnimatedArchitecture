@@ -723,19 +723,13 @@ public class BigDoors extends JavaPlugin implements Listener
         }
     }
 
-    private FallingBlockFactory generateFallBackFallingBlockFactory()
-        throws Exception
-    {
-        return FallbackGeneratorManager.getInstance().getFallingBlockFactory();
-    }
-
     // Check + initialize for the correct version of Minecraft.
     private boolean compatibleMCVer()
         throws Exception
     {
         if (config.forceCodeGeneration())
         {
-            fabf = generateFallBackFallingBlockFactory();
+            fabf = FallbackGeneratorManager.getFallingBlockFactory();
             return true;
         }
 
@@ -810,7 +804,7 @@ public class BigDoors extends JavaPlugin implements Listener
                 break;
             default:
                 if (config.allowCodeGeneration())
-                    fabf = generateFallBackFallingBlockFactory();
+                    fabf = FallbackGeneratorManager.getFallingBlockFactory();
         }
 
         // Return true if compatible.

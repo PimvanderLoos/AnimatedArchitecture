@@ -8,7 +8,6 @@ import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
 import nl.pim16aap2.bigDoors.reflection.ReflectionBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,18 +28,21 @@ import static nl.pim16aap2.bigDoors.codegeneration.ReflectionRepository.classCra
  */
 public final class FallbackGeneratorManager
 {
-    private final @NotNull FallingBlockFactory fallingBlockFactory;
-
-    private static final @NotNull Object lck = new Object();
-    private static @Nullable FallbackGeneratorManager instance;
+    private static volatile FallingBlockFactory fallingBlockFactory;
 
     private FallbackGeneratorManager()
-        throws Exception
     {
-        fallingBlockFactory = generateFallingBlockFactory();
     }
 
-    private FallingBlockFactory generateFallingBlockFactory()
+    public static synchronized FallingBlockFactory getFallingBlockFactory()
+        throws Exception
+    {
+        if (fallingBlockFactory == null)
+            fallingBlockFactory = generateFallingBlockFactory();
+        return fallingBlockFactory;
+    }
+
+    private static FallingBlockFactory generateFallingBlockFactory()
         throws Exception
     {
         final MyLogger logger = BigDoors.get().getMyLogger();
@@ -75,36 +77,7 @@ public final class FallbackGeneratorManager
         }
     }
 
-    /**
-     * Obtains the instance of this class. If no instance exists yet, a new one will be constructor.
-     *
-     * @return The instance of this class.
-     *
-     * @throws Exception When any step of the generation process encounters an issue.
-     */
-    public static @NotNull FallbackGeneratorManager getInstance()
-        throws Exception
-    {
-        synchronized (lck)
-        {
-            return instance == null ? instance = new FallbackGeneratorManager() : instance;
-        }
-    }
-
-    /**
-     * Retrieves the instances of the generated subclass of {@link FallingBlockFactory}.
-     *
-     * @return The instances of the generated subclass of {@link FallingBlockFactory}.
-     */
-    public @NotNull FallingBlockFactory getFallingBlockFactory()
-    {
-        synchronized (lck)
-        {
-            return fallingBlockFactory;
-        }
-    }
-
-    private @NotNull String getMappingsVersion()
+    private static @NotNull String getMappingsVersion()
         throws IllegalAccessException, InvocationTargetException
     {
         final Method methodGetMappingsVersion = ReflectionBuilder.findMethod().inClass(classCraftMagicNumbers)
