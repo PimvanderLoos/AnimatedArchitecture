@@ -26,6 +26,7 @@ import org.bukkit.block.data.type.Fence;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -307,7 +308,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
                     ((Waterlogged) blockData).setWaterlogged(false);
             }, ICheckWaterLogged.class));
 
-        builder = builder.defineMethod(METHOD_GET_MY_BLOCK_DATA, classIBlockData)
+        builder = builder.defineMethod(METHOD_GET_MY_BLOCK_DATA, classIBlockData, Modifier.PUBLIC)
                          .intercept(FieldAccessor.ofField(FIELD_BLOCK_DATA));
 
         builder = builder.define(METHOD_TO_STRING)
