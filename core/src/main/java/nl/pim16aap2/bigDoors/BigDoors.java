@@ -498,23 +498,19 @@ public class BigDoors extends JavaPlugin implements Listener
 
     public String getLoginMessage()
     {
-        StringBuilder sb = new StringBuilder();
-        if (DEVBUILD)
-        {
-            sb.append("[BigDoors] Warning: You are running a devbuild!\n");
-            sb.append("[BigDoors] Remember to check for new updates regularly!\n");
-        }
+        final StringBuilder sb = new StringBuilder();
         if (updateManager.updateAvailable())
         {
             if (getConfigLoader().autoDLUpdate() && updateManager.hasUpdateBeenDownloaded())
-                sb.append("[BigDoors] A new update (" + updateManager.getNewestVersion() + ") has been downloaded! "
-                              + "Restart your server to apply the update!\n");
+                sb.append("[BigDoors] A new update (").append(updateManager.getNewestVersion())
+                  .append(") has been downloaded! ").append("Restart your server to apply the update!\n");
             else if (updateManager.updateAvailable())
-                sb.append("[BigDoors] A new update is available: " + updateManager.getNewestVersion() + "\n");
+                sb.append("[BigDoors] A new update is available: ").append(updateManager.getNewestVersion())
+                  .append("\n");
         }
         if (failureCommandHandler != null)
-            sb.append("[BigDoors] " + failureCommandHandler.getError() + "\n");
-        loginMessages.forEach(str -> sb.append("[BigDoors] " + str + "\n"));
+            sb.append("[BigDoors] ").append(failureCommandHandler.getError()).append("\n");
+        loginMessages.forEach(str -> sb.append("[BigDoors] ").append(str).append("\n"));
         return sb.toString();
     }
 
