@@ -1,3 +1,6 @@
+Alpha 0.1.8.38
+-
+
 Alpha 0.1.8.37
 - Add support for Minecraft 1.18.2. Massive thanks to Bonn2 for helping me test this!
 - Remove duplicated messages in item names/lores in the GUI. Thanks, DjeyMute, for the suggestion!

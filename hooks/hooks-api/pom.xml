@@ -9,6 +9,6 @@
     <parent>
         <artifactId>hooks</artifactId>
         <groupId>nl.pim16aap2.BigDoors</groupId>
-        <version>0.1.8.37-ALPHA</version>
+        <version>0.1.8.38-ALPHA</version>
     </parent>
 </project>
