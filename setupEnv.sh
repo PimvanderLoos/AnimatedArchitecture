@@ -5,8 +5,8 @@ J_8="/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
 J_17="/usr/lib/jvm/java-17-openjdk-amd64/bin/java"
 BUILD_DIR="tmp"
 
-VERSIONS=(     1.11.2 1.12.2 1.13   1.13.1 1.13.2 1.14.4 1.15.2 1.16.1 1.16.2 1.16.3 1.16.5 1.17.1  1.18.1)
-JAVA_VERSIONS=("$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_17" "$J_17")
+VERSIONS=(     1.11.2 1.12.2 1.13   1.13.1 1.13.2 1.14.4 1.15.2 1.16.1 1.16.2 1.16.3 1.16.5 1.17.1  1.18.1  1.18.1)
+JAVA_VERSIONS=("$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_8" "$J_17" "$J_17" "$J_17")
 
 
 function setup_version_dir() {
