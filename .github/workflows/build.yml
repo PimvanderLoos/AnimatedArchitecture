@@ -1,0 +1,34 @@
+name: Test, build, and check BigDoors
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
+
+      - name: Compile Minecraft Spigot
+        uses: SpraxDev/Action-SpigotMC@v4.0.0
+        with:
+          versions: 1.15.2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build the project and run static analysis tools.
+        run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check

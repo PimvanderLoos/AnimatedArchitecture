@@ -34,7 +34,7 @@
         <dependency.version.junit>5.8.2</dependency.version.junit>
         <dependency.version.surefire>3.0.0-M5</dependency.version.surefire>
         <dependency.version.jacoco>0.8.7</dependency.version.jacoco>
-        <dependency.version.maven-compiler>3.9.0</dependency.version.maven-compiler>
+        <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
         <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.2</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.1.0</dependency.version.maven-clean>
@@ -69,16 +69,6 @@
             </snapshots>
         </repository>
         <repository>
-            <id>apache.snapshots</id>
-            <url>https://repository.apache.org/content/repositories/snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
@@ -87,6 +77,13 @@
             <url>https://maven.google.com/</url>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
