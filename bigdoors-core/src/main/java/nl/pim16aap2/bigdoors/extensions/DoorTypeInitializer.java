@@ -201,8 +201,10 @@ final class DoorTypeInitializer
             final Class<?> typeClass = doorTypeClassLoader.loadClass(typeInfo.mainClass);
             final Method getter = typeClass.getDeclaredMethod("get");
             doorType = (DoorType) getter.invoke(null);
+            // Retrieve the serializer to ensure that it could be initialized successfully.
+            doorType.getDoorSerializer();
         }
-        catch (Exception e)
+        catch (Exception | Error e)
         {
             log.at(Level.SEVERE).withCause(e).log("Failed to load extension: %s", typeInfo.getTypeName());
             return Optional.empty();

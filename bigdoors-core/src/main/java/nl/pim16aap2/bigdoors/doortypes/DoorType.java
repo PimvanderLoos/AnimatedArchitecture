@@ -102,7 +102,7 @@ public abstract class DoorType
      * @return The {@link DoorSerializer}.
      */
     @SuppressWarnings("ConstantConditions")
-    public DoorSerializer<?> getDoorSerializer()
+    public final DoorSerializer<?> getDoorSerializer()
     {
         if (doorSerializer != null)
             return doorSerializer;
