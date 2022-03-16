@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up JDK 8
         uses: actions/setup-java@v2
         with:
@@ -32,3 +33,15 @@ jobs:
 
       - name: Build the project and run static analysis tools.
         run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check
+
+      - name: Upload doortypes
+        uses: actions/upload-artifact@v3
+        with:
+          name: DoorTypes
+          path: bigdoors-doors/DoorTypes/*.jar
+
+      - name: Upload BigDoors-Spigot
+        uses: actions/upload-artifact@v3
+        with:
+          name: BigDoors-Spigot
+          path: bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar
