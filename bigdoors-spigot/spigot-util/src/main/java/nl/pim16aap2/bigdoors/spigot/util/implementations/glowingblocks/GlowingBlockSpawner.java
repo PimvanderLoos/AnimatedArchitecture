@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks;
 
+import com.google.common.flogger.StackSize;
 import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IGlowingBlockSpawner;
@@ -44,12 +45,8 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
 
     private final IGlowingBlockFactory glowingBlockFactory;
 
-    private volatile @Nullable Scoreboard scoreboard;
+    private @Nullable Scoreboard scoreboard;
 
-    /**
-     * Keeps track of whether this class (specifically, {@link #scoreboard}) is initialized.
-     */
-    private volatile boolean isInitialized = false;
     private final IPExecutor executor;
 
     @Inject
@@ -64,7 +61,6 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
     public Optional<IGlowingBlock> spawnGlowingBlock(IPPlayer player, IPWorld world, int time, TimeUnit timeUnit,
                                                      double x, double y, double z, PColor pColor)
     {
-        ensureInitialized();
         if (scoreboard == null)
         {
             log.at(Level.WARNING).log("Failed to spawn glowing block: Scoreboard is null!");
@@ -89,7 +85,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         final @Nullable Player spigotPlayer = SpigotAdapter.getBukkitPlayer(player);
         if (spigotPlayer == null)
         {
-            log.at(Level.SEVERE).withCause(new NullPointerException())
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
                .log("Player %s does not appear to be online! They will not receive any GlowingBlock packets!", player);
             return Optional.empty();
         }
@@ -97,7 +93,7 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
         final @Nullable World spigotWorld = SpigotAdapter.getBukkitWorld(world);
         if (spigotWorld == null)
         {
-            log.at(Level.SEVERE).withCause(new NullPointerException())
+            log.at(Level.SEVERE).withStackTrace(StackSize.FULL)
                .log("World %s does not appear to be online! No Glowing Blocks can be spawned here!", world);
             return Optional.empty();
         }
@@ -151,51 +147,24 @@ public class GlowingBlockSpawner extends Restartable implements IGlowingBlockSpa
             registerTeam(col, scoreboard);
     }
 
-    private void init()
+    @Override
+    public synchronized void initialize()
     {
         final ScoreboardManager scoreboardManager = Util.requireNonNull(Bukkit.getServer().getScoreboardManager(),
                                                                         "scoreboardManager");
         scoreboard = Util.requireNonNull(scoreboardManager.getMainScoreboard(), "scoreboard");
-        //noinspection ConstantConditions
         registerTeams(scoreboard);
     }
 
-    /**
-     * Ensures this class is initialized.
-     * <p>
-     * This method is required because this class is initialized lazily, as the required scoreboard isn't available
-     * until the first world has been loaded (as per Spigot documentation), while this class may or may not be
-     * instantiated before then.
-     */
-    private void ensureInitialized()
-    {
-        // Use double-checked locking to avoid synchronization when not needed (99+% of all cases).
-        if (!isInitialized)
-        {
-            synchronized (this)
-            {
-                if (!isInitialized)
-                {
-                    init();
-                    isInitialized = true;
-                }
-            }
-        }
-    }
-
     @Override
-    public void initialize()
-    {
-        registerTeams(Util.requireNonNull(scoreboard, "Scoreboard"));
-    }
-
-    @Override
-    public void shutDown()
+    public synchronized void shutDown()
     {
         teams.forEach((color, team) -> team.unregister());
         teams.clear();
 
         killAllSpawnedBlocks();
+
+        scoreboard = null;
     }
 
     private void killAllSpawnedBlocks()
