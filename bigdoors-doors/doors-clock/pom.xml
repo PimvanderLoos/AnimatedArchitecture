@@ -21,9 +21,16 @@
     <dependencies>
         <dependency>
             <groupId>nl.pim16aap2.bigdoors</groupId>
+            <artifactId>doors-drawbridge</artifactId>
+            <version>1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.pim16aap2.bigdoors</groupId>
             <artifactId>doors-windmill</artifactId>
             <version>1</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -47,12 +54,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${dependency.version.maven-compiler}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${dependency.version.maven-shade}</version>
             </plugin>
         </plugins>
     </build>
