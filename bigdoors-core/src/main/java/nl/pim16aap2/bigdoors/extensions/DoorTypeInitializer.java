@@ -15,11 +15,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -139,8 +141,7 @@ final class DoorTypeInitializer
             {
                 final TypeInfo info = sorted.get(idx);
                 final StringBuilder depSB = new StringBuilder();
-                info.getDependencies().forEach(dependencyOpt -> dependencyOpt
-                    .ifPresent(dependency -> depSB.append(dependency.dependencyName).append(' ')));
+                info.getDependencies().forEach(dependency -> depSB.append(dependency.dependencyName).append(' '));
 
                 sb.append(String.format("(%-2d) Weight: %-2d type: %-15s dependencies: %s",
                                         idx, info.weight, info.getTypeName(), depSB)).append('\n');
@@ -181,11 +182,22 @@ final class DoorTypeInitializer
      *
      * @param typeInfo
      *     The {@link TypeInfo} to load.
+     * @param loaded
+     *     The {@link TypeInfo#typeName}s of all the door types that have been loaded so far.
+     *     <p>
+     *     If the current type is loaded successfully, its name will be appended to the list.
      * @return The {@link DoorType} that resulted from loading the {@link TypeInfo}, if possible.
      */
-    private Optional<DoorType> loadDoorType(TypeInfo typeInfo)
+    private Optional<DoorType> loadDoorType(TypeInfo typeInfo, Set<String> loaded)
     {
-        log.at(Level.FINE).log("Trying to load type: %s", typeInfo.getTypeName());
+        log.at(Level.FINE).log("Trying to load type: '%s'", typeInfo.getTypeName());
+        for (final Dependency dependency : typeInfo.getDependencies())
+            if (!loaded.contains(dependency.dependencyName))
+            {
+                log.at(Level.SEVERE).log("Failed to load file '%s'! Reason: Missing dependency '%s'!",
+                                         typeInfo.getJarFile(), dependency.dependencyName);
+                return Optional.empty();
+            }
 
         if (!loadJar(typeInfo.jarFile))
         {
@@ -210,6 +222,7 @@ final class DoorTypeInitializer
             return Optional.empty();
         }
 
+        loaded.add(typeInfo.typeName);
         log.at(Level.FINE).log("Loaded BigDoors extension: %s", Util.capitalizeFirstLetter(doorType.getSimpleName()));
         return Optional.of(doorType);
     }
@@ -221,8 +234,10 @@ final class DoorTypeInitializer
      */
     public List<DoorType> loadDoorTypes()
     {
-        final List<DoorType> ret = new ArrayList<>(getSorted().size());
-        getSorted().forEach(doorInfo -> loadDoorType(doorInfo).ifPresent(ret::add));
+        final ArrayList<DoorType> ret = new ArrayList<>(getSorted().size());
+        final Set<String> loaded = new HashSet<>(getSorted().size());
+        getSorted().forEach(doorInfo -> loadDoorType(doorInfo, loaded).ifPresent(ret::add));
+        ret.trimToSize();
         return ret;
     }
 
@@ -252,15 +267,8 @@ final class DoorTypeInitializer
                    new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE, "");
         int newWeight = 0;
 
-        for (final Optional<Dependency> dependencyOpt : doorTypeInfo.getDependencies())
+        for (final Dependency dependency : doorTypeInfo.getDependencies())
         {
-            if (dependencyOpt.isEmpty())
-            {
-                registrationQueue.replace(currentName, new TypeInfoAndWeight(doorTypeInfo, -1));
-                return new LoadResult(LoadResultType.DEPENDENCY_UNAVAILABLE,
-                                      currentName + ": Failed to find dependency!");
-            }
-            final Dependency dependency = dependencyOpt.get();
             final String dependencyName = dependency.dependencyName();
 
             // If the dependency has already been registered, it has already been loaded, obviously.
@@ -331,7 +339,7 @@ final class DoorTypeInitializer
         @Getter
         private final Path jarFile;
         @Getter
-        private final List<Optional<Dependency>> dependencies;
+        private final List<Dependency> dependencies;
         @Getter(AccessLevel.PRIVATE)
         @Setter(AccessLevel.PRIVATE)
         private int weight;
@@ -349,20 +357,21 @@ final class DoorTypeInitializer
             this.dependencies = parseDependencies(dependencies);
         }
 
-        private List<Optional<Dependency>> parseDependencies(@Nullable String dependencies)
+        private List<Dependency> parseDependencies(@Nullable String dependencies)
         {
             if (dependencies == null || dependencies.isEmpty())
                 return Collections.emptyList();
 
             final String[] split = dependencies.split(" ");
-            final List<Optional<Dependency>> ret = new ArrayList<>(split.length);
+            final List<Dependency> ret = new ArrayList<>(split.length);
 
             for (int idx = 0; idx < split.length; ++idx)
             {
-                final Optional<Dependency> dependency = parseDependency(split[idx]);
-                if (dependency.isEmpty())
-                    log.at(Level.SEVERE).log("Failed to parse dependency '%s' for type: %s", split[idx], typeName);
-                ret.add(idx, dependency);
+                final int arrPos = idx;
+                parseDependency(split[idx]).ifPresentOrElse(
+                    dep -> ret.add(arrPos, dep),
+                    () -> log.at(Level.SEVERE).log("Failed to parse dependency '%s' for type: %s",
+                                                   split[arrPos], typeName));
             }
             return ret;
         }
