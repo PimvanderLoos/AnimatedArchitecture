@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      # First use J8 for BuildTools, as older versions don't like being compiled
+      # With newer versions of Java. Generally, up until MC1.16, Java 8 will be fine.
       - name: Set up JDK 8
         uses: actions/setup-java@v2
         with:
@@ -22,8 +24,10 @@ jobs:
       - name: Compile Minecraft Spigot
         uses: SpraxDev/Action-SpigotMC@v4.0.0
         with:
+          # Comma-separated list of MC versions to compile.
           versions: 1.15.2
 
+      # Now set up the actual JDK we'll use for the project itself.
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
