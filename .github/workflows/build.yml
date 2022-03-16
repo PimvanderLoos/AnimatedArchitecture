@@ -1,0 +1,51 @@
+name: Test, build, and check BigDoors
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # First use J8 for BuildTools, as older versions don't like being compiled
+      # With newer versions of Java. Generally, up until MC1.16, Java 8 will be fine.
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
+
+      - name: Compile Minecraft Spigot
+        uses: SpraxDev/Action-SpigotMC@v4.0.0
+        with:
+          # Comma-separated list of MC versions to compile.
+          versions: 1.15.2
+
+      # Now set up the actual JDK we'll use for the project itself.
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: Build the project and run static analysis tools.
+        run: mvn --batch-mode clean -P=errorprone test package checkstyle:checkstyle pmd:check
+
+      - name: Upload doortypes
+        uses: actions/upload-artifact@v3
+        with:
+          name: DoorTypes
+          path: bigdoors-doors/DoorTypes/*.jar
+
+      - name: Upload BigDoors-Spigot
+        uses: actions/upload-artifact@v3
+        with:
+          name: BigDoors-Spigot
+          path: bigdoors-spigot/spigot-core/target/BigDoors-Spigot.jar
