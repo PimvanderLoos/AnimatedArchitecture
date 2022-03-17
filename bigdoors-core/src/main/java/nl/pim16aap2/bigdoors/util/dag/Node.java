@@ -3,10 +3,8 @@ package nl.pim16aap2.bigdoors.util.dag;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,8 +17,8 @@ import java.util.Set;
 @Getter(AccessLevel.PACKAGE)
 public final class Node<T>
 {
-    private final List<Node<T>> parents = new ArrayList<>();
-    private final List<Node<T>> children = new ArrayList<>();
+    private final Set<Node<T>> parents = new LinkedHashSet<>();
+    private final Set<Node<T>> children = new LinkedHashSet<>();
     private final T obj;
 
     Node(T obj)
