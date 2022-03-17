@@ -118,6 +118,9 @@ class NodeTest
 
         children = new ArrayList<>(n0.getAllChildren());
         Assertions.assertEquals(List.of(n1, n2, n3), children);
+
+        Mockito.when(dag.getLeafNodePath()).thenThrow(IllegalStateException.class);
+        Assertions.assertThrows(IllegalStateException.class, n0::getAllChildren);
     }
 
     @Test
