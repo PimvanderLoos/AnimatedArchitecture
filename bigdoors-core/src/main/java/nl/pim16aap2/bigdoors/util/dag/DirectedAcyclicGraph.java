@@ -303,6 +303,12 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         final LinkedList<Node<T>> leafQueue = new LinkedList<>(leaves);
         final Set<Node<T>> removed = new LinkedHashSet<>(nodes.size());
 
+        // The general idea of finding whether the graph has any cyclic dependencies
+        // is to remove all leaf nodes (those that do not have any parents).
+        // Removing these leaf nodes as parents from other nodes might create new
+        // leaf nodes. Just keep doing this until there are no leaf nodes left.
+        // If there are no leaf nodes left but not all nodes have been removed,
+        // we know that there's a cyclic dependency.
         while (!leafQueue.isEmpty())
         {
             final Node<T> node = leafQueue.removeFirst();
@@ -384,10 +390,12 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
                 throw new ConcurrentModificationException();
 
             final int next = cursor + 1;
-            if (next >= size)
+            if (next > size)
                 throw new NoSuchElementException();
+
+            final Node<T> obj = leafPath[cursor];
             cursor = next;
-            return leafPath[cursor];
+            return obj;
         }
     }
 }

@@ -125,8 +125,6 @@ public final class Node<T>
 
     private void addChild0(Node<T> child)
     {
-        if (this.equals(child))
-            throw new IllegalArgumentException("Cannot make a node a child of itself!");
         this.children.add(child);
     }
 

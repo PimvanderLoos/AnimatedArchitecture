@@ -167,6 +167,9 @@ class NodeTest
         final Node<Object> n2 = new Node<>(dag, new Object());
         final Node<Object> n3 = new Node<>(dag, new Object());
 
+        Assertions.assertFalse(n0.hasRemainingParents(Collections.emptyList()));
+        Assertions.assertFalse(n0.hasRemainingParents(List.of(n0, n1, n2, n3)));
+
         n2.addParent(n0);
         n2.addParent(n1);
 
