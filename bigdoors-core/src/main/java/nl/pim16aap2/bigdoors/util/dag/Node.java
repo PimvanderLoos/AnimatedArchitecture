@@ -66,7 +66,10 @@ public final class Node<T>
     void clearRelations()
     {
         children.forEach(child -> child.removeParent0(this));
+        children.clear();
+
         parents.forEach(parent -> parent.removeChild0(this));
+        parents.clear();
     }
 
     /**
