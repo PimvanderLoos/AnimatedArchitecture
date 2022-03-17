@@ -109,8 +109,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
         --size;
         ++modCount;
-        removed.getChildren().forEach(child -> child.removeParent(removed));
-        removed.getParents().forEach(parent -> parent.removeChild(removed));
+        removed.clearRelations();
 
         return removed;
     }
@@ -197,7 +196,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
             this.leaves.remove(cNode);
 
         cNode.addParent(pNode);
-        pNode.addChild(cNode);
 
         if (failFast)
         {

@@ -39,6 +39,16 @@ public final class Node<T>
     }
 
     /**
+     * Checks if this node has any children.
+     *
+     * @return True if this node has 1 or more children.
+     */
+    public boolean hasChildren()
+    {
+        return !children.isEmpty();
+    }
+
+    /**
      * Recursively gets all the children of this node.
      *
      * @return All the children of this node as well as the all the children of each of those children etc.
@@ -51,6 +61,15 @@ public final class Node<T>
     }
 
     /**
+     * Clears all relations between this node and any other nodes.
+     */
+    void clearRelations()
+    {
+        children.forEach(child -> child.removeParent0(this));
+        parents.forEach(parent -> parent.removeChild0(this));
+    }
+
+    /**
      * Adds a new parent to this node.
      *
      * @param parent
@@ -58,16 +77,16 @@ public final class Node<T>
      */
     void addParent(Node<T> parent)
     {
+        this.addParent0(parent);
+        parent.addChild0(this);
+    }
+
+    private void addParent0(Node<T> parent)
+    {
         this.parents.add(parent);
     }
 
-    /**
-     * Adds a new child to this node.
-     *
-     * @param child
-     *     The new child node of this node.
-     */
-    void addChild(Node<T> child)
+    private void addChild0(Node<T> child)
     {
         this.children.add(child);
     }
@@ -80,6 +99,12 @@ public final class Node<T>
      */
     void removeParent(Node<T> parent)
     {
+        this.removeParent0(parent);
+        parent.removeChild0(this);
+    }
+
+    private void removeParent0(Node<T> parent)
+    {
         this.parents.remove(parent);
     }
 
@@ -90,6 +115,12 @@ public final class Node<T>
      *     The child node to remove.
      */
     void removeChild(Node<T> child)
+    {
+        this.removeChild0(child);
+        child.removeParent0(this);
+    }
+
+    private void removeChild0(Node<T> child)
     {
         this.children.remove(child);
     }
