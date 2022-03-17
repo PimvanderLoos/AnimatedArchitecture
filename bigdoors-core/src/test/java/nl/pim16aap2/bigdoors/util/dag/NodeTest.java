@@ -10,7 +10,6 @@ import java.util.List;
 
 class NodeTest
 {
-
     @Test
     void testHasChildren()
     {
@@ -23,6 +22,14 @@ class NodeTest
         Assertions.assertFalse(n0.hasChildren());
         n1.addParent(n0);
         Assertions.assertTrue(n0.hasChildren());
+    }
+
+    @Test
+    void testAvoidSelfReference()
+    {
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        Assertions.assertThrows(IllegalArgumentException.class, () -> n0.addParent(n0));
     }
 
     @Test

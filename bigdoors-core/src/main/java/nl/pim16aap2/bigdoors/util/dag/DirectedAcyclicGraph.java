@@ -224,6 +224,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
     private void addConnection0(Node<T> child, Node<T> parent)
     {
+        // Don't do anything if we don't have to.
         if (child.hasParent(parent))
             return;
 
@@ -280,7 +281,10 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     Set<Node<T>> verifyAcyclic()
     {
-        if (!nodes.isEmpty() && leaves.isEmpty())
+        if (nodes.isEmpty())
+            return Collections.emptySet();
+
+        if (leaves.isEmpty())
             throw new IllegalStateException("Graph has no leaves and must therefore be cyclic!");
 
         final LinkedList<Node<T>> leafQueue = new LinkedList<>(leaves);

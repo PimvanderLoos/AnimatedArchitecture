@@ -118,11 +118,15 @@ public final class Node<T>
 
     private void addParent0(Node<T> parent)
     {
+        if (this.equals(parent))
+            throw new IllegalArgumentException("Cannot make a node a parent of itself!");
         this.parents.add(parent);
     }
 
     private void addChild0(Node<T> child)
     {
+        if (this.equals(child))
+            throw new IllegalArgumentException("Cannot make a node a child of itself!");
         this.children.add(child);
     }
 
