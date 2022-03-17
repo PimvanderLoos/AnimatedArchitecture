@@ -100,6 +100,19 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     }
 
     /**
+     * Clears the entire graph.
+     */
+    public void clear()
+    {
+        leaves.clear();
+        nodes.values().forEach(Node::clearRelations);
+        nodes.clear();
+        ++modCount;
+        size = 0;
+        leafPath = null;
+    }
+
+    /**
      * Creates two new nodes (if no nodes exist for the given values) and creates a connection between them.
      * <p>
      * See {@link #addNode(Object)} and {@link #addConnection(Object, Object)}.
