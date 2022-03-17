@@ -145,9 +145,6 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
             bigDoorsSpigotPlatform = initPlatform();
         initialized = true;
 
-        // TODO: Remove this before any release.
-        printDebug();
-
         if (bigDoorsSpigotPlatform == null)
         {
             log.at(Level.SEVERE).log("Failed to enable BigDoors: Platform could not be initialized!");
@@ -156,6 +153,9 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
 
         LOG_BACK_CONFIGURATOR.setLevel(bigDoorsSpigotPlatform.getBigDoorsConfig().logLevel()).apply();
         restartableHolder.initialize();
+
+        // TODO: Remove this before any release.
+        printDebug();
     }
 
     @Override
