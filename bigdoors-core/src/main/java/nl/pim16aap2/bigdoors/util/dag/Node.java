@@ -19,10 +19,12 @@ public final class Node<T>
 {
     private final Set<Node<T>> parents = new LinkedHashSet<>();
     private final Set<Node<T>> children = new LinkedHashSet<>();
+    private final DirectedAcyclicGraph<T> owner;
     private final T obj;
 
-    Node(T obj)
+    Node(DirectedAcyclicGraph<T> owner, T obj)
     {
+        this.owner = owner;
         this.obj = obj;
     }
 
@@ -52,6 +54,14 @@ public final class Node<T>
      * @return All the children of this node as well as the all the children of each of those children etc.
      */
     public Set<Node<T>> getAllChildren()
+    {
+        owner.getLeafNodePath();
+        final Set<Node<T>> ret = new LinkedHashSet<>(children);
+        children.forEach(child -> ret.addAll(child.getAllChildren0()));
+        return ret;
+    }
+
+    private Set<Node<T>> getAllChildren0()
     {
         final Set<Node<T>> ret = new LinkedHashSet<>(children);
         children.forEach(child -> ret.addAll(child.getAllChildren()));

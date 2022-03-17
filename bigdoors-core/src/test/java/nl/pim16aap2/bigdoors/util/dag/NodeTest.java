@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.util.dag;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,11 +10,13 @@ import java.util.List;
 
 class NodeTest
 {
+
     @Test
     void testHasChildren()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
 
         Assertions.assertFalse(n0.hasChildren());
         n0.addParent(n1);
@@ -25,8 +28,9 @@ class NodeTest
     @Test
     void testHasParents()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
 
         Assertions.assertFalse(n0.hasParents());
         n1.addParent(n0);
@@ -38,8 +42,9 @@ class NodeTest
     @Test
     void testRemoveParent()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
 
         n0.addParent(n1);
         n1.addParent(n0);
@@ -55,8 +60,9 @@ class NodeTest
     @Test
     void testRemoveChild()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
 
         n0.addParent(n1);
         n1.addParent(n0);
@@ -72,9 +78,10 @@ class NodeTest
     @Test
     void testClearRelations()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
-        final Node<Object> n2 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
+        final Node<Object> n2 = new Node<>(dag, new Object());
 
         n0.addParent(n1);
         n1.addParent(n0);
@@ -95,10 +102,11 @@ class NodeTest
     @Test
     void testGetChildren()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
-        final Node<Object> n2 = new Node<>(new Object());
-        final Node<Object> n3 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
+        final Node<Object> n2 = new Node<>(dag, new Object());
+        final Node<Object> n3 = new Node<>(dag, new Object());
 
         n2.addParent(n1);
         n3.addParent(n1);
@@ -115,9 +123,10 @@ class NodeTest
     @Test
     void testHasParent()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
-        final Node<Object> n2 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
+        final Node<Object> n2 = new Node<>(dag, new Object());
 
         n1.addParent(n0);
         Assertions.assertTrue(n1.hasParent(n0));
@@ -128,9 +137,10 @@ class NodeTest
     @Test
     void testHasChild()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
-        final Node<Object> n2 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
+        final Node<Object> n2 = new Node<>(dag, new Object());
 
         n1.addParent(n0);
         Assertions.assertTrue(n0.hasChild(n1));
@@ -141,10 +151,11 @@ class NodeTest
     @Test
     void testHasRemainingParents()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
-        final Node<Object> n2 = new Node<>(new Object());
-        final Node<Object> n3 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
+        final Node<Object> n2 = new Node<>(dag, new Object());
+        final Node<Object> n3 = new Node<>(dag, new Object());
 
         n2.addParent(n0);
         n2.addParent(n1);
@@ -160,8 +171,9 @@ class NodeTest
     @Test
     void testToString()
     {
-        final Node<Object> n0 = new Node<>(new Object());
-        final Node<Object> n1 = new Node<>(new Object());
+        final DirectedAcyclicGraph<Object> dag = newMockedGraph();
+        final Node<Object> n0 = new Node<>(dag, new Object());
+        final Node<Object> n1 = new Node<>(dag, new Object());
 
         n1.addParent(n0);
         n0.addParent(n1);
@@ -169,5 +181,11 @@ class NodeTest
         // Ensure that even in case of a cyclic graph, Node#toString()
         // does not result in issues like a StackOverflow.
         Assertions.assertDoesNotThrow(n0::toString);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> DirectedAcyclicGraph<T> newMockedGraph()
+    {
+        return (DirectedAcyclicGraph<T>) Mockito.mock(DirectedAcyclicGraph.class);
     }
 }

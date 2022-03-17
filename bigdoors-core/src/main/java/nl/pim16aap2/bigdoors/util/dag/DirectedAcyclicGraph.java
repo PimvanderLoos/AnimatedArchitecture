@@ -86,7 +86,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         if (nodes.containsKey(val))
             return Util.requireNonNull(nodes.get(val), "Node");
 
-        final Node<T> node = new Node<>(val);
+        final Node<T> node = new Node<>(this, val);
         nodes.put(val, node);
         ++modCount;
         ++size;
