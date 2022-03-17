@@ -113,6 +113,32 @@ class NodeTest
     }
 
     @Test
+    void testHasParent()
+    {
+        final Node<Object> n0 = new Node<>(new Object());
+        final Node<Object> n1 = new Node<>(new Object());
+        final Node<Object> n2 = new Node<>(new Object());
+
+        n1.addParent(n0);
+        Assertions.assertTrue(n1.hasParent(n0));
+        Assertions.assertFalse(n1.hasParent(n2));
+        Assertions.assertFalse(n0.hasParent(n1));
+    }
+
+    @Test
+    void testHasChild()
+    {
+        final Node<Object> n0 = new Node<>(new Object());
+        final Node<Object> n1 = new Node<>(new Object());
+        final Node<Object> n2 = new Node<>(new Object());
+
+        n1.addParent(n0);
+        Assertions.assertTrue(n0.hasChild(n1));
+        Assertions.assertFalse(n0.hasChild(n2));
+        Assertions.assertFalse(n1.hasChild(n0));
+    }
+
+    @Test
     void testHasRemainingParents()
     {
         final Node<Object> n0 = new Node<>(new Object());

@@ -38,7 +38,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     private final Map<T, Node<T>> nodes = new HashMap<>();
 
     private int size = 0;
-    private int modCount = 0;
+    int modCount = 0;
 
     /**
      * Cached version of the leaf path.
@@ -214,6 +214,9 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
     private void addConnection0(Node<T> child, Node<T> parent)
     {
+        if (child.hasParent(parent))
+            return;
+
         ++modCount;
 
         if (!child.hasParents())

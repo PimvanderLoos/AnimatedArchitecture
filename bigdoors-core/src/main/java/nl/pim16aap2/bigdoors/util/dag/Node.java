@@ -71,6 +71,30 @@ public final class Node<T>
     }
 
     /**
+     * Checks if another node 'test' is a parent of this node.
+     *
+     * @param test
+     *     The node to check.
+     * @return True if the test node is a parent of this node.
+     */
+    boolean hasParent(Node<T> test)
+    {
+        return parents.contains(test);
+    }
+
+    /**
+     * Checks if another node 'test' is a child of this node.
+     *
+     * @param test
+     *     The node to check.
+     * @return True if the test node is a child of this node.
+     */
+    boolean hasChild(Node<T> test)
+    {
+        return children.contains(test);
+    }
+
+    /**
      * Adds a new parent to this node.
      *
      * @param parent
