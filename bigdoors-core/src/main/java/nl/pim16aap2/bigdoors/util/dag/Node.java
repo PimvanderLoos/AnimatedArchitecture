@@ -149,6 +149,6 @@ public final class Node<T>
     @Override
     public String toString()
     {
-        return String.format("Node[Obj: '%s', parents: %s, children: %s]", obj, parents, children);
+        return String.format("Node[Obj: '%s', parents: %d, children: %d]", obj, parents.size(), children.size());
     }
 }

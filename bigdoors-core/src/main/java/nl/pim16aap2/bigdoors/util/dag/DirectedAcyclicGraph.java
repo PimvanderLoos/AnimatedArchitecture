@@ -75,20 +75,45 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     }
 
     /**
-     * Creates a new node on the graph.
+     * Creates a new node on the graph if no node exists for the given value.
      * <p>
      * Use {@link #addConnection(Object, Object)} to add connections between nodes.
      *
      * @param val
      *     The value of the node.
      */
-    @SuppressWarnings("ConstantConditions")
-    public void addNode(T val)
+    public Node<T> addNode(T val)
     {
-        final Node<T> node = nodes.putIfAbsent(val, new Node<>(val));
+        final Node<T> node;
+        if (!nodes.containsKey(val))
+        {
+            ++size;
+            node = new Node<>(val);
+            nodes.put(val, node);
+        }
+        else
+            node = Util.requireNonNull(nodes.get(val), "Node");
+
         this.leaves.add(node);
-        ++size;
         ++modCount;
+        return node;
+    }
+
+    /**
+     * Creates two new nodes (if no nodes exist for the given values) and creates a connection between them.
+     * <p>
+     * See {@link #addNode(Object)} and {@link #addConnection(Object, Object)}.
+     *
+     * @param child
+     *     The child node to add to the graph.
+     * @param parent
+     *     The parent node to add to the graph.
+     */
+    public void addConnectedNodes(T child, T parent)
+    {
+        final Node<T> childNode = addNode(child);
+        final Node<T> parentNode = addNode(parent);
+        addConnection0(childNode, parentNode);
     }
 
     /**
@@ -187,15 +212,18 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     public void addConnection(T child, T parent)
     {
-        final Node<T> cNode = Util.requireNonNull(nodes.get(child), "Child Node");
-        final Node<T> pNode = Util.requireNonNull(nodes.get(parent), "Parent Node");
+        final Node<T> childNode = Util.requireNonNull(nodes.get(child), "Child Node");
+        final Node<T> parentNode = Util.requireNonNull(nodes.get(parent), "Parent Node");
+        addConnection0(childNode, parentNode);
+    }
 
+    private void addConnection0(Node<T> child, Node<T> parent)
+    {
         ++modCount;
 
-        if (!cNode.hasParents())
-            this.leaves.remove(cNode);
-
-        cNode.addParent(pNode);
+        if (!child.hasParents())
+            this.leaves.remove(child);
+        child.addParent(parent);
 
         if (failFast)
         {
@@ -205,7 +233,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
             }
             catch (IllegalStateException e)
             {
-                throw new RuntimeException(
+                throw new IllegalArgumentException(
                     "Failed to add connection between child '" + child + "' and parent: '" + parent + "'", e);
             }
         }
@@ -237,7 +265,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
             final Node<T> node = leafQueue.removeFirst();
             removed.add(node);
             for (final Node<T> child : node.getChildren())
-                if (!child.hasRemainingParents(removed))
+                if (!removed.contains(child) && !child.hasRemainingParents(removed))
                     leafQueue.addLast(child);
         }
         if (removed.size() < nodes.size())

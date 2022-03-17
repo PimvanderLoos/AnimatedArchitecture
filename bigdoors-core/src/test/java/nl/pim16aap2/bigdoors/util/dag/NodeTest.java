@@ -130,4 +130,18 @@ class NodeTest
         Assertions.assertTrue(n2.hasRemainingParents(List.of(n1, n3)));
         Assertions.assertFalse(n2.hasRemainingParents(List.of(n0, n1)));
     }
+
+    @Test
+    void testToString()
+    {
+        final Node<Object> n0 = new Node<>(new Object());
+        final Node<Object> n1 = new Node<>(new Object());
+
+        n1.addParent(n0);
+        n0.addParent(n1);
+
+        // Ensure that even in case of a cyclic graph, Node#toString()
+        // does not result in issues like a StackOverflow.
+        Assertions.assertDoesNotThrow(n0::toString);
+    }
 }
