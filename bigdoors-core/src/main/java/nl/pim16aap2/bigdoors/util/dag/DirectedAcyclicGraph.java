@@ -369,7 +369,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     {
         private final int expectedModCount = modCount;
         private final Node<T>[] leafPath;
-        int cursor = 0;
+        private int cursor = 0;
 
         DAGIterator(Collection<Node<T>> leafPath)
         {
