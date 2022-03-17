@@ -1,10 +1,13 @@
 package nl.pim16aap2.bigdoors.util.dag;
 
+import lombok.AccessLevel;
+import lombok.Getter;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +41,9 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     private final Map<T, Node<T>> nodes = new HashMap<>();
 
     private int size = 0;
-    int modCount = 0;
+
+    @Getter(AccessLevel.PACKAGE)
+    private int modCount = 0;
 
     /**
      * Cached version of the leaf path.
@@ -129,6 +134,11 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
 
         --size;
         ++modCount;
+
+        for (final Node<T> child : removed.getChildren())
+            if (!child.hasRemainingParents(List.of(removed)))
+                leaves.add(child);
+
         removed.clearRelations();
 
         return removed;
@@ -242,6 +252,24 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     }
 
     /**
+     * Removes a connection between a child and a parent if such a connection exists.
+     *
+     * @param child
+     *     The child node.
+     * @param parent
+     *     The parent node.
+     */
+    public void removeConnection(T child, T parent)
+    {
+        final Node<T> childNode = Util.requireNonNull(nodes.get(child), "Child Node");
+        final Node<T> parentNode = Util.requireNonNull(nodes.get(parent), "Parent Node");
+        childNode.removeParent(parentNode);
+        if (!childNode.hasParents())
+            leaves.add(childNode);
+        ++modCount;
+    }
+
+    /**
      * Checks if there are any cyclic dependencies in the current graph.
      *
      * @return The set of nodes ordered by removal order. A node is removed when it has no parents left when excluding
@@ -301,6 +329,12 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         for (final Node<T> leaf : leafPathCol)
             leafPath[idx++] = leaf.getObj();
         return leafPath;
+    }
+
+    // For testing purposes.
+    Set<Node<T>> getLeaves()
+    {
+        return Collections.unmodifiableSet(leaves);
     }
 
     /**
