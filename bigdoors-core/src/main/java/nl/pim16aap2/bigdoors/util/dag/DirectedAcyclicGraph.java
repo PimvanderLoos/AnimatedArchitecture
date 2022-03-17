@@ -3,7 +3,6 @@ package nl.pim16aap2.bigdoors.util.dag;
 import nl.pim16aap2.bigdoors.util.Util;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -31,7 +30,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * <p>
      * These are nodes that have exactly 0 parents.
      */
-    private final List<Node<T>> leaves = new ArrayList<>();
+    private final Set<Node<T>> leaves = new LinkedHashSet<>();
 
     /**
      * Map of all stored values with their respective nodes.
@@ -84,18 +83,14 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     public Node<T> addNode(T val)
     {
-        final Node<T> node;
-        if (!nodes.containsKey(val))
-        {
-            ++size;
-            node = new Node<>(val);
-            nodes.put(val, node);
-        }
-        else
-            node = Util.requireNonNull(nodes.get(val), "Node");
+        if (nodes.containsKey(val))
+            return Util.requireNonNull(nodes.get(val), "Node");
 
-        this.leaves.add(node);
+        final Node<T> node = new Node<>(val);
+        nodes.put(val, node);
         ++modCount;
+        ++size;
+        this.leaves.add(node);
         return node;
     }
 
