@@ -160,6 +160,8 @@ public final class UpdateChecker
         return lastResult;
     }
 
+    // null is different from an empty array here.
+    @SuppressWarnings("PMD.ReturnEmptyCollectionRatherThanNull")
     private static String @Nullable [] splitVersionInfo(String version)
     {
         final Matcher matcher = DECIMAL_SCHEME_PATTERN.matcher(version);
