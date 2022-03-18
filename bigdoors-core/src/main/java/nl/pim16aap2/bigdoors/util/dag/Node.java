@@ -20,6 +20,8 @@ public final class Node<T>
     private final Set<Node<T>> parents = new LinkedHashSet<>();
     private final Set<Node<T>> children = new LinkedHashSet<>();
     private final DirectedAcyclicGraph<T> owner;
+
+    @Getter
     private final T obj;
 
     Node(DirectedAcyclicGraph<T> owner, T obj)

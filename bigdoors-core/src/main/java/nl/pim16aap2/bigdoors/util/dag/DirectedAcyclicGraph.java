@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -100,6 +101,50 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     }
 
     /**
+     * Tries to retrieve a node from the graph.
+     *
+     * @param val
+     *     The value of the node to look for.
+     * @return The node if it could be found, otherwise an empty nullable.
+     */
+    public Optional<Node<T>> getNode(T val)
+    {
+        return Optional.ofNullable(nodes.get(val));
+    }
+
+    /**
+     * Finds all children of a value in the graph.
+     *
+     * @param val
+     *     The value for which to retrieve all children.
+     * @return All children of the node associated with the provided value.
+     *
+     * @throws IllegalStateException
+     *     If the acyclic constraint of this graph has been violated.
+     * @throws NullPointerException
+     *     If no existing node could be found for the provided value.
+     */
+    public List<T> getAllChildren(T val)
+    {
+        return getAllChildren(Util.requireNonNull(nodes.get(val), "Node"));
+    }
+
+    /**
+     * Finds all children of a node in the graph.
+     *
+     * @param node
+     *     The node for which to retrieve all children.
+     * @return All children of the node.
+     *
+     * @throws IllegalStateException
+     *     If the acyclic constraint of this graph has been violated.
+     */
+    public List<T> getAllChildren(Node<T> node)
+    {
+        return node.getAllChildren().stream().map(Node::getObj).toList();
+    }
+
+    /**
      * Clears the entire graph.
      */
     public void clear()
@@ -126,7 +171,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
     {
         final Node<T> childNode = addNode(child);
         final Node<T> parentNode = addNode(parent);
-        addConnection0(childNode, parentNode);
+        addConnection(childNode, parentNode);
     }
 
     /**
@@ -213,7 +258,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * @return The leaf path.
      *
      * @throws IllegalStateException
-     *     if the acyclic constraint of this graph has been violated.
+     *     If the acyclic constraint of this graph has been violated.
      */
     public List<T> getLeafPath()
     {
@@ -227,15 +272,25 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      *     The child node. This is where the connection is coming from.
      * @param parent
      *     The parent node. This is the target of the connection.
+     * @throws NullPointerException
+     *     If no existing node could be found for either the parent or the child value.
      */
     public void addConnection(T child, T parent)
     {
         final Node<T> childNode = Util.requireNonNull(nodes.get(child), "Child Node");
         final Node<T> parentNode = Util.requireNonNull(nodes.get(parent), "Parent Node");
-        addConnection0(childNode, parentNode);
+        addConnection(childNode, parentNode);
     }
 
-    private void addConnection0(Node<T> child, Node<T> parent)
+    /**
+     * Adds a connection between two nodes.
+     *
+     * @param child
+     *     The child node. This is where the connection is coming from.
+     * @param parent
+     *     The parent node. This is the target of the connection.
+     */
+    public void addConnection(Node<T> child, Node<T> parent)
     {
         // Don't do anything if we don't have to.
         if (child.hasParent(parent))
@@ -272,6 +327,8 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      *     The child node.
      * @param parent
      *     The parent node.
+     * @throws NullPointerException
+     *     If no existing node could be found for either the parent or the child value.
      */
     public void removeConnection(T child, T parent)
     {
@@ -290,7 +347,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * the previously-removed nodes.
      *
      * @throws IllegalStateException
-     *     if a cyclic dependency is found.
+     *     If the acyclic constraint of this graph has been violated.
      */
     Set<Node<T>> verifyAcyclic()
     {
@@ -331,7 +388,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      * {@inheritDoc}
      *
      * @throws IllegalStateException
-     *     if the acyclic constraint of this graph has been violated.
+     *     If the acyclic constraint of this graph has been violated.
      */
     @Override
     public Iterator<Node<T>> iterator()

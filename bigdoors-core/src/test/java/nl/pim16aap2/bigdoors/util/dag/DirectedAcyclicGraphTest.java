@@ -34,6 +34,27 @@ class DirectedAcyclicGraphTest
     }
 
     @Test
+    void testGetNode()
+    {
+        final DirectedAcyclicGraph<Object> graph = new DirectedAcyclicGraph<>();
+        final Node<Object> n0 = graph.addNode(o0);
+        Assertions.assertNotNull(n0);
+        Assertions.assertEquals(n0, graph.getNode(o0).orElse(null));
+        Assertions.assertTrue(graph.getNode(o1).isEmpty());
+    }
+
+    @Test
+    void testGetChildren()
+    {
+        final DirectedAcyclicGraph<Object> graph = new DirectedAcyclicGraph<>();
+        graph.addConnectedNodes(o1, o0);
+        graph.addConnectedNodes(o2, o1);
+        graph.addConnectedNodes(o3, o1);
+
+        Assertions.assertEquals(List.of(o1, o2, o3), graph.getAllChildren(o0));
+    }
+
+    @Test
     void testAvoidDuplicates()
     {
         final DirectedAcyclicGraph<Object> graph = new DirectedAcyclicGraph<>();
