@@ -9,8 +9,6 @@ import nl.pim16aap2.bigdoors.util.dag.DirectedAcyclicGraph;
 import nl.pim16aap2.bigdoors.util.dag.Node;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +28,7 @@ import java.util.logging.Level;
 final class DoorTypeInitializer
 {
     private final DirectedAcyclicGraph<Loadable> graph;
-    private final DoorTypeClassLoader doorTypeClassLoader;
+    private final IDoorTypeClassLoader doorTypeClassLoader;
 
     /**
      * Instantiates this {@link DoorTypeInitializer}.
@@ -43,7 +41,7 @@ final class DoorTypeInitializer
      *     Whether to enable debugging. Enabling this will enable failFast mode for the graph. See {@link
      *     DirectedAcyclicGraph#DirectedAcyclicGraph(boolean)}.
      */
-    DoorTypeInitializer(List<DoorTypeInfo> doorTypeInfoList, DoorTypeClassLoader doorTypeClassLoader, boolean debug)
+    DoorTypeInitializer(List<DoorTypeInfo> doorTypeInfoList, IDoorTypeClassLoader doorTypeClassLoader, boolean debug)
     {
         this.doorTypeClassLoader = doorTypeClassLoader;
         this.graph = createGraph(doorTypeInfoList, debug);
@@ -55,7 +53,7 @@ final class DoorTypeInitializer
     /**
      * Attempts to load all door types.
      *
-     * @return
+     * @return A list of all successfully-loaded door types.
      */
     public List<DoorType> loadDoorTypes()
     {
@@ -84,7 +82,7 @@ final class DoorTypeInitializer
         return ret;
     }
 
-    private DirectedAcyclicGraph<Loadable> createGraph(List<DoorTypeInfo> doorTypeInfoList, boolean debug)
+    DirectedAcyclicGraph<Loadable> createGraph(List<DoorTypeInfo> doorTypeInfoList, boolean debug)
     {
         final Map<String, Loadable> loadables = new HashMap<>(doorTypeInfoList.size());
         doorTypeInfoList.forEach(info -> loadables.put(info.getTypeName(), new Loadable(info)));
@@ -105,13 +103,13 @@ final class DoorTypeInitializer
      * @param loadables
      *     The loadables to check.
      */
-    private void propagateLoadFailures(DirectedAcyclicGraph<Loadable> graph, Collection<Loadable> loadables)
+    static void propagateLoadFailures(DirectedAcyclicGraph<Loadable> graph, Collection<Loadable> loadables)
     {
         for (final Loadable loadable : loadables)
         {
             if (loadable.getLoadFailure() == null)
                 continue;
-            graph.getNode(loadable).ifPresent(this::cancelAllChildren);
+            graph.getNode(loadable).ifPresent(DoorTypeInitializer::cancelAllChildren);
         }
     }
 
@@ -121,7 +119,7 @@ final class DoorTypeInitializer
      * @param node
      *     The node whose children to fail.
      */
-    private void cancelAllChildren(Node<Loadable> node)
+    static void cancelAllChildren(Node<Loadable> node)
     {
         final LoadFailure loadResult =
             new LoadFailure(LoadFailureType.DEPENDENCY_UNAVAILABLE,
@@ -129,8 +127,8 @@ final class DoorTypeInitializer
         node.getAllChildren().forEach(child -> child.getObj().setLoadFailure(loadResult));
     }
 
-    private void addDependenciesToGraph(DirectedAcyclicGraph<Loadable> graph, Map<String, Loadable> loadables,
-                                        Loadable loadable)
+    static void addDependenciesToGraph(DirectedAcyclicGraph<Loadable> graph, Map<String, Loadable> loadables,
+                                       Loadable loadable)
     {
         final DoorTypeInfo info = loadable.getDoorTypeInfo();
         final List<DoorTypeInfo.Dependency> dependencies = info.getDependencies();
@@ -156,54 +154,36 @@ final class DoorTypeInitializer
     }
 
     /**
-     * Attempts to load a jar.
-     *
-     * @param file
-     *     The jar file.
-     * @return True if the jar loaded successfully.
-     */
-    private boolean loadJar(Path file)
-    {
-        try
-        {
-            doorTypeClassLoader.addURL(file.toUri().toURL());
-        }
-        catch (Exception e)
-        {
-            log.at(Level.FINE).withCause(e).log();
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Attempts to load a {@link DoorTypeInfo} from its {@link DoorTypeInfo#getMainClass()}.
      *
-     * @param DoorTypeInfo
+     * @param doorTypeInfo
      *     The {@link DoorTypeInfo} to load.
      * @return The {@link DoorType} that resulted from loading the {@link DoorTypeInfo}, if possible.
      */
-    private @Nullable DoorType loadDoorType(DoorTypeInfo DoorTypeInfo)
+    @Nullable DoorType loadDoorType(DoorTypeInfo doorTypeInfo)
     {
-        if (!loadJar(DoorTypeInfo.getJarFile()))
+        if (!doorTypeClassLoader.loadJar(doorTypeInfo.getJarFile()))
         {
-            log.at(Level.WARNING).log("Failed to load file: '%s'! This type ('%s') will not be loaded!",
-                                      DoorTypeInfo.getJarFile(), DoorTypeInfo.getTypeName());
+            log.at(Level.SEVERE).log("Failed to load file: '%s'! This type ('%s') will not be loaded!",
+                                     doorTypeInfo.getJarFile(), doorTypeInfo.getTypeName());
             return null;
         }
 
         final DoorType doorType;
         try
         {
-            final Class<?> typeClass = doorTypeClassLoader.loadClass(DoorTypeInfo.getMainClass());
-            final Method getter = typeClass.getDeclaredMethod("get");
-            doorType = (DoorType) getter.invoke(null);
+            doorType = doorTypeClassLoader.loadDoorTypeClass(doorTypeInfo.getMainClass());
             // Retrieve the serializer to ensure that it could be initialized successfully.
             doorType.getDoorSerializer();
         }
+        catch (NoSuchMethodException e)
+        {
+            log.at(Level.SEVERE).log("Failed to load invalid extension: %s", doorTypeInfo);
+            return null;
+        }
         catch (Exception | Error e)
         {
-            log.at(Level.SEVERE).withCause(e).log("Failed to load extension: %s", DoorTypeInfo.getTypeName());
+            log.at(Level.SEVERE).withCause(e).log("Failed to load extension: %s", doorTypeInfo);
             return null;
         }
 
@@ -211,11 +191,11 @@ final class DoorTypeInitializer
         return doorType;
     }
 
-    private record LoadFailure(LoadFailureType loadFailuretype, String message)
+    record LoadFailure(LoadFailureType loadFailuretype, String message)
     {
     }
 
-    private enum LoadFailureType
+    enum LoadFailureType
     {
         DEPENDENCY_UNSUPPORTED_VERSION,
         DEPENDENCY_UNAVAILABLE,
@@ -227,7 +207,7 @@ final class DoorTypeInitializer
      * DoorTypeInfo#getTypeName()}.
      */
     @ToString
-    static final class Loadable
+    static class Loadable
     {
         @Getter
         private final DoorTypeInfo doorTypeInfo;
