@@ -49,10 +49,9 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
 
         final boolean placementDeferred = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(material);
 
-        final List<IAnimatedBlockHook> hooks = factories.stream().map(IAnimatedBlockHook.Factory::newInstance).toList();
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
-                                               spawnLoc.getZ(), radius, startAngle, placementDeferred);
+                                               spawnLoc.getZ(), radius, startAngle, placementDeferred, factories);
 
         animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.setCustomNameVisible(false);

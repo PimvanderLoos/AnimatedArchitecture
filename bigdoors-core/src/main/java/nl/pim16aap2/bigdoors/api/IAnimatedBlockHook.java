@@ -11,14 +11,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public interface IAnimatedBlockHook
 {
     /**
-     * Fires at the end of the animated block's constructor.
-     *
-     * @param animatedBlock
-     *     The animated block that was constructed.
-     */
-    void onCreate(IAnimatedBlock animatedBlock);
-
-    /**
      * Fires after an animated block has been spawned.
      *
      * @param animatedBlock
@@ -78,6 +70,13 @@ public interface IAnimatedBlockHook
     @FunctionalInterface
     interface Factory
     {
-        IAnimatedBlockHook newInstance();
+        /**
+         * Creates a new {@link IAnimatedBlockHook}.
+         *
+         * @param animatedBlock
+         *     The {@link IAnimatedBlock} that is being hooked into.
+         * @return The new hook.
+         */
+        IAnimatedBlockHook newInstance(IAnimatedBlock animatedBlock);
     }
 }

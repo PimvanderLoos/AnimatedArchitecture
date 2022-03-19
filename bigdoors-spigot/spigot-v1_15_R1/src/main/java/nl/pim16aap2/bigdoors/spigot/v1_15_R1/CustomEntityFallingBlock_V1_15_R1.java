@@ -86,12 +86,11 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred, List<IAnimatedBlockHook> hooks)
+        boolean placementDeferred, List<IAnimatedBlockHook.Factory> hooks)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         this.pWorld = pWorld;
-        this.hooks = hooks;
         bukkitWorld = world;
         this.radius = radius;
         this.startAngle = startAngle;
@@ -119,7 +118,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         noclip = true;
         a(new BlockPosition(this));
 
-        hooks.forEach(hook -> hook.onCreate(this));
+        this.hooks = hooks.stream().map(factory -> factory.newInstance(this)).toList();
     }
 
     @Override
