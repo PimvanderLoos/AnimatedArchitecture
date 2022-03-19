@@ -15,21 +15,22 @@ import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.api.ICustomEntityFallingBlock;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * V1_15_R1 implementation of {@link ICustomEntityFallingBlock}.
+ * V1_15_R1 implementation of {@link IAnimatedBlock}.
  *
  * @author Pim
- * @see ICustomEntityFallingBlock
+ * @see IAnimatedBlock
  */
 @EqualsAndHashCode(callSuper = true)
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
-    implements ICustomEntityFallingBlock
+    implements IAnimatedBlock
 {
     // ticksLived is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
     @SuppressWarnings("squid:S2387")
@@ -44,6 +45,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private int fallHurtMax;
     private float fallHurtAmount;
     private final org.bukkit.World bukkitWorld;
+    private final IPWorld pWorld;
     private @Nullable PlayerChunkMap.EntityTracker tracker;
     private final WorldServer worldServer;
 
@@ -51,14 +53,13 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private Vector3Dd previousPosition;
     @Getter
     private Vector3Dd currentPosition;
-    @Getter
-    private Vector3Dd futurePosition;
 
-    public CustomEntityFallingBlock_V1_15_R1(org.bukkit.World world, double d0, double d1, double d2,
-                                             IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_15_R1(
+        IPWorld pWorld, org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
+        this.pWorld = pWorld;
         bukkitWorld = world;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
         block = iblockdata;
@@ -74,7 +75,6 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
         previousPosition = new Vector3Dd(d0, d1, d2);
         currentPosition = previousPosition;
-        futurePosition = currentPosition;
 
         // try setting noClip twice, because it doesn't seem to stick.
         noclip = true;
@@ -103,19 +103,15 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private void cyclePositions(Vector3Dd newPosition)
     {
         previousPosition = currentPosition;
-        currentPosition = futurePosition;
-        futurePosition = newPosition;
+        currentPosition = newPosition;
     }
 
     @SuppressWarnings("unused")
     public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
-        final double distance = futurePosition.getDistance(newPosition);
-        cyclePositions(newPosition);
-
-        final double deltaX = currentPosition.x() - previousPosition.x();
-        final double deltaY = currentPosition.y() - previousPosition.y();
-        final double deltaZ = currentPosition.z() - previousPosition.z();
+        final double deltaX = newPosition.x() - currentPosition.x();
+        final double deltaY = newPosition.y() - currentPosition.y();
+        final double deltaZ = newPosition.z() - currentPosition.z();
 
         final short relX = (short) (deltaX * 4096);
         final short relY = (short) (deltaY * 4096);
@@ -126,6 +122,9 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
         if (tracker != null)
             tracker.broadcast(tpPacket);
+
+        cyclePositions(newPosition);
+
         return true;
     }
 
@@ -157,6 +156,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
             final double motY = getMot().y;
             final double motZ = getMot().z * 0.980_000_019_073_486_3D;
             setMot(motX, motY, motZ);
+
+            cyclePositions(new Vector3Dd(this.locX(), this.locY(), this.locZ()));
         }
     }
 
@@ -196,7 +197,25 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
         if (block.isAir())
             block = Blocks.SAND.getBlockData();
+    }
 
+    @Override
+    public boolean isAlive()
+    {
+        return !dead;
+    }
+
+    @Override
+    public Vector3Dd getVelocity()
+    {
+        final var vec = getMot();
+        return new Vector3Dd(vec.x, vec.y, vec.z);
+    }
+
+    @Override
+    public IPWorld getPWorld()
+    {
+        return pWorld;
     }
 
     @Override

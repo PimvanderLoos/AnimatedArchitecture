@@ -30,7 +30,7 @@ public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
                                                       "Spigot world from location: " + loc);
 
         final var fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
-            .CustomEntityFallingBlock_V1_15_R1(bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
+            .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
                                                ((NMSBlock_V1_15_R1) block).getMyBlockData());
 
         final var ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
