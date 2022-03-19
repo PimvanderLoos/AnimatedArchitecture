@@ -41,8 +41,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     private final Map<T, Node<T>> nodes = new HashMap<>();
 
-    private int size = 0;
-
     @Getter(AccessLevel.PACKAGE)
     private int modCount = 0;
 
@@ -95,7 +93,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         final Node<T> node = new Node<>(this, val);
         nodes.put(val, node);
         ++modCount;
-        ++size;
         this.leaves.add(node);
         return node;
     }
@@ -153,7 +150,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         nodes.values().forEach(Node::clearRelations);
         nodes.clear();
         ++modCount;
-        size = 0;
         leafPath = null;
     }
 
@@ -181,7 +177,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
      */
     public int size()
     {
-        return size;
+        return nodes.size();
     }
 
     private @Nullable Node<T> remove0(T val)
@@ -190,7 +186,6 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         if (removed == null)
             return null;
 
-        --size;
         ++modCount;
 
         for (final Node<T> child : removed.getChildren())
@@ -437,7 +432,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
         @Override
         public boolean hasNext()
         {
-            return cursor < size;
+            return cursor < size();
         }
 
         @Override
@@ -447,7 +442,7 @@ public final class DirectedAcyclicGraph<T> implements Iterable<Node<T>>
                 throw new ConcurrentModificationException();
 
             final int next = cursor + 1;
-            if (next > size)
+            if (next > size())
                 throw new NoSuchElementException();
 
             final Node<T> obj = leafPath[cursor];
