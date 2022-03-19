@@ -26,6 +26,9 @@ import java.util.Optional;
 @Singleton
 public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactory
 {
+    // FIXME: Placeholder; actual hooks need to be registered elsewhere and passed into this class.
+    private final List<IAnimatedBlockHook.Factory> factories = new ArrayList<>(0);
+
     AnimatedBlockFactory_V1_15_R1()
     {
     }
@@ -46,7 +49,7 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
 
         final boolean placementDeferred = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(material);
 
-        final List<IAnimatedBlockHook> hooks = new ArrayList<>();
+        final List<IAnimatedBlockHook> hooks = factories.stream().map(IAnimatedBlockHook.Factory::newInstance).toList();
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
                                                spawnLoc.getZ(), radius, startAngle, placementDeferred);

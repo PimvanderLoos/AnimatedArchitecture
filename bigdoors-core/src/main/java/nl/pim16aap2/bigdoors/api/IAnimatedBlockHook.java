@@ -71,4 +71,13 @@ public interface IAnimatedBlockHook
      *     The animated block that is processing a tick.
      */
     void postTick(IAnimatedBlock animatedBlock);
+
+    /**
+     * Represents an instantiation function for hooks.
+     */
+    @FunctionalInterface
+    interface Factory
+    {
+        IAnimatedBlockHook newInstance();
+    }
 }
