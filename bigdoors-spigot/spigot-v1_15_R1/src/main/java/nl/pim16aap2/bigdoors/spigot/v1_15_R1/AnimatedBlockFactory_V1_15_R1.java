@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
+import nl.pim16aap2.bigdoors.api.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
@@ -12,6 +13,8 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -43,6 +46,7 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
 
         final boolean placementDeferred = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(material);
 
+        final List<IAnimatedBlockHook> hooks = new ArrayList<>();
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
                                                spawnLoc.getZ(), radius, startAngle, placementDeferred);
