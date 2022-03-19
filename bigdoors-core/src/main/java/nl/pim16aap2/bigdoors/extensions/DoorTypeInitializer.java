@@ -5,8 +5,8 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.util.Util;
-import nl.pim16aap2.bigdoors.util.dag.DirectedAcyclicGraph;
-import nl.pim16aap2.bigdoors.util.dag.Node;
+import nl.pim16aap2.bigdoors.util.graph.DirectedAcyclicGraph;
+import nl.pim16aap2.bigdoors.util.graph.Node;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util.dag;
+package nl.pim16aap2.bigdoors.util.graph;
 
 import lombok.AccessLevel;
 import lombok.Getter;
