@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import nl.pim16aap2.bigdoors.api.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
@@ -27,7 +27,7 @@ import java.util.Optional;
 public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactory
 {
     // FIXME: Placeholder; actual hooks need to be registered elsewhere and passed into this class.
-    private final List<IAnimatedBlockHook.Factory> factories = new ArrayList<>(0);
+    private final List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories = new ArrayList<>(0);
 
     AnimatedBlockFactory_V1_15_R1()
     {

@@ -8,7 +8,8 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
  *
  * @author Pim
  */
-public interface IAnimatedBlockHook
+@SuppressWarnings("unused")
+public interface IAnimatedBlockHook<T extends IAnimatedBlock>
 {
     /**
      * Fires after an animated block has been spawned.
@@ -16,7 +17,9 @@ public interface IAnimatedBlockHook
      * @param animatedBlock
      *     The animated block that was spawned into a world.
      */
-    void onSpawn(IAnimatedBlock animatedBlock);
+    default void onSpawn(T animatedBlock)
+    {
+    }
 
     /**
      * Fires after an animated block has died.
@@ -24,7 +27,9 @@ public interface IAnimatedBlockHook
      * @param animatedBlock
      *     The animated block that died.
      */
-    void onDie(IAnimatedBlock animatedBlock);
+    default void onDie(T animatedBlock)
+    {
+    }
 
     /**
      * Fires after an animated block has been teleported.
@@ -34,7 +39,9 @@ public interface IAnimatedBlockHook
      * @param newPosition
      *     The position the animated block was teleported to.
      */
-    void onTeleport(IAnimatedBlock animatedBlock, Vector3Dd newPosition);
+    default void onTeleport(T animatedBlock, Vector3Dd newPosition)
+    {
+    }
 
     /**
      * Fires after this animated block has been moved.
@@ -46,7 +53,9 @@ public interface IAnimatedBlockHook
      * @param newPosition
      *     The position the animated block was moved to.
      */
-    void onMoved(IAnimatedBlock animatedBlock, Vector3Dd newPosition);
+    default void onMoved(T animatedBlock, Vector3Dd newPosition)
+    {
+    }
 
     /**
      * Fires right before a tick is processed.
@@ -54,7 +63,9 @@ public interface IAnimatedBlockHook
      * @param animatedBlock
      *     The animated block that is processing a tick.
      */
-    void preTick(IAnimatedBlock animatedBlock);
+    default void preTick(T animatedBlock)
+    {
+    }
 
     /**
      * Fires right after a tick is processed.
@@ -62,21 +73,7 @@ public interface IAnimatedBlockHook
      * @param animatedBlock
      *     The animated block that is processing a tick.
      */
-    void postTick(IAnimatedBlock animatedBlock);
-
-    /**
-     * Represents an instantiation function for hooks.
-     */
-    @FunctionalInterface
-    interface Factory
+    default void postTick(T animatedBlock)
     {
-        /**
-         * Creates a new {@link IAnimatedBlockHook}.
-         *
-         * @param animatedBlock
-         *     The {@link IAnimatedBlock} that is being hooked into.
-         * @return The new hook.
-         */
-        IAnimatedBlockHook newInstance(IAnimatedBlock animatedBlock);
     }
 }
