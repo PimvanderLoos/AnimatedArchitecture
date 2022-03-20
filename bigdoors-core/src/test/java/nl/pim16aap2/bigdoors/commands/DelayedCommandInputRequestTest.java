@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.commands;
 
 import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.testing.AssertionsUtil;
@@ -39,7 +39,7 @@ class DelayedCommandInputRequestTest
 
         LogInspector.get().clearHistory();
         localizer = UnitTestUtil.initLocalizer();
-        delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebugReporter.class));
+        delayedCommandInputManager = new DelayedCommandInputManager(Mockito.mock(DebuggableRegistry.class));
     }
 
     @Test

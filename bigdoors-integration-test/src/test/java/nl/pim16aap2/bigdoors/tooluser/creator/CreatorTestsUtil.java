@@ -10,7 +10,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -93,7 +93,7 @@ public class CreatorTestsUtil
     protected IBigDoorsToolUtil bigDoorsToolUtil;
 
     @Mock
-    protected DebugReporter debugReporter;
+    protected DebuggableRegistry debuggableRegistry;
 
     protected IPLocationFactory locationFactory = new TestPLocationFactory();
 
@@ -135,7 +135,7 @@ public class CreatorTestsUtil
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
                 .setMock(ILocalizer.class, localizer)
                 .setMock(DoorRegistry.class,
-                         DoorRegistry.unCached(Mockito.mock(RestartableHolder.class), debugReporter))
+                         DoorRegistry.unCached(Mockito.mock(RestartableHolder.class), debuggableRegistry))
                 .getFactory();
         doorBaseBuilder = new DoorBaseBuilder(doorBaseIFactory);
 

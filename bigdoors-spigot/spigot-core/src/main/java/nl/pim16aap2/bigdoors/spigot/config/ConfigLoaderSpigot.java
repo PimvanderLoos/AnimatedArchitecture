@@ -4,7 +4,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
 import nl.pim16aap2.bigdoors.api.IConfigReader;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.localization.LocalizationUtil;
@@ -92,7 +92,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
      */
     @Inject
     public ConfigLoaderSpigot(JavaPlugin plugin, DoorTypeManager doorTypeManager,
-                              @Named("pluginBaseDirectory") Path baseDir, DebugReporter debugReporter)
+                              @Named("pluginBaseDirectory") Path baseDir, DebuggableRegistry debuggableRegistry)
     {
         this.plugin = plugin;
         this.doorTypeManager = doorTypeManager;
@@ -102,7 +102,7 @@ public final class ConfigLoaderSpigot implements IConfigLoader, IDebuggable
 
         header = "Config file for BigDoors. Don't forget to make a backup before making changes!";
 
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.commands.BaseCommand;
 import nl.pim16aap2.bigdoors.commands.DelayedCommandInputRequest;
@@ -24,9 +24,9 @@ public class DelayedCommandInputManager implements IDebuggable
     private final Map<ICommandSender, DelayedCommandInputRequest<?>> requests = new ConcurrentHashMap<>();
 
     @Inject
-    public DelayedCommandInputManager(DebugReporter debugReporter)
+    public DelayedCommandInputManager(DebuggableRegistry debuggableRegistry)
     {
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**

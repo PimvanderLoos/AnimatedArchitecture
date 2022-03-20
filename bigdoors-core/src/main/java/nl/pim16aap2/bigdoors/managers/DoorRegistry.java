@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import nl.pim16aap2.bigdoors.annotations.Initializer;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -56,7 +56,7 @@ public final class DoorRegistry extends Restartable implements IDebuggable
      *     How long to keep stuff in the cache.
      */
 //    @IBuilder // These parameters aren't implemented atm, so there's no point in having this ctor/builder.
-    private DoorRegistry(RestartableHolder restartableHolder, DebugReporter debugReporter,
+    private DoorRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry,
                          int concurrencyLevel, int initialCapacity, Duration cacheExpiry)
     {
         super(restartableHolder);
@@ -64,7 +64,7 @@ public final class DoorRegistry extends Restartable implements IDebuggable
         this.initialCapacity = initialCapacity;
         this.cacheExpiry = cacheExpiry;
         init();
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**
@@ -73,9 +73,9 @@ public final class DoorRegistry extends Restartable implements IDebuggable
      * See {@link #CONCURRENCY_LEVEL}, {@link #INITIAL_CAPACITY}.
      */
     @Inject
-    public DoorRegistry(RestartableHolder restartableHolder, DebugReporter debugReporter)
+    public DoorRegistry(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
     {
-        this(restartableHolder, debugReporter, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
+        this(restartableHolder, debuggableRegistry, CONCURRENCY_LEVEL, INITIAL_CAPACITY, CACHE_EXPIRY);
     }
 
     /**
@@ -83,10 +83,10 @@ public final class DoorRegistry extends Restartable implements IDebuggable
      *
      * @return The new {@link DoorRegistry}.
      */
-    public static DoorRegistry unCached(RestartableHolder restartableHolder, DebugReporter debugReporter)
+    public static DoorRegistry unCached(RestartableHolder restartableHolder, DebuggableRegistry debuggableRegistry)
     {
         final DoorRegistry doorRegistry =
-            new DoorRegistry(restartableHolder, debugReporter, -1, -1, Duration.ofMillis(-1));
+            new DoorRegistry(restartableHolder, debuggableRegistry, -1, -1, Duration.ofMillis(-1));
         doorRegistry.acceptNewEntries = false;
         return doorRegistry;
     }

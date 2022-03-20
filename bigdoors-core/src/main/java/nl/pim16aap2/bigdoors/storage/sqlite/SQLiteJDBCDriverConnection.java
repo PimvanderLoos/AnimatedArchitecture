@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -104,7 +104,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
     @Inject
     public SQLiteJDBCDriverConnection(@Named("databaseFile") Path dbFile, DoorBaseBuilder doorBaseBuilder,
                                       DoorRegistry doorRegistry, DoorTypeManager doorTypeManager,
-                                      IPWorldFactory worldFactory, DebugReporter debugReporter)
+                                      IPWorldFactory worldFactory, DebuggableRegistry debuggableRegistry)
     {
         this.dbFile = dbFile;
         this.doorBaseBuilder = doorBaseBuilder;
@@ -130,7 +130,7 @@ public final class SQLiteJDBCDriverConnection implements IStorage, IDebuggable
             log.at(Level.SEVERE).withCause(e).log("Failed to initialize database!");
             databaseState = DatabaseState.ERROR;
         }
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
@@ -41,10 +41,10 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
     private final Map<String, DoorType> doorTypeFromFullName = new ConcurrentHashMap<>();
 
     @Inject
-    public DoorTypeManager(RestartableHolder holder, DebugReporter debugReporter)
+    public DoorTypeManager(RestartableHolder holder, DebuggableRegistry debuggableRegistry)
     {
         super(holder);
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**

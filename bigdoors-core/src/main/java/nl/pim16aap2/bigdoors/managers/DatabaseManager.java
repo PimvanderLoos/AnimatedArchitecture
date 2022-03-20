@@ -7,7 +7,7 @@ import lombok.ToString;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.restartable.Restartable;
@@ -76,7 +76,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
     @Inject
     public DatabaseManager(RestartableHolder restartableHolder, IStorage storage, DoorRegistry doorRegistry,
                            Lazy<PowerBlockManager> powerBlockManager, IBigDoorsEventFactory bigDoorsEventFactory,
-                           IDoorEventCaller doorEventCaller, DebugReporter debugReporter)
+                           IDoorEventCaller doorEventCaller, DebuggableRegistry debuggableRegistry)
     {
         super(restartableHolder);
         db = storage;
@@ -85,7 +85,7 @@ public final class DatabaseManager extends Restartable implements IDebuggable
         this.powerBlockManager = powerBlockManager;
         this.bigDoorsEventFactory = bigDoorsEventFactory;
         initThreadPool();
-        debugReporter.registerDebuggable(this);
+        debuggableRegistry.registerDebuggable(this);
     }
 
     /**

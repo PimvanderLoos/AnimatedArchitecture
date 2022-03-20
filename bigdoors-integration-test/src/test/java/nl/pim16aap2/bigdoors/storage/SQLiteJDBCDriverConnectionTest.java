@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import nl.pim16aap2.bigdoors.UnitTestUtil;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.PPlayerData;
-import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -37,7 +37,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
@@ -106,7 +105,7 @@ public class SQLiteJDBCDriverConnectionTest
     private RestartableHolder restartableHolder;
 
     @Mock
-    private DebugReporter debugReporter;
+    private DebuggableRegistry debuggableRegistry;
 
     @BeforeEach
     void beforeEach()
@@ -115,8 +114,8 @@ public class SQLiteJDBCDriverConnectionTest
         MockitoAnnotations.openMocks(this);
 
         worldFactory = new TestPWorldFactory();
-        doorRegistry = DoorRegistry.unCached(restartableHolder, debugReporter);
-        doorTypeManager = new DoorTypeManager(restartableHolder, debugReporter);
+        doorRegistry = DoorRegistry.unCached(restartableHolder, debuggableRegistry);
+        doorTypeManager = new DoorTypeManager(restartableHolder, debuggableRegistry);
 
         final AssistedFactoryMocker<DoorBase, DoorBase.IFactory> assistedFactoryMocker =
             new AssistedFactoryMocker<>(DoorBase.class, DoorBase.IFactory.class)
@@ -534,7 +533,7 @@ public class SQLiteJDBCDriverConnectionTest
     private void initStorage()
     {
         storage = new SQLiteJDBCDriverConnection(DB_FILE, doorBaseBuilder, doorRegistry, doorTypeManager, worldFactory,
-                                                 Mockito.mock(DebugReporter.class));
+                                                 debuggableRegistry);
     }
 
     private void initDoors()

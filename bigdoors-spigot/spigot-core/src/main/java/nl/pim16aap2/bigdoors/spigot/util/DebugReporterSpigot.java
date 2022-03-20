@@ -3,6 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.util;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.events.BigDoorsSpigotEvent;
 import nl.pim16aap2.bigdoors.spigot.events.DoorCreatedEvent;
@@ -35,9 +36,9 @@ public class DebugReporterSpigot extends DebugReporter
 
     @Inject
     public DebugReporterSpigot(BigDoorsPlugin bigDoorsPlugin, IBigDoorsPlatformProvider platformProvider,
-                               @Nullable IBigDoorsSpigotSubPlatform subPlatform)
+                               @Nullable IBigDoorsSpigotSubPlatform subPlatform, DebuggableRegistry debuggableRegistry)
     {
-        super(platformProvider);
+        super(debuggableRegistry, platformProvider);
         this.bigDoorsPlugin = bigDoorsPlugin;
         this.subPlatform = subPlatform;
     }

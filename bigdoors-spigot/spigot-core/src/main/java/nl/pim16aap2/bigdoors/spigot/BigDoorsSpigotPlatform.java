@@ -261,7 +261,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
 
-        safeGetter(BigDoorsSpigotComponent::getDebugReporter).registerDebuggable(restartableHolder);
+        safeGetter(BigDoorsSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces

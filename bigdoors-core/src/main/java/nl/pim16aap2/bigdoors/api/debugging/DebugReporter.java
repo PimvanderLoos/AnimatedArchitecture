@@ -7,23 +7,14 @@ import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 
 @Flogger
 @AllArgsConstructor
 public abstract class DebugReporter
 {
-    private final List<IDebuggable> debuggables = new ArrayList<>();
-
+    private final DebuggableRegistry debuggableRegistry;
     protected final IBigDoorsPlatformProvider platformProvider;
-
-    public final void registerDebuggable(IDebuggable debuggable)
-    {
-        debuggables.add(Objects.requireNonNull(debuggable, "Cannot register null debuggable!"));
-    }
 
     /**
      * Gets the data-dump containing useful information for debugging issues.
@@ -46,7 +37,7 @@ public abstract class DebugReporter
           .append(this::getAdditionalDebugReport0)
           .append('\n');
 
-        for (final IDebuggable debuggable : debuggables)
+        for (final IDebuggable debuggable : debuggableRegistry.getDebuggables())
             appendDebuggable(sb, debuggable);
 
         return sb.toString();

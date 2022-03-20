@@ -6,6 +6,7 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.IConfigLoader;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.listeners.BackupCommandListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.LoginMessageListener;
@@ -190,7 +191,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         restartableHolder.shutDown();
         new BackupCommandListener(this, initErrorMessage);
         registerFailureLoginListener();
-        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null));
+        log.at(Level.WARNING).log("%s", new DebugReporterSpigot(this, this, null, new DebuggableRegistry()));
         successfulInit = false;
         restartableHolder.shutDown();
     }
@@ -238,7 +239,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
     {
         final DebugReporterSpigot drs;
         if (bigDoorsSpigotPlatform == null)
-            drs = new DebugReporterSpigot(this, this, null);
+            drs = new DebugReporterSpigot(this, this, null, new DebuggableRegistry());
         else
             drs = (DebugReporterSpigot) bigDoorsSpigotComponent.getDebugReporter();
         System.out.println(drs.getDebugReport());
