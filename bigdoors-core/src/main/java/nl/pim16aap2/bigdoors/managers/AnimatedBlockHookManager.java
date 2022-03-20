@@ -3,6 +3,9 @@ package nl.pim16aap2.bigdoors.managers;
 import nl.pim16aap2.bigdoors.api.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.api.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
+import nl.pim16aap2.util.SafeStringBuilder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -11,13 +14,14 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Singleton
-public final class AnimatedBlockHookManager
+public final class AnimatedBlockHookManager implements IDebuggable
 {
     private final List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
 
     @Inject//
-    AnimatedBlockHookManager()
+    AnimatedBlockHookManager(DebuggableRegistry debuggableRegistry)
     {
+        debuggableRegistry.registerDebuggable(this);
     }
 
     public void registerFactory(IAnimatedBlockHookFactory<? extends IAnimatedBlock> factory)
@@ -38,5 +42,13 @@ public final class AnimatedBlockHookManager
         }
 
         return instantiated;
+    }
+
+    @Override
+    public String getDebugInformation()
+    {
+        final SafeStringBuilder sb = new SafeStringBuilder("Registered animated block hook factories:\n");
+        factories.forEach(factory -> sb.append(factory.getClass().getName()).append('\n'));
+        return sb.toString();
     }
 }
