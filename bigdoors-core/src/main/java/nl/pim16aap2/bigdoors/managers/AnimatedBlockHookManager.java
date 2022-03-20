@@ -48,7 +48,7 @@ public final class AnimatedBlockHookManager implements IDebuggable
     public String getDebugInformation()
     {
         final SafeStringBuilder sb = new SafeStringBuilder("Registered animated block hook factories:\n");
-        factories.forEach(factory -> sb.append(factory.getClass().getName()).append('\n'));
+        factories.forEach(factory -> sb.append("- ").append(factory.getClass().getName()).append('\n'));
         return sb.toString();
     }
 }
