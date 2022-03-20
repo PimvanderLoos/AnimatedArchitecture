@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import nl.pim16aap2.bigdoors.api.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -13,8 +13,6 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,11 +24,11 @@ import java.util.Optional;
 @Singleton
 public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactory
 {
-    // FIXME: Placeholder; actual hooks need to be registered elsewhere and passed into this class.
-    private final List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories = new ArrayList<>(0);
+    private final AnimatedBlockHookManager animatedBlockHookManager;
 
-    AnimatedBlockFactory_V1_15_R1()
+    AnimatedBlockFactory_V1_15_R1(AnimatedBlockHookManager animatedBlockHookManager)
     {
+        this.animatedBlockHookManager = animatedBlockHookManager;
     }
 
     @Override
@@ -51,7 +49,8 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
 
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
-                                               spawnLoc.getZ(), radius, startAngle, placementDeferred, factories);
+                                               spawnLoc.getZ(), radius, startAngle, placementDeferred,
+                                               animatedBlockHookManager);
 
         animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.setCustomNameVisible(false);

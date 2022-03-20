@@ -18,10 +18,10 @@ import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.IAnimatedBlockHook;
-import nl.pim16aap2.bigdoors.api.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
@@ -35,7 +35,6 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -88,7 +87,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
     public CustomEntityFallingBlock_V1_15_R1(
         IPWorld pWorld, World world, double d0, double d1, double d2, float radius, float startAngle,
-        boolean placementDeferred, List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories)
+        boolean placementDeferred, AnimatedBlockHookManager animatedBlockHookManager)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
@@ -120,24 +119,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         noclip = true;
         a(new BlockPosition(this));
 
-        this.hooks = instantiateHooks(this, factories);
-    }
-
-    private static List<IAnimatedBlockHook<IAnimatedBlock>> instantiateHooks(
-        IAnimatedBlockSpigot animatedBlock,
-        List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories)
-    {
-        final List<IAnimatedBlockHook<IAnimatedBlock>> instantiated = new ArrayList<>(factories.size());
-
-        for (final IAnimatedBlockHookFactory<? extends IAnimatedBlock> factory : factories)
-        {
-            final IAnimatedBlockHook<? extends IAnimatedBlock> hook = factory.newInstance(animatedBlock);
-            //noinspection unchecked
-            final IAnimatedBlockHook<IAnimatedBlock> castHook = (IAnimatedBlockHook<IAnimatedBlock>) hook;
-            instantiated.add(castHook);
-        }
-
-        return instantiated;
+        this.hooks = animatedBlockHookManager.instantiateHooks(this);
     }
 
     @Override

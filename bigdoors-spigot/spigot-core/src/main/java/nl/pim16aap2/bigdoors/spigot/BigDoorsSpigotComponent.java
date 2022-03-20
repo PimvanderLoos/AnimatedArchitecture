@@ -25,6 +25,7 @@ import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
 import nl.pim16aap2.bigdoors.localization.ILocalizer;
 import nl.pim16aap2.bigdoors.localization.LocalizationManager;
 import nl.pim16aap2.bigdoors.localization.LocalizationModule;
+import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.DoorRegistry;
@@ -208,4 +209,6 @@ interface BigDoorsSpigotComponent
     DoorTypeLoader getDoorTypeLoader();
 
     CommandFactory getCommandFactory();
+
+    AnimatedBlockHookManager getAnimatedBlockHookManager();
 }
