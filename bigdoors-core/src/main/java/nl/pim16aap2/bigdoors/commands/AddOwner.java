@@ -12,6 +12,7 @@ import nl.pim16aap2.bigdoors.util.DoorAttribute;
 import nl.pim16aap2.bigdoors.util.DoorOwner;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetriever;
 import nl.pim16aap2.bigdoors.util.doorretriever.DoorRetrieverFactory;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -161,6 +162,18 @@ public class AddOwner extends DoorTargetCommand
             ICommandSender commandSender, DoorRetriever doorRetriever, IPPlayer targetPlayer)
         {
             return newAddOwner(commandSender, doorRetriever, targetPlayer, AddOwner.DEFAULT_PERMISSION_LEVEL);
+        }
+
+        /**
+         * See {@link #newAddOwner(ICommandSender, DoorRetriever, IPPlayer, int)}.
+         * <p>
+         * The default permission node defined by {@link AddOwner#DEFAULT_PERMISSION_LEVEL} is used.
+         */
+        default AddOwner newAddOwner(ICommandSender commandSender, DoorRetriever doorRetriever,
+                                     IPPlayer targetPlayer, @Nullable Integer permissionLevel)
+        {
+            return newAddOwner(commandSender, doorRetriever, targetPlayer,
+                               permissionLevel == null ? AddOwner.DEFAULT_PERMISSION_LEVEL : permissionLevel);
         }
     }
 }
