@@ -10,7 +10,6 @@ import nl.pim16aap2.bigdoors.api.restartable.Restartable;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.util.SafeStringBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -50,7 +49,7 @@ public final class DoorTypeManager extends Restartable implements IDebuggable
     /**
      * Gets all registered AND enabled {@link DoorType}s.
      */
-    @Getter(onMethod = @__({@NotNull}))
+    @Getter
     private final List<DoorType> sortedDoorTypes = new CopyOnWriteArrayList<>()
     {
         @Override
