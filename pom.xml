@@ -32,6 +32,7 @@
         <dependency.version.jacoco>0.8.8</dependency.version.jacoco>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
+        <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-shade>3.3.0</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.2</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.2.0</dependency.version.maven-clean>
@@ -221,6 +222,29 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.1.0</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${dependency.version.maven-source}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
