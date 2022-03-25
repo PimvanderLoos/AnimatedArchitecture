@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       # First use J8 for BuildTools, as older versions don't like being compiled
       # With newer versions of Java. Generally, up until MC1.16, Java 8 will be fine.
