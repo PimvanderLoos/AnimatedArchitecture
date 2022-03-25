@@ -19,7 +19,7 @@
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
-        <dependency.version.slf4j>1.7.35</dependency.version.slf4j>
+        <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
         <dependency.version.annotations>23.0.0</dependency.version.annotations>
         <dependency.version.lombok>1.18.22</dependency.version.lombok>
