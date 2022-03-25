@@ -4,6 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>report-aggregate</artifactId>
+    <description>Simple module used for aggregating test reports across all other modules.</description>
     <packaging>jar</packaging>
     <version>1</version>
 
@@ -112,6 +113,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${dependency.version.jacoco}</version>
                 <executions>
                     <execution>
                         <id>report-aggregate</id>
@@ -139,36 +141,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${dependency.version.maven-javadoc}</version>
-
-                <executions>
-                    <execution>
-                        <id>merge-docs</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-                <configuration>
-                    <failOnError>false</failOnError>
-                    <additionalOptions>-Xdoclint:none</additionalOptions>
-                    <excludes>
-                        <!-- Exclude Dagger2 files -->
-                        <exclude>**/*_MembersInjector.java</exclude>
-                        <exclude>**/Dagger*Component.java</exclude>
-                        <exclude>**/Dagger*Component$Builder.java</exclude>
-                        <exclude>**/*Module_*.java</exclude>
-                        <exclude>**/*_Factory.java</exclude>
-                        <exclude>**/*_Impl.java</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

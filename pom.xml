@@ -32,11 +32,13 @@
         <dependency.version.jacoco>0.8.8</dependency.version.jacoco>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
+        <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
         <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
-        <dependency.version.maven-shade>3.3.0</dependency.version.maven-shade>
         <dependency.version.maven-jar>3.2.2</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.2.0</dependency.version.maven-clean>
         <dependency.version.maven-javadoc>3.3.2</dependency.version.maven-javadoc>
+        <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
+        <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-dependency>3.3.0</dependency.version.maven-dependency>
         <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
         <dependency.version.maven-install>3.0.0-M1</dependency.version.maven-install>
@@ -221,7 +223,47 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>${dependency.version.maven-clean}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${dependency.version.maven-site}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${dependency.version.maven-javadoc}</version>
+                <executions>
+                    <execution>
+                        <id>generate-javadoc</id>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <sourceFileExcludes>
+                        <!-- Exclude Dagger2 files -->
+                        <exclude>**/*_Impl.java</exclude>
+                        <exclude>**/*_MembersInjector.java</exclude>
+                        <exclude>**/*Dagger*Component.java</exclude>
+                        <exclude>**/*Dagger*Component$Builder.java</exclude>
+                        <exclude>**/*Module_*.java</exclude>
+                        <exclude>**/*_Factory.java</exclude>
+                    </sourceFileExcludes>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -237,12 +279,6 @@
                         <configuration>
                             <attach>false</attach>
                         </configuration>
-                    </execution>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -264,9 +300,6 @@
                             <goal>prepare-agent</goal>
                         </goals>
                         <phase>pre-integration-test</phase>
-                        <configuration>
-                            <propertyName>itCoverageAgent</propertyName>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -274,60 +307,6 @@
 
         <pluginManagement>
             <plugins>
-                <!-- Set up the delombok directory property-->
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>${dependency.version.maven-build-helper}</version>
-                    <executions>
-                        <execution>
-                            <phase>initialize</phase>
-                            <id>regex-property</id>
-                            <goals>
-                                <goal>regex-property</goal>
-                            </goals>
-                            <configuration>
-                                <name>delombok_dir</name>
-                                <value>${project.basedir}</value>
-                                <!--suppress MavenModelInspection -->
-                                <regex>^${maven.multiModuleProjectDirectory}</regex>
-                                <!--suppress MavenModelInspection -->
-                                <replacement>${maven.multiModuleProjectDirectory}/delombok</replacement>
-                                <failIfNoMatch>true</failIfNoMatch>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.projectlombok</groupId>
-                    <artifactId>lombok-maven-plugin</artifactId>
-                    <version>${dependency.version.lombok-plugin}</version>
-                    <executions>
-                        <execution>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>delombok</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
-                        <outputDirectory>${delombok_dir}/src/main/java</outputDirectory>
-                        <formatPreferences>
-                            <generateDelombokComment>skip</generateDelombokComment>
-                            <javaLangAsFQN>skip</javaLangAsFQN>
-                            <suppressWarnings>skip</suppressWarnings>
-                        </formatPreferences>
-                    </configuration>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>${dependency.version.maven-site}</version>
-                </plugin>
-
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -489,6 +468,7 @@
                     </executions>
                     <configuration>
                         <excludes>
+                            <!-- Exclude Dagger2 files -->
                             <exclude>**/*_MembersInjector.class</exclude>
                             <exclude>**/Dagger*Component.class</exclude>
                             <exclude>**/Dagger*Component$Builder.class</exclude>
@@ -568,75 +548,6 @@
         </profile>
 
         <profile>
-            <id>delombok</id>
-            <build>
-                <plugins>
-                    <!-- Set up the delombok directory property-->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                        <version>${dependency.version.maven-build-helper}</version>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.projectlombok</groupId>
-                        <artifactId>lombok-maven-plugin</artifactId>
-                        <version>${dependency.version.lombok-plugin}</version>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${dependency.version.maven-compiler}</version>
-                        <executions>
-                            <execution>
-                                <id>default-compile</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>compile</goal>
-                                </goals>
-                                <configuration>
-                                    <skipMain>true</skipMain>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${dependency.version.maven-javadoc}</version>
-                        <reportSets>
-                            <reportSet>
-                                <id>aggregate</id>
-                                <inherited>false</inherited>
-                                <reports>
-                                    <report>aggregate</report>
-                                </reports>
-                            </reportSet>
-                            <reportSet>
-                                <id>default</id>
-                                <reports>
-                                    <report>javadoc</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
-                        <configuration>
-                            <!--suppress MavenModelInspection -->
-                            <sourcepath>${delombok_dir}</sourcepath>
-                            <failOnError>false</failOnError>
-                            <additionalOptions>-Xdoclint:none</additionalOptions>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </reporting>
-        </profile>
-
-        <profile>
             <id>errorprone</id>
             <build>
                 <pluginManagement>
@@ -696,58 +607,47 @@
         </profile>
     </profiles>
 
-    <!--    <reporting>-->
-    <!--        <plugins>-->
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-jxr-plugin</artifactId>-->
-    <!--                <version>${dependency.version.maven-jxr}</version>-->
-    <!--            </plugin>-->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${dependency.version.maven-jxr}</version>
+            </plugin>
 
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-javadoc-plugin</artifactId>-->
-    <!--                <version>${dependency.version.maven-javadoc}</version>-->
-    <!--                <reportSets>-->
-    <!--                    <reportSet>-->
-    <!--                        <id>aggregate</id>-->
-    <!--                        <inherited>false</inherited>-->
-    <!--                        <reports>-->
-    <!--                            <report>aggregate</report>-->
-    <!--                        </reports>-->
-    <!--                    </reportSet>-->
-    <!--                    <reportSet>-->
-    <!--                        <id>default</id>-->
-    <!--                        <reports>-->
-    <!--                            <report>javadoc</report>-->
-    <!--                        </reports>-->
-    <!--                    </reportSet>-->
-    <!--                </reportSets>-->
-    <!--                <configuration>-->
-    <!--                    <failOnError>false</failOnError>-->
-    <!--                    <additionalOptions>-Xdoclint:none</additionalOptions>-->
-    <!--                    <excludes>-->
-    <!--                        &lt;!&ndash; Exclude Dagger2 files &ndash;&gt;-->
-    <!--                        <exclude>**/*_MembersInjector.java</exclude>-->
-    <!--                        <exclude>**/Dagger*Component.java</exclude>-->
-    <!--                        <exclude>**/Dagger*Component$Builder.java</exclude>-->
-    <!--                        <exclude>**/*Module_*.java</exclude>-->
-    <!--                        <exclude>**/*_Factory.java</exclude>-->
-    <!--                        <exclude>**/*_Impl.java</exclude>-->
-    <!--                    </excludes>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-
-    <!--            <plugin>-->
-    <!--                <groupId>org.apache.maven.plugins</groupId>-->
-    <!--                <artifactId>maven-project-info-reports-plugin</artifactId>-->
-    <!--                <version>3.2.2</version>-->
-    <!--                <configuration>-->
-    <!--                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>-->
-    <!--                    <offline>true</offline>-->
-    <!--                </configuration>-->
-    <!--            </plugin>-->
-    <!--        </plugins>-->
-    <!--    </reporting>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${dependency.version.maven-javadoc}</version>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <inherited>false</inherited>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <sourceFileExcludes>
+                        <!-- Exclude Dagger2 files -->
+                        <exclude>**/*_Impl.java</exclude>
+                        <exclude>**/*_MembersInjector.java</exclude>
+                        <exclude>**/*Dagger*Component.java</exclude>
+                        <exclude>**/*Dagger*Component$Builder.java</exclude>
+                        <exclude>**/*Module_*.java</exclude>
+                        <exclude>**/*_Factory.java</exclude>
+                    </sourceFileExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
