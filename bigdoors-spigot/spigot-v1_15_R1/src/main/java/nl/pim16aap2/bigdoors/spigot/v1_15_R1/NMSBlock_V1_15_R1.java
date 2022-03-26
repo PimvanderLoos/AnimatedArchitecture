@@ -289,8 +289,7 @@ public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
      */
     @GuardedBy("blockDataLock")
     private void rotateMultipleFacing(
-        MultipleFacing bd, RotateDirection dir,
-        @SuppressWarnings("SameParameterValue") int steps)
+        MultipleFacing bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)

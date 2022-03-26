@@ -21,10 +21,12 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.PLocationSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
@@ -55,6 +57,12 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private float fallHurtAmount;
     @Getter
     private final org.bukkit.World bukkitWorld;
+    @Getter
+    private final float radius;
+    @Getter
+    private final float startAngle;
+    @Getter
+    private final boolean placementDeferred;
     private final IPWorld pWorld;
     private @Nullable PlayerChunkMap.EntityTracker tracker;
     private final WorldServer worldServer;
@@ -64,14 +72,23 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private Vector3Dd currentPosition;
 
-    public CustomEntityFallingBlock_V1_15_R1(IPWorld pWorld, org.bukkit.World world, int d0, int d1, int d2)
+    private final IPLocation startLocation;
+    private final Vector3Dd startPosition;
+
+    public CustomEntityFallingBlock_V1_15_R1(
+        IPWorld pWorld, World world, int d0, int d1, int d2, float radius, float startAngle, boolean placementDeferred)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         this.pWorld = pWorld;
         bukkitWorld = world;
+        this.radius = radius;
+        this.startAngle = startAngle;
+        this.placementDeferred = placementDeferred;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
         this.animatedBlockData = new NMSBlock_V1_15_R1(worldServer, d0, d1, d2);
+        this.startLocation = new PLocationSpigot(new Location(bukkitWorld, d0, d1, d2));
+        this.startPosition = new Vector3Dd(startLocation.getX(), startLocation.getY(), startLocation.getZ());
         i = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
         setNoGravity(true);
@@ -290,5 +307,29 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     {
         setMot(new Vec3D(vector.x(), vector.y(), vector.z()));
         velocityChanged = true;
+    }
+
+    @Override
+    public Vector3Dd getStartPosition()
+    {
+        return startPosition;
+    }
+
+    @Override
+    public double getStartX()
+    {
+        return startLocation.getX();
+    }
+
+    @Override
+    public double getStartY()
+    {
+        return startLocation.getY();
+    }
+
+    @Override
+    public double getStartZ()
+    {
+        return startLocation.getZ();
     }
 }

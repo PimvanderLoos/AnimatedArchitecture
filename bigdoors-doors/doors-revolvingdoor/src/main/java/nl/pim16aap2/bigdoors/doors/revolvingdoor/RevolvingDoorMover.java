@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.doors.revolvingdoor;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -22,7 +22,7 @@ import java.util.function.BiFunction;
  */
 public class RevolvingDoorMover extends BlockMover
 {
-    private final BiFunction<PBlockData, Double, Vector3Dd> getGoalPos;
+    private final BiFunction<IAnimatedBlock, Double, Vector3Dd> getGoalPos;
     private final RotateDirection rotateDirection;
 
     /**
@@ -34,9 +34,10 @@ public class RevolvingDoorMover extends BlockMover
     private double endStepSum = 0;
 
     @SuppressWarnings("unused")
-    public RevolvingDoorMover(Context context, AbstractDoor door, double time, double multiplier,
-                              RotateDirection rotateDirection, IPPlayer player, int quarterCircles,
-                              DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
+    public RevolvingDoorMover(
+        Context context, AbstractDoor door, double time, double multiplier,
+        RotateDirection rotateDirection, IPPlayer player, int quarterCircles,
+        DoorActionCause cause, Cuboid newCuboid, DoorActionType actionType)
         throws Exception
     {
         super(context, door, 30, false, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -83,9 +84,11 @@ public class RevolvingDoorMover extends BlockMover
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private Vector3Dd getGoalPosClockwise(PBlockData block, double stepSum)
+    private Vector3Dd getGoalPosClockwise(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return getGoalPosClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
+        return getGoalPosClockwise(animatedBlock.getRadius(), animatedBlock.getStartAngle(),
+                                   animatedBlock.getStartY(),
+                                   stepSum);
     }
 
     private Vector3Dd getGoalPosCounterClockwise(double radius, double startAngle, double startY, double stepSum)
@@ -95,9 +98,10 @@ public class RevolvingDoorMover extends BlockMover
         return new Vector3Dd(posX, startY, posZ);
     }
 
-    private Vector3Dd getGoalPosCounterClockwise(PBlockData block, double stepSum)
+    private Vector3Dd getGoalPosCounterClockwise(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return getGoalPosCounterClockwise(block.getRadius(), block.getStartAngle(), block.getStartY(), stepSum);
+        return getGoalPosCounterClockwise(animatedBlock.getRadius(), animatedBlock.getStartAngle(),
+                                          animatedBlock.getStartY(), stepSum);
     }
 
     @Override
@@ -114,10 +118,10 @@ public class RevolvingDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        final Vector3Dd startLocation = block.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+        final Vector3Dd startLocation = animatedBlock.getStartPosition();
+        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
                                                    startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
@@ -127,8 +131,8 @@ public class RevolvingDoorMover extends BlockMover
     {
         final double stepSum = step * ticks;
 
-        for (final PBlockData block : savedBlocks)
-            block.getAnimatedBlock().teleport(getGoalPos.apply(block, stepSum));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(getGoalPos.apply(animatedBlock, stepSum));
     }
 
     @Override

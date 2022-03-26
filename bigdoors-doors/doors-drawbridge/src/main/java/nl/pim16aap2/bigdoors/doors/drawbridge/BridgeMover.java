@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
@@ -48,9 +48,10 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
      * @param player
      *     The player who opened this door.
      */
-    public BridgeMover(Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation,
-                       double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-                       DoorActionType actionType)
+    public BridgeMover(
+        Context context, double time, T door, RotateDirection rotateDirection, boolean skipAnimation,
+        double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, rotateDirection, player, newCuboid, cause, actionType);
@@ -109,15 +110,16 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         return rotator.apply(new Vector3Dd(x, y, z), rotationCenter, angle);
     }
 
-    protected Vector3Dd getGoalPos(double angle, PBlockData pBlockData)
+    protected Vector3Dd getGoalPos(double angle, IAnimatedBlock animatedBlock)
     {
-        return getGoalPos(angle, pBlockData.getStartX(), pBlockData.getStartY(), pBlockData.getStartZ());
+        return getGoalPos(angle, animatedBlock.getStartX(), animatedBlock.getStartY(),
+                          animatedBlock.getStartZ());
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        return getGoalPos(angle, block);
+        return getGoalPos(angle, animatedBlock);
     }
 
     @Override
@@ -126,14 +128,11 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         final double stepSum = step * ticks;
         final boolean replace = ticks == halfEndCount;
 
-        // It is not possible to edit falling block blockdata (client won't update it),
-        // so delete the current fBlock and replace it by one that's been rotated.
-        // Also, this stuff needs to be done on the main thread.
         if (replace)
-            executor.runSync(this::respawnBlocks);
+            this.respawnBlocks();
 
-        for (final PBlockData block : savedBlocks)
-            block.getAnimatedBlock().teleport(getGoalPos(stepSum, block));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(getGoalPos(stepSum, animatedBlock));
     }
 
     @Override

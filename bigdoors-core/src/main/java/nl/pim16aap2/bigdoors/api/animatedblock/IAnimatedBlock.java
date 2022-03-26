@@ -5,7 +5,7 @@ import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
- * Represents a customized version of the EntityFallingBlock from NMS.
+ * Represents a block that is being animated.
  *
  * @author Pim
  */
@@ -13,8 +13,6 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public interface IAnimatedBlock
 {
     /**
-     * Checks if this animated block is currently alive.
-     *
      * @return True if this animated block is alive.
      */
     boolean isAlive();
@@ -38,9 +36,7 @@ public interface IAnimatedBlock
     Vector3Dd getPreviousPosition();
 
     /**
-     * Gets the current velocity in x/y/z terms for this animated block.
-     *
-     * @return The current velocity of this animated block.
+     * @return The current velocity of this animated block in x/y/z.
      */
     Vector3Dd getVelocity();
 
@@ -70,7 +66,7 @@ public interface IAnimatedBlock
      * @param newPosition
      *     The location that the entity will be reported to.
      * @param rotation
-     *     The local rotations of the entity.
+     *     The local rotation of the entity.
      * @return True if the teleport was successful.
      */
     default boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
@@ -101,33 +97,67 @@ public interface IAnimatedBlock
     void kill();
 
     /**
-     * Gets the current location of this entity.
-     *
      * @return The current location of this entity.
      */
     IPLocation getPLocation();
 
     /**
-     * Gets the current position of this entity.
-     *
      * @return The current position of this entity.
      */
     Vector3Dd getPosition();
 
     /**
-     * Gets the current velocity of this entity.
-     *
      * @return The current velocity of this entity.
      */
     Vector3Dd getPVelocity();
 
     /**
-     * Sets the velocity of the entity.
-     *
      * @param vector
      *     The new velocity of the entity.
      */
     void setVelocity(Vector3Dd vector);
+
+    /**
+     * @return The starting position of this animated block.
+     */
+    Vector3Dd getStartPosition();
+
+    /**
+     * @return The x-coordinate of the location the block was first spawned at.
+     */
+    double getStartX();
+
+    /**
+     * @return The y-coordinate of the location the block was first spawned at.
+     */
+    double getStartY();
+
+    /**
+     * @return The z-coordinate of the location the block was first spawned at.
+     */
+    double getStartZ();
+
+    /**
+     * @return The angle this animated block had in relation to the engine when the animation first started.
+     */
+    float getStartAngle();
+
+    /**
+     * @return The radius this animated block had in relation to the engine when the animation first started.
+     */
+    float getRadius();
+
+    /**
+     * Checks if placement of this block should be deferred to the second pass or not.
+     * <p>
+     * On the first pass, "standalone" blocks such as stone will be placed, while other blocks such as torches, will be
+     * skipped.
+     * <p>
+     * On the second pass, all the other blocks will be placed. This makes sure that torches aren't just dropped.
+     *
+     * @return True if this block should be placed on the second pass, otherwise false.
+     */
+    boolean isPlacementDeferred();
 
     enum TeleportMode
     {

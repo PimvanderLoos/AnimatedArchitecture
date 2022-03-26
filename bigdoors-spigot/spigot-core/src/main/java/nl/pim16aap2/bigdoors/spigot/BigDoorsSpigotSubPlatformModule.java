@@ -4,7 +4,6 @@ import dagger.Module;
 import dagger.Provides;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 
@@ -22,16 +21,9 @@ public class BigDoorsSpigotSubPlatformModule
 
     @Provides
     @Singleton
-    static IPBlockDataFactory getPBlockDataFactory(IBigDoorsSpigotSubPlatform spigotPlatform)
+    static IAnimatedBlockFactory getAnimatedBlockFactory(IBigDoorsSpigotSubPlatform spigotPlatform)
     {
-        return spigotPlatform.getPBlockDataFactory();
-    }
-
-    @Provides
-    @Singleton
-    static IAnimatedBlockFactory getFallingBlockFactory(IBigDoorsSpigotSubPlatform spigotPlatform)
-    {
-        return spigotPlatform.getFallingBlockFactory();
+        return spigotPlatform.getAnimatedBlockFactory();
     }
 
     @Provides

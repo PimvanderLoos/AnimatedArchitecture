@@ -4,8 +4,6 @@ import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,10 +17,7 @@ public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigot
     private static final String VERSION = "v1_15_R1";
 
     @Getter
-    private IAnimatedBlockFactory fallingBlockFactory;
-
-    @Getter
-    private IPBlockDataFactory pBlockDataFactory;
+    private IAnimatedBlockFactory animatedBlockFactory;
 
     @Getter
     private IBlockAnalyzer blockAnalyzer;
@@ -30,12 +25,9 @@ public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigot
     @Getter
     private IGlowingBlockFactory glowingBlockFactory;
 
-    private final IPLocationFactory locationFactory;
-
     @Inject
-    public BigDoorsSpigotSubPlatform_V1_15_R1(IPLocationFactory locationFactory)
+    public BigDoorsSpigotSubPlatform_V1_15_R1()
     {
-        this.locationFactory = locationFactory;
     }
 
     @Override
@@ -48,10 +40,7 @@ public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigot
     @Initializer
     public void init(JavaPlugin plugin)
     {
-        fallingBlockFactory = new AnimatedBlockFactory_V1_15_R1();
-        pBlockDataFactory =
-            new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1(locationFactory,
-                                                                                       fallingBlockFactory);
+        animatedBlockFactory = new AnimatedBlockFactory_V1_15_R1();
         blockAnalyzer = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.BlockAnalyzer_V1_15_R1();
         glowingBlockFactory = new GlowingBlock_V1_15_R1.Factory();
     }

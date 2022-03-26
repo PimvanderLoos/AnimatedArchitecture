@@ -14,7 +14,6 @@ import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
@@ -202,9 +201,7 @@ interface BigDoorsSpigotComponent
 
     LocalizationManager getLocalizationManager();
 
-    IPBlockDataFactory getBlockDataFactory();
-
-    IAnimatedBlockFactory getFallingBlockFactory();
+    IAnimatedBlockFactory getAnimatedBlockFactory();
 
     IBlockAnalyzer getBlockAnalyzer();
 

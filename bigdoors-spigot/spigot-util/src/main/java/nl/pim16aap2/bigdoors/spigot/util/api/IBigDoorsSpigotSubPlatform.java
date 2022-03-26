@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.util.api;
 
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -23,9 +22,7 @@ public interface IBigDoorsSpigotSubPlatform
 
     void init(JavaPlugin plugin);
 
-    IAnimatedBlockFactory getFallingBlockFactory();
-
-    IPBlockDataFactory getPBlockDataFactory();
+    IAnimatedBlockFactory getAnimatedBlockFactory();
 
     IBlockAnalyzer getBlockAnalyzer();
 
