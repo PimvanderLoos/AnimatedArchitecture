@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
@@ -19,7 +19,7 @@ public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigot
     private static final String VERSION = "v1_15_R1";
 
     @Getter
-    private IFallingBlockFactory fallingBlockFactory;
+    private IAnimatedBlockFactory fallingBlockFactory;
 
     @Getter
     private IPBlockDataFactory pBlockDataFactory;
@@ -48,7 +48,7 @@ public final class BigDoorsSpigotSubPlatform_V1_15_R1 implements IBigDoorsSpigot
     @Initializer
     public void init(JavaPlugin plugin)
     {
-        fallingBlockFactory = new FallingBlockFactory_V1_15_R1();
+        fallingBlockFactory = new AnimatedBlockFactory_V1_15_R1();
         pBlockDataFactory =
             new nl.pim16aap2.bigdoors.spigot.v1_15_R1.PBlockDataFactorySpigot_V1_15_R1(locationFactory,
                                                                                        fallingBlockFactory);

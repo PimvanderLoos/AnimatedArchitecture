@@ -3,7 +3,7 @@ package nl.pim16aap2.bigdoors.spigot;
 import dagger.Module;
 import dagger.Provides;
 import nl.pim16aap2.bigdoors.api.IBlockAnalyzer;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.util.api.IGlowingBlockFactory;
@@ -29,7 +29,7 @@ public class BigDoorsSpigotSubPlatformModule
 
     @Provides
     @Singleton
-    static IFallingBlockFactory getFallingBlockFactory(IBigDoorsSpigotSubPlatform spigotPlatform)
+    static IAnimatedBlockFactory getFallingBlockFactory(IBigDoorsSpigotSubPlatform spigotPlatform)
     {
         return spigotPlatform.getFallingBlockFactory();
     }

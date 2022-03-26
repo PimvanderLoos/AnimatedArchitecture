@@ -25,9 +25,10 @@ public class BigDoorMover extends BlockMover
     private final double angle;
     private double step;
 
-    public BigDoorMover(Context context, AbstractDoor door, RotateDirection rotDirection, double time,
-                        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
-                        DoorActionCause cause, DoorActionType actionType)
+    public BigDoorMover(
+        Context context, AbstractDoor door, RotateDirection rotDirection, double time,
+        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
@@ -82,7 +83,8 @@ public class BigDoorMover extends BlockMover
         final double sin = Math.sin(stepSum);
 
         for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ()));
+            block.getAnimatedBlock()
+                 .teleport(getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ()));
     }
 
 

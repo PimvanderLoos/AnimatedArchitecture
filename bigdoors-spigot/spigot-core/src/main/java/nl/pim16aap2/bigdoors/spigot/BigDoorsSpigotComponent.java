@@ -12,8 +12,8 @@ import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
@@ -204,7 +204,7 @@ interface BigDoorsSpigotComponent
 
     IPBlockDataFactory getBlockDataFactory();
 
-    IFallingBlockFactory getFallingBlockFactory();
+    IAnimatedBlockFactory getFallingBlockFactory();
 
     IBlockAnalyzer getBlockAnalyzer();
 

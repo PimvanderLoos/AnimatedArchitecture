@@ -1,5 +1,7 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.api.animatedblock;
 
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
@@ -7,6 +9,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
  *
  * @author Pim
  */
+@SuppressWarnings("unused")
 public interface IAnimatedBlock
 {
     /**
@@ -17,14 +20,17 @@ public interface IAnimatedBlock
     boolean isAlive();
 
     /**
-     * Gets the current position of this animated block. This value is updated after each tick/teleport.
-     *
-     * @return The current position of this animated block.
+     * @return The block data of this animated block.
+     */
+    IAnimatedBlockData getAnimatedBlockData();
+
+    /**
+     * @return The current position of this animated block. This value is updated after each tick/teleport.
      */
     Vector3Dd getCurrentPosition();
 
     /**
-     * Gets the previous position of this animated block. This value is updated after each tick/teleport and descibes
+     * Gets the previous position of this animated block. This value is updated after each tick/teleport and describes
      * the location this animated block was at before it moved.
      *
      * @return The previous position of this animated block.
@@ -83,6 +89,11 @@ public interface IAnimatedBlock
     {
         return teleport(newPosition, new Vector3Dd(0, 0, 0), TeleportMode.SET_VELOCITY);
     }
+
+    /**
+     * Respawns this animated block.
+     */
+    void respawn();
 
     /**
      * Removes the entity from the world.

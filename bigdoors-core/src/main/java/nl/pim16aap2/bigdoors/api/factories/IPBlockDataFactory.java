@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 
 import java.util.Optional;
 

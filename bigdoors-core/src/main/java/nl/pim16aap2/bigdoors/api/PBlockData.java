@@ -2,6 +2,8 @@ package nl.pim16aap2.bigdoors.api;
 
 import lombok.Getter;
 import lombok.Setter;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**
@@ -12,12 +14,13 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public final class PBlockData
 {
     /**
-     * Gets the rotated {@link INMSBlock} if it exists. If this block cannot rotate, this value does not exist.
+     * Gets the rotated {@link IAnimatedBlockData} if it exists. If this block cannot rotate, this value does not
+     * exist.
      *
-     * @return The rotated {@link INMSBlock} if it exists.
+     * @return The rotated {@link IAnimatedBlockData} if it exists.
      */
     @Getter
-    private final INMSBlock block;
+    private final IAnimatedBlockData animatedBlockData;
 
     /**
      * Checks if this block can rotate.
@@ -41,7 +44,7 @@ public final class PBlockData
      */
     @Getter
     @Setter
-    private IAnimatedBlock fBlock;
+    private IAnimatedBlock animatedBlock;
 
     /**
      * Gets the location the block was first spawned at.
@@ -73,28 +76,26 @@ public final class PBlockData
     /**
      * Constructs of {@link PBlockData}.
      *
-     * @param newFBlock
+     * @param animatedBlock
      *     The {@link IAnimatedBlock} that will be animated.
      * @param radius
      *     The number of blocks between this block and the rotation point.
-     * @param newBlock
-     *     If this block can be rotated, this contains the rotated {@link INMSBlock}.
      * @param startLocation
      *     The location the block was spawned at initially.
      * @param startAngle
      *     The angle the block had in regards to the rotation point when it was first spawned.
      * @param placementDeferred
-     *     Whether or not placement should be deferred until all standalone blocks are placed. Useful for torches, for
+     *     Whether placement should be deferred until all standalone blocks are placed. Useful for torches, for
      *     example (so they don't fall off immediately).
      */
     public PBlockData(
-        IAnimatedBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
-        float startAngle, boolean placementDeferred)
+        IAnimatedBlock animatedBlock, float radius, IPLocation startLocation, float startAngle,
+        boolean placementDeferred)
     {
-        block = newBlock;
-        fBlock = newFBlock;
+        this.animatedBlock = animatedBlock;
+        animatedBlockData = animatedBlock.getAnimatedBlockData();
         this.radius = radius;
-        rotatable = newBlock.canRotate();
+        rotatable = animatedBlockData.canRotate();
         this.startLocation = startLocation;
         this.startAngle = startAngle;
         this.placementDeferred = placementDeferred;
@@ -105,7 +106,7 @@ public final class PBlockData
      */
     public void killFBlock()
     {
-        fBlock.kill();
+        animatedBlock.kill();
     }
 
     /**

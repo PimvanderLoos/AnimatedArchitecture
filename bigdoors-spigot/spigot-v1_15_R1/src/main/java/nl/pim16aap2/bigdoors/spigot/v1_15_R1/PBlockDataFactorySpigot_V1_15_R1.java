@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.PBlockData;
-import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -19,9 +18,10 @@ import java.util.Optional;
 public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 {
     private final IPLocationFactory locationFactory;
-    private final IFallingBlockFactory fallingBlockFactory;
+    private final IAnimatedBlockFactory fallingBlockFactory;
 
-    public PBlockDataFactorySpigot_V1_15_R1(IPLocationFactory locationFactory, IFallingBlockFactory fallingBlockFactory)
+    public PBlockDataFactorySpigot_V1_15_R1(
+        IPLocationFactory locationFactory, IAnimatedBlockFactory fallingBlockFactory)
     {
         this.locationFactory = locationFactory;
         this.fallingBlockFactory = fallingBlockFactory;
@@ -45,10 +45,9 @@ public class PBlockDataFactorySpigot_V1_15_R1 implements IPBlockDataFactory
 
         final IPLocation newFBlockLocation = getSpawnLocation(locationFactory, startLocation, bottom);
 
-        final INMSBlock nmsBlock = fallingBlockFactory.nmsBlockFactory(startLocation);
-        final IAnimatedBlock fBlock = fallingBlockFactory.fallingBlockFactory(newFBlockLocation, nmsBlock);
+        final IAnimatedBlock fBlock = fallingBlockFactory.fallingBlockFactory(newFBlockLocation);
 
         final boolean deferPlacement = BlockAnalyzer_V1_15_R1.placeOnSecondPassStatic(vBlock.getType());
-        return Optional.of(new PBlockData(fBlock, radius, nmsBlock, startLocation, startAngle, deferPlacement));
+        return Optional.of(new PBlockData(fBlock, radius, startLocation, startAngle, deferPlacement));
     }
 }

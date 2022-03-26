@@ -10,15 +10,15 @@ import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityTypes;
 import net.minecraft.server.v1_15_R1.EnumMoveType;
 import net.minecraft.server.v1_15_R1.GameProfileSerializer;
-import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
+import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
 import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -49,7 +49,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @SuppressWarnings("squid:S2387")
     private @Nullable NBTTagCompound tileEntityData;
 
-    private IBlockData block;
+    @Getter
+    private final NMSBlock_V1_15_R1 animatedBlockData;
     private int fallHurtMax;
     private float fallHurtAmount;
     @Getter
@@ -63,15 +64,14 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private Vector3Dd currentPosition;
 
-    public CustomEntityFallingBlock_V1_15_R1(
-        IPWorld pWorld, org.bukkit.World world, double d0, double d1, double d2, IBlockData iblockdata)
+    public CustomEntityFallingBlock_V1_15_R1(IPWorld pWorld, org.bukkit.World world, int d0, int d1, int d2)
         throws Exception
     {
         super(EntityTypes.FALLING_BLOCK, ((CraftWorld) world).getHandle());
         this.pWorld = pWorld;
         bukkitWorld = world;
         worldServer = ((CraftWorld) bukkitWorld).getHandle();
-        block = iblockdata;
+        this.animatedBlockData = new NMSBlock_V1_15_R1(worldServer, d0, d1, d2);
         i = true;
         setPosition(d0, d1 + (1.0F - getHeight()) / 2.0F, d2);
         setNoGravity(true);
@@ -107,6 +107,13 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         tracker = worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId());
         if (tracker == null)
             throw new Exception("Failed to obtain EntityTracker for FallingBlock: " + getId());
+    }
+
+    @Override
+    public void respawn()
+    {
+        // TODO: Ensure that this works as intended.
+        Util.requireNonNull(tracker, "EntityTracker").broadcast(new PacketPlayOutSpawnEntity(this));
     }
 
     private void cyclePositions(Vector3Dd newPosition)
@@ -152,7 +159,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     public void tick()
     {
-        if (block.isAir())
+        if (animatedBlockData.getMyBlockData().isAir())
             die();
         else
         {
@@ -179,7 +186,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     protected void b(NBTTagCompound nbttagcompound)
     {
-        nbttagcompound.set("BlockState", GameProfileSerializer.a(block));
+        nbttagcompound.set("BlockState", GameProfileSerializer.a(animatedBlockData.getMyBlockData()));
         nbttagcompound.setInt("Time", ticksLived);
         nbttagcompound.setBoolean("DropItem", false);
         nbttagcompound.setBoolean("HurtEntities", false);
@@ -193,7 +200,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     protected void a(NBTTagCompound nbttagcompound)
     {
-        block = GameProfileSerializer.d(nbttagcompound.getCompound("BlockState"));
+        animatedBlockData.setBlockData(GameProfileSerializer.d(nbttagcompound.getCompound("BlockState")));
         ticksLived = nbttagcompound.getInt("Time");
         if (nbttagcompound.hasKeyOfType("HurtEntities", 99))
         {
@@ -204,8 +211,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (nbttagcompound.hasKeyOfType("TileEntityData", 10))
             tileEntityData = nbttagcompound.getCompound("TileEntityData");
 
-        if (block.isAir())
-            block = Blocks.SAND.getBlockData();
+        if (animatedBlockData.getMyBlockData().isAir())
+            animatedBlockData.setBlockData(Blocks.SAND.getBlockData());
     }
 
     @Override
@@ -237,19 +244,14 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails)
     {
         super.appendEntityCrashDetails(crashreportsystemdetails);
-        crashreportsystemdetails.a("Imitating BlockState", block.toString());
-    }
-
-    @Override
-    public IBlockData getBlock()
-    {
-        return block;
+        crashreportsystemdetails.a("Imitating BlockState", animatedBlockData.toString());
     }
 
     @Override
     public Material getMaterial()
     {
-        return Util.requireNonNull(CraftMagicNumbers.getMaterial(block.getBlock()), "Material");
+        return Util.requireNonNull(CraftMagicNumbers.getMaterial(animatedBlockData.getMyBlockData().getBlock()),
+                                   "Material");
     }
 
     @Override

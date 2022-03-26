@@ -27,9 +27,10 @@ public class VerticalMover extends BlockMover
 
     protected final int blocksToMove;
 
-    public VerticalMover(Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
-                         double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-                         DoorActionType actionType)
+    public VerticalMover(
+        Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
+        double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -120,7 +121,7 @@ public class VerticalMover extends BlockMover
 
         final double stepSum = step * ticks;
         for (final PBlockData pBlockData : savedBlocks)
-            pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
+            pBlockData.getAnimatedBlock().teleport(getGoalPos(pBlockData, stepSum));
     }
 
     @Override

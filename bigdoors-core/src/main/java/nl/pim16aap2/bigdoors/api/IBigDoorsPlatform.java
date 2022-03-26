@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.api;
 
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
@@ -73,11 +73,11 @@ public interface IBigDoorsPlatform
     IPBlockDataFactory getPBlockDataFactory();
 
     /**
-     * Gets the instance of the {@link IFallingBlockFactory} for this platform.
+     * Gets the instance of the {@link IAnimatedBlockFactory} for this platform.
      *
-     * @return The instance of the {@link IFallingBlockFactory} for this platform.
+     * @return The instance of the {@link IAnimatedBlockFactory} for this platform.
      */
-    IFallingBlockFactory getFallingBlockFactory();
+    IAnimatedBlockFactory getFallingBlockFactory();
 
     /**
      * Gets the instance of the {@link IPPlayerFactory} for this platform.

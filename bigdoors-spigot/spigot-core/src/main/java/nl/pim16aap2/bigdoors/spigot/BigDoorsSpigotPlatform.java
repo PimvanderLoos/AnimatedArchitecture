@@ -16,8 +16,8 @@ import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
@@ -78,7 +78,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IPBlockDataFactory pBlockDataFactory;
 
     @Getter
-    private final IFallingBlockFactory fallingBlockFactory;
+    private final IAnimatedBlockFactory fallingBlockFactory;
 
     @Getter
     private final IPPlayerFactory pPlayerFactory;

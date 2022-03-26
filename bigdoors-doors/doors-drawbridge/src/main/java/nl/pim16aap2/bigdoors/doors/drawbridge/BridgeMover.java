@@ -133,7 +133,7 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
             executor.runSync(this::respawnBlocks);
 
         for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos(stepSum, block));
+            block.getAnimatedBlock().teleport(getGoalPos(stepSum, block));
     }
 
     @Override
