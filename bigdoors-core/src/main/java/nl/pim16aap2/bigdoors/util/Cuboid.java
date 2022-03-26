@@ -8,6 +8,7 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.UnaryOperator;
 
@@ -50,10 +51,58 @@ public class Cuboid
     public Cuboid(Vector3Di a, Vector3Di b)
     {
         final Vector3Di[] minmax = getSortedCoordinates(a, b);
-        min = minmax[0];
-        max = minmax[1];
+        this.min = minmax[0];
+        this.max = minmax[1];
         volume = calculateVolume();
         dimensions = calculateDimensions();
+    }
+
+    /**
+     * Constructs a new cuboid from doubles.
+     *
+     * @param a
+     *     The first position.
+     * @param b
+     *     The second position.
+     * @param roundingMode
+     *     The rounding mode to use when rounding doubles into integer values.
+     * @return The new cuboid.
+     */
+    @CheckReturnValue @Contract(pure = true)
+    public static Cuboid of(Vector3Dd a, Vector3Dd b, RoundingMode roundingMode)
+    {
+        final double xMin = Math.min(a.x(), b.x());
+        final double yMin = Math.min(a.y(), b.y());
+        final double zMin = Math.min(a.z(), b.z());
+
+        final double xMax = Math.max(a.x(), b.x());
+        final double yMax = Math.max(a.y(), b.y());
+        final double zMax = Math.max(a.z(), b.z());
+
+        @Nullable Vector3Di min = null;
+        @Nullable Vector3Di max = null;
+        switch (roundingMode)
+        {
+            case NEAREST:
+            {
+                min = new Vector3Di((int) Math.round(xMin), (int) Math.round(yMin), (int) Math.round(zMin));
+                max = new Vector3Di((int) Math.round(xMax), (int) Math.round(yMax), (int) Math.round(zMax));
+                break;
+            }
+            case INWARD:
+            {
+                min = new Vector3Di((int) Math.ceil(xMin), (int) Math.ceil(yMin), (int) Math.ceil(zMin));
+                max = new Vector3Di((int) Math.floor(xMax), (int) Math.floor(yMax), (int) Math.floor(zMax));
+                break;
+            }
+            case OUTWARD:
+            {
+                min = new Vector3Di((int) Math.floor(xMin), (int) Math.floor(yMin), (int) Math.floor(zMin));
+                max = new Vector3Di((int) Math.ceil(xMax), (int) Math.ceil(yMax), (int) Math.ceil(zMax));
+                break;
+            }
+        }
+        return new Cuboid(Util.requireNonNull(min, "Minimum"), Util.requireNonNull(max, "Maximum"));
     }
 
     /**
@@ -255,5 +304,26 @@ public class Cuboid
         final int y = max.y() - min.y() + 1;
         final int z = max.z() - min.z() + 1;
         return new Vector3Di(x, y, z);
+    }
+
+    /**
+     * Determines how to deal with double values.
+     */
+    public enum RoundingMode
+    {
+        /**
+         * Rounds the double value to the nearest integer. E.g. 0.1 -> 0, and 0.9 -> 1.
+         */
+        NEAREST,
+
+        /**
+         * Rounds the double values towards the center of the cuboid.
+         */
+        INWARD,
+
+        /**
+         * Rounds the double values outward from the center of the cuboid.
+         */
+        OUTWARD
     }
 }

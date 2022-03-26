@@ -158,4 +158,29 @@ class CuboidTest
         Assertions.assertFalse(cuboid.isInRange(new Vector3Di(-11, 31, 10), 0));
         Assertions.assertTrue(cuboid.isInRange(new Vector3Di(-10, 0, 40), 1));
     }
+
+    @Test
+    void testFromDoubles()
+    {
+        final Vector3Dd val1 = new Vector3Dd(-4.1d, 16.5d, 21.9d);
+        final Vector3Dd val2 = new Vector3Dd(4.1d, 16.5d, -21.1d);
+
+        final Vector3Di nearMin = new Vector3Di(-4, 17, -21);
+        final Vector3Di nearMax = new Vector3Di(4, 17, 22);
+        final Cuboid near = Cuboid.of(val1, val2, Cuboid.RoundingMode.NEAREST);
+        Assertions.assertEquals(nearMin, near.min);
+        Assertions.assertEquals(nearMax, near.max);
+
+        final Vector3Di inMin = new Vector3Di(-4, 16, -21);
+        final Vector3Di inMax = new Vector3Di(4, 17, 21);
+        final Cuboid in = Cuboid.of(val1, val2, Cuboid.RoundingMode.INWARD);
+        Assertions.assertEquals(inMin, in.min);
+        Assertions.assertEquals(inMax, in.max);
+
+        final Vector3Di outMin = new Vector3Di(-5, 16, -22);
+        final Vector3Di outMax = new Vector3Di(5, 17, 22);
+        final Cuboid out = Cuboid.of(val1, val2, Cuboid.RoundingMode.OUTWARD);
+        Assertions.assertEquals(outMin, out.min);
+        Assertions.assertEquals(outMax, out.max);
+    }
 }
