@@ -32,12 +32,11 @@
         <dependency.version.jacoco>0.8.8</dependency.version.jacoco>
         <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-compiler>3.10.1</dependency.version.maven-compiler>
-        <dependency.version.maven-shade>3.3.0-SNAPSHOT</dependency.version.maven-shade>
+        <dependency.version.maven-shade>3.3.0</dependency.version.maven-shade>
         <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-jar>3.2.2</dependency.version.maven-jar>
         <dependency.version.maven-clean>3.2.0</dependency.version.maven-clean>
         <dependency.version.maven-javadoc>3.3.2</dependency.version.maven-javadoc>
-        <dependency.version.maven-build-helper>3.3.0</dependency.version.maven-build-helper>
         <dependency.version.maven-source>3.2.1</dependency.version.maven-source>
         <dependency.version.maven-dependency>3.3.0</dependency.version.maven-dependency>
         <dependency.version.maven-resources>3.2.0</dependency.version.maven-resources>
