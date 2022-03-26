@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.util.api;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHookFactory;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockHookFactory;
 
 /**
  * Represents a specialization of {@link IAnimatedBlockHookFactory} for the Spigot platform.

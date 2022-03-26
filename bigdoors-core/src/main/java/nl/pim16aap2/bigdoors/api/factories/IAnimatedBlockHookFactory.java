@@ -1,4 +1,7 @@
-package nl.pim16aap2.bigdoors.api.animatedblockhook;
+package nl.pim16aap2.bigdoors.api.factories;
+
+import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 
