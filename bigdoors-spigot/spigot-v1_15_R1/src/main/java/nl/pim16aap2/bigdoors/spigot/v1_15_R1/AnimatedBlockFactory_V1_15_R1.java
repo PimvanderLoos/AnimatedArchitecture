@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.AnimationContext;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
@@ -32,7 +33,8 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
     }
 
     @Override
-    public Optional<IAnimatedBlock> create(IPLocation loc, float radius, float startAngle, boolean bottom)
+    public Optional<IAnimatedBlock> create(
+        IPLocation loc, float radius, float startAngle, boolean bottom, AnimationContext context)
         throws Exception
     {
         final Location spigotLocation = SpigotAdapter.getBukkitLocation(loc);
@@ -50,7 +52,7 @@ public final class AnimatedBlockFactory_V1_15_R1 implements IAnimatedBlockFactor
         final var animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, spawnLoc.getX(), spawnLoc.getY(),
                                                spawnLoc.getZ(), radius, startAngle, placementDeferred,
-                                               animatedBlockHookManager);
+                                               context, animatedBlockHookManager);
 
         animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
         animatedBlock.setCustomNameVisible(false);

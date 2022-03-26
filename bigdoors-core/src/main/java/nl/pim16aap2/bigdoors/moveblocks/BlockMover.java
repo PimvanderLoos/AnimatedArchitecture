@@ -10,6 +10,7 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
@@ -62,6 +63,7 @@ public abstract class BlockMover
 
     @ToString.Exclude
     protected final IPExecutor executor;
+    private final AnimationContext animationContext;
 
     @ToString.Exclude
     protected final IPLocationFactory locationFactory;
@@ -146,6 +148,7 @@ public abstract class BlockMover
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
         soundEngine = context.getSoundEngine();
+        this.animationContext = new AnimationContext(door.getDoorType(), door);
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
@@ -248,7 +251,8 @@ public abstract class BlockMover
                         final IPLocation location = locationFactory.create(world, xAxis, yAxis, zAxis);
                         final boolean bottom = (yAxis == yMin);
                         animatedBlockFactory.create(location, getRadius(xAxis, yAxis, zAxis),
-                                                    getStartAngle(xAxis, yAxis, zAxis), bottom)
+                                                    getStartAngle(xAxis, yAxis, zAxis), bottom,
+                                                    animationContext)
                                             .ifPresent(animatedBlocks::add);
                     }
         }

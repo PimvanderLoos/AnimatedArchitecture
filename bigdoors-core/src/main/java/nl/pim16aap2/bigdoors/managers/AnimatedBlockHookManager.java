@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.managers;
 
-import nl.pim16aap2.bigdoors.api.IAnimatedBlockHook;
-import nl.pim16aap2.bigdoors.api.IAnimatedBlockHookFactory;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHookFactory;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
