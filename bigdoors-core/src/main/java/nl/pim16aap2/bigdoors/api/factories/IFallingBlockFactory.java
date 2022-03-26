@@ -1,26 +1,26 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
 
 /**
- * Represents a IFactory for {@link ICustomCraftFallingBlock} and {@link INMSBlock}.
+ * Represents a IFactory for {@link IAnimatedBlock} and {@link INMSBlock}.
  *
  * @author Pim
  */
 public interface IFallingBlockFactory
 {
     /**
-     * Creates a new {@link ICustomCraftFallingBlock} at the given location made of the provided block.
+     * Creates a new {@link IAnimatedBlock} at the given location made of the provided block.
      *
      * @param loc
-     *     The location at which the {@link ICustomCraftFallingBlock} will be spawned.
+     *     The location at which the {@link IAnimatedBlock} will be spawned.
      * @param block
-     *     The block that the {@link ICustomCraftFallingBlock} will be made out of.
-     * @return The {@link ICustomCraftFallingBlock} that was constructed.
+     *     The block that the {@link IAnimatedBlock} will be made out of.
+     * @return The {@link IAnimatedBlock} that was constructed.
      */
-    ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
+    IAnimatedBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception;
 
     /**

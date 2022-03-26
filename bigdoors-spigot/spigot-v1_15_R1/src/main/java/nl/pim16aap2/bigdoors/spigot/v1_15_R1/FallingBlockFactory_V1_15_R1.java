@@ -1,6 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.v1_15_R1;
 
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
@@ -8,8 +8,8 @@ import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.Constants;
 import nl.pim16aap2.bigdoors.util.Util;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_15_R1.util.CraftChatMessage;
 
 import javax.inject.Singleton;
 
@@ -20,24 +20,22 @@ import javax.inject.Singleton;
  * @see IFallingBlockFactory
  */
 @Singleton
-public class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
+public final class FallingBlockFactory_V1_15_R1 implements IFallingBlockFactory
 {
     @Override
-    public ICustomCraftFallingBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
+    public IAnimatedBlock fallingBlockFactory(IPLocation loc, INMSBlock block)
         throws Exception
     {
         final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(loc.getWorld()),
                                                       "Spigot world from location: " + loc);
 
-        final var fBlockNMS = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
+        final CustomEntityFallingBlock_V1_15_R1 animatedBlock = new nl.pim16aap2.bigdoors.spigot.v1_15_R1
             .CustomEntityFallingBlock_V1_15_R1(loc.getWorld(), bukkitWorld, loc.getX(), loc.getY(), loc.getZ(),
                                                ((NMSBlock_V1_15_R1) block).getMyBlockData());
 
-        final var ret = new nl.pim16aap2.bigdoors.spigot.v1_15_R1.CustomCraftFallingBlock_V1_15_R1(Bukkit.getServer(),
-                                                                                                   fBlockNMS);
-        ret.setCustomName(Constants.BIGDOORS_ENTITY_NAME);
-        ret.setCustomNameVisible(false);
-        return ret;
+        animatedBlock.setCustomName(CraftChatMessage.fromStringOrNull(Constants.BIGDOORS_ENTITY_NAME));
+        animatedBlock.setCustomNameVisible(false);
+        return animatedBlock;
     }
 
     @Override

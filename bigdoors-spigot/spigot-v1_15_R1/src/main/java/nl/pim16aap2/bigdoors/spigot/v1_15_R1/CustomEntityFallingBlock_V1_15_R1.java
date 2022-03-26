@@ -14,11 +14,19 @@ import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntity;
 import net.minecraft.server.v1_15_R1.PlayerChunkMap;
+import net.minecraft.server.v1_15_R1.Vec3D;
 import net.minecraft.server.v1_15_R1.WorldServer;
 import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.spigot.util.api.IAnimatedBlockSpigot;
+import nl.pim16aap2.bigdoors.util.Util;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
  */
 @EqualsAndHashCode(callSuper = true)
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
-    implements IAnimatedBlock
+    implements IAnimatedBlockSpigot
 {
     // ticksLived is also a field in NMS.EntityFallingBlock. However, we want to override that on purpose.
     @SuppressWarnings("squid:S2387")
@@ -44,6 +52,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     private IBlockData block;
     private int fallHurtMax;
     private float fallHurtAmount;
+    @Getter
     private final org.bukkit.World bukkitWorld;
     private final IPWorld pWorld;
     private @Nullable PlayerChunkMap.EntityTracker tracker;
@@ -106,7 +115,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         currentPosition = newPosition;
     }
 
-    @SuppressWarnings("unused")
+    @Override
     public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
         final double deltaX = newPosition.x() - currentPosition.x();
@@ -235,5 +244,49 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     public IBlockData getBlock()
     {
         return block;
+    }
+
+    @Override
+    public Material getMaterial()
+    {
+        return Util.requireNonNull(CraftMagicNumbers.getMaterial(block.getBlock()), "Material");
+    }
+
+    @Override
+    public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation, TeleportMode teleportMode)
+    {
+        return teleport(newPosition, rotation);
+    }
+
+    @Override
+    public void kill()
+    {
+        die();
+    }
+
+    @Override
+    public IPLocation getPLocation()
+    {
+        return SpigotAdapter.wrapLocation(new Location(bukkitWorld, locX(), locY(), locZ(), yaw, pitch));
+    }
+
+    @Override
+    public Vector3Dd getPosition()
+    {
+        return getCurrentPosition();
+    }
+
+    @Override
+    public Vector3Dd getPVelocity()
+    {
+        final Vec3D bukkitVelocity = getMot();
+        return new Vector3Dd(bukkitVelocity.getX(), bukkitVelocity.getY(), bukkitVelocity.getZ());
+    }
+
+    @Override
+    public void setVelocity(Vector3Dd vector)
+    {
+        setMot(new Vec3D(vector.x(), vector.y(), vector.z()));
+        velocityChanged = true;
     }
 }

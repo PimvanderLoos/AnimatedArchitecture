@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
@@ -91,6 +91,7 @@ public abstract class BlockMover
     protected int zMax;
 
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
+    private volatile boolean hasStarted = false;
 
     protected final IPLocationFactory locationFactory;
 
@@ -103,7 +104,7 @@ public abstract class BlockMover
     /**
      * The tick at which to stop the animation.
      */
-    protected int endCount = 0;
+    protected int endCount = -1;
 
     /**
      * The sound to play while the animation is active.
@@ -134,9 +135,10 @@ public abstract class BlockMover
      * @param newCuboid
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    protected BlockMover(Context context, AbstractDoor door, double time, boolean skipAnimation,
-                         RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
-                         DoorActionCause cause, DoorActionType actionType)
+    protected BlockMover(
+        Context context, AbstractDoor door, double time, boolean skipAnimation,
+        RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         executor = context.getExecutor();
@@ -190,12 +192,12 @@ public abstract class BlockMover
     }
 
     /**
-     * Respawns a {@link ICustomCraftFallingBlock}.
+     * Respawns a {@link IFallingBlockFactory}.
      *
      * @param blockData
-     *     The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
+     *     The {@link PBlockData} containing the {@link IAnimatedBlock} that will be respawned.
      * @param newBlock
-     *     The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
+     *     The new {@link INMSBlock} to use for the {@link IAnimatedBlock}.
      * @return True if respawning was successful.
      */
     private boolean respawnBlock(PBlockData blockData, INMSBlock newBlock)
@@ -206,7 +208,7 @@ public abstract class BlockMover
         try
         {
             final var fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
-            blockData.getFBlock().remove();
+            blockData.getFBlock().kill();
             blockData.setFBlock(fBlock);
 
             blockData.getFBlock().setVelocity(pVelocity);
@@ -220,8 +222,8 @@ public abstract class BlockMover
     }
 
     /**
-     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
-     * PBlockData}. Note that this is executed on the thread it was called from, which MUST BE the main thread!
+     * Rotates in the {@link #openDirection} and then respawns a {@link IAnimatedBlock} of a {@link PBlockData}. Note
+     * that this is executed on the thread it was called from, which MUST BE the main thread!
      */
     private void applyRotationOnCurrentThread()
     {
@@ -237,8 +239,8 @@ public abstract class BlockMover
     }
 
     /**
-     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
-     * PBlockData}. This is executed on the main thread.
+     * Rotates in the {@link #openDirection} and then respawns a {@link IAnimatedBlock} of a {@link PBlockData}. This is
+     * executed on the main thread.
      */
     protected void applyRotation()
     {
@@ -269,6 +271,12 @@ public abstract class BlockMover
      */
     protected synchronized void startAnimation()
     {
+        if (endCount < 0)
+            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " + endCount);
+        if (hasStarted)
+            throw new IllegalStateException("Trying to start an animation again!");
+        hasStarted = true;
+
         try
         {
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
@@ -534,9 +542,10 @@ public abstract class BlockMover
         private final IFallingBlockFactory fallingBlockFactory;
 
         @Inject
-        public Context(DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
-                       IPLocationFactory locationFactory, IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
-                       IPExecutor executor, IFallingBlockFactory fallingBlockFactory)
+        public Context(
+            DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
+            IPLocationFactory locationFactory, IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
+            IPExecutor executor, IFallingBlockFactory fallingBlockFactory)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;

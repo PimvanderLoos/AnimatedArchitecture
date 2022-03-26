@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.api.IAnimatedBlock;
 
 import java.util.Optional;
 
@@ -17,14 +17,15 @@ public interface IPBlockDataFactory
      * Creates a new {@link PBlockData} of the block at the location if allowed and possible.
      *
      * @param loc
-     *     The location at which the {@link ICustomCraftFallingBlock} will be spawned.
+     *     The location at which the {@link IAnimatedBlock} will be spawned.
      * @param bottom
      *     True if this is the lowest block of the object to move.
      * @param radius
      *     The radius of the block to an arbitrary point.
-     * @return The {@link ICustomCraftFallingBlock} that was constructed.
+     * @return The {@link IAnimatedBlock} that was constructed.
      */
-    Optional<PBlockData> create(IPLocation loc, boolean bottom, float radius, float startAngle)
+    Optional<PBlockData> create(
+        IPLocation loc, boolean bottom, float radius, float startAngle)
         throws Exception;
 
     /**

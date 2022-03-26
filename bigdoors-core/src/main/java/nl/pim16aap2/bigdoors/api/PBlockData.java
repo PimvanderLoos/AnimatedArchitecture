@@ -33,15 +33,15 @@ public final class PBlockData
     private final float radius;
 
     /**
-     * The {@link ICustomCraftFallingBlock} that is being be animated.
+     * The {@link IAnimatedBlock} that is being be animated.
      *
-     * @param fBlock The new {@link ICustomCraftFallingBlock} that will be animated. Note that just updating the value
-     * won't change anything in-game.
-     * @return Gets the {@link ICustomCraftFallingBlock} that is being be animated.
+     * @param fBlock The new {@link IAnimatedBlock} that will be animated. Note that just updating the value won't
+     * change anything in-game.
+     * @return Gets the {@link IAnimatedBlock} that is being be animated.
      */
     @Getter
     @Setter
-    private ICustomCraftFallingBlock fBlock;
+    private IAnimatedBlock fBlock;
 
     /**
      * Gets the location the block was first spawned at.
@@ -74,7 +74,7 @@ public final class PBlockData
      * Constructs of {@link PBlockData}.
      *
      * @param newFBlock
-     *     The {@link ICustomCraftFallingBlock} that will be animated.
+     *     The {@link IAnimatedBlock} that will be animated.
      * @param radius
      *     The number of blocks between this block and the rotation point.
      * @param newBlock
@@ -87,8 +87,9 @@ public final class PBlockData
      *     Whether or not placement should be deferred until all standalone blocks are placed. Useful for torches, for
      *     example (so they don't fall off immediately).
      */
-    public PBlockData(ICustomCraftFallingBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
-                      float startAngle, boolean placementDeferred)
+    public PBlockData(
+        IAnimatedBlock newFBlock, float radius, INMSBlock newBlock, IPLocation startLocation,
+        float startAngle, boolean placementDeferred)
     {
         block = newBlock;
         fBlock = newFBlock;
@@ -100,11 +101,11 @@ public final class PBlockData
     }
 
     /**
-     * Kills the {@link ICustomCraftFallingBlock} that is being be animated.
+     * Kills the {@link IAnimatedBlock} that is being be animated.
      */
     public void killFBlock()
     {
-        fBlock.remove();
+        fBlock.kill();
     }
 
     /**
