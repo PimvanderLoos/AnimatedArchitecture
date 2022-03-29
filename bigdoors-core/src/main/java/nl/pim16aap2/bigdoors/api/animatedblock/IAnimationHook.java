@@ -2,10 +2,9 @@ package nl.pim16aap2.bigdoors.api.animatedblock;
 
 import nl.pim16aap2.bigdoors.api.factories.IAnimationHookFactory;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress;
 
 /**
- * Represents a hook into an {@link IAnimationProgress}.
+ * Represents a hook into an {@link IAnimation}.
  * <p>
  * To hook into an animation, this hook needs to be registered with {@link AnimationHookManager} via the use of an
  * {@link IAnimationHookFactory}.

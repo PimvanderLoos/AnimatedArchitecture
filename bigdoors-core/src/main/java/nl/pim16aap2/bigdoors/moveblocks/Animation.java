@@ -4,12 +4,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.Collections;
 import java.util.List;
 
-public class AnimationProgress<T extends IAnimatedBlock> implements IAnimationProgress<T>
+public class Animation<T extends IAnimatedBlock> implements IAnimation<T>
 {
     private final int duration;
 
@@ -22,7 +23,7 @@ public class AnimationProgress<T extends IAnimatedBlock> implements IAnimationPr
     @Setter(AccessLevel.PACKAGE)
     private volatile int stepsExecuted = 0;
 
-    AnimationProgress(int duration, Cuboid region, List<T> animatedBlocks)
+    Animation(int duration, Cuboid region, List<T> animatedBlocks)
     {
         this.duration = duration;
         this.region = region;

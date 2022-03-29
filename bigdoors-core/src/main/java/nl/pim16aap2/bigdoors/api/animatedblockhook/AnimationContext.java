@@ -4,7 +4,6 @@ import lombok.Value;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress;
 
 /**
  * Contains the context in which an animation takes place. For example, the door that is being animated.
@@ -27,5 +26,5 @@ public class AnimationContext
     /**
      * The current progress of the animation.
      */
-    IAnimationProgress<? extends IAnimatedBlock> animationProgress;
+    IAnimation<? extends IAnimatedBlock> animation;
 }

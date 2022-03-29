@@ -1,6 +1,5 @@
-package nl.pim16aap2.bigdoors.moveblocks;
+package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.List;
@@ -11,7 +10,7 @@ import java.util.List;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public interface IAnimationProgress<T extends IAnimatedBlock>
+public interface IAnimation<T extends IAnimatedBlock>
 {
     /**
      * @return The region that this animation currently occupies.

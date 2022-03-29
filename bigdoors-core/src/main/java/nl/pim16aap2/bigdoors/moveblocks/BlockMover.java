@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import static nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress.AnimationState;
+import static nl.pim16aap2.bigdoors.api.animatedblock.IAnimation.AnimationState;
 
 /**
  * Represents a class that animates blocks.
@@ -251,9 +251,8 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
-        final AnimationProgress<IAnimatedBlock> animationProgress =
-            new AnimationProgress<>(endCount, door.getCuboid(), animatedBlocks);
-        final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animationProgress);
+        final Animation<IAnimatedBlock> animation = new Animation<>(endCount, door.getCuboid(), animatedBlocks);
+        final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try
         {
@@ -280,13 +279,13 @@ public abstract class BlockMover
             animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
 
         final boolean animationSkipped = skipAnimation || animatedBlocks.isEmpty();
-        animationProgress.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
-        this.hooks = animationHookManager.instantiateHooks(animationProgress);
+        animation.setState(animationSkipped ? AnimationState.SKIPPED : AnimationState.ACTIVE);
+        this.hooks = animationHookManager.instantiateHooks(animation);
 
         if (animationSkipped)
             putBlocks(false);
         else
-            animateEntities(animationProgress);
+            animateEntities(animation);
     }
 
     /**
@@ -307,22 +306,22 @@ public abstract class BlockMover
      */
     protected abstract void executeAnimationStep(int ticks);
 
-    private void executeAnimationStep(int counter, AnimationProgress<IAnimatedBlock> animationProgress)
+    private void executeAnimationStep(int counter, Animation<IAnimatedBlock> animation)
     {
         executeAnimationStep(counter);
 
-        animationProgress.setRegion(getAnimationRegion());
-        animationProgress.setState(AnimationState.ACTIVE);
+        animation.setRegion(getAnimationRegion());
+        animation.setState(AnimationState.ACTIVE);
     }
 
     /**
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private synchronized void stopAnimation(AnimationProgress<IAnimatedBlock> animationProgress)
+    private synchronized void stopAnimation(Animation<IAnimatedBlock> animation)
     {
-        animationProgress.setRegion(getAnimationRegion());
-        animationProgress.setState(AnimationState.FINISHING);
+        animation.setRegion(getAnimationRegion());
+        animation.setState(AnimationState.FINISHING);
 
         if (soundFinish != null)
             playSound(soundFinish);
@@ -340,8 +339,8 @@ public abstract class BlockMover
         }
         executor.cancel(moverTask, moverTaskID);
 
-        animationProgress.setState(AnimationState.COMPLETED);
-        animationProgress.setRegion(door.getCuboid());
+        animation.setState(AnimationState.COMPLETED);
+        animation.setRegion(door.getCuboid());
     }
 
     /**
@@ -357,7 +356,7 @@ public abstract class BlockMover
     /**
      * Runs the animation of the animated blocks.
      */
-    private synchronized void animateEntities(AnimationProgress<IAnimatedBlock> animationProgress)
+    private synchronized void animateEntities(Animation<IAnimatedBlock> animation)
     {
         prepareAnimation();
 
@@ -393,10 +392,10 @@ public abstract class BlockMover
                     respawnBlocks();
 
                 if (counter > endCount)
-                    stopAnimation(animationProgress);
+                    stopAnimation(animation);
                 else
-                    executeAnimationStep(counter, animationProgress);
-                animationProgress.setStepsExecuted(counter);
+                    executeAnimationStep(counter, animation);
+                animation.setStepsExecuted(counter);
                 forEachHook("onPostAnimationStep", IAnimationHook::onPostAnimationStep);
             }
         };

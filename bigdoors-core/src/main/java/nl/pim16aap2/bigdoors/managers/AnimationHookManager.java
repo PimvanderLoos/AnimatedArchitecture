@@ -2,11 +2,11 @@ package nl.pim16aap2.bigdoors.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IAnimationHookFactory;
-import nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public final class AnimationHookManager implements IDebuggable
         this.factories.add(factory);
     }
 
-    public <T extends IAnimatedBlock> List<IAnimationHook<T>> instantiateHooks(IAnimationProgress<T> animation)
+    public <T extends IAnimatedBlock> List<IAnimationHook<T>> instantiateHooks(IAnimation<T> animation)
     {
         final List<IAnimationHook<T>> instantiated = new ArrayList<>(factories.size());
 
