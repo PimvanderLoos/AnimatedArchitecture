@@ -10,8 +10,8 @@ import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.AnimationContext;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -63,7 +63,7 @@ public abstract class BlockMover
 
     @ToString.Exclude
     protected final IPExecutor executor;
-    private final AnimationContext animationContext;
+    private @Nullable AnimationContext animationContext;
 
     @ToString.Exclude
     protected final IPLocationFactory locationFactory;
@@ -148,7 +148,6 @@ public abstract class BlockMover
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
         soundEngine = context.getSoundEngine();
-        this.animationContext = new AnimationContext(door.getDoorType(), door);
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
             throw new Exception("BlockMovers must be called on the main thread!");
@@ -242,6 +241,9 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
+        final AnimationProgress animationProgress = new AnimationProgress(endCount, door.getCuboid());
+        this.animationContext = new AnimationContext(door.getDoorType(), door, animationProgress);
+
         try
         {
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
@@ -269,7 +271,7 @@ public abstract class BlockMover
         if (skipAnimation || animatedBlocks.isEmpty())
             putBlocks(false);
         else
-            animateEntities();
+            animateEntities(animationProgress);
     }
 
     /**
@@ -290,12 +292,23 @@ public abstract class BlockMover
      */
     protected abstract void executeAnimationStep(int ticks);
 
+    private void executeAnimationStep(int counter, AnimationProgress animationProgress)
+    {
+        executeAnimationStep(counter);
+
+        animationProgress.region = getAnimationRegion();
+        animationProgress.state = IAnimationProgress.State.ACTIVE;
+    }
+
     /**
      * Gracefully stops the animation: Freeze any animated blocks, kill the animation task and place the blocks in their
      * new location.
      */
-    private synchronized void stopAnimation()
+    private synchronized void stopAnimation(AnimationProgress animationProgress)
     {
+        animationProgress.region = getAnimationRegion();
+        animationProgress.state = IAnimationProgress.State.FINISHING;
+
         if (soundFinish != null)
             playSound(soundFinish);
 
@@ -309,6 +322,9 @@ public abstract class BlockMover
             return;
         }
         executor.cancel(moverTask, moverTaskID);
+
+        animationProgress.state = IAnimationProgress.State.COMPLETED;
+        animationProgress.region = door.getCuboid();
     }
 
     /**
@@ -324,7 +340,7 @@ public abstract class BlockMover
     /**
      * Runs the animation of the animated blocks.
      */
-    private synchronized void animateEntities()
+    private synchronized void animateEntities(AnimationProgress animationProgress)
     {
         prepareAnimation();
 
@@ -355,9 +371,10 @@ public abstract class BlockMover
                     respawnBlocks();
 
                 if (counter > endCount)
-                    stopAnimation();
+                    stopAnimation(animationProgress);
                 else
-                    executeAnimationStep(counter);
+                    executeAnimationStep(counter, animationProgress);
+                animationProgress.stepsExecuted = counter;
             }
         };
         moverTaskID = executor.runAsyncRepeated(moverTask, 14, 1);
@@ -501,6 +518,37 @@ public abstract class BlockMover
         return door;
     }
 
+    private Cuboid getAnimationRegion()
+    {
+        double xMin = Double.MAX_VALUE;
+        double yMin = Double.MAX_VALUE;
+        double zMin = Double.MAX_VALUE;
+
+        double xMax = Double.MIN_VALUE;
+        double yMax = Double.MIN_VALUE;
+        double zMax = Double.MIN_VALUE;
+
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+        {
+            final Vector3Dd pos = animatedBlock.getPosition();
+            if (pos.x() < xMin)
+                xMin = pos.x();
+            else if (pos.x() > xMax)
+                xMax = pos.x();
+
+            if (pos.y() < yMin)
+                yMin = pos.y();
+            else if (pos.y() > yMax)
+                yMax = pos.y();
+
+            if (pos.z() < zMin)
+                zMin = pos.z();
+            else if (pos.z() > zMax)
+                zMax = pos.z();
+        }
+        return Cuboid.of(new Vector3Dd(xMin, yMin, zMin), new Vector3Dd(xMax, yMax, zMax), Cuboid.RoundingMode.OUTWARD);
+    }
+
     @Getter(AccessLevel.PACKAGE)
     public static final class Context
     {
@@ -565,5 +613,44 @@ public abstract class BlockMover
          * Moves an animated block to a given goal position using the specified method.
          */
         public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
+    }
+
+    private static final class AnimationProgress implements IAnimationProgress
+    {
+        private final int duration;
+
+        private volatile Cuboid region;
+        private volatile State state = State.PENDING;
+        private volatile int stepsExecuted = 0;
+
+        AnimationProgress(int duration, Cuboid region)
+        {
+            this.duration = duration;
+            this.region = region;
+        }
+
+        @Override
+        public Cuboid getRegion()
+        {
+            return region;
+        }
+
+        @Override
+        public int getDuration()
+        {
+            return duration;
+        }
+
+        @Override
+        public int getStepsExecuted()
+        {
+            return stepsExecuted;
+        }
+
+        @Override
+        public State getState()
+        {
+            return state;
+        }
     }
 }
