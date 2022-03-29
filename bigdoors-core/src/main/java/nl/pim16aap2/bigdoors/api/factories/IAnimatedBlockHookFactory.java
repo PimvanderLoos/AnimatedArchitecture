@@ -1,9 +1,7 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
-
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
 
 /**
  * Represents a factory for {@link IAnimatedBlockHook}s.
@@ -19,5 +17,5 @@ public interface IAnimatedBlockHookFactory<T extends IAnimatedBlock>
      *     The {@link IAnimatedBlock} that is being hooked into.
      * @return The new hook.
      */
-    IAnimatedBlockHook<T> newInstance(IAnimatedBlock animatedBlock);
+    IAnimatedBlockHook<T> newInstance(T animatedBlock);
 }
