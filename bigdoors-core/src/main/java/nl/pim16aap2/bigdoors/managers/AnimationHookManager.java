@@ -1,11 +1,12 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
-import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockHookFactory;
+import nl.pim16aap2.bigdoors.api.factories.IAnimationHookFactory;
+import nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress;
 import nl.pim16aap2.util.SafeStringBuilder;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,40 +18,39 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 /**
- * Represents a manager for {@link IAnimatedBlockHookFactory} instances.
+ * Represents a manager for {@link IAnimationHookFactory} instances.
  * <p>
- * Factories that are registered with this manager will be inserted into every animated block separately.
+ * Factories that are registered with this manager will be inserted into every animation.
  *
  * @author Pim
  */
 @Singleton
 @Flogger
-public final class AnimatedBlockHookManager implements IDebuggable
+public final class AnimationHookManager implements IDebuggable
 {
-    private final List<IAnimatedBlockHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
+    private final List<IAnimationHookFactory<? extends IAnimatedBlock>> factories = new CopyOnWriteArrayList<>();
 
     @Inject//
-    AnimatedBlockHookManager(DebuggableRegistry debuggableRegistry)
+    AnimationHookManager(DebuggableRegistry debuggableRegistry)
     {
         debuggableRegistry.registerDebuggable(this);
     }
 
-    public void registerFactory(IAnimatedBlockHookFactory<? extends IAnimatedBlock> factory)
+    public void registerFactory(IAnimationHookFactory<? extends IAnimatedBlock> factory)
     {
         this.factories.add(factory);
     }
 
-    public <T extends IAnimatedBlock> List<IAnimatedBlockHook<T>> instantiateHooks(T animatedBlock)
+    public <T extends IAnimatedBlock> List<IAnimationHook<T>> instantiateHooks(IAnimationProgress<T> animation)
     {
-        final List<IAnimatedBlockHook<T>> instantiated = new ArrayList<>(factories.size());
+        final List<IAnimationHook<T>> instantiated = new ArrayList<>(factories.size());
 
-        for (final IAnimatedBlockHookFactory<? extends IAnimatedBlock> factory : factories)
+        for (final IAnimationHookFactory<? extends IAnimatedBlock> factory : factories)
         {
             try
             {
                 //noinspection unchecked
-                final @Nullable IAnimatedBlockHook<T> hook =
-                    ((IAnimatedBlockHookFactory<T>) factory).newInstance(animatedBlock);
+                final @Nullable IAnimationHook<T> hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
                 if (hook != null)
                     instantiated.add(hook);
             }
@@ -67,7 +67,7 @@ public final class AnimatedBlockHookManager implements IDebuggable
     @Override
     public String getDebugInformation()
     {
-        final SafeStringBuilder sb = new SafeStringBuilder("Registered animated block hook factories:\n");
+        final SafeStringBuilder sb = new SafeStringBuilder("Registered animation hook factories:\n");
         factories.forEach(factory -> sb.append("- ").append(factory.getClass().getName()).append('\n'));
         return sb.toString();
     }

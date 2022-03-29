@@ -16,7 +16,6 @@ public interface IAnimatedBlockHook<T extends IAnimatedBlock>
      */
     String getName();
 
-
     /**
      * Fires after an animated block has been spawned.
      *

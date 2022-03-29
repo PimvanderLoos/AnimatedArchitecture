@@ -1,6 +1,9 @@
 package nl.pim16aap2.bigdoors.moveblocks;
 
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.util.Cuboid;
+
+import java.util.List;
 
 /**
  * Keeps track of the progress of an animation.
@@ -8,7 +11,7 @@ import nl.pim16aap2.bigdoors.util.Cuboid;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public interface IAnimationProgress
+public interface IAnimationProgress<T extends IAnimatedBlock>
 {
     /**
      * @return The region that this animation currently occupies.
@@ -40,14 +43,19 @@ public interface IAnimationProgress
     }
 
     /**
+     * @return The list of animated blocks that are used in this animation.
+     */
+    List<T> getAnimatedBlocks();
+
+    /**
      * @return The current state of the animation.
      */
-    State getState();
+    AnimationState getState();
 
     /**
      * Represents the various stages an animation can be in.
      */
-    enum State
+    enum AnimationState
     {
         /**
          * The animation hasn't started yet.
@@ -67,6 +75,15 @@ public interface IAnimationProgress
         /**
          * The animation has completed; there are no animated blocks left.
          */
-        COMPLETED
+        COMPLETED,
+
+        /**
+         * The animation was skipped. This can happen either because it was requested to skip the animation or because
+         * there are no blocks to animate.
+         * <p>
+         * Note that this only applies to the animation itself; the door itself is still toggled and all blocks (if
+         * applicable) are moved to the next location.
+         */
+        SKIPPED
     }
 }

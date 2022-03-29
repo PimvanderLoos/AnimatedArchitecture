@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.api.animatedblockhook;
 
 import lombok.Value;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 import nl.pim16aap2.bigdoors.moveblocks.IAnimationProgress;
@@ -26,5 +27,5 @@ public class AnimationContext
     /**
      * The current progress of the animation.
      */
-    IAnimationProgress animationProgress;
+    IAnimationProgress<? extends IAnimatedBlock> animationProgress;
 }
