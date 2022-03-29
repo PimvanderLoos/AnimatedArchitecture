@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.flogger.Flogger;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Blocks;
 import net.minecraft.server.v1_15_R1.CrashReportSystemDetails;
@@ -37,6 +38,8 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.logging.Level;
 
 /**
  * V1_15_R1 implementation of {@link IAnimatedBlock}.
@@ -44,6 +47,7 @@ import java.util.List;
  * @author Pim
  * @see IAnimatedBlock
  */
+@Flogger
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_15_R1.EntityFallingBlock
@@ -132,7 +136,8 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         for (final Entity ent : passengers)
             ent.stopRiding();
         dead = true;
-        hooks.forEach(hook -> hook.onDie(this));
+        this.worldServer.removeEntity(this);
+        forEachHook("onDie", IAnimatedBlockHook::onDie);
     }
 
     @Override
@@ -142,7 +147,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         tracker = Util.requireNonNull(worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId()),
                                       "entity tracker");
         dead = false;
-        hooks.forEach(hook -> hook.onSpawn(this));
+        forEachHook("onSpawn", IAnimatedBlockHook::onSpawn);
     }
 
     @Override
@@ -159,7 +164,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         currentPosition = newPosition;
         // Update current and last x/y/z values in entity class.
         f(newPosition.x(), newPosition.y(), newPosition.z());
-        hooks.forEach(hook -> hook.onMoved(this, newPosition));
+        forEachHook("onMoved", (hook, block) -> hook.onMoved(block, newPosition));
     }
 
     @Override
@@ -182,7 +187,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (tracker != null)
             tracker.broadcast(tpPacket);
 
-        hooks.forEach(hook -> hook.onTeleport(this, newPosition));
+        forEachHook("onTeleport", (hook, block) -> hook.onTeleport(block, newPosition));
         cyclePositions(newPosition);
 
         return true;
@@ -206,7 +211,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (dead)
             return;
 
-        hooks.forEach(hook -> hook.preTick(this));
+        forEachHook("preTick", IAnimatedBlockHook::preTick);
         if (animatedBlockData.getMyBlockData().isAir())
             die();
         else
@@ -222,7 +227,24 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
 
             cyclePositions(newLocation);
         }
-        hooks.forEach(hook -> hook.postTick(this));
+        forEachHook("postTick", IAnimatedBlockHook::postTick);
+    }
+
+    private void forEachHook(String actionName, BiConsumer<IAnimatedBlockHook<IAnimatedBlock>, IAnimatedBlock> call)
+    {
+        for (final IAnimatedBlockHook<IAnimatedBlock> hook : hooks)
+        {
+            log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
+            try
+            {
+                call.accept(hook, this);
+            }
+            catch (Exception e)
+            {
+                log.at(Level.SEVERE).withCause(e)
+                   .log("Failed to execute '%s' for hook '%s'!", actionName, hook.getName());
+            }
+        }
     }
 
     @Override

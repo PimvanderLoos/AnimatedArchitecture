@@ -12,6 +12,12 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 public interface IAnimatedBlockHook<T extends IAnimatedBlock>
 {
     /**
+     * @return The name of this hook to use for logging purposes.
+     */
+    String getName();
+
+
+    /**
      * Fires after an animated block has been spawned.
      *
      * @param animatedBlock
