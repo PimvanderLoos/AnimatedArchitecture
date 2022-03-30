@@ -40,16 +40,16 @@ public final class AnimatedBlockHookManager implements IDebuggable
         this.factories.add(factory);
     }
 
-    public <T extends IAnimatedBlock> List<IAnimatedBlockHook<T>> instantiateHooks(T animatedBlock)
+    public <T extends IAnimatedBlock> List<IAnimatedBlockHook> instantiateHooks(T animatedBlock)
     {
-        final List<IAnimatedBlockHook<T>> instantiated = new ArrayList<>(factories.size());
+        final List<IAnimatedBlockHook> instantiated = new ArrayList<>(factories.size());
 
         for (final IAnimatedBlockHookFactory<? extends IAnimatedBlock> factory : factories)
         {
             try
             {
                 //noinspection unchecked
-                final @Nullable IAnimatedBlockHook<T> hook =
+                final @Nullable IAnimatedBlockHook hook =
                     ((IAnimatedBlockHookFactory<T>) factory).newInstance(animatedBlock);
                 if (hook != null)
                     instantiated.add(hook);

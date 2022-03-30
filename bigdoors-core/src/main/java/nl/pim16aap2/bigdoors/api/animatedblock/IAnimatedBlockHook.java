@@ -8,7 +8,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
  * @author Pim
  */
 @SuppressWarnings("unused")
-public interface IAnimatedBlockHook<T extends IAnimatedBlock>
+public interface IAnimatedBlockHook
 {
     /**
      * @return The name of this hook to use for logging purposes.
@@ -17,33 +17,25 @@ public interface IAnimatedBlockHook<T extends IAnimatedBlock>
 
     /**
      * Fires after an animated block has been spawned.
-     *
-     * @param animatedBlock
-     *     The animated block that was spawned into a world.
      */
-    default void onSpawn(T animatedBlock)
+    default void onSpawn()
     {
     }
 
     /**
      * Fires after an animated block has died.
-     *
-     * @param animatedBlock
-     *     The animated block that died.
      */
-    default void onDie(T animatedBlock)
+    default void onDie()
     {
     }
 
     /**
      * Fires after an animated block has been teleported.
      *
-     * @param animatedBlock
-     *     The animated block that was teleported.
      * @param newPosition
      *     The position the animated block was teleported to.
      */
-    default void onTeleport(T animatedBlock, Vector3Dd newPosition)
+    default void onTeleport(Vector3Dd newPosition)
     {
     }
 
@@ -52,32 +44,24 @@ public interface IAnimatedBlockHook<T extends IAnimatedBlock>
      * <p>
      * This may happen either because of a teleport or because of tick-based movement.
      *
-     * @param animatedBlock
-     *     The animated block that was moved.
      * @param newPosition
      *     The position the animated block was moved to.
      */
-    default void onMoved(T animatedBlock, Vector3Dd newPosition)
+    default void onMoved(Vector3Dd newPosition)
     {
     }
 
     /**
      * Fires right before a tick is processed.
-     *
-     * @param animatedBlock
-     *     The animated block that is processing a tick.
      */
-    default void preTick(T animatedBlock)
+    default void preTick()
     {
     }
 
     /**
      * Fires right after a tick is processed.
-     *
-     * @param animatedBlock
-     *     The animated block that is processing a tick.
      */
-    default void postTick(T animatedBlock)
+    default void postTick()
     {
     }
 }

@@ -38,7 +38,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 /**
@@ -78,7 +78,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Getter
     private final boolean placementDeferred;
     private final IPWorld pWorld;
-    private final List<IAnimatedBlockHook<IAnimatedBlock>> hooks;
+    private final List<IAnimatedBlockHook> hooks;
     @ToString.Exclude
     private @Nullable PlayerChunkMap.EntityTracker tracker;
     @ToString.Exclude
@@ -164,7 +164,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         currentPosition = newPosition;
         // Update current and last x/y/z values in entity class.
         f(newPosition.x(), newPosition.y(), newPosition.z());
-        forEachHook("onMoved", (hook, block) -> hook.onMoved(block, newPosition));
+        forEachHook("onMoved", hook -> hook.onMoved(newPosition));
     }
 
     @Override
@@ -187,7 +187,7 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         if (tracker != null)
             tracker.broadcast(tpPacket);
 
-        forEachHook("onTeleport", (hook, block) -> hook.onTeleport(block, newPosition));
+        forEachHook("onTeleport", hook -> hook.onTeleport(newPosition));
         cyclePositions(newPosition);
 
         return true;
@@ -230,14 +230,14 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         forEachHook("postTick", IAnimatedBlockHook::postTick);
     }
 
-    private void forEachHook(String actionName, BiConsumer<IAnimatedBlockHook<IAnimatedBlock>, IAnimatedBlock> call)
+    private void forEachHook(String actionName, Consumer<IAnimatedBlockHook> call)
     {
-        for (final IAnimatedBlockHook<IAnimatedBlock> hook : hooks)
+        for (final IAnimatedBlockHook hook : hooks)
         {
             log.at(Level.FINEST).log("Executing '%s' for hook '%s'!", actionName, hook.getName());
             try
             {
-                call.accept(hook, this);
+                call.accept(hook);
             }
             catch (Exception e)
             {

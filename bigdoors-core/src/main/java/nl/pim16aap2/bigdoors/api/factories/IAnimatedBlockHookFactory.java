@@ -22,5 +22,5 @@ public interface IAnimatedBlockHookFactory<T extends IAnimatedBlock>
      *     The {@link IAnimatedBlock} that is being hooked into.
      * @return The new hook.
      */
-    @Nullable IAnimatedBlockHook<T> newInstance(T animatedBlock);
+    @Nullable IAnimatedBlockHook newInstance(T animatedBlock);
 }
