@@ -8,19 +8,19 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
+import nl.pim16aap2.bigdoors.audio.AudioDescription;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.managers.AnimationHookManager;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +73,7 @@ public abstract class BlockMover
     protected final IPLocationFactory locationFactory;
 
     @ToString.Exclude
-    private final ISoundEngine soundEngine;
+    private final IAudioPlayer audioPlayer;
 
     @ToString.Exclude
     private final AnimationHookManager animationHookManager;
@@ -120,12 +120,12 @@ public abstract class BlockMover
     /**
      * The sound to play while the animation is active.
      */
-    protected @Nullable PSoundDescription soundActive = null;
+    protected @Nullable AudioDescription soundActive = null;
 
     /**
      * The sound to play upon finishing the animation.
      */
-    protected @Nullable PSoundDescription soundFinish = null;
+    protected @Nullable AudioDescription soundFinish = null;
 
     protected final Cuboid newCuboid;
 
@@ -156,7 +156,7 @@ public abstract class BlockMover
         autoCloseScheduler = context.getAutoCloseScheduler();
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
-        soundEngine = context.getSoundEngine();
+        audioPlayer = context.getAudioPlayer();
         animationHookManager = context.getAnimationHookManager();
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
@@ -186,11 +186,11 @@ public abstract class BlockMover
      * Plays a sound at the rotation point of a door.
      *
      * @param soundDescription
-     *     The {@link PSoundDescription} containing all the properties of the sound to play.
+     *     The {@link AudioDescription} containing all the properties of the sound to play.
      */
-    protected void playSound(PSoundDescription soundDescription)
+    protected void playSound(AudioDescription soundDescription)
     {
-        soundEngine.playSound(door.getRotationPoint(), door.getWorld(), soundDescription.sound(),
+        audioPlayer.playSound(door.getRotationPoint(), door.getWorld(), soundDescription.sound(),
                               soundDescription.volume(), soundDescription.pitch());
     }
 
@@ -599,7 +599,7 @@ public abstract class BlockMover
         private final DoorActivityManager doorActivityManager;
         private final AutoCloseScheduler autoCloseScheduler;
         private final IPLocationFactory locationFactory;
-        private final ISoundEngine soundEngine;
+        private final IAudioPlayer audioPlayer;
         private final IPExecutor executor;
         private final IAnimatedBlockFactory animatedBlockFactory;
         private final AnimationHookManager animationHookManager;
@@ -607,13 +607,13 @@ public abstract class BlockMover
         @Inject
         public Context(
             DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
-            IPLocationFactory locationFactory, ISoundEngine soundEngine, IPExecutor executor,
+            IPLocationFactory locationFactory, IAudioPlayer audioPlayer, IPExecutor executor,
             IAnimatedBlockFactory animatedBlockFactory, AnimationHookManager animationHookManager)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
             this.locationFactory = locationFactory;
-            this.soundEngine = soundEngine;
+            this.audioPlayer = audioPlayer;
             this.executor = executor;
             this.animatedBlockFactory = animatedBlockFactory;
             this.animationHookManager = animationHookManager;

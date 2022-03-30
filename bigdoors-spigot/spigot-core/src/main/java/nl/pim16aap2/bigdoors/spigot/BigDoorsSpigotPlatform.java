@@ -15,13 +15,13 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPermissionsManager;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
 import nl.pim16aap2.bigdoors.api.IProtectionCompatManager;
-import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IBigDoorsEventFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.extensions.DoorTypeLoader;
@@ -85,7 +85,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final IConfigLoader bigDoorsConfig;
 
     @Getter
-    private final ISoundEngine soundEngine;
+    private final IAudioPlayer audioPlayer;
 
     @Getter
     private final IBlockAnalyzer blockAnalyzer;
@@ -256,7 +256,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         worldListener = safeGetter(BigDoorsSpigotComponent::getWorldListener);
         glowingBlockSpawner = safeGetter(BigDoorsSpigotComponent::getIGlowingBlockSpawner);
         pServer = safeGetter(BigDoorsSpigotComponent::getIPServer);
-        soundEngine = safeGetter(BigDoorsSpigotComponent::getISoundEngine);
+        audioPlayer = safeGetter(BigDoorsSpigotComponent::getISoundEngine);
         messagingInterface = safeGetter(BigDoorsSpigotComponent::getIMessagingInterface);
         messageableServer = safeGetter(BigDoorsSpigotComponent::getMessageable);
         bigDoorsToolUtil = safeGetter(BigDoorsSpigotComponent::getBigDoorsToolUtilSpigot);
@@ -306,5 +306,4 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     {
         return plugin.getDescription().getVersion();
     }
-
 }

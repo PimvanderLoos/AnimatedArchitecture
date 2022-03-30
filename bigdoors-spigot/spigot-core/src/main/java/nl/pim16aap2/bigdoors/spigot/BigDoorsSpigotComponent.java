@@ -9,7 +9,6 @@ import nl.pim16aap2.bigdoors.api.IMessageable;
 import nl.pim16aap2.bigdoors.api.IMessagingInterface;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPowerBlockRedstoneManager;
-import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.debugging.DebugReporter;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
@@ -18,6 +17,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
 import nl.pim16aap2.bigdoors.events.IDoorEventCaller;
@@ -62,12 +62,12 @@ import nl.pim16aap2.bigdoors.spigot.managers.VaultManager;
 import nl.pim16aap2.bigdoors.spigot.managers.VaultManagerModule;
 import nl.pim16aap2.bigdoors.spigot.util.DebugReporterSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
+import nl.pim16aap2.bigdoors.spigot.util.implementations.audio.AudioPlayerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.chunkmanager.ChunkManagerSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.glowingblocks.GlowingBlockSpawnerModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.messageable.MessagingInterfaceSpigotModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pexecutor.PExecutorModule;
 import nl.pim16aap2.bigdoors.spigot.util.implementations.pserver.PServerModule;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine.SoundEngineSpigotModule;
 import nl.pim16aap2.bigdoors.storage.sqlite.SQLiteStorageModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -91,7 +91,7 @@ import javax.inject.Singleton;
     PPlayerFactorySpigotModule.class,
     ChunkManagerSpigotModule.class,
     MessagingInterfaceSpigotModule.class,
-    SoundEngineSpigotModule.class,
+    AudioPlayerSpigotModule.class,
     PowerBlockRedstoneManagerSpigotModule.class,
     BigDoorsSpigotSubPlatformModule.class,
     SQLiteStorageModule.class,
@@ -168,7 +168,7 @@ interface BigDoorsSpigotComponent
 
     IPPlayerFactory getIPPlayerFactory();
 
-    ISoundEngine getISoundEngine();
+    IAudioPlayer getISoundEngine();
 
     IMessagingInterface getIMessagingInterface();
 

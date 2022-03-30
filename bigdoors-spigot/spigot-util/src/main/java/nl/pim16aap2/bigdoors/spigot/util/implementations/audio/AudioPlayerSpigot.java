@@ -1,10 +1,10 @@
-package nl.pim16aap2.bigdoors.spigot.util.implementations.soundengine;
+package nl.pim16aap2.bigdoors.spigot.util.implementations.audio;
 
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.ISoundEngine;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
@@ -19,17 +19,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 /**
- * Represents an implementation of {@link ISoundEngine} for the Spigot platform.
+ * Represents an implementation of {@link IAudioPlayer} for the Spigot platform.
  *
  * @author Pim
  */
 @Singleton
-public class SoundEngineSpigot implements ISoundEngine
+public class AudioPlayerSpigot implements IAudioPlayer
 {
     private final IPExecutor executor;
 
     @Inject
-    public SoundEngineSpigot(IPExecutor executor)
+    public AudioPlayerSpigot(IPExecutor executor)
     {
         this.executor = executor;
     }

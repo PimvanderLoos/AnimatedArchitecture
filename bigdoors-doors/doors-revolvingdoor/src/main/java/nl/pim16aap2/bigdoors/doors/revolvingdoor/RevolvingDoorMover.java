@@ -4,12 +4,12 @@ import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
 import nl.pim16aap2.bigdoors.util.Cuboid;
-import nl.pim16aap2.bigdoors.util.PSoundDescription;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
@@ -72,8 +72,8 @@ public class RevolvingDoorMover extends BlockMover
         super.endCount = (int) (20.0 * super.time * quarterCircles);
         step = (Math.PI / 2.0 * quarterCircles) / super.endCount * -1.0;
         endStepSum = super.endCount * step;
-        super.soundActive = new PSoundDescription(PSound.DRAGGING, 0.8f, 0.7f);
-        super.soundFinish = new PSoundDescription(PSound.THUD, 0.2f, 0.15f);
+        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f);
+        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f);
     }
 
     private Vector3Dd getGoalPosClockwise(double radius, double startAngle, double startY, double stepSum)

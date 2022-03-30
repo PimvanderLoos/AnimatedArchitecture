@@ -1,4 +1,4 @@
-package nl.pim16aap2.bigdoors.util;
+package nl.pim16aap2.bigdoors.audio;
 
 import nl.pim16aap2.bigdoors.api.PSound;
 
@@ -13,5 +13,5 @@ import nl.pim16aap2.bigdoors.api.PSound;
  *     The pitch of the sound.
  * @author Pim
  */
-public record PSoundDescription(PSound sound, float volume, float pitch)
+public record AudioDescription(PSound sound, float volume, float pitch)
 {}

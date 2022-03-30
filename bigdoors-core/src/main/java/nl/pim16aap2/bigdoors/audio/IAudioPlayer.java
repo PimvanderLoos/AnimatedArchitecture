@@ -1,5 +1,8 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.audio;
 
+import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.IPWorld;
+import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -8,7 +11,7 @@ import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
  *
  * @author Pim
  */
-public interface ISoundEngine
+public interface IAudioPlayer
 {
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
