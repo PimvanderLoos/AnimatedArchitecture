@@ -87,6 +87,11 @@ public interface IAnimatedBlock
     }
 
     /**
+     * Spawns this animated block.
+     */
+    void spawn();
+
+    /**
      * Respawns this animated block.
      */
     void respawn();

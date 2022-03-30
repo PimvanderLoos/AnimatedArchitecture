@@ -84,6 +84,7 @@ public class VerticalMover extends BlockMover
     @Override
     protected void prepareAnimation()
     {
+        super.prepareAnimation();
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
         firstBlockData = animatedBlocks.isEmpty() ? null : animatedBlocks.get(0);
     }

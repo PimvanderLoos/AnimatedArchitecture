@@ -102,35 +102,33 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
         previousPosition = new Vector3Dd(d0, d1, d2);
         currentPosition = previousPosition;
 
-        // try setting noClip twice, because it doesn't seem to stick.
         noclip = true;
         a(new BlockPosition(this));
-        spawn();
-        noclip = true;
     }
 
     @Override
-    public void die()
+    public synchronized void die()
     {
         for (final Entity ent : passengers)
-            ent.dead = true;
+            ent.stopRiding();
         dead = true;
     }
 
-    public void spawn()
-        throws Exception
+    @Override
+    public synchronized void spawn()
     {
         ((org.bukkit.craftbukkit.v1_15_R1.CraftWorld) bukkitWorld).getHandle().addEntity(this, SpawnReason.CUSTOM);
-        tracker = worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId());
-        if (tracker == null)
-            throw new Exception("Failed to obtain EntityTracker for FallingBlock: " + getId());
+        tracker = Util.requireNonNull(worldServer.getChunkProvider().playerChunkMap.trackedEntities.get(getId()),
+                                      "entity tracker");
+        dead = false;
     }
 
     @Override
-    public void respawn()
+    public synchronized void respawn()
     {
         // TODO: Ensure that this works as intended.
         Util.requireNonNull(tracker, "EntityTracker").broadcast(new PacketPlayOutSpawnEntity(this));
+        dead = false;
     }
 
     private void cyclePositions(Vector3Dd newPosition)
@@ -142,6 +140,9 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     public boolean teleport(Vector3Dd newPosition, Vector3Dd rotation)
     {
+        if (dead)
+            return false;
+
         final double deltaX = newPosition.x() - currentPosition.x();
         final double deltaY = newPosition.y() - currentPosition.y();
         final double deltaZ = newPosition.z() - currentPosition.z();
@@ -176,6 +177,9 @@ public class CustomEntityFallingBlock_V1_15_R1 extends net.minecraft.server.v1_1
     @Override
     public void tick()
     {
+        if (dead)
+            return;
+
         if (animatedBlockData.getMyBlockData().isAir())
             die();
         else

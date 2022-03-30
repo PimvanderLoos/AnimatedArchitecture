@@ -308,12 +308,13 @@ public abstract class BlockMover
     }
 
     /**
-     * This method is called right before the animation is started (and after all variables have been initialized).
+     * This method is called right before the animation is started and spawns the animated blocks.
      * <p>
-     * It does not do anything by default.
+     * Overriding methods should not forget to either call this method or spawn the animated blocks themselves.
      */
     protected void prepareAnimation()
     {
+        animatedBlocks.forEach(IAnimatedBlock::spawn);
     }
 
     /**
