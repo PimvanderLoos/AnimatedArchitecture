@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.api.animatedblock;
 
+import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.util.Cuboid;
 
 import java.util.List;
@@ -45,6 +46,11 @@ public interface IAnimation<T extends IAnimatedBlock>
      * @return The list of animated blocks that are used in this animation.
      */
     List<T> getAnimatedBlocks();
+
+    /**
+     * @return The door being animated.
+     */
+    AbstractDoor getDoor();
 
     /**
      * @return The current state of the animation.

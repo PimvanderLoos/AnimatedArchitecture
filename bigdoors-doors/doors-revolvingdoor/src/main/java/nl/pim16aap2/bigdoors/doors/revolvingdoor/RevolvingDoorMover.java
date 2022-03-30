@@ -72,8 +72,8 @@ public class RevolvingDoorMover extends BlockMover
         super.endCount = (int) (20.0 * super.time * quarterCircles);
         step = (Math.PI / 2.0 * quarterCircles) / super.endCount * -1.0;
         endStepSum = super.endCount * step;
-        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f);
-        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f);
+        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f, 1);
+        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1);
     }
 
     private Vector3Dd getGoalPosClockwise(double radius, double startAngle, double startY, double stepSum)

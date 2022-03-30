@@ -251,7 +251,7 @@ public abstract class BlockMover
             throw new IllegalStateException("Trying to start an animation again!");
         hasStarted = true;
 
-        final Animation<IAnimatedBlock> animation = new Animation<>(endCount, door.getCuboid(), animatedBlocks);
+        final Animation<IAnimatedBlock> animation = new Animation<>(endCount, door.getCuboid(), animatedBlocks, door);
         final AnimationContext animationContext = new AnimationContext(door.getDoorType(), door, animation);
 
         try

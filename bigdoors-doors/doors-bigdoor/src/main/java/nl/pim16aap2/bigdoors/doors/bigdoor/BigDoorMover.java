@@ -60,8 +60,8 @@ public class BigDoorMover extends BlockMover
         super.endCount = (int) (20 * super.time) + 1;
         step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
-        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f);
-        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f);
+        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f, 1);
+        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1);
     }
 
     @Override

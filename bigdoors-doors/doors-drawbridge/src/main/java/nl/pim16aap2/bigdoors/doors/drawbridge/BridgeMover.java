@@ -100,8 +100,8 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
         super.endCount = (int) (20 * super.time);
         step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
-        super.soundActive = new AudioDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f);
-        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f);
+        super.soundActive = new AudioDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f, 1);
+        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1);
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)

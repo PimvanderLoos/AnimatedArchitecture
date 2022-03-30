@@ -17,6 +17,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.audio.AudioAnimationHook;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
@@ -168,7 +169,9 @@ interface BigDoorsSpigotComponent
 
     IPPlayerFactory getIPPlayerFactory();
 
-    IAudioPlayer getISoundEngine();
+    IAudioPlayer getIAudioPlayer();
+
+    AudioAnimationHook.Factory getAudioAnimationHookFactory();
 
     IMessagingInterface getIMessagingInterface();
 
