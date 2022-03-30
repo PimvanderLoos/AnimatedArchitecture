@@ -1,6 +1,5 @@
-package nl.pim16aap2.bigdoors.api.animatedblockhook;
+package nl.pim16aap2.bigdoors.api.animatedblock;
 
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 
 /**

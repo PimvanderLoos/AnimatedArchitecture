@@ -1,9 +1,9 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
+import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.AnimationContext;
 
 import java.util.Optional;
 

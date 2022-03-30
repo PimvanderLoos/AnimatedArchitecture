@@ -1,8 +1,8 @@
 package nl.pim16aap2.bigdoors.managers;
 
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockHookFactory;

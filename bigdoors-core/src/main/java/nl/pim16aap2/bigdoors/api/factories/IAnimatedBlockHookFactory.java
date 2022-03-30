@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.api.factories;
 
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.api.animatedblockhook.IAnimatedBlockHook;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockHook;
 import nl.pim16aap2.bigdoors.managers.AnimatedBlockHookManager;
 import org.jetbrains.annotations.Nullable;
 

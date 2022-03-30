@@ -1,7 +1,6 @@
-package nl.pim16aap2.bigdoors.api.animatedblockhook;
+package nl.pim16aap2.bigdoors.api.animatedblock;
 
 import lombok.Value;
-import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doortypes.DoorType;
 
