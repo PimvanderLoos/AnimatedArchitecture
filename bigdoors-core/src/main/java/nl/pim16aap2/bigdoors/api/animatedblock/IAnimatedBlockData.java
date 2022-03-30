@@ -1,5 +1,6 @@
-package nl.pim16aap2.bigdoors.api;
+package nl.pim16aap2.bigdoors.api.animatedblock;
 
+import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
 
 /**
@@ -7,7 +8,7 @@ import nl.pim16aap2.bigdoors.util.RotateDirection;
  *
  * @author Pim
  */
-public interface INMSBlock
+public interface IAnimatedBlockData
 {
     /**
      * Checks if this block can rotate.

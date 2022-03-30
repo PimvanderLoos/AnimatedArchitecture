@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.flag;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
 import nl.pim16aap2.bigdoors.moveblocks.BlockMover;
@@ -19,14 +19,15 @@ import java.util.function.BiFunction;
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1172", "CommentedOutCode", "PMD"})
 public class FlagMover extends BlockMover
 {
-    private final BiFunction<PBlockData, Integer, Vector3Dd> getGoalPos;
+    private final BiFunction<IAnimatedBlock, Integer, Vector3Dd> getGoalPos;
     private final boolean NS;
     private final double period;
     private final double amplitude;
     private final double waveSpeed;
 
-    public FlagMover(Context context, double time, Flag door, double multiplier, IPPlayer player,
-                     DoorActionCause cause, DoorActionType actionType)
+    public FlagMover(
+        Context context, double time, Flag door, double multiplier, IPPlayer player,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, false, RotateDirection.NONE, player, door.getCuboid(), cause, actionType);
@@ -56,7 +57,7 @@ public class FlagMover extends BlockMover
     }
 
     /**
-     * Gets the maximum offset of a block.
+     * Gets the maximum offset of a animatedBlock.
      *
      * @param counter
      * @param radius
@@ -92,20 +93,20 @@ public class FlagMover extends BlockMover
 //        return offset;
     }
 
-    private Vector3Dd getGoalPosNS(PBlockData block, int counter)
+    private Vector3Dd getGoalPosNS(IAnimatedBlock animatedBlock, int counter)
     {
         double xOff = 0;
-        if (block.getRadius() > 0)
-            xOff = getOffset(counter, block.getRadius());
-        return new Vector3Dd(block.getStartX() + xOff, block.getStartY(), block.getStartZ());
+        if (animatedBlock.getRadius() > 0)
+            xOff = getOffset(counter, animatedBlock.getRadius());
+        return new Vector3Dd(animatedBlock.getStartX() + xOff, animatedBlock.getStartY(), animatedBlock.getStartZ());
     }
 
-    private Vector3Dd getGoalPosEW(PBlockData block, int counter)
+    private Vector3Dd getGoalPosEW(IAnimatedBlock animatedBlock, int counter)
     {
         double zOff = 0;
-        if (block.getRadius() > 0)
-            zOff = getOffset(counter, block.getRadius());
-        return new Vector3Dd(block.getStartX(), block.getStartY(), block.getStartZ() + zOff);
+        if (animatedBlock.getRadius() > 0)
+            zOff = getOffset(counter, animatedBlock.getRadius());
+        return new Vector3Dd(animatedBlock.getStartX(), animatedBlock.getStartY(), animatedBlock.getStartZ() + zOff);
     }
 
     @Override
@@ -115,16 +116,16 @@ public class FlagMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        return block.getStartPosition();
+        return animatedBlock.getStartPosition();
     }
 
     @Override
     protected void executeAnimationStep(int ticks)
     {
-        for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos.apply(block, ticks));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(getGoalPos.apply(animatedBlock, ticks));
     }
 
     @Override

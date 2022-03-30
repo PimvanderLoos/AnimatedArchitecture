@@ -3,8 +3,8 @@ package nl.pim16aap2.bigdoors.doors.bigdoor;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -25,9 +25,10 @@ public class BigDoorMover extends BlockMover
     private final double angle;
     private double step;
 
-    public BigDoorMover(Context context, AbstractDoor door, RotateDirection rotDirection, double time,
-                        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
-                        DoorActionCause cause, DoorActionType actionType)
+    public BigDoorMover(
+        Context context, AbstractDoor door, RotateDirection rotDirection, double time,
+        boolean skipAnimation, double multiplier, IPPlayer player, Cuboid newCuboid,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, rotDirection, player, newCuboid, cause, actionType);
@@ -63,10 +64,10 @@ public class BigDoorMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        final Vector3Dd startLocation = block.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+        final Vector3Dd startLocation = animatedBlock.getStartPosition();
+        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
                                                    startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
@@ -81,8 +82,10 @@ public class BigDoorMover extends BlockMover
         final double cos = Math.cos(stepSum);
         final double sin = Math.sin(stepSum);
 
-        for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos(cos, sin, block.getStartX(), block.getStartY(), block.getStartZ()));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(
+                getGoalPos(cos, sin, animatedBlock.getStartX(), animatedBlock.getStartY(),
+                           animatedBlock.getStartZ()));
     }
 
 

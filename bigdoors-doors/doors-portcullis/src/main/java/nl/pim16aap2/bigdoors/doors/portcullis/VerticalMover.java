@@ -2,8 +2,8 @@ package nl.pim16aap2.bigdoors.doors.portcullis;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -23,13 +23,14 @@ public class VerticalMover extends BlockMover
 {
     private double step;
 
-    private @Nullable PBlockData firstBlockData = null;
+    private @Nullable IAnimatedBlock firstBlockData = null;
 
     protected final int blocksToMove;
 
-    public VerticalMover(Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
-                         double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
-                         DoorActionType actionType)
+    public VerticalMover(
+        Context context, AbstractDoor door, double time, boolean skipAnimation, int blocksToMove,
+        double multiplier, IPPlayer player, Cuboid newCuboid, DoorActionCause cause,
+        DoorActionType actionType)
         throws Exception
     {
         super(context, door, time, skipAnimation, RotateDirection.NONE, player, newCuboid, cause, actionType);
@@ -72,10 +73,10 @@ public class VerticalMover extends BlockMover
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        final Vector3Dd startLocation = block.getStartPosition();
-        final IPLocation finalLoc = getNewLocation(block.getRadius(), startLocation.x(),
+        final Vector3Dd startLocation = animatedBlock.getStartPosition();
+        final IPLocation finalLoc = getNewLocation(animatedBlock.getRadius(), startLocation.x(),
                                                    startLocation.y(), startLocation.z());
         return new Vector3Dd(finalLoc.getBlockX() + 0.5, finalLoc.getBlockY(), finalLoc.getBlockZ() + 0.5);
     }
@@ -83,13 +84,14 @@ public class VerticalMover extends BlockMover
     @Override
     protected void prepareAnimation()
     {
+        super.prepareAnimation();
         // Gets the first block, which will be used as a base for the movement of all other blocks in the animation.
-        firstBlockData = savedBlocks.get(0);
+        firstBlockData = animatedBlocks.isEmpty() ? null : animatedBlocks.get(0);
     }
 
-    protected Vector3Dd getGoalPos(PBlockData pBlockData, double stepSum)
+    protected Vector3Dd getGoalPos(IAnimatedBlock animatedBlock, double stepSum)
     {
-        return pBlockData.getStartPosition().add(0, stepSum, 0);
+        return animatedBlock.getStartPosition().add(0, stepSum, 0);
     }
 
     // Yes, it's bad practice to keep commented-out code around.
@@ -119,8 +121,8 @@ public class VerticalMover extends BlockMover
             return;
 
         final double stepSum = step * ticks;
-        for (final PBlockData pBlockData : savedBlocks)
-            pBlockData.getFBlock().teleport(getGoalPos(pBlockData, stepSum));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(getGoalPos(animatedBlock, stepSum));
     }
 
     @Override

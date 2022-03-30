@@ -7,18 +7,14 @@ import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.WorldServer;
-import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPLocation;
-import nl.pim16aap2.bigdoors.spigot.util.SpigotAdapter;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlockData;
 import nl.pim16aap2.bigdoors.spigot.util.SpigotUtil;
-import nl.pim16aap2.bigdoors.spigot.util.implementations.PWorldSpigot;
 import nl.pim16aap2.bigdoors.util.PBlockFace;
 import nl.pim16aap2.bigdoors.util.RotateDirection;
-import nl.pim16aap2.bigdoors.util.Util;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -34,26 +30,25 @@ import java.util.Set;
 import java.util.logging.Level;
 
 /**
- * V1_15_R1 implementation of {@link INMSBlock}.
+ * V1_15_R1 implementation of {@link IAnimatedBlockData}.
  *
  * @author Pim
- * @see INMSBlock
+ * @see IAnimatedBlockData
  */
 @Flogger
-public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
+public class NMSBlock_V1_15_R1 extends Block implements IAnimatedBlockData
 {
     @SuppressWarnings("unused") // Appears unused, but it's referenced in annotations.
     private final Object blockDataLock = new Object();
+    private final WorldServer worldServer;
 
     @GuardedBy("blockDataLock")
     private IBlockData blockData;
     private final BlockData bukkitBlockData;
     private final Location loc;
-    private final CraftWorld craftWorld;
 
-    private static Block.Info newBlockInfo(PWorldSpigot pWorld, BlockPosition blockPosition)
+    private static Block.Info newBlockInfo(CraftWorld craftWorld, BlockPosition blockPosition)
     {
-        final CraftWorld craftWorld = (CraftWorld) Util.requireNonNull(pWorld.getBukkitWorld(), "BukkitWorld");
         final Block block = craftWorld.getHandle().getType(blockPosition).getBlock();
         return net.minecraft.server.v1_15_R1.Block.Info.a(block);
     }
@@ -62,7 +57,7 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
      * Constructs a {@link NMSBlock_V1_15_R1}. Wraps the NMS block found in the given world at the provided
      * coordinates.
      *
-     * @param pWorld
+     * @param worldServer
      *     The world the NMS block is in.
      * @param x
      *     The x coordinate of the NMS block.
@@ -71,17 +66,14 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
      * @param z
      *     The z coordinate of the NMS block.
      */
-    NMSBlock_V1_15_R1(PWorldSpigot pWorld, int x, int y, int z)
+    NMSBlock_V1_15_R1(WorldServer worldServer, int x, int y, int z)
     {
-        super(newBlockInfo(pWorld, new BlockPosition(x, y, z)));
+        super(newBlockInfo(worldServer.getWorld(), new BlockPosition(x, y, z)));
+        this.worldServer = worldServer;
 
-        final World bukkitWorld = Util.requireNonNull(SpigotAdapter.getBukkitWorld(pWorld),
-                                                      "Spigot world of world: " + pWorld);
+        loc = new Location(worldServer.getWorld(), x, y, z);
 
-        craftWorld = (CraftWorld) bukkitWorld;
-        loc = new Location(bukkitWorld, x, y, z);
-
-        bukkitBlockData = bukkitWorld.getBlockAt(x, y, z).getBlockData();
+        bukkitBlockData = worldServer.getWorld().getBlockAt(x, y, z).getBlockData();
         if (bukkitBlockData instanceof Waterlogged waterlogged)
             waterlogged.setWaterlogged(false);
 
@@ -95,6 +87,17 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     private void constructBlockDataFromBukkit()
     {
         blockData = ((CraftBlockData) bukkitBlockData).getState();
+    }
+
+    /**
+     * @param blockData
+     *     The new block data to apply.
+     */
+    @Synchronized("blockDataLock")
+    void setBlockData(IBlockData blockData)
+    {
+        this.blockData = blockData;
+        constructBlockDataFromBukkit();
     }
 
     /**
@@ -118,7 +121,6 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
 
     @Override
     @Synchronized("blockDataLock")
-//    @SuppressWarnings("squid:S2602") //
     public void rotateBlock(RotateDirection rotDir)
     {
         final BlockData bd = bukkitBlockData;
@@ -150,12 +152,11 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
     {
         final BlockPosition blockPosition = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
-        final WorldServer worldNMS = craftWorld.getHandle();
-        final IBlockData old = worldNMS.getType(blockPosition);
+        final IBlockData old = worldServer.getType(blockPosition);
 
         // Place the block, and don't apply physics.
-        if (worldNMS.setTypeAndData(blockPosition, blockData, 1042))
-            worldNMS.getMinecraftWorld().notify(blockPosition, old, blockData, 3);
+        if (worldServer.setTypeAndData(blockPosition, blockData, 1042))
+            worldServer.getMinecraftWorld().notify(blockPosition, old, blockData, 3);
     }
 
     /**
@@ -287,8 +288,8 @@ public class NMSBlock_V1_15_R1 extends Block implements INMSBlock
      *     the number of times the blockData will be rotated in the given direction.
      */
     @GuardedBy("blockDataLock")
-    private void rotateMultipleFacing(MultipleFacing bd, RotateDirection dir,
-                                      @SuppressWarnings("SameParameterValue") int steps)
+    private void rotateMultipleFacing(
+        MultipleFacing bd, RotateDirection dir, @SuppressWarnings("SameParameterValue") int steps)
     {
         final @Nullable var mappedDir = PBlockFace.getDirFun(dir);
         if (mappedDir == null)

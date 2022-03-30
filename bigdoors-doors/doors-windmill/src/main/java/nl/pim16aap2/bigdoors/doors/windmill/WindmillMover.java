@@ -2,7 +2,7 @@ package nl.pim16aap2.bigdoors.doors.windmill;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.drawbridge.BridgeMover;
@@ -24,8 +24,9 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
 
     private double step;
 
-    public WindmillMover(Context context, T door, double time, double multiplier, RotateDirection rotateDirection,
-                         IPPlayer player, DoorActionCause cause, DoorActionType actionType)
+    public WindmillMover(
+        Context context, T door, double time, double multiplier, RotateDirection rotateDirection,
+        IPPlayer player, DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, time, door, rotateDirection, false, multiplier, player, door.getCuboid(), cause, actionType);
@@ -45,17 +46,17 @@ public class WindmillMover<T extends AbstractDoor & IHorizontalAxisAligned> exte
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        return block.getStartPosition();
+        return animatedBlock.getStartPosition();
     }
 
     @Override
     protected void executeAnimationStep(int ticks)
     {
         final double stepSum = step * ticks;
-        for (final PBlockData block : savedBlocks)
-            block.getFBlock().teleport(getGoalPos(stepSum, block));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.teleport(getGoalPos(stepSum, animatedBlock));
     }
 
     @Override

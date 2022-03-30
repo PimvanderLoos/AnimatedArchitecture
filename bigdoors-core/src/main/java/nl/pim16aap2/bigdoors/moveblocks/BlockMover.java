@@ -4,17 +4,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.flogger.Flogger;
-import nl.pim16aap2.bigdoors.api.ICustomCraftFallingBlock;
-import nl.pim16aap2.bigdoors.api.INMSBlock;
 import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
 import nl.pim16aap2.bigdoors.api.ISoundEngine;
-import nl.pim16aap2.bigdoors.api.PBlockData;
 import nl.pim16aap2.bigdoors.api.PSound;
-import nl.pim16aap2.bigdoors.api.factories.IFallingBlockFactory;
-import nl.pim16aap2.bigdoors.api.factories.IPBlockDataFactory;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
+import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -28,7 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -56,7 +52,7 @@ public abstract class BlockMover
     private final DoorActionType actionType;
 
     @ToString.Exclude
-    protected final IFallingBlockFactory fallingBlockFactory;
+    protected final IAnimatedBlockFactory animatedBlockFactory;
 
     @ToString.Exclude
     protected final DoorActivityManager doorActivityManager;
@@ -67,6 +63,12 @@ public abstract class BlockMover
     @ToString.Exclude
     protected final IPExecutor executor;
 
+    @ToString.Exclude
+    protected final IPLocationFactory locationFactory;
+
+    @ToString.Exclude
+    private final ISoundEngine soundEngine;
+
     @Getter
     protected double time;
 
@@ -76,7 +78,7 @@ public abstract class BlockMover
     protected RotateDirection openDirection;
 
     @ToString.Exclude
-    protected List<PBlockData> savedBlocks;
+    protected List<IAnimatedBlock> animatedBlocks;
 
     protected int xMin;
 
@@ -91,10 +93,7 @@ public abstract class BlockMover
     protected int zMax;
 
     private final AtomicBoolean isFinished = new AtomicBoolean(false);
-
-    protected final IPLocationFactory locationFactory;
-
-    protected final IPBlockDataFactory blockDataFactory;
+    private volatile boolean hasStarted = false;
 
     protected @Nullable TimerTask moverTask = null;
 
@@ -103,7 +102,7 @@ public abstract class BlockMover
     /**
      * The tick at which to stop the animation.
      */
-    protected int endCount = 0;
+    protected int endCount = -1;
 
     /**
      * The sound to play while the animation is active.
@@ -116,7 +115,6 @@ public abstract class BlockMover
     protected @Nullable PSoundDescription soundFinish = null;
 
     protected final Cuboid newCuboid;
-    private final ISoundEngine soundEngine;
 
     /**
      * Constructs a {@link BlockMover}.
@@ -134,17 +132,17 @@ public abstract class BlockMover
      * @param newCuboid
      *     The {@link Cuboid} representing the area the door will take up after the toggle.
      */
-    protected BlockMover(Context context, AbstractDoor door, double time, boolean skipAnimation,
-                         RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
-                         DoorActionCause cause, DoorActionType actionType)
+    protected BlockMover(
+        Context context, AbstractDoor door, double time, boolean skipAnimation,
+        RotateDirection openDirection, IPPlayer player, Cuboid newCuboid,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         executor = context.getExecutor();
         doorActivityManager = context.getDoorActivityManager();
         autoCloseScheduler = context.getAutoCloseScheduler();
-        blockDataFactory = context.getBlockDataFactory();
+        animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
-        fallingBlockFactory = context.getFallingBlockFactory();
         soundEngine = context.getSoundEngine();
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
@@ -157,7 +155,7 @@ public abstract class BlockMover
         this.skipAnimation = skipAnimation;
         this.openDirection = openDirection;
         this.player = player;
-        savedBlocks = new ArrayList<>();
+        animatedBlocks = new ArrayList<>();
         this.newCuboid = newCuboid;
         this.cause = cause;
         this.actionType = actionType;
@@ -190,55 +188,21 @@ public abstract class BlockMover
     }
 
     /**
-     * Respawns a {@link ICustomCraftFallingBlock}.
-     *
-     * @param blockData
-     *     The {@link PBlockData} containing the {@link ICustomCraftFallingBlock} that will be respawned.
-     * @param newBlock
-     *     The new {@link INMSBlock} to use for the {@link ICustomCraftFallingBlock}.
-     * @return True if respawning was successful.
-     */
-    private boolean respawnBlock(PBlockData blockData, INMSBlock newBlock)
-    {
-        final IPLocation loc = blockData.getFBlock().getPosition().toLocation(locationFactory, world);
-        final Vector3Dd pVelocity = blockData.getFBlock().getPVelocity();
-
-        try
-        {
-            final var fBlock = fallingBlockFactory.fallingBlockFactory(loc, newBlock);
-            blockData.getFBlock().remove();
-            blockData.setFBlock(fBlock);
-
-            blockData.getFBlock().setVelocity(pVelocity);
-            return true;
-        }
-        catch (Exception e)
-        {
-            log.at(Level.SEVERE).withCause(e).log();
-            return false;
-        }
-    }
-
-    /**
-     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
-     * PBlockData}. Note that this is executed on the thread it was called from, which MUST BE the main thread!
+     * Rotates in the {@link #openDirection} and then respawns the {@link IAnimatedBlock}. Note that this is executed on
+     * the thread it was called from, which MUST BE the main thread!
      */
     private void applyRotationOnCurrentThread()
     {
-        final ListIterator<PBlockData> blockDataIterator = savedBlocks.listIterator();
-        while (blockDataIterator.hasNext())
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
         {
-            final var blockData = blockDataIterator.next();
-            final INMSBlock newBlock = blockData.getBlock();
-            newBlock.rotateBlock(openDirection);
-            if (!respawnBlock(blockData, newBlock))
-                blockDataIterator.remove();
+            animatedBlock.getAnimatedBlockData().rotateBlock(openDirection);
+            animatedBlock.respawn();
         }
     }
 
     /**
-     * Rotates in the {@link #openDirection} and then respawns a {@link ICustomCraftFallingBlock} of a {@link
-     * PBlockData}. This is executed on the main thread.
+     * Rotates in the {@link #openDirection} and then respawns an {@link IAnimatedBlock}. This is executed on the main
+     * thread.
      */
     protected void applyRotation()
     {
@@ -250,7 +214,7 @@ public abstract class BlockMover
      */
     private void respawnBlocksOnCurrentThread()
     {
-        savedBlocks.removeIf(blockData -> !respawnBlock(blockData, blockData.getBlock()));
+        animatedBlocks.forEach(IAnimatedBlock::respawn);
     }
 
     /**
@@ -262,22 +226,31 @@ public abstract class BlockMover
     }
 
     /**
-     * Replaces all blocks of the {@link AbstractDoor} by Falling Blocks and starts the animation.
+     * Replaces all blocks of the {@link AbstractDoor} with animated blocks and starts the animation.
      * <p>
      * Note that if {@link #skipAnimation} is true, the blocks will be placed in the new position immediately without
      * any animations.
      */
     protected synchronized void startAnimation()
     {
+        if (endCount < 0)
+            throw new IllegalStateException("Trying to start an animation with invalid endCount value: " + endCount);
+        if (hasStarted)
+            throw new IllegalStateException("Trying to start an animation again!");
+        hasStarted = true;
+
         try
         {
             for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
                 for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
                     for (int zAxis = zMin; zAxis <= zMax; ++zAxis)
-                        blockDataFactory
-                            .create(locationFactory.create(world, xAxis + 0.5, yAxis, zAxis + 0.5), (yAxis == yMin),
-                                    getRadius(xAxis, yAxis, zAxis), getStartAngle(xAxis, yAxis, zAxis))
-                            .ifPresent(savedBlocks::add);
+                    {
+                        final IPLocation location = locationFactory.create(world, xAxis, yAxis, zAxis);
+                        final boolean bottom = (yAxis == yMin);
+                        animatedBlockFactory.create(location, getRadius(xAxis, yAxis, zAxis),
+                                                    getStartAngle(xAxis, yAxis, zAxis), bottom)
+                                            .ifPresent(animatedBlocks::add);
+                    }
         }
         catch (Exception e)
         {
@@ -286,24 +259,24 @@ public abstract class BlockMover
             return;
         }
 
-        for (final PBlockData mbd : savedBlocks)
-            mbd.getBlock().deleteOriginalBlock();
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.getAnimatedBlockData().deleteOriginalBlock();
 
-        if (skipAnimation || savedBlocks.isEmpty())
+        if (skipAnimation || animatedBlocks.isEmpty())
             putBlocks(false);
         else
             animateEntities();
     }
 
     /**
-     * Gets the final position of a {@link PBlockData}.
+     * Gets the final position of an {@link IAnimatedBlock}.
      *
-     * @param block
-     *     The {@link PBlockData}.
-     * @return The final position of a {@link PBlockData}.
+     * @param animatedBlock
+     *     The {@link IAnimatedBlock}.
+     * @return The final position of an {@link IAnimatedBlock}.
      */
     @SuppressWarnings("unused")
-    protected abstract Vector3Dd getFinalPosition(PBlockData block);
+    protected abstract Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock);
 
     /**
      * Runs a single step of the animation.
@@ -322,8 +295,8 @@ public abstract class BlockMover
         if (soundFinish != null)
             playSound(soundFinish);
 
-        for (final PBlockData savedBlock : savedBlocks)
-            savedBlock.getFBlock().setVelocity(new Vector3Dd(0D, 0D, 0D));
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
         executor.runSync(() -> putBlocks(false));
         if (moverTask == null)
@@ -335,12 +308,13 @@ public abstract class BlockMover
     }
 
     /**
-     * This method is called right before the animation is started (and after all variables have been initialized).
+     * This method is called right before the animation is started and spawns the animated blocks.
      * <p>
-     * It does not do anything by default.
+     * Overriding methods should not forget to either call this method or spawn the animated blocks themselves.
      */
     protected void prepareAnimation()
     {
+        animatedBlocks.forEach(IAnimatedBlock::spawn);
     }
 
     /**
@@ -418,21 +392,22 @@ public abstract class BlockMover
     }
 
     /**
-     * Places the block of a {@link PBlockData}.
+     * Places the block of an {@link IAnimatedBlock}.
      *
-     * @param pBlockData
-     *     The {@link PBlockData}.
+     * @param animatedBlock
+     *     The {@link IAnimatedBlock}.
      * @param firstPass
-     *     Whether this is the first pass. See {@link PBlockData#isPlacementDeferred()};
+     *     Whether this is the first pass. See {@link IAnimatedBlock#isPlacementDeferred()};
      */
-    private void putSavedBlock(PBlockData pBlockData, boolean firstPass)
+    private void putSavedBlock(IAnimatedBlock animatedBlock, boolean firstPass)
     {
-        if (pBlockData.isPlacementDeferred() && firstPass)
+        if (animatedBlock.isPlacementDeferred() && firstPass)
             return;
 
-        pBlockData.killFBlock();
-        pBlockData.getBlock().putBlock(getNewLocation(pBlockData.getRadius(), pBlockData.getStartX(),
-                                                      pBlockData.getStartY(), pBlockData.getStartZ()));
+        animatedBlock.kill();
+        animatedBlock.getAnimatedBlockData()
+                     .putBlock(getNewLocation(animatedBlock.getRadius(), animatedBlock.getStartX(),
+                                              animatedBlock.getStartY(), animatedBlock.getStartZ()));
     }
 
     /**
@@ -451,17 +426,17 @@ public abstract class BlockMover
             return;
 
         // First do the first pass, placing all blocks such as stone, dirt, etc.
-        for (final PBlockData savedBlock : savedBlocks)
-            putSavedBlock(savedBlock, true);
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            putSavedBlock(animatedBlock, true);
 
         // Then do the second pass, placing all blocks such as torches, etc.
-        for (final PBlockData savedBlock : savedBlocks)
-            putSavedBlock(savedBlock, false);
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            putSavedBlock(animatedBlock, false);
 
         // Tell the door object it has been opened and what its new coordinates are.
         updateCoords(door);
 
-        savedBlocks.clear();
+        animatedBlocks.clear();
 
         if (onDisable)
             return;
@@ -528,23 +503,22 @@ public abstract class BlockMover
         private final DoorActivityManager doorActivityManager;
         private final AutoCloseScheduler autoCloseScheduler;
         private final IPLocationFactory locationFactory;
-        private final IPBlockDataFactory blockDataFactory;
         private final ISoundEngine soundEngine;
         private final IPExecutor executor;
-        private final IFallingBlockFactory fallingBlockFactory;
+        private final IAnimatedBlockFactory animatedBlockFactory;
 
         @Inject
-        public Context(DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
-                       IPLocationFactory locationFactory, IPBlockDataFactory blockDataFactory, ISoundEngine soundEngine,
-                       IPExecutor executor, IFallingBlockFactory fallingBlockFactory)
+        public Context(
+            DoorActivityManager doorActivityManager, AutoCloseScheduler autoCloseScheduler,
+            IPLocationFactory locationFactory, ISoundEngine soundEngine, IPExecutor executor,
+            IAnimatedBlockFactory animatedBlockFactory)
         {
             this.doorActivityManager = doorActivityManager;
             this.autoCloseScheduler = autoCloseScheduler;
             this.locationFactory = locationFactory;
-            this.blockDataFactory = blockDataFactory;
             this.soundEngine = soundEngine;
             this.executor = executor;
-            this.fallingBlockFactory = fallingBlockFactory;
+            this.animatedBlockFactory = animatedBlockFactory;
         }
     }
 }

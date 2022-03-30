@@ -1,7 +1,7 @@
 package nl.pim16aap2.bigdoors.doors.clock;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PBlockData;
+import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
 import nl.pim16aap2.bigdoors.doors.windmill.WindmillMover;
@@ -23,10 +23,10 @@ import java.util.function.Function;
 public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends WindmillMover<T>
 {
     /**
-     * Method to determine if a given {@link PBlockData} is part of the little hand or the big hand of a clock.
+     * Method to determine if a given {@link IAnimatedBlock} is part of the little hand or the big hand of a clock.
      * Represented as a {@link Function} because TODO: Finish this sentence
      */
-    protected final Function<PBlockData, Boolean> isHourArm;
+    protected final Function<IAnimatedBlock, Boolean> isHourArm;
 
     /**
      * The step of 1 minute on a clock, or 1/60th of a circle in radians.
@@ -49,8 +49,9 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
      */
     protected final int angleDirectionMultiplier;
 
-    public ClockMover(Context context, T door, RotateDirection rotateDirection, IPPlayer player,
-                      DoorActionCause cause, DoorActionType actionType)
+    public ClockMover(
+        Context context, T door, RotateDirection rotateDirection, IPPlayer player,
+        DoorActionCause cause, DoorActionType actionType)
         throws Exception
     {
         super(context, door, 0.0D, 0.0D, rotateDirection, player, cause, actionType);
@@ -66,29 +67,29 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
     }
 
     /**
-     * Checks is a given {@link PBlockData} is the hour arm or the minute arm.
+     * Checks is a given {@link IAnimatedBlock} is the hour arm or the minute arm.
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmNS(PBlockData block)
+    private boolean isHourArmNS(IAnimatedBlock animatedBlock)
     {
-        return ((int) block.getStartLocation().getZ()) == door.getRotationPoint().z();
+        return ((int) animatedBlock.getPosition().z()) == door.getRotationPoint().z();
     }
 
     /**
-     * Checks is a given {@link PBlockData} is the hour arm or the minute arm.
+     * Checks is a given {@link IAnimatedBlock} is the hour arm or the minute arm.
      *
      * @return True if the block is part of the hour arm.
      */
-    private boolean isHourArmEW(PBlockData block)
+    private boolean isHourArmEW(IAnimatedBlock animatedBlock)
     {
-        return ((int) block.getStartLocation().getX()) == door.getRotationPoint().x();
+        return ((int) animatedBlock.getPosition().x()) == door.getRotationPoint().x();
     }
 
     @Override
-    protected Vector3Dd getFinalPosition(PBlockData block)
+    protected Vector3Dd getFinalPosition(IAnimatedBlock animatedBlock)
     {
-        return block.getStartPosition();
+        return animatedBlock.getStartPosition();
     }
 
     @Override
@@ -102,17 +103,17 @@ public class ClockMover<T extends AbstractDoor & IHorizontalAxisAligned> extends
         // Move the hour arm at a lower tickRate than the minute arm.
         final boolean moveHourArm = ticks % 10 == 0;
 
-        for (final PBlockData block : savedBlocks)
-            if (Math.abs(block.getRadius()) > EPS)
+        for (final IAnimatedBlock animatedBlock : animatedBlocks)
+            if (Math.abs(animatedBlock.getRadius()) > EPS)
             {
                 // Move the little hand at a lower interval than the big hand.
                 // TODO: Just store the hour and minute arms separately.
-                final boolean hourArm = isHourArm.apply(block);
+                final boolean hourArm = isHourArm.apply(animatedBlock);
                 if (!moveHourArm && hourArm)
                     continue;
 
                 final double timeAngle = hourArm ? hourAngle : minuteAngle;
-                block.getFBlock().teleport(getGoalPos(timeAngle, block));
+                animatedBlock.teleport(getGoalPos(timeAngle, animatedBlock));
             }
     }
 

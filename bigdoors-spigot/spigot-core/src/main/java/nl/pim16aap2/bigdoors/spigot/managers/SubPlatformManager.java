@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.spigot.managers;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
-import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.util.api.IBigDoorsSpigotSubPlatform;
 import nl.pim16aap2.bigdoors.spigot.v1_15_R1.BigDoorsSpigotSubPlatform_V1_15_R1;
@@ -35,7 +34,7 @@ public final class SubPlatformManager
      *     on an unsupported version.
      */
     @Inject
-    public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin, IPLocationFactory locationFactory)
+    public SubPlatformManager(BigDoorsPlugin bigDoorsPlugin)
     {
         serverVersion = Bukkit.getServer().getClass().getPackage().getName();
 
@@ -46,7 +45,7 @@ public final class SubPlatformManager
             final String versionStringTmp = serverVersion.split("\\.")[3];
             versionTmp = Version.parseVersion(versionStringTmp);
             if (versionTmp != Version.UNSUPPORTED_VERSION)
-                spigotPlatformTmp = versionTmp.getPlatform(locationFactory);
+                spigotPlatformTmp = versionTmp.getPlatform();
         }
         catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e)
         {
@@ -111,7 +110,7 @@ public final class SubPlatformManager
         UNSUPPORTED_VERSION
             {
                 @Override
-                public @Nullable IBigDoorsSpigotSubPlatform getPlatform(IPLocationFactory locationFactory)
+                public @Nullable IBigDoorsSpigotSubPlatform getPlatform()
                 {
                     return null;
                 }
@@ -119,19 +118,17 @@ public final class SubPlatformManager
         V1_15_R1
             {
                 @Override
-                public IBigDoorsSpigotSubPlatform getPlatform(IPLocationFactory locationFactory)
+                public IBigDoorsSpigotSubPlatform getPlatform()
                 {
-                    return new BigDoorsSpigotSubPlatform_V1_15_R1(locationFactory);
+                    return new BigDoorsSpigotSubPlatform_V1_15_R1();
                 }
             },
         ;
 
         /**
-         * Obtains the instance of the {@link IBigDoorsSpigotSubPlatform} for this {@link Version}.
-         *
          * @return The instance of the {@link IBigDoorsSpigotSubPlatform} for this {@link Version}.
          */
-        public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform(IPLocationFactory locationFactory)
+        public abstract @Nullable IBigDoorsSpigotSubPlatform getPlatform()
             throws UnsupportedOperationException;
 
         public static Version parseVersion(String version)
