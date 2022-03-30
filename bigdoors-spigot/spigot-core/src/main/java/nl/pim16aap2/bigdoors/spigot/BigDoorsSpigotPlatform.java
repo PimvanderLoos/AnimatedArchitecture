@@ -21,6 +21,7 @@ import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPPlayerFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPWorldFactory;
 import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
+import nl.pim16aap2.bigdoors.audio.AnimationAudioHook;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.commands.CommandFactory;
 import nl.pim16aap2.bigdoors.commands.IPServer;
@@ -266,7 +267,19 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
 
+        initPlatform();
+    }
+
+    /**
+     * Initializes stuff that doesn't need to happen in the constructor. E.g. registering hooks.
+     *
+     * @throws InitializationException
+     */
+    private void initPlatform()
+        throws InitializationException
+    {
         safeGetter(BigDoorsSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
+        getAnimationHookManager().registerFactory(new AnimationAudioHook.Factory());
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces
