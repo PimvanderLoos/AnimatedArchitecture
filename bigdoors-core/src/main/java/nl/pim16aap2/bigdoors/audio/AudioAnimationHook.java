@@ -43,7 +43,8 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
             return;
 
         final int skippedCount = skipped;
-        if (skippedCount == -1 || skippedCount > activeAudioDuration)
+        if (skippedCount == -1 ||
+            (skippedCount > activeAudioDuration && activeAudioDuration <= animation.getRemainingSteps()))
         {
             playAudio(animation.getRegion().getCenter(), audioSet.activeAudio());
             skipped = 0;
