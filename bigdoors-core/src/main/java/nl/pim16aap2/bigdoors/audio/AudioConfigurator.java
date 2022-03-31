@@ -31,7 +31,6 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private final DoorTypeManager doorTypeManager;
     private final Map<DoorType, AudioSet> audioMap = new HashMap<>();
 
-
     @Inject//
     AudioConfigurator(
         AudioConfigIO audioConfigIO, RestartableHolder restartableHolder,
@@ -60,14 +59,13 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 
-    private void processAudioConfig()
+    void processAudioConfig()
     {
         final Map<DoorType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
+
         final @Nullable AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
-
         final Map<DoorType, @Nullable AudioSet> merged = mergeMaps(parsed, defaults, defaultAudioSet);
-
         audioConfigIO.writeConfig(merged, defaultAudioSet);
 
         merged.forEach((key, val) -> audioMap.put(key, val == null ? EMPTY_AUDIO_SET : val));
@@ -80,12 +78,12 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private Map<DoorType, @Nullable AudioSet> getDefaults()
     {
         final Collection<DoorType> enabledDoorTypes = doorTypeManager.getEnabledDoorTypes();
-        final Map<DoorType, @Nullable AudioSet> defaultMap = new HashMap<>(enabledDoorTypes.size());
+        final Map<DoorType, @Nullable AudioSet> defaultMap = new LinkedHashMap<>(enabledDoorTypes.size());
         doorTypeManager.getEnabledDoorTypes().forEach(type -> defaultMap.put(type, type.getAudioSet()));
         return defaultMap;
     }
 
-    private Map<DoorType, @Nullable AudioSet> mergeMaps(
+    Map<DoorType, @Nullable AudioSet> mergeMaps(
         Map<String, @Nullable AudioSet> parsed, Map<DoorType, @Nullable AudioSet> defaults,
         @Nullable AudioSet defaultSet)
     {

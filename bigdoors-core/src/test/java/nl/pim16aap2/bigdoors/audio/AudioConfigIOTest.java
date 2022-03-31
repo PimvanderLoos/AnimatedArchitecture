@@ -15,6 +15,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 class AudioConfigIOTest
@@ -96,10 +97,13 @@ class AudioConfigIOTest
     {
         final Path baseDir = fs.getPath("/");
         final Path file = baseDir.resolve("audio_config.json");
-        new AudioConfigIO(baseDir).writeConfig(Map.of(
-                                                   newDoorType("slidingdoor"), SET_SLIDING_DOOR,
-                                                   newDoorType("flag"), new AudioSet(null, null)),
-                                               SET_DEFAULT);
+
+        final Map<DoorType, AudioSet> map = new LinkedHashMap<>();
+        map.put(newDoorType("slidingdoor"), SET_SLIDING_DOOR);
+        map.put(newDoorType("flag"), new AudioSet(null, null));
+
+        new AudioConfigIO(baseDir).writeConfig(map, SET_DEFAULT);
+
         final String contents = new String(Files.readAllBytes(file));
         Assertions.assertEquals(JSON, contents);
     }
