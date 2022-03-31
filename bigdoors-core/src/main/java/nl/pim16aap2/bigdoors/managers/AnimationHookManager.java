@@ -43,12 +43,15 @@ public final class AnimationHookManager implements IDebuggable
 
     public <T extends IAnimatedBlock> List<IAnimationHook<T>> instantiateHooks(IAnimation<T> animation)
     {
-        final List<IAnimationHook<T>> instantiated = new ArrayList<>(factories.size());
+        final ArrayList<IAnimationHook<T>> instantiated = new ArrayList<>(factories.size());
 
         for (final IAnimationHookFactory<? extends IAnimatedBlock> factory : factories)
         {
             try
             {
+                // Casting here should be fine as the platform determines the type
+                // of animated block being used (e.g. spigot block on Spigot)
+                // and the factories should only be loaded for the specific platform.
                 //noinspection unchecked
                 final @Nullable IAnimationHook<T> hook = ((IAnimationHookFactory<T>) factory).newInstance(animation);
                 if (hook != null)
@@ -61,6 +64,7 @@ public final class AnimationHookManager implements IDebuggable
             }
         }
 
+        instantiated.trimToSize();
         return instantiated;
     }
 

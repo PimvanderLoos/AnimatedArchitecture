@@ -660,43 +660,4 @@ public abstract class BlockMover
          */
         public abstract void apply(IAnimatedBlock animatedBlock, Vector3Dd goalPos);
     }
-
-    private static final class AnimationProgress implements IAnimationProgress
-    {
-        private final int duration;
-
-        private volatile Cuboid region;
-        private volatile State state = State.PENDING;
-        private volatile int stepsExecuted = 0;
-
-        AnimationProgress(int duration, Cuboid region)
-        {
-            this.duration = duration;
-            this.region = region;
-        }
-
-        @Override
-        public Cuboid getRegion()
-        {
-            return region;
-        }
-
-        @Override
-        public int getDuration()
-        {
-            return duration;
-        }
-
-        @Override
-        public int getStepsExecuted()
-        {
-            return stepsExecuted;
-        }
-
-        @Override
-        public State getState()
-        {
-            return state;
-        }
-    }
 }
