@@ -97,7 +97,7 @@ class AudioConfigIO
 
     private void appendToJsonObject(Gson gson, JsonObject jsonObject, String typeName, @Nullable AudioSet audioSet)
     {
-        if (audioSet == null || audioSet.isEmpty())
+        if (audioSet == null)
             jsonObject.add(typeName, null);
         else
             jsonObject.add(typeName, gson.toJsonTree(audioSet));

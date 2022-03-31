@@ -46,7 +46,11 @@ class AudioConfigIOTest
               "duration": 5
             }
           },
-          "flag": null
+          "flag": null,
+          "garagedoor": {
+            "activeAudio": null,
+            "endAudio": null
+          }
         }""";
 
     private static final AudioSet SET_DEFAULT = new AudioSet(
@@ -56,6 +60,8 @@ class AudioConfigIOTest
     private static final AudioSet SET_SLIDING_DOOR = new AudioSet(
         new AudioDescription("bd.dragging2", 0.8f, 0.7f, 15),
         new AudioDescription("bd.thud", 0.2f, 0.15f, 5));
+
+    private static final AudioSet SET_GARAGE_DOOR = new AudioSet(null, null);
 
     private FileSystem fs;
 
@@ -82,10 +88,11 @@ class AudioConfigIOTest
 
         final Map<String, @Nullable AudioSet> read = new AudioConfigIO(baseDir).readConfig();
 
-        Assertions.assertEquals(3, read.size());
+        Assertions.assertEquals(4, read.size());
 
         Assertions.assertEquals(SET_DEFAULT, read.get("DEFAULT"));
         Assertions.assertEquals(SET_SLIDING_DOOR, read.get("slidingdoor"));
+        Assertions.assertEquals(SET_GARAGE_DOOR, read.get("garagedoor"));
 
         Assertions.assertTrue(read.containsKey("flag"));
         Assertions.assertNull(read.get("flag"));
@@ -98,9 +105,10 @@ class AudioConfigIOTest
         final Path baseDir = fs.getPath("/");
         final Path file = baseDir.resolve("audio_config.json");
 
-        final Map<DoorType, AudioSet> map = new LinkedHashMap<>();
+        final Map<DoorType, @Nullable AudioSet> map = new LinkedHashMap<>();
         map.put(newDoorType("slidingdoor"), SET_SLIDING_DOOR);
-        map.put(newDoorType("flag"), new AudioSet(null, null));
+        map.put(newDoorType("flag"), null);
+        map.put(newDoorType("garagedoor"), new AudioSet(null, null));
 
         new AudioConfigIO(baseDir).writeConfig(map, SET_DEFAULT);
 
