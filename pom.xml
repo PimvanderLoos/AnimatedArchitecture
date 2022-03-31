@@ -14,6 +14,7 @@
         <maven.compiler.release>18</maven.compiler.release>
 
         <dependency.version.jcalculator>1.8</dependency.version.jcalculator>
+        <dependency.version.gson>2.9.0</dependency.version.gson>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
@@ -155,6 +156,13 @@
             <version>${dependency.version.logback}</version>
             <scope>compile</scope>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${dependency.version.gson}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
