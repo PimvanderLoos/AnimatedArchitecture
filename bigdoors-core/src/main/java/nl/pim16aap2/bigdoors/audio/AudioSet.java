@@ -1,6 +1,13 @@
 package nl.pim16aap2.bigdoors.audio;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Type;
 
 /**
  * Represents a set of audio descriptions that together define the set of audio descriptions to be used in an
@@ -21,5 +28,18 @@ public record AudioSet(@Nullable AudioDescription activeAudio, @Nullable AudioDe
     boolean isEmpty()
     {
         return activeAudio == null && endAudio == null;
+    }
+
+    public static final class Deserializer implements JsonDeserializer<AudioSet>
+    {
+        @Override
+        public AudioSet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException
+        {
+            final JsonObject jsonObject = json.getAsJsonObject();
+            return new AudioSet(
+                context.deserialize(jsonObject.get("activeAudio"), AudioDescription.class),
+                context.deserialize(jsonObject.get("endAudio"), AudioDescription.class));
+        }
     }
 }
