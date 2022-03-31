@@ -1,7 +1,6 @@
 package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.audio.AudioSet;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
@@ -20,8 +19,8 @@ public final class DoorTypeSlidingDoor extends DoorType
     private static final DoorTypeSlidingDoor INSTANCE = new DoorTypeSlidingDoor();
 
     private static final AudioSet AUDIO_SET = new AudioSet(
-        new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f, 1),
-        new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1));
+        new AudioDescription("bd.dragging2", 0.8f, 0.7f, 15),
+        new AudioDescription("bd.thud", 0.2f, 0.15f, 5));
 
     private DoorTypeSlidingDoor()
     {

@@ -2,7 +2,6 @@ package nl.pim16aap2.bigdoors.audio;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Dd;
 import nl.pim16aap2.bigdoors.util.vector.Vector3Di;
 
@@ -25,7 +24,7 @@ public interface IAudioPlayer
      * @param pitch
      *     The pitch
      */
-    void playSound(IPLocation loc, PSound sound, float volume, float pitch);
+    void playSound(IPLocation loc, String sound, float volume, float pitch);
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
@@ -41,7 +40,7 @@ public interface IAudioPlayer
      * @param pitch
      *     The pitch
      */
-    void playSound(Vector3Di pos, IPWorld world, PSound sound, float volume, float pitch);
+    void playSound(Vector3Di pos, IPWorld world, String sound, float volume, float pitch);
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
@@ -57,7 +56,7 @@ public interface IAudioPlayer
      * @param pitch
      *     The pitch
      */
-    void playSound(Vector3Dd pos, IPWorld world, PSound sound, float volume, float pitch);
+    void playSound(Vector3Dd pos, IPWorld world, String sound, float volume, float pitch);
 
     /**
      * Play a sound for all players in a range of 15 blocks around the provided location.
@@ -77,5 +76,5 @@ public interface IAudioPlayer
      * @param pitch
      *     The pitch
      */
-    void playSound(double x, double y, double z, IPWorld world, PSound sound, float volume, float pitch);
+    void playSound(double x, double y, double z, IPWorld world, String sound, float volume, float pitch);
 }
