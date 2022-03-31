@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.doortypes;
 
 import lombok.Getter;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
+import nl.pim16aap2.bigdoors.audio.AudioSet;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.DoorSerializer;
@@ -84,8 +85,9 @@ public abstract class DoorType
      *     DoorType}, as far as the database is concerned. This fact can be used if the parameters of the constructor
      *     for this type need to be changed.
      */
-    protected DoorType(String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
-                       String localizationKey)
+    protected DoorType(
+        String pluginName, String simpleName, int typeVersion, List<RotateDirection> validOpenDirections,
+        String localizationKey)
     {
         this.pluginName = pluginName;
         this.simpleName = simpleName.toLowerCase(Locale.ENGLISH);
@@ -159,6 +161,11 @@ public abstract class DoorType
      * @return The newly created {@link Creator}.
      */
     public abstract Creator getCreator(Creator.Context context, IPPlayer player, @Nullable String name);
+
+    public @Nullable AudioSet getAudioSet()
+    {
+        return null;
+    }
 
     @Override
     public final String toString()

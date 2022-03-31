@@ -8,13 +8,11 @@ import nl.pim16aap2.bigdoors.api.IPExecutor;
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
 import nl.pim16aap2.bigdoors.api.IPWorld;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.AnimationContext;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
 import nl.pim16aap2.bigdoors.api.factories.IAnimatedBlockFactory;
 import nl.pim16aap2.bigdoors.api.factories.IPLocationFactory;
-import nl.pim16aap2.bigdoors.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.audio.IAudioPlayer;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
@@ -73,9 +71,6 @@ public abstract class BlockMover
     protected final IPLocationFactory locationFactory;
 
     @ToString.Exclude
-    private final IAudioPlayer audioPlayer;
-
-    @ToString.Exclude
     private final AnimationHookManager animationHookManager;
 
     protected MovementMethod movementMethod = MovementMethod.VELOCITY;
@@ -117,16 +112,6 @@ public abstract class BlockMover
      */
     protected int endCount = -1;
 
-    /**
-     * The sound to play while the animation is active.
-     */
-    protected @Nullable AudioDescription soundActive = null;
-
-    /**
-     * The sound to play upon finishing the animation.
-     */
-    protected @Nullable AudioDescription soundFinish = null;
-
     protected final Cuboid newCuboid;
 
     /**
@@ -156,7 +141,6 @@ public abstract class BlockMover
         autoCloseScheduler = context.getAutoCloseScheduler();
         animatedBlockFactory = context.getAnimatedBlockFactory();
         locationFactory = context.getLocationFactory();
-        audioPlayer = context.getAudioPlayer();
         animationHookManager = context.getAnimationHookManager();
 
         if (!context.getExecutor().isMainThread(Thread.currentThread().getId()))
@@ -180,18 +164,6 @@ public abstract class BlockMover
         xMax = door.getMaximum().x();
         yMax = door.getMaximum().y();
         zMax = door.getMaximum().z();
-    }
-
-    /**
-     * Plays a sound at the rotation point of a door.
-     *
-     * @param soundDescription
-     *     The {@link AudioDescription} containing all the properties of the sound to play.
-     */
-    protected void playSound(AudioDescription soundDescription)
-    {
-        audioPlayer.playSound(door.getRotationPoint(), door.getWorld(), soundDescription.sound(),
-                              soundDescription.volume(), soundDescription.pitch());
     }
 
     public void abort()
@@ -323,9 +295,6 @@ public abstract class BlockMover
         animation.setRegion(getAnimationRegion());
         animation.setState(AnimationState.FINISHING);
 
-        if (soundFinish != null)
-            playSound(soundFinish);
-
         for (final IAnimatedBlock animatedBlock : animatedBlocks)
             animatedBlock.setVelocity(new Vector3Dd(0D, 0D, 0D));
 
@@ -377,9 +346,6 @@ public abstract class BlockMover
                     startTime = System.nanoTime();
                 forEachHook("onPreAnimationStep", IAnimationHook::onPreAnimationStep);
                 ++counter;
-
-                if (soundActive != null && counter % PSound.getDuration(soundActive.sound()) == 0)
-                    playSound(soundActive);
 
                 final long lastTime = currentTime;
                 currentTime = System.nanoTime();

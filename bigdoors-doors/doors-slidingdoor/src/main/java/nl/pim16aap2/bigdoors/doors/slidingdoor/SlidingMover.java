@@ -2,9 +2,7 @@ package nl.pim16aap2.bigdoors.doors.slidingdoor;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionCause;
 import nl.pim16aap2.bigdoors.events.dooraction.DoorActionType;
@@ -70,14 +68,12 @@ public class SlidingMover extends BlockMover
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     * Used for initializing variables such as {@link #endCount}.
      */
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
         step = ((double) blocksToMove) / ((double) super.endCount);
-        super.soundActive = new AudioDescription(PSound.DRAGGING, 0.8f, 0.7f, 1);
-        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1);
     }
 
     @Override

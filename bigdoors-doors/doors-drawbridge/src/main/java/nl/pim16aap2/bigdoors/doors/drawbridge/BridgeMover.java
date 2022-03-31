@@ -2,9 +2,7 @@ package nl.pim16aap2.bigdoors.doors.drawbridge;
 
 import nl.pim16aap2.bigdoors.api.IPLocation;
 import nl.pim16aap2.bigdoors.api.IPPlayer;
-import nl.pim16aap2.bigdoors.api.PSound;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
-import nl.pim16aap2.bigdoors.audio.AudioDescription;
 import nl.pim16aap2.bigdoors.doors.AbstractDoor;
 import nl.pim16aap2.bigdoors.doors.DoorBase;
 import nl.pim16aap2.bigdoors.doors.doorarchetypes.IHorizontalAxisAligned;
@@ -93,15 +91,13 @@ public class BridgeMover<T extends AbstractDoor & IHorizontalAxisAligned> extend
     }
 
     /**
-     * Used for initializing variables such as {@link #endCount} and {@link #soundActive}.
+     * Used for initializing variables such as {@link #endCount}.
      */
     protected void init()
     {
         super.endCount = (int) (20 * super.time);
         step = angle / super.endCount;
         halfEndCount = super.endCount / 2;
-        super.soundActive = new AudioDescription(PSound.DRAWBRIDGE_RATTLING, 0.8f, 0.7f, 1);
-        super.soundFinish = new AudioDescription(PSound.THUD, 0.2f, 0.15f, 1);
     }
 
     protected Vector3Dd getGoalPos(double angle, double x, double y, double z)
