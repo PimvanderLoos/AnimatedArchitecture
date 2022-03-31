@@ -71,6 +71,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         audioConfigIO.writeConfig(merged, defaultAudioSet);
 
         merged.forEach((key, val) -> audioMap.put(key, val == null ? EMPTY_AUDIO_SET : val));
+        Runtime.getRuntime().halt(0);
     }
 
     /**

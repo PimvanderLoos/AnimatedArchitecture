@@ -32,14 +32,31 @@ public record AudioSet(@Nullable AudioDescription activeAudio, @Nullable AudioDe
 
     public static final class Deserializer implements JsonDeserializer<AudioSet>
     {
+        private static boolean isNull(JsonElement src)
+        {
+            return src.isJsonPrimitive() &&
+                src.getAsJsonPrimitive().isString() &&
+                "null".equals(src.getAsJsonPrimitive().getAsString());
+        }
+
         @Override
-        public AudioSet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+        public @Nullable AudioSet deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException
         {
+            if (isNull(json))
+                return null;
+
             final JsonObject jsonObject = json.getAsJsonObject();
             return new AudioSet(
-                context.deserialize(jsonObject.get("activeAudio"), AudioDescription.class),
-                context.deserialize(jsonObject.get("endAudio"), AudioDescription.class));
+                getAudioDescription(context, jsonObject.get("activeAudio")),
+                getAudioDescription(context, jsonObject.get("endAudio")));
+        }
+
+        private @Nullable AudioDescription getAudioDescription(JsonDeserializationContext context, JsonElement src)
+        {
+            if (isNull(src))
+                return null;
+            return context.deserialize(src, AudioDescription.class);
         }
     }
 }

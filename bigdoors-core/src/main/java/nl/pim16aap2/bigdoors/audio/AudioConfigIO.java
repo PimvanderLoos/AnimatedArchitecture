@@ -73,10 +73,7 @@ class AudioConfigIO
         {
             final String name = entry.getKey();
             final @Nullable AudioSet audioSet;
-            if ("\"null\"".equals(entry.getValue().toString()))
-                audioSet = null;
-            else
-                audioSet = GSON.fromJson(entry.getValue(), AudioSet.class);
+            audioSet = GSON.fromJson(entry.getValue(), AudioSet.class);
             parsed.put(name, audioSet);
         }
         return parsed;
@@ -101,7 +98,7 @@ class AudioConfigIO
     private void appendToJsonObject(Gson gson, JsonObject jsonObject, String typeName, @Nullable AudioSet audioSet)
     {
         if (audioSet == null || audioSet.isEmpty())
-            jsonObject.addProperty(typeName, gson.toJson(null));
+            jsonObject.add(typeName, null);
         else
             jsonObject.add(typeName, gson.toJsonTree(audioSet));
     }
