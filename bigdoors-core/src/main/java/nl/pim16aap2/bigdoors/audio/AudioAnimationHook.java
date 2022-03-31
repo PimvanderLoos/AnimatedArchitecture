@@ -28,11 +28,11 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     private volatile int skipped = -1;
 
     private AudioAnimationHook(
-        IAnimation<IAnimatedBlock> animation, AudioConfigurator audioConfigurator, IAudioPlayer audioPlayer)
+        IAnimation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer)
     {
         this.animation = animation;
         this.audioPlayer = audioPlayer;
-        this.audioSet = audioConfigurator.getAudioSet(animation.getDoor());
+        this.audioSet = audioSet;
         this.activeAudioDuration = audioSet.activeAudio() == null ? -1 : audioSet.activeAudio().duration();
     }
 
@@ -88,9 +88,12 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
         }
 
         @Override
-        public IAnimationHook<IAnimatedBlock> newInstance(IAnimation<IAnimatedBlock> animation)
+        public @Nullable IAnimationHook<IAnimatedBlock> newInstance(IAnimation<IAnimatedBlock> animation)
         {
-            return new AudioAnimationHook(animation, audioConfigurator, audioPlayer);
+            final AudioSet audioSet = audioConfigurator.getAudioSet(animation.getDoor());
+            if (audioSet.isEmpty())
+                return null;
+            return new AudioAnimationHook(animation, audioSet, audioPlayer);
         }
     }
 }
