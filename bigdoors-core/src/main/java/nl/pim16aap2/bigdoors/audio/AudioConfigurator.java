@@ -66,7 +66,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     private void processAudioConfig()
     {
         final ConfigData configData = generateConfigData();
-        audioConfigIO.writeConfig(configData.sets, configData.defaultSet);
+        audioConfigIO.writeConfig(configData.sets, configData.defaultSet());
         this.audioMap = getFinalMap(configData);
     }
 
@@ -81,7 +81,9 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
      */
     Map<DoorType, AudioSet> getFinalMap(ConfigData configData)
     {
+        @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
         final Map<DoorType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
+
         final AudioSet fallback = configData.defaultSet == null ? EMPTY_AUDIO_SET : configData.defaultSet;
         configData.sets.forEach((key, val) -> ret.put(key, val == null ? fallback : val));
         return ret;
@@ -96,6 +98,7 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         final Map<DoorType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
+        @SuppressWarnings("NullAway") // NullAway currently does not work well with nullable annotations in generics.
         final @Nullable AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
         return new ConfigData(defaultAudioSet, mergeMaps(parsed, defaults));
     }
@@ -111,6 +114,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         return defaultMap;
     }
 
+    // NullAway currently does not work well with nullable annotations in generics.
+    @SuppressWarnings("NullAway")
     private Map<DoorType, @Nullable AudioSet> mergeMaps(
         Map<String, @Nullable AudioSet> parsed, Map<DoorType, @Nullable AudioSet> defaults)
     {
@@ -148,7 +153,17 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
     @AllArgsConstructor
     static class ConfigData
     {
-        final @Nullable AudioSet defaultSet;
-        final Map<DoorType, @Nullable AudioSet> sets;
+        private final @Nullable AudioSet defaultSet;
+        private final Map<DoorType, @Nullable AudioSet> sets;
+
+        @Nullable AudioSet defaultSet()
+        {
+            return defaultSet;
+        }
+
+        Map<DoorType, @Nullable AudioSet> sets()
+        {
+            return sets;
+        }
     }
 }

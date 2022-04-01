@@ -79,6 +79,8 @@ class AudioConfigIO
         return parsed;
     }
 
+    // NullAway currently does not work well with nullable annotations in generics.
+    @SuppressWarnings("NullAway")
     void writeConfig(Map<DoorType, @Nullable AudioSet> map, @Nullable AudioSet defaultAudioSet)
     {
         final JsonObject base = new JsonObject();

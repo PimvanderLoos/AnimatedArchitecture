@@ -31,7 +31,6 @@ class AudioConfiguratorTest
     static final AudioSet SET_3 = new AudioSet(DESC_2, null);
     static final AudioSet SET_EMPTY = new AudioSet(null, null);
 
-    static final String KEY_DEFAULT = "DEFAULT";
     static final String KEY_0 = "type_0";
     static final String KEY_1 = "type_1";
     static final String KEY_2 = "type_2";
@@ -45,7 +44,6 @@ class AudioConfiguratorTest
     static final DoorType TYPE_3 = newDoorType(KEY_3);
     static final DoorType TYPE_4 = newDoorType(KEY_4);
     static final DoorType TYPE_5 = newDoorType(KEY_5);
-
 
     @Mock
     AudioConfigIO audioConfigIO;
@@ -96,7 +94,7 @@ class AudioConfiguratorTest
                .thenReturn(List.of(TYPE_0, TYPE_1, TYPE_2, TYPE_3, TYPE_4, TYPE_5));
 
         final AudioConfigurator.ConfigData configData = configurator.generateConfigData();
-        final Map<DoorType, @Nullable AudioSet> output = configData.sets;
+        final Map<DoorType, @Nullable AudioSet> output = configData.sets();
 
         Assertions.assertEquals(SET_EMPTY, output.get(TYPE_0));
         Assertions.assertEquals(SET_0, output.get(TYPE_1));
@@ -106,7 +104,7 @@ class AudioConfiguratorTest
         Assertions.assertNull(output.get(TYPE_4));
         Assertions.assertTrue(output.containsKey(TYPE_4));
         Assertions.assertEquals(SET_EMPTY, output.get(TYPE_5));
-        Assertions.assertNull(configData.defaultSet);
+        Assertions.assertNull(configData.defaultSet());
     }
 
     @Test
