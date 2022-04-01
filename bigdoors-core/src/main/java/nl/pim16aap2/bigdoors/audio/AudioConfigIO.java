@@ -79,11 +79,11 @@ class AudioConfigIO
         return parsed;
     }
 
-    void writeConfig(Map<DoorType, @Nullable AudioSet> defaultMap, @Nullable AudioSet defaultAudioSet)
+    void writeConfig(Map<DoorType, @Nullable AudioSet> map, @Nullable AudioSet defaultAudioSet)
     {
         final JsonObject base = new JsonObject();
         appendToJsonObject(GSON, base, AudioConfigurator.KEY_DEFAULT, defaultAudioSet);
-        defaultMap.forEach((key, val) -> appendToJsonObject(GSON, base, key.getSimpleName(), val));
+        map.forEach((key, val) -> appendToJsonObject(GSON, base, key.getSimpleName(), val));
 
         try
         {

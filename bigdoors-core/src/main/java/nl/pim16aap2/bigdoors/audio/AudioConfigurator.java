@@ -1,5 +1,8 @@
 package nl.pim16aap2.bigdoors.audio;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.api.debugging.DebuggableRegistry;
 import nl.pim16aap2.bigdoors.api.debugging.IDebuggable;
@@ -29,7 +32,8 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
 
     private final AudioConfigIO audioConfigIO;
     private final DoorTypeManager doorTypeManager;
-    private final Map<DoorType, AudioSet> audioMap = new HashMap<>();
+    @Getter(AccessLevel.PACKAGE)
+    private Map<DoorType, AudioSet> audioMap = new HashMap<>();
 
     @Inject//
     AudioConfigurator(
@@ -59,17 +63,41 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         return ret == null ? EMPTY_AUDIO_SET : ret;
     }
 
-    void processAudioConfig()
+    private void processAudioConfig()
+    {
+        final ConfigData configData = generateConfigData();
+        audioConfigIO.writeConfig(configData.sets, configData.defaultSet);
+        this.audioMap = getFinalMap(configData);
+    }
+
+    /**
+     * Generates the final map from the provided input configuration data. This is done by replacing null values with
+     * the designated fallback value. The fallback value will be {@link ConfigData#defaultSet} if that is non-null and
+     * otherwise {@link #EMPTY_AUDIO_SET}.
+     *
+     * @param configData
+     *     The config data to use to generate the final map.
+     * @return The generated final map.
+     */
+    Map<DoorType, AudioSet> getFinalMap(ConfigData configData)
+    {
+        final Map<DoorType, AudioSet> ret = new LinkedHashMap<>(configData.sets.size());
+        final AudioSet fallback = configData.defaultSet == null ? EMPTY_AUDIO_SET : configData.defaultSet;
+        configData.sets.forEach((key, val) -> ret.put(key, val == null ? fallback : val));
+        return ret;
+    }
+
+    /**
+     * @return The configured data based on the defaults provided by the door types and the user-specified
+     * configurations.
+     */
+    ConfigData generateConfigData()
     {
         final Map<DoorType, @Nullable AudioSet> defaults = getDefaults();
         final Map<String, @Nullable AudioSet> parsed = audioConfigIO.readConfig();
 
         final @Nullable AudioSet defaultAudioSet = parsed.get(KEY_DEFAULT);
-        final Map<DoorType, @Nullable AudioSet> merged = mergeMaps(parsed, defaults, defaultAudioSet);
-        audioConfigIO.writeConfig(merged, defaultAudioSet);
-
-        merged.forEach((key, val) -> audioMap.put(key, val == null ? EMPTY_AUDIO_SET : val));
-        Runtime.getRuntime().halt(0);
+        return new ConfigData(defaultAudioSet, mergeMaps(parsed, defaults));
     }
 
     /**
@@ -83,16 +111,10 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         return defaultMap;
     }
 
-    Map<DoorType, @Nullable AudioSet> mergeMaps(
-        Map<String, @Nullable AudioSet> parsed, Map<DoorType, @Nullable AudioSet> defaults,
-        @Nullable AudioSet defaultSet)
+    private Map<DoorType, @Nullable AudioSet> mergeMaps(
+        Map<String, @Nullable AudioSet> parsed, Map<DoorType, @Nullable AudioSet> defaults)
     {
         final LinkedHashMap<DoorType, @Nullable AudioSet> merged = new LinkedHashMap<>(defaults);
-        if (defaultSet != null)
-            for (final var entry : merged.entrySet())
-                if (entry.getValue() == null)
-                    entry.setValue(defaultSet);
-
         for (final Map.Entry<String, @Nullable AudioSet> entry : parsed.entrySet())
         {
             if (KEY_DEFAULT.equals(entry.getKey()))
@@ -121,5 +143,12 @@ public final class AudioConfigurator implements IRestartable, IDebuggable
         sb.append("AudioSets:\n");
         audioMap.forEach((key, val) -> sb.append("  Type: ").append(key).append(", Audio: ").append(val).append('\n'));
         return sb.toString();
+    }
+
+    @AllArgsConstructor
+    static class ConfigData
+    {
+        final @Nullable AudioSet defaultSet;
+        final Map<DoorType, @Nullable AudioSet> sets;
     }
 }
