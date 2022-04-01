@@ -67,6 +67,9 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     private final RestartableHolder restartableHolder;
 
     @Getter
+    private final int tickTime = 50;
+
+    @Getter
     private final IBigDoorsToolUtil bigDoorsToolUtil;
 
     @Getter

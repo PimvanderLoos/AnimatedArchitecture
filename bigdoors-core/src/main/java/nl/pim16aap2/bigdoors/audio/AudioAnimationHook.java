@@ -1,5 +1,7 @@
 package nl.pim16aap2.bigdoors.audio;
 
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatform;
+import nl.pim16aap2.bigdoors.api.IBigDoorsPlatformProvider;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimatedBlock;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimation;
 import nl.pim16aap2.bigdoors.api.animatedblock.IAnimationHook;
@@ -28,12 +30,13 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     private volatile int skipped = -1;
 
     private AudioAnimationHook(
-        IAnimation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer)
+        IAnimation<IAnimatedBlock> animation, AudioSet audioSet, IAudioPlayer audioPlayer, int tickTime)
     {
         this.animation = animation;
         this.audioPlayer = audioPlayer;
         this.audioSet = audioSet;
-        this.activeAudioDuration = audioSet.activeAudio() == null ? -1 : audioSet.activeAudio().duration();
+        final int duration = audioSet.activeAudio() == null ? -1 : audioSet.activeAudio().duration();
+        this.activeAudioDuration = Math.round((float) duration / tickTime);
     }
 
     @Override
@@ -78,12 +81,15 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
     @Singleton
     public static final class Factory implements IAnimationHookFactory<IAnimatedBlock>
     {
+        private final IBigDoorsPlatformProvider platformProvider;
         private final AudioConfigurator audioConfigurator;
         private final IAudioPlayer audioPlayer;
 
         @Inject
-        public Factory(AudioConfigurator audioConfigurator, IAudioPlayer audioPlayer)
+        public Factory(
+            IBigDoorsPlatformProvider platformProvider, AudioConfigurator audioConfigurator, IAudioPlayer audioPlayer)
         {
+            this.platformProvider = platformProvider;
             this.audioConfigurator = audioConfigurator;
             this.audioPlayer = audioPlayer;
         }
@@ -94,7 +100,15 @@ public class AudioAnimationHook implements IAnimationHook<IAnimatedBlock>
             final AudioSet audioSet = audioConfigurator.getAudioSet(animation.getDoor());
             if (audioSet.isEmpty())
                 return null;
-            return new AudioAnimationHook(animation, audioSet, audioPlayer);
+            return new AudioAnimationHook(animation, audioSet, audioPlayer, getTickTime());
+        }
+
+        private int getTickTime()
+        {
+            final int tickTime = platformProvider.getPlatform().map(IBigDoorsPlatform::getTickTime).orElse(-1);
+            if (tickTime <= 0)
+                throw new IllegalArgumentException("Received illegal tick time value of '" + tickTime + "'!");
+            return tickTime;
         }
     }
 }

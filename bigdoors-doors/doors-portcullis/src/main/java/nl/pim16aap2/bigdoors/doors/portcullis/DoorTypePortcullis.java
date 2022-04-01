@@ -19,8 +19,8 @@ public final class DoorTypePortcullis extends DoorType
     private static final DoorTypePortcullis INSTANCE = new DoorTypePortcullis();
 
     private static final AudioSet AUDIO_SET = new AudioSet(
-        new AudioDescription("bd.dragging2", 0.8f, 0.7f, 15),
-        new AudioDescription("bd.thud", 0.2f, 0.15f, 5));
+        new AudioDescription("bd.dragging2", 0.8f, 0.7f, 750),
+        new AudioDescription("bd.thud", 0.2f, 0.15f, 250));
 
     private DoorTypePortcullis()
     {
