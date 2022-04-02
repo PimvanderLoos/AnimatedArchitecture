@@ -187,7 +187,15 @@ public class NMSBlock_V1_18_R2 extends BlockBase implements NMSBlock
     @Override
     public void deleteOriginalBlock(boolean applyPhysics)
     {
-        loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
+        if (!applyPhysics)
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
+        }
+        else
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.CAVE_AIR, false);
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, true);
+        }
     }
 
     @Override

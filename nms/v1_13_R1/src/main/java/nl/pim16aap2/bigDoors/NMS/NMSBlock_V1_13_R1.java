@@ -153,6 +153,14 @@ public class NMSBlock_V1_13_R1 extends net.minecraft.server.v1_13_R1.Block imple
     @Override
     public void deleteOriginalBlock(boolean applyPhysics)
     {
-        loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
+        if (!applyPhysics)
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
+        }
+        else
+        {
+            loc.getWorld().getBlockAt(loc).setType(Material.CAVE_AIR, false);
+            loc.getWorld().getBlockAt(loc).setType(Material.AIR, true);
+        }
     }
 }

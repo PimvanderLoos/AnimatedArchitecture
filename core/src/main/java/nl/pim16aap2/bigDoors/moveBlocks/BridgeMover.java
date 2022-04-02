@@ -24,6 +24,9 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BridgeMover extends BlockMover
 {
     private final World world;
@@ -190,6 +193,11 @@ public class BridgeMover extends BlockMover
     {
         savedBlocks.ensureCapacity(door.getBlockCount());
 
+        // This will reserve a bit too much memory, but not enough to worry about.
+        final List<NMSBlock> edges =
+            new ArrayList<>(Math.min(door.getBlockCount(),
+                                     (xMax - xMin + 1) * 2 + (yMax - yMin + 1) * 2 + (zMax - zMin + 1) * 2));
+
         int xAxis = turningPoint.getBlockX();
         do
         {
@@ -271,6 +279,11 @@ public class BridgeMover extends BlockMover
 
                         savedBlocks.add(new MyBlockData(mat, matByte, fBlock, radius, materialData,
                                                         block2 == null ? block : block2, canRotate, startLocation));
+
+                        if (xAxis == xMin || xAxis == xMax ||
+                            yAxis == yMin || yAxis == yMax ||
+                            zAxis == zMin || zAxis == zMax)
+                            edges.add(block);
                     }
                 }
                 zAxis += dz;
@@ -300,6 +313,8 @@ public class BridgeMover extends BlockMover
         if (BigDoors.isOnFlattenedVersion())
         {
             savedBlocks.forEach(myBlockData -> myBlockData.getBlock().deleteOriginalBlock(false));
+            // Update the physics around the edges after we've removed all our blocks.
+            edges.forEach(block -> block.deleteOriginalBlock(true));
         }
 
         savedBlocks.trimToSize();
