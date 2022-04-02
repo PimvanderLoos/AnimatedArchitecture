@@ -1,15 +1,14 @@
 package nl.pim16aap2.bigDoors;
 
-import java.util.UUID;
-
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.DoorType;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
 import nl.pim16aap2.bigDoors.util.Util;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+
+import java.util.UUID;
 
 public class Door
 {
@@ -292,13 +291,12 @@ public class Door
         int xLen = Math.abs(getMaximum().getBlockX() - getMinimum().getBlockX()) + 1;
         int yLen = Math.abs(getMaximum().getBlockY() - getMinimum().getBlockY()) + 1;
         int zLen = Math.abs(getMaximum().getBlockZ() - getMinimum().getBlockZ()) + 1;
-        xLen = xLen == 0 ? 1 : xLen;
-        yLen = yLen == 0 ? 1 : yLen;
-        zLen = zLen == 0 ? 1 : zLen;
-
         return xLen * yLen * zLen;
     }
 
+    /**
+     * @return The volume of this door measured in number of blocks (including invalid and air types).
+     */
     public int getBlockCount()
     {
         return blockCount == null ? blockCount = calculateBlockCount() : blockCount;

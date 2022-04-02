@@ -27,7 +27,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CylindricalMover extends BlockMover
@@ -51,7 +50,7 @@ public class CylindricalMover extends BlockMover
     private final int yMax, zMin, zMax;
     private final DoorDirection currentDirection;
     private final Location turningPoint;
-    private final List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount = 0;
     private BukkitRunnable animationRunnable;
@@ -89,11 +88,13 @@ public class CylindricalMover extends BlockMover
 
         dx = pointOpposite.getBlockX() > turningPoint.getBlockX() ? 1 : -1;
         dz = pointOpposite.getBlockZ() > turningPoint.getBlockZ() ? 1 : -1;
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlocks, 2L);
     }
 
-    private void createAnimatedBlock()
+    private void createAnimatedBlocks()
     {
+        savedBlocks.ensureCapacity(door.getBlockCount());
+
         double xAxis = turningPoint.getX();
         do
         {
@@ -211,6 +212,8 @@ public class CylindricalMover extends BlockMover
                 if (block != null && Util.isAllowedBlock(mbd.getMat()))
                     block.deleteOriginalBlock();
             }
+
+        savedBlocks.trimToSize();
 
         if (!instantOpen)
             rotateEntities();

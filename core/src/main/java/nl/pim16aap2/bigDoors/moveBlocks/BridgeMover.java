@@ -27,7 +27,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BridgeMover extends BlockMover
@@ -53,7 +52,7 @@ public class BridgeMover extends BlockMover
     private int stepMultiplier;
     private final int xMin, yMin, zMin;
     private final int xMax, yMax, zMax;
-    private final List<MyBlockData> savedBlocks = new ArrayList<>();
+    private final ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
     private BukkitRunnable animationRunnable;
@@ -193,11 +192,13 @@ public class BridgeMover extends BlockMover
 
         endStepSum = upDown.equals(RotateDirection.UP) ? 0 : Math.PI / 2 * stepMultiplier;
         startStepSum = upDown.equals(RotateDirection.DOWN) ? 0 : startStepSum;
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlocks, 2L);
     }
 
-    private void createAnimatedBlock()
+    private void createAnimatedBlocks()
     {
+        savedBlocks.ensureCapacity(door.getBlockCount());
+
         int index = 0;
         double xAxis = turningPoint.getX();
         do
@@ -317,6 +318,8 @@ public class BridgeMover extends BlockMover
                 if (block != null && Util.isAllowedBlock(mbd.getMat()))
                     block.deleteOriginalBlock();
             }
+
+        savedBlocks.trimToSize();
 
         if (!instantOpen)
             rotateEntities();

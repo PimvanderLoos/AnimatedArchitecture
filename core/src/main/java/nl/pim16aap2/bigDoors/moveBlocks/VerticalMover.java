@@ -22,7 +22,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VerticalMover extends BlockMover
@@ -37,7 +36,7 @@ public class VerticalMover extends BlockMover
     private int blocksToMove;
     private int xMin, xMax, yMin;
     private int yMax, zMin, zMax;
-    private List<MyBlockData> savedBlocks = new ArrayList<>();
+    private ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
     private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
     private BukkitRunnable animationRunnable;
@@ -82,11 +81,13 @@ public class VerticalMover extends BlockMover
         }
 
         tickRate = Util.tickRateFromSpeed(speed);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlock, 2L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::createAnimatedBlocks, 2L);
     }
 
-    private void createAnimatedBlock()
+    private void createAnimatedBlocks()
     {
+        savedBlocks.ensureCapacity(door.getBlockCount());
+
         int index = 0;
         int yAxis = yMin;
         do
@@ -129,13 +130,15 @@ public class VerticalMover extends BlockMover
         while (yAxis <= yMax);
 
         // This is only supported on 1.13
-        if (plugin.isOnFlattenedVersion())
+        if (BigDoors.isOnFlattenedVersion())
             for (MyBlockData mbd : savedBlocks)
             {
                 NMSBlock block = mbd.getBlock();
                 if (block != null && Util.isAllowedBlock(mbd.getMat()))
                     block.deleteOriginalBlock();
             }
+
+        savedBlocks.trimToSize();
 
         if (!instantOpen)
             rotateEntities();
