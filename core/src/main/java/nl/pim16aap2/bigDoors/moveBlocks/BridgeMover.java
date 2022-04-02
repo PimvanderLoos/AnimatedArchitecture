@@ -5,8 +5,6 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
-import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocation;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationEast;
 import nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation.GetNewLocationNorth;
@@ -26,9 +24,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class BridgeMover extends BlockMover
 {
     private final World world;
@@ -44,7 +39,6 @@ public class BridgeMover extends BlockMover
     private final RotateDirection upDown;
     private final DoorDirection engineSide;
     private final double endStepSum;
-    private final boolean instantOpen;
     private Location turningPoint;
     private double startStepSum;
     private final DoorDirection openDirection;
@@ -52,8 +46,6 @@ public class BridgeMover extends BlockMover
     private int stepMultiplier;
     private final int xMin, yMin, zMin;
     private final int xMax, yMax, zMax;
-    private final ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
-    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
     private BukkitRunnable animationRunnable;
 
@@ -61,7 +53,7 @@ public class BridgeMover extends BlockMover
     public BridgeMover(BigDoors plugin, World world, double time, Door door, RotateDirection upDown,
         DoorDirection openDirection, boolean instantOpen, double multiplier)
     {
-        super(plugin, door);
+        super(plugin, door, instantOpen);
         fabf = plugin.getFABF();
         engineSide = door.getEngSide();
         NS = engineSide == DoorDirection.NORTH || engineSide == DoorDirection.SOUTH;
@@ -69,7 +61,6 @@ public class BridgeMover extends BlockMover
         this.world = world;
         this.plugin = plugin;
         this.upDown = upDown;
-        this.instantOpen = instantOpen;
         this.openDirection = openDirection;
 
         xMin = door.getMinimum().getBlockX();
@@ -307,12 +298,9 @@ public class BridgeMover extends BlockMover
 
         // This is only supported on 1.13
         if (BigDoors.isOnFlattenedVersion())
-            for (MyBlockData mbd : savedBlocks)
-            {
-                NMSBlock block = mbd.getBlock();
-                if (block != null && Util.isAllowedBlock(mbd.getMat()))
-                    block.deleteOriginalBlock(false);
-            }
+        {
+            savedBlocks.forEach(myBlockData -> myBlockData.getBlock().deleteOriginalBlock(false));
+        }
 
         savedBlocks.trimToSize();
 
@@ -331,95 +319,12 @@ public class BridgeMover extends BlockMover
         this.putBlocks(onDisable);
     }
 
-    // Put the door blocks back, but change their state now.
-    @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.getAndSet(true))
-            return;
-
-        int index = 0;
-        double xAxis = turningPoint.getX();
-        do
-        {
-            double zAxis = turningPoint.getZ();
-            do
-            {
-                for (double yAxis = yMin; yAxis <= yMax; yAxis++)
-                {
-                    /*
-                     * 0-3: Vertical oak, spruce, birch, then jungle 4-7: East/west oak, spruce,
-                     * birch, jungle 8-11: North/south oak, spruce, birch, jungle 12-15: Uses oak,
-                     * spruce, birch, jungle bark texture on all six faces
-                     */
-
-                    Material mat = savedBlocks.get(index).getMat();
-
-                    if (!mat.equals(Material.AIR))
-                    {
-                        byte matByte = savedBlocks.get(index).getBlockByte();
-                        Location newPos = gnl.getNewLocation(savedBlocks.get(index).getRadius(), xAxis, yAxis, zAxis,
-                                                             index);
-
-                        if (!instantOpen)
-                            savedBlocks.get(index).getFBlock().remove();
-
-                        if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                        {
-                            if (BigDoors.isOnFlattenedVersion())
-                            {
-                                savedBlocks.get(index).getBlock().putBlock(newPos);
-                                Block b = world.getBlockAt(newPos);
-                                BlockState bs = b.getState();
-                                bs.update();
-                            }
-                            else
-                            {
-                                Block b = world.getBlockAt(newPos);
-                                MaterialData matData = savedBlocks.get(index).getMatData();
-                                matData.setData(matByte);
-
-                                b.setType(mat);
-                                BlockState bs = b.getState();
-                                bs.setData(matData);
-                                bs.update();
-                            }
-                        }
-                    }
-                    index++;
-                }
-                zAxis += dz;
-            }
-            while (zAxis >= pointOpposite.getBlockZ() && dz == -1 || zAxis <= pointOpposite.getBlockZ() && dz == 1);
-            xAxis += dx;
-        }
-        while (xAxis >= pointOpposite.getBlockX() && dx == -1 || xAxis <= pointOpposite.getBlockX() && dx == 1);
-        savedBlocks.clear();
-
-        // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, openDirection, upDown, -1, false);
-        toggleOpen(door);
-
-        if (!onDisable)
-        {
-            int delay = buttonDelay(endCount)
-                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    Bukkit.getPluginManager()
-                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE),
-                                                          instantOpen));
-
-                    if (door.isOpen())
-                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
-                }
-            }.runTaskLater(plugin, delay);
-        }
+        super.putBlocks(onDisable, time, endCount,
+                        gnl::getNewLocation,
+                        () -> updateCoords(door, openDirection, upDown, -1, false));
     }
 
     // Method that takes care of the rotation aspect.
@@ -589,12 +494,6 @@ public class BridgeMover extends BlockMover
         if (matData == 3)
             return (byte) (openDirection.equals(DoorDirection.NORTH) ? 1 : 0);
         return matData;
-    }
-
-    // Toggle the open status of a drawbridge.
-    private void toggleOpen(Door door)
-    {
-        door.setOpenStatus(!door.isOpen());
     }
 
     // Update the coordinates of a door based on its location, direction it's

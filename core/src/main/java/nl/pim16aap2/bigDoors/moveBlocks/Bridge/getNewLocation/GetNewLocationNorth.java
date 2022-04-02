@@ -1,10 +1,9 @@
 package nl.pim16aap2.bigDoors.moveBlocks.Bridge.getNewLocation;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 @SuppressWarnings("unused")
 public class GetNewLocationNorth implements GetNewLocation
@@ -32,7 +31,7 @@ public class GetNewLocationNorth implements GetNewLocation
     {}
 
     @Override
-    public Location getNewLocation(double radius, double xPos, double yPos, double zPos, int index)
+    public Location getNewLocation(double radius, double xPos, double yPos, double zPos)
     {
         Location newPos = null;
 

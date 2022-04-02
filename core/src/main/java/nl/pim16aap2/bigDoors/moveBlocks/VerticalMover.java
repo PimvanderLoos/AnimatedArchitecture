@@ -5,8 +5,6 @@ import nl.pim16aap2.bigDoors.Door;
 import nl.pim16aap2.bigDoors.NMS.CustomCraftFallingBlock;
 import nl.pim16aap2.bigDoors.NMS.FallingBlockFactory;
 import nl.pim16aap2.bigDoors.NMS.NMSBlock;
-import nl.pim16aap2.bigDoors.events.DoorEventToggle.ToggleType;
-import nl.pim16aap2.bigDoors.events.DoorEventToggleEnd;
 import nl.pim16aap2.bigDoors.util.DoorDirection;
 import nl.pim16aap2.bigDoors.util.MyBlockData;
 import nl.pim16aap2.bigDoors.util.RotateDirection;
@@ -21,9 +19,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class VerticalMover extends BlockMover
 {
     private FallingBlockFactory fabf;
@@ -32,12 +27,9 @@ public class VerticalMover extends BlockMover
     private World world;
     private BigDoors plugin;
     private int tickRate;
-    private boolean instantOpen;
     private int blocksToMove;
     private int xMin, xMax, yMin;
     private int yMax, zMin, zMax;
-    private ArrayList<MyBlockData> savedBlocks = new ArrayList<>();
-    private final AtomicBoolean blocksPlaced = new AtomicBoolean(false);
     private int endCount;
     private BukkitRunnable animationRunnable;
 
@@ -45,12 +37,11 @@ public class VerticalMover extends BlockMover
     public VerticalMover(BigDoors plugin, World world, double time, Door door, boolean instantOpen, int blocksToMove,
         double multiplier)
     {
-        super(plugin, door);
+        super(plugin, door, instantOpen);
         this.plugin = plugin;
         this.world = world;
         this.door = door;
         fabf = plugin.getFABF();
-        this.instantOpen = instantOpen;
         this.blocksToMove = blocksToMove;
 
         xMin = door.getMinimum().getBlockX();
@@ -107,7 +98,7 @@ public class VerticalMover extends BlockMover
                         MaterialData materialData = bs.getData();
                         NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
 
-                        if (!plugin.isOnFlattenedVersion())
+                        if (!BigDoors.isOnFlattenedVersion())
                             vBlock.setType(Material.AIR);
 
                         CustomCraftFallingBlock fBlock = null;
@@ -126,12 +117,9 @@ public class VerticalMover extends BlockMover
 
         // This is only supported on 1.13
         if (BigDoors.isOnFlattenedVersion())
-            for (MyBlockData mbd : savedBlocks)
-            {
-                NMSBlock block = mbd.getBlock();
-                if (block != null && Util.isAllowedBlock(mbd.getMat()))
-                    block.deleteOriginalBlock(false);
-            }
+        {
+            savedBlocks.forEach(myBlockData -> myBlockData.getBlock().deleteOriginalBlock(false));
+        }
 
         savedBlocks.trimToSize();
 
@@ -150,86 +138,12 @@ public class VerticalMover extends BlockMover
         this.putBlocks(onDisable);
     }
 
-    // Put the door blocks back, but change their state now.
-    @SuppressWarnings("deprecation")
     @Override
     public synchronized void putBlocks(boolean onDisable)
     {
-        if (blocksPlaced.getAndSet(true))
-            return;
-
-        int index = 0;
-        double yAxis = yMin;
-        do
-        {
-            double zAxis = zMin;
-            do
-            {
-                for (int xAxis = xMin; xAxis <= xMax; ++xAxis)
-                {
-                    Material mat = savedBlocks.get(index).getMat();
-                    if (!mat.equals(Material.AIR))
-                    {
-                        byte matByte = savedBlocks.get(index).getBlockByte();
-                        Location newPos = getNewLocation(xAxis, yAxis, zAxis);
-
-                        if (!instantOpen)
-                            savedBlocks.get(index).getFBlock().remove();
-
-                        if (!savedBlocks.get(index).getMat().equals(Material.AIR))
-                            if (plugin.isOnFlattenedVersion())
-                            {
-                                savedBlocks.get(index).getBlock().putBlock(newPos);
-
-                                Block b = world.getBlockAt(newPos);
-                                BlockState bs = b.getState();
-                                bs.update();
-                            }
-                            else
-                            {
-                                Block b = world.getBlockAt(newPos);
-                                MaterialData matData = savedBlocks.get(index).getMatData();
-                                matData.setData(matByte);
-
-                                b.setType(mat);
-                                BlockState bs = b.getState();
-                                bs.setData(matData);
-                                bs.update();
-                            }
-                    }
-                    ++index;
-                }
-                ++zAxis;
-            }
-            while (zAxis <= zMax);
-            ++yAxis;
-        }
-        while (yAxis <= yMax);
-        savedBlocks.clear();
-
-        // Tell the door object it has been opened and what its new coordinates are.
-        updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove, false);
-        toggleOpen(door);
-
-        if (!onDisable)
-        {
-            int delay = buttonDelay(endCount)
-                + Math.min(plugin.getMinimumDoorDelay(), plugin.getConfigLoader().coolDown() * 20);
-            new BukkitRunnable()
-            {
-                @Override
-                public void run()
-                {
-                    plugin.getCommander().setDoorAvailable(door.getDoorUID());
-                    Bukkit.getPluginManager()
-                        .callEvent(new DoorEventToggleEnd(door, (door.isOpen() ? ToggleType.OPEN : ToggleType.CLOSE),
-                                                          instantOpen));
-
-                    if (door.isOpen())
-                        plugin.getAutoCloseScheduler().scheduleAutoClose(door, time, instantOpen);
-                }
-            }.runTaskLater(plugin, delay);
-        }
+        super.putBlocks(onDisable, time, endCount,
+                        (__, x, y, z) -> getNewLocation(x, y, z),
+                        () -> updateCoords(door, null, blocksToMove > 0 ? RotateDirection.UP : RotateDirection.DOWN, blocksToMove, false));
     }
 
     private Location getNewLocation(double xAxis, double yAxis, double zAxis)
@@ -276,9 +190,9 @@ public class VerticalMover extends BlockMover
                 if (!plugin.getCommander().canGo() || counter > totalTicks || firstBlockData == null)
                 {
                     Util.playSound(door.getEngine(), "bd.thud", 2f, 0.15f);
-                    for (int idx = 0; idx < savedBlocks.size(); ++idx)
-                        if (!savedBlocks.get(idx).getMat().equals(Material.AIR))
-                            savedBlocks.get(idx).getFBlock().setVelocity(new Vector(0D, 0D, 0D));
+                    for (MyBlockData savedBlock : savedBlocks)
+                        if (!savedBlock.getMat().equals(Material.AIR))
+                            savedBlock.getFBlock().setVelocity(new Vector(0D, 0D, 0D));
                     Bukkit.getScheduler().callSyncMethod(plugin, () ->
                     {
                         putBlocks(false);
@@ -300,12 +214,6 @@ public class VerticalMover extends BlockMover
             }
         };
         animationRunnable.runTaskTimerAsynchronously(plugin, 14, tickRate);
-    }
-
-    // Toggle the open status of a drawbridge.
-    private void toggleOpen(Door door)
-    {
-        door.setOpenStatus(!door.isOpen());
     }
 
     // Update the coordinates of a door based on its location, direction it's

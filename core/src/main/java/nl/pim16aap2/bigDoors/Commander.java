@@ -487,7 +487,7 @@ public class Commander
     {
         private DummyMover()
         {
-            super(BigDoors.get(), null);
+            super(BigDoors.get(), null, false);
         }
 
         @Override
