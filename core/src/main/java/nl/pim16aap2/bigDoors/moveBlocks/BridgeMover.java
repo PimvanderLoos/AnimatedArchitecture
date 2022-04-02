@@ -311,7 +311,7 @@ public class BridgeMover extends BlockMover
             {
                 NMSBlock block = mbd.getBlock();
                 if (block != null && Util.isAllowedBlock(mbd.getMat()))
-                    block.deleteOriginalBlock();
+                    block.deleteOriginalBlock(false);
             }
 
         savedBlocks.trimToSize();

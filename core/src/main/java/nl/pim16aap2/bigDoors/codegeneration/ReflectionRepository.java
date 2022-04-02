@@ -19,11 +19,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
 
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findClass;
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findConstructor;
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findField;
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.findMethod;
-import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.parameterBuilder;
+import static nl.pim16aap2.bigDoors.reflection.ReflectionBuilder.*;
 
 final class ReflectionRepository
 {
@@ -307,8 +303,8 @@ final class ReflectionRepository
             .inClass(classCraftEntity).withName("setCustomNameVisible").withParameters(boolean.class).get();
         methodIsAssignableFrom = findMethod().inClass(Class.class).withName("isAssignableFrom")
                                              .withParameters(Class.class).get();
-        methodSetBlockType = findMethod().inClass(Block.class).withName("setType").withParameters(Material.class)
-                                         .get();
+        methodSetBlockType = findMethod().inClass(Block.class).withName("setType")
+                                         .withParameters(Material.class, boolean.class).get();
         methodEnumOrdinal = findMethod().inClass(Enum.class).withName("ordinal").get();
         methodArrayGetIdx = findMethod().inClass(Array.class).withName("get")
                                         .withParameters(Object.class, int.class).get();

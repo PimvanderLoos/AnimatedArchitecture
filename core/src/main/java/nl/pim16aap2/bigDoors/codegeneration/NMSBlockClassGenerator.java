@@ -78,7 +78,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
     public static final Method METHOD_CAN_ROTATE =
         findMethod().inClass(NMSBlock.class).withName("canRotate").get();
     public static final Method METHOD_DELETE_ORIGINAL_BLOCK =
-        findMethod().inClass(NMSBlock.class).withName("deleteOriginalBlock").get();
+        findMethod().inClass(NMSBlock.class).withName("deleteOriginalBlock").withParameters(boolean.class).get();
     public static final Method METHOD_PUT_BLOCK =
         findMethod().inClass(NMSBlock.class).withName("putBlock").get();
 
@@ -331,7 +331,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
             .define(METHOD_DELETE_ORIGINAL_BLOCK)
             .intercept(invoke(methodSetBlockType)
                            .onMethodCall(invoke(methodLocationGetBlock).onField(FIELD_LOCATION))
-                           .with(Material.AIR));
+                           .with(Material.AIR)
+                           .withArgument(0));
 
         return builder;
     }

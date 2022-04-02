@@ -1,7 +1,12 @@
 package nl.pim16aap2.bigDoors.NMS;
 
-import java.util.Set;
-
+import com.cryptomorin.xseries.XMaterial;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.BlockRotatable;
+import net.minecraft.server.v1_13_R2.EnumBlockRotation;
+import net.minecraft.server.v1_13_R2.EnumDirection.EnumAxis;
+import net.minecraft.server.v1_13_R2.IBlockData;
+import nl.pim16aap2.bigDoors.util.RotateDirection;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,13 +17,7 @@ import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 
-import net.minecraft.server.v1_13_R2.BlockPosition;
-import net.minecraft.server.v1_13_R2.BlockRotatable;
-import net.minecraft.server.v1_13_R2.EnumBlockRotation;
-import net.minecraft.server.v1_13_R2.EnumDirection.EnumAxis;
-import net.minecraft.server.v1_13_R2.IBlockData;
-import nl.pim16aap2.bigDoors.util.RotateDirection;
-import com.cryptomorin.xseries.XMaterial;
+import java.util.Set;
 
 public class NMSBlock_V1_13_R1_5 extends net.minecraft.server.v1_13_R2.Block implements NMSBlock
 {
@@ -152,8 +151,8 @@ public class NMSBlock_V1_13_R1_5 extends net.minecraft.server.v1_13_R2.Block imp
     }
 
     @Override
-    public void deleteOriginalBlock()
+    public void deleteOriginalBlock(boolean applyPhysics)
     {
-        loc.getWorld().getBlockAt(loc).setType(Material.AIR);
+        loc.getWorld().getBlockAt(loc).setType(Material.AIR, applyPhysics);
     }
 }

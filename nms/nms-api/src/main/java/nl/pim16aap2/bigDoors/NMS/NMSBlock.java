@@ -17,7 +17,7 @@ public interface NMSBlock
     void rotateCylindrical(RotateDirection rotDir);
     boolean canRotate();
 
-    void deleteOriginalBlock();
+    void deleteOriginalBlock(boolean applyPhysics);
     @Override
     String toString();
 }
