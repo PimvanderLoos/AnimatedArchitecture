@@ -221,12 +221,7 @@ public class BridgeMover extends BlockMover
                     if (upDown == RotateDirection.DOWN)
                         radius = yAxis - turningPoint.getBlockY();
 
-                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're
-                    // touching through the ground,
-                    // which would make them slower than the rest.
-                    if (yAxis == yMin)
-                        newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
+                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
 
                     Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     Material mat = vBlock.getType();

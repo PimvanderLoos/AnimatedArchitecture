@@ -108,11 +108,7 @@ public class SlidingMover extends BlockMover
                 for (int xAxis = xMin; xAxis <= xMax; xAxis++)
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
-                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're
-                    // touching through the ground, which would make them slower than the rest.
-                    if (yAxis == yMin)
-                        newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
+                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat = vBlock.getType();
                     if (Util.isAllowedBlock(mat))
@@ -312,8 +308,6 @@ public class SlidingMover extends BlockMover
                     else
                         loc.setX(loc.getX() + stepSum);
 
-                    if (firstBlockData.getStartLocation().getBlockY() != yMin)
-                        loc.setY(loc.getY() - .010001);
                     Vector vec = loc.toVector().subtract(firstBlockData.getFBlock().getLocation().toVector());
                     vec.multiply(0.101);
 

@@ -109,11 +109,7 @@ public class CylindricalMover extends BlockMover
                 for (double yAxis = yMin; yAxis <= yMax; yAxis++)
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
-                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis - 0.020, zAxis + 0.5);
-                    // Move the lowest blocks up a little, so the client won't predict they're
-                    // touching through the ground, which would make them slower than the rest.
-                    if (yAxis == yMin)
-                        newFBlockLocation.setY(newFBlockLocation.getY() + .010001);
+                    Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
 
                     final Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
                     final Material mat = vBlock.getType();
@@ -376,10 +372,7 @@ public class CylindricalMover extends BlockMover
                                     Location loc = block.getFBlock().getLocation();
                                     byte matData = block.getBlockByte();
                                     Vector veloc = block.getFBlock().getVelocity();
-                                    // For some reason respawning fblocks puts them higher than they were, which has
-                                    // to be counteracted.
-                                    if (block.getStartLocation().getBlockY() != yMin)
-                                        loc.setY(loc.getY() - .010001);
+
                                     CustomCraftFallingBlock fBlock;
                                     // Because the block in savedBlocks is already rotated where applicable, just
                                     // use that block now.
@@ -398,7 +391,7 @@ public class CylindricalMover extends BlockMover
                         if (!block.getMat().equals(Material.AIR))
                         {
                             double radius = block.getRadius();
-                            int yPos = block.getStartLocation().getBlockY();
+                            double yPos = block.getStartLocation().getBlockY();
 
                             if (radius != 0)
                             {
