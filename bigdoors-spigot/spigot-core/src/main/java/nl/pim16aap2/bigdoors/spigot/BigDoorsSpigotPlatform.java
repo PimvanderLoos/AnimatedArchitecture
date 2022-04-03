@@ -39,6 +39,7 @@ import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
 import nl.pim16aap2.bigdoors.moveblocks.AutoCloseScheduler;
 import nl.pim16aap2.bigdoors.moveblocks.DoorActivityManager;
+import nl.pim16aap2.bigdoors.spigot.comands.CommandListener;
 import nl.pim16aap2.bigdoors.spigot.exceptions.InitializationException;
 import nl.pim16aap2.bigdoors.spigot.listeners.ChunkListener;
 import nl.pim16aap2.bigdoors.spigot.listeners.EventListeners;
@@ -201,6 +202,8 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     @SuppressWarnings({"FieldCanBeLocal", "unused", "PMD.SingularField"})
     private final WorldListener worldListener;
 
+    private final CommandListener commandListener;
+
     BigDoorsSpigotPlatform(BigDoorsSpigotComponent bigDoorsSpigotComponent, BigDoorsPlugin plugin)
         throws InitializationException
     {
@@ -268,6 +271,7 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
         blockAnalyzer = safeGetter(BigDoorsSpigotComponent::getBlockAnalyzer);
         doorTypeLoader = safeGetter(BigDoorsSpigotComponent::getDoorTypeLoader);
         restartableHolder = safeGetter(BigDoorsSpigotComponent::getRestartableHolder);
+        commandListener = safeGetter(BigDoorsSpigotComponent::getCommandListener);
 
         initPlatform();
     }
@@ -282,6 +286,21 @@ final class BigDoorsSpigotPlatform implements IBigDoorsPlatform
     {
         safeGetter(BigDoorsSpigotComponent::getDebuggableRegistry).registerDebuggable(restartableHolder);
         getAnimationHookManager().registerFactory(safeGetter(BigDoorsSpigotComponent::getAudioAnimationHookFactory));
+
+        init();
+    }
+
+    private void init()
+        throws InitializationException
+    {
+        try
+        {
+            commandListener.init();
+        }
+        catch (Exception e)
+        {
+            throw new InitializationException("Failed to initialize command listener!", e);
+        }
     }
 
     @SuppressWarnings("NullAway") // NullAway doesn't like nullable in functional interfaces

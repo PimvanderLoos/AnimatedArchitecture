@@ -47,8 +47,9 @@ public final class CommandListener
     private @Nullable CommandConfirmationManager<ICommandSender> confirmationManager;
 
     @Inject//
-    CommandListener(JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
-                    DoorRetrieverFactory doorRetrieverFactory)
+    CommandListener(
+        JavaPlugin plugin, ILocalizer localizer, CommandFactory commandFactory,
+        DoorRetrieverFactory doorRetrieverFactory)
     {
         this.plugin = plugin;
         this.localizer = localizer;
@@ -132,6 +133,8 @@ public final class CommandListener
         initCmdStopDoors(manager, builder);
         initCmdToggle(manager, builder);
         initCmdVersion(manager, builder);
+
+        builder.build();
     }
 
     private void initCmdAddOwner(
@@ -141,18 +144,21 @@ public final class CommandListener
         manager.command(
             builder.literal("addowner")
                    .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.add_owner.description"))
+                   .permission("bigdoors.user.addowner")
                    .argument(new DoorArgument(true, "doorRetriever", "MyDoor", null, ArgumentDescription.empty(),
                                               asyncCompletions, doorRetrieverFactory, 1))
                    .argument(PlayerArgument.of("newOwner"))
                    .argument(IntegerArgument.<ICommandSender>newBuilder("permissionLevel")
-                                            .withMin(0).withMax(2).asOptional().build())
+                                            .withMin(0).withMax(2).asOptional()
+                                            .withDefaultDescription(ArgumentDescription.of(localizer.getMessage(
+                                                "commands.add_owner.param.permission_level.description"))).build())
                    .handler(
                        commandContext ->
                        {
                            final IPPlayer newOwner = new PPlayerSpigot(commandContext.get("newOwner"));
                            final DoorRetriever doorRetriever = commandContext.get("doorRetriever");
                            commandFactory.newAddOwner(commandContext.getSender(), doorRetriever, newOwner,
-                                                      commandContext.getOrDefault("permissionLevel", null));
+                                                      commandContext.getOrDefault("permissionLevel", null)).run();
                        })
         );
     }
@@ -175,7 +181,12 @@ public final class CommandListener
         BukkitCommandManager<ICommandSender> manager,
         Command.Builder<ICommandSender> builder)
     {
-
+        manager.command(
+            builder.literal("debug")
+                   .meta(CommandMeta.DESCRIPTION, localizer.getMessage("commands.debug.description"))
+                   .permission("bigdoors.debug")
+                   .handler(commandContext -> commandFactory.newDebug(commandContext.getSender()).run())
+        );
     }
 
     private void initCmdDelete(

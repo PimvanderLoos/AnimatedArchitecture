@@ -18,6 +18,7 @@
         <dependency.version.cloud>1.6.2</dependency.version.cloud>
         <dependency.version.adventure-api>4.10.1</dependency.version.adventure-api>
         <dependency.version.adventure-bukkit>4.1.0</dependency.version.adventure-bukkit>
+        <dependency.version.commodore>1.13</dependency.version.commodore>
         <dependency.version.flogger>0.7.4</dependency.version.flogger>
         <dependency.version.slf4j>1.7.36</dependency.version.slf4j>
         <dependency.version.logback>1.2.11</dependency.version.logback>
@@ -400,6 +401,10 @@
                             <relocation>
                                 <pattern>cloud.commandframework</pattern>
                                 <shadedPattern>nl.pim16aap2.bigdoors.lib.cloud</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>me.lucko.commodore</pattern>
+                                <shadedPattern>nl.pim16aap2.bigdoors.lib.commodore</shadedPattern>
                             </relocation>
                             <relocation>
                                 <pattern>net.kyori</pattern>

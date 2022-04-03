@@ -106,13 +106,12 @@ public abstract class BaseCommand
     }
 
     /**
-     * Creates (but does not execute!) a new command if certain criteria are met (i.e. the {@link ICommandSender} has
-     * access and {@link #validInput()} returns true).
+     * Executes the command.
      *
      * @return True if the command could be executed successfully or if the command execution failed through no fault of
      * the {@link ICommandSender}.
      */
-    protected final CompletableFuture<Boolean> run()
+    public final CompletableFuture<Boolean> run()
     {
         log();
         if (!validInput())
