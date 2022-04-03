@@ -212,7 +212,7 @@ public final class BigDoorsPlugin extends JavaPlugin implements IBigDoorsPlatfor
         {
             updateManager = null;
         }
-        new LoginMessageListener(this, updateManager);
+        new LoginMessageListener(this, updateManager, null);
     }
 
     @Override

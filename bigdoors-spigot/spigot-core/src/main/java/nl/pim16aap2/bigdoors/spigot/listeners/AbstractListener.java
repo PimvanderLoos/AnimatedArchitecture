@@ -22,9 +22,14 @@ public abstract class AbstractListener implements Listener, IRestartable
 
     protected boolean isRegistered = false;
 
-    // Private back-end constructor that has the true nullability annotations for the different types.
-    private AbstractListener(JavaPlugin plugin, @Nullable RestartableHolder holder,
-                             @Nullable Supplier<Boolean> enabler)
+    /**
+     * @param plugin
+     *     The {@link JavaPlugin} to use for (un)registering this listener. May be null.
+     * @param enabler
+     *     A supplier that is used to query whether this listener should be enabled. When this is not provided, it is
+     *     assumed that this listener should always be enabled.
+     */
+    public AbstractListener(@Nullable RestartableHolder holder, JavaPlugin plugin, @Nullable Supplier<Boolean> enabler)
     {
         if (holder != null)
             holder.registerRestartable(this);
@@ -33,31 +38,11 @@ public abstract class AbstractListener implements Listener, IRestartable
     }
 
     /**
-     * @param plugin
-     *     The {@link JavaPlugin} to use for (un)registering this listener. May be null.
-     * @param enabler
-     *     A supplier that is used to query whether this listener should be enabled. When this is not provided, it is
-     *     assumed that this listener should always be enabled.
-     */
-    public AbstractListener(RestartableHolder holder, JavaPlugin plugin, Supplier<Boolean> enabler)
-    {
-        this(plugin, holder, enabler);
-    }
-
-    /**
      * See {@link #AbstractListener(RestartableHolder, JavaPlugin, Supplier)}
      */
-    protected AbstractListener(RestartableHolder holder, JavaPlugin plugin)
+    protected AbstractListener(@Nullable RestartableHolder holder, JavaPlugin plugin)
     {
-        this(plugin, holder, null);
-    }
-
-    /**
-     * See {@link #AbstractListener(RestartableHolder, JavaPlugin, Supplier)}
-     */
-    protected AbstractListener(JavaPlugin plugin)
-    {
-        this(plugin, null, null);
+        this(holder, plugin, null);
     }
 
     /**

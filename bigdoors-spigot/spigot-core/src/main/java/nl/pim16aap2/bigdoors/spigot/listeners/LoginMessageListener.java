@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.spigot.BigDoorsPlugin;
 import nl.pim16aap2.bigdoors.spigot.managers.UpdateManager;
 import nl.pim16aap2.bigdoors.util.Constants;
@@ -25,10 +26,11 @@ public final class LoginMessageListener extends AbstractListener
     private final @Nullable UpdateManager updateManager;
 
     @Inject
-    public LoginMessageListener(BigDoorsPlugin plugin, @Nullable UpdateManager updateManager)
+    public LoginMessageListener(
+        BigDoorsPlugin javaPlugin, @Nullable UpdateManager updateManager, @Nullable RestartableHolder restartableHolder)
     {
-        super(plugin);
-        this.plugin = plugin;
+        super(restartableHolder, javaPlugin);
+        this.plugin = javaPlugin;
         this.updateManager = updateManager;
         register();
     }

@@ -1,5 +1,6 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -22,9 +23,10 @@ public final class WorldListener extends AbstractListener
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public WorldListener(JavaPlugin plugin, PowerBlockManager powerBlockManager)
+    public WorldListener(
+        JavaPlugin javaPlugin, PowerBlockManager powerBlockManager, RestartableHolder restartableHolder)
     {
-        super(plugin);
+        super(restartableHolder, javaPlugin);
         this.powerBlockManager = powerBlockManager;
         for (final World world : Bukkit.getWorlds())
             powerBlockManager.loadWorld(world.getName());

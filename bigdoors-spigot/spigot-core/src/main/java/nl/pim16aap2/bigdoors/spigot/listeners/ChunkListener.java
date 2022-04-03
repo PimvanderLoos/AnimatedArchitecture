@@ -2,6 +2,7 @@ package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
 import nl.pim16aap2.bigdoors.annotations.Initializer;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.PowerBlockManager;
 import nl.pim16aap2.bigdoors.util.Util;
@@ -43,9 +44,11 @@ public class ChunkListener extends AbstractListener
     private final PowerBlockManager powerBlockManager;
 
     @Inject
-    public ChunkListener(JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager)
+    public ChunkListener(
+        JavaPlugin javaPlugin, DatabaseManager databaseManager, PowerBlockManager powerBlockManager,
+        RestartableHolder restartableHolder)
     {
-        super(javaPlugin);
+        super(restartableHolder, javaPlugin);
         this.databaseManager = databaseManager;
         this.powerBlockManager = powerBlockManager;
         isCancellable = org.bukkit.event.Cancellable.class.isAssignableFrom(ChunkUnloadEvent.class);

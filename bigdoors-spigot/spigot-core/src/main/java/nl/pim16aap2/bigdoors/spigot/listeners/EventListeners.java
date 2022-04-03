@@ -1,6 +1,7 @@
 package nl.pim16aap2.bigdoors.spigot.listeners;
 
 import lombok.extern.flogger.Flogger;
+import nl.pim16aap2.bigdoors.api.restartable.RestartableHolder;
 import nl.pim16aap2.bigdoors.managers.DatabaseManager;
 import nl.pim16aap2.bigdoors.managers.DelayedCommandInputManager;
 import nl.pim16aap2.bigdoors.managers.ToolUserManager;
@@ -45,11 +46,12 @@ public class EventListeners extends AbstractListener
     private final DelayedCommandInputManager delayedCommandInputManager;
 
     @Inject
-    public EventListeners(JavaPlugin javaPlugin, BigDoorsToolUtilSpigot bigDoorsToolUtil,
-                          DatabaseManager databaseManager, ToolUserManager toolUserManager,
-                          DelayedCommandInputManager delayedCommandInputManager)
+    public EventListeners(
+        JavaPlugin javaPlugin, BigDoorsToolUtilSpigot bigDoorsToolUtil, DatabaseManager databaseManager,
+        ToolUserManager toolUserManager, DelayedCommandInputManager delayedCommandInputManager,
+        RestartableHolder restartableHolder)
     {
-        super(javaPlugin);
+        super(restartableHolder, javaPlugin);
         this.bigDoorsToolUtil = bigDoorsToolUtil;
         this.databaseManager = databaseManager;
         this.toolUserManager = toolUserManager;
