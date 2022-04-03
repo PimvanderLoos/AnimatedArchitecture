@@ -95,10 +95,10 @@ public class CylindricalMover extends BlockMover
     {
         savedBlocks.ensureCapacity(door.getBlockCount());
 
-        double xAxis = turningPoint.getX();
+        int xAxis = turningPoint.getBlockX();
         do
         {
-            double zAxis = turningPoint.getZ();
+            int zAxis = turningPoint.getBlockZ();
             do
             {
                 final double xRadius = Math.abs(xAxis - turningPoint.getBlockX());
@@ -107,12 +107,12 @@ public class CylindricalMover extends BlockMover
                 // Get the radius of this pillar.
                 final double radius = Math.max(xRadius, zRadius);
 
-                for (double yAxis = yMin; yAxis <= yMax; yAxis++)
+                for (int yAxis = yMin; yAxis <= yMax; yAxis++)
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
 
-                    final Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                    final Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
                     final Material mat = vBlock.getType();
 
                     if (Util.isAllowedBlock(mat))
@@ -121,7 +121,7 @@ public class CylindricalMover extends BlockMover
                         final BlockState bs = vBlock.getState();
                         final MaterialData materialData = bs.getData();
 
-                        final NMSBlock block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        final NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                         NMSBlock block2 = null;
 
                         byte matByte = matData;
@@ -130,7 +130,7 @@ public class CylindricalMover extends BlockMover
                         // Rotate blocks here so they don't interrupt the rotation animation.
                         if (canRotate != 0)
                         {
-                            Location pos = new Location(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                            Location pos = new Location(world, xAxis, yAxis, zAxis);
                             if (canRotate == 1 || canRotate == 3)
                                 matByte = rotateBlockDataLog(matData);
                             else if (canRotate == 2)
@@ -147,7 +147,7 @@ public class CylindricalMover extends BlockMover
                             {
                                 if (canRotate == 6 || canRotate == 8)
                                 {
-                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                                     block2.rotateCylindrical(this.rotDirection);
                                 }
                                 else
@@ -156,7 +156,7 @@ public class CylindricalMover extends BlockMover
                                     BlockState bs2 = b.getState();
                                     bs2.setData(materialData);
                                     bs2.update();
-                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                                 }
                             }
                         }

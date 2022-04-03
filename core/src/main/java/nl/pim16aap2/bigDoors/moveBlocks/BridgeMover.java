@@ -199,11 +199,10 @@ public class BridgeMover extends BlockMover
     {
         savedBlocks.ensureCapacity(door.getBlockCount());
 
-        int index = 0;
-        double xAxis = turningPoint.getX();
+        int xAxis = turningPoint.getBlockX();
         do
         {
-            double zAxis = turningPoint.getZ();
+            int zAxis = turningPoint.getBlockZ();
             do
             {
                 // Get the radius of this row.
@@ -216,7 +215,7 @@ public class BridgeMover extends BlockMover
                         radius = Math.abs(xAxis - turningPoint.getBlockX());
                 }
 
-                for (double yAxis = yMin; yAxis <= yMax; ++yAxis)
+                for (int yAxis = yMin; yAxis <= yMax; ++yAxis)
                 {
                     Location startLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
                     if (upDown == RotateDirection.DOWN)
@@ -224,7 +223,7 @@ public class BridgeMover extends BlockMover
 
                     Location newFBlockLocation = new Location(world, xAxis + 0.5, yAxis, zAxis + 0.5);
 
-                    Block vBlock = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                    Block vBlock = world.getBlockAt(xAxis, yAxis, zAxis);
                     Material mat = vBlock.getType();
                     if (Util.isAllowedBlock(mat))
                     {
@@ -232,7 +231,7 @@ public class BridgeMover extends BlockMover
                         BlockState bs = vBlock.getState();
                         MaterialData materialData = bs.getData();
 
-                        NMSBlock block = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                        NMSBlock block = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                         NMSBlock block2 = null;
 
                         int canRotate = 0;
@@ -247,19 +246,19 @@ public class BridgeMover extends BlockMover
                                 rotateEndRotBlockData(matData);
                             if (canRotate != 6 && canRotate != 8)
                                 matByte = canRotate == 7 ? rotateEndRotBlockData(matData) : rotateBlockData(matData);
-                            Block b = world.getBlockAt((int) xAxis, (int) yAxis, (int) zAxis);
+                            Block b = world.getBlockAt(xAxis, yAxis, zAxis);
                             materialData.setData(matByte);
 
                             if (BigDoors.isOnFlattenedVersion())
                             {
                                 if (canRotate == 6)
                                 {
-                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                                     block2.rotateBlockUpDown(NS);
                                 }
                                 else if (canRotate == 8)
                                 {
-                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                                     block2.rotateVerticallyInDirection(openDirection);
                                 }
                                 else
@@ -268,7 +267,7 @@ public class BridgeMover extends BlockMover
                                     BlockState bs2 = b.getState();
                                     bs2.setData(materialData);
                                     bs2.update();
-                                    block2 = fabf.nmsBlockFactory(world, (int) xAxis, (int) yAxis, (int) zAxis);
+                                    block2 = fabf.nmsBlockFactory(world, xAxis, yAxis, zAxis);
                                 }
                             }
                         }
@@ -279,13 +278,9 @@ public class BridgeMover extends BlockMover
                         if (!instantOpen)
                             fBlock = fabf.fallingBlockFactory(newFBlockLocation, block, matData, mat);
 
-                        savedBlocks.add(index,
-                                        new MyBlockData(mat, matByte, fBlock, radius, materialData,
+                        savedBlocks.add(new MyBlockData(mat, matByte, fBlock, radius, materialData,
                                                         block2 == null ? block : block2, canRotate, startLocation));
                     }
-                    else
-                        savedBlocks.add(index, new MyBlockData(Material.AIR));
-                    index++;
                 }
                 zAxis += dz;
             }

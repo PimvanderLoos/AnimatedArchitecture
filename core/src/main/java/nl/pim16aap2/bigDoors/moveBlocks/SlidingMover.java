@@ -99,7 +99,6 @@ public class SlidingMover extends BlockMover
     {
         savedBlocks.ensureCapacity(door.getBlockCount());
 
-        int index = 0;
         int yAxis = yMin;
         do
         {
@@ -126,12 +125,8 @@ public class SlidingMover extends BlockMover
                         if (!instantOpen)
                             fBlock = fabf.fallingBlockFactory(newFBlockLocation, block, matData, mat);
                         savedBlocks
-                            .add(index,
-                                 new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
+                            .add(new MyBlockData(mat, matData, fBlock, 0, materialData, block, 0, startLocation));
                     }
-                    else
-                        savedBlocks.add(index, new MyBlockData(Material.AIR));
-                    ++index;
                 }
                 ++zAxis;
             }
