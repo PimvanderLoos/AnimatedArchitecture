@@ -533,18 +533,11 @@ public final class Util
             return 2;
         // Panes only have to rotate on 1.13+.
         // On versions before, rotating it only changes its color...
-        if ((BigDoors.get().isOnFlattenedVersion()) &&
-            (xmat.equals(XMaterial.WHITE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.YELLOW_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.PURPLE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.GRAY_STAINED_GLASS_PANE) || xmat.equals(XMaterial.GREEN_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.BLACK_STAINED_GLASS_PANE) || xmat.equals(XMaterial.LIME_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.BLUE_STAINED_GLASS_PANE) || xmat.equals(XMaterial.BROWN_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.CYAN_STAINED_GLASS_PANE) || xmat.equals(XMaterial.RED_STAINED_GLASS_PANE) ||
-             xmat.equals(XMaterial.MAGENTA_STAINED_GLASS_PANE)))
+        if ((BigDoors.isOnFlattenedVersion()) && (mat.toString().endsWith("GLASS_PANE")))
             return 3;
         if (xmat.equals(XMaterial.ANVIL))
             return 4;
-        if (xmat.equals(XMaterial.COBBLESTONE_WALL))
+        if (mat.toString().endsWith("_WALL"))
             return 5;
         if (xmat.equals(XMaterial.STRIPPED_ACACIA_LOG) || xmat.equals(XMaterial.STRIPPED_BIRCH_LOG) ||
             xmat.equals(XMaterial.STRIPPED_SPRUCE_LOG) || xmat.equals(XMaterial.STRIPPED_DARK_OAK_LOG) ||
@@ -553,7 +546,16 @@ public final class Util
             return 6;
         if (xmat.equals(XMaterial.END_ROD))
             return 7;
-        if (xmat.equals(XMaterial.LIGHTNING_ROD))
+        if (xmat.equals(XMaterial.LIGHTNING_ROD) || xmat.equals(XMaterial.REDSTONE_WIRE) ||
+            mat.toString().endsWith("BUTTON") || xmat.equals(XMaterial.REPEATER) ||
+            mat.toString().endsWith("RAIL") || xmat.equals(XMaterial.TRIPWIRE_HOOK) ||
+            mat.toString().endsWith("_DOOR") || mat.toString().endsWith("_HEAD") ||
+            mat.toString().endsWith("_SIGN") || mat.toString().endsWith("_BANNER") ||
+            xmat.equals(XMaterial.WALL_TORCH) || xmat.equals(XMaterial.SOUL_WALL_TORCH) ||
+            xmat.equals(XMaterial.REDSTONE_WALL_TORCH) || xmat.equals(XMaterial.VINE) ||
+            xmat.equals(XMaterial.COMPARATOR) || xmat.equals(XMaterial.LADDER) ||
+            xmat.equals(XMaterial.LEVER) || xmat.equals(XMaterial.BIG_DRIPLEAF) ||
+            xmat.equals(XMaterial.BIG_DRIPLEAF_STEM) || xmat.equals(XMaterial.SMALL_DRIPLEAF))
             return 8;
         return 0;
     }
@@ -586,11 +588,12 @@ public final class Util
             return true;
 
         if (name.endsWith("BANNER") || name.endsWith("SHULKER_BOX") || name.endsWith("DOOR") ||
-            name.endsWith("CARPET") || name.endsWith("BUTTON") || name.endsWith("BED") ||
-            name.endsWith("PRESSURE_PLATE") || name.endsWith("SIGN") || name.endsWith("SAPLING") ||
-            name.endsWith("TORCH") || name.endsWith("HEAD") || name.endsWith("SKULL") || name.endsWith("RAIL") ||
-            name.endsWith("TULIP"))
+            name.endsWith("BED") || name.endsWith("SIGN") || name.endsWith("HEAD") || name.endsWith("SKULL"))
             return false;
+
+        if (name.endsWith("CARPET") || name.endsWith("BUTTON") || name.endsWith("PRESSURE_PLATE") ||
+            name.endsWith("SAPLING") || name.endsWith("TORCH") || name.endsWith("RAIL") || name.endsWith("TULIP"))
+            return BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18);
 
         XMaterial xmat = XMaterial.matchXMaterial(name).orElse(null);
         if (xmat == null)
@@ -601,9 +604,69 @@ public final class Util
 
         switch (xmat)
         {
+        case CAKE:
+        case LEVER:
+        case REDSTONE_WIRE:
+        case TRIPWIRE:
+        case TRIPWIRE_HOOK:
+        case BROWN_MUSHROOM:
+        case RED_MUSHROOM:
+        case DEAD_BUSH:
+        case FERN:
+        case LARGE_FERN:
+        case ROSE_BUSH:
+        case ATTACHED_MELON_STEM:
+        case ATTACHED_PUMPKIN_STEM:
+        case WHITE_TULIP:
+        case LILY_PAD:
+        case SUGAR_CANE:
+        case PUMPKIN_STEM:
+        case NETHER_WART:
+        case NETHER_WART_BLOCK:
+        case VINE:
+        case CHORUS_FLOWER:
+        case CHORUS_FRUIT:
+        case CHORUS_PLANT:
+        case SUNFLOWER:
+        case REPEATER:
+        case COMPARATOR:
+        case SEA_PICKLE:
+        case POPPY:
+        case BLUE_ORCHID:
+        case ALLIUM:
+        case AZURE_BLUET:
+        case OXEYE_DAISY:
+        case LILAC:
+        case PEONY:
+        case GRASS:
+        case TALL_GRASS:
+        case SEAGRASS:
+        case TALL_SEAGRASS:
+        case LADDER:
+        case DANDELION:
+        case CORNFLOWER:
+        case LILY_OF_THE_VALLEY:
+        case WITHER_ROSE:
+        case SWEET_BERRY_BUSH:
+        case LANTERN:
+        case BELL:
+        case CAVE_VINES:
+        case CAVE_VINES_PLANT:
+        case GLOW_LICHEN:
+        case MOSS_CARPET:
+        case AMETHYST_CLUSTER:
+        case BIG_DRIPLEAF:
+        case BIG_DRIPLEAF_STEM:
+            return BigDoors.getMCVersion().isAtLeast(BigDoors.MCVersion.v1_18);
+
+
+
         case AIR:
         case WATER:
         case LAVA:
+
+        case GLOW_ITEM_FRAME:
+        case ITEM_FRAME:
 
         case ARMOR_STAND:
         case BREWING_STAND:
@@ -619,67 +682,17 @@ public final class Util
         case SPAWNER:
         case FURNACE:
         case FURNACE_MINECART:
-        case CAKE:
-
-        case LEVER:
 
         case REDSTONE:
-        case REDSTONE_WIRE:
         case TRAPPED_CHEST:
-        case TRIPWIRE:
-        case TRIPWIRE_HOOK:
 
-        case BROWN_MUSHROOM:
-        case RED_MUSHROOM:
-        case DEAD_BUSH:
-        case FERN:
-        case LARGE_FERN:
-        case CONDUIT:
-
-        case ROSE_BUSH:
-        case ATTACHED_MELON_STEM:
-        case ATTACHED_PUMPKIN_STEM:
-        case WHITE_TULIP:
-        case LILY_PAD:
-        case SUGAR_CANE:
-        case PUMPKIN_STEM:
-        case NETHER_WART:
-        case NETHER_WART_BLOCK:
-        case VINE:
-        case CHORUS_FLOWER:
-        case CHORUS_FRUIT:
-        case CHORUS_PLANT:
-        case SUNFLOWER:
-
-        case REPEATER:
         case COMMAND_BLOCK:
         case COMMAND_BLOCK_MINECART:
-        case COMPARATOR:
-        case SEA_PICKLE:
-
-        case POPPY:
-        case BLUE_ORCHID:
-        case ALLIUM:
-        case AZURE_BLUET:
-        case OXEYE_DAISY:
-        case LILAC:
-        case PEONY:
-        case GRASS:
-        case TALL_GRASS:
-        case SEAGRASS:
-        case TALL_SEAGRASS:
-
-        case LADDER:
 
         case STRUCTURE_BLOCK:
         case STRUCTURE_VOID:
 
             /* 1.14 start */
-
-        case DANDELION:
-        case CORNFLOWER:
-        case LILY_OF_THE_VALLEY:
-        case WITHER_ROSE:
         case BARREL:
 
         case BLAST_FURNACE:
@@ -692,28 +705,13 @@ public final class Util
         case LECTERN:
         case LOOM:
         case SMITHING_TABLE:
-//        case SMOKER:
         case STONECUTTER:
-        case SWEET_BERRY_BUSH:
-        case LANTERN:
-        case BELL:
             /* 1.14 end */
 
             /* 1.15 start */
         case BEEHIVE:
         case BEE_NEST:
             /* 1.15 end */
-
-            /* 1.17 start */
-        case CAVE_VINES:
-        case CAVE_VINES_PLANT:
-        case GLOW_ITEM_FRAME:
-        case GLOW_LICHEN:
-        case MOSS_CARPET:
-        case AMETHYST_CLUSTER:
-        case BIG_DRIPLEAF:
-        case BIG_DRIPLEAF_STEM:
-            /* 1.17 end */
 
             return false;
         default:

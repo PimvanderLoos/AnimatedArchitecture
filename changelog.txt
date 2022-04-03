@@ -1,5 +1,6 @@
 Alpha 0.1.8.38
 - Fixed bottom row of blocks sometimes lagging behind the rest of the door when dragging over other blocks (BigDoor, SlidingDoor).
+- Allow certain types of attached blocks (e.g. torches, rails, plants, redstone, etc) to be part of doors on 1.18+.
 
 Alpha 0.1.8.37
 - Add support for Minecraft 1.18.2. Massive thanks to Bonn2 for helping me test this!
