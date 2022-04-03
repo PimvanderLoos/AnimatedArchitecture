@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Objects;
 import java.util.Set;
 
 import static net.bytebuddy.implementation.MethodCall.construct;
@@ -461,6 +462,8 @@ final class NMSBlockClassGenerator extends ClassGenerator
 
     public static class DeleteOriginalBlock
     {
+        private static final Material RESET_MATERIAL = Objects.requireNonNull(XMaterial.CAVE_AIR.parseMaterial());
+
         public static void deleteOriginalBlock(@This IGeneratedNMSBlock origin, boolean applyPhysics)
         {
             if (!applyPhysics)
@@ -469,7 +472,7 @@ final class NMSBlockClassGenerator extends ClassGenerator
             }
             else
             {
-                origin.generated$setBlockType(Material.BARRIER, false);
+                origin.generated$setBlockType(RESET_MATERIAL, false);
                 origin.generated$setBlockType(Material.AIR, true);
             }
         }
